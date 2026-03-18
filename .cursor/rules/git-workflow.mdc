@@ -1,0 +1,13 @@
+---
+description: Git workflow defaults for AI-assisted changes
+alwaysApply: true
+---
+
+# Git Workflow
+
+- Create a feature branch before substantial changes.
+- Use conventional commit prefixes: `feat:`, `fix:`, `chore:`, `docs:`.
+- Ask for confirmation before push, merge, rebase, or reset.
+- When creating a PR, include:
+  - A short summary of what changed and why
+  - A test plan with commands or manual verification steps

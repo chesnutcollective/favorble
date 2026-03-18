@@ -1,0 +1,13 @@
+---
+description: Testing standards for generated apps
+globs: **/*.test.*
+alwaysApply: false
+---
+
+# Testing Standards
+
+- Use Vitest for tests.
+- Keep reusable test utilities in `__tests__/utils/`.
+- Use factories in `__tests__/factories/` for test data.
+- Prefer behavior-focused assertions over implementation details.
+- For bug fixes, add or update tests that fail before the fix and pass after it.

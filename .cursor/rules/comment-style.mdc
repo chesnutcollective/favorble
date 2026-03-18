@@ -1,0 +1,12 @@
+---
+description: Comment style guidance for generated apps
+alwaysApply: true
+---
+
+# Comment Style
+
+- Add comments for complex or functionally distinct blocks of code.
+- Keep comments concise and useful.
+- Fix spelling and grammar in comments you touch.
+- Do not remove or rewrite accurate existing comments without a reason.
+- Avoid obvious comments that only restate code.

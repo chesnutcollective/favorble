@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(biome:*)",
+      "Bash(npx eslint:*)",
+      "Bash(agent-browser:*)",
+      "Bash(npx drizzle-kit:*)"
+    ]
+  }
+}

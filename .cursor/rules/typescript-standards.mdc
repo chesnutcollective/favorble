@@ -1,0 +1,13 @@
+---
+description: TypeScript coding standards for generated apps
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+- Keep TypeScript strict-friendly: avoid `any` unless unavoidable.
+- Prefer explicit return types for exported functions.
+- Use `@/*` imports for project-root aliases where configured.
+- Keep React Server Components server-side by default; add `"use client"` only for interactivity.
+- Handle errors explicitly and return meaningful messages from route handlers.
