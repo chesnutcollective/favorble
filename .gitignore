@@ -31,3 +31,5 @@ npm-debug.log*
 .cursor/scratchpad/
 
 CLAUDE.local.md
+
+supabase/.temp/
