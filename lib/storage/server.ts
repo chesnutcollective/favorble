@@ -1,0 +1,226 @@
+import "server-only";
+
+import { createClient } from "@/db/server";
+
+const DOCUMENTS_BUCKET = "documents";
+const TEMPLATES_BUCKET = "document-templates";
+
+export type UploadResult = {
+  path: string;
+  fullPath: string;
+};
+
+/**
+ * Build a storage path for a document.
+ * Format: {orgId}/{caseId}/{timestamp}-{sanitizedFilename}
+ */
+function buildDocumentPath(
+  organizationId: string,
+  caseId: string,
+  fileName: string,
+): string {
+  const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const timestamp = Date.now();
+  return `${organizationId}/${caseId}/${timestamp}-${sanitized}`;
+}
+
+/**
+ * Build a storage path for a template.
+ * Format: {orgId}/templates/{timestamp}-{sanitizedFilename}
+ */
+function buildTemplatePath(
+  organizationId: string,
+  fileName: string,
+): string {
+  const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const timestamp = Date.now();
+  return `${organizationId}/templates/${timestamp}-${sanitized}`;
+}
+
+/**
+ * Upload a document file to Supabase Storage.
+ */
+export async function uploadDocument(
+  organizationId: string,
+  caseId: string,
+  file: File,
+): Promise<UploadResult> {
+  const supabase = await createClient();
+  const path = buildDocumentPath(organizationId, caseId, file.name);
+
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload document: ${error.message}`);
+  }
+
+  return {
+    path: data.path,
+    fullPath: data.fullPath,
+  };
+}
+
+/**
+ * Upload a document from a Buffer (e.g., from template generation).
+ */
+export async function uploadDocumentBuffer(
+  organizationId: string,
+  caseId: string,
+  fileName: string,
+  buffer: Buffer | Uint8Array,
+  contentType: string,
+): Promise<UploadResult> {
+  const supabase = await createClient();
+  const path = buildDocumentPath(organizationId, caseId, fileName);
+
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .upload(path, buffer, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType,
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload document: ${error.message}`);
+  }
+
+  return {
+    path: data.path,
+    fullPath: data.fullPath,
+  };
+}
+
+/**
+ * Upload a template file to Supabase Storage.
+ */
+export async function uploadTemplate(
+  organizationId: string,
+  file: File,
+): Promise<UploadResult> {
+  const supabase = await createClient();
+  const path = buildTemplatePath(organizationId, file.name);
+
+  const { data, error } = await supabase.storage
+    .from(TEMPLATES_BUCKET)
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload template: ${error.message}`);
+  }
+
+  return {
+    path: data.path,
+    fullPath: data.fullPath,
+  };
+}
+
+/**
+ * Generate a signed URL for downloading a document.
+ * Default expiry: 1 hour (3600 seconds).
+ */
+export async function getDocumentSignedUrl(
+  storagePath: string,
+  expiresIn = 3600,
+): Promise<string> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .createSignedUrl(storagePath, expiresIn);
+
+  if (error) {
+    throw new Error(`Failed to create signed URL: ${error.message}`);
+  }
+
+  return data.signedUrl;
+}
+
+/**
+ * Generate a signed URL for downloading a template.
+ */
+export async function getTemplateSignedUrl(
+  storagePath: string,
+  expiresIn = 3600,
+): Promise<string> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.storage
+    .from(TEMPLATES_BUCKET)
+    .createSignedUrl(storagePath, expiresIn);
+
+  if (error) {
+    throw new Error(`Failed to create signed URL: ${error.message}`);
+  }
+
+  return data.signedUrl;
+}
+
+/**
+ * Delete a document from storage.
+ */
+export async function deleteDocumentFile(
+  storagePath: string,
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .remove([storagePath]);
+
+  if (error) {
+    throw new Error(`Failed to delete document: ${error.message}`);
+  }
+}
+
+/**
+ * Delete a template from storage.
+ */
+export async function deleteTemplateFile(
+  storagePath: string,
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase.storage
+    .from(TEMPLATES_BUCKET)
+    .remove([storagePath]);
+
+  if (error) {
+    throw new Error(`Failed to delete template: ${error.message}`);
+  }
+}
+
+/**
+ * List documents in a case directory.
+ */
+export async function listCaseDocuments(
+  organizationId: string,
+  caseId: string,
+): Promise<Array<{ name: string; id: string; metadata: Record<string, string> }>> {
+  const supabase = await createClient();
+  const prefix = `${organizationId}/${caseId}/`;
+
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .list(prefix, {
+      sortBy: { column: "created_at", order: "desc" },
+    });
+
+  if (error) {
+    throw new Error(`Failed to list documents: ${error.message}`);
+  }
+
+  return (data ?? []).map((item) => ({
+    name: item.name,
+    id: item.id ?? "",
+    metadata: (item.metadata as Record<string, string>) ?? {},
+  }));
+}

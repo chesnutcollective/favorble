@@ -5,6 +5,9 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
+// Mock server-only to allow testing server utilities
+vi.mock("server-only", () => ({}));
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();
