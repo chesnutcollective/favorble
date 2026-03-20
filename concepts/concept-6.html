@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hogan Smith CaseFlow — Concept 6: Layered Depth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--nb:#2B4C8C;--nb-d:#1F3D75;--nb-dd:#17305E;--nb-l:rgba(43,76,140,.1);
+--gd:#C99A2E;--gd-d:#B5891F;--gd-s:rgba(201,154,46,.12);
+--bg:#FAF8F5;--bw:#FFFFFF;--bc:#F7F4EF;--bs:#F3F0EB;
+--t1:#1A1714;--t2:#5C554A;--t3:#8C8479;--tg:#B8B0A4;
+--br1:rgba(120,100,70,.08);--br2:rgba(120,100,70,.16);--br3:rgba(120,100,70,.28);
+--ok:#3D8B5E;--ok-s:rgba(61,139,94,.1);--wn:#C4882A;--wn-s:rgba(196,136,42,.1);--er:#C44040;--er-s:rgba(196,64,64,.1);--in:#3B7CB8;--in-s:rgba(59,124,184,.1);
+--s0:0 1px 2px rgba(120,80,40,.05);
+--s1:0 1px 3px rgba(120,80,40,.07),0 1px 2px rgba(120,80,40,.05);
+--s2:0 4px 8px -1px rgba(120,80,40,.09),0 2px 4px -2px rgba(120,80,40,.06);
+--s3:0 8px 16px -3px rgba(120,80,40,.11),0 4px 6px -4px rgba(120,80,40,.07);
+--s4:0 16px 32px -5px rgba(120,80,40,.13),0 8px 10px -6px rgba(120,80,40,.08);
+--s5:0 24px 48px -8px rgba(120,80,40,.18),0 12px 16px -8px rgba(120,80,40,.1);
+--si:inset 0 1px 3px rgba(120,80,40,.08);
+--r1:4px;--r2:8px;--r3:12px;--r4:16px;--r5:24px;
+--ease:cubic-bezier(.2,0,0,1);--fast:150ms;--norm:250ms;
+--sb:260px;
+}
+html{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--t1);font-size:.9375rem;line-height:1.6;display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(120,100,70,.15);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,100,70,.28)}
+*{scrollbar-width:thin;scrollbar-color:rgba(120,100,70,.15) transparent}
+::selection{background:rgba(43,76,140,.14);color:var(--t1)}
+
+/* SIDEBAR */
+.sb{width:var(--sb);background:var(--nb);display:flex;flex-direction:column;flex-shrink:0;box-shadow:var(--s4);z-index:10;position:relative}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sb-logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--gd),#E5B94A);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:15px;color:#fff;box-shadow:0 4px 12px rgba(201,154,46,.35),var(--s2);flex-shrink:0}
+.sb-logo-txt{display:flex;flex-direction:column}
+.sb-logo-name{font-family:'Lora',serif;font-weight:700;font-size:13px;color:#fff;line-height:1.2;letter-spacing:-.01em}
+.sb-logo-sub{font-size:10px;font-weight:500;color:rgba(255,255,255,.45);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 10px}
+.sb-sec{margin-bottom:18px}
+.sb-sec-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;transition:all var(--fast) var(--ease);color:rgba(255,255,255,.65);font-size:.875rem;font-weight:500;position:relative;user-select:none}
+.sb-item:hover{background:rgba(255,255,255,.1);color:#fff;transform:translateX(2px);box-shadow:var(--s1)}
+.sb-item.on{background:rgba(255,255,255,.15);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.12)}
+.sb-item.on::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--gd);border-radius:0 3px 3px 0;box-shadow:0 0 8px rgba(201,154,46,.5)}
+.sb-icon{width:18px;height:18px;opacity:.8;flex-shrink:0}
+.sb-item.on .sb-icon,.sb-item:hover .sb-icon{opacity:1}
+.sb-badge{margin-left:auto;background:var(--gd);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;box-shadow:0 2px 4px rgba(201,154,46,.4)}
+.sb-footer{padding:12px 10px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;transition:all var(--fast) var(--ease)}
+.sb-user:hover{background:rgba(255,255,255,.08)}
+.av{width:32px;height:32px;border-radius:99px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:var(--s1)}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:.8125rem;font-weight:600;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:11px;color:rgba(255,255,255,.45);line-height:1}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.hd{background:var(--bw);border-bottom:1px solid var(--br1);box-shadow:var(--s1);z-index:5;flex-shrink:0;padding:0 28px;height:58px;display:flex;align-items:center;gap:16px}
+.hd-title{font-family:'Lora',serif;font-size:1.1rem;font-weight:600;color:var(--t1);letter-spacing:-.02em}
+.hd-sep{width:1px;height:18px;background:var(--br2)}
+.hd-crumb{font-size:.8125rem;color:var(--t3)}
+.hd-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r2);font-size:.8125rem;font-weight:600;cursor:pointer;transition:all var(--fast) var(--ease);border:none;font-family:inherit;white-space:nowrap}
+.btn-p{background:var(--nb);color:#fff;box-shadow:var(--s2)}
+.btn-p:hover{background:var(--nb-d);box-shadow:var(--s3);transform:translateY(-1px)}
+.btn-p:active{transform:translateY(0);box-shadow:var(--s1)}
+.btn-s{background:var(--bw);color:var(--t2);border:1px solid var(--br2);box-shadow:var(--s0)}
+.btn-s:hover{background:var(--bs);box-shadow:var(--s1);transform:translateY(-1px)}
+.btn-g{background:var(--gd);color:#fff;box-shadow:0 4px 12px rgba(201,154,46,.3),var(--s1)}
+.btn-g:hover{background:var(--gd-d);box-shadow:0 6px 16px rgba(201,154,46,.4),var(--s2);transform:translateY(-1px)}
+.ico-btn{width:34px;height:34px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bw);border:1px solid var(--br2);box-shadow:var(--s0);transition:all var(--fast) var(--ease);color:var(--t2);position:relative}
+.ico-btn:hover{background:var(--bs);box-shadow:var(--s1);transform:translateY(-1px)}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--er);border-radius:99px;border:2px solid var(--bw)}
+
+/* CONTENT */
+.cnt{flex:1;overflow-y:auto;padding:28px}
+.pg{display:none}
+.pg.on{display:block}
+
+/* CARDS & ELEVATION */
+.cd{background:var(--bw);border-radius:var(--r3);box-shadow:var(--s2);border:1px solid var(--br1);transition:box-shadow var(--norm) var(--ease),transform var(--norm) var(--ease)}
+.cd:hover{box-shadow:var(--s3);transform:translateY(-2px)}
+.cd-el1{box-shadow:var(--s1)}
+.cd-el1:hover{box-shadow:var(--s2);transform:translateY(-1px)}
+.cd-el3{box-shadow:var(--s3)}
+.cd-el3:hover{box-shadow:var(--s4);transform:translateY(-3px)}
+.cd-el4{box-shadow:var(--s4)}
+.cd-el4:hover{box-shadow:var(--s5);transform:translateY(-4px)}
+.cd-hd{padding:18px 20px 0}
+.cd-bd{padding:16px 20px}
+.cd-ft{padding:14px 20px;border-top:1px solid var(--br1)}
+.cd-title{font-family:'Lora',serif;font-size:1rem;font-weight:600;color:var(--t1);letter-spacing:-.02em}
+.cd-sub{font-size:.8125rem;color:var(--t3);margin-top:2px}
+
+/* STAT CARDS */
+.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.st{padding:18px 20px;position:relative;overflow:hidden}
+.st::after{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:currentColor;opacity:.04;border-radius:50%}
+.st-ico{width:38px;height:38px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:var(--s1)}
+.st-val{font-family:'Lora',serif;font-size:1.75rem;font-weight:700;color:var(--t1);letter-spacing:-.04em;line-height:1}
+.st-lbl{font-size:.75rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+.st-chg{font-size:.75rem;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px}
+.up{color:var(--ok)}.dn{color:var(--er)}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g-6040{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+.g-7030{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+.mb{margin-bottom:14px}
+.mb2{margin-bottom:22px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-family:'Lora',serif;font-size:1rem;font-weight:600;color:var(--t1);letter-spacing:-.02em}
+.lk{font-size:.8125rem;font-weight:600;color:var(--nb);cursor:pointer;text-decoration:none}
+.lk:hover{color:var(--nb-d);text-decoration:underline}
+
+/* BADGES / PILLS */
+.bg{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:.6875rem;font-weight:600;letter-spacing:.02em}
+.bg-ok{background:var(--ok-s);color:var(--ok)}
+.bg-wn{background:var(--wn-s);color:var(--wn)}
+.bg-er{background:var(--er-s);color:var(--er)}
+.bg-in{background:var(--in-s);color:var(--in)}
+.bg-nb{background:var(--nb-l);color:var(--nb)}
+.bg-gd{background:var(--gd-s);color:var(--gd-d)}
+.bg-gr{background:rgba(120,100,70,.08);color:var(--t2)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.6875rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:10px 14px;text-align:left;border-bottom:1px solid var(--br2);background:var(--bc);position:sticky;top:0;z-index:2}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--br1);font-size:.875rem;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(120,100,70,.03)}
+.tbl-wrap{overflow:hidden;border-radius:var(--r3);box-shadow:var(--s2);border:1px solid var(--br1)}
+
+/* INPUTS */
+.inp{width:100%;padding:9px 12px;border:1px solid var(--br2);border-radius:var(--r2);font-family:inherit;font-size:.875rem;color:var(--t1);background:var(--bw);box-shadow:var(--si);transition:all var(--fast) var(--ease);outline:none}
+.inp:focus{border-color:var(--nb);box-shadow:var(--si),0 0 0 3px rgba(43,76,140,.15)}
+.inp::placeholder{color:var(--tg)}
+.inp-lbl{font-size:.75rem;font-weight:600;color:var(--t2);margin-bottom:5px;letter-spacing:.01em}
+.inp-grp{margin-bottom:14px}
+.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C8479' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* AVATAR STACK */
+.av-s{display:flex}
+.av-s .av{margin-left:-8px;border:2px solid var(--bw)}
+.av-s .av:first-child{margin-left:0}
+
+/* PROGRESS */
+.pr-wrap{height:6px;background:var(--bs);border-radius:99px;overflow:hidden;box-shadow:var(--si)}
+.pr-bar{height:100%;border-radius:99px;transition:width .6s var(--ease)}
+
+/* LIST ITEMS */
+.li{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--br1);transition:background var(--fast) var(--ease)}
+.li:last-child{border-bottom:none;padding-bottom:0}
+.li:hover{background:rgba(120,100,70,.02)}
+.li-ico{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--s1)}
+.li-t{font-size:.875rem;font-weight:600;color:var(--t1)}
+.li-s{font-size:.75rem;color:var(--t3);margin-top:2px}
+.li-meta{margin-left:auto;text-align:right;flex-shrink:0}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--br2);border-radius:2px}
+.tl-item{position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-19px;top:3px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bw);box-shadow:var(--s1)}
+.tl-time{font-size:.6875rem;color:var(--t3);font-weight:600;letter-spacing:.03em}
+.tl-text{font-size:.8125rem;color:var(--t2);margin-top:2px;line-height:1.4}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-hd{font-size:.6875rem;font-weight:700;color:var(--t3);text-align:center;padding:4px 0;letter-spacing:.05em;text-transform:uppercase}
+.cal-d{aspect-ratio:1;border-radius:var(--r1);display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:500;cursor:pointer;transition:all var(--fast) var(--ease);position:relative}
+.cal-d:hover{background:var(--bs);box-shadow:var(--s0)}
+.cal-d.ot{color:var(--tg)}
+.cal-d.td{background:var(--nb);color:#fff;box-shadow:var(--s2);font-weight:700}
+.cal-d.ev::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gd)}
+.cal-d.td.ev::after{background:rgba(255,255,255,.7)}
+
+/* MSG ITEMS */
+.msg{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--br1);cursor:pointer;transition:background var(--fast) var(--ease)}
+.msg:last-child{border-bottom:none}
+.msg:hover{background:rgba(120,100,70,.02)}
+.msg.unread .msg-name{font-weight:700;color:var(--t1)}
+.msg.unread .msg-prev{color:var(--t2);font-weight:500}
+.msg-av{flex-shrink:0}
+.msg-body{flex:1;min-width:0}
+.msg-name{font-size:.875rem;font-weight:600;color:var(--t1)}
+.msg-subj{font-size:.8125rem;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-prev{font-size:.75rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-time{font-size:.6875rem;color:var(--t3);flex-shrink:0;padding-top:2px}
+.msg-dot{width:8px;height:8px;background:var(--nb);border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* CONTACT CARD */
+.ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ct{padding:18px;text-align:center;cursor:pointer}
+.ct:hover{box-shadow:var(--s4);transform:translateY(-3px)}
+.ct-av{width:52px;height:52px;border-radius:99px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;box-shadow:var(--s2)}
+.ct-name{font-family:'Lora',serif;font-size:.9375rem;font-weight:600;color:var(--t1);letter-spacing:-.01em}
+.ct-role{font-size:.75rem;color:var(--t3);margin-top:2px}
+.ct-tags{margin-top:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+
+/* QUEUE ITEM */
+.qi{padding:14px 16px;border-radius:var(--r3);background:var(--bw);box-shadow:var(--s2);border:1px solid var(--br1);margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;transition:all var(--norm) var(--ease);cursor:pointer}
+.qi:hover{box-shadow:var(--s3);transform:translateY(-2px)}
+.qi-pri{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
+.qi-num{font-size:.6875rem;font-weight:700;color:var(--t3);letter-spacing:.05em;text-transform:uppercase}
+.qi-title{font-size:.9rem;font-weight:600;color:var(--t1);margin-top:2px;letter-spacing:-.01em}
+.qi-meta{font-size:.75rem;color:var(--t3);margin-top:3px}
+.qi-ft{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+
+/* SETTINGS */
+.sett-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br1)}
+.sett-row:last-child{border-bottom:none}
+.sett-lbl{font-size:.9rem;font-weight:500;color:var(--t1)}
+.sett-sub{font-size:.75rem;color:var(--t3);margin-top:2px}
+.tog{width:40px;height:22px;background:var(--br3);border-radius:99px;position:relative;cursor:pointer;transition:background var(--fast) var(--ease);flex-shrink:0}
+.tog.on{background:var(--nb)}
+.tog::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform var(--fast) var(--ease);box-shadow:var(--s1)}
+.tog.on::after{transform:translateX(18px)}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100%;background:linear-gradient(135deg,var(--bc) 0%,var(--bw) 100%)}
+.login-card{width:400px;background:var(--bw);border-radius:var(--r5);box-shadow:var(--s5);border:1px solid var(--br1);padding:40px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.login-lm{width:44px;height:44px;background:linear-gradient(135deg,var(--gd),#E5B94A);border-radius:var(--r3);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:18px;color:#fff;box-shadow:0 6px 16px rgba(201,154,46,.35),var(--s2)}
+.login-title{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;color:var(--t1);margin-bottom:6px;letter-spacing:-.03em}
+.login-sub{font-size:.875rem;color:var(--t3);margin-bottom:24px}
+.divider{height:1px;background:var(--br1);margin:20px 0}
+
+/* MISC */
+.tag{display:inline-block;padding:2px 7px;border-radius:var(--r1);font-size:.6875rem;font-weight:600;letter-spacing:.02em}
+.w100{width:100%}
+.row{display:flex;align-items:center;gap:8px}
+.ml-a{margin-left:auto}
+.fw{font-weight:700}
+.mt{margin-top:12px}
+.mt2{margin-top:20px}
+.f12{font-size:.75rem}
+.f13{font-size:.8125rem}
+.tc{color:var(--t3)}
+.t2c{color:var(--t2)}
+.p16{padding:16px}
+.p18{padding:18px 20px}
+svg{display:block}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">HS</div>
+    <div class="sb-logo-txt">
+      <span class="sb-logo-name">Hogan Smith</span>
+      <span class="sb-logo-sub">CaseFlow</span>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sec">
+      <div class="sb-sec-lbl">Workspace</div>
+      <div class="sb-item on" onclick="nav('dash')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-item" onclick="nav('queue')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h14M3 10h14M3 15h8"/></svg>
+        Task Queue
+        <span class="sb-badge">7</span>
+      </div>
+      <div class="sb-item" onclick="nav('cases')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M7 7h6M7 11h6M7 15h3"/></svg>
+        Cases
+        <span class="sb-badge">24</span>
+      </div>
+      <div class="sb-item" onclick="nav('cal')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="14" rx="2"/><path d="M3 8h14M7 2v4M13 2v4"/></svg>
+        Calendar
+      </div>
+      <div class="sb-item" onclick="nav('msgs')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12a2 2 0 012 2v7a2 2 0 01-2 2H7l-4 3V6a2 2 0 012-2z"/></svg>
+        Messages
+        <span class="sb-badge">3</span>
+      </div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-sec-lbl">Management</div>
+      <div class="sb-item" onclick="nav('contacts')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg>
+        Contacts
+      </div>
+      <div class="sb-item" onclick="nav('settings')">
+        <svg class="sb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 3v1m0 12v1m7-7h-1M4 10H3m9.95-4.95-.707.707M7.757 12.243l-.707.707M12.243 12.243l.707.707M7.757 7.757l.707-.707"/></svg>
+        Settings
+      </div>
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user" onclick="nav('login')">
+      <div class="av" style="width:32px;height:32px;font-size:12px">MH</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Michael Hogan</div>
+        <div class="sb-user-role">Managing Partner</div>
+      </div>
+      <svg style="width:14px;height:14px;color:rgba(255,255,255,.35);flex-shrink:0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 8H5M8 5l-3 3 3 3"/></svg>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="hd">
+    <span class="hd-title" id="hd-title">Dashboard</span>
+    <div class="hd-sep"></div>
+    <span class="hd-crumb" id="hd-crumb">Good morning, Michael</span>
+    <div class="hd-actions">
+      <div class="ico-btn" title="Search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l2.5 2.5"/></svg>
+      </div>
+      <div class="ico-btn" title="Notifications">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2a4 4 0 014 4v2l1.5 2H2.5L4 8V6a4 4 0 014-4zM6.5 13a1.5 1.5 0 003 0"/></svg>
+        <div class="notif-dot"></div>
+      </div>
+      <button class="btn btn-p" onclick="nav('cases')">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 1v11M1 6.5h11"/></svg>
+        New Case
+      </button>
+    </div>
+  </header>
+  <main class="cnt">
+
+    <!-- DASHBOARD -->
+    <div class="pg on" id="pg-dash">
+      <div class="st-grid">
+        <div class="cd cd-el3 st" style="color:var(--nb)">
+          <div class="st-ico" style="background:var(--nb-l)">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--nb)" stroke-width="1.7"><path d="M7 3h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M7 7h6M7 11h6M7 15h3"/></svg>
+          </div>
+          <div class="st-val">24</div>
+          <div class="st-lbl">Active Cases</div>
+          <div class="st-chg up">↑ 3 this month</div>
+        </div>
+        <div class="cd cd-el3 st" style="color:var(--wn)">
+          <div class="st-ico" style="background:var(--wn-s)">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--wn)" stroke-width="1.7"><rect x="3" y="4" width="14" height="14" rx="2"/><path d="M3 8h14M7 2v4M13 2v4"/></svg>
+          </div>
+          <div class="st-val">6</div>
+          <div class="st-lbl">Due This Week</div>
+          <div class="st-chg dn">↑ 2 vs last week</div>
+        </div>
+        <div class="cd cd-el3 st" style="color:var(--ok)">
+          <div class="st-ico" style="background:var(--ok-s)">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--ok)" stroke-width="1.7"><path d="M4 10l4 4 8-8"/></svg>
+          </div>
+          <div class="st-val">18</div>
+          <div class="st-lbl">Closed YTD</div>
+          <div class="st-chg up">↑ 22% vs last year</div>
+        </div>
+        <div class="cd cd-el3 st" style="color:var(--gd-d)">
+          <div class="st-ico" style="background:var(--gd-s)">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--gd-d)" stroke-width="1.7"><path d="M10 3v3M10 14v3M3 10h3M14 10h3M5.636 5.636l2.12 2.12M12.244 12.244l2.12 2.12M5.636 14.364l2.12-2.12M12.244 7.756l2.12-2.12"/></svg>
+          </div>
+          <div class="st-val">$2.1M</div>
+          <div class="st-lbl">Client Value</div>
+          <div class="st-chg up">↑ 8% this quarter</div>
+        </div>
+      </div>
+
+      <div class="g-6040 mb2">
+        <div>
+          <div class="sec-hd"><span class="sec-title">Active Cases</span><a class="lk" onclick="nav('cases')">View all →</a></div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr>
+                <th>Case</th><th>Client</th><th>Stage</th><th>Priority</th><th>Due</th>
+              </tr></thead>
+              <tbody>
+                <tr style="cursor:pointer">
+                  <td><div style="font-weight:600;color:var(--t1);font-size:.8125rem">Johnson v. Meridian</div><div class="f12 tc">CV-2024-0847</div></td>
+                  <td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">RJ</div><span class="f13">Robert Johnson</span></div></td>
+                  <td><span class="bg bg-wn">Discovery</span></td>
+                  <td><span class="bg bg-er">High</span></td>
+                  <td class="f13 tc">Mar 28</td>
+                </tr>
+                <tr style="cursor:pointer">
+                  <td><div style="font-weight:600;color:var(--t1);font-size:.8125rem">Estate of Chen</div><div class="f12 tc">PR-2024-0312</div></td>
+                  <td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">LC</div><span class="f13">Linda Chen</span></div></td>
+                  <td><span class="bg bg-in">Drafting</span></td>
+                  <td><span class="bg bg-wn">Medium</span></td>
+                  <td class="f13 tc">Apr 5</td>
+                </tr>
+                <tr style="cursor:pointer">
+                  <td><div style="font-weight:600;color:var(--t1);font-size:.8125rem">Thompson Custody</div><div class="f12 tc">FL-2024-1122</div></td>
+                  <td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">ST</div><span class="f13">Sarah Thompson</span></div></td>
+                  <td><span class="bg bg-nb">Mediation</span></td>
+                  <td><span class="bg bg-er">High</span></td>
+                  <td class="f13 tc">Mar 26</td>
+                </tr>
+                <tr style="cursor:pointer">
+                  <td><div style="font-weight:600;color:var(--t1);font-size:.8125rem">Davis IP Dispute</div><div class="f12 tc">IP-2024-0559</div></td>
+                  <td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#B87A3A,#D4A060)">MD</div><span class="f13">Marcus Davis</span></div></td>
+                  <td><span class="bg bg-ok">Trial Prep</span></td>
+                  <td><span class="bg bg-wn">Medium</span></td>
+                  <td class="f13 tc">Apr 18</td>
+                </tr>
+                <tr style="cursor:pointer">
+                  <td><div style="font-weight:600;color:var(--t1);font-size:.8125rem">Patel Real Estate</div><div class="f12 tc">RE-2024-0788</div></td>
+                  <td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#C44A60,#D87085)">AP</div><span class="f13">Anika Patel</span></div></td>
+                  <td><span class="bg bg-in">Review</span></td>
+                  <td><span class="bg bg-gr">Low</span></td>
+                  <td class="f13 tc">May 2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="cd p18">
+            <div class="row mb" style="justify-content:space-between">
+              <span class="sec-title">Today's Tasks</span>
+              <span class="bg bg-er">7 pending</span>
+            </div>
+            <div class="li">
+              <div class="li-ico" style="background:var(--er-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--er)" stroke-width="1.7"><path d="M8 3v6M8 11v1"/><circle cx="8" cy="8" r="6.5"/></svg></div>
+              <div><div class="li-t">File motion response</div><div class="li-s">Johnson v. Meridian · Due 5pm</div></div>
+              <div class="li-meta"><span class="bg bg-er">Urgent</span></div>
+            </div>
+            <div class="li">
+              <div class="li-ico" style="background:var(--wn-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--wn)" stroke-width="1.7"><path d="M8 4v5M8 11v1"/><circle cx="8" cy="8" r="6.5"/></svg></div>
+              <div><div class="li-t">Client call — Chen Estate</div><div class="li-s">2:30 PM · Conference Room B</div></div>
+              <div class="li-meta"><span class="bg bg-wn">2:30 PM</span></div>
+            </div>
+            <div class="li">
+              <div class="li-ico" style="background:var(--in-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--in)" stroke-width="1.7"><path d="M8 2a4 4 0 014 4v2l1.5 2H2.5L4 8V6a4 4 0 014-4zM6.5 13a1.5 1.5 0 003 0"/></svg></div>
+              <div><div class="li-t">Review deposition transcript</div><div class="li-s">Thompson Custody</div></div>
+              <div class="li-meta"><span class="bg bg-in">Review</span></div>
+            </div>
+            <div class="li">
+              <div class="li-ico" style="background:var(--ok-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--ok)" stroke-width="1.7"><path d="M3 8l3 3 7-7"/></svg></div>
+              <div><div class="li-t" style="text-decoration:line-through;opacity:.5">Send retainer agreement</div><div class="li-s">Davis IP</div></div>
+              <div class="li-meta"><span class="bg bg-ok">Done</span></div>
+            </div>
+          </div>
+          <div class="cd p18">
+            <div class="sec-title mb">Recent Activity</div>
+            <div class="tl">
+              <div class="tl-item"><div class="tl-dot" style="background:var(--ok)"></div><div class="tl-time">10:42 AM</div><div class="tl-text">Motion filed — Johnson v. Meridian, Exhibit C attached</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--nb)"></div><div class="tl-time">9:15 AM</div><div class="tl-text">New document uploaded — Chen Estate will draft v3</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--wn)"></div><div class="tl-time">Yesterday</div><div class="tl-text">Deadline reminder — Thompson mediation brief due Mar 26</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--gd-d)"></div><div class="tl-time">Mar 18</div><div class="tl-text">Retainer signed — Patel Real Estate matter opened</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g3">
+        <div class="cd p18">
+          <div class="sec-title mb">Case Stage Pipeline</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><div class="row mb" style="justify-content:space-between"><span class="f13">Intake / Consultation</span><span class="f12 tc fw">3</span></div><div class="pr-wrap"><div class="pr-bar" style="width:30%;background:var(--in)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between"><span class="f13">Discovery</span><span class="f12 tc fw">7</span></div><div class="pr-wrap"><div class="pr-bar" style="width:70%;background:var(--wn)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between"><span class="f13">Drafting / Negotiation</span><span class="f12 tc fw">5</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--nb)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between"><span class="f13">Trial Preparation</span><span class="f12 tc fw">4</span></div><div class="pr-wrap"><div class="pr-bar" style="width:40%;background:var(--gd-d)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between"><span class="f13">Resolution / Closing</span><span class="f12 tc fw">5</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--ok)"></div></div></div>
+          </div>
+        </div>
+        <div class="cd p18">
+          <div class="sec-title mb">Upcoming Hearings</div>
+          <div class="li" style="padding:10px 0">
+            <div class="li-ico" style="background:linear-gradient(135deg,var(--nb-l),rgba(43,76,140,.15));box-shadow:var(--s1)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--nb)" stroke-width="1.7"><rect x="2" y="3" width="12" height="12" rx="2"/><path d="M2 7h12M5 2v2M11 2v2"/></svg>
+            </div>
+            <div><div class="li-t">Preliminary Hearing</div><div class="li-s">Johnson v. Meridian · Mar 28, 9 AM</div></div>
+            <div class="li-meta"><span class="bg bg-er">8 days</span></div>
+          </div>
+          <div class="li" style="padding:10px 0">
+            <div class="li-ico" style="background:var(--wn-s);box-shadow:var(--s1)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--wn)" stroke-width="1.7"><rect x="2" y="3" width="12" height="12" rx="2"/><path d="M2 7h12M5 2v2M11 2v2"/></svg>
+            </div>
+            <div><div class="li-t">Mediation Session</div><div class="li-s">Thompson Custody · Mar 26, 2 PM</div></div>
+            <div class="li-meta"><span class="bg bg-wn">6 days</span></div>
+          </div>
+          <div class="li" style="padding:10px 0">
+            <div class="li-ico" style="background:var(--ok-s);box-shadow:var(--s1)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--ok)" stroke-width="1.7"><rect x="2" y="3" width="12" height="12" rx="2"/><path d="M2 7h12M5 2v2M11 2v2"/></svg>
+            </div>
+            <div><div class="li-t">Deposition</div><div class="li-s">Davis IP Dispute · Apr 2, 10 AM</div></div>
+            <div class="li-meta"><span class="bg bg-in">13 days</span></div>
+          </div>
+        </div>
+        <div class="cd p18">
+          <div class="sec-title mb">Team Workload</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><div class="row mb" style="justify-content:space-between;gap:8px"><div class="row" style="gap:8px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#2B4C8C,#4A6DA8)">MH</div><span class="f13">M. Hogan</span></div><span class="f12 tc">8 cases</span></div><div class="pr-wrap"><div class="pr-bar" style="width:80%;background:var(--nb)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between;gap:8px"><div class="row" style="gap:8px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">JS</div><span class="f13">J. Smith</span></div><span class="f12 tc">6 cases</span></div><div class="pr-wrap"><div class="pr-bar" style="width:60%;background:var(--nb)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between;gap:8px"><div class="row" style="gap:8px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">KL</div><span class="f13">K. Liu</span></div><span class="f12 tc">5 cases</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--nb)"></div></div></div>
+            <div><div class="row mb" style="justify-content:space-between;gap:8px"><div class="row" style="gap:8px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">TR</div><span class="f13">T. Ross</span></div><span class="f12 tc">5 cases</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--nb)"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="pg" id="pg-queue">
+      <div class="row mb2" style="justify-content:space-between">
+        <div>
+          <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:600;margin-bottom:4px">Task Queue</div>
+          <div class="f13 tc">7 tasks pending · 2 overdue</div>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn btn-s">Filter</button>
+          <button class="btn btn-p">+ Add Task</button>
+        </div>
+      </div>
+      <div class="g-7030">
+        <div>
+          <div class="sec-hd"><span class="sec-title">Priority Tasks</span><span class="bg bg-er">2 overdue</span></div>
+          <div class="qi">
+            <div class="qi-pri" style="background:var(--er)"></div>
+            <div style="flex:1;min-width:0">
+              <div class="qi-num">TASK-0094 · Johnson v. Meridian</div>
+              <div class="qi-title">File opposition to motion to compel</div>
+              <div class="qi-meta">Assigned to M. Hogan · Due Mar 22 (overdue)</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-er">Overdue</span><span class="bg bg-nb">Litigation</span></div>
+            </div>
+            <div class="qi-ft">
+              <div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#2B4C8C,#4A6DA8)">MH</div>
+              <button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Open</button>
+            </div>
+          </div>
+          <div class="qi">
+            <div class="qi-pri" style="background:var(--er)"></div>
+            <div style="flex:1;min-width:0">
+              <div class="qi-num">TASK-0091 · Thompson Custody</div>
+              <div class="qi-title">Prepare mediation brief — client review required</div>
+              <div class="qi-meta">Assigned to K. Liu · Due Mar 24 (overdue)</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-er">Overdue</span><span class="bg bg-nb">Family Law</span></div>
+            </div>
+            <div class="qi-ft">
+              <div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">KL</div>
+              <button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Open</button>
+            </div>
+          </div>
+          <div class="qi">
+            <div class="qi-pri" style="background:var(--wn)"></div>
+            <div style="flex:1;min-width:0">
+              <div class="qi-num">TASK-0098 · Chen Estate</div>
+              <div class="qi-title">Finalize will draft and beneficiary schedule</div>
+              <div class="qi-meta">Assigned to J. Smith · Due Mar 28</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-wn">High</span><span class="bg bg-nb">Estate Law</span></div>
+            </div>
+            <div class="qi-ft">
+              <div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">JS</div>
+              <button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Open</button>
+            </div>
+          </div>
+          <div class="qi">
+            <div class="qi-pri" style="background:var(--wn)"></div>
+            <div style="flex:1;min-width:0">
+              <div class="qi-num">TASK-0101 · Davis IP</div>
+              <div class="qi-title">Schedule expert witness deposition</div>
+              <div class="qi-meta">Assigned to T. Ross · Due Apr 2</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-wn">Medium</span><span class="bg bg-nb">IP Law</span></div>
+            </div>
+            <div class="qi-ft">
+              <div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">TR</div>
+              <button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Open</button>
+            </div>
+          </div>
+          <div class="qi">
+            <div class="qi-pri" style="background:var(--nb)"></div>
+            <div style="flex:1;min-width:0">
+              <div class="qi-num">TASK-0103 · Patel Real Estate</div>
+              <div class="qi-title">Review title search and survey documents</div>
+              <div class="qi-meta">Assigned to M. Hogan · Due Apr 8</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-in">Normal</span><span class="bg bg-nb">Real Estate</span></div>
+            </div>
+            <div class="qi-ft">
+              <div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#2B4C8C,#4A6DA8)">MH</div>
+              <button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Open</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="cd p18">
+            <div class="sec-title mb">Queue Summary</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="row" style="justify-content:space-between"><span class="f13">Total Tasks</span><span class="fw">12</span></div>
+              <div class="row" style="justify-content:space-between"><span class="f13" style="color:var(--er)">Overdue</span><span class="fw" style="color:var(--er)">2</span></div>
+              <div class="row" style="justify-content:space-between"><span class="f13" style="color:var(--wn)">Due This Week</span><span class="fw" style="color:var(--wn)">5</span></div>
+              <div class="row" style="justify-content:space-between"><span class="f13" style="color:var(--ok)">Completed Today</span><span class="fw" style="color:var(--ok)">3</span></div>
+            </div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--br1)">
+              <div class="f12 tc" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">By Assignee</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div><div class="row mb" style="justify-content:space-between"><div class="row" style="gap:6px"><div class="av" style="width:20px;height:20px;font-size:8px;background:linear-gradient(135deg,#2B4C8C,#4A6DA8)">MH</div><span class="f12">M. Hogan</span></div><span class="f12 tc">4</span></div><div class="pr-wrap"><div class="pr-bar" style="width:66%;background:var(--nb)"></div></div></div>
+                <div><div class="row mb" style="justify-content:space-between"><div class="row" style="gap:6px"><div class="av" style="width:20px;height:20px;font-size:8px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">JS</div><span class="f12">J. Smith</span></div><span class="f12 tc">3</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--nb)"></div></div></div>
+                <div><div class="row mb" style="justify-content:space-between"><div class="row" style="gap:6px"><div class="av" style="width:20px;height:20px;font-size:8px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">KL</div><span class="f12">K. Liu</span></div><span class="f12 tc">3</span></div><div class="pr-wrap"><div class="pr-bar" style="width:50%;background:var(--nb)"></div></div></div>
+                <div><div class="row mb" style="justify-content:space-between"><div class="row" style="gap:6px"><div class="av" style="width:20px;height:20px;font-size:8px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">TR</div><span class="f12">T. Ross</span></div><span class="f12 tc">2</span></div><div class="pr-wrap"><div class="pr-bar" style="width:33%;background:var(--nb)"></div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="cd p18">
+            <div class="sec-title mb">Quick Add</div>
+            <div class="inp-grp"><div class="inp-lbl">Task Title</div><input class="inp" placeholder="Describe the task…"></div>
+            <div class="inp-grp"><div class="inp-lbl">Case</div><select class="inp sel"><option>Johnson v. Meridian</option><option>Chen Estate</option><option>Thompson Custody</option></select></div>
+            <div class="g2" style="gap:8px"><div class="inp-grp" style="margin-bottom:0"><div class="inp-lbl">Assignee</div><select class="inp sel"><option>M. Hogan</option><option>J. Smith</option><option>K. Liu</option></select></div><div class="inp-grp" style="margin-bottom:0"><div class="inp-lbl">Due Date</div><input class="inp" type="date"></div></div>
+            <button class="btn btn-p w100 mt2">Add Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="pg" id="pg-cases">
+      <div class="row mb2" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:600;margin-bottom:4px">Cases</div><div class="f13 tc">24 active · 6 pending intake</div></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <input class="inp" style="width:220px" placeholder="Search cases…">
+          <button class="btn btn-s">Filter</button>
+          <button class="btn btn-g">+ New Case</button>
+        </div>
+      </div>
+      <div class="tbl-wrap mb2">
+        <table class="tbl">
+          <thead><tr><th>Case Name</th><th>Client</th><th>Type</th><th>Attorney</th><th>Stage</th><th>Priority</th><th>Next Action</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Johnson v. Meridian Corp.</div><div class="f12 tc">CV-2024-0847</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">RJ</div><span class="f13">R. Johnson</span></div></td><td><span class="bg bg-nb">Civil</span></td><td class="f13">M. Hogan</td><td><span class="bg bg-wn">Discovery</span></td><td><span class="bg bg-er">High</span></td><td class="f13 tc">File motion Mar 28</td><td class="f13 fw" style="color:var(--gd-d)">$125K</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Estate of Linda Chen</div><div class="f12 tc">PR-2024-0312</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">LC</div><span class="f13">L. Chen</span></div></td><td><span class="bg bg-gd">Estate</span></td><td class="f13">J. Smith</td><td><span class="bg bg-in">Drafting</span></td><td><span class="bg bg-wn">Medium</span></td><td class="f13 tc">Will review Apr 5</td><td class="f13 fw" style="color:var(--gd-d)">$890K</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Thompson v. Thompson</div><div class="f12 tc">FL-2024-1122</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">ST</div><span class="f13">S. Thompson</span></div></td><td><span class="bg bg-nb">Family</span></td><td class="f13">K. Liu</td><td><span class="bg bg-nb">Mediation</span></td><td><span class="bg bg-er">High</span></td><td class="f13 tc">Mediation Mar 26</td><td class="f13 fw" style="color:var(--gd-d)">—</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Davis v. Nexus Technologies</div><div class="f12 tc">IP-2024-0559</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#B87A3A,#D4A060)">MD</div><span class="f13">M. Davis</span></div></td><td><span class="bg bg-in">IP</span></td><td class="f13">T. Ross</td><td><span class="bg bg-ok">Trial Prep</span></td><td><span class="bg bg-wn">Medium</span></td><td class="f13 tc">Deposition Apr 2</td><td class="f13 fw" style="color:var(--gd-d)">$420K</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Patel Property Dispute</div><div class="f12 tc">RE-2024-0788</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#C44A60,#D87085)">AP</div><span class="f13">A. Patel</span></div></td><td><span class="bg bg-gd">Real Estate</span></td><td class="f13">M. Hogan</td><td><span class="bg bg-in">Review</span></td><td><span class="bg bg-gr">Low</span></td><td class="f13 tc">Title review Apr 8</td><td class="f13 fw" style="color:var(--gd-d)">$1.2M</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Rivera Workers' Comp</div><div class="f12 tc">WC-2024-0442</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#C44A60,#E87090)">CR</div><span class="f13">C. Rivera</span></div></td><td><span class="bg bg-nb">Labor</span></td><td class="f13">J. Smith</td><td><span class="bg bg-wn">Negotiation</span></td><td><span class="bg bg-wn">Medium</span></td><td class="f13 tc">Settlement call Apr 10</td><td class="f13 fw" style="color:var(--gd-d)">$85K</td></tr>
+            <tr style="cursor:pointer"><td><div style="font-weight:600;font-size:.8125rem">Nguyen Contract Dispute</div><div class="f12 tc">CB-2024-0671</div></td><td><div class="row" style="gap:7px"><div class="av" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#3B7CB8,#5B9CD8)">TN</div><span class="f13">T. Nguyen</span></div></td><td><span class="bg bg-in">Contract</span></td><td class="f13">T. Ross</td><td><span class="bg bg-in">Drafting</span></td><td><span class="bg bg-gr">Low</span></td><td class="f13 tc">Draft review Apr 15</td><td class="f13 fw" style="color:var(--gd-d)">$62K</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="pg" id="pg-cal">
+      <div class="g-6040">
+        <div>
+          <div class="cd p18 mb">
+            <div class="row mb2" style="justify-content:space-between">
+              <button class="btn btn-s" style="padding:6px 10px">← Prev</button>
+              <span style="font-family:'Lora',serif;font-weight:600;font-size:1rem">March 2026</span>
+              <button class="btn btn-s" style="padding:6px 10px">Next →</button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-hd">Su</div><div class="cal-hd">Mo</div><div class="cal-hd">Tu</div><div class="cal-hd">We</div><div class="cal-hd">Th</div><div class="cal-hd">Fr</div><div class="cal-hd">Sa</div>
+              <div class="cal-d ot">23</div><div class="cal-d ot">24</div><div class="cal-d ot">25</div><div class="cal-d ot">26</div><div class="cal-d ot">27</div><div class="cal-d ot">28</div><div class="cal-d">1</div>
+              <div class="cal-d">2</div><div class="cal-d ev">3</div><div class="cal-d">4</div><div class="cal-d ev">5</div><div class="cal-d">6</div><div class="cal-d ev">7</div><div class="cal-d">8</div>
+              <div class="cal-d">9</div><div class="cal-d">10</div><div class="cal-d ev">11</div><div class="cal-d">12</div><div class="cal-d ev">13</div><div class="cal-d">14</div><div class="cal-d">15</div>
+              <div class="cal-d ev">16</div><div class="cal-d">17</div><div class="cal-d">18</div><div class="cal-d ev">19</div><div class="cal-d td ev">20</div><div class="cal-d ev">21</div><div class="cal-d">22</div>
+              <div class="cal-d ev">23</div><div class="cal-d">24</div><div class="cal-d ev">25</div><div class="cal-d ev">26</div><div class="cal-d">27</div><div class="cal-d ev">28</div><div class="cal-d">29</div>
+              <div class="cal-d">30</div><div class="cal-d ev">31</div><div class="cal-d ot">1</div><div class="cal-d ot">2</div><div class="cal-d ot">3</div><div class="cal-d ot">4</div><div class="cal-d ot">5</div>
+            </div>
+          </div>
+          <div class="cd p18">
+            <div class="sec-title mb">Upcoming Events</div>
+            <div class="li"><div class="li-ico" style="background:var(--er-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--er)" stroke-width="1.7"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v4M8 11v1"/></svg></div><div><div class="li-t">Thompson Mediation</div><div class="li-s">Mar 26 · 2:00 PM · Suite 400</div></div><span class="bg bg-er">6 days</span></div>
+            <div class="li"><div class="li-ico" style="background:var(--wn-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--wn)" stroke-width="1.7"><rect x="2" y="3" width="12" height="12" rx="2"/><path d="M2 7h12M5 2v2M11 2v2"/></svg></div><div><div class="li-t">Johnson Preliminary Hearing</div><div class="li-s">Mar 28 · 9:00 AM · Courtroom 3B</div></div><span class="bg bg-wn">8 days</span></div>
+            <div class="li"><div class="li-ico" style="background:var(--in-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--in)" stroke-width="1.7"><circle cx="6" cy="7" r="2.5"/><path d="M3 14c0-2.761 1.343-5 3-5s3 2.239 3 5M11 6l2 2-2 2"/></svg></div><div><div class="li-t">Expert Witness Deposition</div><div class="li-s">Apr 2 · 10:00 AM · Davis IP</div></div><span class="bg bg-in">13 days</span></div>
+            <div class="li"><div class="li-ico" style="background:var(--ok-s)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--ok)" stroke-width="1.7"><rect x="2" y="3" width="12" height="12" rx="2"/><path d="M2 7h12M5 2v2M11 2v2"/></svg></div><div><div class="li-t">Chen Estate — Will Signing</div><div class="li-s">Apr 5 · 3:30 PM · Office</div></div><span class="bg bg-ok">16 days</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="cd p18">
+            <div class="sec-title mb">March 20 — Today</div>
+            <div class="tl">
+              <div class="tl-item"><div class="tl-dot" style="background:var(--nb)"></div><div class="tl-time">9:00 AM</div><div class="tl-text">Team standup — all attorneys, Conference Room A</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--wn)"></div><div class="tl-time">10:30 AM</div><div class="tl-text">Client intake — potential new matter, Westbrook Holdings</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--er)"></div><div class="tl-time">2:30 PM</div><div class="tl-text">Linda Chen phone call — estate beneficiary questions</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--in)"></div><div class="tl-time">4:00 PM</div><div class="tl-text">Internal case review — Johnson discovery strategy</div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--ok)"></div><div class="tl-time">5:00 PM</div><div class="tl-text">File deadline — Johnson v. Meridian motion response</div></div>
+            </div>
+          </div>
+          <div class="cd p18">
+            <div class="sec-title mb">Add Event</div>
+            <div class="inp-grp"><div class="inp-lbl">Title</div><input class="inp" placeholder="Event title…"></div>
+            <div class="inp-grp"><div class="inp-lbl">Date & Time</div><input class="inp" type="datetime-local"></div>
+            <div class="inp-grp"><div class="inp-lbl">Case</div><select class="inp sel"><option>— Unlinked —</option><option>Johnson v. Meridian</option><option>Chen Estate</option><option>Thompson Custody</option></select></div>
+            <div class="inp-grp"><div class="inp-lbl">Type</div><select class="inp sel"><option>Hearing</option><option>Deposition</option><option>Client Meeting</option><option>Deadline</option><option>Internal</option></select></div>
+            <button class="btn btn-p w100">Add to Calendar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="pg" id="pg-msgs">
+      <div class="g-6040">
+        <div>
+          <div class="row mb2" style="justify-content:space-between">
+            <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:600">Messages</div>
+            <div class="row" style="gap:8px">
+              <input class="inp" style="width:200px" placeholder="Search messages…">
+              <button class="btn btn-p">+ Compose</button>
+            </div>
+          </div>
+          <div class="cd" style="overflow:hidden">
+            <div style="padding:12px 16px;background:var(--bc);border-bottom:1px solid var(--br1)">
+              <div class="row" style="gap:6px">
+                <button class="btn btn-p" style="padding:5px 12px;font-size:.75rem">All</button>
+                <button class="btn btn-s" style="padding:5px 12px;font-size:.75rem">Unread</button>
+                <button class="btn btn-s" style="padding:5px 12px;font-size:.75rem">Clients</button>
+                <button class="btn btn-s" style="padding:5px 12px;font-size:.75rem">Team</button>
+              </div>
+            </div>
+            <div style="padding:0 16px">
+              <div class="msg unread"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">RJ</div></div><div class="msg-body"><div class="row"><span class="msg-name">Robert Johnson</span><span class="msg-time" style="margin-left:auto">10:42 AM</span></div><div class="msg-subj">RE: Upcoming Preliminary Hearing — Questions</div><div class="msg-prev">I wanted to confirm the hearing time and ask about what documents I need to bring…</div></div><div class="msg-dot"></div></div>
+              <div class="msg unread"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">ST</div></div><div class="msg-body"><div class="row"><span class="msg-name">Sarah Thompson</span><span class="msg-time" style="margin-left:auto">9:15 AM</span></div><div class="msg-subj">Mediation prep — availability this weekend?</div><div class="msg-prev">Hi, I know the mediation is next week. Is there any way we could meet Saturday…</div></div><div class="msg-dot"></div></div>
+              <div class="msg unread"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#7B6BA8,#A594CC)">JS</div></div><div class="msg-body"><div class="row"><span class="msg-name">Jennifer Smith (Associate)</span><span class="msg-time" style="margin-left:auto">Yesterday</span></div><div class="msg-subj">Chen Estate — draft will attached for review</div><div class="msg-prev">Michael, I've attached the revised will draft incorporating Linda's feedback from…</div></div><div class="msg-dot"></div></div>
+              <div class="msg"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#B87A3A,#D4A060)">MD</div></div><div class="msg-body"><div class="row"><span class="msg-name">Marcus Davis</span><span class="msg-time" style="margin-left:auto">Mar 18</span></div><div class="msg-subj">Patent documents ready for your review</div><div class="msg-prev">The updated patent application documents are ready. Please let me know if you need…</div></div></div>
+              <div class="msg"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#C44A60,#D87085)">AP</div></div><div class="msg-body"><div class="row"><span class="msg-name">Anika Patel</span><span class="msg-time" style="margin-left:auto">Mar 17</span></div><div class="msg-subj">Question about closing timeline</div><div class="msg-prev">We're getting anxious about the property closing. The sellers are pushing for April 15…</div></div></div>
+              <div class="msg"><div class="msg-av"><div class="av" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#5A9B6B,#7CC48B)">TR</div></div><div class="msg-body"><div class="row"><span class="msg-name">Thomas Ross (Associate)</span><span class="msg-time" style="margin-left:auto">Mar 16</span></div><div class="msg-subj">Davis expert witness — confirmed for April 2</div><div class="msg-prev">Good news — Dr. Williams confirmed his availability for the deposition on April 2nd…</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="cd p18">
+            <div class="row mb2" style="justify-content:space-between">
+              <div><div style="font-weight:600;font-size:.9375rem">Robert Johnson</div><div class="f12 tc">Re: Upcoming Preliminary Hearing</div></div>
+              <span class="bg bg-wn">Unread</span>
+            </div>
+            <div style="background:var(--bs);border-radius:var(--r2);padding:12px;font-size:.875rem;line-height:1.6;color:var(--t2);box-shadow:var(--si);margin-bottom:12px">
+              <p>Hi Michael,</p>
+              <p style="margin-top:8px">I wanted to confirm the hearing time and ask about what documents I need to bring to the March 28th preliminary hearing.</p>
+              <p style="margin-top:8px">Should I bring the original contracts, or will you have copies? Also, is there anything specific I should avoid saying if the opposing counsel questions me?</p>
+              <p style="margin-top:8px">Thanks, Robert</p>
+            </div>
+            <textarea class="inp" style="height:80px;resize:none" placeholder="Reply to Robert…"></textarea>
+            <div class="row mt" style="justify-content:flex-end;gap:8px">
+              <button class="btn btn-s">Save Draft</button>
+              <button class="btn btn-p">Send Reply</button>
+            </div>
+          </div>
+          <div class="cd p18">
+            <div class="sec-title mb">Linked Case</div>
+            <div style="padding:12px;background:var(--nb-l);border-radius:var(--r2);border:1px solid rgba(43,76,140,.15)">
+              <div style="font-weight:600;font-size:.875rem;color:var(--nb)">Johnson v. Meridian Corp.</div>
+              <div class="f12 tc" style="margin-top:2px">CV-2024-0847 · Hearing Mar 28</div>
+              <div class="row mt" style="gap:6px"><span class="bg bg-wn">Discovery</span><span class="bg bg-er">High Priority</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="pg" id="pg-contacts">
+      <div class="row mb2" style="justify-content:space-between">
+        <div><div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:600;margin-bottom:4px">Contacts</div><div class="f13 tc">38 clients · 12 co-counsel · 8 experts</div></div>
+        <div class="row" style="gap:8px"><input class="inp" style="width:200px" placeholder="Search contacts…"><button class="btn btn-p">+ Add Contact</button></div>
+      </div>
+      <div style="margin-bottom:16px"><div class="row" style="gap:8px"><button class="btn btn-p" style="padding:5px 14px;font-size:.8rem">All</button><button class="btn btn-s" style="padding:5px 14px;font-size:.8rem">Clients</button><button class="btn btn-s" style="padding:5px 14px;font-size:.8rem">Co-Counsel</button><button class="btn btn-s" style="padding:5px 14px;font-size:.8rem">Experts</button><button class="btn btn-s" style="padding:5px 14px;font-size:.8rem">Opposing Counsel</button></div></div>
+      <div class="ct-grid">
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#5B7FBF,#8BA8D8)">RJ</div><div class="ct-name">Robert Johnson</div><div class="ct-role">Client · Johnson v. Meridian</div><div class="ct-tags"><span class="bg bg-nb">Civil</span><span class="bg bg-er">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#7B6BA8,#A594CC)">LC</div><div class="ct-name">Linda Chen</div><div class="ct-role">Client · Chen Estate</div><div class="ct-tags"><span class="bg bg-gd">Estate</span><span class="bg bg-ok">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#5A9B6B,#7CC48B)">ST</div><div class="ct-name">Sarah Thompson</div><div class="ct-role">Client · Thompson Custody</div><div class="ct-tags"><span class="bg bg-nb">Family</span><span class="bg bg-er">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#B87A3A,#D4A060)">MD</div><div class="ct-name">Marcus Davis</div><div class="ct-role">Client · Davis IP Dispute</div><div class="ct-tags"><span class="bg bg-in">IP</span><span class="bg bg-ok">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#C44A60,#D87085)">AP</div><div class="ct-name">Anika Patel</div><div class="ct-role">Client · Patel Real Estate</div><div class="ct-tags"><span class="bg bg-gd">Real Estate</span><span class="bg bg-ok">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#3B7CB8,#5B9CD8)">PW</div><div class="ct-name">Dr. Patricia Williams</div><div class="ct-role">Expert Witness · IP Cases</div><div class="ct-tags"><span class="bg bg-gr">Expert</span><span class="bg bg-in">Patent</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#2B4C8C,#4A6DA8)">DK</div><div class="ct-name">David Keene, Esq.</div><div class="ct-role">Co-Counsel · Litigation</div><div class="ct-tags"><span class="bg bg-nb">Co-Counsel</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#C44A60,#E87090)">CR</div><div class="ct-name">Carlos Rivera</div><div class="ct-role">Client · Rivera Workers' Comp</div><div class="ct-tags"><span class="bg bg-nb">Labor</span><span class="bg bg-wn">Active</span></div></div>
+        <div class="cd ct"><div class="ct-av" style="background:linear-gradient(135deg,#3B7CB8,#5B9CD8)">TN</div><div class="ct-name">Thanh Nguyen</div><div class="ct-role">Client · Nguyen Contract</div><div class="ct-tags"><span class="bg bg-in">Contract</span><span class="bg bg-ok">Active</span></div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="pg-settings">
+      <div style="max-width:720px">
+        <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:600;margin-bottom:20px">Settings</div>
+        <div class="cd mb">
+          <div class="cd-hd"><div class="cd-title">Profile</div><div class="cd-sub">Manage your account details</div></div>
+          <div class="cd-bd">
+            <div class="row mb2" style="gap:16px">
+              <div class="av" style="width:56px;height:56px;font-size:20px;background:linear-gradient(135deg,#2B4C8C,#4A6DA8);box-shadow:var(--s2)">MH</div>
+              <div style="flex:1"><div style="font-size:1rem;font-weight:600;color:var(--t1)">Michael Hogan</div><div class="f13 tc">Managing Partner</div><button class="btn btn-s mt" style="padding:5px 10px;font-size:.75rem">Change Photo</button></div>
+            </div>
+            <div class="g2" style="gap:12px">
+              <div class="inp-grp"><div class="inp-lbl">First Name</div><input class="inp" value="Michael"></div>
+              <div class="inp-grp"><div class="inp-lbl">Last Name</div><input class="inp" value="Hogan"></div>
+              <div class="inp-grp"><div class="inp-lbl">Email</div><input class="inp" value="m.hogan@hogansmith.law"></div>
+              <div class="inp-grp"><div class="inp-lbl">Phone</div><input class="inp" value="(617) 555-0184"></div>
+            </div>
+            <div class="inp-grp"><div class="inp-lbl">Bar Number</div><input class="inp" value="MA-2001-084712" style="max-width:220px"></div>
+          </div>
+          <div class="cd-ft"><button class="btn btn-p">Save Changes</button></div>
+        </div>
+        <div class="cd mb">
+          <div class="cd-hd"><div class="cd-title">Notifications</div><div class="cd-sub">Control how CaseFlow alerts you</div></div>
+          <div class="cd-bd">
+            <div class="sett-row"><div><div class="sett-lbl">Deadline reminders</div><div class="sett-sub">Alerts 48h and 24h before case deadlines</div></div><div class="tog on"></div></div>
+            <div class="sett-row"><div><div class="sett-lbl">New messages</div><div class="sett-sub">Push notification for client and team messages</div></div><div class="tog on"></div></div>
+            <div class="sett-row"><div><div class="sett-lbl">Task assignments</div><div class="sett-sub">Notify when a task is assigned or reassigned to you</div></div><div class="tog on"></div></div>
+            <div class="sett-row"><div><div class="sett-lbl">Case status changes</div><div class="sett-sub">Alert when a case stage is updated by a team member</div></div><div class="tog"></div></div>
+            <div class="sett-row"><div><div class="sett-lbl">Weekly digest</div><div class="sett-sub">Monday morning summary of active cases and tasks</div></div><div class="tog on"></div></div>
+          </div>
+        </div>
+        <div class="cd mb">
+          <div class="cd-hd"><div class="cd-title">Appearance</div><div class="cd-sub">Customize your workspace</div></div>
+          <div class="cd-bd">
+            <div class="sett-row"><div><div class="sett-lbl">Compact mode</div><div class="sett-sub">Reduce padding and card sizes for more content density</div></div><div class="tog"></div></div>
+            <div class="sett-row"><div><div class="sett-lbl">Sidebar labels</div><div class="sett-sub">Show text labels alongside navigation icons</div></div><div class="tog on"></div></div>
+            <div class="inp-grp" style="margin-top:12px"><div class="inp-lbl">Default Landing Page</div><select class="inp sel" style="max-width:220px"><option>Dashboard</option><option>Task Queue</option><option>Cases</option><option>Calendar</option></select></div>
+          </div>
+        </div>
+        <div class="cd">
+          <div class="cd-hd"><div class="cd-title">Billing & Firm</div><div class="cd-sub">Subscription and firm settings</div></div>
+          <div class="cd-bd">
+            <div class="sett-row"><div><div class="sett-lbl">Plan</div><div class="sett-sub">Professional · 8 users · Renews April 1, 2026</div></div><span class="bg bg-ok">Active</span></div>
+            <div class="sett-row"><div><div class="sett-lbl">Firm Name</div><div class="sett-sub">Hogan Smith &amp; Associates LLC</div></div><button class="btn btn-s" style="padding:5px 10px;font-size:.75rem">Edit</button></div>
+            <div class="sett-row"><div><div class="sett-lbl">Two-factor authentication</div><div class="sett-sub">Enabled via authenticator app</div></div><span class="bg bg-ok">On</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="pg" id="pg-login">
+      <div class="login-wrap" style="min-height:calc(100vh - 58px)">
+        <div class="login-card cd-el4">
+          <div class="login-logo">
+            <div class="login-lm">HS</div>
+            <div>
+              <div style="font-family:'Lora',serif;font-weight:700;font-size:15px;color:var(--t1);line-height:1.2">Hogan Smith</div>
+              <div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.06em;text-transform:uppercase">CaseFlow</div>
+            </div>
+          </div>
+          <div class="login-title">Welcome back</div>
+          <div class="login-sub">Sign in to your firm's workspace</div>
+          <div class="inp-grp"><div class="inp-lbl">Email Address</div><input class="inp" type="email" value="m.hogan@hogansmith.law"></div>
+          <div class="inp-grp"><div class="inp-lbl">Password</div><input class="inp" type="password" value="••••••••••"></div>
+          <div class="row mb2" style="justify-content:space-between"><label class="row" style="gap:6px;cursor:pointer"><input type="checkbox" checked style="accent-color:var(--nb)"><span class="f13 t2c">Remember me</span></label><a class="lk f13">Forgot password?</a></div>
+          <button class="btn btn-p w100" style="padding:10px;font-size:.9375rem" onclick="nav('dash')">Sign In to CaseFlow</button>
+          <div class="divider"></div>
+          <div style="text-align:center;font-size:.75rem;color:var(--t3)">Protected by enterprise-grade encryption<br>Hogan Smith &amp; Associates LLC © 2026</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const pages={dash:'Dashboard',queue:'Task Queue',cases:'Cases',cal:'Calendar',msgs:'Messages',contacts:'Contacts',settings:'Settings',login:'Log In'};
+const crumbs={dash:'Good morning, Michael',queue:'7 tasks pending',cases:'24 active cases',cal:'March 2026',msgs:'3 unread messages',contacts:'58 contacts',settings:'Account & Preferences',login:'Authentication'};
+function nav(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+  const pg=document.getElementById('pg-'+id);
+  if(pg)pg.classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(i=>{if(i.getAttribute('onclick')&&i.getAttribute('onclick').includes("'"+id+"'"))i.classList.add('on')});
+  document.getElementById('hd-title').textContent=pages[id]||id;
+  document.getElementById('hd-crumb').textContent=crumbs[id]||'';
+}
+document.querySelectorAll('.tog').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('on')));
+</script>
+</body>
+</html>

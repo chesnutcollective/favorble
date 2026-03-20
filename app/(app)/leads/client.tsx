@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { updateLeadStatus } from "@/app/actions/leads";
-import { ArrowRight, Mail, Phone } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon, Mail01Icon, Call02Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 type Lead = {
@@ -88,13 +89,13 @@ export function LeadsPipelineClient({
 									<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
 										{lead.email && (
 											<span className="flex items-center gap-1">
-												<Mail className="h-3 w-3" />
+												<HugeiconsIcon icon={Mail01Icon} size={12} />
 												{lead.email}
 											</span>
 										)}
 										{lead.phone && (
 											<span className="flex items-center gap-1">
-												<Phone className="h-3 w-3" />
+												<HugeiconsIcon icon={Call02Icon} size={12} />
 												{lead.phone}
 											</span>
 										)}
@@ -116,7 +117,7 @@ export function LeadsPipelineClient({
 												)
 											}
 										>
-											<ArrowRight className="h-3 w-3 mr-1" />
+											<HugeiconsIcon icon={ArrowRight01Icon} size={12} className="mr-1" />
 											Advance
 										</Button>
 									</div>

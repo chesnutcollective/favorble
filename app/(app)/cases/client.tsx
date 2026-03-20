@@ -20,7 +20,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon, ArrowRight01Icon, Search01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 type CaseRow = {
@@ -120,7 +121,7 @@ export function CasesListClient({
 			{/* Filters */}
 			<div className="flex flex-wrap gap-3">
 				<div className="relative flex-1 min-w-[200px] max-w-sm">
-					<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+					<HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-2.5 top-2.5 text-muted-foreground" />
 					<Input
 						placeholder="Search cases..."
 						value={search}
@@ -151,7 +152,7 @@ export function CasesListClient({
 				</Select>
 				{(search || stageFilter) && (
 					<Button variant="ghost" size="sm" onClick={clearFilters}>
-						<X className="mr-1 h-3 w-3" />
+						<HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" />
 						Clear
 					</Button>
 				)}
@@ -252,7 +253,7 @@ export function CasesListClient({
 							disabled={page <= 1}
 							onClick={() => applyFilters({ page: page - 1 })}
 						>
-							<ChevronLeft className="h-4 w-4" />
+							<HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
 						</Button>
 						<span className="text-sm text-muted-foreground">
 							Page {page} of {totalPages}
@@ -263,7 +264,7 @@ export function CasesListClient({
 							disabled={page >= totalPages}
 							onClick={() => applyFilters({ page: page + 1 })}
 						>
-							<ChevronRight className="h-4 w-4" />
+							<HugeiconsIcon icon={ArrowRight01Icon} size={16} />
 						</Button>
 					</div>
 				)}

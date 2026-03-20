@@ -3,7 +3,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Globe, MessageSquare, Mail, Webhook, ExternalLink } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { GlobeIcon, Message01Icon, Mail01Icon, WebhookIcon, LinkSquare02Icon } from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 import * as outlookClient from "@/lib/integrations/outlook";
 
@@ -64,7 +65,7 @@ function IntegrationCard({
         {docsUrl && (
           <Button variant="outline" size="sm" className="mt-4" asChild>
             <a href={docsUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+              <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="mr-1.5" />
               Documentation
             </a>
           </Button>
@@ -89,7 +90,7 @@ export default function IntegrationsPage() {
         <IntegrationCard
           name="Chronicle"
           description="SSA document sync and ERE access"
-          icon={<Globe className="h-5 w-5 text-purple-600" />}
+          icon={<HugeiconsIcon icon={GlobeIcon} size={20} color="rgb(147 51 234)" />}
           isConfigured={true}
           status="Deep Link"
           details={[
@@ -102,7 +103,7 @@ export default function IntegrationsPage() {
         <IntegrationCard
           name="Case Status"
           description="Client messaging and Pizza Tracker"
-          icon={<MessageSquare className="h-5 w-5 text-green-600" />}
+          icon={<HugeiconsIcon icon={Message01Icon} size={20} color="rgb(22 163 74)" />}
           isConfigured={caseStatusConfigured}
           status={caseStatusConfigured ? "Connected" : "Not configured"}
           details={
@@ -122,7 +123,7 @@ export default function IntegrationsPage() {
         <IntegrationCard
           name="Microsoft Outlook"
           description="Email association and calendar sync"
-          icon={<Mail className="h-5 w-5 text-primary" />}
+          icon={<HugeiconsIcon icon={Mail01Icon} size={20} className="text-primary" />}
           isConfigured={outlookConfigured}
           status={outlookConfigured ? "Connected" : "Not configured"}
           details={
@@ -142,7 +143,7 @@ export default function IntegrationsPage() {
         <IntegrationCard
           name="Zapier (Website Leads)"
           description="Inbound lead capture from website forms"
-          icon={<Webhook className="h-5 w-5 text-amber-600" />}
+          icon={<HugeiconsIcon icon={WebhookIcon} size={20} color="rgb(217 119 6)" />}
           isConfigured={true}
           status="Active"
           details={[

@@ -1,0 +1,559 @@
+/* ==========================================================================
+   HOGAN SMITH LAW — CASEFLOW DESIGN TOKENS
+   Aesthetic: Notion-warm — spacious, friendly, alive
+   Brand: Royal Navy #2B4C8C + Warm Gold #C99A2E
+   Stack: Next.js + Tailwind CSS v4 + shadcn/ui
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   FONTS — loaded in layout.tsx via next/font
+   Display/Headings: Lora (warm serif)
+   Body/UI: Plus Jakarta Sans (clean humanist sans)
+   -------------------------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap');
+
+/* ==========================================================================
+   LIGHT MODE (default)
+   ========================================================================== */
+
+:root {
+  /* --- Color: Backgrounds (warm off-whites) --- */
+  --bg-base:          #FAF8F5;    /* warm linen base                     */
+  --bg-raised:        #FFFFFF;    /* pure white for cards / raised panels */
+  --bg-overlay:       #FFFDF9;    /* warm cream for dialogs / sheets     */
+  --bg-sunken:        #F3F0EB;    /* slightly darker for inset wells     */
+  --bg-canvas:        #F7F4EF;    /* sidebar / secondary canvas          */
+
+  /* --- Color: Text (warm near-blacks and warm grays) --- */
+  --text-primary:     #1A1714;    /* near-black with warm undertone      */
+  --text-secondary:   #5C554A;    /* warm mid-gray for secondary copy    */
+  --text-tertiary:    #8C8479;    /* warm light-gray for labels          */
+  --text-ghost:       #B8B0A4;    /* ghosted / placeholder text          */
+  --text-inverse:     #FAF8F5;    /* text on dark backgrounds            */
+
+  /* --- Color: Borders (warm-tinted, subtle) --- */
+  --border-subtle:    rgba(120, 100, 70, 0.08);   /* barely-there dividers  */
+  --border-default:   rgba(120, 100, 70, 0.16);   /* standard borders       */
+  --border-strong:    rgba(120, 100, 70, 0.28);   /* emphasized borders     */
+
+  /* --- Color: Accent — Primary (Hogan Smith Navy) --- */
+  --accent-primary:           #2B4C8C;
+  --accent-primary-hover:     #1F3D75;
+  --accent-primary-active:    #17305E;
+  --accent-primary-subtle:    rgba(43, 76, 140, 0.08);
+  --accent-primary-muted:     rgba(43, 76, 140, 0.14);
+  --accent-primary-foreground:#FFFFFF;
+
+  /* --- Color: Accent — Secondary (Warm Gold) --- */
+  --accent-secondary:           #C99A2E;
+  --accent-secondary-hover:     #B5891F;
+  --accent-secondary-active:    #9E7718;
+  --accent-secondary-subtle:    rgba(201, 154, 46, 0.10);
+  --accent-secondary-muted:     rgba(201, 154, 46, 0.18);
+  --accent-secondary-foreground:#1A1714;
+
+  /* --- Color: Semantic (desaturated / muted) --- */
+  --color-success:          #3D8B5E;
+  --color-success-subtle:   rgba(61, 139, 94, 0.10);
+  --color-success-muted:    rgba(61, 139, 94, 0.18);
+
+  --color-warning:          #C4882A;
+  --color-warning-subtle:   rgba(196, 136, 42, 0.10);
+  --color-warning-muted:    rgba(196, 136, 42, 0.18);
+
+  --color-error:            #C44040;
+  --color-error-subtle:     rgba(196, 64, 64, 0.10);
+  --color-error-muted:      rgba(196, 64, 64, 0.18);
+
+  --color-info:             #3B7CB8;
+  --color-info-subtle:      rgba(59, 124, 184, 0.10);
+  --color-info-muted:       rgba(59, 124, 184, 0.18);
+
+  /* --- Color: Interactive states --- */
+  --interactive-hover:      rgba(120, 100, 70, 0.05);   /* row / item hover bg  */
+  --interactive-active:     rgba(120, 100, 70, 0.08);   /* pressed state        */
+  --interactive-selected:   rgba(43, 76, 140, 0.08);    /* selected row / tab   */
+  --interactive-selected-strong: rgba(43, 76, 140, 0.14);
+  --interactive-muted:      rgba(120, 100, 70, 0.04);   /* zebra / alternating  */
+
+  /* --- Color: Focus Ring --- */
+  --focus-ring:             rgba(43, 76, 140, 0.40);
+  --focus-ring-offset:      2px;
+
+  /* ======================================================================
+     TYPOGRAPHY
+     ====================================================================== */
+
+  /* Font families */
+  --font-display:     'Lora', Georgia, 'Times New Roman', serif;
+  --font-body:        'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:        'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+
+  /* --- Type Scale --- */
+
+  /* Display — hero headings */
+  --text-display-size:        2.25rem;    /* 36px */
+  --text-display-line-height: 1.15;
+  --text-display-weight:      700;
+  --text-display-tracking:    -0.04em;
+  --text-display-family:      var(--font-display);
+
+  /* H1 */
+  --text-h1-size:             1.75rem;    /* 28px */
+  --text-h1-line-height:      1.2;
+  --text-h1-weight:           700;
+  --text-h1-tracking:         -0.035em;
+  --text-h1-family:           var(--font-display);
+
+  /* H2 */
+  --text-h2-size:             1.375rem;   /* 22px */
+  --text-h2-line-height:      1.25;
+  --text-h2-weight:           600;
+  --text-h2-tracking:         -0.03em;
+  --text-h2-family:           var(--font-display);
+
+  /* H3 */
+  --text-h3-size:             1.125rem;   /* 18px */
+  --text-h3-line-height:      1.3;
+  --text-h3-weight:           600;
+  --text-h3-tracking:         -0.02em;
+  --text-h3-family:           var(--font-display);
+
+  /* H4 */
+  --text-h4-size:             1rem;       /* 16px */
+  --text-h4-line-height:      1.35;
+  --text-h4-weight:           600;
+  --text-h4-tracking:         -0.015em;
+  --text-h4-family:           var(--font-display);
+
+  /* Body Large */
+  --text-body-lg-size:        1.0625rem;  /* 17px */
+  --text-body-lg-line-height: 1.65;
+  --text-body-lg-weight:      400;
+  --text-body-lg-tracking:    0;
+  --text-body-lg-family:      var(--font-body);
+
+  /* Body */
+  --text-body-size:           0.9375rem;  /* 15px */
+  --text-body-line-height:    1.6;
+  --text-body-weight:         400;
+  --text-body-tracking:       0;
+  --text-body-family:         var(--font-body);
+
+  /* Body Small */
+  --text-body-sm-size:        0.8125rem;  /* 13px */
+  --text-body-sm-line-height: 1.55;
+  --text-body-sm-weight:      400;
+  --text-body-sm-tracking:    0.005em;
+  --text-body-sm-family:      var(--font-body);
+
+  /* Caption */
+  --text-caption-size:        0.75rem;    /* 12px */
+  --text-caption-line-height: 1.5;
+  --text-caption-weight:      500;
+  --text-caption-tracking:    0.01em;
+  --text-caption-family:      var(--font-body);
+
+  /* Overline — small, uppercase, wide-tracked */
+  --text-overline-size:        0.6875rem; /* 11px */
+  --text-overline-line-height: 1.4;
+  --text-overline-weight:      600;
+  --text-overline-tracking:    0.1em;
+  --text-overline-transform:   uppercase;
+  --text-overline-family:      var(--font-body);
+
+  /* ======================================================================
+     SPACING — base 4px
+     ====================================================================== */
+
+  --space-0:   0;
+  --space-1:   0.25rem;   /*  4px */
+  --space-2:   0.5rem;    /*  8px */
+  --space-3:   0.75rem;   /* 12px */
+  --space-4:   1rem;      /* 16px */
+  --space-5:   1.25rem;   /* 20px */
+  --space-6:   1.5rem;    /* 24px */
+  --space-8:   2rem;      /* 32px */
+  --space-10:  2.5rem;    /* 40px */
+  --space-12:  3rem;      /* 48px */
+  --space-16:  4rem;      /* 64px */
+  --space-20:  5rem;      /* 80px */
+  --space-24:  6rem;      /* 96px */
+
+  /* Semantic spacing */
+  --space-page-x:       var(--space-6);    /* horizontal page padding       */
+  --space-page-y:       var(--space-8);    /* vertical page padding         */
+  --space-section:      var(--space-10);   /* gap between major sections    */
+  --space-card-padding: var(--space-5);    /* interior card padding         */
+  --space-card-gap:     var(--space-4);    /* gap between stacked cards     */
+  --space-input-x:      var(--space-3);    /* horizontal input padding      */
+  --space-input-y:      var(--space-2);    /* vertical input padding        */
+  --space-inline:       var(--space-2);    /* gap between inline elements   */
+  --space-stack:        var(--space-3);    /* gap between stacked elements  */
+  --space-stack-tight:  var(--space-1);    /* tight vertical gap            */
+  --space-stack-loose:  var(--space-5);    /* loose vertical gap            */
+
+  /* ======================================================================
+     BORDER RADIUS
+     ====================================================================== */
+
+  --radius-sm:    4px;      /* badges, small chips             */
+  --radius-md:    8px;      /* inputs, buttons                 */
+  --radius-lg:    12px;     /* cards, panels                   */
+  --radius-xl:    16px;     /* modals, sheets, large surfaces  */
+  --radius-2xl:   24px;     /* feature cards, hero panels      */
+  --radius-full:  9999px;   /* avatars, pills, toggles         */
+
+  /* ======================================================================
+     SHADOWS — warm-tinted, layered
+     All shadows use warm amber-brown tints, never pure black.
+     ====================================================================== */
+
+  --shadow-xs:
+    0 1px 2px rgba(120, 80, 40, 0.05);
+
+  --shadow-sm:
+    0 1px 3px rgba(120, 80, 40, 0.06),
+    0 1px 2px rgba(120, 80, 40, 0.04);
+
+  --shadow-md:
+    0 4px 6px -1px rgba(120, 80, 40, 0.06),
+    0 2px 4px -2px rgba(120, 80, 40, 0.05);
+
+  --shadow-lg:
+    0 10px 15px -3px rgba(120, 80, 40, 0.07),
+    0 4px 6px -4px rgba(120, 80, 40, 0.05);
+
+  --shadow-xl:
+    0 20px 25px -5px rgba(120, 80, 40, 0.08),
+    0 8px 10px -6px rgba(120, 80, 40, 0.04);
+
+  --shadow-2xl:
+    0 25px 50px -12px rgba(120, 80, 40, 0.16);
+
+  /* Inset shadow for inputs / wells */
+  --shadow-inset:
+    inset 0 1px 2px rgba(120, 80, 40, 0.06);
+
+  /* Ring shadow (used alongside focus-ring) */
+  --shadow-ring:
+    0 0 0 3px var(--focus-ring);
+
+  /* ======================================================================
+     MOTION
+     ====================================================================== */
+
+  --duration-instant:   100ms;
+  --duration-fast:      150ms;
+  --duration-normal:    250ms;
+  --duration-slow:      400ms;
+  --duration-slower:    600ms;
+
+  /* Notion-like ease — fast entry, gentle settle */
+  --ease-default:       cubic-bezier(0.2, 0, 0, 1);
+  --ease-bounce:        cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in:            cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:           cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out:        cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Composite transitions */
+  --transition-colors:  color var(--duration-fast) var(--ease-default),
+                        background-color var(--duration-fast) var(--ease-default),
+                        border-color var(--duration-fast) var(--ease-default),
+                        box-shadow var(--duration-fast) var(--ease-default);
+  --transition-transform: transform var(--duration-normal) var(--ease-default);
+  --transition-opacity:   opacity var(--duration-normal) var(--ease-default);
+  --transition-all:       all var(--duration-normal) var(--ease-default);
+
+  /* ======================================================================
+     SIZING
+     ====================================================================== */
+
+  --size-icon-sm:       16px;
+  --size-icon-md:       20px;
+  --size-icon-lg:       24px;
+
+  --size-avatar-sm:     28px;
+  --size-avatar-md:     36px;
+  --size-avatar-lg:     48px;
+  --size-avatar-xl:     64px;
+
+  --size-input-sm:      32px;   /* compact inputs / buttons        */
+  --size-input-md:      40px;   /* default inputs / buttons        */
+  --size-input-lg:      48px;   /* large inputs / buttons          */
+
+  --size-sidebar:       260px;
+  --size-sidebar-collapsed: 64px;
+
+  /* ======================================================================
+     Z-INDEX SCALE
+     ====================================================================== */
+
+  --z-base:       0;
+  --z-dropdown:   100;
+  --z-sticky:     200;
+  --z-overlay:    300;
+  --z-modal:      400;
+  --z-popover:    500;
+  --z-toast:      600;
+  --z-tooltip:    700;
+  --z-max:        9999;
+
+  /* ======================================================================
+     SCROLLBAR
+     ====================================================================== */
+
+  --scrollbar-width:    6px;
+  --scrollbar-track:    transparent;
+  --scrollbar-thumb:    rgba(120, 100, 70, 0.15);
+  --scrollbar-thumb-hover: rgba(120, 100, 70, 0.30);
+}
+
+/* ==========================================================================
+   DARK MODE — warm dark, not blue-black
+   ========================================================================== */
+
+[data-theme="dark"],
+.dark {
+  /* --- Backgrounds (warm dark tones) --- */
+  --bg-base:          #1C1A17;    /* warm near-black                     */
+  --bg-raised:        #252320;    /* warm dark gray for cards             */
+  --bg-overlay:       #2D2A26;    /* slightly lighter for overlays       */
+  --bg-sunken:        #141210;    /* deepest well / inset                */
+  --bg-canvas:        #201E1B;    /* sidebar / secondary canvas          */
+
+  /* --- Text --- */
+  --text-primary:     #F0ECE6;    /* warm off-white                      */
+  --text-secondary:   #A8A198;    /* warm mid-gray                       */
+  --text-tertiary:    #7A7368;    /* warm darker gray                    */
+  --text-ghost:       #56504A;    /* ghost / disabled                    */
+  --text-inverse:     #1A1714;    /* text on light backgrounds           */
+
+  /* --- Borders --- */
+  --border-subtle:    rgba(200, 180, 150, 0.08);
+  --border-default:   rgba(200, 180, 150, 0.14);
+  --border-strong:    rgba(200, 180, 150, 0.24);
+
+  /* --- Accent: Primary (lighter in dark mode for contrast) --- */
+  --accent-primary:           #5B7FBF;
+  --accent-primary-hover:     #6D8FCC;
+  --accent-primary-active:    #4A6DA8;
+  --accent-primary-subtle:    rgba(91, 127, 191, 0.12);
+  --accent-primary-muted:     rgba(91, 127, 191, 0.20);
+  --accent-primary-foreground:#FFFFFF;
+
+  /* --- Accent: Secondary (Gold — boosted for dark bg) --- */
+  --accent-secondary:           #D9AD3E;
+  --accent-secondary-hover:     #E4BC56;
+  --accent-secondary-active:    #C99A2E;
+  --accent-secondary-subtle:    rgba(217, 173, 62, 0.12);
+  --accent-secondary-muted:     rgba(217, 173, 62, 0.20);
+  --accent-secondary-foreground:#1A1714;
+
+  /* --- Semantic --- */
+  --color-success:          #5AAA7A;
+  --color-success-subtle:   rgba(90, 170, 122, 0.12);
+  --color-success-muted:    rgba(90, 170, 122, 0.20);
+
+  --color-warning:          #D9A84A;
+  --color-warning-subtle:   rgba(217, 168, 74, 0.12);
+  --color-warning-muted:    rgba(217, 168, 74, 0.20);
+
+  --color-error:            #D06060;
+  --color-error-subtle:     rgba(208, 96, 96, 0.12);
+  --color-error-muted:      rgba(208, 96, 96, 0.20);
+
+  --color-info:             #5B99D0;
+  --color-info-subtle:      rgba(91, 153, 208, 0.12);
+  --color-info-muted:       rgba(91, 153, 208, 0.20);
+
+  /* --- Interactive --- */
+  --interactive-hover:      rgba(200, 180, 150, 0.06);
+  --interactive-active:     rgba(200, 180, 150, 0.10);
+  --interactive-selected:   rgba(91, 127, 191, 0.12);
+  --interactive-selected-strong: rgba(91, 127, 191, 0.20);
+  --interactive-muted:      rgba(200, 180, 150, 0.04);
+
+  /* --- Focus --- */
+  --focus-ring:             rgba(91, 127, 191, 0.50);
+
+  /* --- Shadows (darker, still warm) --- */
+  --shadow-xs:
+    0 1px 2px rgba(0, 0, 0, 0.20);
+
+  --shadow-sm:
+    0 1px 3px rgba(0, 0, 0, 0.24),
+    0 1px 2px rgba(0, 0, 0, 0.16);
+
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.28),
+    0 2px 4px -2px rgba(0, 0, 0, 0.20);
+
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.30),
+    0 4px 6px -4px rgba(0, 0, 0, 0.22);
+
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.35),
+    0 8px 10px -6px rgba(0, 0, 0, 0.24);
+
+  --shadow-2xl:
+    0 25px 50px -12px rgba(0, 0, 0, 0.50);
+
+  --shadow-inset:
+    inset 0 1px 2px rgba(0, 0, 0, 0.20);
+
+  /* --- Scrollbar --- */
+  --scrollbar-thumb:        rgba(200, 180, 150, 0.18);
+  --scrollbar-thumb-hover:  rgba(200, 180, 150, 0.35);
+}
+
+/* ==========================================================================
+   GLOBAL RESETS & UTILITIES
+   ========================================================================== */
+
+/* Base body styles */
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: var(--shadow-ring);
+  outline: 2px solid var(--accent-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Scrollbar styling (Webkit) */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-primary-muted);
+  color: var(--text-primary);
+}
+
+/* ======================================================================
+   TYPOGRAPHY UTILITY CLASSES
+   ====================================================================== */
+
+.text-display {
+  font-family: var(--text-display-family);
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-line-height);
+  letter-spacing: var(--text-display-tracking);
+  color: var(--text-primary);
+}
+
+.text-h1 {
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  line-height: var(--text-h1-line-height);
+  letter-spacing: var(--text-h1-tracking);
+  color: var(--text-primary);
+}
+
+.text-h2 {
+  font-family: var(--text-h2-family);
+  font-size: var(--text-h2-size);
+  font-weight: var(--text-h2-weight);
+  line-height: var(--text-h2-line-height);
+  letter-spacing: var(--text-h2-tracking);
+  color: var(--text-primary);
+}
+
+.text-h3 {
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  font-weight: var(--text-h3-weight);
+  line-height: var(--text-h3-line-height);
+  letter-spacing: var(--text-h3-tracking);
+  color: var(--text-primary);
+}
+
+.text-h4 {
+  font-family: var(--text-h4-family);
+  font-size: var(--text-h4-size);
+  font-weight: var(--text-h4-weight);
+  line-height: var(--text-h4-line-height);
+  letter-spacing: var(--text-h4-tracking);
+  color: var(--text-primary);
+}
+
+.text-body-lg {
+  font-family: var(--text-body-lg-family);
+  font-size: var(--text-body-lg-size);
+  font-weight: var(--text-body-lg-weight);
+  line-height: var(--text-body-lg-line-height);
+  letter-spacing: var(--text-body-lg-tracking);
+}
+
+.text-body {
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
+}
+
+.text-body-sm {
+  font-family: var(--text-body-sm-family);
+  font-size: var(--text-body-sm-size);
+  font-weight: var(--text-body-sm-weight);
+  line-height: var(--text-body-sm-line-height);
+  letter-spacing: var(--text-body-sm-tracking);
+}
+
+.text-caption {
+  font-family: var(--text-caption-family);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  line-height: var(--text-caption-line-height);
+  letter-spacing: var(--text-caption-tracking);
+}
+
+.text-overline {
+  font-family: var(--text-overline-family);
+  font-size: var(--text-overline-size);
+  font-weight: var(--text-overline-weight);
+  line-height: var(--text-overline-line-height);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: var(--text-overline-transform);
+}

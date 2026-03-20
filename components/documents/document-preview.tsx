@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X, Download, ExternalLink, FileText } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, Download01Icon, LinkSquare02Icon, File01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { isPreviewable, getFileIconType } from "@/lib/storage/client";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,7 @@ export function DocumentPreview({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
-          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <HugeiconsIcon icon={File01Icon} size={16} className="shrink-0 text-muted-foreground" />
           <h3 className="truncate text-sm font-medium text-foreground">
             {fileName}
           </h3>
@@ -36,18 +37,18 @@ export function DocumentPreview({
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" asChild>
             <a href={signedUrl} download={fileName}>
-              <Download className="h-4 w-4" />
+              <HugeiconsIcon icon={Download01Icon} size={16} />
             </a>
           </Button>
           {canPreview && (
             <Button variant="ghost" size="sm" asChild>
               <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
+                <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
               </a>
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
           </Button>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function DocumentPreview({
             <p className="mt-1 text-xs">Preview not available for this file type</p>
             <Button variant="outline" className="mt-4" asChild>
               <a href={signedUrl} download={fileName}>
-                <Download className="mr-2 h-4 w-4" />
+                <HugeiconsIcon icon={Download01Icon} size={16} className="mr-2" />
                 Download
               </a>
             </Button>
@@ -124,5 +125,5 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
     unknown: "text-muted-foreground",
   };
 
-  return <FileText className={cn(size, colors[type])} />;
+  return <HugeiconsIcon icon={File01Icon} size={48} className={cn(colors[type])} />;
 }

@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Globe } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { LinkSquare02Icon, GlobeIcon } from "@hugeicons/core-free-icons";
 
 export default async function CaseSsaPage({
   params,
@@ -52,7 +53,7 @@ export default async function CaseSsaPage({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-purple-100 p-2">
-                <Globe className="h-5 w-5 text-purple-600" />
+                <HugeiconsIcon icon={GlobeIcon} size={20} color="rgb(147 51 234)" />
               </div>
               <div>
                 <h3 className="font-medium text-foreground">Chronicle</h3>
@@ -81,7 +82,7 @@ export default async function CaseSsaPage({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <ExternalLink className="mr-2 h-4 w-4" />
+                    <HugeiconsIcon icon={LinkSquare02Icon} size={16} className="mr-2" />
                     Open in Chronicle
                   </a>
                 </Button>

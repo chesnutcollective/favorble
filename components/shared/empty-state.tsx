@@ -1,15 +1,16 @@
-import type { LucideIcon } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type { IconSvgElement } from "@hugeicons/react";
 import { cn } from "@/lib/utils";
 
 type EmptyStateProps = {
-  icon: LucideIcon;
+  icon: IconSvgElement;
   title: string;
   description: string;
   className?: string;
 };
 
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   className,
@@ -21,7 +22,7 @@ export function EmptyState({
         className,
       )}
     >
-      <Icon className="h-10 w-10 text-gray-300" />
+      <HugeiconsIcon icon={icon} size={40} color="rgb(209 213 219)" />
       <h3 className="mt-3 text-sm font-medium text-foreground">{title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </div>

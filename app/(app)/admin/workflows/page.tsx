@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Plus, Workflow, Zap } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon, WorkflowSquare01Icon, FlashIcon } from "@hugeicons/core-free-icons";
 
 export const metadata: Metadata = {
 	title: "Workflow Templates",
@@ -31,7 +32,7 @@ export default async function WorkflowsPage() {
 				description="Configure automated workflows triggered by stage changes."
 				actions={
 					<Button size="sm">
-						<Plus className="mr-1 h-4 w-4" />
+						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
 						New Workflow
 					</Button>
 				}
@@ -39,7 +40,7 @@ export default async function WorkflowsPage() {
 
 			{workflows.length === 0 ? (
 				<EmptyState
-					icon={Workflow}
+					icon={WorkflowSquare01Icon}
 					title="No workflows"
 					description="Create your first workflow to automate task generation when cases change stages."
 				/>
@@ -50,7 +51,7 @@ export default async function WorkflowsPage() {
 							<CardHeader className="pb-3">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
-										<Zap className="h-4 w-4 text-amber-500" />
+										<HugeiconsIcon icon={FlashIcon} size={16} color="rgb(245 158 11)" />
 										<CardTitle className="text-base">
 											{wf.name}
 										</CardTitle>

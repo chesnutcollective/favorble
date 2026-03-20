@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MessageSquare } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Message01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import * as caseStatusIntegration from "@/lib/integrations/case-status";
 
@@ -49,7 +50,7 @@ export default async function MessagesPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <MessageSquare className="h-5 w-5 text-amber-500" />
+              <HugeiconsIcon icon={Message01Icon} size={20} color="rgb(245 158 11)" />
               <div>
                 <p className="text-sm font-medium text-foreground">
                   Case Status not configured
@@ -66,7 +67,7 @@ export default async function MessagesPage() {
 
       {recentMessages.length === 0 ? (
         <EmptyState
-          icon={MessageSquare}
+          icon={Message01Icon}
           title="No messages yet"
           description="Messages from clients via Case Status will appear here."
         />

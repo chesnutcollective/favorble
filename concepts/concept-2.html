@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hogan Smith CaseFlow — Concept 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--nb:#1A2E5A;--nb2:#15254A;--nb3:#0F1C38;
+--gd:#C99A2E;--gd2:#B5891F;
+--bg:#FAF8F5;--bgr:#FFFFFF;--bgc:#F7F4EF;--bgs:#F3F0EB;--bgo:#FFFDF9;
+--tp:#1A1714;--ts:#5C554A;--tt:#8C8479;--tg:#B8B0A4;--ti:#FAF8F5;
+--bs:rgba(120,100,70,.08);--bd:rgba(120,100,70,.16);--bst:rgba(120,100,70,.28);
+--ih:rgba(120,100,70,.05);--ia:rgba(120,100,70,.08);--is:rgba(43,76,140,.08);
+--fd:250ms cubic-bezier(.2,0,0,1);--fn:150ms cubic-bezier(.2,0,0,1);
+--r4:4px;--r8:8px;--r12:12px;--r16:16px;--rf:9999px;
+--sh1:0 1px 3px rgba(120,80,40,.06),0 1px 2px rgba(120,80,40,.04);
+--sh2:0 4px 6px -1px rgba(120,80,40,.06),0 2px 4px -2px rgba(120,80,40,.05);
+--sb:260px;
+}
+html{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--tp);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(120,100,70,.15);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,100,70,.3)}
+::selection{background:rgba(43,76,140,.12)}
+
+/* SIDEBAR */
+.sb{width:var(--sb);background:var(--nb);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-top{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.sb-lmark{width:32px;height:32px;background:var(--gd);border-radius:var(--r8);display:flex;align-items:center;justify-content:center}
+.sb-lmark svg{width:18px;height:18px}
+.sb-lname{font-family:'Lora',serif;font-size:.9375rem;font-weight:600;color:#fff;letter-spacing:-.01em;line-height:1.2}
+.sb-lsub{font-size:.625rem;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.sb-search{padding:12px 16px}
+.sb-si{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:var(--r8);padding:7px 10px;cursor:text;transition:background var(--fn)}
+.sb-si:hover{background:rgba(255,255,255,.09)}
+.sb-si svg{width:14px;height:14px;color:rgba(255,255,255,.35);flex-shrink:0}
+.sb-si span{font-size:.75rem;color:rgba(255,255,255,.35);font-weight:400}
+.sb-nav{flex:1;overflow-y:auto;padding:4px 8px 8px}
+.sb-sec{margin-bottom:4px}
+.sb-sl{font-size:.625rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:12px 8px 4px}
+.sb-a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--r8);cursor:pointer;transition:background var(--fn);text-decoration:none;color:rgba(255,255,255,.65);font-size:.8125rem;font-weight:500;border:none;background:none;width:100%;text-align:left}
+.sb-a svg{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.sb-a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.sb-a.on{background:rgba(201,154,46,.15);color:#fff}
+.sb-a.on svg{opacity:1;color:var(--gd)}
+.sb-badge{margin-left:auto;background:var(--gd);color:#1a1714;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:var(--rf);line-height:1.6}
+.sb-bot{padding:12px 8px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-usr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r8);cursor:pointer;transition:background var(--fn)}
+.sb-usr:hover{background:rgba(255,255,255,.07)}
+.av{width:32px;height:32px;border-radius:var(--rf);background:var(--gd);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#1a1714;flex-shrink:0}
+.sb-un{font-size:.8125rem;font-weight:600;color:rgba(255,255,255,.9)}
+.sb-ur{font-size:.6875rem;color:rgba(255,255,255,.4)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tbar{height:52px;border-bottom:1px solid var(--bs);display:flex;align-items:center;padding:0 28px;gap:16px;background:var(--bgr);flex-shrink:0}
+.tb-title{font-family:'Lora',serif;font-size:1.125rem;font-weight:600;letter-spacing:-.02em;color:var(--tp)}
+.tb-sub{font-size:.75rem;color:var(--tt);margin-top:1px}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r8);font-size:.8125rem;font-weight:600;cursor:pointer;transition:all var(--fn);border:none;font-family:inherit}
+.btn-p{background:var(--nb);color:#fff}.btn-p:hover{background:var(--nb2)}
+.btn-g{background:var(--gd);color:#1a1714}.btn-g:hover{background:var(--gd2)}
+.btn-s{background:transparent;color:var(--ts);border:1px solid var(--bd)}.btn-s:hover{background:var(--ih);color:var(--tp)}
+.btn-ic{width:32px;height:32px;padding:0;justify-content:center;background:transparent;color:var(--tt);border:1px solid var(--bd)}.btn-ic:hover{background:var(--ih);color:var(--tp)}
+.btn svg{width:14px;height:14px}
+.pg{flex:1;overflow-y:auto;padding:32px 40px;display:none}
+.pg.on{display:block}
+
+/* CARDS */
+.card{background:var(--bgr);border:1px solid var(--bs);border-radius:var(--r12);padding:20px 24px;transition:box-shadow var(--fn)}
+.card:hover{box-shadow:var(--sh1)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* STAT CARDS */
+.stat{background:var(--bgr);border:1px solid var(--bs);border-radius:var(--r12);padding:20px;transition:box-shadow var(--fn)}
+.stat:hover{box-shadow:var(--sh1)}
+.st-l{font-size:.6875rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tt);margin-bottom:10px}
+.st-v{font-family:'Lora',serif;font-size:1.875rem;font-weight:700;color:var(--tp);letter-spacing:-.03em;line-height:1}
+.st-ch{font-size:.75rem;color:var(--tt);margin-top:6px;display:flex;align-items:center;gap:4px}
+.st-up{color:#3D8B5E}.st-dn{color:#C44040}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.6875rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tt);padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+.tbl td{padding:11px 12px;font-size:.8125rem;color:var(--ts);border-bottom:1px solid var(--bs);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--ih)}
+.tbl tr{transition:background var(--fn);cursor:pointer}
+.td-p{color:var(--tp)!important;font-weight:500}
+
+/* BADGES */
+.bx{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--rf);font-size:.6875rem;font-weight:600;letter-spacing:.02em}
+.bx-g{background:rgba(61,139,94,.1);color:#2d6b46}
+.bx-y{background:rgba(196,136,42,.1);color:#8c5f1a}
+.bx-r{background:rgba(196,64,64,.1);color:#963030}
+.bx-b{background:rgba(43,76,140,.08);color:#2B4C8C}
+.bx-n{background:var(--bgs);color:var(--tt)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* PAGE SECTIONS */
+.ph{margin-bottom:24px}
+.ph h1{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;letter-spacing:-.03em;color:var(--tp)}
+.ph p{font-size:.875rem;color:var(--tt);margin-top:4px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-h h2{font-family:'Lora',serif;font-size:1rem;font-weight:600;letter-spacing:-.02em;color:var(--tp)}
+.sec-h a{font-size:.75rem;color:var(--nb);text-decoration:none;font-weight:500;opacity:.8}.sec-h a:hover{opacity:1}
+.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}.mb32{margin-bottom:32px}
+.mt16{margin-top:16px}.mt24{margin-top:24px}
+
+/* QUEUE ITEMS */
+.qi{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--bs);transition:background var(--fn);cursor:pointer;border-radius:var(--r8);padding:14px 12px}
+.qi:hover{background:var(--ih)}
+.qi-ic{width:36px;height:36px;border-radius:var(--r8);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qi-ic.u{background:rgba(196,64,64,.08)}
+.qi-ic.w{background:rgba(196,136,42,.09)}
+.qi-ic.d{background:rgba(61,139,94,.09)}
+.qi-ic svg{width:16px;height:16px}
+.qi-cn{font-size:.875rem;font-weight:600;color:var(--tp)}
+.qi-cs{font-size:.75rem;color:var(--tt);margin-top:2px}
+.qi-meta{margin-left:auto;text-align:right;flex-shrink:0}
+.qi-t{font-size:.6875rem;color:var(--tg)}
+.qi-prio{font-size:.6875rem;font-weight:600;color:#C44040;margin-bottom:2px}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-dh{font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tt);text-align:center;padding:4px 0}
+.cal-d{min-height:70px;border:1px solid var(--bs);border-radius:var(--r8);padding:6px 8px;background:var(--bgr);transition:background var(--fn);cursor:pointer;font-size:.6875rem}
+.cal-d:hover{background:var(--ih)}
+.cal-d.om{background:var(--bgs);opacity:.5}
+.cal-d.td{border-color:var(--nb);background:rgba(43,76,140,.04)}
+.cal-dn{font-weight:600;color:var(--tp);margin-bottom:4px;display:block}
+.cal-d.td .cal-dn{color:var(--nb)}
+.cal-ev{font-size:.5625rem;background:rgba(43,76,140,.1);color:var(--nb);padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;font-weight:500}
+.cal-ev.g{background:rgba(61,139,94,.1);color:#2d6b46}
+.cal-ev.y{background:rgba(196,136,42,.1);color:#8c5f1a}
+
+/* MESSAGES */
+.ml{display:flex;flex-direction:column;gap:2px}
+.mi{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:var(--r8);cursor:pointer;transition:background var(--fn)}
+.mi:hover{background:var(--ih)}
+.mi.un{background:rgba(43,76,140,.04)}
+.mi-av{width:36px;height:36px;border-radius:var(--rf);font-size:.6875rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
+.mi-sub{font-size:.8125rem;font-weight:600;color:var(--tp)}
+.mi-pre{font-size:.75rem;color:var(--tt);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi-t{font-size:.6875rem;color:var(--tg);flex-shrink:0;margin-top:1px}
+.mi.un .mi-sub::after{content:'';display:inline-block;width:6px;height:6px;background:var(--nb);border-radius:50%;margin-left:6px;vertical-align:middle}
+
+/* CONTACT CARDS */
+.cc{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bgr);border:1px solid var(--bs);border-radius:var(--r12);cursor:pointer;transition:all var(--fn)}
+.cc:hover{box-shadow:var(--sh1);border-color:rgba(120,100,70,.22)}
+.cc-av{width:40px;height:40px;border-radius:var(--rf);font-size:.8125rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
+.cc-n{font-size:.875rem;font-weight:600;color:var(--tp)}
+.cc-r{font-size:.75rem;color:var(--tt);margin-top:1px}
+.cc-meta{margin-left:auto;text-align:right}
+.cc-e{font-size:.6875rem;color:var(--tt)}
+
+/* SETTINGS */
+.sf{display:flex;flex-direction:column;gap:0}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--bs)}
+.sr:last-child{border-bottom:none}
+.sr-l{font-size:.875rem;font-weight:500;color:var(--tp)}
+.sr-d{font-size:.75rem;color:var(--tt);margin-top:2px}
+.tog{width:40px;height:22px;border-radius:var(--rf);cursor:pointer;position:relative;transition:background var(--fn);border:none;flex-shrink:0}
+.tog.on{background:var(--nb)}.tog.off{background:var(--bd)}
+.tog-k{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;transition:left var(--fn);box-shadow:var(--sh1)}
+.tog.on .tog-k{left:21px}.tog.off .tog-k{left:3px}
+.inp{width:100%;background:var(--bgs);border:1px solid var(--bd);border-radius:var(--r8);padding:8px 12px;font-size:.875rem;font-family:inherit;color:var(--tp);outline:none;transition:border-color var(--fn),box-shadow var(--fn)}
+.inp:focus{border-color:var(--nb);box-shadow:0 0 0 3px rgba(43,76,140,.12)}
+.inplb{font-size:.75rem;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:.02em}
+.fg{margin-bottom:16px}
+
+/* LOGIN */
+.lp{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);padding:32px}
+.lb{background:var(--bgr);border:1px solid var(--bs);border-radius:var(--r16);padding:40px 40px 36px;width:100%;max-width:380px;box-shadow:var(--sh2)}
+.lb-lo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.lb-lm{width:36px;height:36px;background:var(--nb);border-radius:var(--r8);display:flex;align-items:center;justify-content:center}
+.lb-lm svg{width:20px;height:20px}
+.lb-ln{font-family:'Lora',serif;font-size:1rem;font-weight:600;color:var(--tp);line-height:1.2}
+.lb-ls{font-size:.6875rem;color:var(--tt);font-weight:500}
+.lb h2{font-family:'Lora',serif;font-size:1.375rem;font-weight:700;letter-spacing:-.03em;color:var(--tp);margin-bottom:6px}
+.lb p{font-size:.8125rem;color:var(--tt);margin-bottom:24px}
+.lbtn{width:100%;padding:10px;background:var(--nb);color:#fff;border:none;border-radius:var(--r8);font-size:.875rem;font-weight:600;font-family:inherit;cursor:pointer;transition:background var(--fn);margin-top:4px}
+.lbtn:hover{background:var(--nb2)}
+.lft{font-size:.6875rem;color:var(--tg);text-align:center;margin-top:20px}
+.lft a{color:var(--nb);text-decoration:none;font-weight:500}
+
+/* DIVIDER */
+.div{height:1px;background:var(--bs);margin:24px 0}
+.divx{width:100%;border:none;height:1px;background:var(--bs)}
+
+/* PROGRESS BAR */
+.pb{height:4px;background:var(--bgs);border-radius:var(--rf);overflow:hidden;margin-top:6px}
+.pb-f{height:100%;border-radius:var(--rf);background:var(--nb)}
+
+/* ACTIVITY FEED */
+.af{display:flex;flex-direction:column;gap:0}
+.ai{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bs)}
+.ai:last-child{border-bottom:none}
+.ai-ic{width:28px;height:28px;border-radius:var(--rf);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-ic svg{width:13px;height:13px}
+.ai-tx{font-size:.8125rem;color:var(--ts);line-height:1.5}
+.ai-tx strong{color:var(--tp);font-weight:600}
+.ai-time{font-size:.6875rem;color:var(--tg);margin-top:2px}
+
+/* EMPTY / MISC */
+.fl{display:flex;align-items:center;gap:8px}
+.flt{display:flex;align-items:center;justify-content:space-between}
+.flc{display:flex;align-items:center;gap:6px}
+.sp{display:flex;align-items:flex-start;gap:24px}
+.sp-m{flex:1}
+.sp-s{width:280px;flex-shrink:0}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;background:var(--bgs);border-radius:var(--rf);font-size:.6875rem;font-weight:500;color:var(--ts)}
+.sep{color:var(--tg)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sb" id="sb">
+<div class="sb-top">
+  <a href="#" class="sb-logo">
+    <div class="sb-lmark"><svg viewBox="0 0 18 18" fill="none" stroke="#1a1714" stroke-width="2" stroke-linecap="round"><path d="M3 14L9 4l6 10H3z"/><path d="M6 10h6"/></svg></div>
+    <div><div class="sb-lname">Hogan Smith</div><div class="sb-lsub">CaseFlow</div></div>
+  </a>
+</div>
+<div class="sb-search">
+  <div class="sb-si">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2.5 2.5"/></svg>
+    <span>Search cases…</span>
+  </div>
+</div>
+<div class="sb-nav">
+  <div class="sb-sec">
+    <div class="sb-sl">Workspace</div>
+    <button class="sb-a on" onclick="nav('db',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="sb-a" onclick="nav('qu',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h9M2 12h6"/></svg>
+      Queue
+      <span class="sb-badge">12</span>
+    </button>
+    <button class="sb-a" onclick="nav('cs',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5h4M6 8h4M6 11h2"/></svg>
+      Cases
+    </button>
+    <button class="sb-a" onclick="nav('ca',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v4M11 1v4M2 7h12"/></svg>
+      Calendar
+    </button>
+    <button class="sb-a" onclick="nav('ms',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 3H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h3l2 2 2-2h3a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/></svg>
+      Messages
+      <span class="sb-badge">3</span>
+    </button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sl">People</div>
+    <button class="sb-a" onclick="nav('co',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5.5" r="2.5"/><path d="M1 14c0-2.8 2.2-5 5-5"/><circle cx="12" cy="7" r="2"/><path d="M10.5 12c0-1.9 1.2-3 3-3"/></svg>
+      Contacts
+    </button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-sl">Account</div>
+    <button class="sb-a" onclick="nav('st',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14M3.5 3.5l1 1M11.5 11.5l1 1M3.5 12.5l1-1M11.5 4.5l1-1"/></svg>
+      Settings
+    </button>
+    <button class="sb-a" onclick="nav('li',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6"/></svg>
+      Login View
+    </button>
+  </div>
+</div>
+<div class="sb-bot">
+  <div class="sb-usr">
+    <div class="av">MR</div>
+    <div style="min-width:0">
+      <div class="sb-un">Margaret Reyes</div>
+      <div class="sb-ur">Case Manager</div>
+    </div>
+    <svg viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5" style="width:14px;height:14px;margin-left:auto;flex-shrink:0"><circle cx="8" cy="5" r="1.5"/><circle cx="8" cy="11" r="1.5"/></svg>
+  </div>
+</div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- TOPBAR (updates via JS) -->
+<div class="tbar" id="tbar">
+  <div><div class="tb-title" id="tb-title">Dashboard</div><div class="tb-sub" id="tb-sub">Monday, March 20, 2026</div></div>
+  <div class="tb-r" id="tb-r">
+    <button class="btn btn-s"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3l5 5-5 5"/></svg> Export</button>
+    <button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> New Case</button>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="pg on" id="pg-db">
+  <div class="ph"><h1>Good morning, Margaret.</h1><p>You have 12 items in queue and 3 hearings this week.</p></div>
+  <div class="g4 mb24">
+    <div class="stat"><div class="st-l">Active Cases</div><div class="st-v">148</div><div class="st-ch"><span class="st-up">↑ 4</span> from last week</div></div>
+    <div class="stat"><div class="st-l">Hearings This Month</div><div class="st-v">23</div><div class="st-ch"><span class="st-dn">↓ 2</span> vs last month</div></div>
+    <div class="stat"><div class="st-l">Avg Days to Hearing</div><div class="st-v">47</div><div class="st-ch"><span class="st-up">↑ 3</span> days improvement</div></div>
+    <div class="stat"><div class="st-l">Pending Actions</div><div class="st-v">12</div><div class="st-ch" style="color:#C44040">3 overdue</div></div>
+  </div>
+  <div class="sp">
+    <div class="sp-m">
+      <div class="sec-h mb16"><h2>Upcoming Hearings</h2><a href="#">See all →</a></div>
+      <div class="card mb24">
+        <table class="tbl">
+          <thead><tr><th>Case</th><th>Claimant</th><th>Date</th><th>Judge</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="td-p">HS-2026-0341</td><td>Eleanor Whitfield</td><td>Mar 22, 2026</td><td>Hon. R. Torres</td><td><span class="bx bx-y"><span class="dot"></span>Scheduled</span></td></tr>
+            <tr><td class="td-p">HS-2026-0298</td><td>Marcus D. Johnson</td><td>Mar 24, 2026</td><td>Hon. C. Park</td><td><span class="bx bx-y"><span class="dot"></span>Scheduled</span></td></tr>
+            <tr><td class="td-p">HS-2025-1177</td><td>Patricia L. Nguyen</td><td>Mar 26, 2026</td><td>Hon. R. Torres</td><td><span class="bx bx-b"><span class="dot"></span>Prep Review</span></td></tr>
+            <tr><td class="td-p">HS-2026-0104</td><td>Robert Sánchez</td><td>Apr 2, 2026</td><td>Hon. J. Williams</td><td><span class="bx bx-g"><span class="dot"></span>Confirmed</span></td></tr>
+            <tr><td class="td-p">HS-2025-0882</td><td>Donna Fitzgerald</td><td>Apr 7, 2026</td><td>Hon. A. Kim</td><td><span class="bx bx-n"><span class="dot"></span>Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sec-h mb16"><h2>Recent Activity</h2><a href="#">View all →</a></div>
+      <div class="card">
+        <div class="af">
+          <div class="ai"><div class="ai-ic" style="background:rgba(61,139,94,.1)"><svg viewBox="0 0 16 16" fill="none" stroke="#3D8B5E" stroke-width="1.5"><path d="M3 8l3.5 3.5L13 5"/></svg></div><div><div class="ai-tx"><strong>HS-2026-0341</strong> — Medical records received from Dr. Anand Patel</div><div class="ai-time">2 hours ago</div></div></div>
+          <div class="ai"><div class="ai-ic" style="background:rgba(43,76,140,.08)"><svg viewBox="0 0 16 16" fill="none" stroke="#2B4C8C" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/></svg></div><div><div class="ai-tx"><strong>Donna Fitzgerald</strong> — RFC submitted to SSA</div><div class="ai-time">Yesterday 4:31 PM</div></div></div>
+          <div class="ai"><div class="ai-ic" style="background:rgba(196,136,42,.1)"><svg viewBox="0 0 16 16" fill="none" stroke="#C4882A" stroke-width="1.5"><path d="M8 3v5l3 3"/><circle cx="8" cy="8" r="6"/></svg></div><div><div class="ai-tx"><strong>HS-2025-0882</strong> — Hearing notice received, date Apr 7</div><div class="ai-time">Yesterday 11:08 AM</div></div></div>
+          <div class="ai"><div class="ai-ic" style="background:rgba(196,64,64,.08)"><svg viewBox="0 0 16 16" fill="none" stroke="#C44040" stroke-width="1.5"><path d="M8 5v4M8 11v1"/><circle cx="8" cy="8" r="6"/></svg></div><div><div class="ai-tx"><strong>HS-2025-1177</strong> — Missing ALJ exhibit list — action required</div><div class="ai-time">Mar 18</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sp-s">
+      <div class="sec-h mb16"><h2>Queue Snapshot</h2><a href="#" onclick="nav('qu',null)">Open →</a></div>
+      <div class="card mb24" style="padding:0 4px">
+        <div class="qi"><div class="qi-ic u"><svg viewBox="0 0 16 16" fill="none" stroke="#C44040" stroke-width="1.5"><path d="M8 5v4M8 11v1"/><circle cx="8" cy="8" r="6"/></svg></div><div><div class="qi-cn">Eleanor Whitfield</div><div class="qi-cs">Prep brief due today</div></div><div class="qi-meta"><div class="qi-prio">Urgent</div><div class="qi-t">Due today</div></div></div>
+        <div class="qi"><div class="qi-ic w"><svg viewBox="0 0 16 16" fill="none" stroke="#C4882A" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/></svg></div><div><div class="qi-cn">Patricia Nguyen</div><div class="qi-cs">Obtain VA records</div></div><div class="qi-meta"><div class="qi-t">Due Mar 23</div></div></div>
+        <div class="qi"><div class="qi-ic d"><svg viewBox="0 0 16 16" fill="none" stroke="#3D8B5E" stroke-width="1.5"><path d="M3 8l3.5 3.5L13 5"/></svg></div><div><div class="qi-cn">Marcus Johnson</div><div class="qi-cs">Hearing brief complete</div></div><div class="qi-meta"><div class="qi-t">Done</div></div></div>
+      </div>
+      <div class="sec-h mb16"><h2>Case Progress</h2></div>
+      <div class="card">
+        <div style="margin-bottom:14px"><div class="flt"><span style="font-size:.8125rem;font-weight:500;color:var(--tp)">Eleanor Whitfield</span><span style="font-size:.6875rem;color:var(--tt)">78%</span></div><div class="pb"><div class="pb-f" style="width:78%"></div></div></div>
+        <div style="margin-bottom:14px"><div class="flt"><span style="font-size:.8125rem;font-weight:500;color:var(--tp)">Marcus Johnson</span><span style="font-size:.6875rem;color:var(--tt)">62%</span></div><div class="pb"><div class="pb-f" style="width:62%"></div></div></div>
+        <div style="margin-bottom:14px"><div class="flt"><span style="font-size:.8125rem;font-weight:500;color:var(--tp)">Patricia Nguyen</span><span style="font-size:.6875rem;color:var(--tt)">45%</span></div><div class="pb"><div class="pb-f" style="width:45%"></div></div></div>
+        <div><div class="flt"><span style="font-size:.8125rem;font-weight:500;color:var(--tp)">Donna Fitzgerald</span><span style="font-size:.6875rem;color:var(--tt)">30%</span></div><div class="pb"><div class="pb-f" style="width:30%"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUEUE ===== -->
+<div class="pg" id="pg-qu">
+  <div class="ph"><h1>Queue</h1><p>12 pending actions across all cases</p></div>
+  <div class="fl mb24" style="gap:8px">
+    <button class="btn btn-s" style="background:var(--is);color:var(--nb);border-color:transparent;font-weight:600">All (12)</button>
+    <button class="btn btn-s">Urgent (3)</button>
+    <button class="btn btn-s">This Week (7)</button>
+    <button class="btn btn-s">Completed (18)</button>
+    <button class="btn btn-ic" style="margin-left:auto"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
+  </div>
+  <div class="card" style="padding:0">
+    <table class="tbl">
+      <thead><tr><th>Priority</th><th>Claimant</th><th>Case #</th><th>Action Required</th><th>Due Date</th><th>Assigned</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><span class="bx bx-r"><span class="dot"></span>Urgent</span></td><td class="td-p">Eleanor Whitfield</td><td>HS-2026-0341</td><td>Prepare hearing brief</td><td style="color:#C44040;font-weight:500">Mar 20</td><td>M. Reyes</td><td><span class="bx bx-y"><span class="dot"></span>In Progress</span></td></tr>
+        <tr><td><span class="bx bx-r"><span class="dot"></span>Urgent</span></td><td class="td-p">James A. Okafor</td><td>HS-2026-0312</td><td>File extension motion</td><td style="color:#C44040;font-weight:500">Mar 20</td><td>D. Chen</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-r"><span class="dot"></span>Urgent</span></td><td class="td-p">Linda M. Kowalski</td><td>HS-2025-1088</td><td>ALJ exhibit list missing</td><td style="color:#C44040;font-weight:500">Mar 19 ✗</span></td><td>M. Reyes</td><td><span class="bx bx-r"><span class="dot"></span>Overdue</span></td></tr>
+        <tr><td><span class="bx bx-y"><span class="dot"></span>High</span></td><td class="td-p">Patricia L. Nguyen</td><td>HS-2025-1177</td><td>Obtain VA medical records</td><td>Mar 23</td><td>T. Brooks</td><td><span class="bx bx-y"><span class="dot"></span>In Progress</span></td></tr>
+        <tr><td><span class="bx bx-y"><span class="dot"></span>High</span></td><td class="td-p">Robert Sánchez</td><td>HS-2026-0104</td><td>Review RFC from physician</td><td>Mar 24</td><td>M. Reyes</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-y"><span class="dot"></span>High</span></td><td class="td-p">Donna Fitzgerald</td><td>HS-2025-0882</td><td>Draft pre-hearing memo</td><td>Mar 25</td><td>D. Chen</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-b"><span class="dot"></span>Normal</span></td><td class="td-p">Marcus D. Johnson</td><td>HS-2026-0298</td><td>Confirm hearing logistics</td><td>Mar 26</td><td>T. Brooks</td><td><span class="bx bx-y"><span class="dot"></span>In Progress</span></td></tr>
+        <tr><td><span class="bx bx-b"><span class="dot"></span>Normal</span></td><td class="td-p">Clara E. Hopkins</td><td>HS-2026-0219</td><td>Request school records</td><td>Mar 28</td><td>M. Reyes</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-b"><span class="dot"></span>Normal</span></td><td class="td-p">Vincent T. Russo</td><td>HS-2025-0997</td><td>Follow up on psych eval</td><td>Mar 30</td><td>D. Chen</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-n"><span class="dot"></span>Low</span></td><td class="td-p">Anita G. Patel</td><td>HS-2026-0187</td><td>Update claimant contact info</td><td>Apr 1</td><td>M. Reyes</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-n"><span class="dot"></span>Low</span></td><td class="td-p">Harold W. Simmons</td><td>HS-2025-0741</td><td>Archive closed exhibits</td><td>Apr 3</td><td>T. Brooks</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+        <tr><td><span class="bx bx-n"><span class="dot"></span>Low</span></td><td class="td-p">Bertha J. Okonkwo</td><td>HS-2026-0055</td><td>Send intake form</td><td>Apr 5</td><td>D. Chen</td><td><span class="bx bx-n"><span class="dot"></span>Not Started</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== CASES ===== -->
+<div class="pg" id="pg-cs">
+  <div class="ph"><h1>Cases</h1><p>148 active matters</p></div>
+  <div class="flt mb24">
+    <div class="fl" style="gap:8px">
+      <button class="btn btn-s" style="background:var(--is);color:var(--nb);border-color:transparent;font-weight:600">Active</button>
+      <button class="btn btn-s">Hearing Scheduled</button>
+      <button class="btn btn-s">Appeals</button>
+      <button class="btn btn-s">Closed</button>
+    </div>
+    <div class="fl" style="gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--bgs);border:1px solid var(--bd);border-radius:var(--r8);padding:6px 12px">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--tt)"><circle cx="7" cy="7" r="4"/><path d="m11 11 2.5 2.5"/></svg>
+        <input type="text" placeholder="Search cases…" style="border:none;background:transparent;font-size:.8125rem;color:var(--tp);outline:none;font-family:inherit;width:140px">
+      </div>
+      <button class="btn btn-ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
+    </div>
+  </div>
+  <div class="card" style="padding:0">
+    <table class="tbl">
+      <thead><tr><th>Case #</th><th>Claimant</th><th>Stage</th><th>Hearing Date</th><th>ALJ</th><th>Assigned To</th><th>Days Open</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="td-p">HS-2026-0341</td><td>Eleanor Whitfield</td><td><span class="bx bx-y"><span class="dot"></span>Hearing Prep</span></td><td>Mar 22, 2026</td><td>Hon. R. Torres</td><td>M. Reyes</td><td>48</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0312</td><td>James A. Okafor</td><td><span class="bx bx-b"><span class="dot"></span>Discovery</span></td><td>—</td><td>—</td><td>D. Chen</td><td>36</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0298</td><td>Marcus D. Johnson</td><td><span class="bx bx-y"><span class="dot"></span>Hearing Prep</span></td><td>Mar 24, 2026</td><td>Hon. C. Park</td><td>T. Brooks</td><td>39</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0219</td><td>Clara E. Hopkins</td><td><span class="bx bx-b"><span class="dot"></span>Evidence Gather</span></td><td>—</td><td>—</td><td>M. Reyes</td><td>51</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0187</td><td>Anita G. Patel</td><td><span class="bx bx-n"><span class="dot"></span>Intake</span></td><td>—</td><td>—</td><td>M. Reyes</td><td>61</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0104</td><td>Robert Sánchez</td><td><span class="bx bx-y"><span class="dot"></span>Hearing Prep</span></td><td>Apr 2, 2026</td><td>Hon. J. Williams</td><td>M. Reyes</td><td>78</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2026-0055</td><td>Bertha J. Okonkwo</td><td><span class="bx bx-n"><span class="dot"></span>Intake</span></td><td>—</td><td>—</td><td>D. Chen</td><td>94</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2025-1177</td><td>Patricia L. Nguyen</td><td><span class="bx bx-y"><span class="dot"></span>Hearing Prep</span></td><td>Mar 26, 2026</td><td>Hon. R. Torres</td><td>T. Brooks</td><td>112</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2025-1088</td><td>Linda M. Kowalski</td><td><span class="bx bx-r"><span class="dot"></span>Action Req.</span></td><td>Mar 31, 2026</td><td>Hon. A. Kim</td><td>M. Reyes</td><td>138</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2025-0997</td><td>Vincent T. Russo</td><td><span class="bx bx-b"><span class="dot"></span>Medical Review</span></td><td>—</td><td>—</td><td>D. Chen</td><td>156</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2025-0882</td><td>Donna Fitzgerald</td><td><span class="bx bx-y"><span class="dot"></span>Hearing Prep</span></td><td>Apr 7, 2026</td><td>Hon. A. Kim</td><td>D. Chen</td><td>171</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+        <tr><td class="td-p">HS-2025-0741</td><td>Harold W. Simmons</td><td><span class="bx bx-g"><span class="dot"></span>Post-Hearing</span></td><td>Feb 14, 2026</td><td>Hon. C. Park</td><td>T. Brooks</td><td>193</td><td><button class="btn btn-s" style="padding:4px 10px;font-size:.6875rem">View</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== CALENDAR ===== -->
+<div class="pg" id="pg-ca">
+  <div class="ph"><h1>Calendar</h1><p>March 2026</p></div>
+  <div class="flt mb20">
+    <div class="fl" style="gap:8px">
+      <button class="btn btn-s" style="padding:6px 10px"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M10 4L6 8l4 4"/></svg></button>
+      <button class="btn btn-s" style="font-weight:600;color:var(--tp)">March 2026</button>
+      <button class="btn btn-s" style="padding:6px 10px"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M6 4l4 4-4 4"/></svg></button>
+    </div>
+    <div class="fl" style="gap:6px">
+      <button class="btn btn-s" style="background:var(--is);color:var(--nb);border-color:transparent;font-size:.75rem">Month</button>
+      <button class="btn btn-s" style="font-size:.75rem">Week</button>
+      <button class="btn btn-s" style="font-size:.75rem">List</button>
+    </div>
+  </div>
+  <div class="card" style="padding:16px">
+    <div class="cal-grid">
+      <div class="cal-dh">Sun</div><div class="cal-dh">Mon</div><div class="cal-dh">Tue</div><div class="cal-dh">Wed</div><div class="cal-dh">Thu</div><div class="cal-dh">Fri</div><div class="cal-dh">Sat</div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d om"><span class="cal-dn">22</span></div>
+      <div class="cal-d om"><span class="cal-dn">23</span></div>
+      <div class="cal-d om"><span class="cal-dn">24</span></div>
+      <div class="cal-d om"><span class="cal-dn">25</span></div>
+      <div class="cal-d om"><span class="cal-dn">26</span></div>
+      <div class="cal-d om"><span class="cal-dn">27</span></div>
+      <div class="cal-d om"><span class="cal-dn">28</span></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d om"><span class="cal-dn">1</span></div>
+      <div class="cal-d"><span class="cal-dn">2</span></div>
+      <div class="cal-d"><span class="cal-dn">3</span></div>
+      <div class="cal-d"><span class="cal-dn">4</span></div>
+      <div class="cal-d"><span class="cal-dn">5</span></div>
+      <div class="cal-d"><span class="cal-dn">6</span></div>
+      <div class="cal-d"><span class="cal-dn">7</span></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d"><span class="cal-dn">8</span></div>
+      <div class="cal-d"><span class="cal-dn">9</span></div>
+      <div class="cal-d"><span class="cal-dn">10</span></div>
+      <div class="cal-d"><span class="cal-dn">11</span></div>
+      <div class="cal-d"><span class="cal-dn">12</span></div>
+      <div class="cal-d"><span class="cal-dn">13</span></div>
+      <div class="cal-d"><span class="cal-dn">14</span><span class="cal-ev g">Simmons Hearing</span></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d"><span class="cal-dn">15</span></div>
+      <div class="cal-d"><span class="cal-dn">16</span></div>
+      <div class="cal-d"><span class="cal-dn">17</span></div>
+      <div class="cal-d"><span class="cal-dn">18</span></div>
+      <div class="cal-d"><span class="cal-dn">19</span></div>
+      <div class="cal-d td"><span class="cal-dn">20</span><span class="cal-ev y">Whitfield Brief</span></div>
+      <div class="cal-d"><span class="cal-dn">21</span></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d"><span class="cal-dn">22</span><span class="cal-ev">Whitfield Hearing</span></div>
+      <div class="cal-d"><span class="cal-dn">23</span><span class="cal-ev y">Nguyen Records</span></div>
+      <div class="cal-d"><span class="cal-dn">24</span><span class="cal-ev">Johnson Hearing</span></div>
+      <div class="cal-d"><span class="cal-dn">25</span></div>
+      <div class="cal-d"><span class="cal-dn">26</span><span class="cal-ev">Nguyen Hearing</span><span class="cal-ev y">Okafor Motion</span></div>
+      <div class="cal-d"><span class="cal-dn">27</span></div>
+      <div class="cal-d"><span class="cal-dn">28</span></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-d"><span class="cal-dn">29</span></div>
+      <div class="cal-d"><span class="cal-dn">30</span></div>
+      <div class="cal-d"><span class="cal-dn">31</span><span class="cal-ev">Kowalski Hearing</span></div>
+      <div class="cal-d om"><span class="cal-dn">1</span></div>
+      <div class="cal-d om"><span class="cal-dn">2</span><span class="cal-ev">Sánchez Hearing</span></div>
+      <div class="cal-d om"><span class="cal-dn">3</span></div>
+      <div class="cal-d om"><span class="cal-dn">4</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MESSAGES ===== -->
+<div class="pg" id="pg-ms">
+  <div class="ph"><h1>Messages</h1><p>3 unread conversations</p></div>
+  <div class="sp">
+    <div class="sp-m">
+      <div class="ml">
+        <div class="mi un"><div class="mi-av" style="background:#2B4C8C">EP</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Eleanor Whitfield — Dr. Patel</span><span class="mi-t">10:24 AM</span></div><div class="mi-pre">Records confirmed. Faxing to SSA today. CF form also included per your note…</div></div></div>
+        <div class="mi un"><div class="mi-av" style="background:#5C7A4A">LK</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Linda Kowalski</span><span class="mi-t">Yesterday</span></div><div class="flt" style="align-items:flex-start"><div class="mi-pre" style="flex:1">Is there any update on the exhibit list? I haven't heard back…</div></div></div></div>
+        <div class="mi un"><div class="mi-av" style="background:#8B5C4A">RS</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Robert Sánchez</span><span class="mi-t">Mar 18</span></div><div class="mi-pre">My new doctor at Valley Clinic says he can sign the RFC this Thursday…</div></div></div>
+        <div class="mi"><div class="mi-av" style="background:#4A6B8C">MJ</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Marcus D. Johnson</span><span class="mi-t">Mar 17</span></div><div class="mi-pre">Thank you for confirming. I'll be at the ODAR office at 9 AM on the 24th.</div></div></div>
+        <div class="mi"><div class="mi-av" style="background:#6B4A8C">DF</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Donna Fitzgerald</span><span class="mi-t">Mar 16</span></div><div class="mi-pre">Attached the updated mental health eval from Dr. Osei. Let me know what else you need.</div></div></div>
+        <div class="mi"><div class="mi-av" style="background:#8C6B2B">JO</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">James A. Okafor</span><span class="mi-t">Mar 15</span></div><div class="mi-pre">I understand. We'll file the extension. I'll call you after I hear from SSA.</div></div></div>
+        <div class="mi"><div class="mi-av" style="background:#2B6B5C">PN</div><div style="min-width:0;flex:1"><div class="flt"><span class="mi-sub">Patricia L. Nguyen</span><span class="mi-t">Mar 14</span></div><div class="mi-pre">VA said records will be ready by March 23. They're sending directly to the office.</div></div></div>
+      </div>
+    </div>
+    <div class="sp-s">
+      <div class="card">
+        <div style="font-size:.8125rem;font-weight:600;color:var(--tp);margin-bottom:4px">Eleanor Whitfield</div>
+        <div style="font-size:.6875rem;color:var(--tt);margin-bottom:16px">HS-2026-0341 · Re: Dr. Patel Records</div>
+        <div style="background:var(--bgs);border-radius:var(--r8);padding:12px 14px;margin-bottom:12px;font-size:.8125rem;color:var(--ts);line-height:1.6">Records confirmed. Faxing to SSA today. CF form also included per your note on the 17th. Please let me know if anything else is needed before the hearing.</div>
+        <div style="font-size:.6875rem;color:var(--tg);margin-bottom:16px">Dr. Anand Patel · 10:24 AM</div>
+        <div class="div" style="margin:12px 0"></div>
+        <textarea class="inp" style="resize:none;height:72px" placeholder="Reply…"></textarea>
+        <div class="fl" style="justify-content:flex-end;margin-top:8px;gap:8px">
+          <button class="btn btn-s" style="font-size:.75rem">Attach</button>
+          <button class="btn btn-p" style="font-size:.75rem">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTACTS ===== -->
+<div class="pg" id="pg-co">
+  <div class="ph"><h1>Contacts</h1><p>Claimants, physicians, and staff</p></div>
+  <div class="flt mb24">
+    <div class="fl" style="gap:8px">
+      <button class="btn btn-s" style="background:var(--is);color:var(--nb);border-color:transparent;font-weight:600">All</button>
+      <button class="btn btn-s">Claimants</button>
+      <button class="btn btn-s">Physicians</button>
+      <button class="btn btn-s">Staff</button>
+    </div>
+    <button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> Add Contact</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+    <div class="cc"><div class="cc-av" style="background:#2B4C8C">EW</div><div><div class="cc-n">Eleanor Whitfield</div><div class="cc-r">Claimant · HS-2026-0341</div></div><div class="cc-meta"><span class="bx bx-y" style="font-size:.6rem">Hearing Prep</span><div class="cc-e" style="margin-top:4px">ewhitfield@gmail.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#5C7A4A">JO</div><div><div class="cc-n">James A. Okafor</div><div class="cc-r">Claimant · HS-2026-0312</div></div><div class="cc-meta"><span class="bx bx-b" style="font-size:.6rem">Discovery</span><div class="cc-e" style="margin-top:4px">jokafor@yahoo.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#8B5C4A">MJ</div><div><div class="cc-n">Marcus D. Johnson</div><div class="cc-r">Claimant · HS-2026-0298</div></div><div class="cc-meta"><span class="bx bx-y" style="font-size:.6rem">Hearing Prep</span><div class="cc-e" style="margin-top:4px">m.johnson@outlook.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#4A6B8C">PN</div><div><div class="cc-n">Patricia L. Nguyen</div><div class="cc-r">Claimant · HS-2025-1177</div></div><div class="cc-meta"><span class="bx bx-y" style="font-size:.6rem">Hearing Prep</span><div class="cc-e" style="margin-top:4px">pnguyen62@gmail.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#6B4A8C">RS</div><div><div class="cc-n">Robert Sánchez</div><div class="cc-r">Claimant · HS-2026-0104</div></div><div class="cc-meta"><span class="bx bx-y" style="font-size:.6rem">Hearing Prep</span><div class="cc-e" style="margin-top:4px">rsanchez@hotmail.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#8C6B2B">AP</div><div><div class="cc-n">Dr. Anand Patel, MD</div><div class="cc-r">Physician · Internal Medicine</div></div><div class="cc-meta"><span class="bx bx-n" style="font-size:.6rem">Provider</span><div class="cc-e" style="margin-top:4px">apatel@valleyclinic.org</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#2B6B5C">MR</div><div><div class="cc-n">Margaret Reyes</div><div class="cc-r">Case Manager · Staff</div></div><div class="cc-meta"><span class="bx bx-g" style="font-size:.6rem">Active</span><div class="cc-e" style="margin-top:4px">m.reyes@hogansmith.com</div></div></div>
+    <div class="cc"><div class="cc-av" style="background:#2B4C8C">DC</div><div><div class="cc-n">David Chen</div><div class="cc-r">Associate Attorney · Staff</div></div><div class="cc-meta"><span class="bx bx-g" style="font-size:.6rem">Active</span><div class="cc-e" style="margin-top:4px">d.chen@hogansmith.com</div></div></div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div class="pg" id="pg-st">
+  <div class="ph"><h1>Settings</h1><p>Account, notifications, and preferences</p></div>
+  <div class="g2" style="gap:24px;align-items:flex-start">
+    <div>
+      <div class="card mb24">
+        <div style="font-size:.8125rem;font-weight:700;color:var(--tp);letter-spacing:-.01em;margin-bottom:16px">Profile</div>
+        <div class="fl" style="gap:16px;margin-bottom:20px">
+          <div class="av" style="width:52px;height:52px;font-size:.875rem">MR</div>
+          <div><div style="font-size:.9375rem;font-weight:600;color:var(--tp)">Margaret Reyes</div><div style="font-size:.8125rem;color:var(--tt);margin-top:2px">Case Manager</div></div>
+        </div>
+        <div class="fg"><div class="inplb">Full Name</div><input class="inp" value="Margaret Reyes" type="text"></div>
+        <div class="fg"><div class="inplb">Email</div><input class="inp" value="m.reyes@hogansmith.com" type="email"></div>
+        <div class="fg"><div class="inplb">Phone</div><input class="inp" value="(214) 555-0182" type="tel"></div>
+        <div class="fg" style="margin-bottom:0"><div class="inplb">Role</div><input class="inp" value="Case Manager" type="text" readonly style="background:var(--bgs);color:var(--tt)"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:.8125rem;font-weight:700;color:var(--tp);letter-spacing:-.01em;margin-bottom:4px">Password</div>
+        <div style="font-size:.75rem;color:var(--tt);margin-bottom:16px">Last changed 90 days ago</div>
+        <div class="fg"><div class="inplb">Current Password</div><input class="inp" type="password" placeholder="••••••••"></div>
+        <div class="fg"><div class="inplb">New Password</div><input class="inp" type="password" placeholder="••••••••"></div>
+        <div class="fg" style="margin-bottom:0"><div class="inplb">Confirm Password</div><input class="inp" type="password" placeholder="••••••••"></div>
+        <button class="btn btn-p" style="margin-top:16px">Update Password</button>
+      </div>
+    </div>
+    <div>
+      <div class="card mb24">
+        <div style="font-size:.8125rem;font-weight:700;color:var(--tp);letter-spacing:-.01em;margin-bottom:4px">Notifications</div>
+        <div style="font-size:.75rem;color:var(--tt);margin-bottom:16px">Choose what alerts you receive</div>
+        <div class="sf">
+          <div class="sr"><div><div class="sr-l">Hearing reminders</div><div class="sr-d">48 hours before each scheduled hearing</div></div><button class="tog on" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+          <div class="sr"><div><div class="sr-l">Queue alerts</div><div class="sr-d">When new actions are assigned to you</div></div><button class="tog on" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+          <div class="sr"><div><div class="sr-l">Case status updates</div><div class="sr-d">When a case stage changes</div></div><button class="tog on" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+          <div class="sr"><div><div class="sr-l">New messages</div><div class="sr-d">Claimant and provider messages</div></div><button class="tog on" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+          <div class="sr"><div><div class="sr-l">Document uploads</div><div class="sr-d">When records or exhibits are added</div></div><button class="tog off" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+          <div class="sr"><div><div class="sr-l">Weekly digest</div><div class="sr-d">Summary email every Monday morning</div></div><button class="tog off" onclick="this.classList.toggle('on');this.classList.toggle('off')"><span class="tog-k"></span></button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:.8125rem;font-weight:700;color:var(--tp);letter-spacing:-.01em;margin-bottom:16px">Preferences</div>
+        <div class="fg"><div class="inplb">Default View</div>
+          <select class="inp" style="cursor:pointer"><option>Dashboard</option><option>Queue</option><option>Cases</option><option>Calendar</option></select>
+        </div>
+        <div class="fg" style="margin-bottom:0"><div class="inplb">Time Zone</div>
+          <select class="inp" style="cursor:pointer"><option>America/Chicago (CST)</option><option>America/New_York (EST)</option><option>America/Los_Angeles (PST)</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<div class="pg" id="pg-li" style="padding:0;background:var(--bg)">
+  <div class="lp">
+    <div class="lb">
+      <div class="lb-lo">
+        <div class="lb-lm"><svg viewBox="0 0 20 20" fill="none" stroke="#C99A2E" stroke-width="2" stroke-linecap="round"><path d="M4 16L10 6l6 10H4z"/><path d="M7 11h6"/></svg></div>
+        <div><div class="lb-ln">Hogan Smith Law</div><div class="lb-ls">CaseFlow Portal</div></div>
+      </div>
+      <h2>Sign in</h2>
+      <p>Access your case management dashboard</p>
+      <div class="fg"><div class="inplb">Email address</div><input class="inp" type="email" placeholder="you@hogansmith.com"></div>
+      <div class="fg" style="margin-bottom:4px"><div class="inplb">Password</div><input class="inp" type="password" placeholder="••••••••"></div>
+      <div style="text-align:right;margin-bottom:16px"><a href="#" style="font-size:.75rem;color:var(--nb);text-decoration:none;font-weight:500">Forgot password?</a></div>
+      <button class="lbtn">Sign in to CaseFlow</button>
+      <div class="lft">Protected by Hogan Smith Law · <a href="#">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const pages={db:{t:'Dashboard',s:'Monday, March 20, 2026',r:'<button class="btn btn-s"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3l5 5-5 5"/></svg> Export</button><button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> New Case</button>'},qu:{t:'Queue',s:'12 pending actions',r:'<button class="btn btn-s">Filter</button><button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> Add Task</button>'},cs:{t:'Cases',s:'148 active matters',r:'<button class="btn btn-s">Import</button><button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> New Case</button>'},ca:{t:'Calendar',s:'March 2026',r:'<button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> Schedule Hearing</button>'},ms:{t:'Messages',s:'3 unread',r:'<button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> New Message</button>'},co:{t:'Contacts',s:'',r:'<button class="btn btn-p"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg> Add Contact</button>'},st:{t:'Settings',s:'Account & preferences',r:'<button class="btn btn-p">Save Changes</button>'},li:{t:'Login',s:'',r:''}};
+
+function nav(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.sb-a').forEach(a=>a.classList.remove('on'));
+  if(el)el.classList.add('on');
+  const p=pages[id];
+  document.getElementById('tb-title').textContent=p.t;
+  document.getElementById('tb-sub').textContent=p.s;
+  document.getElementById('tb-r').innerHTML=p.r;
+}
+</script>
+</body>
+</html>

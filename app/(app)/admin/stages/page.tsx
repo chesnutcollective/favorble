@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 
 export const metadata: Metadata = {
 	title: "Case Stages",
@@ -30,7 +31,7 @@ export default async function StagesPage() {
 				description="Configure stage groups and case stages."
 				actions={
 					<Button size="sm">
-						<Plus className="mr-1 h-4 w-4" />
+						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
 						Add Group
 					</Button>
 				}
@@ -133,7 +134,7 @@ export default async function StagesPage() {
 									size="sm"
 									className="mt-2 text-xs"
 								>
-									<Plus className="mr-1 h-3 w-3" />
+									<HugeiconsIcon icon={PlusSignIcon} size={12} className="mr-1" />
 									Add Stage
 								</Button>
 							</CardContent>

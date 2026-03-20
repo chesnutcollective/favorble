@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Plus, FormInput } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon, TextField } from "@hugeicons/core-free-icons";
 
 export const metadata: Metadata = {
 	title: "Custom Fields",
@@ -63,7 +64,7 @@ export default async function FieldsPage() {
 				description="Define and organize custom fields by team."
 				actions={
 					<Button size="sm">
-						<Plus className="mr-1 h-4 w-4" />
+						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
 						New Field
 					</Button>
 				}
@@ -71,7 +72,7 @@ export default async function FieldsPage() {
 
 			{allFields.length === 0 ? (
 				<EmptyState
-					icon={FormInput}
+					icon={TextField}
 					title="No custom fields"
 					description="Create custom fields to track team-specific case data."
 				/>

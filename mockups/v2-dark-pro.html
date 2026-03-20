@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V2 — Dark Professional</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #0F1117;
+  --surface: #181B24;
+  --surface-raised: #1F222D;
+  --sidebar-bg: #14161E;
+  --primary: #4F7BF7;
+  --primary-hover: #3D65D9;
+  --primary-subtle: rgba(79,123,247,0.12);
+  --accent: #D4A843;
+  --text: #E8EAF0;
+  --text-secondary: #7C8298;
+  --border: #2A2D3A;
+  --danger: #EF5350;
+  --success: #4CAF50;
+  --warning: #FFB74D;
+  --radius: 8px;
+}
+body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+.sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; }
+.sidebar-brand .logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--primary), #7C4DFF); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 13px; }
+.sidebar-brand .name { font-weight: 700; font-size: 15px; }
+.sidebar-brand .sub { font-size: 11px; color: var(--text-secondary); }
+.sidebar nav { flex: 1; padding: 8px; overflow-y: auto; }
+.nav-group { margin-bottom: 16px; }
+.nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); padding: 8px 12px; font-weight: 600; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius); color: var(--text-secondary); font-size: 13.5px; cursor: pointer; transition: all 0.12s; font-weight: 500; }
+.nav-item:hover { background: var(--surface-raised); color: var(--text); }
+.nav-item.active { background: var(--primary-subtle); color: var(--primary); }
+.nav-item svg { width: 18px; height: 18px; }
+.nav-item .count { margin-left: auto; background: var(--primary); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #7C4DFF); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.sidebar-footer .name { font-size: 13px; font-weight: 600; }
+.sidebar-footer .email { font-size: 11px; color: var(--text-secondary); }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 54px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+.topbar h2 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface-raised); font-size: 13px; cursor: pointer; font-weight: 500; color: var(--text); font-family: inherit; }
+.btn:hover { background: var(--border); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+.tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab { padding: 10px 18px; font-size: 13px; cursor: pointer; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: 0.15s; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab:hover:not(.active) { color: var(--text); }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-h { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-h h3 { font-size: 13.5px; font-weight: 600; }
+.card-b { padding: 20px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary); }
+.stat.warn::before { background: var(--warning); }
+.stat.ok::before { background: var(--success); }
+.stat.bad::before { background: var(--danger); }
+.stat .label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.stat .val { font-size: 30px; font-weight: 700; margin-top: 4px; }
+.stat .delta { font-size: 11.5px; margin-top: 4px; color: var(--success); font-weight: 500; }
+.stat .delta.down { color: var(--danger); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; padding: 10px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); font-weight: 600; background: var(--surface-raised); }
+.table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.table tr:hover td { background: var(--surface-raised); }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-green { background: rgba(76,175,80,0.15); color: var(--success); }
+.badge-red { background: rgba(239,83,80,0.15); color: var(--danger); }
+.badge-yellow { background: rgba(255,183,77,0.15); color: var(--warning); }
+.badge-gray { background: rgba(124,130,152,0.15); color: var(--text-secondary); }
+.badge-blue { background: var(--primary-subtle); color: var(--primary); }
+
+.activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.activity-item:last-child { border: none; }
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.activity-text { font-size: 13px; line-height: 1.5; }
+.activity-text .meta { color: var(--text-secondary); font-size: 12px; }
+
+/* Queue */
+.q-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: 0.1s; }
+.q-item:hover { background: var(--surface-raised); }
+.q-check { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; }
+.q-pri { width: 3px; height: 28px; border-radius: 2px; }
+.q-info .title { font-size: 13.5px; font-weight: 500; }
+.q-info .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.q-due { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
+.q-due.late { color: var(--danger); font-weight: 600; }
+
+/* Calendar */
+.cal { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.cal .hd { background: var(--surface-raised); padding: 10px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+.cal .dy { background: var(--surface); min-height: 85px; padding: 8px; }
+.cal .dy .n { font-size: 12px; color: var(--text-secondary); }
+.cal .dy.today .n { background: var(--primary); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.cal .ev { margin-top: 3px; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; background: var(--primary-subtle); color: var(--primary); }
+.cal .ev.dl { background: rgba(239,83,80,0.15); color: var(--danger); }
+
+/* Messages */
+.msg-wrap { display: grid; grid-template-columns: 260px 1fr; height: calc(100vh - 150px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.msg-list { background: var(--surface); border-right: 1px solid var(--border); }
+.msg-i { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.msg-i:hover { background: var(--surface-raised); }
+.msg-i.active { background: var(--primary-subtle); border-left: 3px solid var(--primary); }
+.msg-i .n { font-size: 13px; font-weight: 600; }
+.msg-i .p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-i .t { font-size: 11px; color: var(--text-secondary); float: right; }
+.msg-area { background: var(--bg); padding: 24px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.bubble { max-width: 65%; padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.bubble.out { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+.bubble.in { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 3px; }
+
+/* Contacts */
+.c-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.c-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; gap: 12px; }
+.c-card .n { font-size: 13.5px; font-weight: 600; }
+.c-card .r { font-size: 12px; color: var(--text-secondary); }
+.c-card .e { font-size: 12px; color: var(--primary); margin-top: 6px; }
+
+/* Settings */
+.s-grid { display: grid; grid-template-columns: 180px 1fr; gap: 28px; }
+.s-nav a { display: block; padding: 8px 12px; border-radius: 6px; font-size: 13px; color: var(--text-secondary); text-decoration: none; font-weight: 500; margin-bottom: 2px; }
+.s-nav a.active { background: var(--primary-subtle); color: var(--primary); }
+.s-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.s-row h4 { font-size: 13px; font-weight: 600; }
+.s-row p { font-size: 12px; color: var(--text-secondary); margin: 0; }
+.tog { width: 38px; height: 20px; background: var(--border); border-radius: 10px; position: relative; cursor: pointer; }
+.tog.on { background: var(--primary); }
+.tog::after { content:''; position:absolute; width:16px; height:16px; background:#fff; border-radius:50%; top:2px; left:2px; transition:0.2s; }
+.tog.on::after { left:20px; }
+
+/* Login preview */
+.login-preview { display: flex; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; max-width: 880px; margin: 20px auto; height: 480px; }
+.login-left { width: 45%; background: linear-gradient(135deg, #1a1f35, #2B4C8C); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+.login-left .logo-l { width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary), #7C4DFF); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; color: #fff; margin-bottom: 20px; }
+.login-left h1 { color: #fff; font-size: 22px; margin-bottom: 6px; }
+.login-left p { color: rgba(255,255,255,0.6); font-size: 13px; }
+.login-right { width: 55%; background: var(--surface); display: flex; align-items: center; justify-content: center; padding: 40px; }
+.login-right .form { width: 100%; max-width: 300px; }
+.login-right h2 { font-size: 20px; margin-bottom: 4px; }
+.login-right .desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+.f-group { margin-bottom: 18px; }
+.f-group label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+.f-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: var(--bg); color: var(--text); outline: none; font-family: inherit; }
+.f-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-subtle); }
+.btn-sign { width: 100%; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+.page { display: none; }
+.page.active { display: block; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-brand"><div class="logo">HS</div><div><div class="name">Hogan Smith</div><div class="sub">CaseFlow</div></div></div>
+  <nav>
+    <div class="nav-group">
+      <div class="nav-item active" onclick="go('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+      <div class="nav-item" onclick="go('queue',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>My Queue<span class="count">5</span></div>
+      <div class="nav-item" onclick="go('cases',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases</div>
+      <div class="nav-item" onclick="go('calendar',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</div>
+      <div class="nav-item" onclick="go('messages',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages<span class="count">3</span></div>
+      <div class="nav-item" onclick="go('contacts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>Contacts</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Admin</div>
+      <div class="nav-item" onclick="go('settings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00-.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
+      <div class="nav-item" onclick="go('login',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Login Page</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer"><div class="avatar">JA</div><div><div class="name">Jake Admin</div><div class="email">admin@hogansmith.com</div></div></div>
+</div>
+<div class="main">
+  <div class="topbar"><h2 id="ptitle">Dashboard</h2><div class="topbar-right"><button class="btn">Export</button><button class="btn btn-primary">+ New Case</button></div></div>
+  <div class="content">
+    <div class="page active" id="p-dashboard">
+      <div class="stats-row">
+        <div class="stat"><div class="label">Active Cases</div><div class="val">147</div><div class="delta">+12 this month</div></div>
+        <div class="stat warn"><div class="label">Tasks Due Today</div><div class="val">8</div><div class="delta down">3 overdue</div></div>
+        <div class="stat ok"><div class="label">Hearings This Week</div><div class="val">5</div><div class="delta">2 scheduled</div></div>
+        <div class="stat bad"><div class="label">Pending Reviews</div><div class="val">23</div><div class="delta down">Needs attention</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-h"><h3>Recent Activity</h3></div><div class="card-b">
+          <div class="activity-item"><div class="activity-dot" style="background:var(--success)"></div><div class="activity-text">Case #2024-0892 moved to <strong>Hearing Prep</strong><div class="meta">Johnson v. SSA — Sarah Chen · 2h ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--primary)"></div><div class="activity-text">Medical records uploaded — <strong>14 documents</strong><div class="meta">Williams disability claim · 3h ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--warning)"></div><div class="activity-text">New lead assigned — <strong>Maria Garcia</strong><div class="meta">Initial consultation scheduled · 5h ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--danger)"></div><div class="activity-text">Deadline approaching — <strong>Thompson appeal brief</strong><div class="meta">Due in 2 days · 6h ago</div></div></div>
+        </div></div>
+        <div class="card"><div class="card-h"><h3>Cases by Stage</h3></div><div class="card-b">
+          <div class="activity-item"><div class="activity-dot" style="background:#4F7BF7"></div><div class="activity-text">Initial Application<div class="meta">34 active cases</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:#7C4DFF"></div><div class="activity-text">Reconsideration<div class="meta">28 active cases</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:#EC4899"></div><div class="activity-text">Hearing Prep<div class="meta">41 active cases</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:#FFB74D"></div><div class="activity-text">Awaiting Decision<div class="meta">22 active cases</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:#4CAF50"></div><div class="activity-text">Appeals Council<div class="meta">12 active cases</div></div></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="page" id="p-queue">
+      <div class="tabs"><div class="tab active">Due Today (5)</div><div class="tab">Upcoming</div><div class="tab">Overdue (3)</div><div class="tab">Completed</div></div>
+      <div class="card"><div style="padding:0">
+        <div class="q-item"><div class="q-check"></div><div class="q-pri" style="background:var(--danger)"></div><div class="q-info"><div class="title">File appeal brief — Thompson v. SSA</div><div class="sub">Case #2024-0756 · Hearing Prep</div></div><div class="q-due late">Due yesterday</div></div>
+        <div class="q-item"><div class="q-check"></div><div class="q-pri" style="background:var(--danger)"></div><div class="q-info"><div class="title">Review medical evidence — Johnson</div><div class="sub">Case #2024-0892 · Reconsideration</div></div><div class="q-due late">Due today</div></div>
+        <div class="q-item"><div class="q-check"></div><div class="q-pri" style="background:var(--warning)"></div><div class="q-info"><div class="title">Schedule consultative exam — Williams</div><div class="sub">Case #2024-0915 · Initial Application</div></div><div class="q-due">Due today</div></div>
+        <div class="q-item"><div class="q-check"></div><div class="q-pri" style="background:var(--warning)"></div><div class="q-info"><div class="title">Request treating physician statement</div><div class="sub">Case #2024-0834 · Hearing Prep</div></div><div class="q-due">Due today</div></div>
+        <div class="q-item"><div class="q-check"></div><div class="q-pri" style="background:var(--success)"></div><div class="q-info"><div class="title">Update claimant contact info</div><div class="sub">Case #2024-0901 · Initial Application</div></div><div class="q-due">Due today</div></div>
+      </div></div>
+    </div>
+    <div class="page" id="p-cases">
+      <div class="tabs"><div class="tab active">All Cases (147)</div><div class="tab">Active</div><div class="tab">Pending</div><div class="tab">Closed</div></div>
+      <div class="card"><table class="table"><thead><tr><th>Case #</th><th>Claimant</th><th>Stage</th><th>Assigned</th><th>Deadline</th><th>Status</th></tr></thead><tbody>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0892</td><td>Robert Johnson</td><td>Hearing Prep</td><td>Sarah Chen</td><td>Mar 25</td><td><span class="badge badge-green">Active</span></td></tr>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0915</td><td>Maria Williams</td><td>Initial App</td><td>Jake Admin</td><td>Mar 28</td><td><span class="badge badge-green">Active</span></td></tr>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0756</td><td>David Thompson</td><td>Appeals</td><td>Mike Torres</td><td>Mar 22</td><td><span class="badge badge-red">Urgent</span></td></tr>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0834</td><td>Lisa Anderson</td><td>Reconsideration</td><td>Sarah Chen</td><td>Apr 2</td><td><span class="badge badge-yellow">Pending</span></td></tr>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0778</td><td>James Martinez</td><td>Awaiting Decision</td><td>Jake Admin</td><td>—</td><td><span class="badge badge-green">Active</span></td></tr>
+        <tr><td style="color:var(--primary);font-weight:600">#2024-0612</td><td>Patricia Brown</td><td>Closed</td><td>Mike Torres</td><td>—</td><td><span class="badge badge-gray">Closed</span></td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="page" id="p-calendar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><div style="display:flex;gap:12px;align-items:center"><button class="btn">←</button><h3 style="font-size:15px">March 2026</h3><button class="btn">→</button></div><div class="tabs" style="border:none;margin:0"><div class="tab">Day</div><div class="tab active">Week</div><div class="tab">Month</div></div></div>
+      <div class="cal">
+        <div class="hd">Sun</div><div class="hd">Mon</div><div class="hd">Tue</div><div class="hd">Wed</div><div class="hd">Thu</div><div class="hd">Fri</div><div class="hd">Sat</div>
+        <div class="dy"><div class="n">15</div></div><div class="dy"><div class="n">16</div><div class="ev">Johnson prep</div></div><div class="dy"><div class="n">17</div></div><div class="dy"><div class="n">18</div><div class="ev dl">Brief due</div></div><div class="dy"><div class="n">19</div><div class="ev">Standup</div></div><div class="dy today"><div class="n">20</div><div class="ev">Williams exam</div><div class="ev">Garcia call</div></div><div class="dy"><div class="n">21</div></div>
+        <div class="dy"><div class="n">22</div></div><div class="dy"><div class="n">23</div><div class="ev">Follow-up</div></div><div class="dy"><div class="n">24</div></div><div class="dy"><div class="n">25</div><div class="ev dl">Hearing</div></div><div class="dy"><div class="n">26</div></div><div class="dy"><div class="n">27</div><div class="ev">Reviews</div></div><div class="dy"><div class="n">28</div></div>
+      </div>
+    </div>
+    <div class="page" id="p-messages">
+      <div class="msg-wrap">
+        <div class="msg-list">
+          <div class="msg-i active"><div class="t">10:32</div><div class="n">Sarah Chen</div><div class="p">Johnson records ready for review</div></div>
+          <div class="msg-i"><div class="t">9:15</div><div class="n">Mike Torres</div><div class="p">Thompson appeal — review the draft?</div></div>
+          <div class="msg-i"><div class="t">Yday</div><div class="n">Robert Johnson</div><div class="p">Thank you for the update</div></div>
+          <div class="msg-i"><div class="t">Yday</div><div class="n">Maria Garcia</div><div class="p">Attached retainer agreement</div></div>
+        </div>
+        <div class="msg-area">
+          <div class="bubble in"><strong>Sarah Chen</strong><br>Johnson medical records just came in. 14 docs uploaded to the case file.</div>
+          <div class="bubble out">Thanks Sarah. I'll review this afternoon. RFC included?</div>
+          <div class="bubble in"><strong>Sarah Chen</strong><br>Yes — RFC plus 12 months of treatment notes. Solid record.</div>
+          <div class="bubble out">Perfect. Let's discuss in tomorrow's case review.</div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="p-contacts">
+      <div class="tabs"><div class="tab active">All</div><div class="tab">Claimants</div><div class="tab">Physicians</div><div class="tab">Staff</div></div>
+      <div class="c-grid">
+        <div class="c-card"><div class="avatar">RJ</div><div><div class="n">Robert Johnson</div><div class="r">Claimant · #2024-0892</div><div class="e">rjohnson@email.com</div></div></div>
+        <div class="c-card"><div class="avatar">SC</div><div><div class="n">Sarah Chen</div><div class="r">Case Manager</div><div class="e">schen@hogansmith.com</div></div></div>
+        <div class="c-card"><div class="avatar">MT</div><div><div class="n">Mike Torres</div><div class="r">Attorney</div><div class="e">mtorres@hogansmith.com</div></div></div>
+        <div class="c-card"><div class="avatar">PL</div><div><div class="n">Dr. Patricia Lee</div><div class="r">Physician</div><div class="e">plee@clinic.com</div></div></div>
+        <div class="c-card"><div class="avatar">MW</div><div><div class="n">Maria Williams</div><div class="r">Claimant · #2024-0915</div><div class="e">mwilliams@email.com</div></div></div>
+        <div class="c-card"><div class="avatar">MG</div><div><div class="n">Maria Garcia</div><div class="r">New Lead</div><div class="e">mgarcia@email.com</div></div></div>
+      </div>
+    </div>
+    <div class="page" id="p-settings">
+      <div class="s-grid">
+        <nav class="s-nav"><a href="#" class="active">General</a><a href="#">Users</a><a href="#">Workflows</a><a href="#">Templates</a><a href="#">Integrations</a></nav>
+        <div><h3 style="font-size:15px;margin-bottom:4px">General Settings</h3><p style="font-size:13px;color:var(--text-secondary);margin-bottom:18px">Manage firm configuration</p>
+          <div class="card"><div class="card-b">
+            <div class="s-row"><div><h4>Firm Name</h4><p>Hogan Smith Law</p></div><button class="btn">Edit</button></div>
+            <div class="s-row"><div><h4>Email Notifications</h4><p>Receive alerts for case updates</p></div><div class="tog on"></div></div>
+            <div class="s-row"><div><h4>Auto-assign Cases</h4><p>Auto assign based on workload</p></div><div class="tog"></div></div>
+            <div class="s-row" style="border:none"><div><h4>Timezone</h4><p>Central Time (CT)</p></div><button class="btn">Change</button></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="p-login">
+      <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px;font-size:13px">Login page preview</p>
+      <div class="login-preview">
+        <div class="login-left"><div class="logo-l">HS</div><h1>Hogan Smith Law</h1><p>CaseFlow Management System</p></div>
+        <div class="login-right"><div class="form"><h2>Welcome back</h2><div class="desc">Sign in to your account</div><div class="f-group"><label>Email</label><input placeholder="you@hogansmith.com"></div><div class="f-group"><label>Password</label><input type="password" placeholder="••••••••"></div><button class="btn-sign">Sign in</button></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const titles={dashboard:'Dashboard',queue:'My Queue',cases:'Cases',calendar:'Calendar',messages:'Messages',contacts:'Contacts',settings:'Settings',login:'Login Page'};
+function go(p,el){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');el.classList.add('active');document.getElementById('ptitle').textContent=titles[p];}
+</script>
+</body>
+</html>

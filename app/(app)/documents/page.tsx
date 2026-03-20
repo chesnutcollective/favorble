@@ -5,7 +5,7 @@ import { documents, cases } from "@/db/schema";
 import { eq, desc, isNull, and } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FileText } from "lucide-react";
+import { File01Icon } from "@hugeicons/core-free-icons";
 import { GlobalDocumentsClient } from "./client";
 
 export const metadata: Metadata = {
@@ -47,7 +47,7 @@ export default async function DocumentsPage() {
 
       {recentDocs.length === 0 ? (
         <EmptyState
-          icon={FileText}
+          icon={File01Icon}
           title="No documents yet"
           description="Documents uploaded to cases will appear here."
         />

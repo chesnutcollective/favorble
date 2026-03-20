@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V4 — Glass Modern</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#F0F2F7;--surface:rgba(255,255,255,0.85);--surface-solid:#fff;--sidebar:#1E2340;--primary:#4361EE;--primary-light:rgba(67,97,238,0.1);--text:#1A1D2E;--text-2:#6E7191;--border:rgba(0,0,0,0.08);--danger:#E74C5E;--success:#2ECC71;--warning:#F4A623;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);}
+body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
+/* gradient backdrop */
+body::before{content:'';position:fixed;top:-40%;right:-20%;width:60%;height:80%;background:radial-gradient(circle,rgba(67,97,238,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-30%;left:-10%;width:50%;height:60%;background:radial-gradient(circle,rgba(46,204,113,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.side{width:250px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0;z-index:1;border-radius:0 20px 20px 0;overflow:hidden;}
+.sb{padding:24px 20px;display:flex;align-items:center;gap:12px;}
+.sb .logo{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),#7209B7);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;}
+.sb .nm{color:#fff;font-weight:600;font-size:15px;}
+.sb .su{color:rgba(255,255,255,0.5);font-size:11px;}
+.side nav{flex:1;padding:8px 10px;overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:13.5px;cursor:pointer;font-weight:500;transition:0.15s;}
+.ni:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9);}
+.ni.on{background:rgba(255,255,255,0.12);color:#fff;font-weight:600;}
+.ni svg{width:18px;height:18px;}
+.ni .ct{margin-left:auto;background:var(--primary);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.sp{height:1px;background:rgba(255,255,255,0.08);margin:10px 14px;}
+.nl{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.3);padding:12px 14px 6px;font-weight:600;}
+.sf{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#7209B7);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.sf .nm{font-size:12.5px;font-weight:600;color:#fff;}
+.sf .em{font-size:11px;color:rgba(255,255,255,0.5);}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;z-index:1;}
+.top{height:56px;backdrop-filter:blur(20px);background:rgba(255,255,255,0.6);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
+.top h2{font-size:17px;font-weight:600;}
+.tr{display:flex;gap:8px;}
+.bt{padding:8px 16px;border-radius:10px;border:1px solid var(--border);backdrop-filter:blur(10px);background:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;font-weight:500;color:var(--text);font-family:inherit;transition:0.15s;}
+.bt:hover{background:rgba(255,255,255,0.95);}
+.bt.pr{background:var(--primary);color:#fff;border-color:transparent;}
+.bt.pr:hover{background:#3651D4;}
+.cnt{flex:1;overflow-y:auto;padding:24px;}
+
+.tbs{display:flex;gap:4px;background:rgba(255,255,255,0.5);backdrop-filter:blur(10px);padding:4px;border-radius:12px;margin-bottom:18px;width:fit-content;border:1px solid var(--border);}
+.tb{padding:7px 16px;border-radius:8px;font-size:12.5px;cursor:pointer;font-weight:500;color:var(--text-2);border:none;background:none;transition:0.15s;font-family:inherit;}
+.tb.on{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(67,97,238,0.3);}
+
+.cd{backdrop-filter:blur(20px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.ch{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ch h3{font-size:14px;font-weight:600;}
+.cb{padding:20px;}
+
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{backdrop-filter:blur(20px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;filter:blur(30px);opacity:0.4;}
+.sc.blue::after{background:var(--primary);}
+.sc.red::after{background:var(--danger);}
+.sc.green::after{background:var(--success);}
+.sc.yellow::after{background:var(--warning);}
+.sc .l{font-size:12px;color:var(--text-2);font-weight:500;}
+.sc .v{font-size:28px;font-weight:700;margin-top:6px;}
+.sc .d{font-size:11.5px;margin-top:6px;color:var(--success);font-weight:500;}
+.sc .d.dn{color:var(--danger);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+.ai{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.ai:last-child{border:none;}
+.ai .dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.ai .tx{font-size:13px;line-height:1.5;}
+.ai .tx .m{color:var(--text-2);font-size:12px;margin-top:1px;}
+
+.qi{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);transition:0.1s;}
+.qi:hover{background:var(--primary-light);}
+.qc{width:18px;height:18px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;}
+.qp{width:4px;height:28px;border-radius:3px;}
+.qi .tt{font-size:13px;font-weight:500;}
+.qi .sm{font-size:12px;color:var(--text-2);margin-top:2px;}
+.qi .du{margin-left:auto;font-size:12px;color:var(--text-2);}
+.qi .du.lt{color:var(--danger);font-weight:600;}
+
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-2);font-weight:600;border-bottom:1px solid var(--border);}
+.tbl td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);}
+.tbl tr:hover td{background:var(--primary-light);}
+.bg{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;}
+.bg-g{background:rgba(46,204,113,0.12);color:var(--success);}
+.bg-r{background:rgba(231,76,94,0.12);color:var(--danger);}
+.bg-y{background:rgba(244,166,35,0.12);color:var(--warning);}
+.bg-x{background:rgba(110,113,145,0.1);color:var(--text-2);}
+
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.cal .h{background:var(--primary-light);padding:10px;text-align:center;font-size:11px;font-weight:600;color:var(--text-2);}
+.cal .c{background:var(--surface-solid);min-height:85px;padding:8px;}
+.cal .c .n{font-size:12px;color:var(--text-2);}
+.cal .c.td .n{background:var(--primary);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;}
+.cal .e{margin-top:3px;padding:3px 7px;border-radius:6px;font-size:10px;font-weight:500;background:var(--primary-light);color:var(--primary);}
+.cal .e.dl{background:rgba(231,76,94,0.1);color:var(--danger);}
+
+.ml{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 150px);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.mls{background:var(--surface-solid);border-right:1px solid var(--border);}
+.mi{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.mi:hover{background:var(--primary-light);}
+.mi.on{background:var(--primary-light);border-left:3px solid var(--primary);}
+.mi .n{font-size:13px;font-weight:600;}
+.mi .p{font-size:12px;color:var(--text-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mi .t{font-size:11px;color:var(--text-2);float:right;}
+.ma{background:var(--bg);padding:24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.bb{max-width:65%;padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.5;}
+.bb.o{background:var(--primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(67,97,238,0.25);}
+.bb.i{background:var(--surface-solid);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:var(--shadow);}
+
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.cc{backdrop-filter:blur(20px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;gap:12px;box-shadow:var(--shadow);}
+.cc .n{font-size:13.5px;font-weight:600;}
+.cc .r{font-size:12px;color:var(--text-2);}
+.cc .e{font-size:12px;color:var(--primary);margin-top:6px;}
+
+.sg2{display:grid;grid-template-columns:180px 1fr;gap:24px;}
+.sn a{display:block;padding:9px 14px;border-radius:8px;font-size:13px;color:var(--text-2);text-decoration:none;font-weight:500;margin-bottom:2px;}
+.sn a.on{background:var(--primary-light);color:var(--primary);}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
+.sr h4{font-size:13px;font-weight:600;}
+.sr p{font-size:12px;color:var(--text-2);margin:0;}
+.tg{width:40px;height:22px;background:rgba(0,0,0,0.12);border-radius:11px;position:relative;cursor:pointer;}
+.tg.on{background:var(--primary);}
+.tg::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;left:2px;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+.tg.on::after{left:20px;}
+
+.lp{display:flex;border:1px solid var(--border);border-radius:16px;overflow:hidden;max-width:880px;margin:20px auto;height:480px;box-shadow:var(--shadow);}
+.ll{width:45%;background:linear-gradient(135deg,var(--sidebar),#2D3560);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;position:relative;overflow:hidden;}
+.ll::before{content:'';position:absolute;top:-20%;right:-30%;width:60%;height:70%;background:radial-gradient(circle,rgba(67,97,238,0.25) 0%,transparent 70%);}
+.ll .logo{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),#7209B7);border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#fff;margin-bottom:20px;box-shadow:0 8px 24px rgba(67,97,238,0.3);position:relative;z-index:1;}
+.ll h1{color:#fff;font-size:22px;font-weight:600;position:relative;z-index:1;}
+.ll p{color:rgba(255,255,255,0.6);font-size:13px;position:relative;z-index:1;}
+.lr{width:55%;background:var(--surface-solid);display:flex;align-items:center;justify-content:center;padding:40px;}
+.lr .f{width:100%;max-width:280px;}
+.lr h2{font-size:21px;font-weight:600;margin-bottom:4px;}
+.lr .ds{font-size:13px;color:var(--text-2);margin-bottom:28px;}
+.fg{margin-bottom:18px;}
+.fg label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;}
+.fg input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg);outline:none;font-family:inherit;}
+.fg input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);}
+.bs{width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(67,97,238,0.25);}
+
+.pg{display:none;}.pg.on{display:block;}
+</style>
+</head>
+<body>
+<div class="side">
+  <div class="sb"><div class="logo">HS</div><div><div class="nm">Hogan Smith</div><div class="su">CaseFlow</div></div></div>
+  <nav>
+    <div class="ni on" onclick="go('dash',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="ni" onclick="go('que',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>My Queue<span class="ct">5</span></div>
+    <div class="ni" onclick="go('cas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases</div>
+    <div class="ni" onclick="go('cal',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</div>
+    <div class="ni" onclick="go('msg',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages<span class="ct">3</span></div>
+    <div class="ni" onclick="go('con',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>Contacts</div>
+    <div class="sp"></div>
+    <div class="nl">Admin</div>
+    <div class="ni" onclick="go('set',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+    <div class="ni" onclick="go('log',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Login</div>
+  </nav>
+  <div class="sf"><div class="av">JA</div><div><div class="nm">Jake Admin</div><div class="em">admin@hogansmith.com</div></div></div>
+</div>
+<div class="main">
+  <div class="top"><h2 id="pt">Dashboard</h2><div class="tr"><button class="bt">Export</button><button class="bt pr">+ New Case</button></div></div>
+  <div class="cnt">
+    <div class="pg on" id="p-dash"><div class="sg">
+      <div class="sc blue"><div class="l">Active Cases</div><div class="v">147</div><div class="d">+12 this month</div></div>
+      <div class="sc red"><div class="l">Tasks Due Today</div><div class="v">8</div><div class="d dn">3 overdue</div></div>
+      <div class="sc green"><div class="l">Hearings This Week</div><div class="v">5</div><div class="d">2 tomorrow</div></div>
+      <div class="sc yellow"><div class="l">Pending Reviews</div><div class="v">23</div><div class="d">-4 from yesterday</div></div>
+    </div><div class="g2">
+      <div class="cd"><div class="ch"><h3>Recent Activity</h3></div><div class="cb">
+        <div class="ai"><div class="dot" style="background:var(--success)"></div><div class="tx">Case #2024-0892 → <strong>Hearing Prep</strong><div class="m">Johnson — Sarah Chen · 2h</div></div></div>
+        <div class="ai"><div class="dot" style="background:var(--primary)"></div><div class="tx">14 medical records uploaded<div class="m">Williams claim · 3h</div></div></div>
+        <div class="ai"><div class="dot" style="background:var(--warning)"></div><div class="tx">New lead: <strong>Maria Garcia</strong><div class="m">Consultation scheduled · 5h</div></div></div>
+        <div class="ai"><div class="dot" style="background:var(--danger)"></div><div class="tx">Thompson appeal brief — <strong>2 days</strong><div class="m">Deadline approaching · 6h</div></div></div>
+      </div></div>
+      <div class="cd"><div class="ch"><h3>Cases by Stage</h3></div><div class="cb">
+        <div class="ai"><div class="dot" style="background:#4361EE"></div><div class="tx">Initial Application<div class="m">34 cases</div></div></div>
+        <div class="ai"><div class="dot" style="background:#7209B7"></div><div class="tx">Reconsideration<div class="m">28 cases</div></div></div>
+        <div class="ai"><div class="dot" style="background:#F72585"></div><div class="tx">Hearing Prep<div class="m">41 cases</div></div></div>
+        <div class="ai"><div class="dot" style="background:#F4A623"></div><div class="tx">Awaiting Decision<div class="m">22 cases</div></div></div>
+        <div class="ai"><div class="dot" style="background:#2ECC71"></div><div class="tx">Appeals Council<div class="m">12 cases</div></div></div>
+      </div></div>
+    </div></div>
+    <div class="pg" id="p-que"><div class="tbs"><div class="tb on">Due Today (5)</div><div class="tb">Upcoming</div><div class="tb">Overdue (3)</div><div class="tb">Completed</div></div><div class="cd"><div style="padding:0">
+      <div class="qi"><div class="qc"></div><div class="qp" style="background:var(--danger)"></div><div style="flex:1"><div class="tt">File appeal brief — Thompson</div><div class="sm">Case #2024-0756 · Hearing Prep</div></div><div class="du lt">Overdue</div></div>
+      <div class="qi"><div class="qc"></div><div class="qp" style="background:var(--danger)"></div><div style="flex:1"><div class="tt">Review medical evidence — Johnson</div><div class="sm">Case #2024-0892</div></div><div class="du lt">Due today</div></div>
+      <div class="qi"><div class="qc"></div><div class="qp" style="background:var(--warning)"></div><div style="flex:1"><div class="tt">Schedule consultative exam — Williams</div><div class="sm">Case #2024-0915</div></div><div class="du">Due today</div></div>
+      <div class="qi"><div class="qc"></div><div class="qp" style="background:var(--warning)"></div><div style="flex:1"><div class="tt">Request physician statement</div><div class="sm">Case #2024-0834</div></div><div class="du">Due today</div></div>
+      <div class="qi"><div class="qc"></div><div class="qp" style="background:var(--success)"></div><div style="flex:1"><div class="tt">Update claimant contact info</div><div class="sm">Case #2024-0901</div></div><div class="du">Due today</div></div>
+    </div></div></div>
+    <div class="pg" id="p-cas"><div class="tbs"><div class="tb on">All (147)</div><div class="tb">Active</div><div class="tb">Pending</div><div class="tb">Closed</div></div><div class="cd"><table class="tbl"><thead><tr><th>Case</th><th>Claimant</th><th>Stage</th><th>Assigned</th><th>Deadline</th><th>Status</th></tr></thead><tbody>
+      <tr><td style="color:var(--primary);font-weight:600">#2024-0892</td><td>Robert Johnson</td><td>Hearing Prep</td><td>Sarah Chen</td><td>Mar 25</td><td><span class="bg bg-g">Active</span></td></tr>
+      <tr><td style="color:var(--primary);font-weight:600">#2024-0915</td><td>Maria Williams</td><td>Initial App</td><td>Jake Admin</td><td>Mar 28</td><td><span class="bg bg-g">Active</span></td></tr>
+      <tr><td style="color:var(--primary);font-weight:600">#2024-0756</td><td>David Thompson</td><td>Appeals</td><td>Mike Torres</td><td>Mar 22</td><td><span class="bg bg-r">Urgent</span></td></tr>
+      <tr><td style="color:var(--primary);font-weight:600">#2024-0834</td><td>Lisa Anderson</td><td>Reconsideration</td><td>Sarah Chen</td><td>Apr 2</td><td><span class="bg bg-y">Pending</span></td></tr>
+      <tr><td style="color:var(--primary);font-weight:600">#2024-0612</td><td>Patricia Brown</td><td>Closed</td><td>Mike Torres</td><td>—</td><td><span class="bg bg-x">Closed</span></td></tr>
+    </tbody></table></div></div>
+    <div class="pg" id="p-cal"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="display:flex;gap:10px;align-items:center"><button class="bt">←</button><h3 style="font-size:15px;font-weight:600">March 2026</h3><button class="bt">→</button></div><div class="tbs" style="margin:0"><div class="tb">Day</div><div class="tb on">Week</div><div class="tb">Month</div></div></div>
+      <div class="cal"><div class="h">Sun</div><div class="h">Mon</div><div class="h">Tue</div><div class="h">Wed</div><div class="h">Thu</div><div class="h">Fri</div><div class="h">Sat</div>
+      <div class="c"><div class="n">15</div></div><div class="c"><div class="n">16</div><div class="e">Johnson prep</div></div><div class="c"><div class="n">17</div></div><div class="c"><div class="n">18</div><div class="e dl">Brief due</div></div><div class="c"><div class="n">19</div><div class="e">Standup</div></div><div class="c td"><div class="n">20</div><div class="e">Williams exam</div><div class="e">Garcia call</div></div><div class="c"><div class="n">21</div></div>
+      <div class="c"><div class="n">22</div></div><div class="c"><div class="n">23</div><div class="e">Follow-up</div></div><div class="c"><div class="n">24</div></div><div class="c"><div class="n">25</div><div class="e dl">Hearing</div></div><div class="c"><div class="n">26</div></div><div class="c"><div class="n">27</div><div class="e">Reviews</div></div><div class="c"><div class="n">28</div></div></div>
+    </div>
+    <div class="pg" id="p-msg"><div class="ml"><div class="mls">
+      <div class="mi on"><div class="t">10:32</div><div class="n">Sarah Chen</div><div class="p">Johnson records ready</div></div>
+      <div class="mi"><div class="t">9:15</div><div class="n">Mike Torres</div><div class="p">Thompson appeal draft</div></div>
+      <div class="mi"><div class="t">Yday</div><div class="n">Robert Johnson</div><div class="p">Thanks for the update</div></div>
+      <div class="mi"><div class="t">Yday</div><div class="n">Maria Garcia</div><div class="p">Retainer attached</div></div>
+    </div><div class="ma">
+      <div class="bb i"><strong>Sarah Chen</strong><br>Johnson records — 14 docs uploaded.</div>
+      <div class="bb o">Thanks. RFC included?</div>
+      <div class="bb i"><strong>Sarah Chen</strong><br>Yes, RFC + 12 months notes. Solid.</div>
+      <div class="bb o">Let's discuss tomorrow.</div>
+    </div></div></div>
+    <div class="pg" id="p-con"><div class="tbs"><div class="tb on">All</div><div class="tb">Claimants</div><div class="tb">Physicians</div><div class="tb">Staff</div></div><div class="cg">
+      <div class="cc"><div class="av">RJ</div><div><div class="n">Robert Johnson</div><div class="r">Claimant · #2024-0892</div><div class="e">rjohnson@email.com</div></div></div>
+      <div class="cc"><div class="av">SC</div><div><div class="n">Sarah Chen</div><div class="r">Case Manager</div><div class="e">schen@hogansmith.com</div></div></div>
+      <div class="cc"><div class="av">MT</div><div><div class="n">Mike Torres</div><div class="r">Attorney</div><div class="e">mtorres@hogansmith.com</div></div></div>
+      <div class="cc"><div class="av">PL</div><div><div class="n">Dr. Patricia Lee</div><div class="r">Physician</div><div class="e">plee@clinic.com</div></div></div>
+      <div class="cc"><div class="av">MW</div><div><div class="n">Maria Williams</div><div class="r">Claimant</div><div class="e">mwilliams@email.com</div></div></div>
+      <div class="cc"><div class="av">MG</div><div><div class="n">Maria Garcia</div><div class="r">New Lead</div><div class="e">mgarcia@email.com</div></div></div>
+    </div></div>
+    <div class="pg" id="p-set"><div class="sg2"><nav class="sn"><a href="#" class="on">General</a><a href="#">Users</a><a href="#">Workflows</a><a href="#">Templates</a><a href="#">Integrations</a></nav><div><h3 style="font-size:15px;font-weight:600;margin-bottom:4px">General Settings</h3><p style="font-size:13px;color:var(--text-2);margin-bottom:16px">Manage configuration</p><div class="cd"><div class="cb">
+      <div class="sr"><div><h4>Firm Name</h4><p>Hogan Smith Law</p></div><button class="bt">Edit</button></div>
+      <div class="sr"><div><h4>Email Notifications</h4><p>Case update alerts</p></div><div class="tg on"></div></div>
+      <div class="sr"><div><h4>Auto-assign</h4><p>By workload</p></div><div class="tg"></div></div>
+      <div class="sr" style="border:none"><div><h4>Timezone</h4><p>Central Time</p></div><button class="bt">Change</button></div>
+    </div></div></div></div></div>
+    <div class="pg" id="p-log"><p style="text-align:center;color:var(--text-2);font-size:13px;margin-bottom:16px">Login page preview</p><div class="lp">
+      <div class="ll"><div class="logo">HS</div><h1>Hogan Smith Law</h1><p>CaseFlow Management</p></div>
+      <div class="lr"><div class="f"><h2>Welcome back</h2><div class="ds">Sign in to continue</div><div class="fg"><label>Email</label><input placeholder="you@hogansmith.com"></div><div class="fg"><label>Password</label><input type="password" placeholder="••••••••"></div><button class="bs">Sign in</button></div></div>
+    </div></div>
+  </div>
+</div>
+<script>
+const t={dash:'Dashboard',que:'My Queue',cas:'Cases',cal:'Calendar',msg:'Messages',con:'Contacts',set:'Settings',log:'Login'};
+function go(p,el){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));document.getElementById('p-'+p).classList.add('on');el.classList.add('on');document.getElementById('pt').textContent=t[p];}
+</script>
+</body>
+</html>

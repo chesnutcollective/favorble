@@ -1,12 +1,13 @@
 "use client"
 
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  CircleCheck,
-  Info,
-  LoaderCircle,
-  OctagonX,
-  TriangleAlert,
-} from "lucide-react"
+  CheckmarkCircle01Icon,
+  InformationCircleIcon,
+  Loading01Icon,
+  AlertCircleIcon,
+  AlertTriangle,
+} from "@hugeicons/core-free-icons"
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
@@ -20,11 +21,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: <CircleCheck className="h-4 w-4" />,
-        info: <Info className="h-4 w-4" />,
-        warning: <TriangleAlert className="h-4 w-4" />,
-        error: <OctagonX className="h-4 w-4" />,
-        loading: <LoaderCircle className="h-4 w-4 animate-spin" />,
+        success: <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />,
+        info: <HugeiconsIcon icon={InformationCircleIcon} size={16} />,
+        warning: <HugeiconsIcon icon={AlertTriangle} size={16} />,
+        error: <HugeiconsIcon icon={AlertCircleIcon} size={16} />,
+        loading: <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />,
       }}
       toastOptions={{
         classNames: {

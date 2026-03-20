@@ -3,7 +3,8 @@ import { getCases } from "@/app/actions/cases";
 import { getAllStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { CasesListClient } from "./client";
 
 export const metadata: Metadata = {
@@ -40,7 +41,7 @@ export default async function CasesPage({
 				description="Browse and manage all cases."
 				actions={
 					<Button size="sm">
-						<Plus className="mr-1 h-4 w-4" />
+						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
 						New Case
 					</Button>
 				}

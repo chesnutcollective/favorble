@@ -4,7 +4,7 @@ import { eq, and, isNull, asc, sql } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Calendar } from "lucide-react";
+import { Calendar01Icon } from "@hugeicons/core-free-icons";
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
 	hearing: "text-primary border-blue-300",
@@ -54,7 +54,7 @@ export default async function CaseCalendarPage({
 			<CardContent>
 				{events.length === 0 ? (
 					<EmptyState
-						icon={Calendar}
+						icon={Calendar01Icon}
 						title="No events"
 						description="Hearings, deadlines, and appointments for this case will appear here."
 					/>

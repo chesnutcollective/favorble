@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Upload, X, FileText, AlertCircle } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Upload01Icon, Cancel01Icon, File01Icon, AlertCircleIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
   validateFiles,
@@ -126,7 +127,7 @@ export function DocumentUpload({
           disabled={disabled}
         />
 
-        <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+        <HugeiconsIcon icon={Upload01Icon} size={32} className="mx-auto text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
           Drag and drop files here, or{" "}
           <button
@@ -151,7 +152,7 @@ export function DocumentUpload({
               key={`${file.name}-${index}`}
               className="flex items-center gap-3 rounded-md border border-border bg-accent px-3 py-2"
             >
-              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <HugeiconsIcon icon={File01Icon} size={16} className="shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">
                   {file.name}
@@ -165,7 +166,7 @@ export function DocumentUpload({
                 onClick={() => removeFile(index)}
                 className="shrink-0 text-muted-foreground hover:text-muted-foreground"
               >
-                <X className="h-4 w-4" />
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
               </button>
             </div>
           ))}
@@ -186,7 +187,7 @@ export function DocumentUpload({
       {errors.length > 0 && (
         <div className="rounded-md border border-red-200 bg-red-50 p-3">
           <div className="flex items-start gap-2">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} className="mt-0.5 shrink-0 text-red-500" />
             <div className="min-w-0 flex-1">
               {errors.map((err, i) => (
                 <p key={i} className="text-sm text-red-700">
@@ -199,7 +200,7 @@ export function DocumentUpload({
               onClick={clearErrors}
               className="shrink-0 text-red-400 hover:text-red-600"
             >
-              <X className="h-4 w-4" />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
             </button>
           </div>
         </div>

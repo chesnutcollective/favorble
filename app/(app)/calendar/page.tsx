@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -76,7 +76,7 @@ export default async function CalendarPage() {
 
       {events.length === 0 ? (
         <EmptyState
-          icon={CalendarIcon}
+          icon={Calendar01Icon}
           title="No upcoming events"
           description="Hearings, deadlines, and appointments will appear here."
         />

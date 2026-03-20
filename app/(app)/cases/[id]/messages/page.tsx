@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MessageSquare } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Message01Icon } from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 
 export default async function CaseMessagesPage({
@@ -41,7 +42,7 @@ export default async function CaseMessagesPage({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3 text-amber-600">
-              <MessageSquare className="h-5 w-5" />
+              <HugeiconsIcon icon={Message01Icon} size={20} />
               <p className="text-sm">
                 Case Status integration is not configured. Outbound messaging is
                 disabled.
@@ -53,7 +54,7 @@ export default async function CaseMessagesPage({
 
       {messages.length === 0 ? (
         <EmptyState
-          icon={MessageSquare}
+          icon={Message01Icon}
           title="No messages"
           description="Messages from the client via Case Status will appear here."
         />

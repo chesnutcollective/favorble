@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { getLeads, getLeadCountsByStatus } from "@/app/actions/leads";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { LeadsPipelineClient } from "./client";
 
 export const metadata: Metadata = {
@@ -50,7 +51,7 @@ export default async function LeadsPage() {
 				description="Lead pipeline and intake management."
 				actions={
 					<Button size="sm">
-						<Plus className="mr-1 h-4 w-4" />
+						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
 						New Lead
 					</Button>
 				}

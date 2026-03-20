@@ -1,0 +1,286 @@
+[
+  {
+    "index": 1,
+    "label": "CaseFlowCase Management",
+    "url": "https://hogansmith.vercel.app/dashboard",
+    "pathname": "/dashboard",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/dashboard"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "02_dashboard.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 2,
+    "label": "My Queue",
+    "url": "https://hogansmith.vercel.app/queue",
+    "pathname": "/queue",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/queue"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "03_queue.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 3,
+    "label": "Cases",
+    "url": "https://hogansmith.vercel.app/cases",
+    "pathname": "/cases",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/cases"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "04_cases.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 4,
+    "label": "Leads",
+    "url": "https://hogansmith.vercel.app/leads",
+    "pathname": "/leads",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/leads"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "05_leads.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 5,
+    "label": "Calendar",
+    "url": "https://hogansmith.vercel.app/calendar",
+    "pathname": "/calendar",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/calendar"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "06_calendar.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 6,
+    "label": "Messages",
+    "url": "https://hogansmith.vercel.app/messages",
+    "pathname": "/messages",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/messages"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "07_messages.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 7,
+    "label": "Contacts",
+    "url": "https://hogansmith.vercel.app/contacts",
+    "pathname": "/contacts",
+    "consoleErrors": [],
+    "networkErrors": [],
+    "visibleErrors": [],
+    "screenshotFile": "08_contacts.png",
+    "layoutIssues": [
+      "Main content starts at x=0px — sidebar may be overlaying rather than pushing content",
+      "[INFO] Sidebar: left=0, right=1280, width=1280. Main: left=0, right=1280, width=1280"
+    ]
+  },
+  {
+    "index": 8,
+    "label": "Documents",
+    "url": "https://hogansmith.vercel.app/documents",
+    "pathname": "/documents",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/documents"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "09_documents.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 9,
+    "label": "Reports",
+    "url": "https://hogansmith.vercel.app/reports",
+    "pathname": "/reports",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/reports"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "10_reports.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 10,
+    "label": "Workflows",
+    "url": "https://hogansmith.vercel.app/admin/workflows",
+    "pathname": "/admin/workflows",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/admin/workflows"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "11_admin_workflows.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 11,
+    "label": "Stages",
+    "url": "https://hogansmith.vercel.app/admin/stages",
+    "pathname": "/admin/stages",
+    "consoleErrors": [],
+    "networkErrors": [],
+    "visibleErrors": [],
+    "screenshotFile": "12_admin_stages.png",
+    "layoutIssues": [
+      "Main content starts at x=0px — sidebar may be overlaying rather than pushing content",
+      "[INFO] Sidebar: left=0, right=1280, width=1280. Main: left=0, right=1280, width=1280"
+    ]
+  },
+  {
+    "index": 12,
+    "label": "Fields",
+    "url": "https://hogansmith.vercel.app/admin/fields",
+    "pathname": "/admin/fields",
+    "consoleErrors": [],
+    "networkErrors": [],
+    "visibleErrors": [],
+    "screenshotFile": "13_admin_fields.png",
+    "layoutIssues": [
+      "Main content starts at x=0px — sidebar may be overlaying rather than pushing content",
+      "[INFO] Sidebar: left=0, right=1280, width=1280. Main: left=0, right=1280, width=1280"
+    ]
+  },
+  {
+    "index": 13,
+    "label": "Templates",
+    "url": "https://hogansmith.vercel.app/admin/templates",
+    "pathname": "/admin/templates",
+    "consoleErrors": [],
+    "networkErrors": [],
+    "visibleErrors": [],
+    "screenshotFile": "14_admin_templates.png",
+    "layoutIssues": [
+      "Main content starts at x=0px — sidebar may be overlaying rather than pushing content",
+      "[INFO] Sidebar: left=0, right=1280, width=1280. Main: left=0, right=1280, width=1280"
+    ]
+  },
+  {
+    "index": 14,
+    "label": "Users",
+    "url": "https://hogansmith.vercel.app/admin/users",
+    "pathname": "/admin/users",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/admin/users"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "15_admin_users.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 15,
+    "label": "Integrations",
+    "url": "https://hogansmith.vercel.app/admin/integrations",
+    "pathname": "/admin/integrations",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/admin/integrations"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "16_admin_integrations.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  },
+  {
+    "index": 16,
+    "label": "Settings",
+    "url": "https://hogansmith.vercel.app/admin/settings",
+    "pathname": "/admin/settings",
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "networkErrors": [
+      "500 https://hogansmith.vercel.app/admin/settings"
+    ],
+    "visibleErrors": [
+      "error occurred"
+    ],
+    "screenshotFile": "17_admin_settings.png",
+    "layoutIssues": [
+      "[INFO] sidebar found: false, main found: false"
+    ]
+  }
+]

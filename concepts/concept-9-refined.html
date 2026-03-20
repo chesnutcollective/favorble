@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V9 — Refined Glass (Linear × Notion)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&display=swap" rel="stylesheet">
+<style>
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/*
+ * Design philosophy: Linear meets Notion meets glass.
+ * - Inter but with TIGHT tracking on headings (Linear-style)
+ * - Barely-there chrome — UI disappears, content speaks
+ * - Glass/blur as subtle depth cue, not decoration
+ * - Muted, desaturated everything — nothing screams
+ * - Generous whitespace — let things breathe
+ * - No chunky colored sidebar — light, airy, transparent
+ */
+
+:root {
+  /* Surfaces — warm whites, barely tinted */
+  --bg: #FAFAF8;
+  --surface-0: #FFFFFF;
+  --surface-1: rgba(255,255,255,0.72);
+  --surface-2: rgba(255,255,255,0.5);
+  --surface-hover: rgba(0,0,0,0.024);
+  --surface-active: rgba(0,0,0,0.04);
+  --surface-selected: rgba(43,76,140,0.06);
+
+  /* Text — warm near-blacks, not pure */
+  --text-1: #1a1a1a;
+  --text-2: #6b6b6b;
+  --text-3: #999999;
+  --text-4: #bbbbbb;
+
+  /* Borders — almost invisible */
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-default: rgba(0,0,0,0.09);
+  --border-strong: rgba(0,0,0,0.14);
+
+  /* Brand — muted navy, desaturated */
+  --accent: #3b5998;
+  --accent-hover: #2d4a85;
+  --accent-subtle: rgba(59,89,152,0.08);
+  --accent-muted: rgba(59,89,152,0.14);
+
+  /* Semantic — very muted */
+  --red: #d1453b;
+  --red-subtle: rgba(209,69,59,0.08);
+  --amber: #cf8a00;
+  --amber-subtle: rgba(207,138,0,0.08);
+  --green: #2b8a3e;
+  --green-subtle: rgba(43,138,62,0.08);
+  --blue: #3b5998;
+  --blue-subtle: rgba(59,89,152,0.08);
+
+  /* Shadows — extremely subtle, warm-tinted */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.03);
+  --shadow-glow: 0 0 0 1px var(--accent), 0 0 0 4px rgba(59,89,152,0.12);
+
+  /* Motion — Linear-style: fast, precise */
+  --duration: 150ms;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Layout */
+  --sidebar-w: 232px;
+  --header-h: 48px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 13.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar — thin, disappearing */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+
+/* Selection */
+::selection { background: var(--accent-subtle); color: var(--text-1); }
+
+/* ============================================
+   SIDEBAR — Light, airy, barely there
+   ============================================ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: transparent;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 12px 8px;
+  user-select: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  margin-bottom: 16px;
+}
+.brand-mark {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.brand-text {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+}
+.brand-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 450;
+}
+
+.nav-section {
+  margin-bottom: 20px;
+}
+.nav-label {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--text-4);
+  padding: 4px 10px 6px;
+  letter-spacing: 0.02em;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 450;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  position: relative;
+}
+.nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+.nav-item.active {
+  background: var(--surface-active);
+  color: var(--text-1);
+  font-weight: 550;
+}
+.nav-item svg {
+  width: 16px; height: 16px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.nav-item.active svg { opacity: 0.8; }
+.nav-item .badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--text-3);
+  background: var(--surface-hover);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+}
+.avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Header — barely there */
+.header {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--surface-1);
+  backdrop-filter: blur(12px);
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.breadcrumb {
+  font-size: 13px;
+  color: var(--text-3);
+  font-weight: 450;
+}
+.breadcrumb .current {
+  color: var(--text-1);
+  font-weight: 550;
+}
+.breadcrumb .sep {
+  margin: 0 4px;
+  color: var(--text-4);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Buttons — Linear-style: subtle, precise */
+.btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-0);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.4;
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-1);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: transparent;
+  color: #fff;
+}
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.btn-ghost:hover {
+  background: var(--surface-hover);
+  border-color: transparent;
+}
+
+/* Content area */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+
+/* Page header — clean, typographic */
+.page-head {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-1);
+}
+.page-desc {
+  font-size: 13.5px;
+  color: var(--text-3);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* ============================================
+   STAT CARDS — Glass, minimal
+   ============================================ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: all var(--duration) var(--ease);
+  position: relative;
+}
+.stat:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-1);
+}
+.stat-delta {
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.stat-delta.up { color: var(--green); }
+.stat-delta.down { color: var(--red); }
+
+/* ============================================
+   TABLE — Clean, no heavy borders
+   ============================================ */
+.table-wrap {
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(0,0,0,0.015);
+}
+td {
+  padding: 11px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-2);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface-hover); }
+td:first-child { color: var(--text-1); font-weight: 500; }
+
+/* Status badges — very subtle pills */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.badge-green { background: var(--green-subtle); color: var(--green); }
+.badge-red { background: var(--red-subtle); color: var(--red); }
+.badge-amber { background: var(--amber-subtle); color: var(--amber); }
+.badge-blue { background: var(--blue-subtle); color: var(--blue); }
+.badge-neutral { background: var(--surface-active); color: var(--text-3); }
+
+/* Dot indicator */
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   CARDS — Glass-like, barely bordered
+   ============================================ */
+.card {
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+.card-body { padding: 14px 18px; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ============================================
+   ACTIVITY FEED — Linear-style timeline
+   ============================================ */
+.feed-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+}
+.feed-item + .feed-item { border-top: 1px solid var(--border-subtle); }
+.feed-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.feed-text {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.feed-text strong { color: var(--text-1); font-weight: 550; }
+.feed-meta {
+  font-size: 11.5px;
+  color: var(--text-4);
+  margin-top: 2px;
+}
+
+/* ============================================
+   QUEUE — Clean task list
+   ============================================ */
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background var(--duration) var(--ease);
+  cursor: default;
+}
+.queue-item:last-child { border-bottom: none; }
+.queue-item:hover { background: var(--surface-hover); }
+.queue-check {
+  width: 15px; height: 15px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all var(--duration) var(--ease);
+}
+.queue-check:hover { border-color: var(--accent); }
+.queue-pri {
+  width: 3px; height: 20px;
+  border-radius: 1.5px;
+  flex-shrink: 0;
+}
+.queue-info { flex: 1; min-width: 0; }
+.queue-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
+.queue-meta { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+.queue-due { font-size: 12px; color: var(--text-3); flex-shrink: 0; }
+.queue-due.overdue { color: var(--red); font-weight: 500; }
+
+/* ============================================
+   CALENDAR — Minimal grid
+   ============================================ */
+.cal-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-nav {
+  display: flex; align-items: center; gap: 8px;
+}
+.cal-nav h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  min-width: 140px;
+  text-align: center;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cal-dow {
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--text-3);
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cal-day {
+  min-height: 88px;
+  padding: 6px 8px;
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-0);
+  transition: background var(--duration) var(--ease);
+}
+.cal-day:nth-child(7n) { border-right: none; }
+.cal-day:hover { background: var(--surface-hover); }
+.cal-num {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.cal-day.today .cal-num {
+  background: var(--accent);
+  color: #fff;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+  font-size: 11px;
+}
+.cal-event {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-event.blue { background: var(--blue-subtle); color: var(--blue); }
+.cal-event.red { background: var(--red-subtle); color: var(--red); }
+.cal-event.green { background: var(--green-subtle); color: var(--green); }
+.cal-event.amber { background: var(--amber-subtle); color: var(--amber); }
+
+/* ============================================
+   MESSAGES — Split pane, glass thread area
+   ============================================ */
+.msg-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  height: calc(100vh - 180px);
+}
+.msg-list {
+  background: var(--surface-0);
+  border-right: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+.msg-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background var(--duration) var(--ease);
+}
+.msg-item:hover { background: var(--surface-hover); }
+.msg-item.active { background: var(--surface-selected); }
+.msg-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--text-1);
+  display: flex;
+  justify-content: space-between;
+}
+.msg-time { font-size: 11px; color: var(--text-4); font-weight: 400; }
+.msg-preview {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.msg-thread {
+  background: var(--bg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+.bubble {
+  max-width: 60%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.bubble.out {
+  background: var(--accent);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.bubble.in {
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  color: var(--text-1);
+}
+.bubble .sender {
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--text-1);
+}
+
+/* ============================================
+   CONTACTS — Clean cards
+   ============================================ */
+.contact-card {
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  gap: 12px;
+  transition: all var(--duration) var(--ease);
+}
+.contact-card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+.contact-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.contact-name { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
+.contact-role { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+.contact-email { font-size: 12px; color: var(--accent); margin-top: 6px; }
+
+/* ============================================
+   SETTINGS — Clean form layout
+   ============================================ */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 32px;
+}
+.settings-nav a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-decoration: none;
+  font-weight: 450;
+  margin-bottom: 2px;
+  transition: all var(--duration) var(--ease);
+}
+.settings-nav a:hover { background: var(--surface-hover); color: var(--text-1); }
+.settings-nav a.active { background: var(--surface-active); color: var(--text-1); font-weight: 550; }
+
+.setting-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+.setting-section p {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 18px;
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row h4 { font-size: 13px; font-weight: 550; color: var(--text-1); }
+.setting-row p { font-size: 12px; color: var(--text-3); margin: 0; }
+.toggle {
+  width: 36px; height: 20px;
+  background: var(--border-strong);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease);
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: transform var(--duration) var(--ease);
+  box-shadow: var(--shadow-xs);
+}
+.toggle.on::after { transform: translateX(16px); }
+
+/* ============================================
+   LOGIN — Full screen, clean
+   ============================================ */
+.login-preview {
+  display: flex;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 840px;
+  margin: 20px auto;
+  height: 480px;
+  box-shadow: var(--shadow-md);
+}
+.login-left {
+  width: 42%;
+  background: var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: -20%; right: -30%;
+  width: 80%; height: 80%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+}
+.login-logo {
+  width: 56px; height: 56px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 18px; color: #fff;
+  margin-bottom: 20px;
+  position: relative;
+}
+.login-left h1 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  position: relative;
+}
+.login-left .login-sub {
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  margin-top: 4px;
+  position: relative;
+}
+.login-right {
+  width: 58%;
+  background: var(--surface-0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.login-form { width: 100%; max-width: 280px; }
+.login-form h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-bottom: 2px;
+}
+.login-form .desc {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 28px;
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-2);
+  margin-bottom: 5px;
+}
+.field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 7px;
+  font-size: 13px;
+  background: var(--surface-0);
+  color: var(--text-1);
+  outline: none;
+  font-family: inherit;
+  transition: all var(--duration) var(--ease);
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.btn-sign {
+  width: 100%;
+  padding: 9px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--duration) var(--ease);
+}
+.btn-sign:hover { background: var(--accent-hover); }
+
+/* Page visibility */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Subtle glass effect on some surfaces */
+.glass {
+  background: var(--surface-1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">HS</div>
+    <div>
+      <div class="brand-text">Hogan Smith</div>
+      <div class="brand-sub">CaseFlow</div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-item active" onclick="go('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="go('queue',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        My Queue
+        <span class="badge">5</span>
+      </div>
+      <div class="nav-item" onclick="go('cases',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Cases
+      </div>
+      <div class="nav-item" onclick="go('calendar',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </div>
+      <div class="nav-item" onclick="go('messages',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+        <span class="badge">3</span>
+      </div>
+      <div class="nav-item" onclick="go('contacts',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Contacts
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Admin</div>
+      <div class="nav-item" onclick="go('settings',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+      <div class="nav-item" onclick="go('login',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Login Page
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="avatar">JA</div>
+    <div class="user-name">Jake Admin</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="header glass">
+    <div class="header-left">
+      <span class="breadcrumb">CaseFlow <span class="sep">/</span> <span class="current" id="bc-title">Dashboard</span></span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-ghost" style="color:var(--text-4)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search...
+        <span style="font-size:11px;color:var(--text-4);border:1px solid var(--border-default);padding:1px 5px;border-radius:4px;margin-left:4px">⌘K</span>
+      </button>
+      <button class="btn btn-primary">+ New Case</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div class="page active" id="p-dashboard">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-desc">Welcome back, Jake. Here's your overview.</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Active Cases</div><div class="stat-value">147</div><div class="stat-delta up">↑ 12 this month</div></div>
+        <div class="stat"><div class="stat-label">Tasks Due Today</div><div class="stat-value">8</div><div class="stat-delta down">3 overdue</div></div>
+        <div class="stat"><div class="stat-label">Hearings This Week</div><div class="stat-value">5</div><div class="stat-delta up">2 tomorrow</div></div>
+        <div class="stat"><div class="stat-label">Pending Reviews</div><div class="stat-value">23</div><div class="stat-delta up">↓ 4 from yesterday</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Activity</span><button class="btn btn-ghost" style="font-size:12px">View all</button></div>
+          <div class="card-body">
+            <div class="feed-item"><div class="feed-dot" style="background:var(--green)"></div><div><div class="feed-text"><strong>Case #2024-0892</strong> moved to Hearing Prep</div><div class="feed-meta">Johnson v. SSA — Sarah Chen · 2h ago</div></div></div>
+            <div class="feed-item"><div class="feed-dot" style="background:var(--accent)"></div><div><div class="feed-text">Medical records uploaded — <strong>14 documents</strong></div><div class="feed-meta">Williams disability claim · 3h ago</div></div></div>
+            <div class="feed-item"><div class="feed-dot" style="background:var(--amber)"></div><div><div class="feed-text">New lead assigned — <strong>Maria Garcia</strong></div><div class="feed-meta">Initial consultation scheduled · 5h ago</div></div></div>
+            <div class="feed-item"><div class="feed-dot" style="background:var(--red)"></div><div><div class="feed-text">Thompson appeal brief — <strong>due in 2 days</strong></div><div class="feed-meta">Deadline approaching · 6h ago</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Cases by Stage</span><button class="btn btn-ghost" style="font-size:12px">View all</button></div>
+          <div class="card-body">
+            <div class="feed-item"><div class="dot" style="background:var(--accent)"></div><div><div class="feed-text">Initial Application</div><div class="feed-meta">34 cases</div></div></div>
+            <div class="feed-item"><div class="dot" style="background:#7c3aed"></div><div><div class="feed-text">Reconsideration</div><div class="feed-meta">28 cases</div></div></div>
+            <div class="feed-item"><div class="dot" style="background:#db2777"></div><div><div class="feed-text">Hearing Prep</div><div class="feed-meta">41 cases</div></div></div>
+            <div class="feed-item"><div class="dot" style="background:var(--amber)"></div><div><div class="feed-text">Awaiting Decision</div><div class="feed-meta">22 cases</div></div></div>
+            <div class="feed-item"><div class="dot" style="background:var(--green)"></div><div><div class="feed-text">Appeals Council</div><div class="feed-meta">12 cases</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="page" id="p-queue">
+      <div class="page-head"><div><div class="page-title">My Queue</div><div class="page-desc">5 tasks due today, 3 overdue</div></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Due Today</span></div>
+        <div>
+          <div class="queue-item"><div class="queue-check"></div><div class="queue-pri" style="background:var(--red)"></div><div class="queue-info"><div class="queue-title">File appeal brief — Thompson v. SSA</div><div class="queue-meta">Case #2024-0756 · Hearing Prep</div></div><div class="queue-due overdue">Overdue</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="queue-pri" style="background:var(--red)"></div><div class="queue-info"><div class="queue-title">Review medical evidence — Johnson claim</div><div class="queue-meta">Case #2024-0892 · Reconsideration</div></div><div class="queue-due overdue">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="queue-pri" style="background:var(--amber)"></div><div class="queue-info"><div class="queue-title">Schedule consultative exam — Williams</div><div class="queue-meta">Case #2024-0915 · Initial Application</div></div><div class="queue-due">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="queue-pri" style="background:var(--amber)"></div><div class="queue-info"><div class="queue-title">Request treating physician statement</div><div class="queue-meta">Case #2024-0834 · Hearing Prep</div></div><div class="queue-due">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="queue-pri" style="background:var(--green)"></div><div class="queue-info"><div class="queue-title">Update claimant contact information</div><div class="queue-meta">Case #2024-0901 · Initial Application</div></div><div class="queue-due">Due today</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="page" id="p-cases">
+      <div class="page-head"><div><div class="page-title">Cases</div><div class="page-desc">147 active cases</div></div><div><button class="btn">Filter</button> <button class="btn btn-primary">+ New Case</button></div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Case #</th><th>Claimant</th><th>Stage</th><th>Assigned To</th><th>Deadline</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>#2024-0892</td><td>Robert Johnson</td><td>Hearing Prep</td><td>Sarah Chen</td><td>Mar 25, 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>#2024-0915</td><td>Maria Williams</td><td>Initial Application</td><td>Jake Admin</td><td>Mar 28, 2026</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>#2024-0756</td><td>David Thompson</td><td>Appeals Council</td><td>Mike Torres</td><td>Mar 22, 2026</td><td><span class="badge badge-red">Urgent</span></td></tr>
+            <tr><td>#2024-0834</td><td>Lisa Anderson</td><td>Reconsideration</td><td>Sarah Chen</td><td>Apr 2, 2026</td><td><span class="badge badge-amber">Pending</span></td></tr>
+            <tr><td>#2024-0778</td><td>James Martinez</td><td>Awaiting Decision</td><td>Jake Admin</td><td>—</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>#2024-0612</td><td>Patricia Brown</td><td>Closed — Approved</td><td>Mike Torres</td><td>—</td><td><span class="badge badge-neutral">Closed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="page" id="p-calendar">
+      <div class="page-head"><div><div class="page-title">Calendar</div><div class="page-desc">March 2026</div></div></div>
+      <div class="cal-header-bar">
+        <div class="cal-nav"><button class="btn btn-ghost">←</button><h3>March 2026</h3><button class="btn btn-ghost">→</button></div>
+        <div style="display:flex;gap:4px"><button class="btn btn-ghost">Day</button><button class="btn" style="background:var(--surface-active)">Week</button><button class="btn btn-ghost">Month</button></div>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+        <div class="cal-day"><div class="cal-num">15</div></div>
+        <div class="cal-day"><div class="cal-num">16</div><div class="cal-event blue">Johnson prep</div></div>
+        <div class="cal-day"><div class="cal-num">17</div></div>
+        <div class="cal-day"><div class="cal-num">18</div><div class="cal-event red">Thompson brief due</div></div>
+        <div class="cal-day"><div class="cal-num">19</div><div class="cal-event blue">Team standup</div></div>
+        <div class="cal-day today"><div class="cal-num">20</div><div class="cal-event green">Williams exam</div><div class="cal-event amber">Garcia intake</div></div>
+        <div class="cal-day"><div class="cal-num">21</div></div>
+        <div class="cal-day"><div class="cal-num">22</div></div>
+        <div class="cal-day"><div class="cal-num">23</div><div class="cal-event blue">Anderson follow-up</div></div>
+        <div class="cal-day"><div class="cal-num">24</div></div>
+        <div class="cal-day"><div class="cal-num">25</div><div class="cal-event red">Johnson hearing</div></div>
+        <div class="cal-day"><div class="cal-num">26</div></div>
+        <div class="cal-day"><div class="cal-num">27</div><div class="cal-event blue">Intake reviews</div></div>
+        <div class="cal-day"><div class="cal-num">28</div></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="page" id="p-messages">
+      <div class="page-head"><div><div class="page-title">Messages</div><div class="page-desc">3 unread conversations</div></div></div>
+      <div class="msg-layout">
+        <div class="msg-list">
+          <div class="msg-item active"><div class="msg-name">Sarah Chen <span class="msg-time">10:32 AM</span></div><div class="msg-preview">Johnson medical records are ready for review</div></div>
+          <div class="msg-item"><div class="msg-name">Mike Torres <span class="msg-time">9:15 AM</span></div><div class="msg-preview">Thompson appeal — can you review the draft?</div></div>
+          <div class="msg-item"><div class="msg-name">Robert Johnson <span class="msg-time">Yesterday</span></div><div class="msg-preview">Thank you for the update on my case</div></div>
+          <div class="msg-item"><div class="msg-name">Maria Garcia <span class="msg-time">Yesterday</span></div><div class="msg-preview">Attached the signed retainer agreement</div></div>
+          <div class="msg-item"><div class="msg-name">Dr. Patricia Lee <span class="msg-time">Mar 18</span></div><div class="msg-preview">RFC form completed and attached</div></div>
+        </div>
+        <div class="msg-thread">
+          <div class="bubble in"><div class="sender">Sarah Chen</div>Hey Jake, the Johnson medical records just came in from Dr. Lee's office. 14 documents total — I've uploaded them to the case file.</div>
+          <div class="bubble out">Great, thanks Sarah. I'll review them this afternoon. Did they include the RFC form?</div>
+          <div class="bubble in"><div class="sender">Sarah Chen</div>Yes, RFC is included along with the treatment notes from the last 12 months. Looks like a solid record.</div>
+          <div class="bubble out">Perfect. Let's discuss during tomorrow's case review.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="p-contacts">
+      <div class="page-head"><div><div class="page-title">Contacts</div><div class="page-desc">Team, claimants, and medical providers</div></div></div>
+      <div class="grid-3">
+        <div class="contact-card"><div class="contact-avatar">RJ</div><div><div class="contact-name">Robert Johnson</div><div class="contact-role">Claimant · Case #2024-0892</div><div class="contact-email">rjohnson@email.com</div></div></div>
+        <div class="contact-card"><div class="contact-avatar">SC</div><div><div class="contact-name">Sarah Chen</div><div class="contact-role">Case Manager</div><div class="contact-email">schen@hogansmith.com</div></div></div>
+        <div class="contact-card"><div class="contact-avatar">MT</div><div><div class="contact-name">Mike Torres</div><div class="contact-role">Attorney</div><div class="contact-email">mtorres@hogansmith.com</div></div></div>
+        <div class="contact-card"><div class="contact-avatar">PL</div><div><div class="contact-name">Dr. Patricia Lee</div><div class="contact-role">Treating Physician</div><div class="contact-email">plee@clinic.com</div></div></div>
+        <div class="contact-card"><div class="contact-avatar">MW</div><div><div class="contact-name">Maria Williams</div><div class="contact-role">Claimant · Case #2024-0915</div><div class="contact-email">mwilliams@email.com</div></div></div>
+        <div class="contact-card"><div class="contact-avatar">MG</div><div><div class="contact-name">Maria Garcia</div><div class="contact-role">New Lead</div><div class="contact-email">mgarcia@email.com</div></div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="p-settings">
+      <div class="page-head"><div><div class="page-title">Settings</div><div class="page-desc">Manage your firm's CaseFlow configuration</div></div></div>
+      <div class="settings-layout">
+        <nav class="settings-nav">
+          <a href="#" class="active">General</a>
+          <a href="#">Users</a>
+          <a href="#">Workflows</a>
+          <a href="#">Templates</a>
+          <a href="#">Integrations</a>
+        </nav>
+        <div class="setting-section">
+          <h3>General</h3>
+          <p>Core firm settings and preferences</p>
+          <div class="card">
+            <div class="card-body">
+              <div class="setting-row"><div><h4>Firm Name</h4><p>Hogan Smith Law</p></div><button class="btn">Edit</button></div>
+              <div class="setting-row"><div><h4>Email Notifications</h4><p>Receive email alerts for case updates and deadlines</p></div><div class="toggle on"></div></div>
+              <div class="setting-row"><div><h4>Auto-assign Cases</h4><p>Automatically assign new cases based on workload</p></div><div class="toggle"></div></div>
+              <div class="setting-row"><div><h4>Case Numbering</h4><p>Format: YYYY-####</p></div><button class="btn">Edit</button></div>
+              <div class="setting-row"><div><h4>Timezone</h4><p>Central Time (CT)</p></div><button class="btn">Change</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="page" id="p-login">
+      <div class="page-head"><div><div class="page-title">Login Page</div><div class="page-desc">How the sign-in screen appears to users</div></div></div>
+      <div class="login-preview">
+        <div class="login-left">
+          <div class="login-logo">HS</div>
+          <h1>Hogan Smith Law</h1>
+          <div class="login-sub">CaseFlow Management System</div>
+        </div>
+        <div class="login-right">
+          <div class="login-form">
+            <h2>Sign in</h2>
+            <div class="desc">Enter your credentials to continue</div>
+            <div class="field"><label>Email</label><input type="email" placeholder="you@hogansmith.com"></div>
+            <div class="field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+            <button class="btn-sign">Sign in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const titles = {
+  dashboard: 'Dashboard', queue: 'My Queue', cases: 'Cases',
+  calendar: 'Calendar', messages: 'Messages', contacts: 'Contacts',
+  settings: 'Settings', login: 'Login Page'
+};
+function go(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('p-' + page).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('bc-title').textContent = titles[page];
+}
+</script>
+</body>
+</html>

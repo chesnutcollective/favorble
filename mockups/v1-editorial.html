@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V1 — Editorial Clean</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --sidebar-bg: #1B2A4A;
+  --sidebar-text: #C7D0DE;
+  --sidebar-active: #FFFFFF;
+  --sidebar-active-bg: rgba(255,255,255,0.1);
+  --primary: #2B4C8C;
+  --primary-light: #E8EDF5;
+  --text: #1A1A2E;
+  --text-secondary: #6B7280;
+  --border: #E5E5E0;
+  --accent: #D4A843;
+  --danger: #DC4545;
+  --success: #2D8B5F;
+  --radius: 10px;
+}
+body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* Sidebar */
+.sidebar { width: 260px; background: var(--sidebar-bg); display: flex; flex-direction: column; padding: 0; flex-shrink: 0; }
+.sidebar-brand { padding: 24px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-brand .logo { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; color: #1B2A4A; font-size: 14px; }
+.sidebar-brand span { color: #fff; font-weight: 600; font-size: 15px; }
+.sidebar-brand small { display: block; color: var(--sidebar-text); font-size: 11px; font-weight: 400; opacity: 0.7; }
+.sidebar nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.nav-section { margin-bottom: 8px; }
+.nav-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.35); padding: 8px 12px 6px; font-weight: 600; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: var(--sidebar-text); font-size: 13.5px; cursor: pointer; transition: all 0.15s; font-weight: 450; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active { background: var(--sidebar-active-bg); color: var(--sidebar-active); font-weight: 550; }
+.nav-item svg { width: 18px; height: 18px; opacity: 0.7; }
+.nav-item.active svg { opacity: 1; }
+.nav-item .badge { margin-left: auto; background: var(--accent); color: #1B2A4A; font-size: 11px; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+.sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #1B2A4A; }
+.sidebar-footer .user-info { font-size: 13px; color: #fff; font-weight: 500; }
+.sidebar-footer .user-info small { display: block; font-size: 11px; color: var(--sidebar-text); font-weight: 400; }
+
+/* Main */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex-shrink: 0; }
+.topbar h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; }
+.topbar-actions { display: flex; gap: 8px; }
+.topbar-actions button { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; cursor: pointer; font-weight: 500; color: var(--text); }
+.topbar-actions button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.content { flex: 1; overflow-y: auto; padding: 28px; }
+
+/* Page tabs */
+.page-tabs { display: flex; gap: 2px; background: var(--surface); padding: 6px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); width: fit-content; }
+.page-tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; color: var(--text-secondary); border: none; background: none; transition: all 0.15s; }
+.page-tab.active { background: var(--primary); color: #fff; }
+.page-tab:hover:not(.active) { background: var(--primary-light); }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-header h3 { font-size: 14px; font-weight: 600; }
+.card-body { padding: 22px; }
+
+/* Stats grid */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+.stat-card .label { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; margin-bottom: 6px; }
+.stat-card .value { font-size: 28px; font-weight: 700; font-family: 'Playfair Display', serif; }
+.stat-card .trend { font-size: 12px; color: var(--success); margin-top: 4px; font-weight: 500; }
+.stat-card .trend.down { color: var(--danger); }
+.stat-card.highlight { background: var(--primary); border-color: var(--primary); }
+.stat-card.highlight .label, .stat-card.highlight .value, .stat-card.highlight .trend { color: #fff; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 10px 16px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); font-weight: 600; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 14px 16px; font-size: 13.5px; border-bottom: 1px solid var(--border); }
+.data-table tr:hover td { background: var(--primary-light); }
+.status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 550; display: inline-block; }
+.status-badge.active { background: #E6F4ED; color: var(--success); }
+.status-badge.pending { background: #FEF3CD; color: #92680A; }
+.status-badge.closed { background: #F3F4F6; color: var(--text-secondary); }
+.status-badge.urgent { background: #FEE2E2; color: var(--danger); }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* List items */
+.list-item { padding: 14px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.list-item:last-child { border-bottom: none; }
+.list-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.list-item .info { flex: 1; }
+.list-item .info .title { font-size: 13.5px; font-weight: 500; }
+.list-item .info .meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.list-item .time { font-size: 12px; color: var(--text-secondary); }
+
+/* Calendar */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.cal-header { background: var(--primary-light); padding: 10px; text-align: center; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+.cal-day { background: var(--surface); min-height: 90px; padding: 8px; }
+.cal-day .day-num { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.cal-day.today .day-num { background: var(--primary); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.cal-event { margin-top: 4px; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 500; background: var(--primary-light); color: var(--primary); }
+.cal-event.deadline { background: #FEE2E2; color: var(--danger); }
+
+/* Messages */
+.msg-layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 160px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.msg-list { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; }
+.msg-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.msg-item:hover { background: var(--primary-light); }
+.msg-item.active { background: var(--primary-light); border-left: 3px solid var(--primary); }
+.msg-item .name { font-size: 13px; font-weight: 600; }
+.msg-item .preview { font-size: 12px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-item .time { font-size: 11px; color: var(--text-secondary); float: right; }
+.msg-thread { background: var(--bg); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 13.5px; line-height: 1.5; }
+.msg-bubble.sent { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.msg-bubble.received { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+/* Login */
+.login-page { display: flex; height: 100vh; width: 100vw; }
+.login-brand { width: 50%; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; }
+.login-brand .logo-big { width: 120px; height: 120px; background: var(--accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #1B2A4A; margin-bottom: 32px; }
+.login-brand h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: 32px; margin-bottom: 8px; }
+.login-brand p { color: var(--sidebar-text); font-size: 15px; }
+.login-form-side { width: 50%; display: flex; align-items: center; justify-content: center; padding: 60px; background: var(--bg); }
+.login-form { width: 100%; max-width: 380px; }
+.login-form h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 6px; }
+.login-form p { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
+.form-field { margin-bottom: 20px; }
+.form-field label { display: block; font-size: 13px; font-weight: 550; margin-bottom: 6px; }
+.form-field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); outline: none; }
+.form-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.btn-login { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-login:hover { background: #1E3A6E; }
+
+/* Settings */
+.settings-grid { display: grid; grid-template-columns: 200px 1fr; gap: 32px; }
+.settings-nav a { display: block; padding: 8px 14px; border-radius: 6px; font-size: 13.5px; color: var(--text-secondary); text-decoration: none; margin-bottom: 2px; font-weight: 450; }
+.settings-nav a.active { background: var(--primary-light); color: var(--primary); font-weight: 550; }
+.settings-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.settings-section p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.settings-row .info h4 { font-size: 13.5px; font-weight: 550; }
+.settings-row .info p { font-size: 12.5px; color: var(--text-secondary); margin: 0; }
+.toggle { width: 40px; height: 22px; background: #D1D5DB; border-radius: 11px; position: relative; cursor: pointer; }
+.toggle.on { background: var(--primary); }
+.toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
+.toggle.on::after { left: 20px; }
+
+/* Queue */
+.queue-item { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.queue-item:hover { background: var(--primary-light); }
+.queue-check { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; }
+.queue-item .priority { width: 4px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.queue-item .priority.high { background: var(--danger); }
+.queue-item .priority.medium { background: var(--accent); }
+.queue-item .priority.low { background: var(--success); }
+.queue-info { flex: 1; }
+.queue-info .task-title { font-size: 13.5px; font-weight: 500; }
+.queue-info .task-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.queue-item .due { font-size: 12px; color: var(--text-secondary); }
+.queue-item .due.overdue { color: var(--danger); font-weight: 550; }
+
+/* Contacts */
+.contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; display: flex; gap: 14px; align-items: flex-start; }
+.contact-card .avatar-lg { width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--primary); flex-shrink: 0; }
+.contact-card .name { font-size: 14px; font-weight: 600; }
+.contact-card .role { font-size: 12px; color: var(--text-secondary); }
+.contact-card .email { font-size: 12px; color: var(--primary); margin-top: 6px; }
+
+/* Page container */
+.page { display: none; }
+.page.active { display: block; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">HS</div>
+    <div><span>Hogan Smith</span><small>CaseFlow</small></div>
+  </div>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('queue')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        My Queue <span class="badge">5</span>
+      </div>
+      <div class="nav-item" onclick="showPage('cases')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Cases
+      </div>
+      <div class="nav-item" onclick="showPage('calendar')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </div>
+      <div class="nav-item" onclick="showPage('messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages <span class="badge">3</span>
+      </div>
+      <div class="nav-item" onclick="showPage('contacts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Contacts
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Admin</div>
+      <div class="nav-item" onclick="showPage('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+      <div class="nav-item" onclick="showPage('login')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Login Page
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar">JA</div>
+    <div class="user-info">Jake Admin<small>admin@hogansmith.com</small></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h2 id="page-title">Dashboard</h2>
+    <div class="topbar-actions">
+      <button>Export</button>
+      <button class="primary">+ New Case</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card highlight"><div class="label">Active Cases</div><div class="value">147</div><div class="trend">+12 this month</div></div>
+        <div class="stat-card"><div class="label">Tasks Due Today</div><div class="value">8</div><div class="trend down">3 overdue</div></div>
+        <div class="stat-card"><div class="label">Hearings This Week</div><div class="value">5</div><div class="trend">2 tomorrow</div></div>
+        <div class="stat-card"><div class="label">Pending Reviews</div><div class="value">23</div><div class="trend">-4 from yesterday</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Recent Activity</h3></div>
+          <div class="card-body">
+            <div class="list-item"><div class="dot" style="background:var(--success)"></div><div class="info"><div class="title">Case #2024-0892 moved to Hearing Prep</div><div class="meta">Johnson v. SSA — by Sarah Chen</div></div><div class="time">2h ago</div></div>
+            <div class="list-item"><div class="dot" style="background:var(--primary)"></div><div class="info"><div class="title">Medical records uploaded</div><div class="meta">Williams disability claim — 14 documents</div></div><div class="time">3h ago</div></div>
+            <div class="list-item"><div class="dot" style="background:var(--accent)"></div><div class="info"><div class="title">New lead assigned</div><div class="meta">Maria Garcia — Initial consultation scheduled</div></div><div class="time">5h ago</div></div>
+            <div class="list-item"><div class="dot" style="background:var(--danger)"></div><div class="info"><div class="title">Deadline approaching</div><div class="meta">Thompson appeal brief due in 2 days</div></div><div class="time">6h ago</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Cases by Stage</h3></div>
+          <div class="card-body">
+            <div class="list-item"><div class="dot" style="background:#3B82F6"></div><div class="info"><div class="title">Initial Application</div></div><div class="time" style="font-weight:600;color:var(--text)">34</div></div>
+            <div class="list-item"><div class="dot" style="background:#8B5CF6"></div><div class="info"><div class="title">Reconsideration</div></div><div class="time" style="font-weight:600;color:var(--text)">28</div></div>
+            <div class="list-item"><div class="dot" style="background:#EC4899"></div><div class="info"><div class="title">Hearing Prep</div></div><div class="time" style="font-weight:600;color:var(--text)">41</div></div>
+            <div class="list-item"><div class="dot" style="background:#F59E0B"></div><div class="info"><div class="title">Awaiting Decision</div></div><div class="time" style="font-weight:600;color:var(--text)">22</div></div>
+            <div class="list-item"><div class="dot" style="background:#10B981"></div><div class="info"><div class="title">Appeals Council</div></div><div class="time" style="font-weight:600;color:var(--text)">12</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="page" id="page-queue">
+      <div class="page-tabs">
+        <div class="page-tab active">Due Today (5)</div>
+        <div class="page-tab">Upcoming</div>
+        <div class="page-tab">Overdue (3)</div>
+        <div class="page-tab">Completed</div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <div class="queue-item"><div class="queue-check"></div><div class="priority high"></div><div class="queue-info"><div class="task-title">File appeal brief — Thompson v. SSA</div><div class="task-meta">Case #2024-0756 · Hearing Prep</div></div><div class="due overdue">Due yesterday</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="priority high"></div><div class="queue-info"><div class="task-title">Review medical evidence — Johnson claim</div><div class="task-meta">Case #2024-0892 · Reconsideration</div></div><div class="due overdue">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="priority medium"></div><div class="queue-info"><div class="task-title">Schedule consultative exam — Williams</div><div class="task-meta">Case #2024-0915 · Initial Application</div></div><div class="due">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="priority medium"></div><div class="queue-info"><div class="task-title">Request treating physician statement</div><div class="task-meta">Case #2024-0834 · Hearing Prep</div></div><div class="due">Due today</div></div>
+          <div class="queue-item"><div class="queue-check"></div><div class="priority low"></div><div class="queue-info"><div class="task-title">Update claimant contact info</div><div class="task-meta">Case #2024-0901 · Initial Application</div></div><div class="due">Due today</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="page" id="page-cases">
+      <div class="page-tabs">
+        <div class="page-tab active">All Cases (147)</div>
+        <div class="page-tab">Active</div>
+        <div class="page-tab">Pending</div>
+        <div class="page-tab">Closed</div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="data-table">
+            <thead><tr><th>Case #</th><th>Claimant</th><th>Stage</th><th>Assigned To</th><th>Next Deadline</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0892</td><td>Robert Johnson</td><td>Hearing Prep</td><td>Sarah Chen</td><td>Mar 25, 2026</td><td><span class="status-badge active">Active</span></td></tr>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0915</td><td>Maria Williams</td><td>Initial Application</td><td>Jake Admin</td><td>Mar 28, 2026</td><td><span class="status-badge active">Active</span></td></tr>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0756</td><td>David Thompson</td><td>Appeals Council</td><td>Mike Torres</td><td>Mar 22, 2026</td><td><span class="status-badge urgent">Urgent</span></td></tr>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0834</td><td>Lisa Anderson</td><td>Reconsideration</td><td>Sarah Chen</td><td>Apr 2, 2026</td><td><span class="status-badge pending">Pending</span></td></tr>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0778</td><td>James Martinez</td><td>Awaiting Decision</td><td>Jake Admin</td><td>—</td><td><span class="status-badge active">Active</span></td></tr>
+              <tr><td style="font-weight:600;color:var(--primary)">#2024-0612</td><td>Patricia Brown</td><td>Closed — Approved</td><td>Mike Torres</td><td>—</td><td><span class="status-badge closed">Closed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="page" id="page-calendar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:16px"><button style="border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:6px;cursor:pointer">←</button><h3 style="font-size:16px;font-weight:600">March 2026</h3><button style="border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:6px;cursor:pointer">→</button></div>
+        <div class="page-tabs"><div class="page-tab">Day</div><div class="page-tab active">Week</div><div class="page-tab">Month</div></div>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-header">Sun</div><div class="cal-header">Mon</div><div class="cal-header">Tue</div><div class="cal-header">Wed</div><div class="cal-header">Thu</div><div class="cal-header">Fri</div><div class="cal-header">Sat</div>
+        <div class="cal-day"><div class="day-num">15</div></div>
+        <div class="cal-day"><div class="day-num">16</div><div class="cal-event">Johnson hearing prep</div></div>
+        <div class="cal-day"><div class="day-num">17</div></div>
+        <div class="cal-day"><div class="day-num">18</div><div class="cal-event deadline">Thompson brief due</div></div>
+        <div class="cal-day"><div class="day-num">19</div><div class="cal-event">Team standup</div></div>
+        <div class="cal-day today"><div class="day-num">20</div><div class="cal-event">Williams consult exam</div><div class="cal-event">Garcia intake call</div></div>
+        <div class="cal-day"><div class="day-num">21</div></div>
+        <div class="cal-day"><div class="day-num">22</div></div>
+        <div class="cal-day"><div class="day-num">23</div><div class="cal-event">Anderson follow-up</div></div>
+        <div class="cal-day"><div class="day-num">24</div></div>
+        <div class="cal-day"><div class="day-num">25</div><div class="cal-event deadline">Johnson hearing</div></div>
+        <div class="cal-day"><div class="day-num">26</div></div>
+        <div class="cal-day"><div class="day-num">27</div><div class="cal-event">Intake reviews</div></div>
+        <div class="cal-day"><div class="day-num">28</div></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="page" id="page-messages">
+      <div class="msg-layout">
+        <div class="msg-list">
+          <div class="msg-item active"><div class="time">10:32 AM</div><div class="name">Sarah Chen</div><div class="preview">Johnson medical records are ready for review</div></div>
+          <div class="msg-item"><div class="time">9:15 AM</div><div class="name">Mike Torres</div><div class="preview">Thompson appeal — can you review the draft?</div></div>
+          <div class="msg-item"><div class="time">Yesterday</div><div class="name">Robert Johnson</div><div class="preview">Thank you for the update on my case</div></div>
+          <div class="msg-item"><div class="time">Yesterday</div><div class="name">Maria Garcia</div><div class="preview">Attached the signed retainer agreement</div></div>
+          <div class="msg-item"><div class="time">Mar 18</div><div class="name">Dr. Patricia Lee</div><div class="preview">RFC form completed and attached</div></div>
+        </div>
+        <div class="msg-thread">
+          <div class="msg-bubble received"><strong>Sarah Chen</strong><br>Hey Jake, the Johnson medical records just came in from Dr. Lee's office. 14 documents total. I've uploaded them to the case file.</div>
+          <div class="msg-bubble sent">Great, thanks Sarah. I'll review them this afternoon. Did they include the RFC form?</div>
+          <div class="msg-bubble received"><strong>Sarah Chen</strong><br>Yes, RFC is included along with the treatment notes from the last 12 months. Looks like a solid record.</div>
+          <div class="msg-bubble sent">Perfect. Let's discuss during tomorrow's case review meeting.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="page-tabs">
+        <div class="page-tab active">All Contacts</div>
+        <div class="page-tab">Claimants</div>
+        <div class="page-tab">Physicians</div>
+        <div class="page-tab">Staff</div>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-card"><div class="avatar-lg">RJ</div><div><div class="name">Robert Johnson</div><div class="role">Claimant · Case #2024-0892</div><div class="email">rjohnson@email.com</div></div></div>
+        <div class="contact-card"><div class="avatar-lg">SC</div><div><div class="name">Sarah Chen</div><div class="role">Case Manager</div><div class="email">schen@hogansmith.com</div></div></div>
+        <div class="contact-card"><div class="avatar-lg">MT</div><div><div class="name">Mike Torres</div><div class="role">Attorney</div><div class="email">mtorres@hogansmith.com</div></div></div>
+        <div class="contact-card"><div class="avatar-lg">PL</div><div><div class="name">Dr. Patricia Lee</div><div class="role">Treating Physician</div><div class="email">plee@clinic.com</div></div></div>
+        <div class="contact-card"><div class="avatar-lg">MW</div><div><div class="name">Maria Williams</div><div class="role">Claimant · Case #2024-0915</div><div class="email">mwilliams@email.com</div></div></div>
+        <div class="contact-card"><div class="avatar-lg">MG</div><div><div class="name">Maria Garcia</div><div class="role">New Lead</div><div class="email">mgarcia@email.com</div></div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <nav class="settings-nav">
+          <a href="#" class="active">General</a>
+          <a href="#">Users</a>
+          <a href="#">Workflows</a>
+          <a href="#">Templates</a>
+          <a href="#">Integrations</a>
+          <a href="#">Billing</a>
+        </nav>
+        <div class="settings-section">
+          <h3>General Settings</h3>
+          <p>Manage your firm's CaseFlow configuration</p>
+          <div class="card">
+            <div class="card-body">
+              <div class="settings-row"><div class="info"><h4>Firm Name</h4><p>Hogan Smith Law</p></div><button style="padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer">Edit</button></div>
+              <div class="settings-row"><div class="info"><h4>Email Notifications</h4><p>Receive email alerts for case updates and deadlines</p></div><div class="toggle on"></div></div>
+              <div class="settings-row"><div class="info"><h4>Auto-assign Cases</h4><p>Automatically assign new cases based on workload</p></div><div class="toggle"></div></div>
+              <div class="settings-row"><div class="info"><h4>Case Numbering</h4><p>Format: YYYY-####</p></div><button style="padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer">Edit</button></div>
+              <div class="settings-row" style="border:none"><div class="info"><h4>Timezone</h4><p>Central Time (CT)</p></div><button style="padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer">Change</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="page" id="page-login">
+      <div style="text-align:center;padding:40px">
+        <p style="color:var(--text-secondary);margin-bottom:20px">Login page preview — this is shown full-screen to users</p>
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:900px;margin:0 auto;height:500px;display:flex">
+          <div style="width:50%;background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px">
+            <div style="width:80px;height:80px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#1B2A4A;margin-bottom:24px">HS</div>
+            <div style="font-family:'Playfair Display',serif;color:#fff;font-size:24px;margin-bottom:6px">Hogan Smith Law</div>
+            <div style="color:var(--sidebar-text);font-size:14px">CaseFlow Management System</div>
+          </div>
+          <div style="width:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:40px">
+            <div style="width:100%;max-width:280px;text-align:left">
+              <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin-bottom:4px">Sign in</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:28px">Enter your credentials</div>
+              <div class="form-field"><label>Email</label><input type="email" placeholder="you@hogansmith.com"></div>
+              <div class="form-field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+              <button class="btn-login">Sign in</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  const titles = { dashboard:'Dashboard', queue:'My Queue', cases:'Cases', calendar:'Calendar', messages:'Messages', contacts:'Contacts', settings:'Settings', login:'Login Page' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+}
+</script>
+</body>
+</html>

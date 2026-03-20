@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hogan Smith Law — CaseFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONCEPT 8 — INK & PAPER
+   High contrast, editorial, print-quality legal tool
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Core palette — Ink & Paper */
+  --ink-darkest:    #0D0F14;   /* near-black ink */
+  --ink-dark:       #1A1D26;   /* deep navy-black */
+  --ink-navy:       #1C2B4A;   /* dark navy sidebar */
+  --ink-navy-mid:   #243561;   /* mid navy for hover */
+  --ink-navy-light: #2B4C8C;   /* brand navy */
+  --gold:           #C99A2E;   /* warm gold accent */
+  --gold-light:     #E4B84A;   /* lighter gold */
+  --gold-pale:      rgba(201,154,46,0.12);
+  --gold-rule:      rgba(201,154,46,0.35);
+
+  /* Paper backgrounds */
+  --paper:          #FAF8F4;   /* warm linen — main bg */
+  --paper-raised:   #FFFFFF;   /* pure white for cards */
+  --paper-warm:     #F5F2EC;   /* sunken / inset */
+  --paper-tint:     #F0EDE6;   /* table rows alt */
+
+  /* Typography — Ink hierarchy */
+  --text-heading:   #0F1117;   /* almost black for serifs */
+  --text-body:      #1E2130;   /* dark body copy */
+  --text-secondary: #4A4E62;   /* secondary labels */
+  --text-muted:     #7A7E96;   /* muted / meta */
+  --text-ghost:     #A8ACBF;   /* placeholder */
+
+  /* Borders — confident, editorial */
+  --rule-heavy:     rgba(15,17,23,0.20);   /* thick rules */
+  --rule-mid:       rgba(15,17,23,0.12);   /* standard borders */
+  --rule-light:     rgba(15,17,23,0.06);   /* subtle dividers */
+  --rule-gold:      rgba(201,154,46,0.40); /* gold accent rules */
+
+  /* Semantic */
+  --green:          #2D7A50;
+  --green-bg:       rgba(45,122,80,0.10);
+  --red:            #B83232;
+  --red-bg:         rgba(184,50,50,0.10);
+  --amber:          #B87820;
+  --amber-bg:       rgba(184,120,32,0.10);
+  --blue:           #2B5BA8;
+  --blue-bg:        rgba(43,91,168,0.10);
+
+  /* Sidebar */
+  --sidebar-bg:     #111827;   /* very dark navy */
+  --sidebar-hover:  rgba(255,255,255,0.06);
+  --sidebar-active: rgba(201,154,46,0.15);
+  --sidebar-text:   rgba(255,255,255,0.75);
+  --sidebar-muted:  rgba(255,255,255,0.40);
+  --sidebar-border: rgba(255,255,255,0.08);
+
+  /* Type */
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Plus Jakarta Sans', -apple-system, sans-serif;
+
+  /* Sizing */
+  --sidebar-w: 264px;
+  --radius:    6px;
+  --radius-sm: 3px;
+  --radius-lg: 10px;
+
+  /* Transitions */
+  --t-fast: 120ms cubic-bezier(0.2,0,0,1);
+  --t-mid:  220ms cubic-bezier(0.2,0,0,1);
+}
+
+/* ---- Base ---- */
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--text-body);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font: inherit; }
+input, select, textarea { font: inherit; }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(120,100,70,0.18); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(120,100,70,0.32); }
+
+/* ---- Focus ---- */
+:focus-visible {
+  outline: 2.5px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--sidebar-border);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.logo-emblem {
+  width: 34px;
+  height: 34px;
+  background: var(--gold);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-emblem svg { color: #0F1117; }
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-firm {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.logo-product {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.sidebar-tagline {
+  font-size: 11px;
+  color: var(--sidebar-muted);
+  letter-spacing: 0.01em;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* Nav */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sidebar-muted);
+  padding: 16px 20px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+  position: relative;
+  border-left: 2px solid transparent;
+  margin: 1px 0;
+}
+
+.nav-item:hover {
+  background: var(--sidebar-hover);
+  color: #FFFFFF;
+}
+
+.nav-item.active {
+  background: var(--sidebar-active);
+  color: var(--gold-light);
+  border-left-color: var(--gold);
+  font-weight: 600;
+}
+
+.nav-item .nav-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--gold);
+  color: #0F1117;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--sidebar-border);
+  padding: 16px 20px;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ink-navy-light), var(--gold));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-info { flex: 1; min-width: 0; }
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-role {
+  font-size: 11px;
+  color: var(--sidebar-muted);
+  margin-top: 1px;
+}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  height: 58px;
+  background: var(--paper-raised);
+  border-bottom: 2px solid var(--rule-heavy);
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.025em;
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Search */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius);
+  padding: 0 12px;
+  height: 36px;
+  width: 240px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.search-bar:focus-within {
+  border-color: var(--ink-navy-light);
+  box-shadow: 0 0 0 3px rgba(43,76,140,0.15);
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-body);
+}
+
+.search-bar input::placeholder { color: var(--text-ghost); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: var(--radius);
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+
+.btn-primary {
+  background: var(--ink-navy);
+  color: #FFFFFF;
+  border-color: var(--ink-navy);
+}
+.btn-primary:hover {
+  background: var(--ink-navy-mid);
+  border-color: var(--ink-navy-mid);
+  box-shadow: 0 2px 8px rgba(28,43,74,0.25);
+}
+
+.btn-secondary {
+  background: var(--paper-raised);
+  color: var(--text-body);
+  border-color: var(--rule-mid);
+}
+.btn-secondary:hover {
+  background: var(--paper-warm);
+  border-color: var(--rule-heavy);
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #0F1117;
+  border-color: var(--gold);
+  font-weight: 700;
+}
+.btn-gold:hover {
+  background: var(--gold-light);
+  box-shadow: 0 2px 8px rgba(201,154,46,0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  padding: 0 10px;
+}
+.btn-ghost:hover {
+  background: var(--paper-warm);
+  color: var(--text-body);
+}
+
+.btn-sm {
+  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
+}
+
+.btn-icon {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 48px;
+}
+
+/* Page sections */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ============================================================
+   EDITORIAL ELEMENTS — Ink & Paper signature
+   ============================================================ */
+
+/* Section rule — heavy top border for major sections */
+.section-rule {
+  border: none;
+  border-top: 2px solid var(--rule-heavy);
+  margin: 0 0 24px;
+}
+
+.section-rule-gold {
+  border: none;
+  border-top: 2px solid var(--gold);
+  margin: 0 0 20px;
+}
+
+/* Page header with editorial styling */
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink-darkest);
+  margin-bottom: 6px;
+}
+
+.page-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.page-dateline {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-align: right;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+
+/* Cards */
+.card {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: box-shadow var(--t-mid);
+}
+
+.card:hover { box-shadow: 0 4px 16px rgba(15,17,23,0.07); }
+
+.card-flush {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 16px;
+  border-bottom: 1.5px solid var(--rule-mid);
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+}
+
+.card-body { padding: 20px 24px; }
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--t-mid), box-shadow var(--t-mid);
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(15,17,23,0.09);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.stat-card.navy::before  { background: var(--ink-navy); }
+.stat-card.gold::before  { background: var(--gold); }
+.stat-card.green::before { background: var(--green); }
+.stat-card.red::before   { background: var(--red); }
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stat-delta {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-delta.up   { color: var(--green); }
+.stat-delta.down { color: var(--red); }
+.stat-delta.flat { color: var(--text-muted); }
+
+/* ============================================================
+   TABLES — Editorial / print quality
+   ============================================================ */
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+thead {
+  background: var(--paper);
+  border-bottom: 2px solid var(--rule-heavy);
+}
+
+thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--rule-light);
+  transition: background var(--t-fast);
+}
+
+tbody tr:hover { background: var(--paper-tint); }
+
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+  padding: 13px 16px;
+  color: var(--text-body);
+  vertical-align: middle;
+}
+
+.td-primary {
+  font-weight: 600;
+  color: var(--text-heading);
+  font-family: var(--font-serif);
+  font-size: 14px;
+}
+
+.td-link {
+  color: var(--ink-navy-light);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--t-fast);
+}
+.td-link:hover { color: var(--ink-navy); text-decoration: underline; }
+
+/* ============================================================
+   BADGES / STATUS
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.badge-active  { background: var(--green-bg);  color: var(--green);  border-color: rgba(45,122,80,0.25); }
+.badge-pending { background: var(--amber-bg);  color: var(--amber);  border-color: rgba(184,120,32,0.25); }
+.badge-closed  { background: var(--paper-warm); color: var(--text-muted); border-color: var(--rule-mid); }
+.badge-urgent  { background: var(--red-bg);    color: var(--red);    border-color: rgba(184,50,50,0.25); }
+.badge-review  { background: var(--blue-bg);   color: var(--blue);   border-color: rgba(43,91,168,0.25); }
+.badge-gold    { background: var(--gold-pale); color: #8A6510;       border-color: var(--gold-rule); }
+
+/* ============================================================
+   GRID LAYOUTS
+   ============================================================ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.sidebar-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+
+/* ============================================================
+   ACTIVITY / FEED
+   ============================================================ */
+.activity-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.activity-content { flex: 1; }
+.activity-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 2px;
+}
+.activity-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-top: 2px solid var(--rule-heavy);
+  border-left: 2px solid var(--rule-heavy);
+}
+
+.cal-day-header {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--paper);
+  border-right: 1.5px solid var(--rule-mid);
+  border-bottom: 1.5px solid var(--rule-mid);
+}
+
+.cal-day {
+  min-height: 100px;
+  padding: 8px;
+  border-right: 1.5px solid var(--rule-light);
+  border-bottom: 1.5px solid var(--rule-light);
+  background: var(--paper-raised);
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+
+.cal-day:hover { background: var(--paper-tint); }
+.cal-day.today { background: rgba(43,76,140,0.04); }
+.cal-day.other-month { background: var(--paper); opacity: 0.5; }
+
+.cal-day-num {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.cal-day.today .cal-day-num {
+  color: white;
+  background: var(--ink-navy);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.cal-event {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.cal-event.navy  { background: rgba(43,76,140,0.15); color: var(--ink-navy-light); }
+.cal-event.gold  { background: var(--gold-pale); color: #7A5A10; }
+.cal-event.red   { background: var(--red-bg); color: var(--red); }
+.cal-event.green { background: var(--green-bg); color: var(--green); }
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+.messages-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+  height: calc(100vh - 58px - 80px);
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.msg-list {
+  border-right: 1.5px solid var(--rule-mid);
+  overflow-y: auto;
+}
+
+.msg-list-header {
+  padding: 16px 18px;
+  border-bottom: 2px solid var(--rule-heavy);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.msg-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rule-light);
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.msg-item:hover { background: var(--paper-tint); }
+.msg-item.active { background: rgba(43,76,140,0.06); border-left: 3px solid var(--ink-navy-light); }
+
+.msg-item-from {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 2px;
+}
+.msg-item-subject {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.msg-item-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.msg-dot {
+  width: 7px; height: 7px;
+  background: var(--ink-navy-light);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.msg-panel { display: flex; flex-direction: column; }
+.msg-panel-header {
+  padding: 20px 28px;
+  border-bottom: 2px solid var(--rule-heavy);
+  background: var(--paper);
+}
+.msg-panel-subject {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+}
+.msg-panel-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.msg-body {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--text-body);
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--rule-mid);
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-full { grid-column: 1 / -1; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  height: 40px;
+  padding: 0 12px;
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--text-body);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  outline: none;
+}
+
+.form-textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--ink-navy-light);
+  box-shadow: 0 0 0 3px rgba(43,76,140,0.12);
+}
+
+/* ============================================================
+   PRIORITY INDICATORS
+   ============================================================ */
+.priority-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.priority-high   { background: var(--red); }
+.priority-medium { background: var(--amber); }
+.priority-low    { background: var(--green); }
+
+/* ============================================================
+   QUEUE PAGE
+   ============================================================ */
+.queue-item {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-left: 4px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+  transition: border-color var(--t-fast), box-shadow var(--t-mid), transform var(--t-mid);
+}
+
+.queue-item:hover {
+  box-shadow: 0 4px 16px rgba(15,17,23,0.08);
+  transform: translateX(2px);
+}
+
+.queue-item.high   { border-left-color: var(--red); }
+.queue-item.medium { border-left-color: var(--amber); }
+.queue-item.low    { border-left-color: var(--green); }
+
+.queue-item-num {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 40px;
+  padding-top: 2px;
+}
+
+.queue-item-body { flex: 1; }
+.queue-item-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 4px;
+}
+.queue-item-meta {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.queue-item-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+}
+
+.settings-nav { display: flex; flex-direction: column; gap: 2px; }
+
+.settings-nav-item {
+  padding: 9px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+  border-left: 2px solid transparent;
+}
+
+.settings-nav-item:hover {
+  background: var(--paper-warm);
+  color: var(--text-body);
+}
+
+.settings-nav-item.active {
+  background: var(--paper-warm);
+  color: var(--ink-navy);
+  border-left-color: var(--ink-navy);
+  font-weight: 600;
+}
+
+/* ============================================================
+   LOGIN PAGE
+   ============================================================ */
+.login-page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--ink-darkest);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page.active { display: flex; }
+
+.login-panel {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  padding: 48px 44px;
+  width: 440px;
+  max-width: 95vw;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.login-emblem {
+  width: 44px;
+  height: 44px;
+  background: var(--ink-navy);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.login-divider {
+  border: none;
+  border-top: 2px solid var(--rule-heavy);
+  margin: 28px 0;
+}
+
+.login-footer {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   CONTACTS
+   ============================================================ */
+.contact-card {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-mid);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow var(--t-mid), transform var(--t-mid);
+}
+
+.contact-card:hover {
+  box-shadow: 0 6px 20px rgba(15,17,23,0.09);
+  transform: translateY(-2px);
+}
+
+.contact-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ink-navy), var(--ink-navy-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  border: 2px solid var(--rule-mid);
+}
+
+.contact-name {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 2px;
+}
+
+.contact-role {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.contact-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mt-8 { margin-top: 32px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.text-right { text-align: right; }
+.font-serif { font-family: var(--font-serif); }
+.font-bold { font-weight: 700; }
+.text-muted { color: var(--text-muted); font-size: 13px; }
+.text-sm { font-size: 13px; }
+.w-full { width: 100%; }
+.flex-wrap { flex-wrap: wrap; }
+
+.overline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-warm);
+  color: var(--text-secondary);
+  border: 1px solid var(--rule-mid);
+  letter-spacing: 0.02em;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--paper-warm);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--ink-navy-light);
+}
+
+.case-id {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-mark">
+      <div class="logo-emblem">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+          <line x1="12" y1="12" x2="12" y2="16"/>
+          <line x1="10" y1="14" x2="14" y2="14"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-firm">Hogan Smith Law</span>
+        <span class="logo-product">CaseFlow</span>
+      </div>
+    </div>
+    <div class="sidebar-tagline">Case Management System v2.4</div>
+  </div>
+
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    <div class="nav-section-label">Workspace</div>
+
+    <div class="nav-item active" onclick="showPage('dashboard', this)" tabindex="0" role="button" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+
+    <div class="nav-item" onclick="showPage('queue', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Queue
+      <span class="nav-badge">7</span>
+    </div>
+
+    <div class="nav-item" onclick="showPage('cases', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Cases
+    </div>
+
+    <div class="nav-section-label">Tools</div>
+
+    <div class="nav-item" onclick="showPage('calendar', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </div>
+
+    <div class="nav-item" onclick="showPage('messages', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Messages
+      <span class="nav-badge">3</span>
+    </div>
+
+    <div class="nav-item" onclick="showPage('contacts', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Contacts
+    </div>
+
+    <div class="nav-section-label">System</div>
+
+    <div class="nav-item" onclick="showPage('settings', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </div>
+
+    <div class="nav-item" onclick="showPage('login', this)" tabindex="0" role="button">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Login
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user" tabindex="0" aria-label="User account">
+      <div class="user-avatar">MS</div>
+      <div class="user-info">
+        <div class="user-name">Margaret Sullivan</div>
+        <div class="user-role">Senior Associate</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="main">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <div class="search-bar" role="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search cases, clients…" aria-label="Search">
+      </div>
+      <button class="btn btn-ghost btn-icon" aria-label="Notifications">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="btn btn-primary" onclick="showPage('cases', document.querySelector('.nav-item:nth-child(5)'))">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Case
+      </button>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ========================================================
+         DASHBOARD PAGE
+         ======================================================== -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Overview</div>
+            <h1 class="page-title">Morning Brief</h1>
+            <p class="page-subtitle">7 items require your attention today.</p>
+          </div>
+          <div class="page-dateline">
+            Friday, March 20, 2026<br>
+            <span style="color:var(--text-muted)">9:14 AM EST</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card navy">
+          <div class="stat-label">Active Cases</div>
+          <div class="stat-value">47</div>
+          <div class="stat-delta up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+            4 opened this month
+          </div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Pending Deadlines</div>
+          <div class="stat-value">12</div>
+          <div class="stat-delta down">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            3 within 48 hours
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Billed YTD</div>
+          <div class="stat-value">$1.2M</div>
+          <div class="stat-delta up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+            18% above target
+          </div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Unread Messages</div>
+          <div class="stat-value">3</div>
+          <div class="stat-delta flat">— from 2 clients</div>
+        </div>
+      </div>
+
+      <!-- Two-col layout -->
+      <div class="sidebar-layout">
+        <!-- Left: Recent Cases -->
+        <div>
+          <div class="card-flush">
+            <div class="card-header">
+              <span class="card-title">Recent Cases</span>
+              <button class="btn btn-ghost btn-sm" onclick="showPage('cases', document.querySelectorAll('.nav-item')[2])">View all</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Case / Matter</th>
+                    <th>Client</th>
+                    <th>Attorney</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="td-primary">Hargrove v. MidWest Industrial</div>
+                      <div class="case-id">HSL-2024-0441</div>
+                    </td>
+                    <td>Thomas Hargrove</td>
+                    <td>M. Sullivan</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td style="font-weight:600; color:var(--red);">Apr 2, 2026</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="td-primary">Estate of Elaine Whitmore</div>
+                      <div class="case-id">HSL-2024-0388</div>
+                    </td>
+                    <td>Whitmore Family</td>
+                    <td>R. Abernathy</td>
+                    <td><span class="badge badge-pending">Pending</span></td>
+                    <td>May 14, 2026</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="td-primary">Caldwell Corporate Merger</div>
+                      <div class="case-id">HSL-2025-0102</div>
+                    </td>
+                    <td>Caldwell Partners LLC</td>
+                    <td>J. Okafor</td>
+                    <td><span class="badge badge-review">In Review</span></td>
+                    <td>Apr 22, 2026</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="td-primary">Delacroix IP Dispute</div>
+                      <div class="case-id">HSL-2025-0157</div>
+                    </td>
+                    <td>Delacroix Creative Inc.</td>
+                    <td>M. Sullivan</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>Jun 8, 2026</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="td-primary">Rivera Employment Matter</div>
+                      <div class="case-id">HSL-2025-0203</div>
+                    </td>
+                    <td>Sofia Rivera</td>
+                    <td>P. Thornton</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>Jul 30, 2026</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Billing progress -->
+          <div class="card mt-6">
+            <div class="flex items-center justify-between mb-4">
+              <span class="card-title">Q1 2026 — Billing Summary</span>
+              <span class="badge badge-gold">On Track</span>
+            </div>
+            <hr class="section-rule-gold">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
+              <div>
+                <div class="overline" style="margin-bottom:6px;">Billed</div>
+                <div style="font-family:var(--font-serif); font-size:22px; font-weight:700; color:var(--text-heading);">$412,800</div>
+                <div class="progress-bar mt-2"><div class="progress-fill" style="width:82%; background:var(--green);"></div></div>
+                <div class="text-muted mt-2">82% of $503K target</div>
+              </div>
+              <div>
+                <div class="overline" style="margin-bottom:6px;">Collected</div>
+                <div style="font-family:var(--font-serif); font-size:22px; font-weight:700; color:var(--text-heading);">$388,200</div>
+                <div class="progress-bar mt-2"><div class="progress-fill" style="width:94%; background:var(--ink-navy-light);"></div></div>
+                <div class="text-muted mt-2">94% collection rate</div>
+              </div>
+              <div>
+                <div class="overline" style="margin-bottom:6px;">Outstanding</div>
+                <div style="font-family:var(--font-serif); font-size:22px; font-weight:700; color:var(--amber);">$24,600</div>
+                <div class="progress-bar mt-2"><div class="progress-fill" style="width:6%; background:var(--amber);"></div></div>
+                <div class="text-muted mt-2">Across 4 clients</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Activity + Upcoming -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="card-flush">
+            <div class="card-header">
+              <span class="card-title">Today's Activity</span>
+              <span class="overline">Live</span>
+            </div>
+            <div class="card-body" style="padding-top:4px;">
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--green);"></div>
+                <div class="activity-content">
+                  <div class="activity-title">Document filed — HSL-2024-0441</div>
+                  <div class="activity-meta">Motion for Summary Judgment · R. Abernathy · 8:42 AM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--gold);"></div>
+                <div class="activity-content">
+                  <div class="activity-title">Deadline reminder sent</div>
+                  <div class="activity-meta">Caldwell Merger — NDA review due Apr 22 · Auto</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--ink-navy-light);"></div>
+                <div class="activity-content">
+                  <div class="activity-title">New client message</div>
+                  <div class="activity-meta">Sofia Rivera re: deposition schedule · 7:58 AM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--amber);"></div>
+                <div class="activity-content">
+                  <div class="activity-title">Invoice overdue — 14 days</div>
+                  <div class="activity-meta">Hargrove v. MidWest · $8,400 outstanding</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--green);"></div>
+                <div class="activity-content">
+                  <div class="activity-title">Case closed — HSL-2024-0312</div>
+                  <div class="activity-meta">Pemberton Contract Matter · Settled · Yesterday</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="flex items-center justify-between mb-4">
+              <span class="card-title">Upcoming Hearings</span>
+            </div>
+            <hr class="section-rule">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--paper); border-radius:var(--radius); border-left:3px solid var(--red);">
+                <div style="text-align:center; min-width:36px;">
+                  <div style="font-family:var(--font-serif); font-size:20px; font-weight:700; color:var(--text-heading); line-height:1;">24</div>
+                  <div class="overline" style="font-size:9px;">MAR</div>
+                </div>
+                <div>
+                  <div style="font-weight:600; font-size:13.5px; color:var(--text-heading);">Motion Hearing</div>
+                  <div class="text-muted">Hargrove v. MidWest · 9:00 AM · Ctrm 14B</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--paper); border-radius:var(--radius); border-left:3px solid var(--amber);">
+                <div style="text-align:center; min-width:36px;">
+                  <div style="font-family:var(--font-serif); font-size:20px; font-weight:700; color:var(--text-heading); line-height:1;">1</div>
+                  <div class="overline" style="font-size:9px;">APR</div>
+                </div>
+                <div>
+                  <div style="font-weight:600; font-size:13.5px; color:var(--text-heading);">Deposition — Sofia Rivera</div>
+                  <div class="text-muted">Rivera Employment · 2:00 PM · HSL Conference B</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--paper); border-radius:var(--radius); border-left:3px solid var(--ink-navy-light);">
+                <div style="text-align:center; min-width:36px;">
+                  <div style="font-family:var(--font-serif); font-size:20px; font-weight:700; color:var(--text-heading); line-height:1;">8</div>
+                  <div class="overline" style="font-size:9px;">APR</div>
+                </div>
+                <div>
+                  <div style="font-weight:600; font-size:13.5px; color:var(--text-heading);">Closing Arguments</div>
+                  <div class="text-muted">Delacroix IP · 10:30 AM · Federal Ct. Room 3</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         QUEUE PAGE
+         ======================================================== -->
+    <div id="page-queue" class="page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Workflow</div>
+            <h1 class="page-title">Action Queue</h1>
+            <p class="page-subtitle">7 items require action. Sorted by urgency.</p>
+          </div>
+          <div class="page-dateline">March 20, 2026</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 mb-6">
+        <button class="btn btn-secondary btn-sm">All <span style="color:var(--text-muted);margin-left:4px;">7</span></button>
+        <button class="btn btn-ghost btn-sm">Urgent <span style="color:var(--red);margin-left:4px;">2</span></button>
+        <button class="btn btn-ghost btn-sm">Deadlines <span style="color:var(--amber);margin-left:4px;">3</span></button>
+        <button class="btn btn-ghost btn-sm">Review <span style="color:var(--ink-navy-light);margin-left:4px;">2</span></button>
+        <div style="margin-left:auto;" class="flex gap-2">
+          <button class="btn btn-secondary btn-sm">Filter</button>
+          <button class="btn btn-primary btn-sm">Mark All Read</button>
+        </div>
+      </div>
+
+      <div class="queue-item high">
+        <div class="queue-item-num">#1</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">Motion for Summary Judgment — Response Due</div>
+          <div class="queue-item-meta">
+            <span>Hargrove v. MidWest Industrial · HSL-2024-0441</span>
+            <span style="color:var(--red); font-weight:600;">Due Apr 2, 2026 — 13 days</span>
+          </div>
+          <div class="text-muted mt-2">Plaintiff's response to MSJ must be filed with the Southern District. Exhibits A–F pending review by R. Abernathy.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-urgent">Urgent</span>
+          <button class="btn btn-primary btn-sm">Open</button>
+        </div>
+      </div>
+
+      <div class="queue-item high">
+        <div class="queue-item-num">#2</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">Invoice Past Due — Client Follow-Up Required</div>
+          <div class="queue-item-meta">
+            <span>Thomas Hargrove · Invoice #INV-2026-0112</span>
+            <span style="color:var(--red); font-weight:600;">14 days overdue · $8,400</span>
+          </div>
+          <div class="text-muted mt-2">Second notice not yet sent. Client last contacted Feb 28. Escalate to billing partner.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-urgent">Billing</span>
+          <button class="btn btn-secondary btn-sm">Send Notice</button>
+        </div>
+      </div>
+
+      <div class="queue-item medium">
+        <div class="queue-item-num">#3</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">NDA Execution — Caldwell Corporate Merger</div>
+          <div class="queue-item-meta">
+            <span>Caldwell Partners LLC · HSL-2025-0102</span>
+            <span style="color:var(--amber); font-weight:600;">Due Apr 22, 2026 — 33 days</span>
+          </div>
+          <div class="text-muted mt-2">Non-disclosure agreements for all three parties pending counter-signature. DocuSign sent to opposing counsel Mar 12.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-pending">Pending Sig.</span>
+          <button class="btn btn-secondary btn-sm">Follow Up</button>
+        </div>
+      </div>
+
+      <div class="queue-item medium">
+        <div class="queue-item-num">#4</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">Deposition Schedule — Confirm Expert Witness</div>
+          <div class="queue-item-meta">
+            <span>Rivera Employment Matter · HSL-2025-0203</span>
+            <span style="color:var(--amber); font-weight:600;">Deposition Apr 1 — 12 days</span>
+          </div>
+          <div class="text-muted mt-2">Dr. Karen Webb (vocational expert) availability unconfirmed. Subpoena may be required. Contact by EOD.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-pending">Action</span>
+          <button class="btn btn-secondary btn-sm">Contact</button>
+        </div>
+      </div>
+
+      <div class="queue-item medium">
+        <div class="queue-item-num">#5</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">Probate Inventory — Final Accounting Draft</div>
+          <div class="queue-item-meta">
+            <span>Estate of Elaine Whitmore · HSL-2024-0388</span>
+            <span style="color:var(--amber); font-weight:600;">Due May 14, 2026 — 55 days</span>
+          </div>
+          <div class="text-muted mt-2">CPA has provided draft financials. Legal review and court formatting required before submission.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-review">Review</span>
+          <button class="btn btn-secondary btn-sm">Open Draft</button>
+        </div>
+      </div>
+
+      <div class="queue-item low">
+        <div class="queue-item-num">#6</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">IP Registration — File with USPTO</div>
+          <div class="queue-item-meta">
+            <span>Delacroix Creative Inc. · HSL-2025-0157</span>
+            <span style="color:var(--green); font-weight:600;">Due Jun 8, 2026 — 80 days</span>
+          </div>
+          <div class="text-muted mt-2">Trademark registration for "VividFrame" design marks pending. Class 42 application drafted.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-review">In Progress</span>
+          <button class="btn btn-secondary btn-sm">View</button>
+        </div>
+      </div>
+
+      <div class="queue-item low">
+        <div class="queue-item-num">#7</div>
+        <div class="queue-item-body">
+          <div class="queue-item-title">Conflict Check — New Referral Matter</div>
+          <div class="queue-item-meta">
+            <span>Prospective Client: Darnell Washington · Referred by J. Okafor</span>
+            <span style="color:var(--green); font-weight:600;">No deadline — intake pending</span>
+          </div>
+          <div class="text-muted mt-2">Employment discrimination claim. Run conflicts search before scheduling consultation.</div>
+        </div>
+        <div class="queue-item-aside">
+          <span class="badge badge-closed">Intake</span>
+          <button class="btn btn-secondary btn-sm">Run Check</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         CASES PAGE
+         ======================================================== -->
+    <div id="page-cases" class="page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Matter Management</div>
+            <h1 class="page-title">All Cases</h1>
+            <p class="page-subtitle">47 active matters across 6 practice areas.</p>
+          </div>
+          <div class="flex gap-2 items-center">
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round"/></svg>
+              Filter
+            </button>
+            <button class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Case
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-6 flex-wrap">
+        <button class="btn btn-secondary btn-sm">All Cases <span style="color:var(--text-muted);margin-left:4px;">47</span></button>
+        <button class="btn btn-ghost btn-sm">Litigation</button>
+        <button class="btn btn-ghost btn-sm">Corporate</button>
+        <button class="btn btn-ghost btn-sm">Estate & Probate</button>
+        <button class="btn btn-ghost btn-sm">Employment</button>
+        <button class="btn btn-ghost btn-sm">IP</button>
+        <button class="btn btn-ghost btn-sm">Closed</button>
+      </div>
+
+      <div class="card-flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Case No.</th>
+                <th>Matter / Client</th>
+                <th>Practice Area</th>
+                <th>Lead Attorney</th>
+                <th>Status</th>
+                <th>Next Deadline</th>
+                <th>Billed</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="case-id">HSL-2024-0441</td>
+                <td>
+                  <div class="td-primary">Hargrove v. MidWest Industrial</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Thomas Hargrove</div>
+                </td>
+                <td><span class="tag">Litigation</span></td>
+                <td>M. Sullivan</td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td style="color:var(--red); font-weight:600; font-size:13px;">Apr 2, 2026</td>
+                <td style="font-weight:600;">$84,200</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2024-0388</td>
+                <td>
+                  <div class="td-primary">Estate of Elaine Whitmore</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Whitmore Family Trust</div>
+                </td>
+                <td><span class="tag">Estate</span></td>
+                <td>R. Abernathy</td>
+                <td><span class="badge badge-pending">Pending</span></td>
+                <td>May 14, 2026</td>
+                <td style="font-weight:600;">$42,600</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2025-0102</td>
+                <td>
+                  <div class="td-primary">Caldwell Corporate Merger</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Caldwell Partners LLC</div>
+                </td>
+                <td><span class="tag">Corporate</span></td>
+                <td>J. Okafor</td>
+                <td><span class="badge badge-review">In Review</span></td>
+                <td>Apr 22, 2026</td>
+                <td style="font-weight:600;">$127,500</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2025-0157</td>
+                <td>
+                  <div class="td-primary">Delacroix IP Dispute</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Delacroix Creative Inc.</div>
+                </td>
+                <td><span class="tag">IP</span></td>
+                <td>M. Sullivan</td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td>Jun 8, 2026</td>
+                <td style="font-weight:600;">$58,900</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2025-0203</td>
+                <td>
+                  <div class="td-primary">Rivera Employment Matter</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Sofia Rivera</div>
+                </td>
+                <td><span class="tag">Employment</span></td>
+                <td>P. Thornton</td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td>Jul 30, 2026</td>
+                <td style="font-weight:600;">$33,100</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2025-0218</td>
+                <td>
+                  <div class="td-primary">Nguyen v. Apex Financial</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Minh T. Nguyen</div>
+                </td>
+                <td><span class="tag">Litigation</span></td>
+                <td>R. Abernathy</td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td>Aug 12, 2026</td>
+                <td style="font-weight:600;">$19,800</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2025-0264</td>
+                <td>
+                  <div class="td-primary">Pemberton Commercial Lease</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Pemberton Holdings</div>
+                </td>
+                <td><span class="tag">Corporate</span></td>
+                <td>J. Okafor</td>
+                <td><span class="badge badge-pending">Pending</span></td>
+                <td>Sep 3, 2026</td>
+                <td style="font-weight:600;">$11,200</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td class="case-id">HSL-2024-0312</td>
+                <td>
+                  <div class="td-primary">Pemberton Contract Dispute</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Pemberton Holdings</div>
+                </td>
+                <td><span class="tag">Litigation</span></td>
+                <td>M. Sullivan</td>
+                <td><span class="badge badge-closed">Closed</span></td>
+                <td style="color:var(--text-muted);">Settled</td>
+                <td style="font-weight:600;">$72,400</td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4" style="font-size:13px; color:var(--text-muted);">
+        <span>Showing 8 of 47 matters</span>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm">Previous</button>
+          <button class="btn btn-secondary btn-sm">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         CALENDAR PAGE
+         ======================================================== -->
+    <div id="page-calendar" class="page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Schedule</div>
+            <h1 class="page-title">March 2026</h1>
+            <p class="page-subtitle">12 events this month. 2 hearings upcoming.</p>
+          </div>
+          <div class="flex gap-2 items-center">
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              Feb
+            </button>
+            <button class="btn btn-secondary">
+              Apr
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="btn btn-primary">+ Add Event</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="cal-day-header">Sun</div>
+        <div class="cal-day-header">Mon</div>
+        <div class="cal-day-header">Tue</div>
+        <div class="cal-day-header">Wed</div>
+        <div class="cal-day-header">Thu</div>
+        <div class="cal-day-header">Fri</div>
+        <div class="cal-day-header">Sat</div>
+
+        <!-- Row 1 -->
+        <div class="cal-day other-month"><div class="cal-day-num">23</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">24</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">25</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">26</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">27</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">28</div></div>
+        <div class="cal-day">
+          <div class="cal-day-num">1</div>
+          <div class="cal-event navy">Client call</div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="cal-day"><div class="cal-day-num">2</div></div>
+        <div class="cal-day"><div class="cal-day-num">3</div><div class="cal-event navy">Okafor brief</div></div>
+        <div class="cal-day"><div class="cal-day-num">4</div></div>
+        <div class="cal-day"><div class="cal-day-num">5</div><div class="cal-event gold">Billing review</div></div>
+        <div class="cal-day"><div class="cal-day-num">6</div></div>
+        <div class="cal-day"><div class="cal-day-num">7</div></div>
+        <div class="cal-day"><div class="cal-day-num">8</div></div>
+
+        <!-- Row 3 -->
+        <div class="cal-day"><div class="cal-day-num">9</div></div>
+        <div class="cal-day"><div class="cal-day-num">10</div><div class="cal-event navy">Depo prep</div></div>
+        <div class="cal-day"><div class="cal-day-num">11</div></div>
+        <div class="cal-day"><div class="cal-day-num">12</div><div class="cal-event gold">NDA sent</div></div>
+        <div class="cal-day"><div class="cal-day-num">13</div></div>
+        <div class="cal-day"><div class="cal-day-num">14</div><div class="cal-event green">Whitmore mtg</div></div>
+        <div class="cal-day"><div class="cal-day-num">15</div></div>
+
+        <!-- Row 4 — includes today (20) -->
+        <div class="cal-day"><div class="cal-day-num">16</div></div>
+        <div class="cal-day"><div class="cal-day-num">17</div></div>
+        <div class="cal-day"><div class="cal-day-num">18</div><div class="cal-event navy">Staff mtg</div></div>
+        <div class="cal-day"><div class="cal-day-num">19</div></div>
+        <div class="cal-day today"><div class="cal-day-num">20</div><div class="cal-event gold" style="margin-top:4px;">Today</div></div>
+        <div class="cal-day"><div class="cal-day-num">21</div></div>
+        <div class="cal-day"><div class="cal-day-num">22</div></div>
+
+        <!-- Row 5 -->
+        <div class="cal-day"><div class="cal-day-num">23</div></div>
+        <div class="cal-day"><div class="cal-day-num">24</div><div class="cal-event red">Hearing 9AM</div></div>
+        <div class="cal-day"><div class="cal-day-num">25</div></div>
+        <div class="cal-day"><div class="cal-day-num">26</div><div class="cal-event navy">Delacroix call</div></div>
+        <div class="cal-day"><div class="cal-day-num">27</div></div>
+        <div class="cal-day"><div class="cal-day-num">28</div><div class="cal-event gold">Q1 close</div></div>
+        <div class="cal-day"><div class="cal-day-num">29</div></div>
+
+        <!-- Row 6 -->
+        <div class="cal-day"><div class="cal-day-num">30</div></div>
+        <div class="cal-day"><div class="cal-day-num">31</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">1</div><div class="cal-event red">Depo 2PM</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">2</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">3</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">4</div></div>
+        <div class="cal-day other-month"><div class="cal-day-num">5</div></div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MESSAGES PAGE
+         ======================================================== -->
+    <div id="page-messages" class="page">
+      <div class="page-header" style="margin-bottom:20px;">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Communications</div>
+            <h1 class="page-title">Messages</h1>
+          </div>
+          <button class="btn btn-primary">Compose</button>
+        </div>
+      </div>
+
+      <div class="messages-layout">
+        <!-- List -->
+        <div class="msg-list">
+          <div class="msg-list-header">
+            Inbox
+            <span class="badge badge-urgent" style="font-size:10px;">3 new</span>
+          </div>
+
+          <div class="msg-item active">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from">Sofia Rivera</div>
+              <div class="msg-item-time">9:02 AM</div>
+            </div>
+            <div class="msg-item-subject">Re: Deposition Schedule — April 1st</div>
+          </div>
+
+          <div class="msg-item">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from" style="display:flex;align-items:center;gap:6px;"><div class="msg-dot"></div>Thomas Hargrove</div>
+              <div class="msg-item-time">Yesterday</div>
+            </div>
+            <div class="msg-item-subject">Invoice Question — February Statement</div>
+          </div>
+
+          <div class="msg-item">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from" style="display:flex;align-items:center;gap:6px;"><div class="msg-dot"></div>Caldwell Partners</div>
+              <div class="msg-item-time">Mar 18</div>
+            </div>
+            <div class="msg-item-subject">NDA Execution — Counter-Signature Delay</div>
+          </div>
+
+          <div class="msg-item">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from">R. Abernathy (Int.)</div>
+              <div class="msg-item-time">Mar 17</div>
+            </div>
+            <div class="msg-item-subject">Hargrove MSJ — Exhibit Review Notes</div>
+          </div>
+
+          <div class="msg-item">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from">Opp. Counsel — Brennan LLP</div>
+              <div class="msg-item-time">Mar 15</div>
+            </div>
+            <div class="msg-item-subject">Delacroix — Settlement Discussion Request</div>
+          </div>
+
+          <div class="msg-item">
+            <div class="flex justify-between items-center mb-1">
+              <div class="msg-item-from">Court Filing System</div>
+              <div class="msg-item-time">Mar 14</div>
+            </div>
+            <div class="msg-item-subject">HSL-2024-0441 — Filing Confirmed</div>
+          </div>
+        </div>
+
+        <!-- Panel -->
+        <div class="msg-panel">
+          <div class="msg-panel-header">
+            <div class="msg-panel-subject">Re: Deposition Schedule — April 1st</div>
+            <div class="msg-panel-meta">
+              From <strong>Sofia Rivera</strong> &lt;s.rivera@gmail.com&gt; &nbsp;·&nbsp; To: M. Sullivan &nbsp;·&nbsp; Today, 9:02 AM
+            </div>
+          </div>
+          <div class="msg-body">
+            <p style="margin-bottom:16px;">Ms. Sullivan,</p>
+            <p style="margin-bottom:16px;">Thank you for the update regarding the deposition scheduled for April 1st. I wanted to confirm a few details ahead of time:</p>
+            <p style="margin-bottom:16px;">I understand the deposition will take place at 2:00 PM in Conference Room B at your offices. I have arranged for a support person to accompany me, as we discussed — would you be able to confirm that this is still permitted?</p>
+            <p style="margin-bottom:16px;">Additionally, I am still awaiting written confirmation from Dr. Webb's office regarding her availability that day. My understanding was that opposing counsel would provide her a subpoena if necessary — has that been initiated?</p>
+            <p style="margin-bottom:16px;">I appreciate your diligence in handling this matter. Please let me know if there is anything I should prepare or bring with me.</p>
+            <p style="margin-bottom:4px;">Respectfully,</p>
+            <p style="font-weight:600;">Sofia Rivera</p>
+          </div>
+          <div style="padding:16px 28px; border-top:1.5px solid var(--rule-mid); display:flex; gap:8px;">
+            <button class="btn btn-primary">Reply</button>
+            <button class="btn btn-secondary">Forward</button>
+            <button class="btn btn-ghost">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              Add to Case
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         CONTACTS PAGE
+         ======================================================== -->
+    <div id="page-contacts" class="page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Directory</div>
+            <h1 class="page-title">Contacts</h1>
+            <p class="page-subtitle">Clients, counsel, experts & staff.</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary">Filter</button>
+            <button class="btn btn-primary">+ Add Contact</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-6">
+        <button class="btn btn-secondary btn-sm">All</button>
+        <button class="btn btn-ghost btn-sm">Clients</button>
+        <button class="btn btn-ghost btn-sm">Opposing Counsel</button>
+        <button class="btn btn-ghost btn-sm">Experts</button>
+        <button class="btn btn-ghost btn-sm">Internal</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar">TH</div>
+            <div>
+              <div class="contact-name">Thomas Hargrove</div>
+              <div class="contact-role">Client — Plaintiff</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 (312) 555-0147</span>
+            <span>✉ t.hargrove@email.com</span>
+            <span>2 open matters</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-active">Active Client</span>
+            <span class="tag">Litigation</span>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar" style="background:linear-gradient(135deg, #5A3A8A, #8A5AC8);">SR</div>
+            <div>
+              <div class="contact-name">Sofia Rivera</div>
+              <div class="contact-role">Client — Plaintiff</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 (773) 555-0284</span>
+            <span>✉ s.rivera@gmail.com</span>
+            <span>1 open matter</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-active">Active Client</span>
+            <span class="tag">Employment</span>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar" style="background:linear-gradient(135deg, #1A5A3A, #2D8A5A);">CP</div>
+            <div>
+              <div class="contact-name">Caldwell Partners LLC</div>
+              <div class="contact-role">Client — Corporate</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 (312) 555-0920</span>
+            <span>✉ legal@caldwellpartners.com</span>
+            <span>2 open matters</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-active">Active Client</span>
+            <span class="tag">Corporate</span>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar" style="background:linear-gradient(135deg, #7A3A1A, #B85A2A);">MB</div>
+            <div>
+              <div class="contact-name">Martin Brennan, Esq.</div>
+              <div class="contact-role">Opposing Counsel</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 (312) 555-0431</span>
+            <span>✉ mbrennan@brennanllp.com</span>
+            <span>Brennan LLP</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-review">Opposing</span>
+            <span class="tag">IP · Litigation</span>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar" style="background:linear-gradient(135deg, #2A3A7A, #4A5AAA);">KW</div>
+            <div>
+              <div class="contact-name">Dr. Karen Webb, Ph.D.</div>
+              <div class="contact-role">Expert Witness — Vocational</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 (847) 555-0763</span>
+            <span>✉ kwebb@expertservices.net</span>
+            <span>Rivera matter</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-pending">Confirm Avail.</span>
+            <span class="tag">Expert</span>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <div class="flex items-center gap-3">
+            <div class="contact-avatar" style="background:linear-gradient(135deg, #1A1A1A, #444);">RA</div>
+            <div>
+              <div class="contact-name">Robert Abernathy</div>
+              <div class="contact-role">Partner — Hogan Smith</div>
+            </div>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--rule-light);">
+          <div class="contact-meta">
+            <span>📞 ext. 201</span>
+            <span>✉ r.abernathy@hogansmith.law</span>
+            <span>8 active matters</span>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="badge badge-gold">Partner</span>
+            <span class="tag">Internal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SETTINGS PAGE
+         ======================================================== -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div>
+            <div class="page-eyebrow">Administration</div>
+            <h1 class="page-title">Settings</h1>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <div class="settings-nav-item active">Account</div>
+          <div class="settings-nav-item">Firm Profile</div>
+          <div class="settings-nav-item">Notifications</div>
+          <div class="settings-nav-item">Billing & Rates</div>
+          <div class="settings-nav-item">Integrations</div>
+          <div class="settings-nav-item">Security</div>
+          <div class="settings-nav-item">Appearance</div>
+        </div>
+
+        <div>
+          <div class="card mb-6">
+            <div class="form-section">
+              <div class="form-section-title">Personal Information</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="s-first-name">First name</label>
+                  <input id="s-first-name" type="text" class="form-input" value="Margaret">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="s-last-name">Last name</label>
+                  <input id="s-last-name" type="text" class="form-input" value="Sullivan">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="s-email">Email address</label>
+                  <input id="s-email" type="email" class="form-input" value="m.sullivan@hogansmith.law">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="s-phone">Phone</label>
+                  <input id="s-phone" type="text" class="form-input" value="(312) 555-0101 ext. 204">
+                </div>
+                <div class="form-group form-full">
+                  <label class="form-label" for="s-title">Title / Position</label>
+                  <input id="s-title" type="text" class="form-input" value="Senior Associate — Litigation &amp; IP">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="form-section-title">Billing Preferences</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="s-rate">Default Hourly Rate</label>
+                  <input id="s-rate" type="text" class="form-input" value="$425.00">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="s-timer">Time Entry Rounding</label>
+                  <select id="s-timer" class="form-select">
+                    <option>Round to nearest 6 minutes</option>
+                    <option>Round to nearest 15 minutes</option>
+                    <option>No rounding (exact)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center" style="padding-top:16px; border-top:1px solid var(--rule-light);">
+              <span class="text-sm" style="color:var(--text-muted);">Last saved March 14, 2026 at 11:23 AM</span>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary">Discard</button>
+                <button class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="form-section-title" style="padding-bottom:10px; border-bottom:1.5px solid var(--rule-mid); margin-bottom:16px;">Notification Preferences</div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Deadline reminders</div>
+                  <div class="text-muted">7 days, 3 days, and 1 day before</div>
+                </div>
+                <div style="width:44px; height:24px; background:var(--ink-navy); border-radius:99px; cursor:pointer; position:relative;">
+                  <div style="width:18px; height:18px; background:white; border-radius:50%; position:absolute; right:3px; top:3px;"></div>
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">New client messages</div>
+                  <div class="text-muted">Email and in-app notification</div>
+                </div>
+                <div style="width:44px; height:24px; background:var(--ink-navy); border-radius:99px; cursor:pointer; position:relative;">
+                  <div style="width:18px; height:18px; background:white; border-radius:50%; position:absolute; right:3px; top:3px;"></div>
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Invoice overdue alerts</div>
+                  <div class="text-muted">At 7 and 14 days past due</div>
+                </div>
+                <div style="width:44px; height:24px; background:var(--rule-mid); border-radius:99px; cursor:pointer; position:relative;">
+                  <div style="width:18px; height:18px; background:white; border-radius:50%; position:absolute; left:3px; top:3px; border:1px solid var(--rule-mid);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.content -->
+</div><!-- /.main -->
+
+<!-- ============================================================
+     LOGIN PAGE (overlay)
+     ============================================================ -->
+<div id="page-login" class="login-page">
+  <div class="login-panel">
+    <div class="login-logo">
+      <div class="login-emblem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+      </div>
+      <div>
+        <div style="font-family:var(--font-serif); font-size:16px; font-weight:700; color:var(--text-heading); letter-spacing:-0.02em;">Hogan Smith Law</div>
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold);">CaseFlow</div>
+      </div>
+    </div>
+
+    <div class="page-eyebrow" style="margin-bottom:8px;">Secure Access</div>
+    <h2 class="login-title">Sign in to CaseFlow</h2>
+    <p class="login-subtitle">Attorney and staff portal for Hogan Smith Law.</p>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Email address</label>
+        <input id="login-email" type="email" class="form-input w-full" placeholder="you@hogansmith.law" style="width:100%;">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-pass">Password</label>
+        <input id="login-pass" type="password" class="form-input w-full" placeholder="••••••••" style="width:100%;">
+      </div>
+      <div class="flex justify-between items-center" style="font-size:13px;">
+        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text-secondary);">
+          <input type="checkbox" style="accent-color:var(--ink-navy);">
+          Keep me signed in
+        </label>
+        <a href="#" style="color:var(--ink-navy-light); font-weight:600; font-size:13px;">Forgot password?</a>
+      </div>
+      <button class="btn btn-primary" style="height:44px; font-size:14px; width:100%; justify-content:center; margin-top:4px;">
+        Sign In to CaseFlow
+      </button>
+    </div>
+
+    <hr class="login-divider">
+
+    <div class="login-footer">
+      Access is restricted to authorized Hogan Smith Law personnel.<br>
+      Unauthorized access is prohibited and monitored.
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn btn-ghost btn-sm" onclick="hideLogin()" style="color:var(--text-secondary);">
+        ← Back to Dashboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+  const pages = ['dashboard','queue','cases','calendar','messages','contacts','settings'];
+  const pageTitles = {
+    dashboard: 'Dashboard',
+    queue:     'Action Queue',
+    cases:     'All Cases',
+    calendar:  'Calendar',
+    messages:  'Messages',
+    contacts:  'Contacts',
+    settings:  'Settings',
+  };
+
+  function showPage(id, navEl) {
+    if (id === 'login') {
+      document.getElementById('page-login').classList.add('active');
+      return;
+    }
+
+    // Hide login if open
+    document.getElementById('page-login').classList.remove('active');
+
+    // Deactivate all pages
+    pages.forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.classList.remove('active');
+    });
+
+    // Activate target page
+    const target = document.getElementById('page-' + id);
+    if (target) target.classList.add('active');
+
+    // Update topbar title
+    document.getElementById('topbar-title').textContent = pageTitles[id] || id;
+
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.classList.remove('active');
+      el.removeAttribute('aria-current');
+    });
+    if (navEl) {
+      navEl.classList.add('active');
+      navEl.setAttribute('aria-current', 'page');
+    }
+  }
+
+  function hideLogin() {
+    document.getElementById('page-login').classList.remove('active');
+  }
+
+  // Keyboard support for nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
+</script>
+</body>
+</html>

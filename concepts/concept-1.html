@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hogan Smith Law — CaseFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --bg-base:#FAF8F5; --bg-raised:#FFFFFF; --bg-overlay:#FFFDF9; --bg-sunken:#F3F0EB; --bg-canvas:#F7F4EF;
+  --text-primary:#1A1714; --text-secondary:#5C554A; --text-tertiary:#8C8479; --text-ghost:#B8B0A4; --text-inverse:#FAF8F5;
+  --border-subtle:rgba(120,100,70,0.08); --border-default:rgba(120,100,70,0.16); --border-strong:rgba(120,100,70,0.28);
+  --accent-primary:#2B4C8C; --accent-primary-hover:#1F3D75; --accent-primary-active:#17305E;
+  --accent-primary-subtle:rgba(43,76,140,0.08); --accent-primary-muted:rgba(43,76,140,0.14); --accent-primary-fg:#FFFFFF;
+  --accent-secondary:#C99A2E; --accent-secondary-hover:#B5891F; --accent-secondary-subtle:rgba(201,154,46,0.10); --accent-secondary-muted:rgba(201,154,46,0.18);
+  --color-success:#3D8B5E; --color-success-subtle:rgba(61,139,94,0.10); --color-success-muted:rgba(61,139,94,0.18);
+  --color-warning:#C4882A; --color-warning-subtle:rgba(196,136,42,0.10); --color-warning-muted:rgba(196,136,42,0.18);
+  --color-error:#C44040; --color-error-subtle:rgba(196,64,64,0.10); --color-error-muted:rgba(196,64,64,0.18);
+  --color-info:#3B7CB8; --color-info-subtle:rgba(59,124,184,0.10); --color-info-muted:rgba(59,124,184,0.18);
+  --interactive-hover:rgba(120,100,70,0.05); --interactive-active:rgba(120,100,70,0.08);
+  --interactive-selected:rgba(43,76,140,0.08); --interactive-selected-strong:rgba(43,76,140,0.14);
+  --focus-ring:rgba(43,76,140,0.40);
+  --font-display:'Lora',Georgia,serif; --font-body:'Plus Jakarta Sans',-apple-system,sans-serif;
+  --shadow-xs:0 1px 2px rgba(120,80,40,0.05);
+  --shadow-sm:0 1px 3px rgba(120,80,40,0.06),0 1px 2px rgba(120,80,40,0.04);
+  --shadow-md:0 4px 6px -1px rgba(120,80,40,0.06),0 2px 4px -2px rgba(120,80,40,0.05);
+  --shadow-lg:0 10px 15px -3px rgba(120,80,40,0.07),0 4px 6px -4px rgba(120,80,40,0.05);
+  --shadow-paper:0 2px 8px rgba(120,80,40,0.08),0 1px 3px rgba(120,80,40,0.06),inset 0 1px 0 rgba(255,255,255,0.8);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:9999px;
+  --sidebar-width:260px;
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);font-size:0.9375rem;line-height:1.6;overflow:hidden;height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(120,100,70,0.15);border-radius:9999px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,100,70,0.30);}
+*{scrollbar-width:thin;scrollbar-color:rgba(120,100,70,0.15) transparent;}
+::selection{background:var(--accent-primary-muted);color:var(--text-primary);}
+
+/* ===== LAYOUT ===== */
+.app-shell{display:flex;height:100vh;overflow:hidden;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:var(--sidebar-width);flex-shrink:0;
+  background:var(--accent-primary);
+  display:flex;flex-direction:column;height:100vh;overflow:hidden;
+  position:relative;
+}
+.sidebar::after{
+  content:'';position:absolute;top:0;right:0;width:1px;height:100%;
+  background:rgba(255,255,255,0.08);
+}
+.sidebar-brand{
+  padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.10);
+  flex-shrink:0;
+}
+.sidebar-brand-logo{
+  display:flex;align-items:center;gap:10px;margin-bottom:4px;
+}
+.brand-mark{
+  width:32px;height:32px;background:var(--accent-secondary);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.brand-mark svg{width:18px;height:18px;stroke:#fff;stroke-width:2;fill:none;}
+.sidebar-brand-name{
+  font-family:var(--font-display);font-size:0.875rem;font-weight:600;
+  color:#fff;line-height:1.2;
+}
+.sidebar-brand-sub{font-size:0.6875rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;}
+
+.sidebar-section{padding:12px 12px 4px;flex-shrink:0;}
+.sidebar-section-label{font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:0 8px;margin-bottom:4px;}
+
+.sidebar-nav{padding:0 12px;flex:1;overflow-y:auto;padding-bottom:12px;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+  color:rgba(255,255,255,0.65);font-size:0.875rem;font-weight:500;
+  cursor:pointer;transition:all 150ms cubic-bezier(0.2,0,0,1);
+  margin-bottom:1px;user-select:none;
+}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9);}
+.nav-item:focus-visible{outline:2px solid var(--accent-secondary);outline-offset:1px;}
+.nav-item.active{background:rgba(255,255,255,0.14);color:#fff;font-weight:600;}
+.nav-item.active .nav-icon{color:var(--accent-secondary);}
+.nav-icon{width:18px;height:18px;flex-shrink:0;stroke-width:1.75;opacity:0.9;}
+.nav-badge{
+  margin-left:auto;background:var(--accent-secondary);color:var(--accent-primary);
+  font-size:0.625rem;font-weight:700;padding:1px 6px;border-radius:9999px;min-width:18px;text-align:center;
+}
+
+.sidebar-footer{
+  padding:12px;border-top:1px solid rgba(255,255,255,0.10);flex-shrink:0;
+}
+.sidebar-user{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+  cursor:pointer;transition:background 150ms;
+}
+.sidebar-user:hover{background:rgba(255,255,255,0.08);}
+.user-avatar{
+  width:32px;height:32px;border-radius:9999px;background:var(--accent-secondary);
+  display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;
+  color:var(--accent-primary);flex-shrink:0;border:2px solid rgba(255,255,255,0.2);
+}
+.user-name{font-size:0.8125rem;font-weight:600;color:#fff;line-height:1.2;}
+.user-role{font-size:0.6875rem;color:rgba(255,255,255,0.45);}
+
+/* ===== MAIN CONTENT ===== */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  height:56px;background:var(--bg-raised);border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:16px;padding:0 24px;flex-shrink:0;
+  box-shadow:var(--shadow-xs);
+}
+.topbar-title{font-family:var(--font-display);font-size:1.125rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.02em;}
+.topbar-spacer{flex:1;}
+.topbar-search{
+  display:flex;align-items:center;gap:8px;background:var(--bg-sunken);
+  border:1px solid var(--border-default);border-radius:8px;padding:0 12px;
+  height:36px;width:240px;transition:all 150ms;
+}
+.topbar-search:focus-within{background:#fff;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--focus-ring);}
+.topbar-search svg{width:14px;height:14px;stroke:var(--text-tertiary);flex-shrink:0;}
+.topbar-search input{border:none;background:transparent;font-size:0.8125rem;color:var(--text-primary);width:100%;outline:none;}
+.topbar-search input::placeholder{color:var(--text-ghost);}
+.topbar-btn{
+  width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-secondary);transition:all 150ms;cursor:pointer;position:relative;
+}
+.topbar-btn:hover{background:var(--interactive-hover);color:var(--text-primary);}
+.topbar-btn svg{width:18px;height:18px;stroke-width:1.75;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--color-error);border-radius:50%;border:2px solid var(--bg-raised);}
+
+/* ===== PAGE WRAPPER ===== */
+.page-scroll{flex:1;overflow-y:auto;padding:28px 28px;background:var(--bg-base);}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ===== PAGE HEADER ===== */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;}
+.page-header-left{}
+.page-overline{font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px;}
+.page-title{font-family:var(--font-display);font-size:1.625rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em;line-height:1.2;}
+.page-subtitle{font-size:0.875rem;color:var(--text-secondary);margin-top:4px;line-height:1.5;}
+.page-actions{display:flex;gap:10px;align-items:center;flex-shrink:0;}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-body);font-weight:600;border-radius:8px;cursor:pointer;transition:all 150ms cubic-bezier(0.2,0,0,1);font-size:0.875rem;border:none;white-space:nowrap;}
+.btn:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;box-shadow:0 0 0 4px var(--focus-ring);}
+.btn-primary{background:var(--accent-primary);color:#fff;padding:0 18px;height:38px;box-shadow:var(--shadow-sm);}
+.btn-primary:hover{background:var(--accent-primary-hover);box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.btn-primary:active{background:var(--accent-primary-active);transform:translateY(0);}
+.btn-secondary{background:var(--bg-raised);color:var(--text-primary);padding:0 16px;height:38px;border:1px solid var(--border-default);box-shadow:var(--shadow-xs);}
+.btn-secondary:hover{background:var(--bg-sunken);border-color:var(--border-strong);}
+.btn-gold{background:var(--accent-secondary);color:#1A1714;padding:0 18px;height:38px;box-shadow:var(--shadow-sm);}
+.btn-gold:hover{background:var(--accent-secondary-hover);box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.btn svg{width:16px;height:16px;stroke-width:2;flex-shrink:0;}
+
+/* ===== CARDS ===== */
+.card{
+  background:var(--bg-raised);border-radius:12px;
+  border:1px solid var(--border-default);
+  box-shadow:var(--shadow-paper);
+  transition:box-shadow 200ms,transform 200ms;
+}
+.card:hover{box-shadow:0 4px 16px rgba(120,80,40,0.10),0 1px 4px rgba(120,80,40,0.06),inset 0 1px 0 rgba(255,255,255,0.8);}
+.card-pad{padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.015em;}
+.card-label{font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px;}
+
+/* ===== STAT CARDS ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{
+  background:var(--bg-raised);border-radius:12px;padding:20px;
+  border:1px solid var(--border-default);
+  box-shadow:var(--shadow-paper);
+  transition:all 200ms;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+.stat-card.stat-navy::before{background:var(--accent-primary);}
+.stat-card.stat-gold::before{background:var(--accent-secondary);}
+.stat-card.stat-green::before{background:var(--color-success);}
+.stat-card.stat-warn::before{background:var(--color-warning);}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.stat-icon.navy{background:var(--accent-primary-subtle);}
+.stat-icon.gold{background:var(--accent-secondary-subtle);}
+.stat-icon.green{background:var(--color-success-subtle);}
+.stat-icon.warn{background:var(--color-warning-subtle);}
+.stat-icon svg{width:18px;height:18px;stroke-width:1.75;}
+.stat-icon.navy svg{stroke:var(--accent-primary);}
+.stat-icon.gold svg{stroke:var(--accent-secondary);}
+.stat-icon.green svg{stroke:var(--color-success);}
+.stat-icon.warn svg{stroke:var(--color-warning);}
+.stat-value{font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.04em;line-height:1;}
+.stat-label{font-size:0.8125rem;color:var(--text-secondary);margin-top:4px;}
+.stat-delta{font-size:0.75rem;font-weight:600;margin-top:8px;display:inline-flex;align-items:center;gap:3px;}
+.stat-delta.up{color:var(--color-success);}
+.stat-delta.down{color:var(--color-error);}
+
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:0.6875rem;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.badge-navy{background:var(--accent-primary-subtle);color:var(--accent-primary);}
+.badge-gold{background:var(--accent-secondary-muted);color:#8B6200;}
+.badge-green{background:var(--color-success-subtle);color:var(--color-success);}
+.badge-warn{background:var(--color-warning-subtle);color:var(--color-warning);}
+.badge-red{background:var(--color-error-subtle);color:var(--color-error);}
+.badge-info{background:var(--color-info-subtle);color:var(--color-info);}
+.badge-ghost{background:var(--bg-sunken);color:var(--text-tertiary);border:1px solid var(--border-default);}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block;}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border-default);box-shadow:var(--shadow-sm);}
+.data-table{width:100%;border-collapse:collapse;background:var(--bg-raised);}
+.data-table thead th{
+  background:var(--bg-canvas);font-size:0.6875rem;font-weight:700;letter-spacing:0.10em;
+  text-transform:uppercase;color:var(--text-tertiary);padding:10px 14px;
+  border-bottom:1px solid var(--border-default);text-align:left;white-space:nowrap;
+  first-child:{border-radius:12px 0 0 0;}
+}
+.data-table tbody tr{transition:background 150ms;border-bottom:1px solid var(--border-subtle);}
+.data-table tbody tr:last-child{border-bottom:none;}
+.data-table tbody tr:hover{background:var(--interactive-hover);}
+.data-table tbody td{padding:12px 14px;font-size:0.875rem;color:var(--text-primary);vertical-align:middle;}
+.data-table .td-secondary{color:var(--text-secondary);font-size:0.8125rem;}
+.data-table .td-mono{font-family:var(--font-body);font-size:0.8125rem;font-weight:600;color:var(--accent-primary);}
+.data-table tbody tr td:first-child{padding-left:16px;}
+.data-table thead th:first-child{padding-left:16px;border-radius:12px 0 0 0;}
+.data-table thead th:last-child{border-radius:0 12px 0 0;}
+
+/* ===== AVATAR ===== */
+.avatar{width:32px;height:32px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;}
+.avatar-sm{width:28px;height:28px;font-size:0.6875rem;}
+.avatar-lg{width:44px;height:44px;font-size:0.9375rem;}
+.avatar-xl{width:56px;height:56px;font-size:1.125rem;}
+.av-navy{background:var(--accent-primary-subtle);color:var(--accent-primary);}
+.av-gold{background:var(--accent-secondary-muted);color:#8B6200;}
+.av-green{background:var(--color-success-subtle);color:var(--color-success);}
+.av-teal{background:rgba(59,124,184,0.12);color:var(--color-info);}
+.av-rose{background:rgba(196,64,64,0.10);color:var(--color-error);}
+
+/* ===== DIVIDER ===== */
+.divider{height:1px;background:var(--border-subtle);margin:16px 0;}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:0.8125rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+.form-input{
+  width:100%;height:40px;padding:0 12px;border-radius:8px;
+  border:1px solid var(--border-default);background:var(--bg-raised);
+  font-family:var(--font-body);font-size:0.9375rem;color:var(--text-primary);
+  transition:all 150ms;box-shadow:inset 0 1px 2px rgba(120,80,40,0.04);
+}
+.form-input:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--focus-ring),inset 0 1px 2px rgba(120,80,40,0.04);}
+.form-input::placeholder{color:var(--text-ghost);}
+.form-textarea{height:auto;padding:10px 12px;resize:vertical;min-height:80px;}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C8479' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+
+/* ===== TOGGLE ===== */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-subtle);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info{}
+.toggle-title{font-size:0.9375rem;font-weight:500;color:var(--text-primary);}
+.toggle-desc{font-size:0.8125rem;color:var(--text-secondary);margin-top:2px;}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{
+  position:absolute;inset:0;background:var(--border-strong);border-radius:11px;
+  cursor:pointer;transition:background 200ms;
+}
+.toggle-thumb{
+  position:absolute;top:3px;left:3px;width:16px;height:16px;
+  background:#fff;border-radius:50%;transition:transform 200ms;
+  box-shadow:0 1px 3px rgba(120,80,40,0.20);
+}
+.toggle input:checked + .toggle-track{background:var(--accent-primary);}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(18px);}
+.toggle input:focus-visible + .toggle-track{box-shadow:0 0 0 3px var(--focus-ring);}
+
+/* ===== ACTIVITY FEED ===== */
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.activity-content{flex:1;min-width:0;}
+.activity-text{font-size:0.875rem;color:var(--text-primary);line-height:1.4;}
+.activity-text strong{font-weight:600;}
+.activity-meta{font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;}
+
+/* ===== CALENDAR ===== */
+.cal-grid{display:grid;grid-template-columns:60px repeat(7,1fr);gap:0;border:1px solid var(--border-default);border-radius:12px;overflow:hidden;background:var(--bg-raised);}
+.cal-header-cell{background:var(--bg-canvas);padding:10px 8px;text-align:center;font-size:0.6875rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--text-tertiary);border-bottom:1px solid var(--border-default);}
+.cal-header-day{font-family:var(--font-display);font-size:1.25rem;font-weight:600;color:var(--text-primary);display:block;line-height:1;}
+.cal-header-day.today{color:var(--accent-primary);}
+.cal-time-col{font-size:0.6875rem;color:var(--text-ghost);text-align:right;padding:0 8px;padding-top:10px;border-right:1px solid var(--border-subtle);}
+.cal-cell{border-right:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);min-height:52px;padding:4px;position:relative;transition:background 150ms;}
+.cal-cell:hover{background:var(--interactive-hover);}
+.cal-cell:last-child{border-right:none;}
+.cal-event{border-radius:5px;padding:3px 7px;font-size:0.6875rem;font-weight:600;margin-bottom:2px;cursor:pointer;transition:filter 150ms;line-height:1.35;}
+.cal-event:hover{filter:brightness(0.92);}
+.cal-event.ev-navy{background:var(--accent-primary-subtle);color:var(--accent-primary);border-left:3px solid var(--accent-primary);}
+.cal-event.ev-gold{background:var(--accent-secondary-muted);color:#8B6200;border-left:3px solid var(--accent-secondary);}
+.cal-event.ev-green{background:var(--color-success-subtle);color:var(--color-success);border-left:3px solid var(--color-success);}
+.cal-event.ev-red{background:var(--color-error-subtle);color:var(--color-error);border-left:3px solid var(--color-error);}
+
+/* ===== MESSAGES ===== */
+.messages-layout{display:grid;grid-template-columns:320px 1fr;gap:0;height:calc(100vh - 56px - 56px);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);box-shadow:var(--shadow-sm);}
+.convo-list{background:var(--bg-raised);border-right:1px solid var(--border-default);overflow-y:auto;display:flex;flex-direction:column;}
+.convo-search{padding:14px;border-bottom:1px solid var(--border-subtle);}
+.convo-item{display:flex;gap:12px;padding:14px 16px;cursor:pointer;transition:background 150ms;border-bottom:1px solid var(--border-subtle);}
+.convo-item:hover{background:var(--interactive-hover);}
+.convo-item.active{background:var(--interactive-selected);}
+.convo-name{font-size:0.875rem;font-weight:600;color:var(--text-primary);}
+.convo-preview{font-size:0.8125rem;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.convo-time{font-size:0.6875rem;color:var(--text-tertiary);flex-shrink:0;}
+.unread-dot{width:8px;height:8px;background:var(--accent-primary);border-radius:50%;flex-shrink:0;margin-top:6px;}
+.thread-pane{display:flex;flex-direction:column;background:var(--bg-base);}
+.thread-header{padding:14px 20px;background:var(--bg-raised);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:12px;}
+.thread-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
+.msg-bubble{max-width:72%;padding:12px 16px;border-radius:12px;font-size:0.875rem;line-height:1.5;}
+.msg-bubble.sent{background:var(--accent-primary);color:#fff;align-self:flex-end;border-radius:12px 12px 2px 12px;}
+.msg-bubble.recv{background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border-default);align-self:flex-start;border-radius:12px 12px 12px 2px;box-shadow:var(--shadow-xs);}
+.msg-meta{font-size:0.6875rem;color:var(--text-ghost);margin-top:4px;text-align:right;}
+.msg-meta.recv-meta{text-align:left;}
+.thread-compose{padding:16px 20px;background:var(--bg-raised);border-top:1px solid var(--border-subtle);}
+.compose-box{display:flex;gap:10px;align-items:flex-end;}
+.compose-input{flex:1;min-height:40px;max-height:120px;padding:10px 14px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);font-size:0.875rem;resize:none;outline:none;transition:border-color 150ms;}
+.compose-input:focus{border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--focus-ring);}
+
+/* ===== CONTACTS ===== */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.contact-card{background:var(--bg-raised);border-radius:12px;padding:20px;border:1px solid var(--border-default);box-shadow:var(--shadow-paper);cursor:pointer;transition:all 200ms;text-align:center;}
+.contact-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--border-strong);}
+.contact-name{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text-primary);margin-top:12px;letter-spacing:-0.01em;}
+.contact-role{font-size:0.8125rem;color:var(--text-secondary);margin-top:3px;}
+.contact-email{font-size:0.75rem;color:var(--accent-primary);margin-top:8px;}
+.contact-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;justify-content:center;}
+
+/* ===== QUEUE ===== */
+.queue-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--bg-raised);border-radius:10px;border:1px solid var(--border-default);box-shadow:var(--shadow-xs);margin-bottom:8px;cursor:pointer;transition:all 150ms;}
+.queue-item:hover{box-shadow:var(--shadow-md);transform:translateX(2px);}
+.queue-item.done{opacity:0.55;}
+.queue-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--border-strong);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 150ms;}
+.queue-checkbox.checked{background:var(--accent-primary);border-color:var(--accent-primary);}
+.queue-checkbox.checked svg{width:11px;height:11px;stroke:#fff;stroke-width:3;}
+.queue-body{flex:1;min-width:0;}
+.queue-task{font-size:0.9375rem;font-weight:500;color:var(--text-primary);line-height:1.4;}
+.queue-item.done .queue-task{text-decoration:line-through;color:var(--text-tertiary);}
+.queue-sub{font-size:0.8125rem;color:var(--text-secondary);margin-top:3px;}
+.queue-meta{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.priority-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.p-high{background:var(--color-error);}
+.p-med{background:var(--color-warning);}
+.p-low{background:var(--color-success);}
+
+/* ===== TWO-COL GRID ===== */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+
+/* ===== SECTION SPACING ===== */
+.section{margin-bottom:28px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.015em;}
+.section-link{font-size:0.8125rem;color:var(--accent-primary);font-weight:500;cursor:pointer;}
+.section-link:hover{text-decoration:underline;}
+
+/* ===== STAGE PIPELINE ===== */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
+.pipe-stage{background:var(--bg-raised);border-radius:10px;padding:14px 16px;border:1px solid var(--border-default);box-shadow:var(--shadow-xs);text-align:center;}
+.pipe-count{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--text-primary);}
+.pipe-label{font-size:0.6875rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px;}
+.pipe-bar{height:3px;border-radius:2px;margin-top:10px;}
+
+/* ===== SETTINGS ===== */
+.settings-section{background:var(--bg-raised);border-radius:12px;border:1px solid var(--border-default);box-shadow:var(--shadow-paper);margin-bottom:20px;overflow:hidden;}
+.settings-section-header{padding:16px 20px;border-bottom:1px solid var(--border-subtle);background:var(--bg-canvas);}
+.settings-section-title{font-family:var(--font-display);font-size:0.9375rem;font-weight:600;color:var(--text-primary);}
+.settings-section-desc{font-size:0.8125rem;color:var(--text-secondary);margin-top:2px;}
+.settings-body{padding:20px;}
+
+/* ===== LOGIN PAGE ===== */
+.login-shell{display:grid;grid-template-columns:1fr 1fr;height:100vh;position:fixed;inset:0;background:var(--bg-base);z-index:9999;}
+.login-left{background:var(--accent-primary);display:flex;flex-direction:column;justify-content:space-between;padding:48px;}
+.login-right{display:flex;align-items:center;justify-content:center;padding:48px;background:var(--bg-base);}
+.login-form-wrap{width:100%;max-width:400px;}
+.login-logo-area{margin-bottom:auto;}
+.login-hero-text{margin-bottom:48px;}
+.login-hero-eyebrow{font-size:0.6875rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-secondary);margin-bottom:12px;}
+.login-hero-heading{font-family:var(--font-display);font-size:2.5rem;font-weight:700;color:#fff;line-height:1.1;letter-spacing:-0.04em;}
+.login-hero-sub{font-size:1rem;color:rgba(255,255,255,0.6);margin-top:12px;line-height:1.6;}
+.login-testimonial{background:rgba(255,255,255,0.08);border-radius:10px;padding:18px;border:1px solid rgba(255,255,255,0.12);}
+.login-quote{font-size:0.9375rem;color:rgba(255,255,255,0.85);line-height:1.6;font-style:italic;font-family:var(--font-display);}
+.login-cite{font-size:0.8125rem;color:rgba(255,255,255,0.45);margin-top:10px;}
+.login-heading{font-family:var(--font-display);font-size:1.75rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.03em;margin-bottom:6px;}
+.login-sub{font-size:0.9375rem;color:var(--text-secondary);margin-bottom:32px;}
+.login-btn{width:100%;height:44px;background:var(--accent-primary);color:#fff;border-radius:8px;font-weight:700;font-size:0.9375rem;cursor:pointer;border:none;font-family:var(--font-body);transition:all 150ms;box-shadow:var(--shadow-md);}
+.login-btn:hover{background:var(--accent-primary-hover);transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.login-forgot{font-size:0.8125rem;color:var(--accent-primary);text-align:center;margin-top:16px;cursor:pointer;}
+.login-forgot:hover{text-decoration:underline;}
+.login-brand-row{display:flex;align-items:center;gap:10px;}
+.login-brand-mark{width:36px;height:36px;background:var(--accent-secondary);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.login-brand-mark svg{width:20px;height:20px;stroke:#fff;stroke-width:2;fill:none;}
+.login-brand-name{font-family:var(--font-display);font-size:1rem;font-weight:600;color:#fff;}
+.login-brand-sub{font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+
+/* hide login page when not active */
+.page-login{display:none;position:fixed;inset:0;z-index:9999;}
+.page-login.active{display:block;}
+
+/* ===== RESPONSIVE TWEAKS ===== */
+@media(max-width:1200px){
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .pipeline{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================================================
+     LOGIN PAGE
+     =================================================== -->
+<div class="page-login" id="page-login">
+  <div class="login-shell">
+    <div class="login-left">
+      <div class="login-brand-row">
+        <div class="login-brand-mark">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="login-brand-name">Hogan Smith Law</div>
+          <div class="login-brand-sub">CaseFlow</div>
+        </div>
+      </div>
+      <div class="login-hero-text">
+        <div class="login-hero-eyebrow">Disability Benefits Practice Management</div>
+        <div class="login-hero-heading">Every case,<br>every deadline,<br>one place.</div>
+        <div class="login-hero-sub">CaseFlow brings your SSA hearings, claimant records, and team workflow into a single organized workspace.</div>
+      </div>
+      <div class="login-testimonial">
+        <div class="login-quote">"Before CaseFlow, we were tracking 400+ cases across spreadsheets and sticky notes. Now everything is right there — stages, deadlines, documents."</div>
+        <div class="login-cite">— Patricia Nguyen, Senior Case Manager · Hogan Smith Law</div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-wrap">
+        <div class="login-heading">Welcome back</div>
+        <div class="login-sub">Sign in to your CaseFlow workspace</div>
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input class="form-input" type="email" placeholder="you@hogansmith.com" value="sarah.chen@hogansmith.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" placeholder="••••••••" value="••••••••••">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;">
+            <input type="checkbox" checked style="accent-color:var(--accent-primary);"> Remember me
+          </label>
+          <span class="login-forgot" style="margin-top:0;">Forgot password?</span>
+        </div>
+        <button class="login-btn" onclick="showPage('dashboard')">Sign in to CaseFlow</button>
+        <div style="margin-top:24px;text-align:center;font-size:0.8125rem;color:var(--text-tertiary);">
+          Need access? Contact <span style="color:var(--accent-primary);cursor:pointer;">admin@hogansmith.com</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     MAIN APP SHELL
+     =================================================== -->
+<div class="app-shell" id="app-shell" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-logo">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="sidebar-brand-name">Hogan Smith Law</div>
+          <div class="sidebar-brand-sub">CaseFlow</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" data-page="queue" onclick="showPage('queue')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        My Queue
+        <span class="nav-badge">7</span>
+      </div>
+      <div class="nav-item" data-page="cases" onclick="showPage('cases')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Cases
+        <span class="nav-badge">142</span>
+      </div>
+      <div class="nav-item" data-page="calendar" onclick="showPage('calendar')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </div>
+      <div class="nav-item" data-page="messages" onclick="showPage('messages')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="nav-badge">3</span>
+      </div>
+
+      <div style="height:8px;"></div>
+      <div class="sidebar-section-label" style="padding:0 8px;margin-bottom:4px;font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">People</div>
+
+      <div class="nav-item" data-page="contacts" onclick="showPage('contacts')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Contacts
+      </div>
+
+      <div style="height:8px;"></div>
+      <div class="sidebar-section-label" style="padding:0 8px;margin-bottom:4px;font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">System</div>
+
+      <div class="nav-item" data-page="settings" onclick="showPage('settings')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+
+      <div class="nav-item" onclick="showLogin()">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Login Preview
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">SC</div>
+        <div>
+          <div class="user-name">Sarah Chen</div>
+          <div class="user-role">Senior Case Manager</div>
+        </div>
+        <svg style="width:14px;height:14px;stroke:rgba(255,255,255,0.4);margin-left:auto;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search cases, claimants, SSNs…">
+      </div>
+      <div class="topbar-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="topbar-btn" title="Help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div style="width:1px;height:24px;background:var(--border-default);margin:0 4px;"></div>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:background 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">
+        <div class="avatar av-navy" style="width:30px;height:30px;font-size:0.6875rem;">SC</div>
+        <span style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Sarah Chen</span>
+        <svg style="width:14px;height:14px;stroke:var(--text-tertiary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </header>
+
+    <div class="page-scroll">
+
+<!-- ===================================================
+     DASHBOARD PAGE
+     =================================================== -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">Friday, March 20, 2026</div>
+      <h1 class="page-title">Good morning, Sarah</h1>
+      <p class="page-subtitle">You have 3 hearings this week and 7 tasks due today.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Activity Log
+      </button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Case
+      </button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stat-grid">
+    <div class="stat-card stat-navy">
+      <div class="stat-icon navy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
+      <div class="stat-value">142</div>
+      <div class="stat-label">Active Cases</div>
+      <div class="stat-delta up">↑ 8 this month</div>
+    </div>
+    <div class="stat-card stat-gold">
+      <div class="stat-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="stat-value">11</div>
+      <div class="stat-label">Hearings This Month</div>
+      <div class="stat-delta up">↑ 3 vs last month</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="stat-value">38</div>
+      <div class="stat-label">Approved YTD</div>
+      <div class="stat-delta up">73% approval rate</div>
+    </div>
+    <div class="stat-card stat-warn">
+      <div class="stat-icon warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="stat-value">6</div>
+      <div class="stat-label">Overdue Tasks</div>
+      <div class="stat-delta down">↑ 2 from yesterday</div>
+    </div>
+  </div>
+
+  <!-- STAGE PIPELINE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Cases by Stage</div>
+      <span class="section-link" onclick="showPage('cases')">View all cases →</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-stage">
+        <div class="pipe-count">24</div>
+        <div class="pipe-label">Initial Filing</div>
+        <div class="pipe-bar" style="background:var(--accent-primary-subtle);"><div style="width:40%;height:100%;background:var(--accent-primary);border-radius:2px;"></div></div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-count">31</div>
+        <div class="pipe-label">Reconsideration</div>
+        <div class="pipe-bar" style="background:var(--accent-secondary-subtle);"><div style="width:55%;height:100%;background:var(--accent-secondary);border-radius:2px;"></div></div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-count">47</div>
+        <div class="pipe-label">ALJ Hearing</div>
+        <div class="pipe-bar" style="background:var(--color-info-subtle);"><div style="width:78%;height:100%;background:var(--color-info);border-radius:2px;"></div></div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-count">18</div>
+        <div class="pipe-label">Appeals Council</div>
+        <div class="pipe-bar" style="background:var(--color-warning-subtle);"><div style="width:30%;height:100%;background:var(--color-warning);border-radius:2px;"></div></div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-count">22</div>
+        <div class="pipe-label">Federal Review</div>
+        <div class="pipe-bar" style="background:var(--color-success-subtle);"><div style="width:37%;height:100%;background:var(--color-success);border-radius:2px;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COL: RECENT ACTIVITY + UPCOMING -->
+  <div class="two-col">
+    <div class="section">
+      <div class="card card-pad">
+        <div class="card-header">
+          <div class="card-title">Recent Activity</div>
+          <span class="badge badge-ghost">Today</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--color-success);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Hearing approved</strong> — Dorothea R. Simmons (HS-2024-0312)</div>
+            <div class="activity-meta">ALJ Martin P. Holloway · 9:14 AM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--accent-primary);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Document uploaded</strong> — Medical records from Dr. Kwan attached to Franklin B. Okafor</div>
+            <div class="activity-meta">Mike Torres · 8:52 AM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--accent-secondary);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Stage updated</strong> — Lavinia C. Beaumont moved to ALJ Hearing</div>
+            <div class="activity-meta">Sarah Chen · 8:30 AM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--color-error);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Deadline missed</strong> — CE Exam form overdue for Reginald A. Whitfield</div>
+            <div class="activity-meta">System · 12:01 AM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--color-info);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Note added</strong> — Claimant confirmed attendance for March 24 hearing</div>
+            <div class="activity-meta">Patricia Nguyen · Yesterday 5:12 PM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--text-ghost);"></div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Case created</strong> — New intake: Marcelline T. Johansson (HS-2026-0089)</div>
+            <div class="activity-meta">Lisa Park · Yesterday 3:44 PM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="card card-pad">
+        <div class="card-header">
+          <div class="card-title">Upcoming Hearings</div>
+          <span class="section-link" onclick="showPage('calendar')">Calendar →</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:14px;align-items:center;padding:12px;background:var(--accent-primary-subtle);border-radius:8px;border:1px solid var(--accent-primary-muted);">
+            <div style="text-align:center;min-width:40px;">
+              <div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);">MAR</div>
+              <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--accent-primary);line-height:1;">24</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9375rem;">Dorothea R. Simmons</div>
+              <div style="font-size:0.8125rem;color:var(--text-secondary);">ALJ Holloway · OHA Louisville · 10:00 AM</div>
+              <div style="margin-top:6px;"><span class="badge badge-gold">SSI/SSDI Concurrent</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;padding:12px;background:var(--bg-sunken);border-radius:8px;border:1px solid var(--border-subtle);">
+            <div style="text-align:center;min-width:40px;">
+              <div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-tertiary);">MAR</div>
+              <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--text-primary);line-height:1;">27</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9375rem;">Franklin B. Okafor</div>
+              <div style="font-size:0.8125rem;color:var(--text-secondary);">ALJ Thompson · Video · 2:30 PM</div>
+              <div style="margin-top:6px;"><span class="badge badge-navy">SSDI Only</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;padding:12px;background:var(--bg-sunken);border-radius:8px;border:1px solid var(--border-subtle);">
+            <div style="text-align:center;min-width:40px;">
+              <div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-tertiary);">APR</div>
+              <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--text-primary);line-height:1;">3</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9375rem;">Lavinia C. Beaumont</div>
+              <div style="font-size:0.8125rem;color:var(--text-secondary);">ALJ Rivera · OHA Nashville · 9:00 AM</div>
+              <div style="margin-top:6px;"><span class="badge badge-navy">SSDI Only</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;padding:12px;background:var(--bg-sunken);border-radius:8px;border:1px solid var(--border-subtle);">
+            <div style="text-align:center;min-width:40px;">
+              <div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-tertiary);">APR</div>
+              <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--text-primary);line-height:1;">9</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9375rem;">Reginald A. Whitfield</div>
+              <div style="font-size:0.8125rem;color:var(--text-secondary);">ALJ Chen · Video · 11:00 AM</div>
+              <div style="margin-top:6px;"><span class="badge badge-warn">Docs Incomplete</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END DASHBOARD -->
+
+<!-- ===================================================
+     MY QUEUE PAGE
+     =================================================== -->
+<div class="page" id="page-queue">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">Your tasks</div>
+      <h1 class="page-title">My Queue</h1>
+      <p class="page-subtitle">7 tasks remaining · 3 high priority</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+        Filter
+      </button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Task
+      </button>
+    </div>
+  </div>
+
+  <div class="two-col" style="align-items:start;">
+    <div>
+      <div class="card-label" style="margin-bottom:10px;">Due Today — March 20</div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="queue-body">
+          <div class="queue-task">Submit CE exam request for Whitfield</div>
+          <div class="queue-sub">Case HS-2025-0847 · Reginald A. Whitfield</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-high"></div>
+            <span class="badge badge-red">High Priority</span>
+            <span style="font-size:0.75rem;color:var(--color-error);font-weight:600;">Overdue 2 days</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item done">
+        <div class="queue-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="queue-body">
+          <div class="queue-task">Confirm hearing date with OHA Louisville</div>
+          <div class="queue-sub">Case HS-2024-0312 · Dorothea R. Simmons</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-high"></div>
+            <span class="badge badge-green">Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Review updated RFC from Dr. Kwan — Okafor file</div>
+          <div class="queue-sub">Case HS-2025-0603 · Franklin B. Okafor</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-high"></div>
+            <span class="badge badge-red">High Priority</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due 5:00 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Draft brief for Beaumont ALJ hearing</div>
+          <div class="queue-sub">Case HS-2025-0711 · Lavinia C. Beaumont</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-med"></div>
+            <span class="badge badge-warn">Medium</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due today EOD</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Request medical records from VUMC cardiology dept.</div>
+          <div class="queue-sub">Case HS-2026-0044 · Marcelline T. Johansson</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-med"></div>
+            <span class="badge badge-warn">Medium</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due today EOD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-label" style="margin-bottom:10px;">This Week</div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">File reconsideration appeal — Henderson</div>
+          <div class="queue-sub">Case HS-2025-0934 · Marcus L. Henderson</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-high"></div>
+            <span class="badge badge-red">High Priority</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due Mar 22</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Client intake call — new referral from Dr. Shah's office</div>
+          <div class="queue-sub">Prospective claimant · Theresa A. Wozniak</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-med"></div>
+            <span class="badge badge-warn">Medium</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due Mar 23</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Update fee agreement — Simmons case post-approval</div>
+          <div class="queue-sub">Case HS-2024-0312 · Dorothea R. Simmons</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-low"></div>
+            <span class="badge badge-green">Low</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due Mar 25</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="queue-checkbox"></div>
+        <div class="queue-body">
+          <div class="queue-task">Follow up with SSA on Okafor exhibits submission receipt</div>
+          <div class="queue-sub">Case HS-2025-0603 · Franklin B. Okafor</div>
+          <div class="queue-meta">
+            <div class="priority-dot p-low"></div>
+            <span class="badge badge-green">Low</span>
+            <span style="font-size:0.75rem;color:var(--text-tertiary);">Due Mar 26</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding:16px;background:var(--bg-sunken);border-radius:10px;border:1px dashed var(--border-strong);text-align:center;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.borderColor='var(--accent-primary)';this.style.background='var(--accent-primary-subtle)';" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='var(--bg-sunken)';">
+        <svg style="width:20px;height:20px;stroke:var(--text-tertiary);margin-bottom:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <div style="font-size:0.875rem;color:var(--text-secondary);">Add a task</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END QUEUE -->
+
+<!-- ===================================================
+     CASES PAGE
+     =================================================== -->
+<div class="page" id="page-cases">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">All matters</div>
+      <h1 class="page-title">Cases</h1>
+      <p class="page-subtitle">142 active cases · 3 requires immediate attention</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+        Filter
+      </button>
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Case
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:20px;background:var(--bg-sunken);padding:4px;border-radius:10px;width:fit-content;">
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:600;background:var(--bg-raised);color:var(--text-primary);box-shadow:var(--shadow-xs);border:1px solid var(--border-default);cursor:pointer;transition:all 150ms;">All Cases</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">My Cases</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">ALJ Hearing</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Needs Attention</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" style="accent-color:var(--accent-primary);"></th>
+          <th>Case #</th>
+          <th>Claimant</th>
+          <th>Stage</th>
+          <th>Assigned To</th>
+          <th>Next Deadline</th>
+          <th>Hearing Date</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2024-0312</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-navy">DS</div>
+              <div>
+                <div style="font-weight:600;">Dorothea R. Simmons</div>
+                <div class="td-secondary">DOB 1968-04-12</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-green">ALJ Approved</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-navy" style="width:24px;height:24px;font-size:0.625rem;">SC</div>
+              <span style="font-size:0.875rem;">Sarah Chen</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--color-success);font-weight:500;">Fee petition Apr 2</span></td>
+          <td><span style="font-size:0.875rem;">Mar 24, 2026</span></td>
+          <td><span class="badge badge-green"><span class="badge-dot"></span> Active</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2025-0603</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-teal">FO</div>
+              <div>
+                <div style="font-weight:600;">Franklin B. Okafor</div>
+                <div class="td-secondary">DOB 1972-09-30</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-navy">ALJ Hearing</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-gold" style="width:24px;height:24px;font-size:0.625rem;">MT</div>
+              <span style="font-size:0.875rem;">Mike Torres</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--color-error);font-weight:600;">Exhibits due Mar 22</span></td>
+          <td><span style="font-size:0.875rem;">Mar 27, 2026</span></td>
+          <td><span class="badge badge-warn"><span class="badge-dot"></span> Attention</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2025-0711</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-rose">LB</div>
+              <div>
+                <div style="font-weight:600;">Lavinia C. Beaumont</div>
+                <div class="td-secondary">DOB 1959-11-07</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-navy">ALJ Hearing</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-navy" style="width:24px;height:24px;font-size:0.625rem;">SC</div>
+              <span style="font-size:0.875rem;">Sarah Chen</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--color-warning);font-weight:500;">Brief due Mar 20</span></td>
+          <td><span style="font-size:0.875rem;">Apr 3, 2026</span></td>
+          <td><span class="badge badge-navy"><span class="badge-dot"></span> Active</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2025-0847</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-gold">RW</div>
+              <div>
+                <div style="font-weight:600;">Reginald A. Whitfield</div>
+                <div class="td-secondary">DOB 1964-02-18</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">Reconsideration</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-teal" style="width:24px;height:24px;font-size:0.625rem;">PN</div>
+              <span style="font-size:0.875rem;">Patricia Nguyen</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--color-error);font-weight:600;">CE Exam overdue!</span></td>
+          <td><span style="font-size:0.875rem;">Apr 9, 2026</span></td>
+          <td><span class="badge badge-red"><span class="badge-dot"></span> Critical</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2025-0934</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-green">MH</div>
+              <div>
+                <div style="font-weight:600;">Marcus L. Henderson</div>
+                <div class="td-secondary">DOB 1981-07-23</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-gold">Initial Filing</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-gold" style="width:24px;height:24px;font-size:0.625rem;">MT</div>
+              <span style="font-size:0.875rem;">Mike Torres</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--color-warning);font-weight:500;">Appeal due Mar 22</span></td>
+          <td><span class="td-secondary">—</span></td>
+          <td><span class="badge badge-warn"><span class="badge-dot"></span> Attention</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2026-0044</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-navy">MJ</div>
+              <div>
+                <div style="font-weight:600;">Marcelline T. Johansson</div>
+                <div class="td-secondary">DOB 1975-03-15</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-ghost">New Intake</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-rose" style="width:24px;height:24px;font-size:0.625rem;">LP</div>
+              <span style="font-size:0.875rem;">Lisa Park</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--text-secondary);">Medical records Mar 23</span></td>
+          <td><span class="td-secondary">TBD</span></td>
+          <td><span class="badge badge-ghost"><span class="badge-dot"></span> Intake</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2024-0178</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-teal">AG</div>
+              <div>
+                <div style="font-weight:600;">Annette D. Guerrero</div>
+                <div class="td-secondary">DOB 1955-08-04</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">Appeals Council</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-navy" style="width:24px;height:24px;font-size:0.625rem;">SC</div>
+              <span style="font-size:0.875rem;">Sarah Chen</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--text-secondary);">Brief due Apr 14</span></td>
+          <td><span class="td-secondary">—</span></td>
+          <td><span class="badge badge-navy"><span class="badge-dot"></span> Active</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--accent-primary);"></td>
+          <td class="td-mono">HS-2023-0991</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar av-green">BN</div>
+              <div>
+                <div style="font-weight:600;">Bernard T. Nakamura</div>
+                <div class="td-secondary">DOB 1961-12-29</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">Federal Review</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="avatar av-teal" style="width:24px;height:24px;font-size:0.625rem;">PN</div>
+              <span style="font-size:0.875rem;">Patricia Nguyen</span>
+            </div>
+          </td>
+          <td><span style="font-size:0.875rem;color:var(--text-secondary);">Response due May 1</span></td>
+          <td><span class="td-secondary">—</span></td>
+          <td><span class="badge badge-navy"><span class="badge-dot"></span> Active</span></td>
+          <td><button style="padding:4px 8px;font-size:0.75rem;font-weight:600;border-radius:6px;background:transparent;border:1px solid var(--border-default);color:var(--text-secondary);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Open</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:0 4px;">
+    <span style="font-size:0.8125rem;color:var(--text-tertiary);">Showing 1–8 of 142 cases</span>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-secondary" style="height:32px;padding:0 12px;font-size:0.8125rem;">Previous</button>
+      <button style="width:32px;height:32px;border-radius:7px;background:var(--accent-primary);color:#fff;font-size:0.8125rem;font-weight:600;border:none;cursor:pointer;">1</button>
+      <button style="width:32px;height:32px;border-radius:7px;background:transparent;color:var(--text-secondary);font-size:0.8125rem;font-weight:600;border:1px solid var(--border-default);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">2</button>
+      <button style="width:32px;height:32px;border-radius:7px;background:transparent;color:var(--text-secondary);font-size:0.8125rem;font-weight:600;border:1px solid var(--border-default);cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">3</button>
+      <button class="btn btn-secondary" style="height:32px;padding:0 12px;font-size:0.8125rem;">Next</button>
+    </div>
+  </div>
+</div>
+<!-- END CASES -->
+
+<!-- ===================================================
+     CALENDAR PAGE
+     =================================================== -->
+<div class="page" id="page-calendar">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">Schedule</div>
+      <h1 class="page-title">Calendar</h1>
+      <p class="page-subtitle">Week of March 20 – 26, 2026</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Prev
+      </button>
+      <button class="btn btn-secondary" style="background:var(--accent-primary-subtle);border-color:var(--accent-primary-muted);color:var(--accent-primary);">Today</button>
+      <button class="btn btn-secondary">
+        Next
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div style="width:1px;height:24px;background:var(--border-default);"></div>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Event
+      </button>
+    </div>
+  </div>
+
+  <div class="cal-grid">
+    <!-- Header row -->
+    <div class="cal-header-cell" style="border-right:1px solid var(--border-default);"></div>
+    <div class="cal-header-cell">
+      <div>Mon</div>
+      <div class="cal-header-day">20</div>
+    </div>
+    <div class="cal-header-cell">
+      <div>Tue</div>
+      <div class="cal-header-day">21</div>
+    </div>
+    <div class="cal-header-cell">
+      <div>Wed</div>
+      <div class="cal-header-day">22</div>
+    </div>
+    <div class="cal-header-cell">
+      <div>Thu</div>
+      <div class="cal-header-day today">23</div>
+    </div>
+    <div class="cal-header-cell">
+      <div>Fri</div>
+      <div class="cal-header-day">24</div>
+    </div>
+    <div class="cal-header-cell">
+      <div>Sat</div>
+      <div class="cal-header-day" style="color:var(--text-tertiary);">25</div>
+    </div>
+    <div class="cal-header-cell" style="border-right:none;">
+      <div>Sun</div>
+      <div class="cal-header-day" style="color:var(--text-tertiary);">26</div>
+    </div>
+
+    <!-- 8 AM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">8 AM</div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Standup · 8:30</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Standup · 8:30</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Standup · 8:30</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Standup · 8:30</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Standup · 8:30</div>
+    </div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 9 AM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">9 AM</div>
+    <div class="cal-cell">
+      <div class="cal-event ev-gold">Intake Call · Wozniak 9:00</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-red">Deadline: Henderson Recon.</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-gold">Client Call · Beaumont 9:30</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-green">Hearing: Simmons · OHA Louisville 9:00–11:00</div>
+    </div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 10 AM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">10 AM</div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Case Review · Okafor docs</div>
+    </div>
+    <div class="cal-cell">
+      <div class="cal-event ev-gold">Depo: Whitfield CE Exam 10:00</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 11 AM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">11 AM</div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Exhibits Review · Okafor 11:30</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Team Lunch · Case Reviews</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 1 PM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">1 PM</div>
+    <div class="cal-cell">
+      <div class="cal-event ev-green">Beaumont Brief Writing</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">1:1 · Patricia 1:00</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-gold">Post-Hearing Review · Simmons 1:30</div>
+    </div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 2 PM row -->
+    <div class="cal-time-col" style="border-bottom:1px solid var(--border-subtle);">2 PM</div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-gold">New Intake · Johansson 2:30</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-green">Hearing: Okafor · Video 2:30–4:00</div>
+    </div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+
+    <!-- 4 PM row -->
+    <div class="cal-time-col">4 PM</div>
+    <div class="cal-cell">
+      <div class="cal-event ev-navy">Admin & Notes 4:30</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell">
+      <div class="cal-event ev-red">Deadline: Exhibits · Okafor</div>
+    </div>
+    <div class="cal-cell"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:1px solid var(--border-subtle);"></div>
+    <div class="cal-cell" style="background:var(--bg-sunken);border-right:none;"></div>
+  </div>
+</div>
+<!-- END CALENDAR -->
+
+<!-- ===================================================
+     MESSAGES PAGE
+     =================================================== -->
+<div class="page" id="page-messages">
+  <div class="page-header" style="margin-bottom:16px;">
+    <div class="page-header-left">
+      <div class="page-overline">Team communication</div>
+      <h1 class="page-title">Messages</h1>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Message
+      </button>
+    </div>
+  </div>
+
+  <div class="messages-layout">
+    <!-- Conversation list -->
+    <div class="convo-list">
+      <div class="convo-search">
+        <div style="display:flex;align-items:center;gap:8px;background:var(--bg-sunken);border:1px solid var(--border-default);border-radius:8px;padding:0 10px;height:34px;">
+          <svg style="width:13px;height:13px;stroke:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search messages…" style="border:none;background:transparent;font-size:0.8125rem;color:var(--text-primary);outline:none;width:100%;" >
+        </div>
+      </div>
+
+      <div class="convo-item active">
+        <div class="avatar av-gold">MT</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">Mike Torres</div>
+            <div class="convo-time">9:41 AM</div>
+          </div>
+          <div class="convo-preview">Just uploaded the Okafor medical records — can you review before the…</div>
+        </div>
+        <div class="unread-dot"></div>
+      </div>
+
+      <div class="convo-item">
+        <div class="avatar av-teal">PN</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">Patricia Nguyen</div>
+            <div class="convo-time">8:55 AM</div>
+          </div>
+          <div class="convo-preview">Confirmed — Whitfield CE exam is scheduled for Tuesday at 10am</div>
+        </div>
+        <div class="unread-dot"></div>
+      </div>
+
+      <div class="convo-item">
+        <div class="avatar av-rose">LP</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">Lisa Park</div>
+            <div class="convo-time">Yesterday</div>
+          </div>
+          <div class="convo-preview">New intake from Dr. Shah referral — she's ready for initial call</div>
+        </div>
+        <div class="unread-dot"></div>
+      </div>
+
+      <div class="convo-item">
+        <div style="width:32px;height:32px;border-radius:9999px;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;">HS</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">#general</div>
+            <div class="convo-time">Yesterday</div>
+          </div>
+          <div class="convo-preview">Sarah: Thanks everyone for a great week — Simmons approval was a team effort 🏆</div>
+        </div>
+      </div>
+
+      <div class="convo-item">
+        <div style="width:32px;height:32px;border-radius:9999px;background:var(--color-success-subtle);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--color-success);flex-shrink:0;">AL</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">#alj-hearings</div>
+            <div class="convo-time">Mon</div>
+          </div>
+          <div class="convo-preview">Mike: OHA Louisville confirmed the March 24 slot for Simmons</div>
+        </div>
+      </div>
+
+      <div class="convo-item">
+        <div class="avatar av-green">JH</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="convo-name">James Hogan</div>
+            <div class="convo-time">Mar 18</div>
+          </div>
+          <div class="convo-preview">Great work on the Henderson brief. Let's touch base on the Guerrero federal case this week.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thread pane -->
+    <div class="thread-pane">
+      <div class="thread-header">
+        <div class="avatar av-gold">MT</div>
+        <div>
+          <div style="font-weight:600;font-size:0.9375rem;">Mike Torres</div>
+          <div style="font-size:0.75rem;color:var(--text-tertiary);">Re: Okafor case · HS-2025-0603</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <button class="topbar-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></button>
+          <button class="topbar-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+      </div>
+
+      <div class="thread-messages">
+        <div>
+          <div class="msg-bubble recv">
+            Hey Sarah — just uploaded Dr. Kwan's updated RFC to the Okafor file. There are some significant changes to the cardiac limitations section. Can you review before the Thursday deadline?
+          </div>
+          <div class="msg-meta recv-meta">Mike Torres · 8:47 AM</div>
+        </div>
+
+        <div style="align-self:flex-end;">
+          <div class="msg-bubble sent">
+            On it. What's the reference number on the exhibit? I want to make sure we're using the right version for the exhibits list.
+          </div>
+          <div class="msg-meta">You · 8:53 AM</div>
+        </div>
+
+        <div>
+          <div class="msg-bubble recv">
+            It's exhibit 24F. I also added a note in the case file pointing to the page numbers for the cardiac assessment. The ALJ is likely to focus on the RFC's postural limitations given Thompson's history in these cases.
+          </div>
+          <div class="msg-meta recv-meta">Mike Torres · 8:58 AM</div>
+        </div>
+
+        <div style="align-self:flex-end;">
+          <div class="msg-bubble sent">
+            Good call flagging that. I'll review 24F this morning and update the pre-hearing brief before EOD. Are we expecting any additional records from VUMC?
+          </div>
+          <div class="msg-meta">You · 9:04 AM</div>
+        </div>
+
+        <div>
+          <div class="msg-bubble recv">
+            Patricia is following up with VUMC cardiology this afternoon. If we get something back by Wednesday we can still include it, but the exhibits list is due Thursday so we may need to request a brief extension if anything comes in late.
+          </div>
+          <div class="msg-meta recv-meta">Mike Torres · 9:11 AM</div>
+        </div>
+
+        <div style="align-self:flex-end;">
+          <div class="msg-bubble sent">
+            Understood. I'll draft a boilerplate extension request as a backup. Let's plan to connect at 3pm Thursday if we need to finalize the strategy.
+          </div>
+          <div class="msg-meta">You · 9:14 AM</div>
+        </div>
+
+        <div>
+          <div class="msg-bubble recv">
+            Perfect. Also — just uploaded the Okafor medical records — can you review before the hearing brief is finalized? I flagged the most relevant pages with sticky notes in the PDF.
+          </div>
+          <div class="msg-meta recv-meta">Mike Torres · 9:41 AM</div>
+        </div>
+      </div>
+
+      <div class="thread-compose">
+        <div class="compose-box">
+          <textarea class="compose-input" placeholder="Reply to Mike…" rows="1"></textarea>
+          <button class="btn btn-primary" style="height:40px;padding:0 16px;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END MESSAGES -->
+
+<!-- ===================================================
+     CONTACTS PAGE
+     =================================================== -->
+<div class="page" id="page-contacts">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">Directory</div>
+      <h1 class="page-title">Contacts</h1>
+      <p class="page-subtitle">Team members, opposing counsel, ALJs, and medical experts</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+        Filter
+      </button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Contact
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:24px;background:var(--bg-sunken);padding:4px;border-radius:10px;width:fit-content;">
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:600;background:var(--bg-raised);color:var(--text-primary);box-shadow:var(--shadow-xs);border:1px solid var(--border-default);cursor:pointer;">All</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Team</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">ALJs</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Medical Experts</button>
+    <button style="padding:6px 16px;border-radius:7px;font-size:0.8125rem;font-weight:500;background:transparent;color:var(--text-secondary);border:none;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background='transparent'">Vocational Experts</button>
+  </div>
+
+  <div class="card-label" style="margin-bottom:12px;">Hogan Smith Team</div>
+  <div class="contact-grid" style="margin-bottom:28px;">
+    <div class="contact-card">
+      <div class="avatar av-navy avatar-xl" style="margin:0 auto;">JH</div>
+      <div class="contact-name">James Hogan</div>
+      <div class="contact-role">Managing Partner</div>
+      <div class="contact-email">j.hogan@hogansmith.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-navy">Managing Partner</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-navy avatar-xl" style="margin:0 auto;">SC</div>
+      <div class="contact-name">Sarah Chen</div>
+      <div class="contact-role">Senior Case Manager</div>
+      <div class="contact-email">s.chen@hogansmith.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-navy">Case Manager</span>
+        <span class="badge badge-gold">142 Cases</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-gold avatar-xl" style="margin:0 auto;">MT</div>
+      <div class="contact-name">Mike Torres</div>
+      <div class="contact-role">Case Manager</div>
+      <div class="contact-email">m.torres@hogansmith.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-navy">Case Manager</span>
+        <span class="badge badge-gold">89 Cases</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-teal avatar-xl" style="margin:0 auto;">PN</div>
+      <div class="contact-name">Patricia Nguyen</div>
+      <div class="contact-role">Senior Paralegal</div>
+      <div class="contact-email">p.nguyen@hogansmith.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-info">Paralegal</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-rose avatar-xl" style="margin:0 auto;">LP</div>
+      <div class="contact-name">Lisa Park</div>
+      <div class="contact-role">Intake Coordinator</div>
+      <div class="contact-email">l.park@hogansmith.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-ghost">Intake</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-label" style="margin-bottom:12px;">Administrative Law Judges</div>
+  <div class="contact-grid" style="margin-bottom:28px;">
+    <div class="contact-card">
+      <div class="avatar av-navy avatar-xl" style="margin:0 auto;background:rgba(43,76,140,0.15);">MH</div>
+      <div class="contact-name">ALJ Martin P. Holloway</div>
+      <div class="contact-role">OHA Louisville Hearing Office</div>
+      <div class="contact-email" style="color:var(--text-tertiary);">Louisville, KY</div>
+      <div class="contact-tags">
+        <span class="badge badge-green">Active</span>
+        <span class="badge badge-ghost">4 Upcoming</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-teal avatar-xl" style="margin:0 auto;">RT</div>
+      <div class="contact-name">ALJ Rebecca Thompson</div>
+      <div class="contact-role">Video Hearings Unit</div>
+      <div class="contact-email" style="color:var(--text-tertiary);">National Hearing Center</div>
+      <div class="contact-tags">
+        <span class="badge badge-green">Active</span>
+        <span class="badge badge-ghost">2 Upcoming</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-rose avatar-xl" style="margin:0 auto;">CR</div>
+      <div class="contact-name">ALJ Carlos Rivera</div>
+      <div class="contact-role">OHA Nashville Hearing Office</div>
+      <div class="contact-email" style="color:var(--text-tertiary);">Nashville, TN</div>
+      <div class="contact-tags">
+        <span class="badge badge-green">Active</span>
+        <span class="badge badge-ghost">1 Upcoming</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-label" style="margin-bottom:12px;">Medical Experts</div>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="avatar av-green avatar-xl" style="margin:0 auto;">DK</div>
+      <div class="contact-name">Dr. Jennifer Kwan, MD</div>
+      <div class="contact-role">Cardiologist · VUMC</div>
+      <div class="contact-email">j.kwan@vumc.org</div>
+      <div class="contact-tags">
+        <span class="badge badge-green">Treating Physician</span>
+        <span class="badge badge-ghost">Okafor, Whitfield</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-gold avatar-xl" style="margin:0 auto;">PS</div>
+      <div class="contact-name">Dr. Priya Shah, MD</div>
+      <div class="contact-role">Neurologist · Vanderbilt</div>
+      <div class="contact-email">p.shah@vanderbilt.edu</div>
+      <div class="contact-tags">
+        <span class="badge badge-green">Treating Physician</span>
+        <span class="badge badge-ghost">Beaumont</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="avatar av-navy avatar-xl" style="margin:0 auto;background:rgba(59,124,184,0.15);color:var(--color-info);">RB</div>
+      <div class="contact-name">Dr. Robert Blackwell, PhD</div>
+      <div class="contact-role">Vocational Expert</div>
+      <div class="contact-email">rblackwell@vocexperts.com</div>
+      <div class="contact-tags">
+        <span class="badge badge-info">Vocational Expert</span>
+        <span class="badge badge-ghost">Holloway's VE</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END CONTACTS -->
+
+<!-- ===================================================
+     SETTINGS PAGE
+     =================================================== -->
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-overline">Workspace configuration</div>
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Manage your account, notifications, and team preferences</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary">Save Changes</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:start;">
+    <!-- Settings nav -->
+    <div class="card card-pad" style="padding:8px;">
+      <div style="padding:8px;font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">Account</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;font-weight:600;color:var(--accent-primary);background:var(--accent-primary-subtle);cursor:pointer;margin-bottom:1px;">Profile</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Security</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Notifications</div>
+      <div style="height:4px;"></div>
+      <div style="padding:8px;font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">Workspace</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Team Members</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Case Defaults</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Integrations</div>
+      <div style="padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--text-secondary);cursor:pointer;transition:background 150ms;margin-bottom:1px;" onmouseenter="this.style.background='var(--interactive-hover)'" onmouseleave="this.style.background=''">Billing</div>
+    </div>
+
+    <!-- Settings content -->
+    <div>
+      <!-- Profile section -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Profile information</div>
+          <div class="settings-section-desc">Update your name, contact details, and professional information</div>
+        </div>
+        <div class="settings-body">
+          <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border-subtle);">
+            <div class="avatar av-navy" style="width:72px;height:72px;font-size:1.25rem;font-weight:700;">SC</div>
+            <div>
+              <div style="font-weight:600;font-size:0.9375rem;">Profile Photo</div>
+              <div style="font-size:0.8125rem;color:var(--text-secondary);margin-top:2px;margin-bottom:10px;">JPG, GIF or PNG. Max size 2MB.</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-secondary" style="height:32px;font-size:0.8125rem;padding:0 12px;">Upload photo</button>
+                <button class="btn btn-secondary" style="height:32px;font-size:0.8125rem;padding:0 12px;color:var(--color-error);">Remove</button>
+              </div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="form-label">First name</label>
+              <input class="form-input" type="text" value="Sarah">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last name</label>
+              <input class="form-input" type="text" value="Chen">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email address</label>
+              <input class="form-input" type="email" value="s.chen@hogansmith.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone number</label>
+              <input class="form-input" type="tel" value="(615) 555-0142">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job title</label>
+              <input class="form-input" type="text" value="Senior Case Manager">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bar number (if applicable)</label>
+              <input class="form-input" type="text" placeholder="e.g. TN-2018-04821">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Professional bio</label>
+            <textarea class="form-input form-textarea" rows="3">Senior Case Manager at Hogan Smith Law with 8+ years specializing in Social Security disability appeals, ALJ hearings, and claimant advocacy.</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications section -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Notifications</div>
+          <div class="settings-section-desc">Choose when and how you want to be notified</div>
+        </div>
+        <div class="settings-body">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Deadline reminders</div>
+              <div class="toggle-desc">Get notified 48 hours before a case deadline</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Hearing notifications</div>
+              <div class="toggle-desc">Reminders 1 week and 24 hours before scheduled hearings</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Document uploads</div>
+              <div class="toggle-desc">Alert when a team member uploads documents to your cases</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Case stage changes</div>
+              <div class="toggle-desc">Notify when a case is moved to a new stage</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Weekly digest email</div>
+              <div class="toggle-desc">Summary of your cases and tasks every Monday at 8am</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">New message alerts</div>
+              <div class="toggle-desc">Push notification for new direct messages</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Display section -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Display preferences</div>
+          <div class="settings-section-desc">Customize how CaseFlow looks and behaves for you</div>
+        </div>
+        <div class="settings-body">
+          <div class="form-group">
+            <label class="form-label">Date format</label>
+            <select class="form-input form-select">
+              <option>MM/DD/YYYY</option>
+              <option>DD/MM/YYYY</option>
+              <option selected>YYYY-MM-DD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Timezone</label>
+            <select class="form-input form-select">
+              <option>Eastern Time (ET)</option>
+              <option selected>Central Time (CT)</option>
+              <option>Mountain Time (MT)</option>
+              <option>Pacific Time (PT)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Default case view</label>
+            <select class="form-input form-select">
+              <option selected>All Active Cases</option>
+              <option>My Cases Only</option>
+              <option>ALJ Hearing Stage</option>
+            </select>
+          </div>
+          <div class="toggle-row" style="padding-top:0;">
+            <div class="toggle-info">
+              <div class="toggle-title">Compact case list</div>
+              <div class="toggle-desc">Show more cases per screen with reduced row height</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END SETTINGS -->
+
+    </div><!-- end .page-scroll -->
+  </div><!-- end .main-content -->
+</div><!-- end .app-shell -->
+
+<script>
+// ===== PAGE NAVIGATION =====
+const pageTitles = {
+  dashboard: 'Dashboard',
+  queue: 'My Queue',
+  cases: 'Cases',
+  calendar: 'Calendar',
+  messages: 'Messages',
+  contacts: 'Contacts',
+  settings: 'Settings',
+};
+
+function showPage(id) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-login').forEach(p => p.classList.remove('active'));
+
+  // Show app shell
+  document.getElementById('app-shell').style.display = 'flex';
+  document.getElementById('page-login').style.display = 'none';
+
+  // Activate page
+  const page = document.getElementById('page-' + id);
+  if (page) {
+    page.classList.add('active');
+  }
+
+  // Update topbar title
+  const titleEl = document.getElementById('topbar-title');
+  if (titleEl && pageTitles[id]) {
+    titleEl.textContent = pageTitles[id];
+  }
+
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  const activeNav = document.querySelector('.nav-item[data-page="' + id + '"]');
+  if (activeNav) {
+    activeNav.classList.add('active');
+  }
+}
+
+function showLogin() {
+  document.getElementById('app-shell').style.display = 'none';
+  const loginPage = document.getElementById('page-login');
+  loginPage.style.display = 'block';
+}
+
+// ===== QUEUE CHECKBOXES =====
+document.querySelectorAll('.queue-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    if (e.target.closest('.queue-checkbox')) {
+      const checkbox = this.querySelector('.queue-checkbox');
+      const isChecked = checkbox.classList.contains('checked');
+      if (!isChecked) {
+        checkbox.classList.add('checked');
+        checkbox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>';
+        this.classList.add('done');
+      } else {
+        checkbox.classList.remove('checked');
+        checkbox.innerHTML = '';
+        this.classList.remove('done');
+      }
+    }
+  });
+});
+
+// ===== INIT =====
+// Show login on load
+showLogin();
+
+// Auto-proceed to dashboard after a moment for demo purposes
+// (Comment out for actual login-first behavior)
+// setTimeout(() => showPage('dashboard'), 100);
+</script>
+</body>
+</html>

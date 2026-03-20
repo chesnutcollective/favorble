@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type { IconSvgElement } from "@hugeicons/react";
 import {
-  FileText,
-  Download,
-  Eye,
-  Trash2,
-  MoreHorizontal,
-  Upload as UploadIcon,
-  Globe,
-  User,
-} from "lucide-react";
+  File01Icon,
+  Download01Icon,
+  EyeIcon,
+  Delete01Icon,
+  MoreHorizontalIcon,
+  Upload01Icon,
+  GlobeIcon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { formatFileSize, getFileIconType } from "@/lib/storage/client";
 import { cn } from "@/lib/utils";
@@ -35,13 +37,13 @@ type DocumentListProps = {
   onSourceFilterChange?: (source: string | null) => void;
 };
 
-const SOURCE_LABELS: Record<string, { label: string; icon: typeof FileText }> = {
-  upload: { label: "Uploaded", icon: UploadIcon },
-  template: { label: "Template", icon: FileText },
-  chronicle: { label: "SSA/Chronicle", icon: Globe },
-  case_status: { label: "Client Upload", icon: User },
-  email: { label: "Email", icon: FileText },
-  esignature: { label: "eSignature", icon: FileText },
+const SOURCE_LABELS: Record<string, { label: string; icon: IconSvgElement }> = {
+  upload: { label: "Uploaded", icon: Upload01Icon },
+  template: { label: "Template", icon: File01Icon },
+  chronicle: { label: "SSA/Chronicle", icon: GlobeIcon },
+  case_status: { label: "Client Upload", icon: UserIcon },
+  email: { label: "Email", icon: File01Icon },
+  esignature: { label: "eSignature", icon: File01Icon },
 };
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -115,7 +117,7 @@ export function DocumentList({
       {/* Document table */}
       {filteredDocs.length === 0 ? (
         <div className="py-12 text-center">
-          <FileText className="mx-auto h-8 w-8 text-gray-300" />
+          <HugeiconsIcon icon={File01Icon} size={32} color="rgb(209 213 219)" className="mx-auto" />
           <p className="mt-2 text-sm text-muted-foreground">No documents found</p>
         </div>
       ) : (
@@ -184,7 +186,7 @@ export function DocumentList({
                           onClick={() => onPreview(doc)}
                           title="Preview"
                         >
-                          <Eye className="h-4 w-4" />
+                          <HugeiconsIcon icon={EyeIcon} size={16} />
                         </Button>
                         <Button
                           variant="ghost"
@@ -192,7 +194,7 @@ export function DocumentList({
                           onClick={() => onDownload(doc)}
                           title="Download"
                         >
-                          <Download className="h-4 w-4" />
+                          <HugeiconsIcon icon={Download01Icon} size={16} />
                         </Button>
                         {onDelete && (
                           <div className="relative">
@@ -205,7 +207,7 @@ export function DocumentList({
                                 )
                               }
                             >
-                              <MoreHorizontal className="h-4 w-4" />
+                              <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
                             </Button>
                             {menuOpen === doc.id && (
                               <>
@@ -222,7 +224,7 @@ export function DocumentList({
                                     }}
                                     className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                                   >
-                                    <Trash2 className="h-3.5 w-3.5" />
+                                    <HugeiconsIcon icon={Delete01Icon} size={14} />
                                     Delete
                                   </button>
                                 </div>
@@ -253,5 +255,5 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
     unknown: "text-muted-foreground",
   };
 
-  return <FileText className={cn("h-4 w-4 shrink-0", colors[type])} />;
+  return <HugeiconsIcon icon={File01Icon} size={16} className={cn("shrink-0", colors[type])} />;
 }

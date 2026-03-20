@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hogan Smith CaseFlow — Concept 3: Soft Gradient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--nb:#2B4C8C;--nb2:#1F3D75;--nb3:#17305E;--nbs:rgba(43,76,140,.08);--nbm:rgba(43,76,140,.14);
+--gd:#C99A2E;--gd2:#B5891F;--gds:rgba(201,154,46,.10);--gdm:rgba(201,154,46,.18);
+--bg:#FAF8F5;--bgr:#FFFFFF;--bgo:#FFFDF9;--bgs:#F3F0EB;--bgc:#F7F4EF;
+--tp:#1A1714;--ts:#5C554A;--tt:#8C8479;--tg:#B8B0A4;--ti:#FAF8F5;
+--bs:rgba(120,100,70,.08);--bd:rgba(120,100,70,.16);--bk:rgba(120,100,70,.28);
+--ok:#3D8B5E;--oks:rgba(61,139,94,.10);
+--wn:#C4882A;--wns:rgba(196,136,42,.10);
+--er:#C44040;--ers:rgba(196,64,64,.10);
+--ih:rgba(120,100,70,.05);--ia:rgba(120,100,70,.08);--is:rgba(43,76,140,.08);
+--sh1:0 1px 3px rgba(120,80,40,.06),0 1px 2px rgba(120,80,40,.04);
+--sh2:0 4px 6px -1px rgba(120,80,40,.06),0 2px 4px -2px rgba(120,80,40,.05);
+--sh3:0 10px 15px -3px rgba(120,80,40,.07),0 4px 6px -4px rgba(120,80,40,.05);
+--sh4:0 20px 25px -5px rgba(120,80,40,.08),0 8px 10px -6px rgba(120,80,40,.04);
+--r1:4px;--r2:8px;--r3:12px;--r4:16px;--r5:24px;--rf:9999px;
+--fn:'Plus Jakarta Sans',-apple-system,sans-serif;--fd:'Lora',Georgia,serif;
+--dur:.15s;--ease:cubic-bezier(.2,0,0,1);
+--gr1:linear-gradient(135deg,#FAF8F5 0%,#FFFDF9 50%,#FAF8F5 100%);
+--gr2:linear-gradient(160deg,#F7F4EF 0%,#FFFDF9 100%);
+--gr3:linear-gradient(135deg,#2B4C8C 0%,#3B5FA0 40%,#2B4C8C 100%);
+--gr4:linear-gradient(135deg,#C99A2E 0%,#D9AE4A 50%,#C99A2E 100%);
+--gr5:linear-gradient(160deg,rgba(201,154,46,.06) 0%,rgba(43,76,140,.04) 100%);
+--gr6:linear-gradient(135deg,#1F3D75 0%,#2B4C8C 60%,#3B5FA0 100%);
+--gr7:linear-gradient(180deg,rgba(255,253,249,1) 0%,rgba(250,248,245,1) 100%);
+}
+html{font-family:var(--fn);font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--tp);font-size:.9375rem;line-height:1.6}
+button{font-family:var(--fn);cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:var(--fn)}
+svg{display:block;flex-shrink:0}
+.pg{display:none;min-height:100vh}
+.pg.on{display:flex}
+
+/* NAV */
+.nv{width:260px;min-height:100vh;background:var(--gr6);position:relative;display:flex;flex-direction:column;flex-shrink:0}
+.nv::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,253,249,.04) 0%,rgba(255,253,249,.01) 60%,rgba(201,154,46,.06) 100%);pointer-events:none}
+.nv-hd{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.nv-lg{display:flex;align-items:center;gap:10px}
+.nv-ic{width:36px;height:36px;background:var(--gr4);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(201,154,46,.3)}
+.nv-nm{font-family:var(--fd);font-size:1rem;font-weight:600;color:#fff;letter-spacing:-.01em}
+.nv-sb{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);padding:16px 20px 6px}
+.nv-lk{display:flex;align-items:center;gap:10px;padding:8px 12px;margin:2px 8px;border-radius:var(--r2);color:rgba(255,255,255,.7);font-size:.875rem;font-weight:500;cursor:pointer;transition:all var(--dur) var(--ease);text-decoration:none;position:relative}
+.nv-lk:hover{background:rgba(255,255,255,.08);color:#fff}
+.nv-lk.ac{background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.08) 100%);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.nv-lk.ac::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gr4);border-radius:0 2px 2px 0}
+.nv-bd{width:5px;height:5px;background:var(--gd);border-radius:50%;margin-left:auto}
+.nv-ft{margin-top:auto;padding:16px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.nv-us{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r2);cursor:pointer;transition:background var(--dur) var(--ease)}
+.nv-us:hover{background:rgba(255,255,255,.08)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--gr4);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 2px 6px rgba(201,154,46,.25)}
+.nv-un{font-size:.8125rem;font-weight:600;color:rgba(255,255,255,.85)}
+.nv-rl{font-size:.6875rem;color:rgba(255,255,255,.4)}
+
+/* MAIN */
+.mn{flex:1;overflow-y:auto;background:var(--bg)}
+
+/* TOPBAR */
+.tb{height:64px;background:var(--gr7);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.tb-tt{font-family:var(--fd);font-size:1.125rem;font-weight:600;color:var(--tp);letter-spacing:-.015em;flex:1}
+.tb-sr{display:flex;align-items:center;gap:8px;background:var(--bgs);border:1px solid var(--bd);border-radius:var(--rf);padding:0 14px;height:36px;width:220px;transition:all var(--dur) var(--ease)}
+.tb-sr:focus-within{border-color:var(--nb);background:#fff;box-shadow:0 0 0 3px var(--nbs)}
+.tb-sr input{border:none;background:transparent;font-size:.8125rem;color:var(--tp);outline:none;flex:1}
+.tb-sr input::placeholder{color:var(--tg)}
+.ib{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;background:transparent;color:var(--ts);transition:all var(--dur) var(--ease);position:relative}
+.ib:hover{background:var(--bgs);color:var(--tp)}
+.nb-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--er);border-radius:50%;border:1.5px solid var(--bgr)}
+
+/* CONTENT */
+.cx{padding:28px}
+
+/* STAT CARDS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.sc{background:var(--bgr);border:1px solid var(--bd);border-radius:var(--r3);padding:20px;transition:all var(--dur) var(--ease);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gr4);opacity:0;transition:opacity var(--dur) var(--ease)}
+.sc:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.sc:hover::before{opacity:1}
+.sc-gb{position:absolute;inset:0;background:linear-gradient(135deg,rgba(250,248,245,.8) 0%,rgba(255,253,249,1) 100%);pointer-events:none}
+.sc-ic{width:40px;height:40px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative}
+.ic-nb{background:linear-gradient(135deg,rgba(43,76,140,.12) 0%,rgba(43,76,140,.06) 100%)}
+.ic-gd{background:linear-gradient(135deg,rgba(201,154,46,.15) 0%,rgba(201,154,46,.07) 100%)}
+.ic-ok{background:linear-gradient(135deg,rgba(61,139,94,.12) 0%,rgba(61,139,94,.06) 100%)}
+.ic-er{background:linear-gradient(135deg,rgba(196,64,64,.10) 0%,rgba(196,64,64,.05) 100%)}
+.sc-vl{font-family:var(--fd);font-size:1.75rem;font-weight:700;color:var(--tp);letter-spacing:-.03em;position:relative}
+.sc-lb{font-size:.8125rem;color:var(--tt);font-weight:500;margin-top:2px;position:relative}
+.sc-dlt{font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:3px;margin-top:8px;position:relative}
+.up{color:var(--ok)}.dn{color:var(--er)}
+
+/* SECTION HEADERS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sh-tt{font-family:var(--fd);font-size:1.125rem;font-weight:600;color:var(--tp);letter-spacing:-.015em}
+.lk-sm{font-size:.8125rem;font-weight:600;color:var(--nb);cursor:pointer;transition:color var(--dur) var(--ease)}
+.lk-sm:hover{color:var(--nb2)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* CARDS */
+.cd{background:var(--bgr);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden;box-shadow:var(--sh1)}
+.cd-hd{padding:16px 20px;border-bottom:1px solid var(--bs);background:linear-gradient(180deg,var(--bgo) 0%,var(--bgr) 100%)}
+.cd-bd{padding:20px}
+
+/* CASE ROWS */
+.cr{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bs);transition:background var(--dur) var(--ease);border-radius:var(--r1);cursor:pointer}
+.cr:last-child{border-bottom:none}
+.cr:hover{background:var(--gr5);margin:0 -8px;padding-left:8px;padding-right:8px}
+.cr-av{width:38px;height:38px;border-radius:var(--r2);background:var(--gr2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--nb);flex-shrink:0;border:1px solid var(--bd)}
+.cr-nm{font-size:.875rem;font-weight:600;color:var(--tp)}
+.cr-cs{font-size:.75rem;color:var(--tt)}
+.cr-ml{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* BADGES */
+.bg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--rf);font-size:.6875rem;font-weight:600;letter-spacing:.02em}
+.bg-nb{background:linear-gradient(135deg,rgba(43,76,140,.10) 0%,rgba(43,76,140,.06) 100%);color:var(--nb);border:1px solid rgba(43,76,140,.15)}
+.bg-gd{background:linear-gradient(135deg,rgba(201,154,46,.12) 0%,rgba(201,154,46,.07) 100%);color:#9A7520;border:1px solid rgba(201,154,46,.20)}
+.bg-ok{background:linear-gradient(135deg,rgba(61,139,94,.10) 0%,rgba(61,139,94,.06) 100%);color:var(--ok);border:1px solid rgba(61,139,94,.15)}
+.bg-er{background:linear-gradient(135deg,rgba(196,64,64,.10) 0%,rgba(196,64,64,.05) 100%);color:var(--er);border:1px solid rgba(196,64,64,.15)}
+.bg-wn{background:linear-gradient(135deg,rgba(196,136,42,.10) 0%,rgba(196,136,42,.05) 100%);color:var(--wn);border:1px solid rgba(196,136,42,.15)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:0 16px;height:36px;border-radius:var(--r2);font-size:.8125rem;font-weight:600;transition:all var(--dur) var(--ease);cursor:pointer;border:none}
+.btn-pr{background:var(--gr3);color:#fff;box-shadow:0 2px 6px rgba(43,76,140,.25)}
+.btn-pr:hover{background:linear-gradient(135deg,#1F3D75 0%,#2B4C8C 60%,#3457A0 100%);box-shadow:0 4px 12px rgba(43,76,140,.35);transform:translateY(-1px)}
+.btn-sc{background:var(--gr4);color:#fff;box-shadow:0 2px 6px rgba(201,154,46,.25)}
+.btn-sc:hover{background:linear-gradient(135deg,#B5891F 0%,#C99A2E 60%,#D9AE4A 100%);box-shadow:0 4px 12px rgba(201,154,46,.35);transform:translateY(-1px)}
+.btn-gh{background:transparent;color:var(--ts);border:1px solid var(--bd)}
+.btn-gh:hover{background:var(--bgs);border-color:var(--bk);color:var(--tp)}
+.btn-sm{height:30px;padding:0 12px;font-size:.75rem}
+
+/* ACTIVITY */
+.ai{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bs)}
+.ai:last-child{border-bottom:none}
+.ai-ln{width:2px;background:linear-gradient(180deg,var(--nb) 0%,rgba(43,76,140,.1) 100%);flex-shrink:0;border-radius:2px;margin:4px 0}
+.ai-ic{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid var(--bd)}
+.ai-bd{flex:1}
+.ai-tt{font-size:.8125rem;font-weight:600;color:var(--tp)}
+.ai-st{font-size:.75rem;color:var(--tt)}
+.ai-tm{font-size:.6875rem;color:var(--tg);margin-left:auto;flex-shrink:0}
+
+/* DEADLINE ITEMS */
+.di{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bs);cursor:pointer;transition:background var(--dur) var(--ease)}
+.di:last-child{border-bottom:none}
+.di:hover{background:var(--gr5);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:var(--r1)}
+.di-dt{width:42px;height:42px;border-radius:var(--r2);background:linear-gradient(135deg,rgba(43,76,140,.08) 0%,rgba(43,76,140,.04) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--bd);flex-shrink:0}
+.di-dm{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--nb)}
+.di-dd{font-size:.9375rem;font-weight:700;color:var(--nb);line-height:1}
+.di-nm{font-size:.8125rem;font-weight:600;color:var(--tp)}
+.di-cs{font-size:.75rem;color:var(--tt)}
+.di-ug{margin-left:auto}
+.ug-rd{background:linear-gradient(135deg,rgba(196,64,64,.12) 0%,rgba(196,64,64,.06) 100%) !important;border-color:rgba(196,64,64,.2) !important}
+.ug-rd .di-dm,.ug-rd .di-dd{color:var(--er) !important}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tt);padding:10px 12px;text-align:left;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--bgo) 0%,var(--bgr) 100%);white-space:nowrap}
+.tbl td{padding:12px 12px;font-size:.8125rem;color:var(--tp);border-bottom:1px solid var(--bs);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--gr5)}
+
+/* QUEUE ITEMS */
+.qi{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--bd);border-radius:var(--r3);background:var(--bgr);margin-bottom:10px;transition:all var(--dur) var(--ease);cursor:pointer;position:relative;overflow:hidden}
+.qi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r1) 0 0 var(--r1)}
+.qi-nb::before{background:var(--gr3)}
+.qi-gd::before{background:var(--gr4)}
+.qi-ok::before{background:linear-gradient(180deg,#3D8B5E 0%,#5AAA7A 100%)}
+.qi-er::before{background:linear-gradient(180deg,#C44040 0%,#D06060 100%)}
+.qi:hover{box-shadow:var(--sh2);transform:translateX(2px);background:var(--bgo)}
+.qi-ic{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--gr2)}
+.qi-bd{flex:1}
+.qi-tt{font-size:.875rem;font-weight:600;color:var(--tp);margin-bottom:3px}
+.qi-st{font-size:.75rem;color:var(--tt)}
+.qi-ml{display:flex;align-items:center;gap:8px;margin-top:8px}
+
+/* MESSAGES */
+.ml{display:flex;flex-direction:column;gap:2px}
+.mi{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:var(--r2);cursor:pointer;transition:all var(--dur) var(--ease)}
+.mi:hover,.mi.rd{background:linear-gradient(135deg,rgba(43,76,140,.05) 0%,rgba(43,76,140,.02) 100%)}
+.mi.un{background:linear-gradient(135deg,rgba(43,76,140,.06) 0%,rgba(250,248,245,1) 100%)}
+.mi-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:700;flex-shrink:0;background:var(--gr2);color:var(--nb);border:1.5px solid var(--bd)}
+.mi-av-nb{background:linear-gradient(135deg,rgba(43,76,140,.15) 0%,rgba(43,76,140,.08) 100%);color:var(--nb)}
+.mi-av-gd{background:linear-gradient(135deg,rgba(201,154,46,.2) 0%,rgba(201,154,46,.1) 100%);color:#8A6A10}
+.mi-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.mi-nm{font-size:.875rem;font-weight:700;color:var(--tp)}
+.mi-tm{font-size:.6875rem;color:var(--tg);margin-left:auto}
+.mi-sb{font-size:.8125rem;font-weight:600;color:var(--tp);margin-bottom:2px}
+.mi-pv{font-size:.75rem;color:var(--tt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-bd{flex:1;min-width:0}
+.un-dot{width:8px;height:8px;background:var(--nb);border-radius:50%;flex-shrink:0;margin-top:6px;box-shadow:0 0 0 2px rgba(43,76,140,.2)}
+
+/* COMPOSE BTN */
+.cmp-btn{width:100%;background:var(--gr3);color:#fff;border:none;border-radius:var(--r3);padding:14px;font-size:.875rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all var(--dur) var(--ease);box-shadow:0 2px 8px rgba(43,76,140,.2);margin-bottom:16px}
+.cmp-btn:hover{box-shadow:0 4px 16px rgba(43,76,140,.3);transform:translateY(-1px)}
+
+/* MSG CATEGORIES */
+.mc{display:flex;flex-direction:column;gap:2px;margin-bottom:20px}
+.mc-it{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r2);cursor:pointer;font-size:.875rem;font-weight:500;color:var(--ts);transition:all var(--dur) var(--ease)}
+.mc-it:hover{background:var(--bgs);color:var(--tp)}
+.mc-it.ac{background:var(--gr5);color:var(--nb);font-weight:600;border:1px solid rgba(43,76,140,.10)}
+.mc-ct{margin-left:auto;background:var(--nb);color:#fff;font-size:.6875rem;font-weight:700;padding:1px 6px;border-radius:var(--rf)}
+
+/* MSG SEARCH */
+.ms{display:flex;align-items:center;gap:8px;background:var(--bgs);border:1px solid var(--bd);border-radius:var(--r2);padding:0 12px;height:36px;margin-bottom:14px;transition:all var(--dur) var(--ease)}
+.ms:focus-within{border-color:var(--nb);background:#fff;box-shadow:0 0 0 3px var(--nbs)}
+.ms input{border:none;background:transparent;font-size:.8125rem;color:var(--tp);outline:none;flex:1}
+
+/* LOGIN */
+.lp{min-height:100vh;background:linear-gradient(145deg,#1A2D5C 0%,#2B4C8C 35%,#1F3D75 65%,#17305E 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.lp::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(201,154,46,.12) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.lp::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(255,253,249,.04) 0%,transparent 70%);bottom:-100px;left:-100px;pointer-events:none}
+.lb{background:linear-gradient(145deg,rgba(255,253,249,.97) 0%,rgba(255,255,255,.99) 100%);border-radius:var(--r5);padding:44px;width:100%;max-width:420px;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.1)}
+.lb::before{content:'';position:absolute;inset:0;border-radius:var(--r5);background:linear-gradient(145deg,rgba(201,154,46,.03) 0%,transparent 50%);pointer-events:none}
+.lb-lg{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center}
+.lb-ic{width:48px;height:48px;background:var(--gr3);border-radius:var(--r3);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(43,76,140,.3)}
+.lb-nm{font-family:var(--fd);font-size:1.375rem;font-weight:700;color:var(--tp)}
+.lb-sb{font-size:.8125rem;color:var(--tt)}
+.lf-tt{font-family:var(--fd);font-size:1.375rem;font-weight:600;color:var(--tp);margin-bottom:6px;text-align:center}
+.lf-st{font-size:.875rem;color:var(--ts);margin-bottom:28px;text-align:center}
+.fi{margin-bottom:16px}
+.fi label{display:block;font-size:.8125rem;font-weight:600;color:var(--ts);margin-bottom:6px}
+.fi input{width:100%;height:44px;border:1px solid var(--bd);border-radius:var(--r2);padding:0 14px;font-size:.9375rem;color:var(--tp);background:linear-gradient(180deg,#fff 0%,var(--bgo) 100%);outline:none;transition:all var(--dur) var(--ease)}
+.fi input:focus{border-color:var(--nb);background:#fff;box-shadow:0 0 0 3px var(--nbs)}
+.lb-btn{width:100%;height:48px;background:var(--gr3);color:#fff;border:none;border-radius:var(--r2);font-size:.9375rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all var(--dur) var(--ease);box-shadow:0 4px 12px rgba(43,76,140,.3);margin-top:24px;font-family:var(--fn)}
+.lb-btn:hover{box-shadow:0 6px 20px rgba(43,76,140,.4);transform:translateY(-1px)}
+.lb-lk{text-align:center;margin-top:16px;font-size:.8125rem;color:var(--tt)}
+.lb-lk a{color:var(--nb);font-weight:600;text-decoration:none}
+.lb-lk a:hover{color:var(--nb2)}
+.lb-dv{display:flex;align-items:center;gap:12px;margin:20px 0}
+.lb-dv::before,.lb-dv::after{content:'';flex:1;height:1px;background:var(--bd)}
+.lb-dv span{font-size:.75rem;color:var(--tt);font-weight:500}
+.lb-ss{width:100%;height:44px;border:1px solid var(--bd);border-radius:var(--r2);background:linear-gradient(135deg,var(--bgo) 0%,var(--bgr) 100%);color:var(--ts);font-size:.875rem;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all var(--dur) var(--ease);font-family:var(--fn)}
+.lb-ss:hover{border-color:var(--nb);background:#fff;box-shadow:0 0 0 3px var(--nbs);color:var(--nb)}
+
+/* PROGRESS BAR */
+.pb{height:6px;background:var(--bgs);border-radius:var(--rf);overflow:hidden;margin-top:6px}
+.pb-f{height:100%;border-radius:var(--rf);background:var(--gr4)}
+.pb-fn{background:linear-gradient(90deg,#3D8B5E,#5AAA7A)}
+.pb-fw{background:linear-gradient(90deg,#C4882A,#D9AE4A)}
+
+/* CHART BAR */
+.ch{display:flex;align-items:flex-end;gap:6px;height:80px}
+.ch-b{flex:1;border-radius:var(--r1) var(--r1) 0 0;background:linear-gradient(180deg,rgba(43,76,140,.6) 0%,rgba(43,76,140,.3) 100%);transition:all var(--dur) var(--ease);cursor:pointer}
+.ch-b:hover{background:var(--gr3)}
+.ch-b.hl{background:var(--gr3)}
+.ch-lb{display:flex;justify-content:space-around;margin-top:6px}
+.ch-lt{font-size:.625rem;color:var(--tt);font-weight:500}
+
+/* GLOW */
+.gw{position:relative}
+.gw::after{content:'';position:absolute;inset:-6px;border-radius:calc(var(--r3) + 6px);background:radial-gradient(ellipse at center,rgba(201,154,46,.12) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity var(--dur) var(--ease)}
+.gw:hover::after{opacity:1}
+
+/* DIVIDER */
+.dv{height:1px;background:var(--bs);margin:16px 0}
+
+/* TABS */
+.tk{display:flex;gap:2px;background:var(--bgs);border-radius:var(--r2);padding:3px;margin-bottom:20px;width:fit-content}
+.tk-it{padding:6px 14px;border-radius:6px;font-size:.8125rem;font-weight:500;color:var(--ts);cursor:pointer;transition:all var(--dur) var(--ease)}
+.tk-it:hover{color:var(--tp)}
+.tk-it.ac{background:linear-gradient(135deg,#fff 0%,var(--bgo) 100%);color:var(--nb);font-weight:600;box-shadow:var(--sh1)}
+
+/* TAG NAV */
+.tn{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tn-it{padding:5px 12px;border-radius:var(--rf);font-size:.75rem;font-weight:600;cursor:pointer;transition:all var(--dur) var(--ease);border:1px solid var(--bd);color:var(--ts);background:var(--bgr)}
+.tn-it:hover{border-color:var(--nb);color:var(--nb)}
+.tn-it.ac{background:var(--gr3);color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(43,76,140,.2)}
+
+/* FILTER BAR */
+.fb{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.fs{height:36px;border:1px solid var(--bd);border-radius:var(--r2);padding:0 12px;font-size:.8125rem;color:var(--ts);background:var(--gr7);outline:none;cursor:pointer;transition:all var(--dur) var(--ease)}
+.fs:hover{border-color:var(--nb);color:var(--tp)}
+.fs:focus{border-color:var(--nb);box-shadow:0 0 0 3px var(--nbs)}
+
+/* PAGINATION */
+.pg-nav{display:flex;align-items:center;gap:6px;margin-top:20px;justify-content:flex-end}
+.pg-bt{width:32px;height:32px;border-radius:var(--r1);border:1px solid var(--bd);background:var(--bgr);font-size:.8125rem;font-weight:500;color:var(--ts);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--dur) var(--ease)}
+.pg-bt:hover{border-color:var(--nb);color:var(--nb);background:var(--nbs)}
+.pg-bt.ac{background:var(--gr3);color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(43,76,140,.2)}
+
+/* UTILITY */
+.flex{display:flex}.aic{align-items:center}.jcb{justify-content:space-between}.g8{gap:8px}.g12{gap:12px}.g16{gap:16px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb4{margin-bottom:4px}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}
+.fw6{font-weight:600}.fw7{font-weight:700}.fw5{font-weight:500}
+.f13{font-size:.8125rem}.f12{font-size:.75rem}.f11{font-size:.6875rem}
+.ct{color:var(--tt)}.cs{color:var(--ts)}.cn{color:var(--nb)}.cg{color:var(--gd)}
+.w100{width:100%}
+.mla{margin-left:auto}
+
+/* PAGE NAV BUTTONS */
+.pn{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;background:var(--bgr);border-bottom:1px solid var(--bd)}
+.pn-bt{padding:5px 12px;border-radius:var(--r1);background:var(--bgs);border:1px solid var(--bd);font-size:.75rem;font-weight:600;cursor:pointer;transition:all var(--dur) var(--ease);color:var(--ts)}
+.pn-bt:hover,.pn-bt.ac{background:var(--gr3);color:#fff;border-color:transparent}
+</style>
+</head>
+<body>
+
+<!-- PAGE NAV -->
+<div class="pn">
+<button class="pn-bt ac" onclick="show('db')">Dashboard</button>
+<button class="pn-bt" onclick="show('cs')">Cases</button>
+<button class="pn-bt" onclick="show('qu')">Queue</button>
+<button class="pn-bt" onclick="show('ms')">Messages</button>
+<button class="pn-bt" onclick="show('lg')">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="pg-db" class="pg on">
+<nav class="nv">
+<div class="nv-hd">
+<div class="nv-lg">
+<div class="nv-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+<div><div class="nv-nm">Hogan Smith</div><div style="font-size:.6875rem;color:rgba(255,255,255,.4);font-weight:500">CaseFlow</div></div>
+</div>
+</div>
+<div class="nv-sb">Main</div>
+<a class="nv-lk ac" onclick="show('db')">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+Dashboard
+</a>
+<a class="nv-lk" onclick="show('cs')">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.5"/></svg>
+Cases
+<span class="nv-bd"></span>
+</a>
+<a class="nv-lk" onclick="show('qu')">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+Task Queue
+</a>
+<a class="nv-lk" onclick="show('ms')">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5"/></svg>
+Messages
+<span class="nv-bd"></span>
+</a>
+<div class="nv-sb">Reports</div>
+<a class="nv-lk">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+Analytics
+</a>
+<a class="nv-lk">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+Time Tracking
+</a>
+<a class="nv-lk">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="1.5"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+Documents
+</a>
+<div class="nv-ft">
+<div class="nv-us">
+<div class="av">RH</div>
+<div><div class="nv-un">Robert Hogan</div><div class="nv-rl">Managing Partner</div></div>
+</div>
+</div>
+</nav>
+<div class="mn">
+<div class="tb">
+<div class="tb-tt">Good morning, Robert</div>
+<div class="tb-sr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#B8B0A4" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#B8B0A4" stroke-width="1.5" stroke-linecap="round"/></svg><input placeholder="Search cases, clients…"></div>
+<button class="ib"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="nb-dot"></span></button>
+<button class="btn btn-pr btn-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>New Case</button>
+</div>
+<div class="cx">
+<div class="sg">
+<div class="sc gw">
+<div class="sc-gb"></div>
+<div class="sc-ic ic-nb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="#2B4C8C" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="#2B4C8C" stroke-width="1.5"/></svg></div>
+<div class="sc-vl">284</div><div class="sc-lb">Active Cases</div>
+<div class="sc-dlt up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>+12 this month</div>
+</div>
+<div class="sc gw">
+<div class="sc-gb"></div>
+<div class="sc-ic ic-gd"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#C99A2E" stroke-width="1.5"/></svg></div>
+<div class="sc-vl">$1.84M</div><div class="sc-lb">Pending Settlements</div>
+<div class="sc-dlt up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>+$240K this month</div>
+</div>
+<div class="sc gw">
+<div class="sc-gb"></div>
+<div class="sc-ic ic-ok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#3D8B5E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="sc-vl">47</div><div class="sc-lb">Closed This Month</div>
+<div class="sc-dlt up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>+8 vs last month</div>
+</div>
+<div class="sc gw">
+<div class="sc-gb"></div>
+<div class="sc-ic ic-er"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#C44040" stroke-width="1.5"/><line x1="12" y1="8" x2="12" y2="12" stroke="#C44040" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="#C44040" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="sc-vl">9</div><div class="sc-lb">Overdue Deadlines</div>
+<div class="sc-dlt dn"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>+3 this week</div>
+</div>
+</div>
+
+<div class="g2">
+<div>
+<div class="sh"><div class="sh-tt">Recent Cases</div><span class="lk-sm">View all →</span></div>
+<div class="cd">
+<div class="cd-bd">
+<div class="cr"><div class="cr-av">MP</div><div><div class="cr-nm">Martinez v. Pacific Rail Co.</div><div class="cr-cs">Personal Injury · Atty: S. Chen</div></div><div class="cr-ml"><span class="bg bg-er">Urgent</span></div></div>
+<div class="cr"><div class="cr-av" style="color:#8A6A10;background:linear-gradient(135deg,rgba(201,154,46,.15) 0%,rgba(201,154,46,.07) 100%)">DL</div><div><div class="cr-nm">Davidson Living Trust</div><div class="cr-cs">Estate Planning · Atty: R. Hogan</div></div><div class="cr-ml"><span class="bg bg-gd">Review</span></div></div>
+<div class="cr"><div class="cr-av">WH</div><div><div class="cr-nm">Whitmore Holdings LLC</div><div class="cr-cs">Commercial Litigation · Atty: M. Torres</div></div><div class="cr-ml"><span class="bg bg-ok">Active</span></div></div>
+<div class="cr"><div class="cr-av">BF</div><div><div class="cr-nm">Brennan v. First National Bank</div><div class="cr-cs">Consumer Protection · Atty: J. Park</div></div><div class="cr-ml"><span class="bg bg-nb">Discovery</span></div></div>
+<div class="cr"><div class="cr-av" style="color:var(--ok);background:var(--oks)">SC</div><div><div class="cr-nm">Singh Commercial Lease Dispute</div><div class="cr-cs">Real Estate · Atty: S. Chen</div></div><div class="cr-ml"><span class="bg bg-wn">Mediation</span></div></div>
+</div>
+</div>
+
+<div style="margin-top:20px">
+<div class="sh"><div class="sh-tt">Case Mix by Type</div></div>
+<div class="cd">
+<div class="cd-bd">
+<div class="ch">
+<div class="ch-b hl" style="height:75%"></div>
+<div class="ch-b" style="height:55%"></div>
+<div class="ch-b" style="height:90%"></div>
+<div class="ch-b" style="height:40%"></div>
+<div class="ch-b" style="height:65%"></div>
+<div class="ch-b" style="height:35%"></div>
+<div class="ch-b" style="height:80%"></div>
+</div>
+<div class="ch-lb">
+<span class="ch-lt">PI</span><span class="ch-lt">Estate</span><span class="ch-lt">Corp</span><span class="ch-lt">RE</span><span class="ch-lt">Fam</span><span class="ch-lt">Crim</span><span class="ch-lt">Other</span>
+</div>
+<div class="dv"></div>
+<div class="flex aic jcb">
+<div><div class="f13 fw6">Personal Injury</div><div class="f12 ct">84 active cases</div></div>
+<div class="flex aic g8"><span class="bg bg-nb">Most Active</span><span class="f13 fw6 cn">29.6%</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div>
+<div class="sh"><div class="sh-tt">Upcoming Deadlines</div><span class="lk-sm">Calendar →</span></div>
+<div class="cd">
+<div class="cd-bd">
+<div class="di ug-rd"><div class="di-dt ug-rd"><div class="di-dm">MAR</div><div class="di-dd">21</div></div><div><div class="di-nm">Motion for Summary Judgment</div><div class="di-cs">Martinez v. Pacific Rail Co.</div></div><div class="di-ug"><span class="bg bg-er">Tomorrow</span></div></div>
+<div class="di"><div class="di-dt"><div class="di-dm">MAR</div><div class="di-dd">24</div></div><div><div class="di-nm">Deposition: Dr. Carlos Rivera</div><div class="di-cs">Whitmore Holdings LLC</div></div><div class="di-ug"><span class="bg bg-wn">4 days</span></div></div>
+<div class="di"><div class="di-dt"><div class="di-dm">MAR</div><div class="di-dd">28</div></div><div><div class="di-nm">Settlement Conference</div><div class="di-cs">Brennan v. First National Bank</div></div><div class="di-ug"><span class="bg bg-nb">8 days</span></div></div>
+<div class="di"><div class="di-dt"><div class="di-dm">APR</div><div class="di-dd">02</div></div><div><div class="di-nm">Expert Witness Disclosure</div><div class="di-cs">Singh Commercial Lease</div></div><div class="di-ug"><span class="bg bg-ok">13 days</span></div></div>
+<div class="di"><div class="di-dt"><div class="di-dm">APR</div><div class="di-dd">07</div></div><div><div class="di-nm">Trust Amendment Filing</div><div class="di-cs">Davidson Living Trust</div></div><div class="di-ug"><span class="bg bg-ok">18 days</span></div></div>
+</div>
+</div>
+
+<div style="margin-top:20px">
+<div class="sh"><div class="sh-tt">Recent Activity</div></div>
+<div class="cd">
+<div class="cd-bd">
+<div class="ai"><div class="ai-ic" style="background:var(--nbs)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#2B4C8C" stroke-width="1.5"/></svg></div><div class="ai-bd"><div class="ai-tt">Document uploaded</div><div class="ai-st">Medical records — Martinez v. Pacific Rail</div></div><div class="ai-tm">9m ago</div></div>
+<div class="ai"><div class="ai-ic" style="background:var(--gdm)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#C99A2E" stroke-width="1.5"/></svg></div><div class="ai-bd"><div class="ai-tt">Settlement approved</div><div class="ai-st">Nguyen v. Metro Transit — $185,000</div></div><div class="ai-tm">1h ago</div></div>
+<div class="ai"><div class="ai-ic" style="background:var(--oks)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="#3D8B5E" stroke-width="1.5"/></svg></div><div class="ai-bd"><div class="ai-tt">Client message received</div><div class="ai-st">Eleanor Davidson — trust amendment questions</div></div><div class="ai-tm">2h ago</div></div>
+<div class="ai"><div class="ai-ic" style="background:var(--ers)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#C44040" stroke-width="1.5"/><line x1="12" y1="8" x2="12" y2="12" stroke="#C44040" stroke-width="1.5"/></svg></div><div class="ai-bd"><div class="ai-tt">Deadline alert</div><div class="ai-st">Motion filing due in 36 hours</div></div><div class="ai-tm">3h ago</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CASES -->
+<div id="pg-cs" class="pg">
+<nav class="nv">
+<div class="nv-hd"><div class="nv-lg"><div class="nv-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="nv-nm">Hogan Smith</div><div style="font-size:.6875rem;color:rgba(255,255,255,.4);font-weight:500">CaseFlow</div></div></div></div>
+<div class="nv-sb">Main</div>
+<a class="nv-lk" onclick="show('db')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</a>
+<a class="nv-lk ac" onclick="show('cs')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.5"/></svg>Cases<span class="nv-bd"></span></a>
+<a class="nv-lk" onclick="show('qu')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Task Queue</a>
+<a class="nv-lk" onclick="show('ms')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5"/></svg>Messages<span class="nv-bd"></span></a>
+<div class="nv-sb">Reports</div>
+<a class="nv-lk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Analytics</a>
+<div class="nv-ft"><div class="nv-us"><div class="av">RH</div><div><div class="nv-un">Robert Hogan</div><div class="nv-rl">Managing Partner</div></div></div></div>
+</nav>
+<div class="mn">
+<div class="tb">
+<div class="tb-tt">Cases</div>
+<div class="tb-sr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#B8B0A4" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#B8B0A4" stroke-width="1.5" stroke-linecap="round"/></svg><input placeholder="Search by client, case #, attorney…"></div>
+<button class="btn btn-pr btn-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>New Case</button>
+</div>
+<div class="cx">
+<div class="tk">
+<div class="tk-it ac">All Cases</div>
+<div class="tk-it">Active (214)</div>
+<div class="tk-it">Pending (48)</div>
+<div class="tk-it">Closed (22)</div>
+</div>
+<div class="fb">
+<select class="fs"><option>All Practice Areas</option><option>Personal Injury</option><option>Estate Planning</option><option>Commercial Lit.</option><option>Real Estate</option><option>Family Law</option></select>
+<select class="fs"><option>All Attorneys</option><option>R. Hogan</option><option>S. Chen</option><option>M. Torres</option><option>J. Park</option></select>
+<select class="fs"><option>All Statuses</option><option>Active</option><option>Discovery</option><option>Mediation</option><option>Settlement</option></select>
+<button class="btn btn-gh btn-sm" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Export</button>
+</div>
+<div class="cd">
+<table class="tbl">
+<thead><tr><th>Case #</th><th>Client / Matter</th><th>Type</th><th>Attorney</th><th>Status</th><th>Value</th><th>Next Action</th><th></th></tr></thead>
+<tbody>
+<tr><td><span class="f12 fw6 cn">HS-2024-0847</span></td><td><div class="fw6 f13">Martinez, Carlos</div><div class="f12 ct">Martinez v. Pacific Rail Co.</div></td><td><span class="bg bg-er">Personal Injury</span></td><td><span class="f13">S. Chen</span></td><td><span class="bg bg-er">Urgent</span></td><td><span class="fw7 cn">$420K</span></td><td><span class="f12 ct">MSJ due Mar 21</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0831</span></td><td><div class="fw6 f13">Davidson, Eleanor</div><div class="f12 ct">Davidson Living Trust</div></td><td><span class="bg bg-gd">Estate Planning</span></td><td><span class="f13">R. Hogan</span></td><td><span class="bg bg-gd">Review</span></td><td><span class="fw7 cn">$85K</span></td><td><span class="f12 ct">Amendment review</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0819</span></td><td><div class="fw6 f13">Whitmore Holdings LLC</div><div class="f12 ct">Whitmore v. Regional Corp.</div></td><td><span class="bg bg-nb">Commercial Lit.</span></td><td><span class="f13">M. Torres</span></td><td><span class="bg bg-ok">Active</span></td><td><span class="fw7 cn">$1.2M</span></td><td><span class="f12 ct">Deposition Mar 24</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0805</span></td><td><div class="fw6 f13">Brennan, Patricia</div><div class="f12 ct">Brennan v. First National Bank</div></td><td><span class="bg bg-nb">Consumer Prot.</span></td><td><span class="f13">J. Park</span></td><td><span class="bg bg-nb">Discovery</span></td><td><span class="fw7 cn">$95K</span></td><td><span class="f12 ct">Settlement conf. Mar 28</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0798</span></td><td><div class="fw6 f13">Singh, Priya</div><div class="f12 ct">Singh Commercial Lease Dispute</div></td><td><span class="bg bg-gd">Real Estate</span></td><td><span class="f13">S. Chen</span></td><td><span class="bg bg-wn">Mediation</span></td><td><span class="fw7 cn">$340K</span></td><td><span class="f12 ct">Expert disc. Apr 2</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0784</span></td><td><div class="fw6 f13">Kowalski, James &amp; Linda</div><div class="f12 ct">Kowalski Divorce Proceedings</div></td><td><span class="bg bg-nb">Family Law</span></td><td><span class="f13">R. Hogan</span></td><td><span class="bg bg-ok">Active</span></td><td><span class="fw7 cn">$60K</span></td><td><span class="f12 ct">Mediation Apr 10</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0771</span></td><td><div class="fw6 f13">Okafor, Ngozi</div><div class="f12 ct">Okafor Employment Discrimination</div></td><td><span class="bg bg-nb">Employment</span></td><td><span class="f13">M. Torres</span></td><td><span class="bg bg-nb">Discovery</span></td><td><span class="fw7 cn">$175K</span></td><td><span class="f12 ct">Interrogatories due Apr 5</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+<tr><td><span class="f12 fw6 cn">HS-2024-0762</span></td><td><div class="fw6 f13">Thornburg Realty Inc.</div><div class="f12 ct">Thornburg Zoning Appeal</div></td><td><span class="bg bg-gd">Real Estate</span></td><td><span class="f13">J. Park</span></td><td><span class="bg bg-wn">Pending</span></td><td><span class="fw7 cn">$220K</span></td><td><span class="f12 ct">Hearing Apr 15</span></td><td><button class="btn btn-gh btn-sm">Open</button></td></tr>
+</tbody>
+</table>
+</div>
+<div class="pg-nav">
+<button class="pg-bt">‹</button>
+<button class="pg-bt ac">1</button>
+<button class="pg-bt">2</button>
+<button class="pg-bt">3</button>
+<button class="pg-bt">…</button>
+<button class="pg-bt">18</button>
+<button class="pg-bt">›</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- QUEUE -->
+<div id="pg-qu" class="pg">
+<nav class="nv">
+<div class="nv-hd"><div class="nv-lg"><div class="nv-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="nv-nm">Hogan Smith</div><div style="font-size:.6875rem;color:rgba(255,255,255,.4);font-weight:500">CaseFlow</div></div></div></div>
+<div class="nv-sb">Main</div>
+<a class="nv-lk" onclick="show('db')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</a>
+<a class="nv-lk" onclick="show('cs')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.5"/></svg>Cases<span class="nv-bd"></span></a>
+<a class="nv-lk ac" onclick="show('qu')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Task Queue</a>
+<a class="nv-lk" onclick="show('ms')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5"/></svg>Messages<span class="nv-bd"></span></a>
+<div class="nv-sb">Reports</div>
+<a class="nv-lk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Analytics</a>
+<div class="nv-ft"><div class="nv-us"><div class="av">RH</div><div><div class="nv-un">Robert Hogan</div><div class="nv-rl">Managing Partner</div></div></div></div>
+</nav>
+<div class="mn">
+<div class="tb">
+<div class="tb-tt">Task Queue</div>
+<div class="tb-sr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#B8B0A4" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#B8B0A4" stroke-width="1.5" stroke-linecap="round"/></svg><input placeholder="Search tasks…"></div>
+<button class="btn btn-pr btn-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Task</button>
+</div>
+<div class="cx">
+<div class="g2">
+<div>
+<div class="sg" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+<div class="sc"><div class="sc-gb"></div><div class="sc-vl" style="font-size:1.375rem">23</div><div class="sc-lb">Overdue</div></div>
+<div class="sc"><div class="sc-gb"></div><div class="sc-vl" style="font-size:1.375rem">41</div><div class="sc-lb">Due Today</div></div>
+<div class="sc"><div class="sc-gb"></div><div class="sc-vl" style="font-size:1.375rem">87</div><div class="sc-lb">This Week</div></div>
+</div>
+
+<div class="sh"><div class="sh-tt">High Priority</div></div>
+<div class="qi qi-er">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#C44040" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">File Motion for Summary Judgment</div>
+<div class="qi-st">Martinez v. Pacific Rail Co. · Due Mar 21 (tomorrow)</div>
+<div class="qi-ml"><span class="bg bg-er">Overdue Risk</span><span class="bg bg-nb" style="margin-left:4px">S. Chen</span></div>
+</div>
+</div>
+<div class="qi qi-er">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#C44040" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="#C44040" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">Prepare Expert Witness Disclosure</div>
+<div class="qi-st">Okafor Employment Discrimination · Due Apr 5</div>
+<div class="qi-ml"><span class="bg bg-er">High Priority</span><span class="bg bg-nb" style="margin-left:4px">M. Torres</span></div>
+</div>
+</div>
+<div class="qi qi-gd">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#C99A2E" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="#C99A2E" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">Schedule Deposition: Dr. Carlos Rivera</div>
+<div class="qi-st">Whitmore Holdings LLC · Deposition Mar 24</div>
+<div class="qi-ml"><span class="bg bg-wn">Medium</span><span class="bg bg-nb" style="margin-left:4px">M. Torres</span></div>
+</div>
+</div>
+
+<div class="sh" style="margin-top:20px"><div class="sh-tt">This Week</div></div>
+<div class="qi qi-nb">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="#2B4C8C" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">Draft Settlement Demand Letter</div>
+<div class="qi-st">Brennan v. First National Bank · Due Mar 25</div>
+<div class="qi-ml"><span class="bg bg-nb">Normal</span><span class="bg bg-nb" style="margin-left:4px">J. Park</span></div>
+</div>
+</div>
+<div class="qi qi-nb">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#2B4C8C" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">Review Trust Amendment — Eleanor Davidson</div>
+<div class="qi-st">Davidson Living Trust · Client meeting Mar 26</div>
+<div class="qi-ml"><span class="bg bg-nb">Normal</span><span class="bg bg-gd" style="margin-left:4px">R. Hogan</span></div>
+</div>
+</div>
+<div class="qi qi-ok">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#3D8B5E" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt">Confirm Mediation Session Details</div>
+<div class="qi-st">Singh Commercial Lease · Mediation Mar 27</div>
+<div class="qi-ml"><span class="bg bg-ok">Low</span><span class="bg bg-nb" style="margin-left:4px">S. Chen</span></div>
+</div>
+</div>
+</div>
+
+<div>
+<div class="sh"><div class="sh-tt">Workload by Attorney</div></div>
+<div class="cd mb20">
+<div class="cd-bd">
+<div class="mb16">
+<div class="flex aic jcb mb4"><span class="f13 fw6">S. Chen</span><span class="f12 cn fw6">18 tasks</span></div>
+<div class="pb"><div class="pb-f pb-fw" style="width:72%"></div></div>
+</div>
+<div class="mb16">
+<div class="flex aic jcb mb4"><span class="f13 fw6">R. Hogan</span><span class="f12 cn fw6">14 tasks</span></div>
+<div class="pb"><div class="pb-f" style="width:56%"></div></div>
+</div>
+<div class="mb16">
+<div class="flex aic jcb mb4"><span class="f13 fw6">M. Torres</span><span class="f12 cn fw6">22 tasks</span></div>
+<div class="pb"><div class="pb-f pb-fw" style="width:88%"></div></div>
+</div>
+<div>
+<div class="flex aic jcb mb4"><span class="f13 fw6">J. Park</span><span class="f12 cn fw6">11 tasks</span></div>
+<div class="pb"><div class="pb-f pb-fn" style="width:44%"></div></div>
+</div>
+</div>
+</div>
+
+<div class="sh"><div class="sh-tt">Completed Today</div></div>
+<div class="qi qi-ok" style="opacity:.75">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#3D8B5E" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt" style="text-decoration:line-through;color:var(--tt)">File Notice of Appearance — Kowalski</div>
+<div class="qi-st">Completed by R. Hogan at 9:14 AM</div>
+</div>
+</div>
+<div class="qi qi-ok" style="opacity:.75">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#3D8B5E" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt" style="text-decoration:line-through;color:var(--tt)">Upload Medical Records — Martinez</div>
+<div class="qi-st">Completed by S. Chen at 10:42 AM</div>
+</div>
+</div>
+<div class="qi qi-ok" style="opacity:.75">
+<div class="qi-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="#3D8B5E" stroke-width="1.5"/></svg></div>
+<div class="qi-bd">
+<div class="qi-tt" style="text-decoration:line-through;color:var(--tt)">Send Client Status Update — Brennan</div>
+<div class="qi-st">Completed by J. Park at 11:05 AM</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MESSAGES -->
+<div id="pg-ms" class="pg">
+<nav class="nv">
+<div class="nv-hd"><div class="nv-lg"><div class="nv-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="nv-nm">Hogan Smith</div><div style="font-size:.6875rem;color:rgba(255,255,255,.4);font-weight:500">CaseFlow</div></div></div></div>
+<div class="nv-sb">Main</div>
+<a class="nv-lk" onclick="show('db')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</a>
+<a class="nv-lk" onclick="show('cs')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.5"/></svg>Cases<span class="nv-bd"></span></a>
+<a class="nv-lk" onclick="show('qu')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Task Queue</a>
+<a class="nv-lk ac" onclick="show('ms')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5"/></svg>Messages<span class="nv-bd"></span></a>
+<div class="nv-sb">Reports</div>
+<a class="nv-lk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Analytics</a>
+<div class="nv-ft"><div class="nv-us"><div class="av">RH</div><div><div class="nv-un">Robert Hogan</div><div class="nv-rl">Managing Partner</div></div></div></div>
+</nav>
+<div class="mn" style="display:flex;flex-direction:row;overflow:hidden">
+<div style="width:280px;border-right:1px solid var(--bd);padding:20px;overflow-y:auto;flex-shrink:0;background:var(--bgc)">
+<button class="cmp-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Compose</button>
+<div class="mc">
+<div class="mc-it ac"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5"/><polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5"/></svg>Inbox<span class="mc-ct">7</span></div>
+<div class="mc-it"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="9 11 12 14 22 4" stroke="currentColor" stroke-width="1.5"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="1.5"/></svg>Sent</div>
+<div class="mc-it"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="1.5"/></svg>Drafts<span class="mc-ct" style="background:var(--tt)">2</span></div>
+<div class="mc-it"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="1.5"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.5"/></svg>Trash</div>
+</div>
+<div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tt);margin-bottom:8px">Labels</div>
+<div class="mc">
+<div class="mc-it"><span style="width:8px;height:8px;border-radius:50%;background:#C44040;display:inline-block;margin-right:4px"></span>Urgent</div>
+<div class="mc-it"><span style="width:8px;height:8px;border-radius:50%;background:#C99A2E;display:inline-block;margin-right:4px"></span>Client</div>
+<div class="mc-it"><span style="width:8px;height:8px;border-radius:50%;background:#3D8B5E;display:inline-block;margin-right:4px"></span>Court</div>
+<div class="mc-it"><span style="width:8px;height:8px;border-radius:50%;background:#2B4C8C;display:inline-block;margin-right:4px"></span>Internal</div>
+</div>
+</div>
+<div style="flex:1;overflow-y:auto">
+<div class="tb" style="position:sticky;top:0">
+<div class="tb-tt">Inbox</div>
+<div class="ms"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#B8B0A4" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#B8B0A4" stroke-width="1.5" stroke-linecap="round"/></svg><input placeholder="Search messages…"></div>
+</div>
+<div class="ml" style="padding:8px">
+<div class="mi un">
+<div class="un-dot"></div>
+<div class="mi-av mi-av-nb">CM</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Carlos Martinez</span><span class="mi-tm">10:14 AM</span></div>
+<div class="mi-sb">Re: Medical Records — Dr. Rivera Report</div>
+<div class="mi-pv">I reviewed the report and have some concerns about the conclusions regarding…</div>
+</div>
+</div>
+<div class="mi un">
+<div class="un-dot"></div>
+<div class="mi-av mi-av-gd">SC</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Sarah Chen</span><span class="mi-tm">9:47 AM</span></div>
+<div class="mi-sb">MSJ Draft — Need Your Review by EOD</div>
+<div class="mi-pv">Robert, I've attached the draft motion for summary judgment. Given the deadline…</div>
+</div>
+</div>
+<div class="mi un">
+<div class="un-dot"></div>
+<div class="mi-av" style="background:linear-gradient(135deg,rgba(61,139,94,.15) 0%,rgba(61,139,94,.08) 100%);color:#2A6B45">ED</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Eleanor Davidson</span><span class="mi-tm">9:02 AM</span></div>
+<div class="mi-sb">Trust Amendment Questions</div>
+<div class="mi-pv">Good morning, I wanted to follow up on our last meeting regarding the beneficiary changes…</div>
+</div>
+</div>
+<div class="mi rd">
+<div style="width:8px;flex-shrink:0"></div>
+<div class="mi-av mi-av-nb">MT</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Michael Torres</span><span class="mi-tm">Yesterday</span></div>
+<div class="mi-sb">Whitmore Deposition Prep Notes</div>
+<div class="mi-pv">Here are my notes from the prep session with the Whitmore team yesterday afternoon…</div>
+</div>
+</div>
+<div class="mi rd">
+<div style="width:8px;flex-shrink:0"></div>
+<div class="mi-av" style="background:linear-gradient(135deg,rgba(59,124,184,.12) 0%,rgba(59,124,184,.06) 100%);color:#2A5E8A">CT</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">County Court Clerk</span><span class="mi-tm">Yesterday</span></div>
+<div class="mi-sb">Case No. 2024-CV-08471 — Filing Confirmation</div>
+<div class="mi-pv">This is to confirm receipt of your filing in the above-referenced matter. The court has…</div>
+</div>
+</div>
+<div class="mi rd">
+<div style="width:8px;flex-shrink:0"></div>
+<div class="mi-av mi-av-gd">PS</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Priya Singh</span><span class="mi-tm">Mar 18</span></div>
+<div class="mi-sb">Available for Mediation Session</div>
+<div class="mi-pv">I've reviewed the proposed mediation dates and Mar 27 works well for me and my business partner…</div>
+</div>
+</div>
+<div class="mi rd">
+<div style="width:8px;flex-shrink:0"></div>
+<div class="mi-av mi-av-nb">JP</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Jessica Park</span><span class="mi-tm">Mar 18</span></div>
+<div class="mi-sb">Brennan Settlement — Counter Offer Received</div>
+<div class="mi-pv">First National Bank has responded with a counter offer of $72,000. I think we should…</div>
+</div>
+</div>
+<div class="mi rd">
+<div style="width:8px;flex-shrink:0"></div>
+<div class="mi-av" style="background:linear-gradient(135deg,rgba(196,64,64,.10) 0%,rgba(196,64,64,.05) 100%);color:#9A2020">OP</div>
+<div class="mi-bd">
+<div class="mi-hd"><span class="mi-nm">Opp. Counsel — Parker &amp; Reed LLP</span><span class="mi-tm">Mar 17</span></div>
+<div class="mi-sb">Okafor Matter — Discovery Extension Request</div>
+<div class="mi-pv">Our client requires additional time to gather the requested documents. We propose a 14-day…</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- LOGIN -->
+<div id="pg-lg" class="pg lp">
+<div class="lb">
+<div class="lb-lg">
+<div class="lb-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+<div><div class="lb-nm">Hogan Smith Law</div><div class="lb-sb">CaseFlow Platform</div></div>
+</div>
+<div class="lf-tt">Welcome back</div>
+<div class="lf-st">Sign in to your CaseFlow account</div>
+<div class="fi">
+<label>Email address</label>
+<input type="email" placeholder="you@hogansmithlaw.com" value="robert.hogan@hogansmithlaw.com">
+</div>
+<div class="fi">
+<label>Password</label>
+<input type="password" placeholder="••••••••••••" value="••••••••••••">
+</div>
+<div class="flex aic jcb" style="margin-bottom:4px">
+<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.8125rem;color:var(--ts)"><input type="checkbox" checked style="accent-color:var(--nb)">Remember me</label>
+<a style="font-size:.8125rem;font-weight:600;color:var(--nb);cursor:pointer">Forgot password?</a>
+</div>
+<button class="lb-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign In</button>
+<div class="lb-dv"><span>or continue with</span></div>
+<button class="lb-ss"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="currentColor"/></svg>Continue with Microsoft</button>
+<div class="lb-lk">Don't have an account? <a>Contact your administrator</a></div>
+</div>
+</div>
+
+<script>
+function show(p){
+document.querySelectorAll('.pg').forEach(e=>e.classList.remove('on'));
+document.getElementById('pg-'+p).classList.add('on');
+document.querySelectorAll('.pn-bt').forEach(e=>e.classList.remove('ac'));
+const idx={db:0,cs:1,qu:2,ms:3,lg:4};
+document.querySelectorAll('.pn-bt')[idx[p]].classList.add('ac');
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowUpDownIcon, Logout01Icon } from "@hugeicons/core-free-icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -44,7 +45,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
 									{user.email}
 								</span>
 							</div>
-							<ChevronsUpDown className="ml-auto size-4" />
+							<HugeiconsIcon icon={ArrowUpDownIcon} size={16} className="ml-auto" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
@@ -72,7 +73,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
 							<button type="button" className="w-full" onClick={() => logout()}>
-								<LogOut />
+								<HugeiconsIcon icon={Logout01Icon} />
 								Sign out
 							</button>
 						</DropdownMenuItem>

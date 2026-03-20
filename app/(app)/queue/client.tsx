@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { completeTask } from "@/app/actions/tasks";
-import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { CheckmarkCircle01Icon, Clock01Icon, Alert01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 type QueueTask = {
@@ -126,7 +127,7 @@ export function QueueClient({
 			<div className="rounded-md border">
 				{filteredTasks.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center">
-						<CheckCircle className="h-10 w-10 text-gray-300" />
+						<HugeiconsIcon icon={CheckmarkCircle01Icon} size={40} color="rgb(209 213 219)" />
 						<h3 className="mt-3 text-sm font-medium text-foreground">
 							All caught up!
 						</h3>
@@ -151,7 +152,7 @@ export function QueueClient({
 									/>
 									{task.priority === "urgent" ||
 									task.priority === "high" ? (
-										<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+										<HugeiconsIcon icon={Alert01Icon} size={16} color="rgb(245 158 11)" className="mt-0.5 shrink-0" />
 									) : (
 										<div className="w-4 shrink-0" />
 									)}
@@ -193,7 +194,7 @@ export function QueueClient({
 										</div>
 									</div>
 									<div className="flex items-center gap-1 shrink-0">
-										<Clock className="h-3 w-3 text-muted-foreground" />
+										<HugeiconsIcon icon={Clock01Icon} size={12} className="text-muted-foreground" />
 										<span
 											className={`text-xs font-medium ${dueDateInfo.color}`}
 										>

@@ -3,25 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type { IconSvgElement } from "@hugeicons/react";
 import {
-	LayoutDashboard,
-	ListTodo,
-	FolderOpen,
-	GitBranch,
-	Calendar,
-	MessageSquare,
-	Users,
-	FileText,
-	BarChart3,
-	Settings,
-	Workflow,
-	Layers,
-	FormInput,
-	FileType,
-	UserCog,
-	Plug,
-	ChevronDown,
-} from "lucide-react";
+	DashboardSquare01Icon,
+	CheckListIcon,
+	Folder01Icon,
+	GitBranchIcon,
+	Calendar01Icon,
+	Message01Icon,
+	UserGroupIcon,
+	File01Icon,
+	AnalyticsUpIcon,
+	Settings01Icon,
+	WorkflowSquare01Icon,
+	Layers01Icon,
+	TextField,
+	FileAttachmentIcon,
+	UserSettings01Icon,
+	PlugSocketIcon,
+	ArrowDown01Icon,
+} from "@hugeicons/core-free-icons";
 import {
 	Sidebar,
 	SidebarContent,
@@ -44,29 +46,29 @@ import {
 import { UserMenu } from "./user-menu";
 import type { SessionUser } from "@/lib/auth/session";
 
-const mainNav = [
-	{ title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-	{ title: "My Queue", href: "/queue", icon: ListTodo },
-	{ title: "Cases", href: "/cases", icon: FolderOpen },
-	{ title: "Leads", href: "/leads", icon: GitBranch },
-	{ title: "Calendar", href: "/calendar", icon: Calendar },
-	{ title: "Messages", href: "/messages", icon: MessageSquare },
+const mainNav: { title: string; href: string; icon: IconSvgElement }[] = [
+	{ title: "Dashboard", href: "/dashboard", icon: DashboardSquare01Icon },
+	{ title: "My Queue", href: "/queue", icon: CheckListIcon },
+	{ title: "Cases", href: "/cases", icon: Folder01Icon },
+	{ title: "Leads", href: "/leads", icon: GitBranchIcon },
+	{ title: "Calendar", href: "/calendar", icon: Calendar01Icon },
+	{ title: "Messages", href: "/messages", icon: Message01Icon },
 ];
 
-const secondaryNav = [
-	{ title: "Contacts", href: "/contacts", icon: Users },
-	{ title: "Documents", href: "/documents", icon: FileText },
-	{ title: "Reports", href: "/reports", icon: BarChart3 },
+const secondaryNav: { title: string; href: string; icon: IconSvgElement }[] = [
+	{ title: "Contacts", href: "/contacts", icon: UserGroupIcon },
+	{ title: "Documents", href: "/documents", icon: File01Icon },
+	{ title: "Reports", href: "/reports", icon: AnalyticsUpIcon },
 ];
 
-const adminNav = [
-	{ title: "Workflows", href: "/admin/workflows", icon: Workflow },
-	{ title: "Stages", href: "/admin/stages", icon: Layers },
-	{ title: "Fields", href: "/admin/fields", icon: FormInput },
-	{ title: "Templates", href: "/admin/templates", icon: FileType },
-	{ title: "Users", href: "/admin/users", icon: UserCog },
-	{ title: "Integrations", href: "/admin/integrations", icon: Plug },
-	{ title: "Settings", href: "/admin/settings", icon: Settings },
+const adminNav: { title: string; href: string; icon: IconSvgElement }[] = [
+	{ title: "Workflows", href: "/admin/workflows", icon: WorkflowSquare01Icon },
+	{ title: "Stages", href: "/admin/stages", icon: Layers01Icon },
+	{ title: "Fields", href: "/admin/fields", icon: TextField },
+	{ title: "Templates", href: "/admin/templates", icon: FileAttachmentIcon },
+	{ title: "Users", href: "/admin/users", icon: UserSettings01Icon },
+	{ title: "Integrations", href: "/admin/integrations", icon: PlugSocketIcon },
+	{ title: "Settings", href: "/admin/settings", icon: Settings01Icon },
 ];
 
 export function AppSidebar({ user }: { user: SessionUser }) {
@@ -114,7 +116,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 										tooltip={item.title}
 									>
 										<Link href={item.href}>
-											<item.icon />
+											<HugeiconsIcon icon={item.icon} />
 											<span>{item.title}</span>
 										</Link>
 									</SidebarMenuButton>
@@ -137,7 +139,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 										tooltip={item.title}
 									>
 										<Link href={item.href}>
-											<item.icon />
+											<HugeiconsIcon icon={item.icon} />
 											<span>{item.title}</span>
 										</Link>
 									</SidebarMenuButton>
@@ -155,7 +157,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 								<SidebarGroupLabel asChild>
 									<CollapsibleTrigger className="flex w-full items-center">
 										Admin
-										<ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+										<HugeiconsIcon icon={ArrowDown01Icon} size={16} className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
 									</CollapsibleTrigger>
 								</SidebarGroupLabel>
 								<CollapsibleContent>
@@ -169,7 +171,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 														tooltip={item.title}
 													>
 														<Link href={item.href}>
-															<item.icon />
+															<HugeiconsIcon icon={item.icon} />
 															<span>{item.title}</span>
 														</Link>
 													</SidebarMenuButton>
