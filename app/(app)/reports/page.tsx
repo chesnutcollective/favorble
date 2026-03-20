@@ -87,7 +87,7 @@ export default async function ReportsPage() {
       {/* Cases by Stage */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-4">Cases by Stage</h3>
+          <h3 className="font-medium text-foreground mb-4">Cases by Stage</h3>
           <div className="space-y-6">
             {Array.from(stageGroups.values()).map((group) => (
               <div key={group.name}>
@@ -96,7 +96,7 @@ export default async function ReportsPage() {
                     className="h-3 w-3 rounded-full"
                     style={{ backgroundColor: group.color ?? "#6B7280" }}
                   />
-                  <h4 className="text-sm font-medium text-gray-700">
+                  <h4 className="text-sm font-medium text-foreground">
                     {group.name}
                   </h4>
                   <Badge variant="outline" className="text-xs">
@@ -109,14 +109,14 @@ export default async function ReportsPage() {
                       key={stage.code}
                       className="flex items-center gap-3"
                     >
-                      <span className="text-xs text-gray-500 w-8 font-mono">
+                      <span className="text-xs text-muted-foreground w-8 font-mono">
                         {stage.code}
                       </span>
-                      <span className="text-sm text-gray-700 flex-1">
+                      <span className="text-sm text-foreground flex-1">
                         {stage.name}
                       </span>
                       <div className="flex items-center gap-2">
-                        <div className="w-32 bg-gray-100 rounded-full h-2">
+                        <div className="w-32 bg-muted rounded-full h-2">
                           <div
                             className="h-2 rounded-full"
                             style={{
@@ -132,7 +132,7 @@ export default async function ReportsPage() {
                             }}
                           />
                         </div>
-                        <span className="text-xs text-gray-600 w-8 text-right font-mono">
+                        <span className="text-xs text-muted-foreground w-8 text-right font-mono">
                           {stage.count}
                         </span>
                       </div>
@@ -148,17 +148,17 @@ export default async function ReportsPage() {
       {/* Case Status Breakdown */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-4">
+          <h3 className="font-medium text-foreground mb-4">
             Case Status Breakdown
           </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {Object.entries(statusSummary).map(([status, count]) => (
               <div
                 key={status}
-                className="rounded-md border border-gray-200 p-3 text-center"
+                className="rounded-md border border-border p-3 text-center"
               >
-                <p className="text-2xl font-semibold text-gray-900">{count}</p>
-                <p className="text-xs text-gray-500 capitalize">
+                <p className="text-2xl font-semibold text-foreground">{count}</p>
+                <p className="text-xs text-muted-foreground capitalize">
                   {status.replace(/_/g, " ")}
                 </p>
               </div>

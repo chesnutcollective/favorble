@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
 	LayoutDashboard,
 	ListTodo,
@@ -20,7 +21,6 @@ import {
 	UserCog,
 	Plug,
 	ChevronDown,
-	Scale,
 } from "lucide-react";
 import {
 	Sidebar,
@@ -85,12 +85,16 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
 							<Link href="/dashboard">
-								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-									<Scale className="size-4" />
-								</div>
+								<Image
+									src="/hogansmith-logo.png"
+									alt="Hogan Smith Law"
+									width={32}
+									height={32}
+									className="size-8 rounded-md object-cover"
+								/>
 								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-semibold">CaseFlow</span>
-									<span className="text-xs text-muted-foreground">Case Management</span>
+									<span className="font-semibold">Hogan Smith</span>
+									<span className="text-xs opacity-60">CaseFlow</span>
 								</div>
 							</Link>
 						</SidebarMenuButton>

@@ -19,7 +19,7 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
   deadline: "bg-red-100 text-red-700",
   appointment: "bg-green-100 text-green-700",
   follow_up: "bg-amber-100 text-amber-700",
-  reminder: "bg-gray-100 text-gray-700",
+  reminder: "bg-muted text-foreground",
 };
 
 export default async function CalendarPage() {
@@ -99,10 +99,10 @@ export default async function CalendarPage() {
                 <h3
                   className={`text-sm font-medium mb-2 ${
                     isToday
-                      ? "text-blue-600"
+                      ? "text-primary"
                       : isPast
-                        ? "text-gray-400"
-                        : "text-gray-700"
+                        ? "text-muted-foreground"
+                        : "text-foreground"
                   }`}
                 >
                   {isToday ? `Today — ${dateStr}` : dateStr}
@@ -121,20 +121,20 @@ export default async function CalendarPage() {
                               >
                                 {event.eventType}
                               </Badge>
-                              <span className="text-sm font-medium text-gray-900">
+                              <span className="text-sm font-medium text-foreground">
                                 {event.title}
                               </span>
                             </div>
                             {event.description && (
-                              <p className="mt-1 text-sm text-gray-600">
+                              <p className="mt-1 text-sm text-muted-foreground">
                                 {event.description}
                               </p>
                             )}
-                            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                               {event.caseId && event.caseNumber && (
                                 <Link
                                   href={`/cases/${event.caseId}/calendar`}
-                                  className="text-blue-600 hover:underline"
+                                  className="text-primary hover:underline"
                                 >
                                   Case #{event.caseNumber}
                                 </Link>
@@ -151,14 +151,14 @@ export default async function CalendarPage() {
                             </div>
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-foreground">
                               {event.startAt.toLocaleTimeString("en-US", {
                                 hour: "numeric",
                                 minute: "2-digit",
                               })}
                             </p>
                             {event.endAt && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 to{" "}
                                 {event.endAt.toLocaleTimeString("en-US", {
                                   hour: "numeric",

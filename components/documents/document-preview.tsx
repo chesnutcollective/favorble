@@ -26,10 +26,10 @@ export function DocumentPreview({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
-          <FileText className="h-4 w-4 shrink-0 text-gray-500" />
-          <h3 className="truncate text-sm font-medium text-gray-900">
+          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <h3 className="truncate text-sm font-medium text-foreground">
             {fileName}
           </h3>
         </div>
@@ -53,14 +53,14 @@ export function DocumentPreview({
       </div>
 
       {/* Preview content */}
-      <div className="flex-1 overflow-auto bg-gray-100 p-4">
+      <div className="flex-1 overflow-auto bg-muted p-4">
         {canPreview ? (
           <>
             {fileType === "application/pdf" && (
               <iframe
                 src={signedUrl}
                 className={cn(
-                  "h-full w-full rounded border border-gray-200 bg-white",
+                  "h-full w-full rounded border border-border bg-white",
                   isLoading && "hidden",
                 )}
                 title={fileName}
@@ -72,7 +72,7 @@ export function DocumentPreview({
                 src={signedUrl}
                 alt={fileName}
                 className={cn(
-                  "mx-auto max-h-full max-w-full rounded border border-gray-200 bg-white object-contain",
+                  "mx-auto max-h-full max-w-full rounded border border-border bg-white object-contain",
                   isLoading && "hidden",
                 )}
                 onLoad={() => setIsLoading(false)}
@@ -82,7 +82,7 @@ export function DocumentPreview({
               <iframe
                 src={signedUrl}
                 className={cn(
-                  "h-full w-full rounded border border-gray-200 bg-white font-mono text-sm",
+                  "h-full w-full rounded border border-border bg-white font-mono text-sm",
                   isLoading && "hidden",
                 )}
                 title={fileName}
@@ -91,12 +91,12 @@ export function DocumentPreview({
             )}
             {isLoading && (
               <div className="flex h-full items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-blue-600" />
               </div>
             )}
           </>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center text-gray-500">
+          <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
             <FileIcon type={iconType} />
             <p className="mt-4 text-sm font-medium">{fileName}</p>
             <p className="mt-1 text-xs">Preview not available for this file type</p>
@@ -118,10 +118,10 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
   const colors: Record<string, string> = {
     pdf: "text-red-500",
     image: "text-green-500",
-    doc: "text-blue-500",
+    doc: "text-primary",
     spreadsheet: "text-emerald-600",
-    text: "text-gray-500",
-    unknown: "text-gray-400",
+    text: "text-muted-foreground",
+    unknown: "text-muted-foreground",
   };
 
   return <FileText className={cn(size, colors[type])} />;

@@ -54,24 +54,24 @@ export function StageChangeDialog({
             <div>
               <p>
                 Move case from{" "}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-foreground">
                   {currentStageName}
                 </span>{" "}
                 to{" "}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-foreground">
                   {newStageName}
                 </span>
                 ?
               </p>
 
               {isLoading ? (
-                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-blue-600" />
                   Checking workflows...
                 </div>
               ) : workflows.length > 0 ? (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-medium text-foreground">
                     This will trigger {workflows.length} workflow
                     {workflows.length > 1 ? "s" : ""} creating {totalTasks} task
                     {totalTasks > 1 ? "s" : ""}:
@@ -80,13 +80,13 @@ export function StageChangeDialog({
                   {workflows.map((workflow) => (
                     <div
                       key={workflow.id}
-                      className="rounded-md border border-gray-200 bg-gray-50 p-3"
+                      className="rounded-md border border-border bg-accent p-3"
                     >
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {workflow.name}
                       </p>
                       {workflow.description && (
-                        <p className="mt-0.5 text-xs text-gray-500">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {workflow.description}
                         </p>
                       )}
@@ -94,7 +94,7 @@ export function StageChangeDialog({
                         {workflow.tasks.map((task, i) => (
                           <div
                             key={i}
-                            className="flex items-center gap-2 text-xs text-gray-600"
+                            className="flex items-center gap-2 text-xs text-muted-foreground"
                           >
                             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
                             <span className="flex-1">{task.title}</span>
@@ -103,7 +103,7 @@ export function StageChangeDialog({
                                 {task.assignToTeam}
                               </Badge>
                             )}
-                            <span className="text-gray-400">
+                            <span className="text-muted-foreground">
                               +{task.dueDaysOffset}d
                             </span>
                           </div>
@@ -113,7 +113,7 @@ export function StageChangeDialog({
                   ))}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-gray-500">
+                <p className="mt-3 text-sm text-muted-foreground">
                   No automated workflows are configured for this stage.
                 </p>
               )}

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { login } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale } from "lucide-react";
 
 export default function LoginPage() {
 	const [error, setError] = useState<string | null>(null);
@@ -23,16 +22,36 @@ export default function LoginPage() {
 	}
 
 	return (
-		<div className="flex min-h-svh items-center justify-center bg-muted p-4">
-			<Card className="w-full max-w-sm">
-				<CardHeader className="text-center">
-					<div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-						<Scale className="h-6 w-6" />
+		<div className="flex min-h-svh bg-background">
+			{/* Left panel — brand */}
+			<div className="hidden lg:flex lg:w-1/2 items-center justify-center bg-primary">
+				<Image
+					src="/hogansmith-logo.png"
+					alt="Hogan Smith Law"
+					width={320}
+					height={228}
+					priority
+				/>
+			</div>
+
+			{/* Right panel — form */}
+			<div className="flex w-full lg:w-1/2 items-center justify-center p-8">
+				<div className="w-full max-w-sm space-y-8">
+					<div className="text-center lg:text-left">
+						<Image
+							src="/hogansmith-logo.png"
+							alt="Hogan Smith Law"
+							width={180}
+							height={128}
+							className="mx-auto lg:mx-0 lg:hidden mb-6"
+							priority
+						/>
+						<h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+						<p className="mt-1 text-sm text-muted-foreground">
+							Enter your credentials to access CaseFlow
+						</p>
 					</div>
-					<CardTitle className="text-2xl">CaseFlow</CardTitle>
-					<CardDescription>Sign in to your account</CardDescription>
-				</CardHeader>
-				<CardContent>
+
 					<form action={handleSubmit} className="space-y-4">
 						{error && (
 							<div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
@@ -66,8 +85,12 @@ export default function LoginPage() {
 							{isPending ? "Signing in..." : "Sign in"}
 						</Button>
 					</form>
-				</CardContent>
-			</Card>
+
+					<p className="text-center text-xs text-muted-foreground">
+						Hogan Smith Law &middot; CaseFlow
+					</p>
+				</div>
+			</div>
 		</div>
 	);
 }

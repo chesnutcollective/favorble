@@ -50,7 +50,7 @@ export default async function CaseOverviewPage({
 						</CardTitle>
 						<Link
 							href={`/cases/${caseId}/tasks`}
-							className="text-sm text-blue-600 hover:underline"
+							className="text-sm text-primary hover:underline"
 						>
 							View All
 						</Link>
@@ -58,7 +58,7 @@ export default async function CaseOverviewPage({
 				</CardHeader>
 				<CardContent>
 					{openTasks.length === 0 ? (
-						<p className="text-sm text-gray-500 py-2">No open tasks</p>
+						<p className="text-sm text-muted-foreground py-2">No open tasks</p>
 					) : (
 						<div className="space-y-2">
 							{openTasks.slice(0, 5).map((task) => (
@@ -68,17 +68,17 @@ export default async function CaseOverviewPage({
 								>
 									<Checkbox className="mt-0.5" disabled />
 									<div className="min-w-0 flex-1">
-										<p className="text-sm text-gray-900">
+										<p className="text-sm text-foreground">
 											{task.title}
 										</p>
 										<div className="flex items-center gap-2 mt-0.5">
 											{task.assigneeName && (
-												<span className="text-xs text-gray-500">
+												<span className="text-xs text-muted-foreground">
 													{task.assigneeName}
 												</span>
 											)}
 											{task.dueDate && (
-												<span className="text-xs text-gray-400">
+												<span className="text-xs text-muted-foreground">
 													Due{" "}
 													{task.dueDate.toLocaleDateString()}
 												</span>
@@ -111,7 +111,7 @@ export default async function CaseOverviewPage({
 						</CardTitle>
 						<Link
 							href={`/cases/${caseId}/documents`}
-							className="text-sm text-blue-600 hover:underline"
+							className="text-sm text-primary hover:underline"
 						>
 							View All
 						</Link>
@@ -119,7 +119,7 @@ export default async function CaseOverviewPage({
 				</CardHeader>
 				<CardContent>
 					{recentDocs.length === 0 ? (
-						<p className="text-sm text-gray-500 py-2">No documents</p>
+						<p className="text-sm text-muted-foreground py-2">No documents</p>
 					) : (
 						<div className="space-y-2">
 							{recentDocs.map((doc) => (
@@ -128,10 +128,10 @@ export default async function CaseOverviewPage({
 									className="flex items-center justify-between py-1"
 								>
 									<div className="min-w-0 flex-1">
-										<p className="text-sm text-gray-900 truncate">
+										<p className="text-sm text-foreground truncate">
 											{doc.fileName}
 										</p>
-										<p className="text-xs text-gray-500">
+										<p className="text-xs text-muted-foreground">
 											{doc.source} &middot;{" "}
 											{doc.createdAt.toLocaleDateString()}
 										</p>
@@ -155,7 +155,7 @@ export default async function CaseOverviewPage({
 						<CardTitle className="text-base">Recent Activity</CardTitle>
 						<Link
 							href={`/cases/${caseId}/activity`}
-							className="text-sm text-blue-600 hover:underline"
+							className="text-sm text-primary hover:underline"
 						>
 							View All
 						</Link>

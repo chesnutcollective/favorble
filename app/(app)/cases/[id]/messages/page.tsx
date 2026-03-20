@@ -69,7 +69,7 @@ export default async function CaseMessagesPage({
                 <div
                   className={`max-w-[80%] rounded-lg p-3 ${
                     isInbound
-                      ? "bg-gray-100 text-gray-900"
+                      ? "bg-muted text-foreground"
                       : "bg-blue-600 text-white"
                   }`}
                 >
@@ -78,7 +78,7 @@ export default async function CaseMessagesPage({
                       variant="outline"
                       className={`text-xs ${
                         isInbound
-                          ? "border-gray-300 text-gray-600"
+                          ? "border-border text-muted-foreground"
                           : "border-blue-300 text-blue-100"
                       }`}
                     >
@@ -86,7 +86,7 @@ export default async function CaseMessagesPage({
                     </Badge>
                     {msg.fromAddress && (
                       <span
-                        className={`text-xs ${isInbound ? "text-gray-500" : "text-blue-200"}`}
+                        className={`text-xs ${isInbound ? "text-muted-foreground" : "text-blue-200"}`}
                       >
                         {msg.fromAddress}
                       </span>
@@ -96,7 +96,7 @@ export default async function CaseMessagesPage({
                     <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
                   )}
                   <p
-                    className={`mt-1 text-xs ${isInbound ? "text-gray-500" : "text-blue-200"}`}
+                    className={`mt-1 text-xs ${isInbound ? "text-muted-foreground" : "text-blue-200"}`}
                   >
                     {msg.createdAt.toLocaleString()}
                   </p>

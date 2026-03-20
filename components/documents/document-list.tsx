@@ -45,7 +45,7 @@ const SOURCE_LABELS: Record<string, { label: string; icon: typeof FileText }> = 
 };
 
 const SOURCE_COLORS: Record<string, string> = {
-  upload: "bg-gray-100 text-gray-700",
+  upload: "bg-muted text-foreground",
   template: "bg-blue-100 text-blue-700",
   chronicle: "bg-purple-100 text-purple-700",
   case_status: "bg-green-100 text-green-700",
@@ -87,7 +87,7 @@ export function DocumentList({
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
               sourceFilter === null
                 ? "bg-gray-900 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                : "bg-muted text-muted-foreground hover:bg-muted",
             )}
           >
             All ({documents.length})
@@ -116,27 +116,27 @@ export function DocumentList({
       {filteredDocs.length === 0 ? (
         <div className="py-12 text-center">
           <FileText className="mx-auto h-8 w-8 text-gray-300" />
-          <p className="mt-2 text-sm text-gray-500">No documents found</p>
+          <p className="mt-2 text-sm text-muted-foreground">No documents found</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-border bg-accent">
               <tr>
-                <th className="px-4 py-2.5 font-medium text-gray-600">Name</th>
-                <th className="hidden px-4 py-2.5 font-medium text-gray-600 sm:table-cell">
+                <th className="px-4 py-2.5 font-medium text-muted-foreground">Name</th>
+                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground sm:table-cell">
                   Source
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-gray-600 md:table-cell">
+                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground md:table-cell">
                   Category
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-gray-600 lg:table-cell">
+                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground lg:table-cell">
                   Size
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-gray-600 lg:table-cell">
+                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground lg:table-cell">
                   Date
                 </th>
-                <th className="px-4 py-2.5 font-medium text-gray-600">
+                <th className="px-4 py-2.5 font-medium text-muted-foreground">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
@@ -147,12 +147,12 @@ export function DocumentList({
                 return (
                   <tr
                     key={doc.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-accent transition-colors"
                   >
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <FileIcon type={iconType} />
-                        <span className="truncate font-medium text-gray-900 max-w-[200px]">
+                        <span className="truncate font-medium text-foreground max-w-[200px]">
                           {doc.fileName}
                         </span>
                       </div>
@@ -167,13 +167,13 @@ export function DocumentList({
                         {SOURCE_LABELS[doc.source]?.label ?? doc.source}
                       </span>
                     </td>
-                    <td className="hidden px-4 py-2.5 text-gray-600 md:table-cell">
+                    <td className="hidden px-4 py-2.5 text-muted-foreground md:table-cell">
                       {doc.category ?? "—"}
                     </td>
-                    <td className="hidden px-4 py-2.5 text-gray-600 lg:table-cell">
+                    <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
                       {doc.fileSizeBytes ? formatFileSize(doc.fileSizeBytes) : "—"}
                     </td>
-                    <td className="hidden px-4 py-2.5 text-gray-600 lg:table-cell">
+                    <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
                       {new Date(doc.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-2.5">
@@ -213,7 +213,7 @@ export function DocumentList({
                                   className="fixed inset-0 z-10"
                                   onClick={() => setMenuOpen(null)}
                                 />
-                                <div className="absolute right-0 z-20 mt-1 w-36 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                                <div className="absolute right-0 z-20 mt-1 w-36 rounded-md border border-border bg-white py-1 shadow-lg">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -247,10 +247,10 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
   const colors: Record<string, string> = {
     pdf: "text-red-500",
     image: "text-green-500",
-    doc: "text-blue-500",
+    doc: "text-primary",
     spreadsheet: "text-emerald-600",
-    text: "text-gray-500",
-    unknown: "text-gray-400",
+    text: "text-muted-foreground",
+    unknown: "text-muted-foreground",
   };
 
   return <FileText className={cn("h-4 w-4 shrink-0", colors[type])} />;

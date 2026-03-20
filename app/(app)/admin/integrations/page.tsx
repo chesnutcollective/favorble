@@ -35,10 +35,10 @@ function IntegrationCard({
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-gray-100 p-2.5">{icon}</div>
+            <div className="rounded-lg bg-muted p-2.5">{icon}</div>
             <div>
-              <h3 className="font-medium text-gray-900">{name}</h3>
-              <p className="text-sm text-gray-500">{description}</p>
+              <h3 className="font-medium text-foreground">{name}</h3>
+              <p className="text-sm text-muted-foreground">{description}</p>
             </div>
           </div>
           <Badge
@@ -46,7 +46,7 @@ function IntegrationCard({
             className={
               isConfigured
                 ? "border-green-300 text-green-700"
-                : "border-gray-300 text-gray-500"
+                : "border-border text-muted-foreground"
             }
           >
             {status}
@@ -55,7 +55,7 @@ function IntegrationCard({
 
         <div className="mt-4 space-y-1.5">
           {details.map((detail, i) => (
-            <p key={i} className="text-sm text-gray-600">
+            <p key={i} className="text-sm text-muted-foreground">
               {detail}
             </p>
           ))}
@@ -122,7 +122,7 @@ export default function IntegrationsPage() {
         <IntegrationCard
           name="Microsoft Outlook"
           description="Email association and calendar sync"
-          icon={<Mail className="h-5 w-5 text-blue-600" />}
+          icon={<Mail className="h-5 w-5 text-primary" />}
           isConfigured={outlookConfigured}
           status={outlookConfigured ? "Connected" : "Not configured"}
           details={

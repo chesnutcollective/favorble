@@ -51,7 +51,7 @@ export function CaseTasksClient({
 	return (
 		<div className="space-y-4">
 			{openTasks.length === 0 && doneTasks.length === 0 && (
-				<p className="text-sm text-gray-500 py-4 text-center">
+				<p className="text-sm text-muted-foreground py-4 text-center">
 					No tasks for this case.
 				</p>
 			)}
@@ -61,24 +61,24 @@ export function CaseTasksClient({
 					{openTasks.map((task) => (
 						<div
 							key={task.id}
-							className="flex items-start gap-3 rounded-md p-2 hover:bg-gray-50"
+							className="flex items-start gap-3 rounded-md p-2 hover:bg-accent"
 						>
 							<Checkbox
 								className="mt-0.5"
 								onCheckedChange={() => handleComplete(task.id)}
 							/>
 							<div className="min-w-0 flex-1">
-								<p className="text-sm font-medium text-gray-900">
+								<p className="text-sm font-medium text-foreground">
 									{task.title}
 								</p>
 								<div className="flex items-center gap-2 mt-0.5">
 									{task.assigneeName && (
-										<span className="text-xs text-gray-500">
+										<span className="text-xs text-muted-foreground">
 											{task.assigneeName}
 										</span>
 									)}
 									{task.dueDate && (
-										<span className="text-xs text-gray-400">
+										<span className="text-xs text-muted-foreground">
 											Due{" "}
 											{new Date(task.dueDate).toLocaleDateString()}
 										</span>
@@ -107,7 +107,7 @@ export function CaseTasksClient({
 
 			{doneTasks.length > 0 && (
 				<div>
-					<p className="text-xs font-medium text-gray-500 mb-2">
+					<p className="text-xs font-medium text-muted-foreground mb-2">
 						Completed ({doneTasks.length})
 					</p>
 					<div className="space-y-1 opacity-60">
@@ -118,7 +118,7 @@ export function CaseTasksClient({
 							>
 								<Checkbox checked disabled className="mt-0.5" />
 								<div className="min-w-0 flex-1">
-									<p className="text-sm text-gray-500 line-through">
+									<p className="text-sm text-muted-foreground line-through">
 										{task.title}
 									</p>
 								</div>

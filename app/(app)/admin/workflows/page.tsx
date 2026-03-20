@@ -65,11 +65,11 @@ export default async function WorkflowsPage() {
 									</div>
 								</div>
 								{wf.description && (
-									<p className="text-sm text-gray-500 ml-7">
+									<p className="text-sm text-muted-foreground ml-7">
 										{wf.description}
 									</p>
 								)}
-								<p className="text-xs text-gray-500 ml-7">
+								<p className="text-xs text-muted-foreground ml-7">
 									Trigger: Stage &rarr;{" "}
 									<span className="font-medium">
 										{wf.triggerStageName ?? "Unknown"}
@@ -79,27 +79,27 @@ export default async function WorkflowsPage() {
 							</CardHeader>
 							<CardContent>
 								{wf.taskTemplates.length === 0 ? (
-									<p className="text-sm text-gray-400">
+									<p className="text-sm text-muted-foreground">
 										No tasks configured.
 									</p>
 								) : (
 									<div className="rounded-md border">
 										<table className="w-full text-sm">
 											<thead>
-												<tr className="border-b bg-gray-50">
-													<th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+												<tr className="border-b bg-accent">
+													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
 														#
 													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
 														Task
 													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
 														Assign To
 													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
 														Due
 													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
 														Priority
 													</th>
 												</tr>
@@ -110,19 +110,19 @@ export default async function WorkflowsPage() {
 														key={tt.id}
 														className="border-b last:border-0"
 													>
-														<td className="px-3 py-2 text-gray-400">
+														<td className="px-3 py-2 text-muted-foreground">
 															{i + 1}
 														</td>
-														<td className="px-3 py-2 font-medium text-gray-900">
+														<td className="px-3 py-2 font-medium text-foreground">
 															{tt.title}
 														</td>
-														<td className="px-3 py-2 text-gray-600">
+														<td className="px-3 py-2 text-muted-foreground">
 															{tt.assignToTeam
 																? TEAM_LABELS[tt.assignToTeam] ??
 																	tt.assignToTeam
 																: tt.assignToRole ?? "—"}
 														</td>
-														<td className="px-3 py-2 text-gray-600">
+														<td className="px-3 py-2 text-muted-foreground">
 															+{tt.dueDaysOffset}{" "}
 															{tt.dueBusinessDaysOnly
 																? "bus"
@@ -149,7 +149,7 @@ export default async function WorkflowsPage() {
 									</div>
 								)}
 
-								<div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+								<div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
 									{wf.notifyAssignees && (
 										<span>Notify assignees</span>
 									)}

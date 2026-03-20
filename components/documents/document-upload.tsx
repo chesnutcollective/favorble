@@ -112,7 +112,7 @@ export function DocumentUpload({
           "relative rounded-lg border-2 border-dashed p-6 text-center transition-colors",
           isDragging
             ? "border-blue-500 bg-blue-50"
-            : "border-gray-300 hover:border-gray-400",
+            : "border-border hover:border-gray-400",
           disabled && "pointer-events-none opacity-50",
         )}
       >
@@ -126,19 +126,19 @@ export function DocumentUpload({
           disabled={disabled}
         />
 
-        <Upload className="mx-auto h-8 w-8 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-600">
+        <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+        <p className="mt-2 text-sm text-muted-foreground">
           Drag and drop files here, or{" "}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-primary hover:text-primary"
             disabled={disabled}
           >
             browse
           </button>
         </p>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           PDF, Word, Excel, images, text files up to 50MB
         </p>
       </div>
@@ -149,21 +149,21 @@ export function DocumentUpload({
           {pendingFiles.map((file, index) => (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2"
+              className="flex items-center gap-3 rounded-md border border-border bg-accent px-3 py-2"
             >
-              <FileText className="h-4 w-4 shrink-0 text-gray-500" />
+              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-700">
+                <p className="truncate text-sm font-medium text-foreground">
                   {file.name}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {formatFileSize(file.size)}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => removeFile(index)}
-                className="shrink-0 text-gray-400 hover:text-gray-600"
+                className="shrink-0 text-muted-foreground hover:text-muted-foreground"
               >
                 <X className="h-4 w-4" />
               </button>

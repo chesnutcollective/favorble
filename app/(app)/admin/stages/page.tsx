@@ -39,7 +39,7 @@ export default async function StagesPage() {
 			{stageGroups.length === 0 ? (
 				<Card>
 					<CardContent className="py-12 text-center">
-						<p className="text-sm text-gray-500">
+						<p className="text-sm text-muted-foreground">
 							No stage groups configured. Add your first group to get started.
 						</p>
 					</CardContent>
@@ -62,7 +62,7 @@ export default async function StagesPage() {
 											{group.name}
 										</CardTitle>
 										{group.clientVisibleName && (
-											<span className="text-xs text-gray-500">
+											<span className="text-xs text-muted-foreground">
 												Client sees: &ldquo;{group.clientVisibleName}&rdquo;
 											</span>
 										)}
@@ -75,7 +75,7 @@ export default async function StagesPage() {
 							</CardHeader>
 							<CardContent>
 								{group.stages.length === 0 ? (
-									<p className="text-sm text-gray-400 py-2">
+									<p className="text-sm text-muted-foreground py-2">
 										No stages in this group.
 									</p>
 								) : (
@@ -86,10 +86,10 @@ export default async function StagesPage() {
 												className="flex items-center justify-between rounded-md border p-3"
 											>
 												<div className="flex items-center gap-3">
-													<code className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+													<code className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
 														{stage.code}
 													</code>
-													<span className="text-sm font-medium text-gray-900">
+													<span className="text-sm font-medium text-foreground">
 														{stage.name}
 													</span>
 													{stage.isInitial && (
@@ -103,7 +103,7 @@ export default async function StagesPage() {
 													{stage.isTerminal && (
 														<Badge
 															variant="outline"
-															className="text-xs text-gray-500"
+															className="text-xs text-muted-foreground"
 														>
 															Terminal
 														</Badge>

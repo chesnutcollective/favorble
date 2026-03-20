@@ -80,7 +80,7 @@ export default async function DashboardPage() {
 							<CardTitle className="text-base">My Tasks (Due Today)</CardTitle>
 							<Link
 								href="/queue"
-								className="text-sm text-blue-600 hover:underline"
+								className="text-sm text-primary hover:underline"
 							>
 								View All
 							</Link>
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
 					</CardHeader>
 					<CardContent>
 						{myTasks.length === 0 ? (
-							<p className="text-sm text-gray-500 py-4 text-center">
+							<p className="text-sm text-muted-foreground py-4 text-center">
 								No tasks due today
 							</p>
 						) : (
@@ -96,17 +96,17 @@ export default async function DashboardPage() {
 								{myTasks.slice(0, 5).map((task) => (
 									<div
 										key={task.id}
-										className="flex items-start gap-3 rounded-md p-2 hover:bg-gray-50"
+										className="flex items-start gap-3 rounded-md p-2 hover:bg-accent"
 									>
 										<Checkbox className="mt-0.5" />
 										<div className="min-w-0 flex-1">
-											<p className="text-sm font-medium text-gray-900 truncate">
+											<p className="text-sm font-medium text-foreground truncate">
 												{task.title}
 											</p>
 											<div className="flex items-center gap-2 mt-0.5">
 												<Link
 													href={`/cases/${task.caseId}`}
-													className="text-xs text-blue-600 hover:underline"
+													className="text-xs text-primary hover:underline"
 												>
 													{task.caseNumber}
 												</Link>
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
 							<CardTitle className="text-base">Cases by Stage</CardTitle>
 							<Link
 								href="/cases"
-								className="text-sm text-blue-600 hover:underline"
+								className="text-sm text-primary hover:underline"
 							>
 								View All
 							</Link>
@@ -153,7 +153,7 @@ export default async function DashboardPage() {
 					</CardHeader>
 					<CardContent>
 						{groupedStages.size === 0 ? (
-							<p className="text-sm text-gray-500 py-4 text-center">
+							<p className="text-sm text-muted-foreground py-4 text-center">
 								No active cases
 							</p>
 						) : (
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
 												backgroundColor: group.color ?? "#6B7280",
 											}}
 										/>
-										<span className="text-sm text-gray-700 flex-1">
+										<span className="text-sm text-foreground flex-1">
 											{group.name}
 										</span>
 										<div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
 													backgroundColor: group.color ?? "#6B7280",
 												}}
 											/>
-											<span className="text-sm font-medium text-gray-900 w-8 text-right">
+											<span className="text-sm font-medium text-foreground w-8 text-right">
 												{group.count}
 											</span>
 										</div>

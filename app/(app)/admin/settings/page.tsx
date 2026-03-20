@@ -28,21 +28,21 @@ export default async function SettingsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-4">Organization</h3>
+          <h3 className="font-medium text-foreground mb-4">Organization</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-gray-500">Name</p>
-              <p className="mt-0.5 text-sm text-gray-900">{org?.name ?? "—"}</p>
+              <p className="text-xs font-medium text-muted-foreground">Name</p>
+              <p className="mt-0.5 text-sm text-foreground">{org?.name ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Slug</p>
-              <p className="mt-0.5 text-sm text-gray-900 font-mono">
+              <p className="text-xs font-medium text-muted-foreground">Slug</p>
+              <p className="mt-0.5 text-sm text-foreground font-mono">
                 {org?.slug ?? "—"}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Created</p>
-              <p className="mt-0.5 text-sm text-gray-900">
+              <p className="text-xs font-medium text-muted-foreground">Created</p>
+              <p className="mt-0.5 text-sm text-foreground">
                 {org?.createdAt.toLocaleDateString() ?? "—"}
               </p>
             </div>
@@ -52,26 +52,26 @@ export default async function SettingsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-4">Your Account</h3>
+          <h3 className="font-medium text-foreground mb-4">Your Account</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-gray-500">Name</p>
-              <p className="mt-0.5 text-sm text-gray-900">
+              <p className="text-xs font-medium text-muted-foreground">Name</p>
+              <p className="mt-0.5 text-sm text-foreground">
                 {user.firstName} {user.lastName}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Email</p>
-              <p className="mt-0.5 text-sm text-gray-900">{user.email}</p>
+              <p className="text-xs font-medium text-muted-foreground">Email</p>
+              <p className="mt-0.5 text-sm text-foreground">{user.email}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Role</p>
+              <p className="text-xs font-medium text-muted-foreground">Role</p>
               <Badge variant="outline" className="mt-0.5">
                 {user.role}
               </Badge>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Team</p>
+              <p className="text-xs font-medium text-muted-foreground">Team</p>
               <Badge variant="outline" className="mt-0.5">
                 {user.team ?? "None"}
               </Badge>
@@ -82,23 +82,23 @@ export default async function SettingsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-2">System Information</h3>
+          <h3 className="font-medium text-foreground mb-2">System Information</h3>
           <div className="grid gap-3 sm:grid-cols-2 text-sm">
             <div>
-              <span className="text-gray-500">Framework:</span>{" "}
-              <span className="text-gray-900">Next.js 15</span>
+              <span className="text-muted-foreground">Framework:</span>{" "}
+              <span className="text-foreground">Next.js 15</span>
             </div>
             <div>
-              <span className="text-gray-500">Database:</span>{" "}
-              <span className="text-gray-900">PostgreSQL (Supabase)</span>
+              <span className="text-muted-foreground">Database:</span>{" "}
+              <span className="text-foreground">PostgreSQL (Supabase)</span>
             </div>
             <div>
-              <span className="text-gray-500">ORM:</span>{" "}
-              <span className="text-gray-900">Drizzle</span>
+              <span className="text-muted-foreground">ORM:</span>{" "}
+              <span className="text-foreground">Drizzle</span>
             </div>
             <div>
-              <span className="text-gray-500">Storage:</span>{" "}
-              <span className="text-gray-900">Supabase Storage</span>
+              <span className="text-muted-foreground">Storage:</span>{" "}
+              <span className="text-foreground">Supabase Storage</span>
             </div>
           </div>
         </CardContent>

@@ -51,10 +51,10 @@ export default async function MessagesPage() {
             <div className="flex items-center gap-3">
               <MessageSquare className="h-5 w-5 text-amber-500" />
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   Case Status not configured
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Set CASE_STATUS_API_KEY in your environment to enable
                   bidirectional messaging.
                 </p>
@@ -93,29 +93,29 @@ export default async function MessagesPage() {
                       {msg.caseId && msg.caseNumber && (
                         <Link
                           href={`/cases/${msg.caseId}/messages`}
-                          className="text-sm font-medium text-blue-600 hover:underline"
+                          className="text-sm font-medium text-primary hover:underline"
                         >
                           Case #{msg.caseNumber}
                         </Link>
                       )}
                     </div>
                     {msg.subject && (
-                      <p className="mt-1 text-sm font-medium text-gray-900">
+                      <p className="mt-1 text-sm font-medium text-foreground">
                         {msg.subject}
                       </p>
                     )}
                     {msg.body && (
-                      <p className="mt-0.5 text-sm text-gray-600 line-clamp-2">
+                      <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
                         {msg.body}
                       </p>
                     )}
                     {msg.fromAddress && (
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         From: {msg.fromAddress}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 text-xs text-gray-500">
+                  <span className="shrink-0 text-xs text-muted-foreground">
                     {msg.createdAt.toLocaleString()}
                   </span>
                 </div>

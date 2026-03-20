@@ -55,8 +55,8 @@ export default async function CaseSsaPage({
                 <Globe className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Chronicle</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="font-medium text-foreground">Chronicle</h3>
+                <p className="text-sm text-muted-foreground">
                   SSA document sync and ERE access
                 </p>
               </div>
@@ -66,7 +66,7 @@ export default async function CaseSsaPage({
                 Connected
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-gray-500">
+              <Badge variant="outline" className="text-muted-foreground">
                 Not linked
               </Badge>
             )}
@@ -103,7 +103,7 @@ export default async function CaseSsaPage({
               </div>
             </div>
           ) : (
-            <p className="mt-4 text-sm text-gray-500">
+            <p className="mt-4 text-sm text-muted-foreground">
               Add a Chronicle URL to this case to enable quick access.
             </p>
           )}
@@ -113,7 +113,7 @@ export default async function CaseSsaPage({
       {/* SSA Case Information */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-gray-900 mb-4">
+          <h3 className="font-medium text-foreground mb-4">
             SSA Case Information
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -170,8 +170,8 @@ function InfoItem({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium text-gray-500">{label}</p>
-      <p className="mt-0.5 text-sm text-gray-900">{value ?? "—"}</p>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-sm text-foreground">{value ?? "—"}</p>
     </div>
   );
 }

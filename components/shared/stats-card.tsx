@@ -21,9 +21,9 @@ export function StatsCard({
   return (
     <Card className={cn("", className)}>
       <CardContent className="p-4">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
         <div className="mt-1 flex items-baseline gap-2">
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
+          <p className="text-2xl font-semibold text-foreground">{value}</p>
           {trend && (
             <span
               className={cn(
@@ -37,7 +37,7 @@ export function StatsCard({
           )}
         </div>
         {subtitle && (
-          <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
         )}
       </CardContent>
     </Card>

@@ -7,11 +7,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Calendar } from "lucide-react";
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
-	hearing: "text-blue-600 border-blue-300",
+	hearing: "text-primary border-blue-300",
 	deadline: "text-red-600 border-red-300",
 	appointment: "text-green-600 border-green-300",
 	follow_up: "text-amber-600 border-amber-300",
-	reminder: "text-gray-600 border-gray-300",
+	reminder: "text-muted-foreground border-border",
 };
 
 export default async function CaseCalendarPage({
@@ -63,7 +63,7 @@ export default async function CaseCalendarPage({
 						{events.map((event) => {
 							const colorClass =
 								EVENT_TYPE_COLORS[event.eventType] ??
-								"text-gray-600 border-gray-300";
+								"text-muted-foreground border-border";
 							const isPast = event.startAt < new Date();
 							return (
 								<div
@@ -80,20 +80,20 @@ export default async function CaseCalendarPage({
 											>
 												{event.eventType}
 											</Badge>
-											<span className="text-sm font-medium text-gray-900">
+											<span className="text-sm font-medium text-foreground">
 												{event.title}
 											</span>
 										</div>
-										<span className="text-xs text-gray-500">
+										<span className="text-xs text-muted-foreground">
 											{event.startAt.toLocaleString()}
 										</span>
 									</div>
 									{event.description && (
-										<p className="text-sm text-gray-700">
+										<p className="text-sm text-foreground">
 											{event.description}
 										</p>
 									)}
-									<div className="flex flex-wrap gap-3 text-xs text-gray-500">
+									<div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
 										{event.location && (
 											<span>Location: {event.location}</span>
 										)}

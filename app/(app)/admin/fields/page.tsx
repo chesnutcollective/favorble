@@ -134,7 +134,7 @@ function FieldsList({
 			{Array.from(sections.entries()).map(([section, sectionFields]) => (
 				<Card key={section}>
 					<CardHeader className="pb-2">
-						<CardTitle className="text-sm text-gray-700">
+						<CardTitle className="text-sm text-foreground">
 							{section}
 						</CardTitle>
 					</CardHeader>
@@ -146,10 +146,10 @@ function FieldsList({
 									className="flex items-center justify-between rounded-md border p-3"
 								>
 									<div className="flex items-center gap-3">
-										<span className="text-sm font-medium text-gray-900">
+										<span className="text-sm font-medium text-foreground">
 											{field.name}
 										</span>
-										<code className="text-xs text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded">
+										<code className="text-xs text-muted-foreground bg-accent px-1.5 py-0.5 rounded">
 											{field.slug}
 										</code>
 										{field.isRequired && (

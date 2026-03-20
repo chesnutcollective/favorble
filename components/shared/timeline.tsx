@@ -26,7 +26,7 @@ const EVENT_COLORS: Record<string, string> = {
   note_added: "bg-amber-500",
   message_received: "bg-indigo-500",
   message_sent: "bg-indigo-400",
-  assignment_changed: "bg-gray-500",
+  assignment_changed: "bg-accent0",
   case_created: "bg-blue-600",
   workflow_executed: "bg-green-600",
 };
@@ -51,7 +51,7 @@ function formatRelativeTime(timestamp: string): string {
 export function Timeline({ events, className }: TimelineProps) {
   if (events.length === 0) {
     return (
-      <div className="py-8 text-center text-sm text-gray-500">
+      <div className="py-8 text-center text-sm text-muted-foreground">
         No activity yet
       </div>
     );
@@ -67,7 +67,7 @@ export function Timeline({ events, className }: TimelineProps) {
           <div key={event.id} className="relative flex gap-3 pb-4">
             {/* Vertical line */}
             {!isLast && (
-              <div className="absolute left-[7px] top-4 h-full w-px bg-gray-200" />
+              <div className="absolute left-[7px] top-4 h-full w-px bg-muted" />
             )}
 
             {/* Dot */}
@@ -81,20 +81,20 @@ export function Timeline({ events, className }: TimelineProps) {
             {/* Content */}
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   {event.title}
                 </p>
-                <span className="shrink-0 text-xs text-gray-500">
+                <span className="shrink-0 text-xs text-muted-foreground">
                   {formatRelativeTime(event.timestamp)}
                 </span>
               </div>
               {event.description && (
-                <p className="mt-0.5 text-sm text-gray-600">
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   {event.description}
                 </p>
               )}
               {event.actor && (
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   by {event.actor}
                 </p>
               )}

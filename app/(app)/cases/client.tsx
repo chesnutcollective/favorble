@@ -120,7 +120,7 @@ export function CasesListClient({
 			{/* Filters */}
 			<div className="flex flex-wrap gap-3">
 				<div className="relative flex-1 min-w-[200px] max-w-sm">
-					<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+					<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
 						placeholder="Search cases..."
 						value={search}
@@ -173,25 +173,25 @@ export function CasesListClient({
 							<TableRow>
 								<TableCell
 									colSpan={4}
-									className="h-24 text-center text-gray-500"
+									className="h-24 text-center text-muted-foreground"
 								>
 									No cases found.
 								</TableCell>
 							</TableRow>
 						) : (
 							cases.map((c) => (
-								<TableRow key={c.id} className="cursor-pointer hover:bg-gray-50">
+								<TableRow key={c.id} className="cursor-pointer hover:bg-accent">
 									<TableCell>
 										<Link
 											href={`/cases/${c.id}`}
 											className="block"
 										>
-											<p className="font-medium text-gray-900">
+											<p className="font-medium text-foreground">
 												{c.claimant
 													? `${c.claimant.lastName}, ${c.claimant.firstName}`
 													: "Unknown"}
 											</p>
-											<p className="text-xs text-gray-500">
+											<p className="text-xs text-muted-foreground">
 												{c.caseNumber}
 											</p>
 										</Link>
@@ -215,7 +215,7 @@ export function CasesListClient({
 									</TableCell>
 									<TableCell>
 										{c.assignedStaff.length > 0 ? (
-											<span className="text-sm text-gray-700">
+											<span className="text-sm text-foreground">
 												{c.assignedStaff
 													.map(
 														(a) =>
@@ -224,12 +224,12 @@ export function CasesListClient({
 													.join(", ")}
 											</span>
 										) : (
-											<span className="text-sm text-gray-400">
+											<span className="text-sm text-muted-foreground">
 												Unassigned
 											</span>
 										)}
 									</TableCell>
-									<TableCell className="text-sm text-gray-500">
+									<TableCell className="text-sm text-muted-foreground">
 										{formatRelativeTime(c.updatedAt)}
 									</TableCell>
 								</TableRow>
@@ -241,7 +241,7 @@ export function CasesListClient({
 
 			{/* Pagination */}
 			<div className="flex items-center justify-between">
-				<p className="text-sm text-gray-600">
+				<p className="text-sm text-muted-foreground">
 					{total} total case{total !== 1 ? "s" : ""}
 				</p>
 				{totalPages > 1 && (
@@ -254,7 +254,7 @@ export function CasesListClient({
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
-						<span className="text-sm text-gray-600">
+						<span className="text-sm text-muted-foreground">
 							Page {page} of {totalPages}
 						</span>
 						<Button

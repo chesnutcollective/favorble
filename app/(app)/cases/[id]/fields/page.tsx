@@ -54,7 +54,7 @@ export default async function CaseFieldsPage({
 			</CardHeader>
 			<CardContent>
 				{fieldValues.length === 0 ? (
-					<p className="text-sm text-gray-500 py-4 text-center">
+					<p className="text-sm text-muted-foreground py-4 text-center">
 						No custom fields configured.
 					</p>
 				) : (
@@ -120,7 +120,7 @@ function FieldGrid({
 		<div className="space-y-6 mt-4">
 			{Array.from(sections.entries()).map(([section, sectionFields]) => (
 				<div key={section}>
-					<h4 className="text-sm font-medium text-gray-700 mb-3">
+					<h4 className="text-sm font-medium text-foreground mb-3">
 						{section}
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -128,14 +128,14 @@ function FieldGrid({
 							const displayValue = getDisplayValue(f);
 							return (
 								<div key={f.definition.id}>
-									<p className="text-xs font-medium text-gray-500">
+									<p className="text-xs font-medium text-muted-foreground">
 										{f.definition.name}
 									</p>
-									<p className="mt-0.5 text-sm text-gray-900">
+									<p className="mt-0.5 text-sm text-foreground">
 										{displayValue || "—"}
 									</p>
 									{f.definition.helpText && (
-										<p className="mt-0.5 text-xs text-gray-400">
+										<p className="mt-0.5 text-xs text-muted-foreground">
 											{f.definition.helpText}
 										</p>
 									)}

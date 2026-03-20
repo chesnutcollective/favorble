@@ -34,7 +34,7 @@ type Counts = {
 };
 
 function getDueDateInfo(dueDate: string | null) {
-	if (!dueDate) return { label: "No date", color: "text-gray-400" };
+	if (!dueDate) return { label: "No date", color: "text-muted-foreground" };
 	const due = new Date(dueDate);
 	const now = new Date();
 	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -45,18 +45,18 @@ function getDueDateInfo(dueDate: string | null) {
 	if (due < tomorrow) return { label: "Today", color: "text-amber-600" };
 
 	const diff = Math.ceil((due.getTime() - today.getTime()) / 86400000);
-	if (diff === 1) return { label: "Tomorrow", color: "text-gray-700" };
+	if (diff === 1) return { label: "Tomorrow", color: "text-foreground" };
 	if (diff <= 7)
 		return {
 			label: due.toLocaleDateString("en-US", { weekday: "short" }),
-			color: "text-gray-600",
+			color: "text-muted-foreground",
 		};
 	return {
 		label: due.toLocaleDateString("en-US", {
 			month: "short",
 			day: "numeric",
 		}),
-		color: "text-gray-500",
+		color: "text-muted-foreground",
 	};
 }
 
@@ -127,10 +127,10 @@ export function QueueClient({
 				{filteredTasks.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center">
 						<CheckCircle className="h-10 w-10 text-gray-300" />
-						<h3 className="mt-3 text-sm font-medium text-gray-900">
+						<h3 className="mt-3 text-sm font-medium text-foreground">
 							All caught up!
 						</h3>
-						<p className="mt-1 text-sm text-gray-500">
+						<p className="mt-1 text-sm text-muted-foreground">
 							No tasks in this view.
 						</p>
 					</div>
@@ -141,7 +141,7 @@ export function QueueClient({
 							return (
 								<div
 									key={task.id}
-									className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors"
+									className="flex items-start gap-3 p-3 hover:bg-accent transition-colors"
 								>
 									<Checkbox
 										className="mt-1"
@@ -156,13 +156,13 @@ export function QueueClient({
 										<div className="w-4 shrink-0" />
 									)}
 									<div className="min-w-0 flex-1">
-										<p className="text-sm font-medium text-gray-900">
+										<p className="text-sm font-medium text-foreground">
 											{task.title}
 										</p>
 										<div className="flex items-center gap-2 mt-0.5">
 											<Link
 												href={`/cases/${task.caseId}`}
-												className="text-xs text-blue-600 hover:underline"
+												className="text-xs text-primary hover:underline"
 											>
 												{task.caseNumber}
 											</Link>
@@ -193,7 +193,7 @@ export function QueueClient({
 										</div>
 									</div>
 									<div className="flex items-center gap-1 shrink-0">
-										<Clock className="h-3 w-3 text-gray-400" />
+										<Clock className="h-3 w-3 text-muted-foreground" />
 										<span
 											className={`text-xs font-medium ${dueDateInfo.color}`}
 										>

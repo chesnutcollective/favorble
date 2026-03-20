@@ -29,7 +29,7 @@ export default async function CaseDetailLayout({
 			{/* Back link */}
 			<Link
 				href="/cases"
-				className="text-sm text-gray-500 hover:text-gray-900"
+				className="text-sm text-muted-foreground hover:text-foreground"
 			>
 				&larr; Cases
 			</Link>
@@ -39,12 +39,12 @@ export default async function CaseDetailLayout({
 				<div className="flex-1 space-y-3">
 					<div className="flex items-start justify-between gap-4">
 						<div>
-							<h1 className="text-2xl font-semibold text-gray-900">
+							<h1 className="text-2xl font-semibold text-foreground">
 								{caseData.claimant
 									? `${caseData.claimant.firstName} ${caseData.claimant.lastName}`
 									: "Unknown Claimant"}
 							</h1>
-							<p className="text-sm text-gray-500">
+							<p className="text-sm text-muted-foreground">
 								{caseData.caseNumber}
 								{caseData.dateOfBirth && (
 									<>
@@ -87,13 +87,13 @@ export default async function CaseDetailLayout({
 							);
 						})}
 					</div>
-					<div className="flex gap-4 text-xs text-gray-500">
+					<div className="flex gap-4 text-xs text-muted-foreground">
 						{caseData.stageGroups.map((group, i) => (
 							<span
 								key={group.id}
 								className={
 									i === currentGroupIndex
-										? "font-medium text-gray-900"
+										? "font-medium text-foreground"
 										: ""
 								}
 							>
@@ -108,7 +108,7 @@ export default async function CaseDetailLayout({
 					<CardContent className="p-4 space-y-3">
 						{caseData.assignedStaff.length > 0 && (
 							<div>
-								<p className="text-xs font-medium text-gray-500 mb-1">
+								<p className="text-xs font-medium text-muted-foreground mb-1">
 									Assigned Staff
 								</p>
 								<div className="space-y-1">
@@ -123,10 +123,10 @@ export default async function CaseDetailLayout({
 													{staff.lastName[0]}
 												</AvatarFallback>
 											</Avatar>
-											<span className="text-xs text-gray-700">
+											<span className="text-xs text-foreground">
 												{staff.firstName} {staff.lastName}
 											</span>
-											<span className="text-xs text-gray-400">
+											<span className="text-xs text-muted-foreground">
 												{staff.role}
 											</span>
 										</div>
@@ -145,12 +145,12 @@ export default async function CaseDetailLayout({
 						)}
 						{caseData.chronicleUrl && (
 							<div>
-								<p className="text-xs font-medium text-gray-500">Chronicle</p>
+								<p className="text-xs font-medium text-muted-foreground">Chronicle</p>
 								<a
 									href={caseData.chronicleUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="text-xs text-blue-600 hover:underline"
+									className="text-xs text-primary hover:underline"
 								>
 									Open in Chronicle
 								</a>
@@ -178,8 +178,8 @@ function InfoItem({
 }) {
 	return (
 		<div>
-			<p className="text-xs font-medium text-gray-500">{label}</p>
-			<p className="text-sm text-gray-900">{value}</p>
+			<p className="text-xs font-medium text-muted-foreground">{label}</p>
+			<p className="text-sm text-foreground">{value}</p>
 		</div>
 	);
 }

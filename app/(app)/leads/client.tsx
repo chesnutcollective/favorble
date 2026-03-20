@@ -61,7 +61,7 @@ export function LeadsPipelineClient({
 				>
 					{/* Column Header */}
 					<div className="flex items-center justify-between mb-3">
-						<h3 className="text-sm font-medium text-gray-900">
+						<h3 className="text-sm font-medium text-foreground">
 							{col.label}
 						</h3>
 						<Badge variant="secondary" className="text-xs">
@@ -77,15 +77,15 @@ export function LeadsPipelineClient({
 									<div className="flex items-start justify-between">
 										<Link
 											href={`/leads/${lead.id}`}
-											className="text-sm font-medium text-gray-900 hover:text-blue-600"
+											className="text-sm font-medium text-foreground hover:text-primary"
 										>
 											{lead.firstName} {lead.lastName}
 										</Link>
-										<span className="text-xs text-gray-400">
+										<span className="text-xs text-muted-foreground">
 											{formatRelative(lead.createdAt)}
 										</span>
 									</div>
-									<div className="flex flex-wrap gap-2 text-xs text-gray-500">
+									<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
 										{lead.email && (
 											<span className="flex items-center gap-1">
 												<Mail className="h-3 w-3" />
@@ -125,7 +125,7 @@ export function LeadsPipelineClient({
 						))}
 						{col.leads.length === 0 && (
 							<div className="rounded-md border border-dashed p-6 text-center">
-								<p className="text-xs text-gray-400">No leads</p>
+								<p className="text-xs text-muted-foreground">No leads</p>
 							</div>
 						)}
 					</div>

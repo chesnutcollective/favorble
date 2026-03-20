@@ -55,7 +55,7 @@ export function StageMigrationDialog({
             <div className="space-y-4">
               <p>
                 There {affectedCaseCount === 1 ? "is" : "are"}{" "}
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-foreground">
                   {affectedCaseCount} case{affectedCaseCount !== 1 ? "s" : ""}
                 </span>{" "}
                 currently in this stage. All cases must be migrated to a new
@@ -65,7 +65,7 @@ export function StageMigrationDialog({
               <div>
                 <label
                   htmlFor="destination-stage"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-foreground"
                 >
                   Move cases to:
                 </label>
