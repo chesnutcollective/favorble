@@ -48,7 +48,25 @@ export default async function CasesPage({
 			getOrgUsers(),
 		]);
 	} catch {
-		// DB unavailable
+		// Retry once
+		try {
+			[casesResult, stages, orgUsers] = await Promise.all([
+				getCases(
+					{
+						search: search || undefined,
+						stageId: stageId || undefined,
+						status: status || undefined,
+						team: team || undefined,
+						assignedToId: assignedTo || undefined,
+					},
+					{ page, pageSize: 50 },
+				),
+				getAllStages(),
+				getOrgUsers(),
+			]);
+		} catch {
+			// DB unavailable
+		}
 	}
 
 	return (

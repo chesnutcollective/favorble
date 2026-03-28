@@ -22,10 +22,23 @@ export default async function CaseDetailLayout({
 	try {
 		caseData = await getCaseById(id);
 	} catch {
-		// DB unavailable
+		// Retry once on failure
+		try {
+			caseData = await getCaseById(id);
+		} catch {
+			// DB unavailable
+		}
 	}
 
-	if (!caseData) notFound();
+	if (!caseData) {
+		// One more attempt with a fresh connection
+		try {
+			caseData = await getCaseById(id);
+		} catch {
+			notFound();
+		}
+		if (!caseData) notFound();
+	}
 
 	// Compute masked SSN if available
 	let maskedSSN: string | null = null;
