@@ -13,11 +13,9 @@ export default function LoginPage() {
 	const [email, setEmail] = useState("admin@hogansmith.com");
 	const [password, setPassword] = useState("demo123!");
 
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
+	async function handleSubmit(formData: FormData) {
 		setError(null);
 		setIsPending(true);
-		const formData = new FormData(e.currentTarget);
 		const result = await login(formData);
 		if (result?.error) {
 			setError(result.error);
@@ -56,7 +54,7 @@ export default function LoginPage() {
 						</p>
 					</div>
 
-					<form onSubmit={handleSubmit} className="space-y-4">
+					<form action={handleSubmit} className="space-y-4">
 						{error && (
 							<div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
 								{error}
