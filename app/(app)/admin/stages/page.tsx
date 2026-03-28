@@ -31,6 +31,12 @@ export default async function StagesPage() {
 		stageGroups = await getStageGroupsWithStages();
 	} catch (e) {
 		console.error("Failed to load stages:", e);
+		// Retry once
+		try {
+			stageGroups = await getStageGroupsWithStages();
+		} catch {
+			// Give up
+		}
 	}
 
 	// Build flat list of all stages for the migration dialog
