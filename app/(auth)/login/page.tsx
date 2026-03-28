@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 export default function LoginPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [isPending, setIsPending] = useState(false);
+	const [email, setEmail] = useState("admin@hogansmith.com");
+	const [password, setPassword] = useState("demo123!");
 
 	async function handleSubmit(formData: FormData) {
 		setError(null);
@@ -65,7 +67,8 @@ export default function LoginPage() {
 								name="email"
 								type="email"
 								placeholder="you@example.com"
-								defaultValue="admin@hogansmith.com"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
 								required
 								autoComplete="email"
 								autoFocus
@@ -78,7 +81,8 @@ export default function LoginPage() {
 								name="password"
 								type="password"
 								placeholder="Your password"
-								defaultValue="demo123!"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
 								required
 								autoComplete="current-password"
 							/>
