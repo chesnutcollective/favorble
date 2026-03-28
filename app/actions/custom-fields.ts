@@ -136,8 +136,22 @@ export async function createFieldDefinition(data: {
 	helpText?: string;
 	isRequired?: boolean;
 	options?: unknown[];
+	formula?: string;
 }) {
 	const session = await requireSession();
+
+	// Extract formula dependencies if it's a calculated field
+	let formulaDependencies: string[] | undefined;
+	if (data.fieldType === "calculated" && data.formula) {
+		const depRegex = /\{([^}]+)\}/g;
+		const deps: string[] = [];
+		let match: RegExpExecArray | null;
+		while ((match = depRegex.exec(data.formula)) !== null) {
+			const slug = match[1].trim();
+			if (!deps.includes(slug)) deps.push(slug);
+		}
+		formulaDependencies = deps;
+	}
 
 	const [field] = await db
 		.insert(customFieldDefinitions)
@@ -173,6 +187,8 @@ export async function createFieldDefinition(data: {
 			helpText: data.helpText,
 			isRequired: data.isRequired ?? false,
 			options: data.options ?? [],
+			formula: data.formula ?? null,
+			formulaDependencies: formulaDependencies ?? null,
 		})
 		.returning();
 

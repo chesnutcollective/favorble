@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth/session";
 import { getActiveCaseCount, getCaseCountsByStage } from "@/app/actions/cases";
 import { getTasksDueTodayCount, getOverdueTaskCount, getMyQueue } from "@/app/actions/tasks";
-import { getRecentAuditLog } from "@/app/actions/reports";
+import { getRecentAuditLog, getUpcomingDeadlines } from "@/app/actions/reports";
 import { StatsCard } from "@/components/shared/stats-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CasesByStageBarChart } from "@/components/charts/cases-by-stage-bar-chart";
 import { PipelineFunnelChart } from "@/components/charts/pipeline-funnel-chart";
 import { ActivityFeed } from "@/components/charts/activity-feed";
+import { UpcomingDeadlines } from "@/components/charts/upcoming-deadlines";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -26,9 +27,10 @@ export default async function DashboardPage() {
 	let stageBreakdown: Awaited<ReturnType<typeof getCaseCountsByStage>> = [];
 	let myTasks: Awaited<ReturnType<typeof getMyQueue>> = [];
 	let auditEntries: Awaited<ReturnType<typeof getRecentAuditLog>> = [];
+	let upcomingDeadlines: Awaited<ReturnType<typeof getUpcomingDeadlines>> = [];
 
 	try {
-		[activeCases, tasksDueToday, overdueTaskCount, stageBreakdown, myTasks, auditEntries] =
+		[activeCases, tasksDueToday, overdueTaskCount, stageBreakdown, myTasks, auditEntries, upcomingDeadlines] =
 			await Promise.all([
 				getActiveCaseCount(),
 				getTasksDueTodayCount(),
@@ -36,6 +38,7 @@ export default async function DashboardPage() {
 				getCaseCountsByStage(),
 				getMyQueue({ dueDateRange: "today" }),
 				getRecentAuditLog(10),
+				getUpcomingDeadlines(5),
 			]);
 	} catch {
 		// DB unavailable — show empty dashboard
@@ -200,6 +203,24 @@ export default async function DashboardPage() {
 					</CardContent>
 				</Card>
 			</div>
+
+			{/* Upcoming Deadlines */}
+			<Card>
+				<CardHeader className="pb-3">
+					<div className="flex items-center justify-between">
+						<CardTitle className="text-base">Upcoming Deadlines</CardTitle>
+						<Link
+							href="/calendar"
+							className="text-sm text-primary hover:underline"
+						>
+							View Calendar
+						</Link>
+					</div>
+				</CardHeader>
+				<CardContent>
+					<UpcomingDeadlines events={upcomingDeadlines} />
+				</CardContent>
+			</Card>
 
 			{/* Recent Activity */}
 			<Card>

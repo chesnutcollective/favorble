@@ -12,6 +12,7 @@ import {
 	GitBranchIcon,
 	Calendar01Icon,
 	Message01Icon,
+	Mail01Icon,
 	UserGroupIcon,
 	File01Icon,
 	AnalyticsUpIcon,
@@ -53,6 +54,7 @@ const mainNav: { title: string; href: string; icon: IconSvgElement }[] = [
 	{ title: "Leads", href: "/leads", icon: GitBranchIcon },
 	{ title: "Calendar", href: "/calendar", icon: Calendar01Icon },
 	{ title: "Messages", href: "/messages", icon: Message01Icon },
+	{ title: "Email", href: "/email", icon: Mail01Icon },
 ];
 
 const secondaryNav: { title: string; href: string; icon: IconSvgElement }[] = [

@@ -189,6 +189,7 @@ export function AddStageDialog({
 	const [code, setCode] = useState("");
 	const [stageGroupId, setStageGroupId] = useState(defaultGroupId ?? "");
 	const [owningTeam, setOwningTeam] = useState("");
+	const [stageColor, setStageColor] = useState("");
 	const [isInitialStage, setIsInitialStage] = useState(false);
 	const [isTerminalStage, setIsTerminalStage] = useState(false);
 
@@ -197,6 +198,7 @@ export function AddStageDialog({
 		setCode("");
 		setStageGroupId(defaultGroupId ?? "");
 		setOwningTeam("");
+		setStageColor("");
 		setIsInitialStage(false);
 		setIsTerminalStage(false);
 	}
@@ -235,6 +237,7 @@ export function AddStageDialog({
 					name: name.trim(),
 					code: code.trim(),
 					owningTeam: owningTeam || undefined,
+					color: stageColor || undefined,
 				});
 				toast.success("Stage created.");
 				resetForm();
@@ -317,6 +320,38 @@ export function AddStageDialog({
 									))}
 								</SelectContent>
 							</Select>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="st-color">Stage Color</Label>
+							<div className="flex items-center gap-3">
+								<input
+									id="st-color"
+									type="color"
+									value={stageColor || "#6B7280"}
+									onChange={(e) => setStageColor(e.target.value)}
+									className="h-10 w-10 cursor-pointer rounded border border-input"
+								/>
+								<Input
+									value={stageColor}
+									onChange={(e) => setStageColor(e.target.value)}
+									className="flex-1"
+									placeholder="Inherit from group"
+								/>
+								{stageColor && (
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => setStageColor("")}
+										className="text-xs"
+									>
+										Clear
+									</Button>
+								)}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								Leave empty to inherit the group color.
+							</p>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="st-team">Owning Team</Label>

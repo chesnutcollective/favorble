@@ -17,11 +17,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateCaseFieldValues } from "@/app/actions/custom-fields";
+import { evaluateFormula, type FormulaContext } from "@/lib/formula-engine";
 import { toast } from "sonner";
 
 type FieldDefinition = {
 	id: string;
 	name: string;
+	slug: string;
 	fieldType: string;
 	section: string | null;
 	helpText: string | null;
@@ -29,6 +31,7 @@ type FieldDefinition = {
 	isRequired: boolean;
 	placeholder: string | null;
 	options: unknown;
+	formula: string | null;
 };
 
 type FieldValue = {
@@ -102,6 +105,38 @@ function getFieldOptionLabel(field: FieldDefinition, value: string): string {
 	return value;
 }
 
+/**
+ * Build a formula context mapping field slugs to their current values.
+ */
+function buildFormulaContext(
+	allFields: FieldEntry[],
+	formValues: FormValues,
+): FormulaContext {
+	const ctx: FormulaContext = {};
+	for (const f of allFields) {
+		const val = formValues[f.definition.id];
+		const slug = f.definition.slug;
+		if (!val) continue;
+
+		switch (f.definition.fieldType) {
+			case "number":
+			case "currency":
+				ctx[slug] = val.numberValue ?? null;
+				break;
+			case "boolean":
+				ctx[slug] = val.booleanValue ?? null;
+				break;
+			case "date":
+				ctx[slug] = val.dateValue ?? null;
+				break;
+			default:
+				ctx[slug] = val.textValue ?? null;
+				break;
+		}
+	}
+	return ctx;
+}
+
 export function EditableFieldsForm({
 	caseId,
 	fieldValues,
@@ -117,6 +152,12 @@ export function EditableFieldsForm({
 	const [isPending, startTransition] = useTransition();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+	// Build formula context for calculated fields, re-evaluated on every render
+	const formulaContext = useMemo(
+		() => buildFormulaContext(fieldValues, formValues),
+		[fieldValues, formValues],
+	);
 
 	// Group by team
 	const grouped = useMemo(() => {
@@ -297,6 +338,7 @@ export function EditableFieldsForm({
 								formValues={formValues}
 								onUpdateField={updateFieldValue}
 								validationErrors={validationErrors}
+								formulaContext={formulaContext}
 							/>
 						</TabsContent>
 					)}
@@ -310,6 +352,7 @@ export function EditableFieldsForm({
 								formValues={formValues}
 								onUpdateField={updateFieldValue}
 								validationErrors={validationErrors}
+								formulaContext={formulaContext}
 							/>
 						</TabsContent>
 					))}
@@ -324,6 +367,7 @@ function EditableFieldGrid({
 	formValues,
 	onUpdateField,
 	validationErrors,
+	formulaContext,
 }: {
 	fields: FieldEntry[];
 	formValues: FormValues;
@@ -332,6 +376,7 @@ function EditableFieldGrid({
 		update: Partial<FormValues[string]>,
 	) => void;
 	validationErrors: Record<string, string>;
+	formulaContext: FormulaContext;
 }) {
 	// Group by section
 	const sections = new Map<string, FieldEntry[]>();
@@ -366,6 +411,7 @@ function EditableFieldGrid({
 									onUpdateField(f.definition.id, update)
 								}
 								error={validationErrors[f.definition.id]}
+								formulaContext={formulaContext}
 							/>
 						))}
 					</div>
@@ -380,11 +426,13 @@ function FieldInput({
 	value,
 	onChange,
 	error,
+	formulaContext,
 }: {
 	field: FieldEntry;
 	value: FormValues[string] | undefined;
 	onChange: (update: Partial<FormValues[string]>) => void;
 	error?: string;
+	formulaContext: FormulaContext;
 }) {
 	const def = field.definition;
 	const options = getFieldOptions(def);
@@ -596,6 +644,22 @@ function FieldInput({
 						autoComplete="off"
 					/>
 				);
+
+			case "calculated": {
+				const result = def.formula
+					? evaluateFormula(def.formula, formulaContext)
+					: "No formula defined";
+				return (
+					<div className="flex items-center rounded-md border bg-muted/50 px-3 py-2 text-sm">
+						<span className="text-foreground font-medium">
+							{result}
+						</span>
+						<span className="ml-auto text-xs text-muted-foreground">
+							auto
+						</span>
+					</div>
+				);
+			}
 
 			default:
 				return (

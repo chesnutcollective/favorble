@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { CaseTabNav } from "./tab-nav";
 import { CaseStageSelector } from "@/components/cases/case-stage-selector";
+import { SSNDisplay } from "@/components/cases/ssn-display";
+import { decrypt, maskSSN } from "@/lib/encryption";
 
 export default async function CaseDetailLayout({
 	children,
@@ -24,6 +26,17 @@ export default async function CaseDetailLayout({
 	}
 
 	if (!caseData) notFound();
+
+	// Compute masked SSN if available
+	let maskedSSN: string | null = null;
+	if (caseData.ssnEncrypted) {
+		try {
+			const rawSSN = decrypt(caseData.ssnEncrypted);
+			maskedSSN = maskSSN(rawSSN);
+		} catch {
+			maskedSSN = "***-**-****";
+		}
+	}
 
 	// Find current stage group index for progress bar
 	const currentGroupId = caseData.stageGroupId;
@@ -137,6 +150,12 @@ export default async function CaseDetailLayout({
 								</div>
 							</div>
 						)}
+						{maskedSSN && (
+							<SSNDisplay
+								caseId={caseData.id}
+								maskedSSN={maskedSSN}
+							/>
+						)}
 						{caseData.ssaOffice && (
 							<InfoItem label="SSA Office" value={caseData.ssaOffice} />
 						)}
@@ -146,6 +165,21 @@ export default async function CaseDetailLayout({
 								value={caseData.createdAt.toLocaleDateString()}
 							/>
 						)}
+						<div>
+							<p className="text-xs font-medium text-muted-foreground">Case Status</p>
+							{caseData.caseStatusExternalId ? (
+								<a
+									href={`https://app.casestatus.com/cases/${caseData.caseStatusExternalId}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-xs text-primary hover:underline"
+								>
+									Open in Case Status
+								</a>
+							) : (
+								<p className="text-xs text-muted-foreground">Not linked</p>
+							)}
+						</div>
 						{caseData.chronicleUrl && (
 							<div>
 								<p className="text-xs font-medium text-muted-foreground">Chronicle</p>

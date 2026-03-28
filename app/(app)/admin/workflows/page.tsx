@@ -2,25 +2,13 @@ import type { Metadata } from "next";
 import { getWorkflowTemplates } from "@/app/actions/workflows";
 import { getAllStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { WorkflowSquare01Icon, FlashIcon } from "@hugeicons/core-free-icons";
+import { WorkflowSquare01Icon } from "@hugeicons/core-free-icons";
 import { NewWorkflowDialog } from "./new-workflow-dialog";
+import { WorkflowCard } from "./workflow-card";
 
 export const metadata: Metadata = {
 	title: "Workflow Templates",
-};
-
-const TEAM_LABELS: Record<string, string> = {
-	intake: "Intake",
-	filing: "Filing",
-	medical_records: "Medical Records",
-	mail_sorting: "Mail Sorting",
-	case_management: "Case Mgmt",
-	hearings: "Hearings",
-	administration: "Admin",
 };
 
 export default async function WorkflowsPage() {
@@ -59,122 +47,31 @@ export default async function WorkflowsPage() {
 			) : (
 				<div className="space-y-4">
 					{workflows.map((wf) => (
-						<Card key={wf.id}>
-							<CardHeader className="pb-3">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<HugeiconsIcon icon={FlashIcon} size={16} color="rgb(245 158 11)" />
-										<CardTitle className="text-base">
-											{wf.name}
-										</CardTitle>
-									</div>
-									<div className="flex items-center gap-2">
-										<Badge
-											variant={wf.isActive ? "default" : "secondary"}
-											className="text-xs"
-										>
-											{wf.isActive ? "Active" : "Draft"}
-										</Badge>
-									</div>
-								</div>
-								{wf.description && (
-									<p className="text-sm text-muted-foreground ml-7">
-										{wf.description}
-									</p>
-								)}
-								<p className="text-xs text-muted-foreground ml-7">
-									Trigger: Stage &rarr;{" "}
-									<span className="font-medium">
-										{wf.triggerStageName ?? "Unknown"}
-									</span>{" "}
-									({wf.triggerStageCode})
-								</p>
-							</CardHeader>
-							<CardContent>
-								{wf.taskTemplates.length === 0 ? (
-									<p className="text-sm text-muted-foreground">
-										No tasks configured.
-									</p>
-								) : (
-									<div className="rounded-md border">
-										<table className="w-full text-sm">
-											<thead>
-												<tr className="border-b bg-accent">
-													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-														#
-													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-														Task
-													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-														Assign To
-													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-														Due
-													</th>
-													<th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-														Priority
-													</th>
-												</tr>
-											</thead>
-											<tbody>
-												{wf.taskTemplates.map((tt, i) => (
-													<tr
-														key={tt.id}
-														className="border-b last:border-0"
-													>
-														<td className="px-3 py-2 text-muted-foreground">
-															{i + 1}
-														</td>
-														<td className="px-3 py-2 font-medium text-foreground">
-															{tt.title}
-														</td>
-														<td className="px-3 py-2 text-muted-foreground">
-															{tt.assignToTeam
-																? TEAM_LABELS[tt.assignToTeam] ??
-																	tt.assignToTeam
-																: tt.assignToRole ?? "—"}
-														</td>
-														<td className="px-3 py-2 text-muted-foreground">
-															+{tt.dueDaysOffset}{" "}
-															{tt.dueBusinessDaysOnly
-																? "bus"
-																: "cal"}{" "}
-															days
-														</td>
-														<td className="px-3 py-2">
-															<Badge
-																variant={
-																	tt.priority === "urgent" ||
-																	tt.priority === "high"
-																		? "destructive"
-																		: "outline"
-																}
-																className="text-xs"
-															>
-																{tt.priority}
-															</Badge>
-														</td>
-													</tr>
-												))}
-											</tbody>
-										</table>
-									</div>
-								)}
-
-								<div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-									{wf.notifyAssignees && (
-										<span>Notify assignees</span>
-									)}
-									{wf.notifyCaseManager && (
-										<span>Notify case manager</span>
-									)}
-									{wf.sendClientMessage && (
-										<span>Send client message</span>
-									)}
-								</div>
-							</CardContent>
-						</Card>
+						<WorkflowCard
+							key={wf.id}
+							workflow={{
+								id: wf.id,
+								name: wf.name,
+								description: wf.description,
+								triggerStageId: wf.triggerStageId,
+								isActive: wf.isActive,
+								notifyAssignees: wf.notifyAssignees,
+								notifyCaseManager: wf.notifyCaseManager,
+								sendClientMessage: wf.sendClientMessage,
+								triggerStageName: wf.triggerStageName,
+								triggerStageCode: wf.triggerStageCode,
+								taskTemplates: wf.taskTemplates.map((tt) => ({
+									id: tt.id,
+									title: tt.title,
+									assignToTeam: tt.assignToTeam,
+									assignToRole: tt.assignToRole,
+									dueDaysOffset: tt.dueDaysOffset,
+									dueBusinessDaysOnly: tt.dueBusinessDaysOnly,
+									priority: tt.priority,
+								})),
+							}}
+							stages={stagesForDialog}
+						/>
 					))}
 				</div>
 			)}

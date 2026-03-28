@@ -24,6 +24,7 @@ export default async function CaseFieldsPage({
 		definition: {
 			id: fv.definition.id,
 			name: fv.definition.name,
+			slug: fv.definition.slug,
 			fieldType: fv.definition.fieldType,
 			section: fv.definition.section,
 			helpText: fv.definition.helpText,
@@ -31,6 +32,7 @@ export default async function CaseFieldsPage({
 			isRequired: fv.definition.isRequired,
 			placeholder: fv.definition.placeholder,
 			options: fv.definition.options,
+			formula: fv.definition.formula,
 		},
 		value: fv.value
 			? {

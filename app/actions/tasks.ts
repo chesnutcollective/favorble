@@ -7,6 +7,7 @@ import {
 	caseStages,
 	caseStageGroups,
 	users,
+	workflowTemplates,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -22,6 +23,7 @@ import {
 	ne,
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { logger } from "@/lib/logger/server";
 
 export type TaskFilters = {
 	status?: string;
@@ -189,6 +191,9 @@ export async function getQueueCounts() {
 
 /**
  * Complete a task.
+ * After completion, unblocks dependent tasks and checks if all workflow tasks
+ * for the case's current stage are now complete. If so, auto-advances the case
+ * to the next stage (by display order).
  */
 export async function completeTask(taskId: string) {
 	const session = await requireSession();
@@ -217,7 +222,131 @@ export async function completeTask(taskId: string) {
 			.where(eq(tasks.id, dep.id));
 	}
 
+	// Auto-advance: check if all workflow tasks for this case's current stage are done
+	await checkAndAutoAdvance(taskId, session.id, session.organizationId);
+
 	revalidatePath("/queue");
+}
+
+/**
+ * Check if all workflow-generated tasks for a case's current stage are complete,
+ * and if so auto-advance to the next stage.
+ */
+async function checkAndAutoAdvance(
+	completedTaskId: string,
+	userId: string,
+	organizationId: string,
+) {
+	// Get the completed task to find which case and workflow it belongs to
+	const [completedTask] = await db
+		.select({
+			caseId: tasks.caseId,
+			workflowTemplateId: tasks.workflowTemplateId,
+		})
+		.from(tasks)
+		.where(eq(tasks.id, completedTaskId));
+
+	if (!completedTask?.workflowTemplateId) return; // Not a workflow task
+
+	// Get the workflow's trigger stage
+	const [workflow] = await db
+		.select({ triggerStageId: workflowTemplates.triggerStageId })
+		.from(workflowTemplates)
+		.where(eq(workflowTemplates.id, completedTask.workflowTemplateId));
+
+	if (!workflow?.triggerStageId) return;
+
+	// Verify the case is still on the workflow's trigger stage
+	const [caseRow] = await db
+		.select({ currentStageId: cases.currentStageId })
+		.from(cases)
+		.where(eq(cases.id, completedTask.caseId));
+
+	if (!caseRow || caseRow.currentStageId !== workflow.triggerStageId) return;
+
+	// Check if ALL workflow tasks for this case + workflow are complete
+	const [pendingCount] = await db
+		.select({ count: count() })
+		.from(tasks)
+		.where(
+			and(
+				eq(tasks.caseId, completedTask.caseId),
+				eq(tasks.workflowTemplateId, completedTask.workflowTemplateId),
+				ne(tasks.status, "completed"),
+				ne(tasks.status, "skipped"),
+				isNull(tasks.deletedAt),
+			),
+		);
+
+	if ((pendingCount?.count ?? 0) > 0) return; // Still tasks remaining
+
+	// All tasks complete -- determine next stage by display order
+	const [currentStage] = await db
+		.select({
+			displayOrder: caseStages.displayOrder,
+			stageGroupId: caseStages.stageGroupId,
+			allowedNextStageIds: caseStages.allowedNextStageIds,
+			organizationId: caseStages.organizationId,
+		})
+		.from(caseStages)
+		.where(eq(caseStages.id, caseRow.currentStageId));
+
+	if (!currentStage) return;
+
+	// If the stage has explicit allowed next stages, pick the first one
+	// Otherwise, pick the next stage by display order
+	let nextStageId: string | null = null;
+
+	if (
+		currentStage.allowedNextStageIds &&
+		currentStage.allowedNextStageIds.length > 0
+	) {
+		nextStageId = currentStage.allowedNextStageIds[0];
+	} else {
+		// Get the next stage by display order across all groups
+		const allStages = await db
+			.select({
+				id: caseStages.id,
+				displayOrder: caseStages.displayOrder,
+				groupDisplayOrder: caseStageGroups.displayOrder,
+			})
+			.from(caseStages)
+			.innerJoin(
+				caseStageGroups,
+				eq(caseStages.stageGroupId, caseStageGroups.id),
+			)
+			.where(
+				and(
+					eq(caseStages.organizationId, currentStage.organizationId),
+					isNull(caseStages.deletedAt),
+				),
+			)
+			.orderBy(asc(caseStageGroups.displayOrder), asc(caseStages.displayOrder));
+
+		const currentIdx = allStages.findIndex(
+			(s) => s.id === caseRow.currentStageId,
+		);
+		if (currentIdx >= 0 && currentIdx < allStages.length - 1) {
+			nextStageId = allStages[currentIdx + 1].id;
+		}
+	}
+
+	if (!nextStageId) return; // No next stage (terminal)
+
+	// Auto-advance the case
+	const { changeCaseStage } = await import("@/app/actions/cases");
+	await changeCaseStage({
+		caseId: completedTask.caseId,
+		newStageId: nextStageId,
+		notes: "Auto-advanced: all workflow tasks completed",
+	});
+
+	logger.info("Auto-advanced case stage", {
+		caseId: completedTask.caseId,
+		fromStageId: caseRow.currentStageId,
+		toStageId: nextStageId,
+		workflowTemplateId: completedTask.workflowTemplateId,
+	});
 }
 
 /**
@@ -344,4 +473,139 @@ export async function getOverdueTaskCount() {
 			),
 		);
 	return result?.count ?? 0;
+}
+
+/**
+ * Get team queue: all tasks for users on the same team as the current user.
+ * Only accessible by managers (case_manager) and admins.
+ */
+export async function getTeamQueue() {
+	const session = await requireSession();
+
+	// Only managers and admins can view team queue
+	if (session.role !== "admin" && session.role !== "case_manager") {
+		throw new Error("Unauthorized: only managers and admins can view team queue");
+	}
+
+	const result = await db
+		.select({
+			id: tasks.id,
+			title: tasks.title,
+			description: tasks.description,
+			status: tasks.status,
+			priority: tasks.priority,
+			dueDate: tasks.dueDate,
+			isAutoGenerated: tasks.isAutoGenerated,
+			caseId: tasks.caseId,
+			caseNumber: cases.caseNumber,
+			stageName: caseStages.name,
+			stageCode: caseStages.code,
+			stageGroupColor: caseStageGroups.color,
+			createdAt: tasks.createdAt,
+			assignedToId: tasks.assignedToId,
+			assigneeName: sql<string>`concat(${users.firstName}, ' ', ${users.lastName})`,
+		})
+		.from(tasks)
+		.innerJoin(cases, eq(tasks.caseId, cases.id))
+		.leftJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+		.leftJoin(
+			caseStageGroups,
+			eq(caseStages.stageGroupId, caseStageGroups.id),
+		)
+		.leftJoin(users, eq(tasks.assignedToId, users.id))
+		.where(
+			and(
+				isNull(tasks.deletedAt),
+				ne(tasks.status, "completed"),
+				ne(tasks.status, "skipped"),
+				session.team
+					? eq(users.team, session.team as "intake" | "filing" | "medical_records" | "mail_sorting" | "case_management" | "hearings" | "administration")
+					: eq(tasks.organizationId, session.organizationId),
+			),
+		)
+		.orderBy(asc(tasks.dueDate), desc(tasks.priority));
+
+	return result;
+}
+
+/**
+ * Reassign a task to a different user.
+ */
+export async function reassignTask(taskId: string, assignToUserId: string) {
+	await requireSession();
+	await db
+		.update(tasks)
+		.set({
+			assignedToId: assignToUserId,
+			updatedAt: new Date(),
+		})
+		.where(eq(tasks.id, taskId));
+
+	revalidatePath("/queue");
+}
+
+/**
+ * Snooze a task by updating its due date.
+ */
+export async function snoozeTask(taskId: string, newDueDate: string) {
+	await requireSession();
+	await db
+		.update(tasks)
+		.set({
+			dueDate: new Date(newDueDate),
+			updatedAt: new Date(),
+		})
+		.where(eq(tasks.id, taskId));
+
+	revalidatePath("/queue");
+}
+
+/**
+ * Get organization users for reassignment picker.
+ */
+export async function getOrgUsers() {
+	const session = await requireSession();
+	const result = await db
+		.select({
+			id: users.id,
+			firstName: users.firstName,
+			lastName: users.lastName,
+			email: users.email,
+			role: users.role,
+			team: users.team,
+		})
+		.from(users)
+		.where(
+			and(
+				eq(users.organizationId, session.organizationId),
+				eq(users.isActive, true),
+				isNull(users.deletedAt),
+			),
+		)
+		.orderBy(asc(users.firstName), asc(users.lastName));
+
+	return result;
+}
+
+/**
+ * Get distinct case stages for filtering.
+ */
+export async function getCaseStagesForFilter() {
+	const session = await requireSession();
+	const result = await db
+		.select({
+			id: caseStages.id,
+			name: caseStages.name,
+			code: caseStages.code,
+		})
+		.from(caseStages)
+		.where(
+			and(
+				eq(caseStages.organizationId, session.organizationId),
+				isNull(caseStages.deletedAt),
+			),
+		)
+		.orderBy(asc(caseStages.displayOrder));
+
+	return result;
 }

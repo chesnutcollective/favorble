@@ -4,12 +4,14 @@ import {
   getCasesByStageReport,
   getTaskCompletionStats,
   getCaseStatusSummary,
+  getCasesByTeamMember,
   filterReportsByDateRange,
 } from "@/app/actions/reports";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReportsChartsClient } from "@/components/charts/reports-charts-client";
+import { ReportNavigationTiles } from "@/components/charts/report-navigation-tiles";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -25,19 +27,26 @@ export default async function ReportsPage() {
     overdue: 0,
   };
   let statusSummary: Awaited<ReturnType<typeof getCaseStatusSummary>> = {};
+  let teamMemberCount = 0;
 
   try {
-    [stageReport, taskStats, statusSummary] = await Promise.all([
+    const [sr, ts, ss, tm] = await Promise.all([
       getCasesByStageReport(),
       getTaskCompletionStats(),
       getCaseStatusSummary(),
+      getCasesByTeamMember(),
     ]);
+    stageReport = sr;
+    taskStats = ts;
+    statusSummary = ss;
+    teamMemberCount = tm.length;
   } catch {
     // DB unavailable
   }
 
   const activeCases = statusSummary["active"] ?? 0;
   const closedWon = statusSummary["closed_won"] ?? 0;
+  const totalCases = Object.values(statusSummary).reduce((a, b) => a + b, 0);
   const completionRate =
     taskStats.total > 0
       ? Math.round((taskStats.completed / taskStats.total) * 100)
@@ -60,7 +69,8 @@ export default async function ReportsPage() {
       />
 
       {/* Summary stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatsCard title="Total Cases" value={totalCases} />
         <StatsCard title="Active Cases" value={activeCases} />
         <StatsCard title="Cases Won" value={closedWon} />
         <StatsCard
@@ -69,11 +79,14 @@ export default async function ReportsPage() {
           subtitle={`${taskStats.completed} of ${taskStats.total} tasks`}
         />
         <StatsCard
-          title="Overdue Tasks"
-          value={taskStats.overdue}
-          subtitle={taskStats.overdue > 0 ? "Need attention" : "All caught up"}
+          title="Team Members"
+          value={teamMemberCount}
+          subtitle="With assigned cases"
         />
       </div>
+
+      {/* Report navigation tiles */}
+      <ReportNavigationTiles />
 
       {/* Charts with date range filter and CSV export */}
       <ReportsChartsClient

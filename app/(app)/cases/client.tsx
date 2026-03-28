@@ -55,6 +55,7 @@ type CaseRow = {
 	stageCode: string | null;
 	stageGroupId: string | null;
 	stageGroupName: string | null;
+	stageColor: string | null;
 	stageGroupColor: string | null;
 	ssaOffice: string | null;
 	createdAt: string;
@@ -616,10 +617,10 @@ export function CasesListClient({
 												variant="outline"
 												style={{
 													borderColor:
-														c.stageGroupColor ??
+														c.stageColor ?? c.stageGroupColor ??
 														undefined,
 													color:
-														c.stageGroupColor ??
+														c.stageColor ?? c.stageGroupColor ??
 														undefined,
 												}}
 											>

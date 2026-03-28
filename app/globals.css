@@ -212,3 +212,50 @@
 		color: var(--text-3);
 	}
 }
+
+/* ── Print styles for PDF export ── */
+@media print {
+	/* Hide navigation, sidebar, and filter controls */
+	nav,
+	aside,
+	header,
+	.print\:hidden,
+	[data-sidebar],
+	[data-slot="sidebar"] {
+		display: none !important;
+	}
+
+	body {
+		background: white !important;
+		color: black !important;
+		font-size: 12px;
+	}
+
+	/* Remove shadows and borders for clean print */
+	.shadow-sm,
+	.shadow-md,
+	.shadow-lg {
+		box-shadow: none !important;
+	}
+
+	/* Ensure charts render with visible colors */
+	svg {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	/* Keep cards together on print pages */
+	[data-slot="card"],
+	.rounded-md,
+	.rounded-lg {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+
+	/* Full-width content */
+	main {
+		max-width: 100% !important;
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+}

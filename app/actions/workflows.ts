@@ -203,3 +203,22 @@ export async function toggleWorkflowActive(id: string) {
 		.where(eq(workflowTemplates.id, id));
 	revalidatePath("/admin/workflows");
 }
+
+/**
+ * Delete a workflow template and its task templates.
+ */
+export async function deleteWorkflowTemplate(id: string) {
+	await requireSession();
+
+	// Delete task templates first
+	await db
+		.delete(workflowTaskTemplates)
+		.where(eq(workflowTaskTemplates.workflowTemplateId, id));
+
+	// Delete the workflow template
+	await db
+		.delete(workflowTemplates)
+		.where(eq(workflowTemplates.id, id));
+
+	revalidatePath("/admin/workflows");
+}

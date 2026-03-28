@@ -85,6 +85,7 @@ export async function getCases(
 				stageCode: caseStages.code,
 				stageGroupId: caseStages.stageGroupId,
 				stageGroupName: caseStageGroups.name,
+				stageColor: caseStages.color,
 				stageGroupColor: caseStageGroups.color,
 				ssaOffice: cases.ssaOffice,
 				createdAt: cases.createdAt,
@@ -203,6 +204,7 @@ export async function getCaseById(id: string) {
 			stageCode: caseStages.code,
 			stageGroupId: caseStages.stageGroupId,
 			stageGroupName: caseStageGroups.name,
+			stageColor: caseStages.color,
 			stageGroupColor: caseStageGroups.color,
 			ssnEncrypted: cases.ssnEncrypted,
 			dateOfBirth: cases.dateOfBirth,
@@ -656,6 +658,7 @@ export async function getAllowedNextStages(caseId: string) {
 			id: caseStages.id,
 			name: caseStages.name,
 			code: caseStages.code,
+			color: caseStages.color,
 			stageGroupId: caseStages.stageGroupId,
 			stageGroupName: caseStageGroups.name,
 			stageGroupColor: caseStageGroups.color,
@@ -691,4 +694,34 @@ export async function previewStageChange(newStageId: string) {
 	await requireSession();
 	const { previewStageWorkflows } = await import("@/lib/workflow-engine");
 	return previewStageWorkflows(newStageId);
+}
+
+/**
+ * Reveal the full SSN for a case (decrypted). Requires authentication.
+ */
+export async function revealCaseSSN(caseId: string): Promise<string | null> {
+	const session = await requireSession();
+
+	const [caseRow] = await db
+		.select({ ssnEncrypted: cases.ssnEncrypted })
+		.from(cases)
+		.where(
+			and(
+				eq(cases.id, caseId),
+				eq(cases.organizationId, session.organizationId),
+				isNull(cases.deletedAt),
+			),
+		)
+		.limit(1);
+
+	if (!caseRow?.ssnEncrypted) return null;
+
+	try {
+		const { decrypt, formatSSN } = await import("@/lib/encryption");
+		const raw = decrypt(caseRow.ssnEncrypted);
+		return formatSSN(raw);
+	} catch (err) {
+		logger.error("Failed to decrypt SSN", { caseId, error: err });
+		return null;
+	}
 }

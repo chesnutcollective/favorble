@@ -49,6 +49,7 @@ export const caseStages = pgTable(
 		name: text("name").notNull(),
 		code: text("code").notNull(),
 		description: text("description"),
+		color: text("color"),
 		displayOrder: integer("display_order").notNull().default(0),
 		owningTeam: teamEnum("owning_team"),
 		isInitial: boolean("is_initial").notNull().default(false),

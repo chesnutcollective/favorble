@@ -57,3 +57,46 @@ export async function createDocumentTemplate(data: {
 	revalidatePath("/admin/templates");
 	return template;
 }
+
+/**
+ * Update an existing document template.
+ */
+export async function updateDocumentTemplate(
+	id: string,
+	data: {
+		name?: string;
+		description?: string;
+		category?: string;
+		requiresSignature?: boolean;
+	},
+) {
+	await requireSession();
+
+	const updateData: Record<string, unknown> = { updatedAt: new Date() };
+	if (data.name !== undefined) updateData.name = data.name;
+	if (data.description !== undefined) updateData.description = data.description;
+	if (data.category !== undefined) updateData.category = data.category;
+	if (data.requiresSignature !== undefined) updateData.requiresSignature = data.requiresSignature;
+
+	await db
+		.update(documentTemplates)
+		.set(updateData)
+		.where(eq(documentTemplates.id, id));
+
+	revalidatePath("/admin/templates");
+}
+
+/**
+ * Soft-delete a document template by marking it inactive.
+ */
+export async function deleteDocumentTemplate(id: string) {
+	await requireSession();
+
+	await db
+		.update(documentTemplates)
+		.set({ isActive: false, updatedAt: new Date() })
+		.where(eq(documentTemplates.id, id));
+
+	logger.info("Document template deleted", { templateId: id });
+	revalidatePath("/admin/templates");
+}

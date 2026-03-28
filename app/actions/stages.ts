@@ -103,6 +103,7 @@ export async function createStage(data: {
 	code: string;
 	description?: string;
 	owningTeam?: string;
+	color?: string;
 }) {
 	const session = await requireSession();
 
@@ -119,6 +120,7 @@ export async function createStage(data: {
 			name: data.name,
 			code: data.code,
 			description: data.description,
+			color: data.color ?? null,
 			owningTeam: data.owningTeam as
 				| "intake"
 				| "filing"
@@ -145,6 +147,7 @@ export async function updateStage(
 		name?: string;
 		description?: string;
 		owningTeam?: string;
+		color?: string | null;
 	},
 ) {
 	const updateData: Record<string, unknown> = {
@@ -152,6 +155,7 @@ export async function updateStage(
 	};
 	if (data.name) updateData.name = data.name;
 	if (data.description !== undefined) updateData.description = data.description;
+	if (data.color !== undefined) updateData.color = data.color;
 	if (data.owningTeam !== undefined)
 		updateData.owningTeam = data.owningTeam as
 			| "intake"
@@ -165,6 +169,25 @@ export async function updateStage(
 
 	await db.update(caseStages).set(updateData).where(eq(caseStages.id, id));
 	revalidatePath("/admin/stages");
+}
+
+/**
+ * Reorder stages within a group by updating displayOrder.
+ */
+export async function reorderStages(
+	orderedStageIds: string[],
+) {
+	await requireSession();
+
+	for (let i = 0; i < orderedStageIds.length; i++) {
+		await db
+			.update(caseStages)
+			.set({ displayOrder: i, updatedAt: new Date() })
+			.where(eq(caseStages.id, orderedStageIds[i]));
+	}
+
+	revalidatePath("/admin/stages");
+	revalidatePath("/cases");
 }
 
 /**

@@ -3,12 +3,12 @@ import { getStageGroupsWithStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
 	AddStageGroupDialog,
 	AddStageDialog,
 	DeleteStageButton,
 } from "./stage-dialogs";
+import { DraggableStageList } from "./draggable-stages";
 
 export const metadata: Metadata = {
 	title: "Case Stages",
@@ -95,62 +95,20 @@ export default async function StagesPage() {
 										No stages in this group.
 									</p>
 								) : (
-									<div className="space-y-2">
-										{group.stages.map((stage) => (
-											<div
-												key={stage.id}
-												className="flex items-center justify-between rounded-md border p-3"
-											>
-												<div className="flex items-center gap-3">
-													<code className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-														{stage.code}
-													</code>
-													<span className="text-sm font-medium text-foreground">
-														{stage.name}
-													</span>
-													{stage.isInitial && (
-														<Badge
-															variant="outline"
-															className="text-xs text-green-600 border-green-300"
-														>
-															Initial
-														</Badge>
-													)}
-													{stage.isTerminal && (
-														<Badge
-															variant="outline"
-															className="text-xs text-muted-foreground"
-														>
-															Terminal
-														</Badge>
-													)}
-												</div>
-												<div className="flex items-center gap-2">
-													{stage.owningTeam && (
-														<Badge variant="secondary" className="text-xs">
-															{TEAM_LABELS[stage.owningTeam] ??
-																stage.owningTeam}
-														</Badge>
-													)}
-													<Button
-														variant="ghost"
-														size="sm"
-														className="h-7 text-xs"
-													>
-														Edit
-													</Button>
-													<DeleteStageButton
-														stage={{
-															id: stage.id,
-															name: stage.name,
-															code: stage.code,
-														}}
-														allStages={allStages}
-													/>
-												</div>
-											</div>
-										))}
-									</div>
+									<DraggableStageList
+										stages={group.stages.map((stage) => ({
+											id: stage.id,
+											name: stage.name,
+											code: stage.code,
+											color: stage.color,
+											isInitial: stage.isInitial,
+											isTerminal: stage.isTerminal,
+											owningTeam: stage.owningTeam,
+										}))}
+										groupColor={group.color}
+										allStages={allStages}
+										teamLabels={TEAM_LABELS}
+									/>
 								)}
 								<AddStageDialog
 									stageGroups={stageGroupOptions}
