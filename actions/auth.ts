@@ -10,17 +10,23 @@ export async function login(formData: FormData) {
 	const email = formData.get("email") as string;
 	const password = formData.get("password") as string;
 
-	const { data, error } = await supabase.auth.signInWithPassword({
-		email,
-		password,
-	});
+	try {
+		const { data, error } = await supabase.auth.signInWithPassword({
+			email,
+			password,
+		});
 
-	if (error) {
-		return { error: error.message };
-	}
+		if (error) {
+			return { error: error.message };
+		}
 
-	if (!data.session) {
-		return { error: "No session returned" };
+		if (!data.session) {
+			return { error: "No session returned" };
+		}
+	} catch (e) {
+		// Re-throw NEXT_REDIRECT errors (from redirect())
+		if (e instanceof Error && e.message === "NEXT_REDIRECT") throw e;
+		return { error: `Login failed: ${e instanceof Error ? e.message : "Unknown error"}` };
 	}
 
 	revalidatePath("/", "layout");
