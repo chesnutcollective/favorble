@@ -501,8 +501,8 @@ async function main() {
   }
   const createdContacts: ContactRecord[] = [];
 
-  // Claimant contacts (linked to first 15 cases)
-  for (let i = 0; i < 15; i++) {
+  // Claimant contacts (linked to all cases)
+  for (let i = 0; i < createdCases.length; i++) {
     const c = createdCases[i];
     const [contact] = await db
       .insert(schema.contacts)

@@ -115,6 +115,7 @@ export async function getCases(
 						caseId: caseContacts.caseId,
 						firstName: contacts.firstName,
 						lastName: contacts.lastName,
+						relationship: caseContacts.relationship,
 					})
 					.from(caseContacts)
 					.innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
@@ -122,7 +123,6 @@ export async function getCases(
 						and(
 							inArray(caseContacts.caseId, caseIds),
 							eq(caseContacts.isPrimary, true),
-							eq(caseContacts.relationship, "claimant"),
 						),
 					)
 			: [];
@@ -149,12 +149,20 @@ export async function getCases(
 					)
 			: [];
 
-	const contactMap = new Map(
-		primaryContacts.map((c) => [
-			c.caseId,
-			{ firstName: c.firstName, lastName: c.lastName },
-		]),
-	);
+	// Prefer claimant contacts; fall back to any primary contact
+	const contactMap = new Map<
+		string,
+		{ firstName: string; lastName: string }
+	>();
+	for (const c of primaryContacts) {
+		const existing = contactMap.get(c.caseId);
+		if (!existing || c.relationship === "claimant") {
+			contactMap.set(c.caseId, {
+				firstName: c.firstName,
+				lastName: c.lastName,
+			});
+		}
+	}
 	const assignmentMap = new Map<
 		string,
 		{ userId: string; firstName: string; lastName: string; role: string }[]
