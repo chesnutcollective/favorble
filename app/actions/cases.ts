@@ -13,7 +13,7 @@ import {
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { executeStageWorkflows } from "@/lib/workflow-engine";
-import { eq, and, isNull, desc, asc, ilike, or, sql, count } from "drizzle-orm";
+import { eq, and, isNull, desc, asc, ilike, or, sql, count, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 
@@ -120,7 +120,7 @@ export async function getCases(
 					.innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
 					.where(
 						and(
-							sql`${caseContacts.caseId} = ANY(${caseIds})`,
+							inArray(caseContacts.caseId, caseIds),
 							eq(caseContacts.isPrimary, true),
 							eq(caseContacts.relationship, "claimant"),
 						),
@@ -142,7 +142,7 @@ export async function getCases(
 					.innerJoin(users, eq(caseAssignments.userId, users.id))
 					.where(
 						and(
-							sql`${caseAssignments.caseId} = ANY(${caseIds})`,
+							inArray(caseAssignments.caseId, caseIds),
 							eq(caseAssignments.isPrimary, true),
 							isNull(caseAssignments.unassignedAt),
 						),
