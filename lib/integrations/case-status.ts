@@ -9,11 +9,11 @@ import { logger } from "@/lib/logger/server";
  * The firm has an explicit contract commitment to keep using it.
  *
  * Current capabilities:
- * - Inbound messages sync into CaseFlow (via webhook)
+ * - Inbound messages sync into Favorble (via webhook)
  * - Client document uploads sync (via webhook)
  * - Outbound messaging requires Case Status API (to be investigated)
  *
- * The Pizza Tracker maps to CaseFlow's stage groups:
+ * The Pizza Tracker maps to Favorble's stage groups:
  * - Stage groups have `clientVisibleName` and `clientVisibleDescription`
  * - When a case changes stage groups, Case Status should be notified
  */

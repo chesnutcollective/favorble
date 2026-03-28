@@ -95,8 +95,8 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 									className="size-8 rounded-md object-cover"
 								/>
 								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-semibold">Hogan Smith</span>
-									<span className="text-xs opacity-60">CaseFlow</span>
+									<span className="font-semibold">Favorble</span>
+									<span className="text-[10px] opacity-50">by Hogan Smith</span>
 								</div>
 							</Link>
 						</SidebarMenuButton>

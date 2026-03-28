@@ -3,12 +3,12 @@ import "server-only";
 /**
  * Zapier integration utilities.
  *
- * Zapier handles website form → CaseFlow lead creation.
+ * Zapier handles website form → Favorble lead creation.
  * The main integration is the webhook receiver at /api/webhooks/zapier.
  *
  * This module provides utilities for:
  * - Validating incoming Zapier webhook payloads
- * - Mapping Zapier field names to CaseFlow lead fields
+ * - Mapping Zapier field names to Favorble lead fields
  */
 
 export type ZapierLeadPayload = {

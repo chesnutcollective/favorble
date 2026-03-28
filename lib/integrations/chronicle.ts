@@ -14,7 +14,7 @@ import { logger } from "@/lib/logger/server";
  * Currently, Chronicle has NO API integration with case management.
  * Integration is limited to:
  * 1. Deep linking (clicking a URL to open Chronicle for a claimant)
- * 2. A future browser extension for "Save to CaseFlow"
+ * 2. A future browser extension for "Save to Favorble"
  * 3. Potential future API if Chronicle vendor provides one
  */
 

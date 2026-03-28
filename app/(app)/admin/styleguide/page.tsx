@@ -10,7 +10,7 @@ export default function StyleguidePage() {
       <iframe
         src="/api/styleguide"
         className="w-full h-full border-0"
-        title="CaseFlow Design System"
+        title="Favorble Design System"
       />
     </div>
   );

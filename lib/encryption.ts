@@ -12,7 +12,7 @@ function getEncryptionKey(): Buffer {
     throw new Error("ENCRYPTION_KEY environment variable is not set");
   }
   // Derive a 256-bit key from the provided key using scrypt
-  return scryptSync(key, "caseflow-ssn-salt", 32);
+  return scryptSync(key, "favorble-ssn-salt", 32);
 }
 
 /**

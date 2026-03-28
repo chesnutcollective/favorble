@@ -1,8 +1,8 @@
-# Hogan Smith CaseFlow -- Design Principles
+# Favorble — by Hogan Smith -- Design Principles
 
 ## 1. Emotional Tone & Personality
 
-CaseFlow should feel like walking into a well-appointed law office: **warm, confident, organized, and human**. Not a sterile SaaS dashboard. Not a cluttered legacy system.
+Favorble should feel like walking into a well-appointed law office: **warm, confident, organized, and human**. Not a sterile SaaS dashboard. Not a cluttered legacy system.
 
 ### The Three Words
 
@@ -49,7 +49,7 @@ CaseFlow should feel like walking into a well-appointed law office: **warm, conf
 
 ## 3. Density Handling
 
-CaseFlow has two density contexts. Both use the same token system but apply different spacing.
+Favorble has two density contexts. Both use the same token system but apply different spacing.
 
 ### Comfortable (default)
 

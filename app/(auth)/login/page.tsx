@@ -48,7 +48,7 @@ export default function LoginPage() {
 						/>
 						<h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
 						<p className="mt-1 text-sm text-muted-foreground">
-							Enter your credentials to access CaseFlow
+							Enter your credentials to access Favorble
 						</p>
 					</div>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
 					</form>
 
 					<p className="text-center text-xs text-muted-foreground">
-						Hogan Smith Law &middot; CaseFlow
+						Favorble &middot; by Hogan Smith
 					</p>
 				</div>
 			</div>

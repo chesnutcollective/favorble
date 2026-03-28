@@ -546,7 +546,7 @@ Major changes to sidebar internals:
 ```html
 <div class="brand">
   <div class="brand-wordmark"><span class="brand-abbr">HS</span> Hogan Smith</div>
-  <div class="brand-product">CaseFlow</div>
+  <div class="brand-product">Favorble</div>
 </div>
 ```
 No rounded-square icon container. Product name in uppercase with wide tracking.

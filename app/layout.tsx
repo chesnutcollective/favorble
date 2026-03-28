@@ -7,14 +7,14 @@ export const metadata: Metadata = {
 		process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
 	),
 	title: {
-		default: "Hogan Smith Law — CaseFlow",
-		template: "%s | Hogan Smith Law",
+		default: "Favorble — by Hogan Smith",
+		template: "%s | Favorble",
 	},
-	description: "Social Security Disability Case Management System",
+	description: "Social Security Disability Legal Practice Platform",
 	openGraph: {
-		title: "Hogan Smith Law — CaseFlow",
-		description: "Social Security Disability Case Management System",
-		siteName: "Hogan Smith Law",
+		title: "Favorble — by Hogan Smith",
+		description: "Social Security Disability Legal Practice Platform",
+		siteName: "Favorble",
 	},
 	robots: {
 		index: false,
