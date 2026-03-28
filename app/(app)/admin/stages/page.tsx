@@ -30,26 +30,45 @@ export default async function StagesPage() {
 	try {
 		stageGroups = await getStageGroupsWithStages();
 	} catch (e) {
-		console.error("Failed to load stages:", e);
+		console.error("Failed to load stages via action:", e);
 	}
 
-	// If query returned empty but we know data exists, the session org might not match
+	// Fallback: direct query if action returned empty (connection pool issue)
 	if (stageGroups.length === 0) {
 		try {
-			// Direct fallback query bypassing session
-			const { db } = await import("@/db/drizzle");
-			const { caseStageGroups, caseStages } = await import("@/db/schema");
-			const { asc, isNull } = await import("drizzle-orm");
-
-			const allGroups = await db.select().from(caseStageGroups).orderBy(asc(caseStageGroups.displayOrder));
-			const allStages = await db.select().from(caseStages).where(isNull(caseStages.deletedAt)).orderBy(asc(caseStages.displayOrder));
-
-			stageGroups = allGroups.map(group => ({
-				...group,
-				stages: allStages.filter(s => s.stageGroupId === group.id),
-			}));
-		} catch {
-			// truly empty
+			const pg = (await import("postgres")).default;
+			const connStr = (process.env.DATABASE_URL || process.env.POSTGRES_URL || "").replace(/\\n$/, "").replace(/\n$/, "").trim();
+			if (connStr) {
+				const sql = pg(connStr, { prepare: false, max: 1, idle_timeout: 5 });
+				const groups = await sql`SELECT * FROM case_stage_groups ORDER BY display_order ASC`;
+				const stages = await sql`SELECT * FROM case_stages WHERE deleted_at IS NULL ORDER BY display_order ASC`;
+				await sql.end();
+				stageGroups = (groups as Record<string, unknown>[]).map((g) => ({
+					...g,
+					id: g.id as string,
+					name: g.name as string,
+					color: g.color as string | null,
+					displayOrder: g.display_order as number,
+					clientVisibleName: g.client_visible_name as string | null,
+					organizationId: g.organization_id as string,
+					stages: stages
+						.filter((s: Record<string, unknown>) => s.stage_group_id === g.id)
+						.map((s: Record<string, unknown>) => ({
+							id: s.id as string,
+							name: s.name as string,
+							code: s.code as string,
+							owningTeam: s.owning_team as string | null,
+							isInitial: s.is_initial as boolean,
+							isTerminal: s.is_terminal as boolean,
+							stageGroupId: s.stage_group_id as string,
+							displayOrder: s.display_order as number,
+							color: s.color as string | null,
+						})),
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				})) as any;
+			}
+		} catch (e2) {
+			console.error("Fallback stages query also failed:", e2);
 		}
 	}
 
