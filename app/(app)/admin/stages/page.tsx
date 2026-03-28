@@ -22,7 +22,13 @@ const TEAM_LABELS: Record<string, string> = {
 };
 
 export default async function StagesPage() {
-	const stageGroups = await getStageGroupsWithStages();
+	let stageGroups: Awaited<ReturnType<typeof getStageGroupsWithStages>> = [];
+
+	try {
+		stageGroups = await getStageGroupsWithStages();
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<div className="space-y-6">

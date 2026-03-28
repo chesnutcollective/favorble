@@ -8,7 +8,14 @@ export default async function CaseActivityPage({
 	params: Promise<{ id: string }>;
 }) {
 	const { id: caseId } = await params;
-	const activity = await getCaseActivity(caseId);
+
+	let activity: Awaited<ReturnType<typeof getCaseActivity>> = [];
+
+	try {
+		activity = await getCaseActivity(caseId);
+	} catch {
+		// DB unavailable
+	}
 
 	const events: TimelineEvent[] = activity.map((a) => ({
 		id: a.id,

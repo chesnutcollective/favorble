@@ -22,10 +22,8 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
   reminder: "bg-muted text-foreground",
 };
 
-export default async function CalendarPage() {
-  const user = await requireSession();
-
-  const events = await db
+async function fetchCalendarEvents(organizationId: string) {
+  return db
     .select({
       id: calendarEvents.id,
       title: calendarEvents.title,
@@ -43,7 +41,7 @@ export default async function CalendarPage() {
     .leftJoin(cases, eq(calendarEvents.caseId, cases.id))
     .where(
       and(
-        eq(calendarEvents.organizationId, user.organizationId),
+        eq(calendarEvents.organizationId, organizationId),
         gte(
           calendarEvents.startAt,
           new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -52,6 +50,18 @@ export default async function CalendarPage() {
     )
     .orderBy(calendarEvents.startAt)
     .limit(100);
+}
+
+export default async function CalendarPage() {
+  const user = await requireSession();
+
+  let events: Awaited<ReturnType<typeof fetchCalendarEvents>> = [];
+
+  try {
+    events = await fetchCalendarEvents(user.organizationId);
+  } catch {
+    // DB unavailable
+  }
 
   // Group events by date
   const eventsByDate = new Map<string, typeof events>();

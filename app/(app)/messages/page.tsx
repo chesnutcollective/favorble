@@ -16,12 +16,8 @@ export const metadata: Metadata = {
   title: "Messages",
 };
 
-export default async function MessagesPage() {
-  const user = await requireSession();
-  const isConfigured = caseStatusIntegration.isConfigured();
-
-  // Get recent communications
-  const recentMessages = await db
+async function fetchRecentMessages(organizationId: string) {
+  return db
     .select({
       id: communications.id,
       type: communications.type,
@@ -35,9 +31,23 @@ export default async function MessagesPage() {
     })
     .from(communications)
     .leftJoin(cases, eq(communications.caseId, cases.id))
-    .where(eq(communications.organizationId, user.organizationId))
+    .where(eq(communications.organizationId, organizationId))
     .orderBy(desc(communications.createdAt))
     .limit(50);
+}
+
+export default async function MessagesPage() {
+  const user = await requireSession();
+  const isConfigured = caseStatusIntegration.isConfigured();
+
+  // Get recent communications
+  let recentMessages: Awaited<ReturnType<typeof fetchRecentMessages>> = [];
+
+  try {
+    recentMessages = await fetchRecentMessages(user.organizationId);
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <div className="space-y-6">

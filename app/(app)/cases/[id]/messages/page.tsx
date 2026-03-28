@@ -10,6 +10,18 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Message01Icon } from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 
+async function fetchCaseMessages(caseId: string) {
+  return db
+    .select()
+    .from(communications)
+    .where(
+      and(
+        eq(communications.caseId, caseId),
+      ),
+    )
+    .orderBy(desc(communications.createdAt));
+}
+
 export default async function CaseMessagesPage({
   params,
 }: {
@@ -21,15 +33,13 @@ export default async function CaseMessagesPage({
   const isConfigured = caseStatusClient.isConfigured();
 
   // Get case messages
-  const messages = await db
-    .select()
-    .from(communications)
-    .where(
-      and(
-        eq(communications.caseId, caseId),
-      ),
-    )
-    .orderBy(desc(communications.createdAt));
+  let messages: Awaited<ReturnType<typeof fetchCaseMessages>> = [];
+
+  try {
+    messages = await fetchCaseMessages(caseId);
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <div className="space-y-4">

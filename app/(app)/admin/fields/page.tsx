@@ -40,7 +40,13 @@ const FIELD_TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function FieldsPage() {
-	const allFields = await getFieldDefinitions();
+	let allFields: Awaited<ReturnType<typeof getFieldDefinitions>> = [];
+
+	try {
+		allFields = await getFieldDefinitions();
+	} catch {
+		// DB unavailable
+	}
 
 	// Group by team
 	const grouped = new Map<string, typeof allFields>();

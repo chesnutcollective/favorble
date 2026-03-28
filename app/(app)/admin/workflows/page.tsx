@@ -23,7 +23,13 @@ const TEAM_LABELS: Record<string, string> = {
 };
 
 export default async function WorkflowsPage() {
-	const workflows = await getWorkflowTemplates();
+	let workflows: Awaited<ReturnType<typeof getWorkflowTemplates>> = [];
+
+	try {
+		workflows = await getWorkflowTemplates();
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<div className="space-y-6">

@@ -19,10 +19,17 @@ const PIPELINE_STATUSES = [
 ] as const;
 
 export default async function LeadsPage() {
-	const [allLeads, statusCounts] = await Promise.all([
-		getLeads(),
-		getLeadCountsByStatus(),
-	]);
+	let allLeads: Awaited<ReturnType<typeof getLeads>> = [];
+	let statusCounts: Awaited<ReturnType<typeof getLeadCountsByStatus>> = [];
+
+	try {
+		[allLeads, statusCounts] = await Promise.all([
+			getLeads(),
+			getLeadCountsByStatus(),
+		]);
+	} catch {
+		// DB unavailable
+	}
 
 	const countsMap = new Map(statusCounts.map((s) => [s.status, s.count]));
 

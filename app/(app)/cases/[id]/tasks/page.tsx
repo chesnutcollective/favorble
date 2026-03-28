@@ -8,7 +8,14 @@ export default async function CaseTasksPage({
 	params: Promise<{ id: string }>;
 }) {
 	const { id: caseId } = await params;
-	const tasks = await getCaseTasks(caseId);
+
+	let tasks: Awaited<ReturnType<typeof getCaseTasks>> = [];
+
+	try {
+		tasks = await getCaseTasks(caseId);
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<Card>

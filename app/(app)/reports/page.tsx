@@ -17,11 +17,23 @@ export const metadata: Metadata = {
 export default async function ReportsPage() {
   await requireSession();
 
-  const [stageReport, taskStats, statusSummary] = await Promise.all([
-    getCasesByStageReport(),
-    getTaskCompletionStats(),
-    getCaseStatusSummary(),
-  ]);
+  let stageReport: Awaited<ReturnType<typeof getCasesByStageReport>> = [];
+  let taskStats: Awaited<ReturnType<typeof getTaskCompletionStats>> = {
+    total: 0,
+    completed: 0,
+    overdue: 0,
+  };
+  let statusSummary: Awaited<ReturnType<typeof getCaseStatusSummary>> = {};
+
+  try {
+    [stageReport, taskStats, statusSummary] = await Promise.all([
+      getCasesByStageReport(),
+      getTaskCompletionStats(),
+      getCaseStatusSummary(),
+    ]);
+  } catch {
+    // DB unavailable
+  }
 
   const activeCases = statusSummary["active"] ?? 0;
   const closedWon = statusSummary["closed_won"] ?? 0;

@@ -15,12 +15,21 @@ export default async function CaseOverviewPage({
 }) {
 	const { id: caseId } = await params;
 
-	const [caseData, tasks, activity, docs] = await Promise.all([
-		getCaseById(caseId),
-		getCaseTasks(caseId),
-		getCaseActivity(caseId),
-		getCaseDocuments(caseId),
-	]);
+	let caseData: Awaited<ReturnType<typeof getCaseById>> = null;
+	let tasks: Awaited<ReturnType<typeof getCaseTasks>> = [];
+	let activity: Awaited<ReturnType<typeof getCaseActivity>> = [];
+	let docs: Awaited<ReturnType<typeof getCaseDocuments>> = [];
+
+	try {
+		[caseData, tasks, activity, docs] = await Promise.all([
+			getCaseById(caseId),
+			getCaseTasks(caseId),
+			getCaseActivity(caseId),
+			getCaseDocuments(caseId),
+		]);
+	} catch {
+		// DB unavailable
+	}
 
 	if (!caseData) notFound();
 

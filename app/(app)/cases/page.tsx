@@ -22,17 +22,29 @@ export default async function CasesPage({
 	const stageId = params.stage ?? "";
 	const status = params.status ?? "";
 
-	const [casesResult, stages] = await Promise.all([
-		getCases(
-			{
-				search: search || undefined,
-				stageId: stageId || undefined,
-				status: status || undefined,
-			},
-			{ page, pageSize: 50 },
-		),
-		getAllStages(),
-	]);
+	let casesResult: Awaited<ReturnType<typeof getCases>> = {
+		cases: [],
+		total: 0,
+		page,
+		pageSize: 50,
+	};
+	let stages: Awaited<ReturnType<typeof getAllStages>> = [];
+
+	try {
+		[casesResult, stages] = await Promise.all([
+			getCases(
+				{
+					search: search || undefined,
+					stageId: stageId || undefined,
+					status: status || undefined,
+				},
+				{ page, pageSize: 50 },
+			),
+			getAllStages(),
+		]);
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<div className="space-y-4">

@@ -14,14 +14,8 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
 	reminder: "text-muted-foreground border-border",
 };
 
-export default async function CaseCalendarPage({
-	params,
-}: {
-	params: Promise<{ id: string }>;
-}) {
-	const { id: caseId } = await params;
-
-	const events = await db
+async function fetchCaseCalendarEvents(caseId: string) {
+	return db
 		.select({
 			id: calendarEvents.id,
 			title: calendarEvents.title,
@@ -43,6 +37,22 @@ export default async function CaseCalendarPage({
 			),
 		)
 		.orderBy(asc(calendarEvents.startAt));
+}
+
+export default async function CaseCalendarPage({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) {
+	const { id: caseId } = await params;
+
+	let events: Awaited<ReturnType<typeof fetchCaseCalendarEvents>> = [];
+
+	try {
+		events = await fetchCaseCalendarEvents(caseId);
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<Card>

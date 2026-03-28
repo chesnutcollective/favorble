@@ -10,7 +10,13 @@ export default async function CaseDocumentsPage({
   const { id: caseId } = await params;
   const user = await requireSession();
 
-  const docs = await getCaseDocuments(caseId);
+  let docs: Awaited<ReturnType<typeof getCaseDocuments>> = [];
+
+  try {
+    docs = await getCaseDocuments(caseId);
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <CaseDocumentsClient

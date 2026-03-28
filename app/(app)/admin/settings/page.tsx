@@ -11,13 +11,24 @@ export const metadata: Metadata = {
   title: "Settings",
 };
 
+async function fetchOrganization(organizationId: string) {
+  const result = await db
+    .select()
+    .from(organizations)
+    .where(eq(organizations.id, organizationId));
+  return result[0];
+}
+
 export default async function SettingsPage() {
   const user = await requireSession();
 
-  const [org] = await db
-    .select()
-    .from(organizations)
-    .where(eq(organizations.id, user.organizationId));
+  let org: Awaited<ReturnType<typeof fetchOrganization>> | undefined;
+
+  try {
+    org = await fetchOrganization(user.organizationId);
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <div className="space-y-6">

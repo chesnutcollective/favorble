@@ -22,7 +22,13 @@ export default async function CaseFieldsPage({
 	const user = await requireSession();
 
 	// Get all field values (no team filter — show all teams with tabs)
-	const fieldValues = await getCaseFieldValues(caseId);
+	let fieldValues: Awaited<ReturnType<typeof getCaseFieldValues>> = [];
+
+	try {
+		fieldValues = await getCaseFieldValues(caseId);
+	} catch {
+		// DB unavailable
+	}
 
 	// Group by team
 	const grouped = new Map<string, typeof fieldValues>();

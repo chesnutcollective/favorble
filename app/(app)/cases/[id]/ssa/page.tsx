@@ -9,15 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LinkSquare02Icon, GlobeIcon } from "@hugeicons/core-free-icons";
 
-export default async function CaseSsaPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id: caseId } = await params;
-  await requireSession();
-
-  const [caseData] = await db
+async function fetchCaseSsaData(caseId: string) {
+  const result = await db
     .select({
       chronicleClaimantId: cases.chronicleClaimantId,
       chronicleUrl: cases.chronicleUrl,
@@ -33,6 +26,24 @@ export default async function CaseSsaPage({
     })
     .from(cases)
     .where(eq(cases.id, caseId));
+  return result[0];
+}
+
+export default async function CaseSsaPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: caseId } = await params;
+  await requireSession();
+
+  let caseData: Awaited<ReturnType<typeof fetchCaseSsaData>> | undefined;
+
+  try {
+    caseData = await fetchCaseSsaData(caseId);
+  } catch {
+    // DB unavailable
+  }
 
   if (!caseData) {
     return <div>Case not found</div>;

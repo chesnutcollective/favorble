@@ -8,10 +8,24 @@ export const metadata: Metadata = {
 };
 
 export default async function QueuePage() {
-	const [tasks, counts] = await Promise.all([
-		getMyQueue(),
-		getQueueCounts(),
-	]);
+	let tasks: Awaited<ReturnType<typeof getMyQueue>> = [];
+	let counts: Awaited<ReturnType<typeof getQueueCounts>> = {
+		all: 0,
+		overdue: 0,
+		today: 0,
+		thisWeek: 0,
+		nextWeek: 0,
+		noDate: 0,
+	};
+
+	try {
+		[tasks, counts] = await Promise.all([
+			getMyQueue(),
+			getQueueCounts(),
+		]);
+	} catch {
+		// DB unavailable
+	}
 
 	return (
 		<div className="space-y-4">

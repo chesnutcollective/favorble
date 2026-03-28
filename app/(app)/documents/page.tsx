@@ -12,10 +12,8 @@ export const metadata: Metadata = {
   title: "Documents",
 };
 
-export default async function DocumentsPage() {
-  const user = await requireSession();
-
-  const recentDocs = await db
+async function fetchDocuments(organizationId: string) {
+  return db
     .select({
       id: documents.id,
       fileName: documents.fileName,
@@ -31,12 +29,24 @@ export default async function DocumentsPage() {
     .leftJoin(cases, eq(documents.caseId, cases.id))
     .where(
       and(
-        eq(documents.organizationId, user.organizationId),
+        eq(documents.organizationId, organizationId),
         isNull(documents.deletedAt),
       ),
     )
     .orderBy(desc(documents.createdAt))
     .limit(100);
+}
+
+export default async function DocumentsPage() {
+  const user = await requireSession();
+
+  let recentDocs: Awaited<ReturnType<typeof fetchDocuments>> = [];
+
+  try {
+    recentDocs = await fetchDocuments(user.organizationId);
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <div className="space-y-6">

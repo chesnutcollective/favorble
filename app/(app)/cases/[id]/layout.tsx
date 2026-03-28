@@ -14,7 +14,14 @@ export default async function CaseDetailLayout({
 	params: Promise<{ id: string }>;
 }) {
 	const { id } = await params;
-	const caseData = await getCaseById(id);
+
+	let caseData: Awaited<ReturnType<typeof getCaseById>> = null;
+
+	try {
+		caseData = await getCaseById(id);
+	} catch {
+		// DB unavailable
+	}
 
 	if (!caseData) notFound();
 
