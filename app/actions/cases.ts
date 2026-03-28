@@ -587,3 +587,108 @@ export async function getActiveCaseCount() {
 		);
 	return result?.total ?? 0;
 }
+
+/**
+ * Get organization users (for dropdowns).
+ */
+export async function getOrgUsers() {
+	const session = await requireSession();
+	return db
+		.select({
+			id: users.id,
+			firstName: users.firstName,
+			lastName: users.lastName,
+			role: users.role,
+			team: users.team,
+		})
+		.from(users)
+		.where(
+			and(
+				eq(users.organizationId, session.organizationId),
+				eq(users.isActive, true),
+			),
+		)
+		.orderBy(asc(users.lastName), asc(users.firstName));
+}
+
+/**
+ * Bulk change stage for multiple cases.
+ */
+export async function bulkChangeCaseStage(caseIds: string[], newStageId: string) {
+	const session = await requireSession();
+	for (const caseId of caseIds) {
+		await changeCaseStage({ caseId, newStageId });
+	}
+	revalidatePath("/cases");
+}
+
+/**
+ * Get allowed next stages for a case. Returns the current stage's
+ * allowedNextStageIds resolved to full stage objects, grouped by stage group.
+ * If allowedNextStageIds is null/empty, returns ALL stages (unrestricted).
+ */
+export async function getAllowedNextStages(caseId: string) {
+	const session = await requireSession();
+
+	const [caseRow] = await db
+		.select({
+			currentStageId: cases.currentStageId,
+		})
+		.from(cases)
+		.where(
+			and(
+				eq(cases.id, caseId),
+				eq(cases.organizationId, session.organizationId),
+			),
+		);
+
+	if (!caseRow?.currentStageId) return [];
+
+	const [currentStage] = await db
+		.select({
+			allowedNextStageIds: caseStages.allowedNextStageIds,
+		})
+		.from(caseStages)
+		.where(eq(caseStages.id, caseRow.currentStageId));
+
+	const allStages = await db
+		.select({
+			id: caseStages.id,
+			name: caseStages.name,
+			code: caseStages.code,
+			stageGroupId: caseStages.stageGroupId,
+			stageGroupName: caseStageGroups.name,
+			stageGroupColor: caseStageGroups.color,
+			displayOrder: caseStages.displayOrder,
+			groupDisplayOrder: caseStageGroups.displayOrder,
+		})
+		.from(caseStages)
+		.innerJoin(caseStageGroups, eq(caseStages.stageGroupId, caseStageGroups.id))
+		.where(
+			and(
+				eq(caseStages.organizationId, session.organizationId),
+				isNull(caseStages.deletedAt),
+			),
+		)
+		.orderBy(asc(caseStageGroups.displayOrder), asc(caseStages.displayOrder));
+
+	const allowed = currentStage?.allowedNextStageIds;
+	if (allowed && allowed.length > 0) {
+		return allStages.filter(
+			(s) => allowed.includes(s.id) && s.id !== caseRow.currentStageId,
+		);
+	}
+
+	// Unrestricted: return all stages except current
+	return allStages.filter((s) => s.id !== caseRow.currentStageId);
+}
+
+/**
+ * Preview what workflows would fire for a stage transition.
+ * Server action wrapper for the workflow engine.
+ */
+export async function previewStageChange(newStageId: string) {
+	await requireSession();
+	const { previewStageWorkflows } = await import("@/lib/workflow-engine");
+	return previewStageWorkflows(newStageId);
+}

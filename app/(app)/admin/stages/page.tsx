@@ -4,8 +4,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon } from "@hugeicons/core-free-icons";
+import {
+	AddStageGroupDialog,
+	AddStageDialog,
+	DeleteStageButton,
+} from "./stage-dialogs";
 
 export const metadata: Metadata = {
 	title: "Case Stages",
@@ -30,17 +33,23 @@ export default async function StagesPage() {
 		// DB unavailable
 	}
 
+	// Build flat list of all stages for the migration dialog
+	const allStages = stageGroups.flatMap((g) =>
+		g.stages.map((s) => ({ id: s.id, name: s.name, code: s.code })),
+	);
+
+	// Build stage groups list for the add stage dialog
+	const stageGroupOptions = stageGroups.map((g) => ({
+		id: g.id,
+		name: g.name,
+	}));
+
 	return (
 		<div className="space-y-6">
 			<PageHeader
 				title="Case Stages"
 				description="Configure stage groups and case stages."
-				actions={
-					<Button size="sm">
-						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
-						Add Group
-					</Button>
-				}
+				actions={<AddStageGroupDialog />}
 			/>
 
 			{stageGroups.length === 0 ? (
@@ -130,19 +139,23 @@ export default async function StagesPage() {
 													>
 														Edit
 													</Button>
+													<DeleteStageButton
+														stage={{
+															id: stage.id,
+															name: stage.name,
+															code: stage.code,
+														}}
+														allStages={allStages}
+													/>
 												</div>
 											</div>
 										))}
 									</div>
 								)}
-								<Button
-									variant="ghost"
-									size="sm"
-									className="mt-2 text-xs"
-								>
-									<HugeiconsIcon icon={PlusSignIcon} size={12} className="mr-1" />
-									Add Stage
-								</Button>
+								<AddStageDialog
+									stageGroups={stageGroupOptions}
+									defaultGroupId={group.id}
+								/>
 							</CardContent>
 						</Card>
 					))}

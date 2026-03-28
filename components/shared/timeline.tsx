@@ -48,6 +48,96 @@ function formatRelativeTime(timestamp: string): string {
   return new Date(timestamp).toLocaleDateString();
 }
 
+/**
+ * Renders basic markdown: **bold**, _italic_, and - bullet lists.
+ * Outputs plain React elements, no dependencies.
+ */
+function MarkdownText({ text }: { text: string }) {
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let bulletBuffer: string[] = [];
+  let key = 0;
+
+  function flushBullets() {
+    if (bulletBuffer.length === 0) return;
+    elements.push(
+      <ul key={key++} className="list-disc pl-4 space-y-0.5">
+        {bulletBuffer.map((item, i) => (
+          <li key={i}>{renderInline(item)}</li>
+        ))}
+      </ul>,
+    );
+    bulletBuffer = [];
+  }
+
+  function renderInline(line: string): React.ReactNode {
+    // Process bold (**text**) and italic (_text_) inline
+    const parts: React.ReactNode[] = [];
+    let remaining = line;
+    let partKey = 0;
+
+    while (remaining.length > 0) {
+      // Check for bold: **...**
+      const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+      // Check for italic: _..._
+      const italicMatch = remaining.match(/(?<!\w)_(.+?)_(?!\w)/);
+
+      // Find earliest match
+      let earliest: { type: "bold" | "italic"; index: number; match: RegExpMatchArray } | null = null;
+
+      if (boldMatch?.index !== undefined) {
+        earliest = { type: "bold", index: boldMatch.index, match: boldMatch };
+      }
+      if (italicMatch?.index !== undefined) {
+        if (!earliest || italicMatch.index < earliest.index) {
+          earliest = { type: "italic", index: italicMatch.index, match: italicMatch };
+        }
+      }
+
+      if (!earliest) {
+        parts.push(remaining);
+        break;
+      }
+
+      // Add text before the match
+      if (earliest.index > 0) {
+        parts.push(remaining.slice(0, earliest.index));
+      }
+
+      if (earliest.type === "bold") {
+        parts.push(
+          <strong key={partKey++} className="font-semibold text-foreground">
+            {earliest.match[1]}
+          </strong>,
+        );
+      } else {
+        parts.push(<em key={partKey++}>{earliest.match[1]}</em>);
+      }
+
+      remaining = remaining.slice(earliest.index + earliest.match[0].length);
+    }
+
+    return parts.length === 1 ? parts[0] : <>{parts}</>;
+  }
+
+  for (const line of lines) {
+    const bulletMatch = line.match(/^[-*]\s+(.*)/);
+    if (bulletMatch) {
+      bulletBuffer.push(bulletMatch[1]);
+    } else {
+      flushBullets();
+      if (line.trim() === "") {
+        elements.push(<br key={key++} />);
+      } else {
+        elements.push(<p key={key++}>{renderInline(line)}</p>);
+      }
+    }
+  }
+  flushBullets();
+
+  return <>{elements}</>;
+}
+
 export function Timeline({ events, className }: TimelineProps) {
   if (events.length === 0) {
     return (
@@ -89,9 +179,9 @@ export function Timeline({ events, className }: TimelineProps) {
                 </span>
               </div>
               {event.description && (
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  {event.description}
-                </p>
+                <div className="mt-0.5 text-sm text-muted-foreground">
+                  <MarkdownText text={event.description} />
+                </div>
               )}
               {event.actor && (
                 <p className="mt-0.5 text-xs text-muted-foreground">

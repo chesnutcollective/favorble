@@ -1,0 +1,78 @@
+Phase 3-4: Core Features — COMPLETE
+
+Completed at: 2026-03-18
+
+## What was done
+
+### 1. Server Actions (6 action files)
+- `app/actions/cases.ts` — getCases (paginated+filtered), getCaseById (full detail), createCase, changeCaseStage (triggers workflows), updateCase, assignStaffToCase, getCaseActivity, getCaseCountsByStage, getActiveCaseCount
+- `app/actions/tasks.ts` — getMyQueue (with date range filters), getQueueCounts, completeTask (with dependency unblocking), bulkCompleteTasks, createTask, getCaseTasks, getTasksDueTodayCount, getOverdueTaskCount
+- `app/actions/leads.ts` — getLeads, getLeadById, createLead, updateLeadStatus, convertLeadToCase (full lead→case conversion with contact creation and workflow execution), getLeadCountsByStatus
+- `app/actions/stages.ts` — getStageGroupsWithStages, getAllStages, createStageGroup, createStage, updateStage, deleteStageWithMigration (safe bulk migration), getCasesInStageCount
+- `app/actions/workflows.ts` — getWorkflowTemplates (with task templates), getWorkflowTemplate, createWorkflowTemplate (with task templates), updateWorkflowTemplate, toggleWorkflowActive
+- `app/actions/custom-fields.ts` — getFieldDefinitions, getCaseFieldValues, updateCaseFieldValues, createFieldDefinition, updateFieldDefinition
+
+### 2. Dashboard Page (`/dashboard`)
+- Metric cards: Active Cases, Tasks Due Today (with overdue count), Stage Groups, Pipeline Stages
+- My Tasks Due Today section with checkboxes, case links, stage badges, priority indicators
+- Cases by Stage bar chart showing stage group distribution with color-coded bars
+- Data-driven from real queries
+
+### 3. My Queue Page (`/queue`)
+- Tab filters: All, Overdue (red), Today (amber), This Week, Next Week, No Date — each with live counts
+- Task list with checkbox completion (optimistic UI), priority indicators, case links, stage badges
+- Auto-generated task badge, relative due date display
+- Client-side filtering with server action completion
+
+### 4. Cases List Page (`/cases`)
+- Search by case number/claim number
+- Stage filter dropdown (all stages from DB)
+- Data table with Claimant name, Stage (color-coded badge), Assigned Staff, Last Activity
+- Server-side pagination with page navigation
+- Filter clearing
+
+### 5. Case Detail Layout (`/cases/[id]`)
+- Rich header: claimant name, case number, DOB, current stage badge
+- Stage progress bar showing all stage groups with color-coded completion
+- Quick info sidebar: assigned staff (avatars), SSA office, open date, Chronicle link
+- Active tab navigation with highlight on current tab
+- 8 tab pages fully wired:
+  - **Overview**: Open tasks (top 5 with checkboxes), Recent documents (top 5), Activity timeline
+  - **Documents**: Already built by Pane 3 with upload/preview
+  - **Fields**: Team-segmented tabs (user's team shown first), grouped by section, read-only display
+  - **Activity**: Full chronological timeline of stage transitions
+  - **Messages**: Already built by Pane 3 with chat UI and Case Status integration
+  - **Tasks**: All case tasks with completion checkboxes, assignee, due dates, open/completed sections
+  - **Calendar**: Events list with type-colored badges, hearing/location details
+  - **SSA Data**: Already built by Pane 3 with Chronicle deep link
+
+### 6. Leads Pipeline (`/leads`)
+- Kanban board with 5 columns: New, Contacted, Intake, Contract Sent, Signed
+- Lead cards with name, contact info, source badge, relative time
+- "Advance" button to move leads through pipeline stages
+- Lead count badges per column
+
+### 7. Admin — Stage Configuration (`/admin/stages`)
+- Stage groups displayed as cards with color dots, client-visible names
+- Stages listed within groups with code, name, owning team, initial/terminal badges
+- Edit and Add Stage buttons
+
+### 8. Admin — Workflow Templates (`/admin/workflows`)
+- Workflow cards with active/draft badges, trigger stage info
+- Task template table showing #, task name, assignment, due offset, priority
+- Notification settings display
+
+### 9. Admin — Custom Fields (`/admin/fields`)
+- Team-segmented tabs with field counts
+- Fields grouped by section within each team tab
+- Field display: name, slug, type badge, required indicator
+- Edit buttons
+
+### 10. Shared Components Used
+- StatsCard, PageHeader, EmptyState, DataTable, Timeline (all pre-built by Pane 1)
+- CaseTabNav (new client component with active state highlighting)
+
+## Verification
+- TypeScript typecheck: PASS (0 errors)
+- Next.js build: PASS — all 35 routes compile successfully
+- All server actions properly scoped to authenticated user's organization

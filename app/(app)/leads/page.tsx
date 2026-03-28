@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
 import { getLeads, getLeadCountsByStatus } from "@/app/actions/leads";
-import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { LeadsPipelineClient } from "./client";
 
 export const metadata: Metadata = {
@@ -53,16 +49,6 @@ export default async function LeadsPage() {
 
 	return (
 		<div className="space-y-4">
-			<PageHeader
-				title="Leads"
-				description="Lead pipeline and intake management."
-				actions={
-					<Button size="sm">
-						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
-						New Lead
-					</Button>
-				}
-			/>
 			<LeadsPipelineClient columns={columns} />
 		</div>
 	);

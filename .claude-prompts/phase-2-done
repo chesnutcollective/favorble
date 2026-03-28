@@ -1,0 +1,69 @@
+Phase 2: Auth & Layout — COMPLETE
+
+Completed at: 2026-03-18
+
+## What was done
+
+### 1. Authentication Flow
+- `middleware.ts` — Root middleware protecting all routes except /login and /auth/callback
+- `lib/auth/session.ts` — `getSession()` and `requireSession()` helpers that look up the Supabase auth user in the app's `users` table
+- `actions/auth.ts` — Server actions for `login()` (email/password) and `logout()`
+- `app/(auth)/login/page.tsx` — Login page with email/password form, error handling, CaseFlow branding
+- `app/(auth)/callback/route.ts` — OAuth callback handler
+- `app/(auth)/logout/route.ts` — POST route for sign out
+
+### 2. App Shell (Sidebar + Layout)
+- `app/(app)/layout.tsx` — Authenticated layout with SidebarProvider, AppSidebar, Header
+- `components/layout/app-sidebar.tsx` — Full sidebar with:
+  - CaseFlow logo/brand header
+  - Main nav: Dashboard, My Queue, Cases, Leads, Calendar, Messages
+  - Secondary nav: Contacts, Documents, Reports
+  - Admin nav (collapsible, admin-only): Workflows, Stages, Fields, Templates, Users, Integrations, Settings
+  - Active state highlighting based on current pathname
+  - Collapsible icon mode with tooltips
+  - Keyboard shortcut (Cmd+B) to toggle
+- `components/layout/header.tsx` — Top header with sidebar trigger
+- `components/layout/user-menu.tsx` — User dropdown in sidebar footer with avatar, role, sign out
+
+### 3. All Routes (29 pages)
+- `app/page.tsx` — Redirects to /dashboard
+- `app/(app)/dashboard/page.tsx`
+- `app/(app)/queue/page.tsx`
+- `app/(app)/cases/page.tsx`
+- `app/(app)/cases/[id]/layout.tsx` — Case detail layout with tab navigation
+- `app/(app)/cases/[id]/page.tsx` — Redirects to overview
+- `app/(app)/cases/[id]/overview/page.tsx`
+- `app/(app)/cases/[id]/documents/page.tsx`
+- `app/(app)/cases/[id]/fields/page.tsx`
+- `app/(app)/cases/[id]/activity/page.tsx`
+- `app/(app)/cases/[id]/messages/page.tsx`
+- `app/(app)/cases/[id]/tasks/page.tsx`
+- `app/(app)/cases/[id]/calendar/page.tsx`
+- `app/(app)/cases/[id]/ssa/page.tsx`
+- `app/(app)/leads/page.tsx`
+- `app/(app)/leads/[id]/page.tsx`
+- `app/(app)/calendar/page.tsx`
+- `app/(app)/messages/page.tsx`
+- `app/(app)/contacts/page.tsx`
+- `app/(app)/contacts/[id]/page.tsx`
+- `app/(app)/documents/page.tsx`
+- `app/(app)/reports/page.tsx`
+- `app/(app)/reports/[id]/page.tsx`
+- `app/(app)/admin/workflows/page.tsx`
+- `app/(app)/admin/stages/page.tsx`
+- `app/(app)/admin/fields/page.tsx`
+- `app/(app)/admin/templates/page.tsx`
+- `app/(app)/admin/users/page.tsx`
+- `app/(app)/admin/integrations/page.tsx`
+- `app/(app)/admin/settings/page.tsx`
+
+### 4. Root Layout
+- Updated `app/layout.tsx` — Cleaned up metadata for CaseFlow branding, removed old hero/logo header
+
+### 5. shadcn/ui Components Added
+- tooltip, sheet, scroll-area, skeleton, badge, tabs, sidebar, collapsible
+
+### 6. Verification
+- TypeScript typecheck: PASS
+- Lint (for new files): PASS
+- Next.js build: PASS — all 29 routes compile and register correctly

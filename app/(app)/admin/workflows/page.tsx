@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { getWorkflowTemplates } from "@/app/actions/workflows";
+import { getAllStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, WorkflowSquare01Icon, FlashIcon } from "@hugeicons/core-free-icons";
+import { WorkflowSquare01Icon, FlashIcon } from "@hugeicons/core-free-icons";
+import { NewWorkflowDialog } from "./new-workflow-dialog";
 
 export const metadata: Metadata = {
 	title: "Workflow Templates",
@@ -24,24 +25,29 @@ const TEAM_LABELS: Record<string, string> = {
 
 export default async function WorkflowsPage() {
 	let workflows: Awaited<ReturnType<typeof getWorkflowTemplates>> = [];
+	let stages: Awaited<ReturnType<typeof getAllStages>> = [];
 
 	try {
-		workflows = await getWorkflowTemplates();
+		[workflows, stages] = await Promise.all([
+			getWorkflowTemplates(),
+			getAllStages(),
+		]);
 	} catch {
 		// DB unavailable
 	}
+
+	const stagesForDialog = stages.map((s) => ({
+		id: s.id,
+		name: s.name,
+		code: s.code,
+	}));
 
 	return (
 		<div className="space-y-6">
 			<PageHeader
 				title="Workflow Templates"
 				description="Configure automated workflows triggered by stage changes."
-				actions={
-					<Button size="sm">
-						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
-						New Workflow
-					</Button>
-				}
+				actions={<NewWorkflowDialog stages={stagesForDialog} />}
 			/>
 
 			{workflows.length === 0 ? (

@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { getCases } from "@/app/actions/cases";
+import { getCases, getOrgUsers } from "@/app/actions/cases";
 import { getAllStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { CasesListClient } from "./client";
 
 export const metadata: Metadata = {
@@ -21,6 +18,10 @@ export default async function CasesPage({
 	const search = params.search ?? "";
 	const stageId = params.stage ?? "";
 	const status = params.status ?? "";
+	const sortBy = params.sortBy ?? "updatedAt";
+	const sortDir = params.sortDir ?? "desc";
+	const team = params.team ?? "";
+	const assignedTo = params.assignedTo ?? "";
 
 	let casesResult: Awaited<ReturnType<typeof getCases>> = {
 		cases: [],
@@ -29,18 +30,22 @@ export default async function CasesPage({
 		pageSize: 50,
 	};
 	let stages: Awaited<ReturnType<typeof getAllStages>> = [];
+	let orgUsers: Awaited<ReturnType<typeof getOrgUsers>> = [];
 
 	try {
-		[casesResult, stages] = await Promise.all([
+		[casesResult, stages, orgUsers] = await Promise.all([
 			getCases(
 				{
 					search: search || undefined,
 					stageId: stageId || undefined,
 					status: status || undefined,
+					team: team || undefined,
+					assignedToId: assignedTo || undefined,
 				},
 				{ page, pageSize: 50 },
 			),
 			getAllStages(),
+			getOrgUsers(),
 		]);
 	} catch {
 		// DB unavailable
@@ -48,16 +53,6 @@ export default async function CasesPage({
 
 	return (
 		<div className="space-y-4">
-			<PageHeader
-				title="Cases"
-				description="Browse and manage all cases."
-				actions={
-					<Button size="sm">
-						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
-						New Case
-					</Button>
-				}
-			/>
 			<CasesListClient
 				cases={casesResult.cases.map((c) => ({
 					...c,
@@ -68,8 +63,13 @@ export default async function CasesPage({
 				page={casesResult.page}
 				pageSize={casesResult.pageSize}
 				stages={stages}
+				orgUsers={orgUsers}
 				initialSearch={search}
 				initialStageId={stageId}
+				initialTeam={team}
+				initialAssignedTo={assignedTo}
+				initialSortBy={sortBy}
+				initialSortDir={sortDir as "asc" | "desc"}
 			/>
 		</div>
 	);

@@ -4,11 +4,12 @@ import {
   getCasesByStageReport,
   getTaskCompletionStats,
   getCaseStatusSummary,
+  filterReportsByDateRange,
 } from "@/app/actions/reports";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ReportsChartsClient } from "@/components/charts/reports-charts-client";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -42,36 +43,14 @@ export default async function ReportsPage() {
       ? Math.round((taskStats.completed / taskStats.total) * 100)
       : 0;
 
-  // Group stages by stage group for the funnel
-  const stageGroups = new Map<
-    string,
-    {
-      name: string;
-      color: string | null;
-      stages: Array<{
-        name: string;
-        code: string;
-        count: number;
-      }>;
-      totalCases: number;
-    }
-  >();
-
-  for (const row of stageReport) {
-    const group = stageGroups.get(row.stageGroupName) ?? {
-      name: row.stageGroupName,
-      color: row.stageGroupColor,
-      stages: [],
-      totalCases: 0,
-    };
-    group.stages.push({
-      name: row.stageName,
-      code: row.stageCode,
-      count: row.caseCount,
-    });
-    group.totalCases += row.caseCount;
-    stageGroups.set(row.stageGroupName, group);
-  }
+  // Flatten stage report for the client component
+  const flatStageReport = stageReport.map((r) => ({
+    stageName: r.stageName,
+    stageCode: r.stageCode,
+    stageGroupName: r.stageGroupName,
+    stageGroupColor: r.stageGroupColor,
+    caseCount: r.caseCount,
+  }));
 
   return (
     <div className="space-y-6">
@@ -96,66 +75,12 @@ export default async function ReportsPage() {
         />
       </div>
 
-      {/* Cases by Stage */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="font-medium text-foreground mb-4">Cases by Stage</h3>
-          <div className="space-y-6">
-            {Array.from(stageGroups.values()).map((group) => (
-              <div key={group.name}>
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: group.color ?? "#6B7280" }}
-                  />
-                  <h4 className="text-sm font-medium text-foreground">
-                    {group.name}
-                  </h4>
-                  <Badge variant="outline" className="text-xs">
-                    {group.totalCases}
-                  </Badge>
-                </div>
-                <div className="space-y-1.5 pl-5">
-                  {group.stages.map((stage) => (
-                    <div
-                      key={stage.code}
-                      className="flex items-center gap-3"
-                    >
-                      <span className="text-xs text-muted-foreground w-8 font-mono">
-                        {stage.code}
-                      </span>
-                      <span className="text-sm text-foreground flex-1">
-                        {stage.name}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 bg-muted rounded-full h-2">
-                          <div
-                            className="h-2 rounded-full"
-                            style={{
-                              backgroundColor: group.color ?? "#6B7280",
-                              width: `${
-                                activeCases > 0
-                                  ? Math.max(
-                                      2,
-                                      (stage.count / activeCases) * 100,
-                                    )
-                                  : 0
-                              }%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-xs text-muted-foreground w-8 text-right font-mono">
-                          {stage.count}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts with date range filter and CSV export */}
+      <ReportsChartsClient
+        stageReport={flatStageReport}
+        taskStats={taskStats}
+        onDateRangeChange={filterReportsByDateRange}
+      />
 
       {/* Case Status Breakdown */}
       <Card>

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { getCaseById } from "@/app/actions/cases";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { CaseTabNav } from "./tab-nav";
+import { CaseStageSelector } from "@/components/cases/case-stage-selector";
 
 export default async function CaseDetailLayout({
 	children,
@@ -62,16 +62,12 @@ export default async function CaseDetailLayout({
 								)}
 							</p>
 						</div>
-						<Badge
-							variant="outline"
-							className="text-sm"
-							style={{
-								borderColor: caseData.stageGroupColor ?? undefined,
-								color: caseData.stageGroupColor ?? undefined,
-							}}
-						>
-							{caseData.stageName}
-						</Badge>
+						<CaseStageSelector
+							caseId={caseData.id}
+							currentStageId={caseData.currentStageId}
+							currentStageName={caseData.stageName}
+							currentStageGroupColor={caseData.stageGroupColor}
+						/>
 					</div>
 
 					{/* Progress Bar */}

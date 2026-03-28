@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, TextField } from "@hugeicons/core-free-icons";
+import { TextField } from "@hugeicons/core-free-icons";
+import { NewFieldDialog } from "./new-field-dialog";
 
 export const metadata: Metadata = {
 	title: "Custom Fields",
@@ -68,12 +68,7 @@ export default async function FieldsPage() {
 			<PageHeader
 				title="Custom Fields"
 				description="Define and organize custom fields by team."
-				actions={
-					<Button size="sm">
-						<HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
-						New Field
-					</Button>
-				}
+				actions={<NewFieldDialog />}
 			/>
 
 			{allFields.length === 0 ? (

@@ -1,0 +1,45 @@
+Phase 1: Infrastructure & Database — COMPLETE
+
+Completed at: 2026-03-18
+
+## What was done
+
+### 1. Drizzle Schema (22 tables)
+Created `db/schema/` directory with modular schema files:
+- `enums.ts` — 12 PostgreSQL enums (user_role, team, lead_status, case_status, task_status, etc.)
+- `organizations.ts` — Multi-tenant organization table
+- `users.ts` — Users with role, team, and auth_user_id (links to Supabase Auth)
+- `leads.ts` — Lead pipeline with intake data
+- `cases.ts` — Core cases table with SSA-specific fields, stage groups, stages, assignments, transitions
+- `contacts.ts` — Contacts and case-contact junction table
+- `custom-fields.ts` — Field definitions (team-segmented) and field values (EAV pattern)
+- `workflows.ts` — Workflow templates and task templates (stage-triggered automation)
+- `tasks.ts` — Tasks with workflow source tracking
+- `documents.ts` — Documents, templates, and signature requests
+- `communications.ts` — Inbound/outbound messages and emails
+- `calendar.ts` — Calendar events with hearing-specific fields and attendees
+- `audit.ts` — Audit log for all entity changes
+- `index.ts` — Barrel export
+
+### 2. Drizzle DB Client
+- `db/drizzle.ts` — Drizzle ORM client instance using postgres.js
+
+### 3. Migrations
+- `supabase/migrations/0000_panoramic_wraith.sql` — Schema creation migration
+- `supabase/migrations/0001_rls_policies.sql` — RLS policies
+
+### 4. RLS Policies (48 policies)
+- All 22 tables have RLS enabled
+- Helper functions: `public.user_org_id()`, `public.app_user_id()`, `public.user_role()`
+- Organization-scoped access on all org-owned tables
+- Join-based scoping for junction tables (case_assignments, case_contacts, etc.)
+- Admin-only write access for config tables (stages, workflows, field definitions, templates)
+- Read access for all authenticated users within their org
+
+### 5. Supabase Utilities (pre-existing, verified)
+- `db/client.ts` — Browser Supabase client
+- `db/server.ts` — Server Supabase client
+- `db/middleware.ts` — Auth session refresh middleware
+
+### 6. Schema pushed to staging database
+- All tables and RLS policies are live on staging Supabase

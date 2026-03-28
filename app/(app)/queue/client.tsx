@@ -1,12 +1,33 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { completeTask } from "@/app/actions/tasks";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+} from "@/components/ui/sheet";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { completeTask, bulkCompleteTasks } from "@/app/actions/tasks";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { CheckmarkCircle01Icon, Clock01Icon, Alert01Icon } from "@hugeicons/core-free-icons";
+import {
+	CheckmarkCircle01Icon,
+	Clock01Icon,
+	Alert01Icon,
+} from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 type QueueTask = {
@@ -32,6 +53,15 @@ type Counts = {
 	thisWeek: number;
 	nextWeek: number;
 	noDate: number;
+};
+
+type SortField = "dueDate" | "priority" | "caseName";
+
+const PRIORITY_ORDER: Record<string, number> = {
+	urgent: 0,
+	high: 1,
+	medium: 2,
+	low: 3,
 };
 
 function getDueDateInfo(dueDate: string | null) {
@@ -61,6 +91,16 @@ function getDueDateInfo(dueDate: string | null) {
 	};
 }
 
+function formatFullDate(dateStr: string | null): string {
+	if (!dateStr) return "No due date";
+	return new Date(dateStr).toLocaleDateString("en-US", {
+		weekday: "long",
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
 export function QueueClient({
 	initialTasks,
 	counts,
@@ -70,64 +110,155 @@ export function QueueClient({
 }) {
 	const [activeTab, setActiveTab] = useState("all");
 	const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+	const [selectedTask, setSelectedTask] = useState<QueueTask | null>(null);
+	const [sortField, setSortField] = useState<SortField>("dueDate");
 	const [, startTransition] = useTransition();
 
-	const filteredTasks = initialTasks.filter((task) => {
-		if (completedIds.has(task.id)) return false;
-		if (activeTab === "all") return true;
-		if (activeTab === "overdue") {
-			return task.dueDate && new Date(task.dueDate) < new Date();
-		}
-		if (activeTab === "today") {
-			if (!task.dueDate) return false;
-			const due = new Date(task.dueDate);
-			const now = new Date();
-			const today = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate(),
-			);
-			const tomorrow = new Date(today);
-			tomorrow.setDate(tomorrow.getDate() + 1);
-			return due >= today && due < tomorrow;
-		}
-		if (activeTab === "no_date") return !task.dueDate;
-		return true;
-	});
+	const filteredTasks = useMemo(() => {
+		const filtered = initialTasks.filter((task) => {
+			if (completedIds.has(task.id)) return false;
+			if (activeTab === "all") return true;
+			if (activeTab === "overdue") {
+				return task.dueDate && new Date(task.dueDate) < new Date();
+			}
+			if (activeTab === "today") {
+				if (!task.dueDate) return false;
+				const due = new Date(task.dueDate);
+				const now = new Date();
+				const today = new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate(),
+				);
+				const tomorrow = new Date(today);
+				tomorrow.setDate(tomorrow.getDate() + 1);
+				return due >= today && due < tomorrow;
+			}
+			if (activeTab === "no_date") return !task.dueDate;
+			return true;
+		});
+
+		return filtered.sort((a, b) => {
+			if (sortField === "dueDate") {
+				if (!a.dueDate && !b.dueDate) return 0;
+				if (!a.dueDate) return 1;
+				if (!b.dueDate) return -1;
+				return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+			}
+			if (sortField === "priority") {
+				return (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2);
+			}
+			if (sortField === "caseName") {
+				return a.caseNumber.localeCompare(b.caseNumber);
+			}
+			return 0;
+		});
+	}, [initialTasks, completedIds, activeTab, sortField]);
 
 	function handleComplete(taskId: string) {
 		setCompletedIds((prev) => new Set(prev).add(taskId));
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			next.delete(taskId);
+			return next;
+		});
 		startTransition(async () => {
 			await completeTask(taskId);
 		});
 	}
 
+	function handleBulkComplete() {
+		const ids = Array.from(selectedIds);
+		for (const id of ids) {
+			setCompletedIds((prev) => new Set(prev).add(id));
+		}
+		setSelectedIds(new Set());
+		startTransition(async () => {
+			await bulkCompleteTasks(ids);
+		});
+	}
+
+	function toggleSelect(taskId: string) {
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(taskId)) {
+				next.delete(taskId);
+			} else {
+				next.add(taskId);
+			}
+			return next;
+		});
+	}
+
+	function toggleSelectAll() {
+		if (selectedIds.size === filteredTasks.length) {
+			setSelectedIds(new Set());
+		} else {
+			setSelectedIds(new Set(filteredTasks.map((t) => t.id)));
+		}
+	}
+
 	return (
 		<div className="space-y-4">
-			<Tabs value={activeTab} onValueChange={setActiveTab}>
-				<TabsList>
-					<TabsTrigger value="all">
-						All {counts.all}
-					</TabsTrigger>
-					<TabsTrigger value="overdue" className="text-red-600">
-						Overdue {counts.overdue}
-					</TabsTrigger>
-					<TabsTrigger value="today" className="text-amber-600">
-						Today {counts.today}
-					</TabsTrigger>
-					<TabsTrigger value="this_week">
-						This Week {counts.thisWeek}
-					</TabsTrigger>
-					<TabsTrigger value="no_date">
-						No Date {counts.noDate}
-					</TabsTrigger>
-				</TabsList>
-			</Tabs>
+			<div className="flex items-center justify-between">
+				<Tabs value={activeTab} onValueChange={setActiveTab}>
+					<TabsList>
+						<TabsTrigger value="all">
+							All {counts.all}
+						</TabsTrigger>
+						<TabsTrigger value="overdue" className="text-red-600">
+							Overdue {counts.overdue}
+						</TabsTrigger>
+						<TabsTrigger value="today" className="text-amber-600">
+							Today {counts.today}
+						</TabsTrigger>
+						<TabsTrigger value="this_week">
+							This Week {counts.thisWeek}
+						</TabsTrigger>
+						<TabsTrigger value="no_date">
+							No Date {counts.noDate}
+						</TabsTrigger>
+					</TabsList>
+				</Tabs>
+
+				<Select value={sortField} onValueChange={(v) => setSortField(v as SortField)}>
+					<SelectTrigger className="w-[180px]">
+						<SelectValue placeholder="Sort by..." />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="dueDate">Sort by Due Date</SelectItem>
+						<SelectItem value="priority">Sort by Priority</SelectItem>
+						<SelectItem value="caseName">Sort by Case Name</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			{/* Bulk Actions Bar */}
+			{selectedIds.size > 0 && (
+				<div className="flex items-center gap-3 rounded-md border bg-accent px-4 py-2">
+					<span className="text-sm font-medium">
+						{selectedIds.size} selected
+					</span>
+					<Separator orientation="vertical" className="h-5" />
+					<Button size="sm" variant="default" onClick={handleBulkComplete}>
+						<HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="mr-1" />
+						Complete Selected
+					</Button>
+					<Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())}>
+						Clear
+					</Button>
+				</div>
+			)}
 
 			<div className="rounded-md border">
 				{filteredTasks.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center">
-						<HugeiconsIcon icon={CheckmarkCircle01Icon} size={40} color="rgb(209 213 219)" />
+						<HugeiconsIcon
+							icon={CheckmarkCircle01Icon}
+							size={40}
+							color="rgb(209 213 219)"
+						/>
 						<h3 className="mt-3 text-sm font-medium text-foreground">
 							All caught up!
 						</h3>
@@ -137,22 +268,46 @@ export function QueueClient({
 					</div>
 				) : (
 					<div className="divide-y">
+						{/* Select all header */}
+						<div className="flex items-center gap-3 px-3 py-2 bg-muted/50">
+							<Checkbox
+								checked={selectedIds.size === filteredTasks.length && filteredTasks.length > 0}
+								onCheckedChange={toggleSelectAll}
+							/>
+							<span className="text-xs text-muted-foreground">
+								{filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
+							</span>
+						</div>
 						{filteredTasks.map((task) => {
 							const dueDateInfo = getDueDateInfo(task.dueDate);
 							return (
 								<div
 									key={task.id}
-									className="flex items-start gap-3 p-3 hover:bg-accent transition-colors"
+									className="flex items-start gap-3 p-3 hover:bg-accent transition-colors cursor-pointer"
+									onClick={() => setSelectedTask(task)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											setSelectedTask(task);
+										}
+									}}
+									role="button"
+									tabIndex={0}
 								>
 									<Checkbox
 										className="mt-1"
-										onCheckedChange={() =>
-											handleComplete(task.id)
-										}
+										checked={selectedIds.has(task.id)}
+										onCheckedChange={() => toggleSelect(task.id)}
+										onClick={(e) => e.stopPropagation()}
 									/>
 									{task.priority === "urgent" ||
 									task.priority === "high" ? (
-										<HugeiconsIcon icon={Alert01Icon} size={16} color="rgb(245 158 11)" className="mt-0.5 shrink-0" />
+										<HugeiconsIcon
+											icon={Alert01Icon}
+											size={16}
+											color="rgb(245 158 11)"
+											className="mt-0.5 shrink-0"
+										/>
 									) : (
 										<div className="w-4 shrink-0" />
 									)}
@@ -164,6 +319,7 @@ export function QueueClient({
 											<Link
 												href={`/cases/${task.caseId}`}
 												className="text-xs text-primary hover:underline"
+												onClick={(e) => e.stopPropagation()}
 											>
 												{task.caseNumber}
 											</Link>
@@ -194,7 +350,11 @@ export function QueueClient({
 										</div>
 									</div>
 									<div className="flex items-center gap-1 shrink-0">
-										<HugeiconsIcon icon={Clock01Icon} size={12} className="text-muted-foreground" />
+										<HugeiconsIcon
+											icon={Clock01Icon}
+											size={12}
+											className="text-muted-foreground"
+										/>
 										<span
 											className={`text-xs font-medium ${dueDateInfo.color}`}
 										>
@@ -207,6 +367,120 @@ export function QueueClient({
 					</div>
 				)}
 			</div>
+
+			{/* Keyboard shortcuts hint */}
+			<div className="flex items-center gap-4 text-xs text-muted-foreground">
+				<span>
+					<kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Click</kbd> to view details
+				</span>
+				<span>
+					<kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Checkbox</kbd> to select for bulk actions
+				</span>
+			</div>
+
+			{/* Task Detail Sheet */}
+			<Sheet open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+				<SheetContent side="right" className="sm:max-w-md">
+					{selectedTask && (
+						<>
+							<SheetHeader>
+								<SheetTitle>{selectedTask.title}</SheetTitle>
+								<SheetDescription>
+									{selectedTask.caseNumber} &middot; {selectedTask.stageName ?? "No stage"}
+								</SheetDescription>
+							</SheetHeader>
+
+							<div className="mt-6 space-y-5">
+								{/* Priority & Status */}
+								<div className="flex gap-2">
+									<Badge
+										variant={
+											selectedTask.priority === "urgent"
+												? "destructive"
+												: selectedTask.priority === "high"
+													? "default"
+													: "secondary"
+										}
+									>
+										{selectedTask.priority}
+									</Badge>
+									<Badge variant="outline">{selectedTask.status}</Badge>
+									{selectedTask.isAutoGenerated && (
+										<Badge variant="secondary">Auto-generated</Badge>
+									)}
+								</div>
+
+								{/* Due Date */}
+								<div>
+									<p className="text-xs font-medium text-muted-foreground mb-1">
+										Due Date
+									</p>
+									<div className="flex items-center gap-2">
+										<HugeiconsIcon icon={Clock01Icon} size={14} className="text-muted-foreground" />
+										<span className={`text-sm ${getDueDateInfo(selectedTask.dueDate).color}`}>
+											{formatFullDate(selectedTask.dueDate)}
+										</span>
+									</div>
+								</div>
+
+								{/* Description / Notes */}
+								<div>
+									<p className="text-xs font-medium text-muted-foreground mb-1">
+										Description
+									</p>
+									<p className="text-sm text-foreground">
+										{selectedTask.description || "No description provided."}
+									</p>
+								</div>
+
+								{/* Case Link */}
+								<div>
+									<p className="text-xs font-medium text-muted-foreground mb-1">
+										Case
+									</p>
+									<Link
+										href={`/cases/${selectedTask.caseId}`}
+										className="text-sm text-primary hover:underline"
+									>
+										{selectedTask.caseNumber} — {selectedTask.stageName}
+									</Link>
+								</div>
+
+								{/* Stage */}
+								{selectedTask.stageName && (
+									<div>
+										<p className="text-xs font-medium text-muted-foreground mb-1">
+											Current Stage
+										</p>
+										<Badge
+											variant="outline"
+											style={{
+												borderColor: selectedTask.stageGroupColor ?? undefined,
+												color: selectedTask.stageGroupColor ?? undefined,
+											}}
+										>
+											{selectedTask.stageCode} — {selectedTask.stageName}
+										</Badge>
+									</div>
+								)}
+							</div>
+
+							<SheetFooter className="mt-8">
+								<Button
+									className="w-full"
+									onClick={() => {
+										handleComplete(selectedTask.id);
+										setSelectedTask(null);
+									}}
+								>
+									<HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="mr-1" />
+									Complete Task
+								</Button>
+							</SheetFooter>
+						</>
+					)}
+				</SheetContent>
+			</Sheet>
 		</div>
 	);
 }
