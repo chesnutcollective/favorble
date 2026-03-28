@@ -179,7 +179,7 @@ export async function getDocumentTemplates(organizationId: string) {
 /**
  * Supported merge fields and their descriptions.
  */
-export const MERGE_FIELD_MAP: Record<string, string> = {
+const MERGE_FIELD_MAP: Record<string, string> = {
 	claimant_name: "Full name of the claimant",
 	case_number: "Case number (e.g. CF-1001)",
 	dob: "Date of birth",
@@ -206,10 +206,10 @@ type MergeData = {
  * Replace merge fields in template content with actual case data.
  * Merge fields use the format {{field_name}}.
  */
-export function renderMergeFields(
+export async function renderMergeFields(
 	templateContent: string,
 	data: MergeData,
-): string {
+): Promise<string> {
 	const replacements: Record<string, string> = {
 		claimant_name: data.claimantName,
 		case_number: data.caseNumber,
@@ -255,7 +255,7 @@ export async function generateFromTemplate(data: {
 	}
 
 	try {
-		const mergedContent = renderMergeFields(
+		const mergedContent = await renderMergeFields(
 			template.templateContent,
 			data.caseData,
 		);

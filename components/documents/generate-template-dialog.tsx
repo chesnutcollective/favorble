@@ -18,10 +18,12 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-	renderMergeFields,
-	generateFromTemplate,
-} from "@/app/actions/documents";
+import { generateFromTemplate } from "@/app/actions/documents";
+
+/** Client-side merge field rendering for preview */
+function renderMergeFields(template: string, data: Record<string, string | null>): string {
+	return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? `{{${key}}}`);
+}
 import type { DocumentItem } from "@/components/documents/document-list";
 import { toast } from "sonner";
 
