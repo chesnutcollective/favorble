@@ -43,6 +43,32 @@ async function getDemoUser(): Promise<SessionUser> {
 	} catch {
 		// DB unavailable
 	}
+	// Last resort: try raw SQL to avoid ORM initialization issues
+	try {
+		const pg = (await import("postgres")).default;
+		const connStr = process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
+		if (connStr) {
+			const sql = pg(connStr, { prepare: false, max: 1 });
+			const rows = await sql`SELECT id, organization_id, email, first_name, last_name, avatar_url, role, team FROM users WHERE role = 'admin' LIMIT 1`;
+			await sql.end();
+			if (rows[0]) {
+				const r = rows[0];
+				_cachedDemoUser = {
+					id: r.id,
+					organizationId: r.organization_id,
+					email: r.email,
+					firstName: r.first_name,
+					lastName: r.last_name,
+					avatarUrl: r.avatar_url,
+					role: r.role,
+					team: r.team,
+				};
+				return _cachedDemoUser;
+			}
+		}
+	} catch {
+		// truly unavailable
+	}
 	return {
 		id: "demo-user",
 		organizationId: "demo-org",
