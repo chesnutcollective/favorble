@@ -65,6 +65,7 @@ export default function LoginPage() {
 								name="email"
 								type="email"
 								placeholder="you@example.com"
+								defaultValue="admin@hogansmith.com"
 								required
 								autoComplete="email"
 								autoFocus
@@ -77,6 +78,7 @@ export default function LoginPage() {
 								name="password"
 								type="password"
 								placeholder="Your password"
+								defaultValue="demo123!"
 								required
 								autoComplete="current-password"
 							/>
