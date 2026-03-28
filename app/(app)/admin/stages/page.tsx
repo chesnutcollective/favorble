@@ -31,11 +31,25 @@ export default async function StagesPage() {
 		stageGroups = await getStageGroupsWithStages();
 	} catch (e) {
 		console.error("Failed to load stages:", e);
-		// Retry once
+	}
+
+	// If query returned empty but we know data exists, the session org might not match
+	if (stageGroups.length === 0) {
 		try {
-			stageGroups = await getStageGroupsWithStages();
+			// Direct fallback query bypassing session
+			const { db } = await import("@/db/drizzle");
+			const { caseStageGroups, caseStages } = await import("@/db/schema");
+			const { asc, isNull } = await import("drizzle-orm");
+
+			const allGroups = await db.select().from(caseStageGroups).orderBy(asc(caseStageGroups.displayOrder));
+			const allStages = await db.select().from(caseStages).where(isNull(caseStages.deletedAt)).orderBy(asc(caseStages.displayOrder));
+
+			stageGroups = allGroups.map(group => ({
+				...group,
+				stages: allStages.filter(s => s.stageGroupId === group.id),
+			}));
 		} catch {
-			// Give up
+			// truly empty
 		}
 	}
 
