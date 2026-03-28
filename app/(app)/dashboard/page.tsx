@@ -16,14 +16,24 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
 	const user = await requireSession();
 
-	const [activeCases, tasksDueToday, overdueTaskCount, stageBreakdown, myTasks] =
-		await Promise.all([
-			getActiveCaseCount(),
-			getTasksDueTodayCount(),
-			getOverdueTaskCount(),
-			getCaseCountsByStage(),
-			getMyQueue({ dueDateRange: "today" }),
-		]);
+	let activeCases = 0;
+	let tasksDueToday = 0;
+	let overdueTaskCount = 0;
+	let stageBreakdown: Awaited<ReturnType<typeof getCaseCountsByStage>> = [];
+	let myTasks: Awaited<ReturnType<typeof getMyQueue>> = [];
+
+	try {
+		[activeCases, tasksDueToday, overdueTaskCount, stageBreakdown, myTasks] =
+			await Promise.all([
+				getActiveCaseCount(),
+				getTasksDueTodayCount(),
+				getOverdueTaskCount(),
+				getCaseCountsByStage(),
+				getMyQueue({ dueDateRange: "today" }),
+			]);
+	} catch {
+		// DB unavailable — show empty dashboard
+	}
 
 	// Group stage counts by stage group
 	const groupedStages = new Map<
