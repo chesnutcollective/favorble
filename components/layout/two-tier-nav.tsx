@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
+import type { NavPanelData } from "@/app/actions/nav-data";
 import { ThemeSwitcher } from "./theme-switcher";
 
 /* ─── Rail nav items ─── */
@@ -170,9 +171,11 @@ function getActiveRailId(pathname: string): string {
 export function TwoTierNav({
   user,
   casesCount,
+  navData,
 }: {
   user: SessionUser;
   casesCount?: number;
+  navData?: NavPanelData;
 }) {
   const pathname = usePathname();
   const activeRailId = getActiveRailId(pathname);
@@ -301,10 +304,10 @@ export function TwoTierNav({
             />
 
             {/* Cases Panel */}
-            <CasesPanel active={visiblePanel === "cases"} />
+            <CasesPanel active={visiblePanel === "cases"} navData={navData} />
 
             {/* Messages Panel */}
-            <MessagesPanel active={visiblePanel === "messages"} />
+            <MessagesPanel active={visiblePanel === "messages"} navData={navData} />
 
             {/* Leads Panel */}
             <LeadsPanel active={visiblePanel === "leads"} />
@@ -313,10 +316,10 @@ export function TwoTierNav({
             <QueuePanel active={visiblePanel === "queue"} />
 
             {/* Calendar Panel */}
-            <CalendarPanel active={visiblePanel === "calendar"} />
+            <CalendarPanel active={visiblePanel === "calendar"} navData={navData} />
 
             {/* Email Panel */}
-            <EmailPanel active={visiblePanel === "email"} />
+            <EmailPanel active={visiblePanel === "email"} navData={navData} />
 
             {/* Contacts Panel */}
             <ContactsPanel active={visiblePanel === "contacts"} />
@@ -371,6 +374,43 @@ export function TwoTierNav({
 }
 
 /* ─── Panel Components ─── */
+
+function formatRelativeTime(dateStr: string | Date): string {
+  const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "now";
+  if (diffMin < 60) return `${diffMin}m`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay === 1) return "1d";
+  return `${diffDay}d`;
+}
+
+function formatEventTime(dateStr: string | Date): string {
+  const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
+  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+}
+
+function getInitials(str: string | null): string {
+  if (!str) return "?";
+  const parts = str.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return str.substring(0, 2).toUpperCase();
+}
+
+function getEventColor(eventType: string | null): string {
+  switch (eventType) {
+    case "hearing": return "#059669";
+    case "deadline": return "#F59E0B";
+    case "consultation": return "#3B82F6";
+    case "meeting": return "#8B5CF6";
+    default: return "#059669";
+  }
+}
+
 
 function DashboardPanel({
   active,
@@ -491,44 +531,42 @@ function DashboardPanel({
   );
 }
 
-function CasesPanel({ active }: { active: boolean }) {
-  const [activeTab, setActiveTab] = useState("All");
+function CasesPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+  const fallbackStages = [
+    { stageId: "intake", stageName: "Intake", count: 8 },
+    { stageId: "application", stageName: "Application", count: 12 },
+    { stageId: "recon", stageName: "Recon", count: 9 },
+    { stageId: "hearing", stageName: "Hearing", count: 6 },
+    { stageId: "resolution", stageName: "Resolution", count: 5 },
+  ];
+
+  const stages: Array<{ stageId: string; stageName: string; count: number }> =
+    navData?.stageCounts?.length
+      ? navData.stageCounts.map((sc) => ({
+          stageId: sc.stageId ?? "",
+          stageName: sc.stageName ?? "Unknown",
+          count: sc.count,
+        }))
+      : fallbackStages;
+
+  const maxCount = Math.max(...stages.map((s) => s.count), 1);
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
       <div className="ttn-panel-header">Cases</div>
 
-      <div className="ttn-case-tabs">
-        {["All", "SSDI", "SSI"].map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            className={`ttn-case-tab${activeTab === tab ? " active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
       <div className="ttn-section-label">By Stage</div>
-      {[
-        { name: "Intake", count: 8, pct: 60 },
-        { name: "Application", count: 12, pct: 85 },
-        { name: "Recon", count: 9, pct: 65 },
-        { name: "Hearing", count: 6, pct: 45 },
-        { name: "Resolution", count: 5, pct: 35 },
-      ].map((stage) => (
+      {stages.map((stage) => (
         <Link
-          href={`/cases?stage=${stage.name.toLowerCase()}`}
-          key={stage.name}
+          href={`/cases?stage=${stage.stageId}`}
+          key={stage.stageId}
           className="ttn-stage-item"
         >
-          <span className="ttn-stage-name">{stage.name}</span>
+          <span className="ttn-stage-name">{stage.stageName}</span>
           <div className="ttn-stage-bar-track">
             <div
               className="ttn-stage-bar-fill"
-              style={{ width: `${stage.pct}%` }}
+              style={{ width: `${(stage.count / maxCount) * 100}%` }}
             />
           </div>
           <span className="ttn-stage-count">{stage.count}</span>
@@ -546,21 +584,36 @@ function CasesPanel({ active }: { active: boolean }) {
         >
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
-        Pinned Cases
+        Starred Cases
       </div>
-      {["Martinez v. State Farm", "Thompson Estate", "Chen v. Riverside LLC"].map(
-        (name) => (
-          <div key={name} className="ttn-starred-case">
-            <span className="ttn-star">&#9733;</span>
-            {name}
-          </div>
-        ),
-      )}
+      <div style={{ padding: "6px 12px", fontSize: 11, color: "#999" }}>
+        Starred cases coming soon
+      </div>
     </div>
   );
 }
 
-function MessagesPanel({ active }: { active: boolean }) {
+function MessagesPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+  const msgs = navData?.messageSummary;
+  const unreadCount = msgs?.unreadCount ?? 0;
+
+  const fallbackMessages = [
+    { initials: "SM", unread: true, subject: "Martinez Case Update", snippet: "Re: Updated medical records received from...", time: "12m" },
+    { initials: "JD", unread: true, subject: "Thompson Hearing Date", snippet: "The ALJ has scheduled the hearing for...", time: "2h" },
+    { initials: "KL", unread: false, subject: "Chen Document Review", snippet: "Please review the attached brief when...", time: "1d" },
+  ];
+
+  const recentMessages = msgs?.recentMessages && msgs.recentMessages.length > 0
+    ? msgs.recentMessages.slice(0, 3).map((m) => ({
+        id: m.id,
+        initials: getInitials(m.fromAddress),
+        unread: m.direction === "inbound",
+        subject: m.subject ?? "(no subject)",
+        snippet: m.body ? m.body.substring(0, 60) + "..." : "",
+        time: formatRelativeTime(m.createdAt),
+      }))
+    : null;
+
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
       <div className="ttn-panel-header">Messages</div>
@@ -568,53 +621,27 @@ function MessagesPanel({ active }: { active: boolean }) {
       <div className="ttn-section-label">Folders</div>
       <Link href="/messages" className="ttn-msg-folder active">
         <span>Inbox</span>
-        <span className="ttn-folder-count">3</span>
-      </Link>
-      <Link href="/messages?folder=sent" className="ttn-msg-folder">
-        <span>Sent</span>
-      </Link>
-      <Link href="/messages?folder=drafts" className="ttn-msg-folder">
-        <span>Drafts</span>
+        {unreadCount > 0 && <span className="ttn-folder-count">{unreadCount}</span>}
       </Link>
 
       <div className="ttn-section-label" style={{ marginTop: 16 }}>
         Recent
       </div>
-      {[
-        {
-          initials: "SM",
-          unread: true,
-          subject: "Martinez Case Update",
-          snippet: "Re: Updated medical records received from...",
-          time: "12m",
-        },
-        {
-          initials: "JD",
-          unread: true,
-          subject: "Thompson Hearing Date",
-          snippet: "The ALJ has scheduled the hearing for...",
-          time: "2h",
-        },
-        {
-          initials: "KL",
-          unread: false,
-          subject: "Chen Document Review",
-          snippet: "Please review the attached brief when...",
-          time: "1d",
-        },
-      ].map((msg, i) => (
-        <div key={i} className="ttn-msg-preview">
-          <div className={`ttn-msg-avatar${msg.unread ? " unread" : ""}`}>
-            {msg.initials}
-          </div>
-          <div className="ttn-msg-body">
-            <div className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}>
-              {msg.subject}
+      {(recentMessages ?? fallbackMessages).map((msg, i) => (
+        <Link key={"id" in msg ? (msg as { id: string }).id : i} href="/messages" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="ttn-msg-preview">
+            <div className={`ttn-msg-avatar${msg.unread ? " unread" : ""}`}>
+              {msg.initials}
             </div>
-            <div className="ttn-msg-snippet">{msg.snippet}</div>
+            <div className="ttn-msg-body">
+              <div className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}>
+                {msg.subject}
+              </div>
+              <div className="ttn-msg-snippet">{msg.snippet}</div>
+            </div>
+            <span className="ttn-msg-time">{msg.time}</span>
           </div>
-          <span className="ttn-msg-time">{msg.time}</span>
-        </div>
+        </Link>
       ))}
     </div>
   );
@@ -658,14 +685,44 @@ function SettingsPanel({
   );
 }
 
-function LeadsPanel({ active }: { active: boolean }) {
-  const stages = [
-    { name: "New", count: 5, color: "#10B981" },
-    { name: "Contacted", count: 3, color: "#3B82F6" },
-    { name: "Intake", count: 2, color: "#F59E0B" },
-    { name: "Signed", count: 1, color: "#059669" },
-  ];
-  const maxCount = Math.max(...stages.map((s) => s.count));
+function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+  const STAGE_COLORS: Record<string, string> = {
+    new: "#10B981",
+    contacted: "#3B82F6",
+    intake_in_progress: "#F59E0B",
+    contract_sent: "#8B5CF6",
+    contract_signed: "#059669",
+  };
+  const PIPELINE_ORDER = ["new", "contacted", "intake_in_progress", "contract_sent", "contract_signed"];
+  const LABEL_MAP: Record<string, string> = {
+    new: "New",
+    contacted: "Contacted",
+    intake_in_progress: "Intake",
+    contract_sent: "Contract Sent",
+    contract_signed: "Signed",
+  };
+  let pipelineStages: Array<{ status: string; label: string; count: number }>;
+  if (navData?.leadCounts?.length) {
+    const countMap: Record<string, number> = {};
+    for (const lc of navData.leadCounts) {
+      countMap[lc.status] = lc.count;
+    }
+    pipelineStages = PIPELINE_ORDER.map((status) => ({
+      status,
+      label: LABEL_MAP[status] ?? status,
+      count: countMap[status] ?? 0,
+    }));
+  } else {
+    pipelineStages = PIPELINE_ORDER.map((status) => ({
+      status,
+      label: LABEL_MAP[status] ?? status,
+      count: 0,
+    }));
+  }
+  const maxCount = Math.max(...pipelineStages.map((s) => s.count), 1);
+  const totalLeads = pipelineStages.reduce((sum, s) => sum + s.count, 0);
+  const signedCount = pipelineStages.find((s) => s.status === "contract_signed")?.count ?? 0;
+  const conversionRate = totalLeads > 0 ? Math.round((signedCount / totalLeads) * 100) : 0;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -673,20 +730,23 @@ function LeadsPanel({ active }: { active: boolean }) {
 
       <div className="ttn-section-label">Pipeline</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: "0 12px" }}>
-        {stages.map((stage, i) => (
-          <React.Fragment key={stage.name}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "6px 0" }}>
+        {pipelineStages.map((stage, i) => (
+          <React.Fragment key={stage.status}>
+            <Link
+              href="/leads"
+              style={{ display: "flex", flexDirection: "column", gap: 4, padding: "6px 0", textDecoration: "none", color: "inherit" }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span
                   style={{
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
-                    backgroundColor: stage.color,
+                    backgroundColor: STAGE_COLORS[stage.status] ?? "#999",
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 12, color: "#1C1C1E", flex: 1 }}>{stage.name}</span>
+                <span style={{ fontSize: 12, color: "#1C1C1E", flex: 1 }}>{stage.label}</span>
                 <span
                   style={{
                     fontSize: 10,
@@ -713,13 +773,13 @@ function LeadsPanel({ active }: { active: boolean }) {
                   style={{
                     height: "100%",
                     width: `${(stage.count / maxCount) * 100}%`,
-                    backgroundColor: stage.color,
+                    backgroundColor: STAGE_COLORS[stage.status] ?? "#999",
                     borderRadius: 2,
                   }}
                 />
               </div>
-            </div>
-            {i < stages.length - 1 && (
+            </Link>
+            {i < pipelineStages.length - 1 && (
               <div
                 style={{
                   textAlign: "center",
@@ -728,7 +788,7 @@ function LeadsPanel({ active }: { active: boolean }) {
                   lineHeight: "14px",
                 }}
               >
-                ↓
+                &darr;
               </div>
             )}
           </React.Fragment>
@@ -743,7 +803,7 @@ function LeadsPanel({ active }: { active: boolean }) {
           padding: "10px 12px 0",
         }}
       >
-        25% conversion
+        {conversionRate}% conversion
       </div>
 
       <div style={{ padding: "12px 12px 0" }}>
@@ -755,21 +815,50 @@ function LeadsPanel({ active }: { active: boolean }) {
             textDecoration: "none",
           }}
         >
-          View pipeline →
+          View pipeline &rarr;
         </Link>
       </div>
     </div>
   );
 }
 
-function QueuePanel({ active }: { active: boolean }) {
-  const tasks = [
-    { title: "Follow up with Martinez on medical records", due: "Today", overdue: true },
-    { title: "File Thompson motion to compel", due: "Today", overdue: true },
-    { title: "Review Chen deposition transcript", due: "Yesterday", overdue: true },
-    { title: "Draft Wilson intake summary", due: "Mar 30", overdue: false },
-    { title: "Schedule Davis hearing prep call", due: "Mar 31", overdue: false },
+function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+  const fallbackTasks = [
+    { id: "1", title: "Follow up with Martinez on medical records", due: "Today", overdue: true },
+    { id: "2", title: "File Thompson motion to compel", due: "Today", overdue: true },
+    { id: "3", title: "Review Chen deposition transcript", due: "Yesterday", overdue: true },
+    { id: "4", title: "Draft Wilson intake summary", due: "Mar 30", overdue: false },
+    { id: "5", title: "Schedule Davis hearing prep call", due: "Mar 31", overdue: false },
   ];
+
+  const taskSummary = navData?.taskSummary;
+  const totalTasks = taskSummary?.total ?? 12;
+  const overdueCount = taskSummary?.overdue ?? 3;
+
+  function formatTaskDue(dueDate: Date | null): { label: string; isOverdue: boolean } {
+    if (!dueDate) return { label: "No date", isOverdue: false };
+    const due = new Date(dueDate);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (due < now) return { label: "Overdue", isOverdue: true };
+    if (due < tomorrow) return { label: "Today", isOverdue: false };
+    const diff = Math.ceil((due.getTime() - today.getTime()) / 86400000);
+    if (diff === 1) return { label: "Tomorrow", isOverdue: false };
+    return {
+      label: due.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      isOverdue: false,
+    };
+  }
+
+  const displayTasks: Array<{ id: string; title: string; due: string; overdue: boolean }> =
+    taskSummary?.topTasks?.length
+      ? taskSummary.topTasks.map((t) => {
+          const dueInfo = formatTaskDue(t.dueDate);
+          return { id: t.id, title: t.title, due: dueInfo.label, overdue: dueInfo.isOverdue };
+        })
+      : fallbackTasks;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -782,19 +871,29 @@ function QueuePanel({ active }: { active: boolean }) {
           padding: "0 12px 8px",
         }}
       >
-        12 tasks · <span style={{ color: "#EE0000" }}>3 overdue</span>
+        {totalTasks} task{totalTasks !== 1 ? "s" : ""} &middot;{" "}
+        {overdueCount > 0 ? (
+          <Link href="/queue?tab=overdue" style={{ color: "#EE0000", textDecoration: "none" }}>
+            {overdueCount} overdue
+          </Link>
+        ) : (
+          <span>0 overdue</span>
+        )}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column" }}>
-        {tasks.map((task, i) => (
-          <div
-            key={i}
+        {displayTasks.map((task, i) => (
+          <Link
+            key={task.id}
+            href="/queue"
             style={{
               display: "flex",
               alignItems: "flex-start",
               gap: 8,
               padding: "8px 12px",
-              borderBottom: i < tasks.length - 1 ? "1px solid #F0F0F0" : "none",
+              borderBottom: i < displayTasks.length - 1 ? "1px solid #F0F0F0" : "none",
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
             <div
@@ -830,7 +929,7 @@ function QueuePanel({ active }: { active: boolean }) {
                 {task.due}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -843,22 +942,21 @@ function QueuePanel({ active }: { active: boolean }) {
             textDecoration: "none",
           }}
         >
-          View all tasks →
+          View all tasks &rarr;
         </Link>
       </div>
     </div>
   );
 }
 
-function CalendarPanel({ active }: { active: boolean }) {
+function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
   const now = new Date();
   const monthYear = now
     .toLocaleDateString("en-US", { month: "long", year: "numeric" })
     .toUpperCase();
 
-  // Get the current week (Sun-Sat) around today
   const today = now.getDate();
-  const dayOfWeek = now.getDay(); // 0=Sun
+  const dayOfWeek = now.getDay();
   const weekDays: { label: string; date: number; isToday: boolean }[] = [];
   for (let i = 0; i < 7; i++) {
     const diff = i - dayOfWeek;
@@ -871,17 +969,30 @@ function CalendarPanel({ active }: { active: boolean }) {
     });
   }
 
-  const events = [
-    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669" },
-    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B" },
-    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669" },
+  const todayEvents = navData?.todayEvents;
+  const hasEvents = todayEvents && todayEvents.length > 0;
+
+  const fallbackEvents = [
+    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669", href: "/calendar" },
+    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B", href: "/calendar" },
+    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669", href: "/calendar" },
   ];
+
+  const events = hasEvents
+    ? todayEvents.slice(0, 3).map((e) => ({
+        id: e.id,
+        time: formatEventTime(e.startTime),
+        title: e.title,
+        type: e.eventType ?? "Event",
+        color: getEventColor(e.eventType),
+        href: e.caseId ? `/cases/${e.caseId}/calendar` : "/calendar",
+      }))
+    : null;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
       <div className="ttn-panel-header">Calendar</div>
 
-      {/* Mini month display */}
       <div style={{ padding: "0 12px 8px" }}>
         <div
           style={{
@@ -896,13 +1007,16 @@ function CalendarPanel({ active }: { active: boolean }) {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           {weekDays.map((day, i) => (
-            <div
+            <Link
               key={i}
+              href="/calendar"
               style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 4,
+                textDecoration: "none",
+                position: "relative",
               }}
             >
               <span style={{ fontSize: 9, color: "#999" }}>{day.label}</span>
@@ -922,64 +1036,86 @@ function CalendarPanel({ active }: { active: boolean }) {
               >
                 {day.date}
               </div>
-            </div>
+              {day.isToday && hasEvents && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: -2,
+                    width: 4,
+                    height: 4,
+                    borderRadius: "50%",
+                    backgroundColor: "#059669",
+                  }}
+                />
+              )}
+            </Link>
           ))}
         </div>
       </div>
 
       <div className="ttn-section-label">Today&apos;s Events</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {events.map((event, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 8,
-              padding: "8px 12px",
-            }}
+        {navData && !hasEvents && (
+          <div style={{ padding: "8px 12px", fontSize: 12, color: "#999" }}>
+            No events today
+          </div>
+        )}
+        {(events ?? fallbackEvents).map((event, i) => (
+          <Link
+            key={"id" in event ? (event as { id: string }).id : i}
+            href={event.href}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <span
-              style={{
-                fontSize: 10,
-                fontFamily: "monospace",
-                color: "#999",
-                whiteSpace: "nowrap",
-                marginTop: 1,
-                minWidth: 54,
-              }}
-            >
-              {event.time}
-            </span>
             <div
               style={{
-                width: 3,
-                alignSelf: "stretch",
-                borderRadius: 2,
-                backgroundColor: event.color,
-                flexShrink: 0,
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 8,
+                padding: "8px 12px",
               }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: "#1C1C1E" }}>{event.title}</div>
+            >
               <span
                 style={{
-                  display: "inline-block",
-                  fontSize: 9,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  border: `1px solid ${event.color}`,
-                  color: event.color,
-                  borderRadius: 3,
-                  padding: "0 4px",
-                  lineHeight: "16px",
-                  marginTop: 3,
+                  fontSize: 10,
+                  fontFamily: "monospace",
+                  color: "#999",
+                  whiteSpace: "nowrap",
+                  marginTop: 1,
+                  minWidth: 54,
                 }}
               >
-                {event.type}
+                {event.time}
               </span>
+              <div
+                style={{
+                  width: 3,
+                  alignSelf: "stretch",
+                  borderRadius: 2,
+                  backgroundColor: event.color,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, color: "#1C1C1E" }}>{event.title}</div>
+                <span
+                  style={{
+                    display: "inline-block",
+                    fontSize: 9,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    border: `1px solid ${event.color}`,
+                    color: event.color,
+                    borderRadius: 3,
+                    padding: "0 4px",
+                    lineHeight: "16px",
+                    marginTop: 3,
+                  }}
+                >
+                  {event.type}
+                </span>
+              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -999,16 +1135,31 @@ function CalendarPanel({ active }: { active: boolean }) {
   );
 }
 
-function EmailPanel({ active }: { active: boolean }) {
+function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
   const [activeTab, setActiveTab] = useState<"matched" | "unmatched">("matched");
-  const connected = true;
+  const emailData = navData?.emailSummary;
+  const connected = emailData?.isOutlookConfigured ?? false;
+  const unmatchedCount = emailData?.unmatchedCount ?? 0;
 
-  const matchedEmails = [
-    { initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015", time: "9:14 AM" },
-    { initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987", time: "8:42 AM" },
-    { initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102", time: "Yesterday" },
-    { initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098", time: "Yesterday" },
+  const fallbackEmails = [
+    { initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015" as string | null, caseId: null as string | null, time: "9:14 AM" },
+    { initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987" as string | null, caseId: null as string | null, time: "8:42 AM" },
+    { initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102" as string | null, caseId: null as string | null, time: "Yesterday" },
+    { initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098" as string | null, caseId: null as string | null, time: "Yesterday" },
   ];
+
+  const realEmails = emailData?.recentEmails && emailData.recentEmails.length > 0
+    ? emailData.recentEmails.slice(0, 4).map((e) => ({
+        id: e.id,
+        initials: getInitials(e.fromAddress),
+        subject: e.subject ?? "(no subject)",
+        caseLink: e.caseNumber ?? null,
+        caseId: e.caseId,
+        time: formatRelativeTime(e.createdAt),
+      }))
+    : null;
+
+  const displayEmails = realEmails ?? fallbackEmails;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -1066,92 +1217,109 @@ function EmailPanel({ active }: { active: boolean }) {
           }}
         >
           Unmatched
-          <span
-            style={{
-              fontSize: 11,
-              color: "#D97706",
-              border: "1px solid #D97706",
-              borderRadius: 9,
-              padding: "0 6px",
-              lineHeight: "18px",
-              fontFamily: "monospace",
-            }}
-          >
-            3 unmatched
-          </span>
+          {unmatchedCount > 0 && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#D97706",
+                border: "1px solid #D97706",
+                borderRadius: 9,
+                padding: "0 6px",
+                lineHeight: "18px",
+                fontFamily: "monospace",
+              }}
+            >
+              {unmatchedCount}
+            </span>
+          )}
         </button>
       </div>
 
       {/* Email list */}
       <div style={{ display: "flex", flexDirection: "column" }}>
         {activeTab === "matched" &&
-          matchedEmails.map((email, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 8,
-                padding: "8px 12px",
-                borderBottom: i < matchedEmails.length - 1 ? "1px solid #F0F0F0" : "none",
-              }}
+          displayEmails.map((email, i) => (
+            <Link
+              key={"id" in email ? (email as { id: string }).id : i}
+              href="/email"
+              style={{ textDecoration: "none", color: "inherit" }}
             >
               <div
                 style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  backgroundColor: "#E5E7EB",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 8,
-                  fontWeight: 600,
-                  color: "#374151",
-                  flexShrink: 0,
-                  marginTop: 1,
+                  alignItems: "flex-start",
+                  gap: 8,
+                  padding: "8px 12px",
+                  borderBottom: i < displayEmails.length - 1 ? "1px solid #F0F0F0" : "none",
                 }}
               >
-                {email.initials}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 12,
-                    color: "#1C1C1E",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    backgroundColor: "#E5E7EB",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 8,
+                    fontWeight: 600,
+                    color: "#374151",
+                    flexShrink: 0,
+                    marginTop: 1,
                   }}
                 >
-                  {email.subject}
+                  {email.initials}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
-                  <span
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
                     style={{
-                      fontSize: 10,
-                      fontFamily: "monospace",
-                      color: "#999",
+                      fontSize: 12,
+                      color: "#1C1C1E",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    &rarr; {email.caseLink}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontFamily: "monospace",
-                      color: "#999",
-                    }}
-                  >
-                    {email.time}
-                  </span>
+                    {email.subject}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                    {email.caseLink && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontFamily: "monospace",
+                          color: "#999",
+                        }}
+                      >
+                        {email.caseId ? (
+                          <Link href={`/cases/${email.caseId}`} style={{ color: "#059669", textDecoration: "none" }} onClick={(ev) => ev.stopPropagation()}>
+                            &rarr; {email.caseLink}
+                          </Link>
+                        ) : (
+                          <>&rarr; {email.caseLink}</>
+                        )}
+                      </span>
+                    )}
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontFamily: "monospace",
+                        color: "#999",
+                      }}
+                    >
+                      {email.time}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         {activeTab === "unmatched" && (
           <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
-            3 emails need case matching
+            {unmatchedCount > 0
+              ? `${unmatchedCount} email${unmatchedCount === 1 ? "" : "s"} need case matching`
+              : "No unmatched emails"}
           </div>
         )}
       </div>

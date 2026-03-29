@@ -3,6 +3,7 @@ import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { TwoTierNav } from "@/components/layout/two-tier-nav";
 import { Header } from "@/components/layout/header";
 import { getActiveCaseCount } from "@/app/actions/cases";
+import { getNavPanelData } from "@/app/actions/nav-data";
 
 export default async function AppLayout({
   children,
@@ -10,12 +11,15 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const user = await requireSession();
-  const casesCount = await getActiveCaseCount();
+  const [casesCount, navData] = await Promise.all([
+    getActiveCaseCount(),
+    getNavPanelData().catch(() => undefined),
+  ]);
 
   return (
     <ThemeWrapper>
       <div className="ttn-app-layout">
-        <TwoTierNav user={user} casesCount={casesCount} />
+        <TwoTierNav user={user} casesCount={casesCount} navData={navData} />
         <main className="ttn-main-area">
           <Header />
           <div className="flex-1 overflow-auto p-4 md:p-8">{children}</div>
