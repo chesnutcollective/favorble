@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: #0A0A0A;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtle grid pattern overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 35%, rgba(255,255,255,0.012) 0.5px, transparent 0.5px),
+      radial-gradient(circle at 75% 60%, rgba(255,255,255,0.01) 0.5px, transparent 0.5px),
+      radial-gradient(circle at 50% 80%, rgba(255,255,255,0.008) 0.5px, transparent 0.5px);
+    background-size: 3px 3px, 5px 5px, 7px 7px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .login-wrapper {
+    width: 100%;
+    max-width: 360px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  }
+
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes logoGlow {
+    0%, 100% {
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+    }
+    50% {
+      box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+    }
+  }
+
+  @keyframes logoGlowIn {
+    0% {
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+    }
+    100% {
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+    }
+  }
+
+  /* Monogram */
+  .monogram {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0A0A0A;
+    animation: logoGlow 3s ease-in-out 1s infinite;
+  }
+
+  /* Brand name */
+  .brand-name {
+    margin-top: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  /* Tagline */
+  .brand-tagline {
+    margin-top: 6px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.01em;
+  }
+
+  /* Form */
+  .login-form {
+    width: 100%;
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.25s ease;
+    border-radius: 0;
+    -webkit-appearance: none;
+  }
+
+  .field-input::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  .field-input:focus {
+    border-bottom-color: #10B981;
+  }
+
+  /* Sign-in button */
+  .sign-in-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 13px 0;
+    background-color: #10B981;
+    color: #0A0A0A;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .sign-in-btn:hover {
+    background-color: #34D399;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  }
+
+  .sign-in-btn:active {
+    background-color: #059669;
+    box-shadow: none;
+  }
+
+  /* Forgot link */
+  .forgot-link {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .forgot-link a {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .forgot-link a:hover {
+    color: #10B981;
+  }
+
+  /* Footer */
+  .page-footer {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+    white-space: nowrap;
+  }
+
+  .page-footer svg {
+    width: 11px;
+    height: 11px;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="monogram">F</div>
+  <div class="brand-name">Favorble</div>
+  <div class="brand-tagline">Social Security Disability Platform</div>
+
+  <form class="login-form" onsubmit="return false;">
+    <div class="field-group">
+      <label class="field-label" for="email">Email</label>
+      <input
+        class="field-input"
+        type="email"
+        id="email"
+        autocomplete="email"
+        autofocus
+        placeholder="you@example.com"
+      >
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="password">Password</label>
+      <input
+        class="field-input"
+        type="password"
+        id="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+      >
+    </div>
+    <button type="submit" class="sign-in-btn">Sign in</button>
+    <div class="forgot-link">
+      <a href="#">Forgot your password?</a>
+    </div>
+  </form>
+</div>
+
+<div class="page-footer">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+    <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 6V4.5a2 2 0 1 0-4 0V7h4Zm-1 3.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" clip-rule="evenodd"/>
+  </svg>
+  Protected by 256-bit encryption
+</div>
+
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .split {
+    display: flex;
+    height: 100%;
+    min-height: 100vh;
+  }
+
+  /* ─── Left Panel ─── */
+  .panel-brand {
+    flex: 1;
+    background: #1C1C1E;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 60px 40px;
+  }
+
+  .brand-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .monogram {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .wordmark {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.025em;
+  }
+
+  .tagline {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .testimonial {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    right: 40px;
+    text-align: center;
+  }
+
+  .testimonial q {
+    display: block;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+    line-height: 1.5;
+    quotes: "\201C" "\201D";
+  }
+
+  .testimonial .attribution {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* ─── Right Panel ─── */
+  .panel-form {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 340px;
+    animation: formReveal 400ms ease both;
+  }
+
+  @keyframes formReveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .form-heading {
+    font-size: 24px;
+    font-weight: 600;
+    color: #171717;
+    margin-bottom: 4px;
+  }
+
+  .form-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+  }
+
+  .field input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #171717;
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+
+  .field input::placeholder {
+    color: #B0B0B0;
+  }
+
+  .field input:focus {
+    border-color: #10B981;
+  }
+
+  .field-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .forgot-link {
+    font-size: 13px;
+    color: #10B981;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .forgot-link:hover {
+    color: #059669;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    height: 42px;
+    background: #10B981;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease;
+    margin-top: 28px;
+  }
+
+  .btn-primary:hover {
+    background: #059669;
+  }
+
+  /* ─── Divider ─── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #EAEAEA;
+  }
+
+  .divider span {
+    font-size: 12px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  /* ─── Social Buttons ─── */
+  .social-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 42px;
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 150ms ease;
+  }
+
+  .btn-social:hover {
+    border-color: #CCC;
+  }
+
+  .btn-social .ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .btn-social .ico svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ─── Footer ─── */
+  .form-footer {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .form-footer a {
+    color: #999;
+    text-decoration: underline;
+    text-decoration-color: #CCC;
+    text-underline-offset: 2px;
+  }
+
+  .form-footer a:hover {
+    color: #666;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .split {
+      flex-direction: column;
+    }
+
+    .panel-brand {
+      flex: none;
+      padding: 28px 24px;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 14px;
+    }
+
+    .brand-center {
+      flex-direction: row;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .monogram {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      font-size: 22px;
+    }
+
+    .wordmark {
+      font-size: 20px;
+    }
+
+    .tagline,
+    .testimonial {
+      display: none;
+    }
+
+    .panel-form {
+      flex: 1;
+      align-items: flex-start;
+      padding-top: 40px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="split">
+
+  <!-- Left: Brand Panel -->
+  <div class="panel-brand">
+    <div class="brand-center">
+      <div class="monogram">F</div>
+      <div class="wordmark">Favorble</div>
+      <div class="tagline">Social Security Disability Case Management</div>
+    </div>
+    <div class="testimonial">
+      <q>Favorble replaced 3 tools for our firm. We haven't looked back.</q>
+      <div class="attribution">Sarah Chen, Managing Partner</div>
+    </div>
+  </div>
+
+  <!-- Right: Form Panel -->
+  <div class="panel-form">
+    <div class="form-container">
+      <h1 class="form-heading">Welcome back</h1>
+      <p class="form-subtitle">Sign in to your account</p>
+
+      <form onsubmit="return false;">
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@yourfirm.com" autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+          <div class="field-footer">
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Sign in</button>
+      </form>
+
+      <div class="divider"><span>or continue with</span></div>
+
+      <div class="social-buttons">
+        <button type="button" class="btn-social">
+          <span class="ico"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></span>
+          Continue with Google
+        </button>
+        <button type="button" class="btn-social">
+          <span class="ico"><svg viewBox="0 0 21 21"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#00a4ef" d="M0 11h10v10H0z"/><path fill="#7fba00" d="M11 0h10v10H11z"/><path fill="#ffb900" d="M11 11h10v10H11z"/></svg></span>
+          Continue with Microsoft
+        </button>
+      </div>
+
+      <div class="form-footer">
+        Don't have an account? <a href="#">Contact your administrator</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

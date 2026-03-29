@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Sign In</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap');
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #F0FDF4 0%, #FAFAFA 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Decorative background circles */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  body::before {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    left: -200px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
+  }
+
+  body::after {
+    width: 500px;
+    height: 500px;
+    bottom: -150px;
+    right: -150px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
+  }
+
+  .login-card {
+    width: 420px;
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #000;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #171717;
+    letter-spacing: -0.02em;
+  }
+
+  .separator {
+    height: 1px;
+    background: #EAEAEA;
+    margin-bottom: 28px;
+  }
+
+  .heading {
+    font-size: 20px;
+    font-weight: 600;
+    color: #171717;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .subheading {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeInUp 0.35s ease forwards;
+  }
+
+  .form-group:nth-child(1) { animation-delay: 0ms; }
+  .form-group:nth-child(2) { animation-delay: 100ms; }
+  .form-group:nth-child(3) { animation-delay: 200ms; }
+  .form-group:nth-child(4) { animation-delay: 300ms; }
+  .form-group:nth-child(5) { animation-delay: 400ms; }
+  .form-group:nth-child(6) { animation-delay: 500ms; }
+  .form-group:nth-child(7) { animation-delay: 600ms; }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #171717;
+    margin-bottom: 6px;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #171717;
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="text"]:focus {
+    border-color: #000;
+  }
+
+  input::placeholder {
+    color: #A3A3A3;
+  }
+
+  .password-wrapper {
+    position: relative;
+  }
+
+  .password-wrapper input {
+    padding-right: 42px;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    border-radius: 0 5px 5px 0;
+    transition: color 0.15s ease;
+  }
+
+  .toggle-password:hover {
+    color: #171717;
+  }
+
+  .toggle-password svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+  }
+
+  .remember-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 0;
+  }
+
+  .remember-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #000;
+    cursor: pointer;
+  }
+
+  .forgot-link {
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .forgot-link:hover {
+    color: #000;
+  }
+
+  .btn-primary {
+    width: 100%;
+    height: 40px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    background: #171717;
+  }
+
+  .btn-primary:active {
+    background: #333;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #EAEAEA;
+  }
+
+  .divider span {
+    font-size: 12px;
+    color: #999;
+    text-transform: lowercase;
+  }
+
+  .btn-outline {
+    width: 100%;
+    height: 40px;
+    background: #fff;
+    color: #171717;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .btn-outline:hover {
+    border-color: #000;
+    background: #FAFAFA;
+  }
+
+  .footer-text {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    position: relative;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="logo-section">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 4h12v2H6V4zm0 4h12v2H6V8zm0 4h8v2H6v-2zm0 4h10v2H6v-2z" fill="#fff"/>
+      </svg>
+    </div>
+    <span class="logo-text">Favorble</span>
+  </div>
+
+  <div class="separator"></div>
+
+  <form onsubmit="return false;">
+    <div class="form-group">
+      <h1 class="heading">Sign in</h1>
+      <p class="subheading">Enter your credentials to continue</p>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@company.com" autocomplete="email">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">
+          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="remember-row">
+        <label class="remember-label">
+          <input type="checkbox"> Remember me
+        </label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn-primary">Sign in</button>
+    </div>
+
+    <div class="form-group">
+      <div class="divider"><span>or</span></div>
+    </div>
+
+    <div class="form-group">
+      <button type="button" class="btn-outline">Sign in with SSO</button>
+    </div>
+  </form>
+</div>
+
+<div class="footer-text">Favorble by Hogan Smith</div>
+
+<script>
+function togglePassword() {
+  const input = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
+  const eyeOffIcon = document.getElementById('eye-off-icon');
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeIcon.style.display = 'none';
+    eyeOffIcon.style.display = 'block';
+  } else {
+    input.type = 'password';
+    eyeIcon.style.display = 'block';
+    eyeOffIcon.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>

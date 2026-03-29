@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Sign In</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background:
+      /* Foreground layers: soft light shapes */
+      radial-gradient(ellipse 600px 400px at 20% 30%, rgba(16, 78, 96, 0.7) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 500px at 75% 20%, rgba(30, 58, 95, 0.65) 0%, transparent 65%),
+      radial-gradient(ellipse 400px 350px at 60% 70%, rgba(20, 90, 80, 0.5) 0%, transparent 60%),
+      radial-gradient(ellipse 700px 300px at 40% 80%, rgba(40, 50, 70, 0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 300px 500px at 85% 60%, rgba(55, 75, 90, 0.45) 0%, transparent 55%),
+      radial-gradient(ellipse 350px 250px at 10% 75%, rgba(25, 65, 75, 0.5) 0%, transparent 60%),
+      /* Mid layers: broad washes */
+      radial-gradient(ellipse 900px 600px at 50% 50%, rgba(18, 52, 72, 0.8) 0%, transparent 70%),
+      radial-gradient(ellipse 1200px 800px at 30% 40%, rgba(12, 36, 54, 0.6) 0%, transparent 80%),
+      /* Subtle warm accent */
+      radial-gradient(ellipse 200px 200px at 65% 45%, rgba(80, 100, 90, 0.3) 0%, transparent 70%),
+      /* Base */
+      linear-gradient(160deg, #0f1923 0%, #162a3a 25%, #1a3345 45%, #14292e 65%, #101c26 85%, #0b1218 100%);
+    background-attachment: fixed;
+  }
+
+  .login-panel {
+    width: 400px;
+    max-width: calc(100vw - 40px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    padding: 36px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .panel-content {
+    animation: fadeIn 0.6s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1C1C1E;
+    letter-spacing: -0.3px;
+  }
+
+  .heading {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1C1C1E;
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+
+  .separator {
+    height: 1px;
+    background: #E5E5E5;
+    margin-bottom: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #3C3C43;
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    color: #1C1C1E;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .form-input::placeholder {
+    color: #A0A0A0;
+  }
+
+  .form-input:focus {
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .password-wrapper {
+    position: relative;
+  }
+
+  .password-wrapper .form-input {
+    padding-right: 48px;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8E8E93;
+    font-size: 13px;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    padding: 4px;
+    transition: color 0.15s ease;
+  }
+
+  .password-toggle:hover {
+    color: #3C3C43;
+  }
+
+  .options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .remember-me input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid #D1D1D6;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    background: #fff;
+  }
+
+  .remember-me input[type="checkbox"]:checked {
+    background: #1C1C1E;
+    border-color: #1C1C1E;
+  }
+
+  .remember-me input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4.5px;
+    top: 1.5px;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+  }
+
+  .remember-me span {
+    font-size: 13px;
+    color: #3C3C43;
+    user-select: none;
+  }
+
+  .forgot-link {
+    font-size: 13px;
+    color: #10B981;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+
+  .forgot-link:hover {
+    color: #059669;
+  }
+
+  .sign-in-btn {
+    width: 100%;
+    height: 46px;
+    background: #1C1C1E;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    letter-spacing: -0.2px;
+  }
+
+  .sign-in-btn:hover {
+    background: #2C2C2E;
+  }
+
+  .sign-in-btn:active {
+    transform: scale(0.985);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: #E5E5E5;
+  }
+
+  .divider-text {
+    font-size: 12px;
+    color: #8E8E93;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .social-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .social-btn {
+    flex: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #3C3C43;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .social-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #D1D1D6;
+  }
+
+  .social-btn svg {
+    flex-shrink: 0;
+  }
+
+  .footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: -0.1px;
+    animation: fadeIn 0.8s ease-out 0.3s both;
+  }
+
+  .footer span {
+    margin: 0 4px;
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-panel">
+  <div class="panel-content">
+    <div class="brand">
+      <div class="brand-logo">F</div>
+      <div class="brand-name">Favorble</div>
+    </div>
+
+    <h1 class="heading">Welcome back</h1>
+    <div class="separator"></div>
+
+    <form onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-wrapper">
+          <input class="form-input" type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+          <button type="button" class="password-toggle" onclick="togglePassword()" id="toggleBtn">Show</button>
+        </div>
+      </div>
+
+      <div class="options-row">
+        <label class="remember-me">
+          <input type="checkbox">
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="sign-in-btn">Sign in</button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">Or sign in with</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="social-buttons">
+        <button type="button" class="social-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.26c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Google
+        </button>
+        <button type="button" class="social-btn">
+          <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+          </svg>
+          Microsoft
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="footer">Favorble <span>&mdash;</span> Powered by Hogan Smith</div>
+
+<script>
+function togglePassword() {
+  const input = document.getElementById('password');
+  const btn = document.getElementById('toggleBtn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
+</script>
+
+</body>
+</html>

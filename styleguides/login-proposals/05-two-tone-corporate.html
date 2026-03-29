@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Left Panel (60%) ── */
+  .left-panel {
+    width: 60%;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 32px 40px;
+  }
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-wordmark {
+    font-size: 16px;
+    font-weight: 600;
+    color: #171717;
+    letter-spacing: -0.01em;
+  }
+
+  .form-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 80px;
+    padding-left: 40px;
+  }
+
+  .form-wrapper {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .form-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #171717;
+    letter-spacing: -0.025em;
+    margin-bottom: 6px;
+  }
+
+  .form-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #171717;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .input-field::placeholder {
+    color: #B0B0B0;
+  }
+
+  .input-field:focus {
+    border-color: #999;
+  }
+
+  .options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    margin-top: 4px;
+  }
+
+  .switch-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .switch-track {
+    width: 36px;
+    height: 20px;
+    background: #D4D4D4;
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .switch-track.on {
+    background: #10B981;
+  }
+
+  .switch-thumb {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .switch-track.on .switch-thumb {
+    transform: translateX(16px);
+  }
+
+  .switch-label {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .reset-link {
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .reset-link:hover {
+    color: #171717;
+  }
+
+  .btn-continue {
+    width: 100%;
+    padding: 11px 0;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-continue:hover {
+    opacity: 0.85;
+  }
+
+  .separator {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .separator-line {
+    flex: 1;
+    height: 1px;
+    background: #EAEAEA;
+  }
+
+  .separator-text {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .btn-microsoft {
+    width: 100%;
+    padding: 11px 0;
+    background: #fff;
+    color: #333;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .btn-microsoft:hover {
+    border-color: #CCC;
+    background: #FAFAFA;
+  }
+
+  .ms-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5px;
+  }
+
+  .ms-icon span {
+    width: 7px;
+    height: 7px;
+  }
+
+  .ms-icon span:nth-child(1) { background: #F25022; }
+  .ms-icon span:nth-child(2) { background: #7FBA00; }
+  .ms-icon span:nth-child(3) { background: #00A4EF; }
+  .ms-icon span:nth-child(4) { background: #FFB900; }
+
+  .footer-note {
+    font-size: 12px;
+    color: #999;
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .footer-note a {
+    color: #666;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Right Panel (40%) ── */
+  .right-panel {
+    width: 40%;
+    background: #1C1C1E;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 48px;
+    overflow: hidden;
+  }
+
+  .right-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, #10B981, transparent);
+  }
+
+  .stat-section {
+    margin-bottom: 56px;
+  }
+
+  .stat-number {
+    font-size: 72px;
+    font-weight: 700;
+    color: #10B981;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+  }
+
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-bottom: 56px;
+  }
+
+  .feature {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .feature.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .feature-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .feature-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+    flex-shrink: 0;
+  }
+
+  .feature-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.45);
+    padding-left: 14px;
+    line-height: 1.5;
+  }
+
+  .trust-line {
+    position: absolute;
+    bottom: 40px;
+    left: 48px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="logo">
+      <div class="logo-mark">F</div>
+      <div class="logo-wordmark">Favorble</div>
+    </div>
+
+    <div class="form-area">
+      <div class="form-wrapper">
+        <h1 class="form-heading">Sign in to Favorble</h1>
+        <p class="form-subtitle">Manage your SSA disability cases</p>
+
+        <div class="input-group">
+          <label class="input-label" for="email">Email</label>
+          <input type="email" id="email" class="input-field" placeholder="you@yourfirm.com" autocomplete="email">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="password">Password</label>
+          <input type="password" id="password" class="input-field" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+
+        <div class="options-row">
+          <div class="switch-group" id="rememberToggle">
+            <div class="switch-track" id="switchTrack">
+              <div class="switch-thumb"></div>
+            </div>
+            <span class="switch-label">Remember this device</span>
+          </div>
+          <a href="#" class="reset-link">Reset password</a>
+        </div>
+
+        <button class="btn-continue" type="button">Continue</button>
+
+        <div class="separator">
+          <div class="separator-line"></div>
+          <span class="separator-text">or</span>
+          <div class="separator-line"></div>
+        </div>
+
+        <button class="btn-microsoft" type="button">
+          <div class="ms-icon">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          Sign in with Microsoft 365
+        </button>
+
+        <p class="footer-note">Need an account? Contact your firm administrator</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="stat-section">
+      <div class="stat-number" id="statNumber">0</div>
+      <div class="stat-label">Cases managed this month</div>
+    </div>
+
+    <div class="features">
+      <div class="feature" data-delay="0">
+        <div class="feature-title">
+          <div class="feature-dot"></div>
+          <span class="feature-name">ERE Monitoring</span>
+        </div>
+        <div class="feature-desc">Automated SSA document tracking</div>
+      </div>
+
+      <div class="feature" data-delay="1">
+        <div class="feature-title">
+          <div class="feature-dot"></div>
+          <span class="feature-name">Medical Chronology</span>
+        </div>
+        <div class="feature-desc">AI-powered record analysis</div>
+      </div>
+
+      <div class="feature" data-delay="2">
+        <div class="feature-title">
+          <div class="feature-dot"></div>
+          <span class="feature-name">Hearing Prep</span>
+        </div>
+        <div class="feature-desc">Exhibit packets with Bates stamping</div>
+      </div>
+    </div>
+
+    <div class="trust-line">Trusted by 50+ disability law firms</div>
+  </div>
+</div>
+
+<script>
+  // Toggle switch
+  const toggle = document.getElementById('rememberToggle');
+  const track = document.getElementById('switchTrack');
+  toggle.addEventListener('click', () => {
+    track.classList.toggle('on');
+  });
+
+  // Count-up animation for stat number
+  function animateCount(el, target, duration) {
+    const start = performance.now();
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target);
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+    requestAnimationFrame(update);
+  }
+
+  // Staggered fade-in for features
+  function revealFeatures() {
+    const features = document.querySelectorAll('.feature');
+    features.forEach((feature, i) => {
+      setTimeout(() => {
+        feature.classList.add('visible');
+      }, 400 + i * 200);
+    });
+  }
+
+  // Run on load
+  window.addEventListener('DOMContentLoaded', () => {
+    animateCount(document.getElementById('statNumber'), 847, 1600);
+    revealFeatures();
+  });
+</script>
+
+</body>
+</html>
