@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -34,8 +33,6 @@ import {
 } from "@/components/ui/table";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
   Search01Icon,
   Cancel01Icon,
   PlusSignIcon,
@@ -610,7 +607,7 @@ export function CasesListClient({
               cases.map((c) => (
                 <TableRow
                   key={c.id}
-                  className="cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
+                  className="cursor-pointer hover:bg-[#FAFAFA] transition-colors duration-200"
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -625,39 +622,52 @@ export function CasesListClient({
                           ? `${c.claimant.lastName}, ${c.claimant.firstName}`
                           : "Unknown"}
                       </p>
-                      <p className="text-xs text-[#999] font-mono">
+                      <p className="text-[12px] text-[#999] font-mono">
                         {c.caseNumber}
                       </p>
                     </Link>
                   </TableCell>
                   <TableCell>
                     {c.stageName && (
-                      <Badge
-                        variant="outline"
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium"
                         style={{
-                          borderColor:
-                            c.stageColor ?? c.stageGroupColor ?? undefined,
-                          color: c.stageColor ?? c.stageGroupColor ?? undefined,
+                          borderColor: c.stageColor ?? c.stageGroupColor
+                            ? `color-mix(in srgb, ${c.stageColor ?? c.stageGroupColor} 30%, transparent)`
+                            : "#DDD",
+                          color: c.stageColor ?? c.stageGroupColor ?? "#888",
+                          background: c.stageColor ?? c.stageGroupColor
+                            ? `color-mix(in srgb, ${c.stageColor ?? c.stageGroupColor} 6%, transparent)`
+                            : "rgba(136,136,136,0.06)",
                         }}
                       >
+                        <span
+                          className="inline-block h-1.5 w-1.5 rounded-full"
+                          style={{
+                            backgroundColor: c.stageColor ?? c.stageGroupColor ?? "#888",
+                          }}
+                        />
                         {c.stageName}
-                      </Badge>
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
                     {c.assignedStaff.length > 0 ? (
-                      <span className="text-sm text-foreground">
-                        {c.assignedStaff
-                          .map((a) => `${a.firstName} ${a.lastName[0]}.`)
-                          .join(", ")}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#EAEAEA] text-[9px] font-semibold text-[#171717]">
+                          {c.assignedStaff[0].firstName.charAt(0)}{c.assignedStaff[0].lastName.charAt(0)}
+                        </span>
+                        <span className="text-[13px] text-foreground">
+                          {c.assignedStaff[0].firstName.charAt(0)}. {c.assignedStaff[0].lastName}
+                        </span>
+                      </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground">
                         Unassigned
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-[12px] text-[#666] font-mono">
                     {formatRelativeTime(c.updatedAt)}
                   </TableCell>
                 </TableRow>
@@ -669,7 +679,7 @@ export function CasesListClient({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[13px] text-[#666]">
           {total} total case{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
@@ -679,10 +689,11 @@ export function CasesListClient({
               size="sm"
               disabled={page <= 1}
               onClick={() => applyFilters({ page: page - 1 })}
+              className="text-[13px]"
             >
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+              &larr; Previous
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[13px] text-[#666]">
               Page {page} of {totalPages}
             </span>
             <Button
@@ -690,8 +701,9 @@ export function CasesListClient({
               size="sm"
               disabled={page >= totalPages}
               onClick={() => applyFilters({ page: page + 1 })}
+              className="text-[13px]"
             >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+              Next &rarr;
             </Button>
           </div>
         )}

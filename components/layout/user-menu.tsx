@@ -43,11 +43,11 @@ export function UserMenu({ user }: { user: SessionUser }) {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold text-[#171717]">
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate text-[13px] font-semibold text-[#171717]">
                   {user.firstName} {user.lastName}
                 </span>
-                <span className="truncate text-xs text-[#999]">
+                <span className="truncate text-[11px] text-[#999]">
                   {user.email}
                 </span>
               </div>

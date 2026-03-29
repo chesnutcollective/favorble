@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -73,11 +71,10 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-[#EAEAEA]">
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs font-medium text-[#666] uppercase tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null
@@ -96,7 +93,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-[#F0F0F0] transition-colors duration-200 border-b border-[#EAEAEA]"
+                  className="hover:bg-[#FAFAFA] transition-colors duration-200"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -124,7 +121,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#666]">
+        <p className="text-[13px] text-[#666]">
           {table.getFilteredRowModel().rows.length} total rows
         </p>
         <div className="flex items-center gap-2">
@@ -133,10 +130,11 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="text-[13px]"
           >
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+            &larr; Previous
           </Button>
-          <span className="text-sm text-[#666]">
+          <span className="text-[13px] text-[#666]">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
@@ -145,8 +143,9 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="text-[13px]"
           >
-            <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+            Next &rarr;
           </Button>
         </div>
       </div>

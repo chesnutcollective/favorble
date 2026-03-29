@@ -9,8 +9,9 @@ import {
 import { getRecentAuditLog, getUpcomingDeadlines } from "@/app/actions/reports";
 import { StatsCard } from "@/components/shared/stats-card";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CasesByStageBarChart } from "@/components/charts/cases-by-stage-bar-chart";
 import { PipelineFunnelChart } from "@/components/charts/pipeline-funnel-chart";
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = await requireSession();
+  await requireSession();
 
   let activeCases = 0;
   let tasksDueToday = 0;
@@ -80,7 +81,16 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <PageHeader
         title="Dashboard"
-        description={`Welcome back, ${user.firstName}.`}
+        actions={
+          <>
+            <Button variant="secondary" size="sm">
+              Export
+            </Button>
+            <Link href="/cases/new">
+              <Button size="sm">+ New Case</Button>
+            </Link>
+          </>
+        }
       />
 
       {/* Metric Cards */}
@@ -98,126 +108,185 @@ export default async function DashboardPage() {
         <StatsCard title="Pipeline Stages" value={stageBreakdown.length} />
       </div>
 
-      {/* Pipeline Funnel */}
+      {/* Pipeline Funnel — section header outside the card */}
       {funnelData.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Pipeline Funnel</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PipelineFunnelChart data={funnelData} />
-          </CardContent>
-        </Card>
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[-0.2px]">
+              Pipeline Funnel
+            </h2>
+            <Link
+              href="/cases"
+              className="text-[13px] font-medium text-[#666] hover:text-[#171717] transition-colors duration-200"
+            >
+              View All
+            </Link>
+          </div>
+          <Card>
+            <div className="p-5">
+              <div className="text-xs font-medium uppercase tracking-[0.04em] text-[#666] mb-3">
+                Cases by Stage Group
+              </div>
+              <PipelineFunnelChart data={funnelData} />
+            </div>
+          </Card>
+        </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* My Tasks Due Today */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">My Tasks (Due Today)</CardTitle>
-              <Link
-                href="/queue"
-                className="text-sm text-primary hover:underline"
-              >
-                View All
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {myTasks.length === 0 ? (
-              <div className="py-6 text-center">
-                <p className="text-sm text-foreground">
-                  You&apos;re all caught up.
-                </p>
-                <p className="mt-0.5 text-xs text-[#999]">
-                  No tasks due today
-                </p>
+      {/* Two-column bottom grid: Tasks + Cases by Stage */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* My Tasks */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[-0.2px]">
+              My Tasks
+            </h2>
+            <Link
+              href="/queue"
+              className="text-[13px] font-medium text-[#666] hover:text-[#171717] transition-colors duration-200"
+            >
+              View All
+            </Link>
+          </div>
+          <Card>
+            <div className="p-5">
+              <div className="text-xs font-medium uppercase tracking-[0.04em] text-[#666] mb-3">
+                Upcoming Tasks
               </div>
-            ) : (
-              <div>
-                {myTasks.slice(0, 5).map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-start gap-3 py-2.5 border-b border-[#EAEAEA] last:border-b-0"
-                  >
-                    <Checkbox className="mt-0.5" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate">
+              {myTasks.length === 0 ? (
+                <div className="py-6 text-center">
+                  <p className="text-[13px] text-foreground">
+                    You&apos;re all caught up.
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-[#999]">
+                    No tasks due today
+                  </p>
+                </div>
+              ) : (
+                <ul className="list-none">
+                  {myTasks.slice(0, 6).map((task) => (
+                    <li
+                      key={task.id}
+                      className="flex items-center gap-3 py-3 border-b border-[#EAEAEA] last:border-b-0 text-[13px]"
+                    >
+                      <Checkbox className="h-4 w-4 shrink-0" />
+                      <span className="flex-1 min-w-0 truncate text-[#171717]">
                         {task.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Link
-                          href={`/cases/${task.caseId}`}
-                          className="text-xs text-[#666] font-mono hover:underline"
-                        >
-                          {task.caseNumber}
-                        </Link>
-                        {task.stageName && (
-                          <Badge variant="outline" className="text-xs">
-                            {task.stageName}
-                          </Badge>
+                        {task.caseNumber && (
+                          <>
+                            {" \u2014 "}
+                            <Link
+                              href={`/cases/${task.caseId}`}
+                              className="text-[#666] hover:underline"
+                            >
+                              {task.caseNumber}
+                            </Link>
+                          </>
                         )}
-                      </div>
-                    </div>
-                    {task.priority === "urgent" || task.priority === "high" ? (
-                      <Badge variant="outline" className="text-xs shrink-0 border-[#EE0000] text-[#EE0000]">
-                        {task.priority}
-                      </Badge>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Cases by Stage Group — Recharts BarChart */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Cases by Stage</CardTitle>
-              <Link
-                href="/cases"
-                className="text-sm text-primary hover:underline"
-              >
-                View All
-              </Link>
+                      </span>
+                      {task.dueDate && (
+                        <span
+                          className={`text-[11px] font-mono shrink-0 ${
+                            new Date(task.dueDate) < new Date()
+                              ? "text-[#EE0000]"
+                              : "text-[#666]"
+                          }`}
+                        >
+                          {new Date(task.dueDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      )}
+                      {task.priority === "urgent" ||
+                      task.priority === "high" ? (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] shrink-0 border-[#EE0000] text-[#EE0000] uppercase tracking-[0.04em] px-1 py-0"
+                        >
+                          {task.priority}
+                        </Badge>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </CardHeader>
-          <CardContent>
-            <CasesByStageBarChart data={chartData} />
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
+
+        {/* Cases by Stage */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[-0.2px]">
+              Cases by Stage
+            </h2>
+            <Link
+              href="/cases"
+              className="text-[13px] font-medium text-[#666] hover:text-[#171717] transition-colors duration-200"
+            >
+              View All
+            </Link>
+          </div>
+          <Card>
+            <div className="p-5">
+              <div className="text-xs font-medium uppercase tracking-[0.04em] text-[#666] mb-3">
+                Stage Distribution
+              </div>
+              <CasesByStageBarChart data={chartData} />
+            </div>
+          </Card>
+        </div>
       </div>
 
-      {/* Upcoming Deadlines */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Upcoming Deadlines</CardTitle>
+      {/* Two-column bottom grid: Upcoming Deadlines + Recent Activity */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Upcoming Deadlines */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[-0.2px]">
+              Upcoming Deadlines
+            </h2>
             <Link
               href="/calendar"
-              className="text-sm text-primary hover:underline"
+              className="text-[13px] font-medium text-[#666] hover:text-[#171717] transition-colors duration-200"
             >
               View Calendar
             </Link>
           </div>
-        </CardHeader>
-        <CardContent>
-          <UpcomingDeadlines events={upcomingDeadlines} />
-        </CardContent>
-      </Card>
+          <Card>
+            <div className="p-5">
+              <div className="text-xs font-medium uppercase tracking-[0.04em] text-[#666] mb-3">
+                Upcoming Deadlines
+              </div>
+              <UpcomingDeadlines events={upcomingDeadlines} />
+            </div>
+          </Card>
+        </div>
 
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ActivityFeed entries={auditEntries} />
-        </CardContent>
-      </Card>
+        {/* Recent Activity */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[-0.2px]">
+              Recent Activity
+            </h2>
+            <Link
+              href="/queue"
+              className="text-[13px] font-medium text-[#666] hover:text-[#171717] transition-colors duration-200"
+            >
+              View All
+            </Link>
+          </div>
+          <Card>
+            <div className="p-5">
+              <div className="text-xs font-medium uppercase tracking-[0.04em] text-[#666] mb-3">
+                Recent Activity
+              </div>
+              <ActivityFeed entries={auditEntries} />
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

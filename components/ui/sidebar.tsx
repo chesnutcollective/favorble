@@ -225,7 +225,7 @@ const Sidebar = React.forwardRef<
               <SheetTitle>Sidebar</SheetTitle>
               <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <div className="flex h-full w-full flex-col py-4">{children}</div>
           </SheetContent>
         </Sheet>
       );
@@ -267,7 +267,7 @@ const Sidebar = React.forwardRef<
         >
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-md group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border"
+            className="flex h-full w-full flex-col bg-sidebar py-4 group-data-[variant=floating]:rounded-md group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border"
           >
             {children}
           </div>
@@ -377,7 +377,7 @@ const SidebarHeader = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2", className)}
       {...props}
     />
   );
@@ -393,7 +393,7 @@ const SidebarFooter = React.forwardRef<
       ref={ref}
       data-sidebar="footer"
       className={cn(
-        "flex flex-col gap-2 border-t border-sidebar-border p-2",
+        "flex flex-col gap-2 border-t border-sidebar-border px-5 py-3",
         className,
       )}
       {...props}
@@ -426,7 +426,7 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className,
       )}
       {...props}
@@ -443,7 +443,7 @@ const SidebarGroup = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
+      className={cn("relative flex w-full min-w-0 flex-col mb-6", className)}
       {...props}
     />
   );
@@ -461,7 +461,7 @@ const SidebarGroupLabel = React.forwardRef<
       ref={ref}
       data-sidebar="group-label"
       className={cn(
-        "flex h-8 shrink-0 items-center rounded-md px-2 text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "flex shrink-0 items-center px-5 mb-2 text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className,
       )}
@@ -501,7 +501,7 @@ const SidebarGroupContent = React.forwardRef<
   <div
     ref={ref}
     data-sidebar="group-content"
-    className={cn("w-full text-sm", className)}
+    className={cn("w-full", className)}
     {...props}
   />
 ));
@@ -514,7 +514,7 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn("flex w-full min-w-0 flex-col", className)}
     {...props}
   />
 ));
@@ -534,7 +534,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-[13px] text-sidebar-foreground outline-none ring-sidebar-ring transition-colors duration-200 hover:bg-[#F0F0F0] hover:text-[#171717] focus-visible:ring-2 active:bg-[#F0F0F0] active:text-[#171717] disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-white data-[active=true]:font-medium data-[active=true]:text-[#171717] data-[state=open]:hover:bg-[#F0F0F0] data-[state=open]:hover:text-[#171717] group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-none px-5 py-2 text-left text-[13px] text-[#666] outline-none ring-sidebar-ring transition-colors duration-200 hover:bg-[#F0F0F0] hover:text-[#171717] focus-visible:ring-2 active:bg-[#F0F0F0] active:text-[#171717] disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-white data-[active=true]:font-medium data-[active=true]:text-[#171717] data-[state=open]:hover:bg-[#F0F0F0] data-[state=open]:hover:text-[#171717] group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -653,8 +653,7 @@ const SidebarMenuBadge = React.forwardRef<
     ref={ref}
     data-sidebar="menu-badge"
     className={cn(
-      "pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground",
-      "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+      "pointer-events-none absolute right-5 flex select-none items-center justify-center rounded-[10px] border border-[#EAEAEA] bg-white px-1.5 font-mono text-[11px] text-[#666]",
       "peer-data-[size=sm]/menu-button:top-1",
       "peer-data-[size=default]/menu-button:top-1.5",
       "peer-data-[size=lg]/menu-button:top-2.5",

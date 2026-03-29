@@ -103,11 +103,11 @@ export function GlobalSearch() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        className="flex items-center gap-2 rounded-md border border-[#EAEAEA] bg-white px-3 py-[7px] text-[13px] text-[#999] transition-colors duration-200 hover:border-[#CCC]"
       >
-        <HugeiconsIcon icon={Search01Icon} size={16} />
+        <HugeiconsIcon icon={Search01Icon} size={14} />
         <span className="hidden md:inline">Search...</span>
-        <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 md:inline-flex">
+        <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border border-[#EAEAEA] bg-[#FAFAFA] px-1.5 font-mono text-[10px] font-medium text-[#999] md:inline-flex">
           <span className="text-xs">&#8984;</span>K
         </kbd>
       </button>

@@ -11,10 +11,10 @@ type AuditEntry = {
 
 /** Human-readable labels for action types */
 const ACTION_LABELS: Record<string, string> = {
-  create: "Created",
-  update: "Updated",
-  delete: "Deleted",
-  transition: "Transitioned",
+  create: "created",
+  update: "updated",
+  delete: "deleted",
+  transition: "transitioned",
 };
 
 /** Human-readable labels for entity types */
@@ -34,6 +34,21 @@ const ENTITY_LABELS: Record<string, string> = {
   template: "Template",
 };
 
+/** Dot color based on action type */
+function getDotColor(action: string): string {
+  switch (action) {
+    case "create":
+      return "bg-[#0070F3]"; // blue — new items
+    case "update":
+    case "transition":
+      return "bg-[#00C853]"; // green — completions/transitions
+    case "delete":
+      return "bg-[#F5A623]"; // amber — warnings
+    default:
+      return "bg-[#EAEAEA]"; // gray default
+  }
+}
+
 function getActionLabel(action: string): string {
   return (
     ACTION_LABELS[action] ??
@@ -51,38 +66,40 @@ function getEntityLabel(entityType: string): string {
 export function ActivityFeed({ entries }: { entries: AuditEntry[] }) {
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-[#999] py-4 text-center">
+      <p className="text-[13px] text-[#999] py-4 text-center">
         No recent activity
       </p>
     );
   }
 
   return (
-    <div>
+    <ul className="list-none">
       {entries.map((entry) => {
         const actionLabel = getActionLabel(entry.action);
         const entityLabel = getEntityLabel(entry.entityType);
 
         return (
-          <div
+          <li
             key={entry.id}
-            className="flex items-center gap-3 py-2.5 border-b border-[#EAEAEA] last:border-b-0"
+            className="flex gap-3 py-3 border-b border-[#EAEAEA] last:border-b-0 text-[13px]"
           >
-            <div className="shrink-0 h-2 w-2 rounded-full bg-black" />
+            <div
+              className={`w-2 h-2 rounded-full shrink-0 mt-[5px] ${getDotColor(entry.action)}`}
+            />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-foreground truncate">
-                <span className="font-medium">{entityLabel}</span>{" "}
-                <span className="text-[#666]">
-                  {actionLabel.toLowerCase()}
-                </span>
+              <p className="text-[#666]">
+                <strong className="font-medium text-[#171717]">
+                  {entityLabel}
+                </strong>{" "}
+                {actionLabel}
+              </p>
+              <p className="text-[11px] font-mono text-[#999] mt-0.5">
+                {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
               </p>
             </div>
-            <span className="text-xs text-[#999] font-mono shrink-0 tabular-nums">
-              {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
-            </span>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

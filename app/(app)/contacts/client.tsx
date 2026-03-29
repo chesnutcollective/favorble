@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +21,6 @@ import {
 } from "@/components/ui/table";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
   Search01Icon,
   Cancel01Icon,
 } from "@hugeicons/core-free-icons";
@@ -56,7 +53,7 @@ function ContactAvatar({
 }) {
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   return (
-    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eaeaea] text-xs font-semibold text-[#171717]">
+    <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#EAEAEA] text-[9px] font-semibold text-[#171717]">
       {initials}
     </span>
   );
@@ -176,7 +173,7 @@ export function ContactsListClient({
               contacts.map((c) => (
                 <TableRow
                   key={c.id}
-                  className="hover:bg-muted/50 transition-colors"
+                  className="hover:bg-[#FAFAFA] transition-colors duration-200"
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -190,12 +187,9 @@ export function ContactsListClient({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className="border-[#eaeaea] text-[#666]"
-                    >
+                    <span className="inline-block px-1.5 py-px text-[10px] font-medium uppercase tracking-[0.04em] text-[#999] bg-[#FAFAFA] border border-[#EAEAEA] rounded-[3px]">
                       {CONTACT_TYPE_LABELS[c.contactType] ?? c.contactType}
-                    </Badge>
+                    </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {c.email ?? "-"}
@@ -215,7 +209,7 @@ export function ContactsListClient({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[13px] text-[#666]">
           {total} total contact{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
@@ -225,10 +219,11 @@ export function ContactsListClient({
               size="sm"
               disabled={page <= 1}
               onClick={() => applyFilters({ page: page - 1 })}
+              className="text-[13px]"
             >
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+              &larr; Previous
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[13px] text-[#666]">
               Page {page} of {totalPages}
             </span>
             <Button
@@ -236,8 +231,9 @@ export function ContactsListClient({
               size="sm"
               disabled={page >= totalPages}
               onClick={() => applyFilters({ page: page + 1 })}
+              className="text-[13px]"
             >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+              Next &rarr;
             </Button>
           </div>
         )}

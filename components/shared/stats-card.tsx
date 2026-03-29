@@ -28,28 +28,28 @@ export function StatsCard({
       )}
     >
       <p className="text-xs text-[#666] mb-2">{title}</p>
-      <div className="flex items-baseline gap-2">
-        <p className="text-[28px] font-bold tracking-[-1px] tabular-nums">
-          {value}
-        </p>
-        {trend && (
+      <p className="text-[28px] font-bold tracking-[-1px] leading-[1.1] tabular-nums [font-feature-settings:'tnum']">
+        {value}
+      </p>
+      {trend && (
+        <p className="mt-2 text-xs font-mono text-[#666]">
           <span
             className={cn(
-              "text-xs font-mono",
               trend.value >= 0 ? "text-[#00C853]" : "text-[#EE0000]",
             )}
           >
             {trend.value >= 0 ? "+" : ""}
-            {trend.value} {trend.label}
-          </span>
-        )}
-      </div>
+            {trend.value}
+          </span>{" "}
+          {trend.label}
+        </p>
+      )}
       {subtitle && (
         <p
           className={cn(
-            "mt-1 text-xs",
+            "mt-2 text-xs font-mono",
             subtitleVariant === "danger"
-              ? "font-semibold text-[#EE0000]"
+              ? "text-[#EE0000]"
               : "text-[#666]",
           )}
         >
