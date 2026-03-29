@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { requireSession } from "@/lib/auth/session";
 import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { TwoTierNav } from "@/components/layout/two-tier-nav";
@@ -19,7 +20,9 @@ export default async function AppLayout({
   return (
     <ThemeWrapper>
       <div className="ttn-app-layout">
-        <TwoTierNav user={user} casesCount={casesCount} navData={navData} />
+        <Suspense>
+          <TwoTierNav user={user} casesCount={casesCount} navData={navData} />
+        </Suspense>
         <main className="ttn-main-area">
           <Header />
           <div className="flex-1 overflow-auto p-4 md:p-8">{children}</div>
