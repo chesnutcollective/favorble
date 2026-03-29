@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Clean Analytics Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #FAFAFA;
+    --bg-hover:       #F0F0F0;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+    --accent-black:   #000000;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    --transition:     200ms ease;
+
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px;  --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;  --sp-10: 40px;
+    --sp-12: 48px; --sp-16: 64px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: var(--sp-4) 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-black);
+    border-radius: var(--radius-sm);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section { margin-bottom: var(--sp-6); }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-10) var(--sp-12);
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-10);
+  }
+
+  .main-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .main-header .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: var(--sp-1);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--border-hover); }
+
+  /* ============================================================
+     SECTION HEADERS
+     ============================================================ */
+  .section {
+    margin-bottom: var(--sp-12);
+  }
+
+  .section-header {
+    margin-bottom: var(--sp-6);
+  }
+
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+  }
+
+  .section-header .section-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: var(--sp-1);
+  }
+
+  /* ============================================================
+     CARDS
+     ============================================================ */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color var(--transition);
+  }
+
+  .card:hover { border-color: var(--border-hover); }
+
+  .card-padded { padding: var(--sp-6); }
+
+  .card-header {
+    padding: var(--sp-5) var(--sp-6);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .card-body {
+    padding: var(--sp-6);
+  }
+
+  /* ============================================================
+     GRIDS
+     ============================================================ */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-6);
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-6);
+  }
+
+  /* ============================================================
+     STAT CARDS WITH SPARKLINES
+     ============================================================ */
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-6);
+    transition: border-color var(--transition);
+  }
+
+  .stat-card:hover { border-color: var(--border-hover); }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--sp-3);
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    font-feature-settings: "tnum";
+  }
+
+  .stat-meta {
+    margin-top: var(--sp-2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .stat-meta .up { color: var(--accent-green); }
+  .stat-meta .down { color: var(--accent-red); }
+
+  .stat-sparkline {
+    margin-top: var(--sp-4);
+  }
+
+  /* ============================================================
+     CHART HELPERS
+     ============================================================ */
+  .chart-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    fill: var(--text-tertiary);
+  }
+
+  .chart-grid line {
+    stroke: var(--border);
+    stroke-dasharray: 2 4;
+  }
+
+  .chart-axis line,
+  .chart-axis path {
+    stroke: var(--border);
+  }
+
+  /* ============================================================
+     TEAM TABLE
+     ============================================================ */
+  .team-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .team-table th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .team-table td {
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .team-table tr:last-child td { border-bottom: none; }
+
+  .team-table tr:hover td { background: var(--bg-card-alt); }
+
+  .team-member {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .team-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+
+  .team-name { font-weight: 500; }
+
+  .approval-rate {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .rate-high { color: var(--accent-green); }
+  .rate-mid { color: var(--accent-amber); }
+  .rate-low { color: var(--accent-red); }
+
+  /* ============================================================
+     HEATMAP
+     ============================================================ */
+  .heatmap-grid {
+    display: flex;
+    gap: 3px;
+  }
+
+  .heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .heatmap-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  .heatmap-0 { background: #F0F0F0; }
+  .heatmap-1 { background: #C6E0F5; }
+  .heatmap-2 { background: #7DBCF0; }
+  .heatmap-3 { background: #3B9AE8; }
+  .heatmap-4 { background: #0070F3; }
+
+  .heatmap-labels {
+    display: flex;
+    gap: 3px;
+    margin-top: var(--sp-2);
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .heatmap-legend {
+    display: flex;
+    gap: 3px;
+    margin-left: var(--sp-3);
+    align-items: center;
+  }
+
+  .heatmap-legend-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-right: var(--sp-2);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .heatmap-day-labels span {
+    height: 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  .heatmap-month-labels {
+    display: flex;
+    gap: 0;
+    margin-bottom: var(--sp-2);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    padding-left: 28px;
+  }
+
+  .heatmap-month-labels span {
+    flex: 1;
+    text-align: left;
+  }
+
+  /* ============================================================
+     TREEMAP
+     ============================================================ */
+  .treemap-container {
+    display: flex;
+    gap: 4px;
+    height: 200px;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .treemap-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--sp-3);
+    border-radius: var(--radius-sm);
+    color: #FFFFFF;
+    font-size: 12px;
+    transition: opacity var(--transition);
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .treemap-block:hover { opacity: 0.9; }
+
+  .treemap-block .treemap-pct {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .treemap-block .treemap-label {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-top: var(--sp-1);
+    line-height: 1.3;
+  }
+
+  /* ============================================================
+     WATERFALL / PIPELINE
+     ============================================================ */
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: var(--sp-4) 0;
+  }
+
+  .pipeline-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-2);
+    flex: 1;
+    position: relative;
+  }
+
+  .pipeline-bar-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .pipeline-bar {
+    border-radius: var(--radius-sm);
+    background: var(--accent-blue);
+    transition: height var(--transition);
+    width: 56px;
+  }
+
+  .pipeline-count {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-feature-settings: "tnum";
+    color: var(--text-primary);
+  }
+
+  .pipeline-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .pipeline-arrow {
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .pipeline-meta {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    margin-top: var(--sp-1);
+  }
+
+  .pipeline-loss {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--accent-red);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ====== SIDEBAR ====== -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Analytics
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Cases
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 6h12" stroke="currentColor" stroke-width="1.5"/><path d="M6 6v8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Manage</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Team
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Activity
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8c0 3-2.5 5.5-5.5 5.5S2.5 11 2.5 8 5 2.5 8 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 2l3 1-1 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">JK</div>
+      <span>Jake K.</span>
+    </div>
+  </nav>
+
+  <!-- ====== MAIN CONTENT ====== -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <h1>Analytics</h1>
+        <div class="subtitle">Firm performance overview for FY 2026</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary">Last 12 Months</button>
+        <button class="btn btn-secondary">Export</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         1. CASES OVERVIEW — HERO AREA CHART
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Cases Overview</h2>
+        <div class="section-desc">Cumulative active cases over the last 12 months</div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding: var(--sp-6) var(--sp-6) var(--sp-4);">
+          <svg viewBox="0 0 900 280" width="100%" height="280" style="display: block;">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0070F3" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#0070F3" stop-opacity="0.01"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <g class="chart-grid">
+              <line x1="60" y1="40" x2="880" y2="40"/>
+              <line x1="60" y1="100" x2="880" y2="100"/>
+              <line x1="60" y1="160" x2="880" y2="160"/>
+              <line x1="60" y1="220" x2="880" y2="220"/>
+            </g>
+            <!-- Y-axis labels -->
+            <text x="52" y="44" text-anchor="end" class="chart-label">500</text>
+            <text x="52" y="104" text-anchor="end" class="chart-label">400</text>
+            <text x="52" y="164" text-anchor="end" class="chart-label">300</text>
+            <text x="52" y="224" text-anchor="end" class="chart-label">200</text>
+            <!-- Area fill -->
+            <path d="M80,210 L148,198 L216,185 L284,178 L352,165 L420,150 L488,138 L556,120 L624,105 L692,88 L760,72 L828,55 L828,250 L80,250 Z" fill="url(#areaGrad)"/>
+            <!-- Line -->
+            <path d="M80,210 L148,198 L216,185 L284,178 L352,165 L420,150 L488,138 L556,120 L624,105 L692,88 L760,72 L828,55" fill="none" stroke="#0070F3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- Data points -->
+            <circle cx="80"  cy="210" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="148" cy="198" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="216" cy="185" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="284" cy="178" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="352" cy="165" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="420" cy="150" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="488" cy="138" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="556" cy="120" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="624" cy="105" r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="692" cy="88"  r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="760" cy="72"  r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <circle cx="828" cy="55"  r="3.5" fill="#FFFFFF" stroke="#0070F3" stroke-width="2"/>
+            <!-- X-axis labels -->
+            <text x="80"  y="268" text-anchor="middle" class="chart-label">Apr</text>
+            <text x="148" y="268" text-anchor="middle" class="chart-label">May</text>
+            <text x="216" y="268" text-anchor="middle" class="chart-label">Jun</text>
+            <text x="284" y="268" text-anchor="middle" class="chart-label">Jul</text>
+            <text x="352" y="268" text-anchor="middle" class="chart-label">Aug</text>
+            <text x="420" y="268" text-anchor="middle" class="chart-label">Sep</text>
+            <text x="488" y="268" text-anchor="middle" class="chart-label">Oct</text>
+            <text x="556" y="268" text-anchor="middle" class="chart-label">Nov</text>
+            <text x="624" y="268" text-anchor="middle" class="chart-label">Dec</text>
+            <text x="692" y="268" text-anchor="middle" class="chart-label">Jan</text>
+            <text x="760" y="268" text-anchor="middle" class="chart-label">Feb</text>
+            <text x="828" y="268" text-anchor="middle" class="chart-label">Mar</text>
+            <!-- Current value callout -->
+            <rect x="790" y="34" width="56" height="24" rx="4" fill="#0070F3"/>
+            <text x="818" y="50" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="600" font-family="Geist Mono, monospace">487</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         2. MONTHLY PERFORMANCE — 3 STAT CARDS WITH SPARKLINES
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Monthly Performance</h2>
+        <div class="section-desc">Key metrics with trailing 6-month trend</div>
+      </div>
+      <div class="grid-3">
+        <!-- Cases Won -->
+        <div class="stat-card">
+          <div class="stat-label">Cases Won</div>
+          <div class="stat-value">142</div>
+          <div class="stat-meta"><span class="up">+12%</span> vs prior year</div>
+          <div class="stat-sparkline">
+            <svg viewBox="0 0 200 40" width="100%" height="40">
+              <path d="M0,32 L33,26 L66,22 L99,28 L132,18 L165,14 L198,8" fill="none" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="198" cy="8" r="3" fill="#00C853"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Revenue -->
+        <div class="stat-card">
+          <div class="stat-label">Revenue</div>
+          <div class="stat-value">$2.4M</div>
+          <div class="stat-meta"><span class="up">+18%</span> vs prior year</div>
+          <div class="stat-sparkline">
+            <svg viewBox="0 0 200 40" width="100%" height="40">
+              <path d="M0,30 L33,28 L66,24 L99,20 L132,15 L165,12 L198,6" fill="none" stroke="#0070F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="198" cy="6" r="3" fill="#0070F3"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Avg Settlement Time -->
+        <div class="stat-card">
+          <div class="stat-label">Avg Settlement Time</div>
+          <div class="stat-value">287d</div>
+          <div class="stat-meta"><span class="down">+14d</span> vs prior year</div>
+          <div class="stat-sparkline">
+            <svg viewBox="0 0 200 40" width="100%" height="40">
+              <path d="M0,20 L33,18 L66,22 L99,24 L132,20 L165,26 L198,28" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="198" cy="28" r="3" fill="#F5A623"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         3. STAGE PIPELINE — WATERFALL DIAGRAM
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Stage Pipeline</h2>
+        <div class="section-desc">Case flow between stages this month</div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="pipeline-flow">
+            <div class="pipeline-stage">
+              <div class="pipeline-count">124</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 120px; background: #0070F3;"></div>
+              </div>
+              <div class="pipeline-name">Application</div>
+            </div>
+            <div class="pipeline-arrow">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M0 6h16M13 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pipeline-stage">
+              <div class="pipeline-count">98</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 95px; background: #0070F3;"></div>
+              </div>
+              <div class="pipeline-name">Reconsideration</div>
+              <div class="pipeline-meta">-26 denied</div>
+            </div>
+            <div class="pipeline-arrow">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M0 6h16M13 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pipeline-stage">
+              <div class="pipeline-count">82</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 80px; background: #0070F3;"></div>
+              </div>
+              <div class="pipeline-name">ALJ Hearing</div>
+              <div class="pipeline-meta">-16 denied</div>
+            </div>
+            <div class="pipeline-arrow">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M0 6h16M13 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pipeline-stage">
+              <div class="pipeline-count">55</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 54px; background: #00C853;"></div>
+              </div>
+              <div class="pipeline-name">Favorable</div>
+              <div class="pipeline-meta" style="color: var(--accent-green);">67% win rate</div>
+            </div>
+            <div class="pipeline-arrow">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M0 6h16M13 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pipeline-stage">
+              <div class="pipeline-count">18</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 28px; background: #F5A623;"></div>
+              </div>
+              <div class="pipeline-name">Appeals Council</div>
+              <div class="pipeline-meta">remand/review</div>
+            </div>
+            <div class="pipeline-arrow">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M0 6h16M13 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pipeline-stage">
+              <div class="pipeline-count">9</div>
+              <div class="pipeline-bar-wrap">
+                <div class="pipeline-bar" style="height: 18px; background: #EE0000;"></div>
+              </div>
+              <div class="pipeline-name">Federal Court</div>
+              <div class="pipeline-meta">last resort</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TWO-COLUMN SECTION
+         ============================================================ -->
+    <div class="section">
+      <div class="grid-2">
+
+        <!-- 4. WIN/LOSS RATIO — DONUT CHART -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Win / Loss Ratio</h3>
+          </div>
+          <div class="card-body" style="display: flex; align-items: center; justify-content: center; padding: var(--sp-8);">
+            <svg viewBox="0 0 260 260" width="260" height="260">
+              <!-- Donut segments: total circumference = 2 * pi * 90 = 565.49 -->
+              <!-- Favorable: 67% = 378.88 -->
+              <circle cx="130" cy="130" r="90" fill="none" stroke="#E8E8E8" stroke-width="28"/>
+              <!-- Favorable 67% -->
+              <circle cx="130" cy="130" r="90" fill="none" stroke="#0070F3" stroke-width="28"
+                stroke-dasharray="378.88 186.61"
+                stroke-dashoffset="141.37"
+                stroke-linecap="butt"/>
+              <!-- Unfavorable 18% = 101.79 -->
+              <circle cx="130" cy="130" r="90" fill="none" stroke="#EE0000" stroke-width="28"
+                stroke-dasharray="101.79 463.70"
+                stroke-dashoffset="-237.51"
+                stroke-linecap="butt"/>
+              <!-- Remand 10% = 56.55 -->
+              <circle cx="130" cy="130" r="90" fill="none" stroke="#F5A623" stroke-width="28"
+                stroke-dasharray="56.55 508.94"
+                stroke-dashoffset="-339.30"
+                stroke-linecap="butt"/>
+              <!-- Dismissed 5% = 28.27 -->
+              <circle cx="130" cy="130" r="90" fill="none" stroke="#999999" stroke-width="28"
+                stroke-dasharray="28.27 537.22"
+                stroke-dashoffset="-395.85"
+                stroke-linecap="butt"/>
+              <!-- Center label -->
+              <text x="130" y="122" text-anchor="middle" font-size="36" font-weight="700" fill="#171717" font-family="Geist, system-ui" letter-spacing="-1.5">67%</text>
+              <text x="130" y="144" text-anchor="middle" font-size="12" fill="#666666" font-family="Geist, system-ui">Win Rate</text>
+            </svg>
+            <div style="margin-left: var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-4);">
+              <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                <div style="width: 12px; height: 12px; border-radius: 2px; background: #0070F3;"></div>
+                <span style="font-size: 13px; color: var(--text-secondary);">Favorable <strong style="color: var(--text-primary);">67%</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                <div style="width: 12px; height: 12px; border-radius: 2px; background: #EE0000;"></div>
+                <span style="font-size: 13px; color: var(--text-secondary);">Unfavorable <strong style="color: var(--text-primary);">18%</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                <div style="width: 12px; height: 12px; border-radius: 2px; background: #F5A623;"></div>
+                <span style="font-size: 13px; color: var(--text-secondary);">Remand <strong style="color: var(--text-primary);">10%</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                <div style="width: 12px; height: 12px; border-radius: 2px; background: #999999;"></div>
+                <span style="font-size: 13px; color: var(--text-secondary);">Dismissed <strong style="color: var(--text-primary);">5%</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. TOP REFERRING SOURCES — HORIZONTAL BAR CHART -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Top Referring Sources</h3>
+          </div>
+          <div class="card-body" style="display: flex; flex-direction: column; gap: var(--sp-5);">
+            <!-- Website -->
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--sp-2);">
+                <span style="font-size: 13px; font-weight: 500;">Website</span>
+                <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);">35%</span>
+              </div>
+              <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div style="width: 35%; height: 100%; background: #0070F3; border-radius: 4px;"></div>
+              </div>
+            </div>
+            <!-- Attorney Referral -->
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--sp-2);">
+                <span style="font-size: 13px; font-weight: 500;">Attorney Referral</span>
+                <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);">25%</span>
+              </div>
+              <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div style="width: 25%; height: 100%; background: #0070F3; border-radius: 4px; opacity: 0.8;"></div>
+              </div>
+            </div>
+            <!-- Previous Client -->
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--sp-2);">
+                <span style="font-size: 13px; font-weight: 500;">Previous Client</span>
+                <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);">20%</span>
+              </div>
+              <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div style="width: 20%; height: 100%; background: #0070F3; border-radius: 4px; opacity: 0.65;"></div>
+              </div>
+            </div>
+            <!-- TV/Radio -->
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--sp-2);">
+                <span style="font-size: 13px; font-weight: 500;">TV / Radio</span>
+                <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);">12%</span>
+              </div>
+              <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div style="width: 12%; height: 100%; background: #0070F3; border-radius: 4px; opacity: 0.5;"></div>
+              </div>
+            </div>
+            <!-- Other -->
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--sp-2);">
+                <span style="font-size: 13px; font-weight: 500;">Other</span>
+                <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);">8%</span>
+              </div>
+              <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div style="width: 8%; height: 100%; background: #0070F3; border-radius: 4px; opacity: 0.35;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         6. REVENUE TREND — BAR CHART
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Revenue Trend</h2>
+        <div class="section-desc">Monthly attorney fee revenue with 12-month average</div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <svg viewBox="0 0 900 240" width="100%" height="240" style="display: block;">
+            <!-- Grid -->
+            <g class="chart-grid">
+              <line x1="60" y1="20" x2="880" y2="20"/>
+              <line x1="60" y1="70" x2="880" y2="70"/>
+              <line x1="60" y1="120" x2="880" y2="120"/>
+              <line x1="60" y1="170" x2="880" y2="170"/>
+            </g>
+            <!-- Y labels -->
+            <text x="52" y="24" text-anchor="end" class="chart-label">$300K</text>
+            <text x="52" y="74" text-anchor="end" class="chart-label">$225K</text>
+            <text x="52" y="124" text-anchor="end" class="chart-label">$150K</text>
+            <text x="52" y="174" text-anchor="end" class="chart-label">$75K</text>
+            <!-- Bars (12 months) -->
+            <rect x="72" y="95" width="48" height="115" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="140" y="110" width="48" height="100" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="208" y="80" width="48" height="130" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="276" y="55" width="48" height="155" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="344" y="100" width="48" height="110" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="412" y="70" width="48" height="140" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="480" y="45" width="48" height="165" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="548" y="90" width="48" height="120" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="616" y="60" width="48" height="150" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="684" y="35" width="48" height="175" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="752" y="50" width="48" height="160" rx="3" fill="#0070F3" opacity="0.85"/>
+            <rect x="820" y="25" width="48" height="185" rx="3" fill="#0070F3" opacity="0.85"/>
+            <!-- Average line -->
+            <line x1="60" y1="78" x2="880" y2="78" stroke="#EE0000" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+            <text x="884" y="75" class="chart-label" fill="#EE0000" font-size="10" text-anchor="start">avg $204K</text>
+            <!-- X labels -->
+            <text x="96"  y="228" text-anchor="middle" class="chart-label">Apr</text>
+            <text x="164" y="228" text-anchor="middle" class="chart-label">May</text>
+            <text x="232" y="228" text-anchor="middle" class="chart-label">Jun</text>
+            <text x="300" y="228" text-anchor="middle" class="chart-label">Jul</text>
+            <text x="368" y="228" text-anchor="middle" class="chart-label">Aug</text>
+            <text x="436" y="228" text-anchor="middle" class="chart-label">Sep</text>
+            <text x="504" y="228" text-anchor="middle" class="chart-label">Oct</text>
+            <text x="572" y="228" text-anchor="middle" class="chart-label">Nov</text>
+            <text x="640" y="228" text-anchor="middle" class="chart-label">Dec</text>
+            <text x="708" y="228" text-anchor="middle" class="chart-label">Jan</text>
+            <text x="776" y="228" text-anchor="middle" class="chart-label">Feb</text>
+            <text x="844" y="228" text-anchor="middle" class="chart-label">Mar</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TWO-COLUMN SECTION
+         ============================================================ -->
+    <div class="section">
+      <div class="grid-2">
+
+        <!-- 7. CASE DURATION BY STAGE — RANGE CHART -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Case Duration by Stage</h3>
+            <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">min / median / max days</span>
+          </div>
+          <div class="card-body">
+            <svg viewBox="0 0 440 260" width="100%" height="260" style="display: block;">
+              <!-- Grid -->
+              <g class="chart-grid">
+                <line x1="130" y1="20" x2="420" y2="20"/>
+                <line x1="130" y1="72" x2="420" y2="72"/>
+                <line x1="130" y1="124" x2="420" y2="124"/>
+                <line x1="130" y1="176" x2="420" y2="176"/>
+                <line x1="130" y1="228" x2="420" y2="228"/>
+              </g>
+              <!-- X labels (days) -->
+              <text x="130" y="248" text-anchor="middle" class="chart-label">0</text>
+              <text x="202" y="248" text-anchor="middle" class="chart-label">90</text>
+              <text x="275" y="248" text-anchor="middle" class="chart-label">180</text>
+              <text x="348" y="248" text-anchor="middle" class="chart-label">270</text>
+              <text x="420" y="248" text-anchor="middle" class="chart-label">360</text>
+
+              <!-- Application: min 30, median 75, max 120 => scaled: 130+30*0.806=154, 130+75*0.806=190, 130+120*0.806=227 -->
+              <text x="125" y="34" text-anchor="end" class="chart-label" font-size="11">Application</text>
+              <line x1="154" y1="28" x2="227" y2="28" stroke="#EAEAEA" stroke-width="2"/>
+              <rect x="170" y="22" width="40" height="12" rx="2" fill="#0070F3" opacity="0.2"/>
+              <line x1="190" y1="20" x2="190" y2="36" stroke="#0070F3" stroke-width="2.5"/>
+              <circle cx="154" cy="28" r="3" fill="#FFFFFF" stroke="#0070F3" stroke-width="1.5"/>
+              <circle cx="227" cy="28" r="3" fill="#FFFFFF" stroke="#0070F3" stroke-width="1.5"/>
+
+              <!-- Reconsideration: min 60, median 120, max 180 -->
+              <text x="125" y="86" text-anchor="end" class="chart-label" font-size="11">Recon</text>
+              <line x1="178" y1="80" x2="275" y2="80" stroke="#EAEAEA" stroke-width="2"/>
+              <rect x="200" y="74" width="55" height="12" rx="2" fill="#0070F3" opacity="0.2"/>
+              <line x1="227" y1="72" x2="227" y2="88" stroke="#0070F3" stroke-width="2.5"/>
+              <circle cx="178" cy="80" r="3" fill="#FFFFFF" stroke="#0070F3" stroke-width="1.5"/>
+              <circle cx="275" cy="80" r="3" fill="#FFFFFF" stroke="#0070F3" stroke-width="1.5"/>
+
+              <!-- ALJ Hearing: min 120, median 240, max 360 -->
+              <text x="125" y="138" text-anchor="end" class="chart-label" font-size="11">ALJ Hearing</text>
+              <line x1="227" y1="132" x2="420" y2="132" stroke="#EAEAEA" stroke-width="2"/>
+              <rect x="275" y="126" width="80" height="12" rx="2" fill="#F5A623" opacity="0.2"/>
+              <line x1="323" y1="124" x2="323" y2="140" stroke="#F5A623" stroke-width="2.5"/>
+              <circle cx="227" cy="132" r="3" fill="#FFFFFF" stroke="#F5A623" stroke-width="1.5"/>
+              <circle cx="420" cy="132" r="3" fill="#FFFFFF" stroke="#F5A623" stroke-width="1.5"/>
+
+              <!-- Appeals Council: min 90, median 200, max 300 -->
+              <text x="125" y="190" text-anchor="end" class="chart-label" font-size="11">Appeals</text>
+              <line x1="202" y1="184" x2="372" y2="184" stroke="#EAEAEA" stroke-width="2"/>
+              <rect x="250" y="178" width="70" height="12" rx="2" fill="#F5A623" opacity="0.2"/>
+              <line x1="291" y1="176" x2="291" y2="192" stroke="#F5A623" stroke-width="2.5"/>
+              <circle cx="202" cy="184" r="3" fill="#FFFFFF" stroke="#F5A623" stroke-width="1.5"/>
+              <circle cx="372" cy="184" r="3" fill="#FFFFFF" stroke="#F5A623" stroke-width="1.5"/>
+
+              <!-- Federal Court: min 180, median 300, max 360 -->
+              <text x="125" y="242" text-anchor="end" class="chart-label" font-size="11">Fed. Court</text>
+              <line x1="275" y1="236" x2="420" y2="236" stroke="#EAEAEA" stroke-width="2"/>
+              <rect x="310" y="230" width="70" height="12" rx="2" fill="#EE0000" opacity="0.2"/>
+              <line x1="372" y1="228" x2="372" y2="244" stroke="#EE0000" stroke-width="2.5"/>
+              <circle cx="275" cy="236" r="3" fill="#FFFFFF" stroke="#EE0000" stroke-width="1.5"/>
+              <circle cx="420" cy="236" r="3" fill="#FFFFFF" stroke="#EE0000" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 10. SETTLEMENT VALUE DISTRIBUTION — HISTOGRAM -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Settlement Value Distribution</h3>
+            <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">past-due benefit amounts</span>
+          </div>
+          <div class="card-body">
+            <svg viewBox="0 0 440 260" width="100%" height="260" style="display: block;">
+              <!-- Grid -->
+              <g class="chart-grid">
+                <line x1="40" y1="20" x2="420" y2="20"/>
+                <line x1="40" y1="72" x2="420" y2="72"/>
+                <line x1="40" y1="124" x2="420" y2="124"/>
+                <line x1="40" y1="176" x2="420" y2="176"/>
+              </g>
+              <!-- Y labels -->
+              <text x="35" y="24" text-anchor="end" class="chart-label">60</text>
+              <text x="35" y="76" text-anchor="end" class="chart-label">45</text>
+              <text x="35" y="128" text-anchor="end" class="chart-label">30</text>
+              <text x="35" y="180" text-anchor="end" class="chart-label">15</text>
+              <!-- Bars -->
+              <!-- $5K-10K: 18 cases => height = 18/60 * 200 = 60 -->
+              <rect x="56" y="168" width="60" height="60" rx="3" fill="#0070F3" opacity="0.5"/>
+              <!-- $10K-25K: 42 cases => 140 -->
+              <rect x="132" y="88" width="60" height="140" rx="3" fill="#0070F3" opacity="0.65"/>
+              <!-- $25K-50K: 55 cases => 183 -->
+              <rect x="208" y="45" width="60" height="183" rx="3" fill="#0070F3" opacity="0.8"/>
+              <!-- $50K-100K: 35 cases => 117 -->
+              <rect x="284" y="111" width="60" height="117" rx="3" fill="#0070F3" opacity="0.65"/>
+              <!-- $100K+: 12 cases => 40 -->
+              <rect x="360" y="188" width="60" height="40" rx="3" fill="#0070F3" opacity="0.5"/>
+              <!-- X labels -->
+              <text x="86"  y="248" text-anchor="middle" class="chart-label">$5-10K</text>
+              <text x="162" y="248" text-anchor="middle" class="chart-label">$10-25K</text>
+              <text x="238" y="248" text-anchor="middle" class="chart-label">$25-50K</text>
+              <text x="314" y="248" text-anchor="middle" class="chart-label">$50-100K</text>
+              <text x="390" y="248" text-anchor="middle" class="chart-label">$100K+</text>
+              <!-- Count labels on bars -->
+              <text x="86"  y="162" text-anchor="middle" font-size="12" font-weight="600" fill="#0070F3" font-family="Geist Mono, monospace">18</text>
+              <text x="162" y="82"  text-anchor="middle" font-size="12" font-weight="600" fill="#0070F3" font-family="Geist Mono, monospace">42</text>
+              <text x="238" y="39"  text-anchor="middle" font-size="12" font-weight="600" fill="#0070F3" font-family="Geist Mono, monospace">55</text>
+              <text x="314" y="105" text-anchor="middle" font-size="12" font-weight="600" fill="#0070F3" font-family="Geist Mono, monospace">35</text>
+              <text x="390" y="182" text-anchor="middle" font-size="12" font-weight="600" fill="#0070F3" font-family="Geist Mono, monospace">12</text>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         8. TEAM PRODUCTIVITY — TABLE-CHART HYBRID
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Team Productivity</h2>
+        <div class="section-desc">Individual performance for the current week</div>
+      </div>
+      <div class="card">
+        <table class="team-table">
+          <thead>
+            <tr>
+              <th style="width: 200px;">Team Member</th>
+              <th style="width: 110px;">Cases</th>
+              <th>Tasks Completed This Week</th>
+              <th style="width: 120px; text-align: right;">Approval Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="team-member">
+                  <div class="team-avatar">SM</div>
+                  <div class="team-name">Sarah Mitchell</div>
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); font-size: 13px;">42</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                  <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; max-width: 200px;">
+                    <div style="width: 92%; height: 100%; background: #00C853; border-radius: 3px;"></div>
+                  </div>
+                  <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); min-width: 32px;">23</span>
+                </div>
+              </td>
+              <td style="text-align: right;"><span class="approval-rate rate-high">94%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="team-member">
+                  <div class="team-avatar">DR</div>
+                  <div class="team-name">David Reeves</div>
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); font-size: 13px;">38</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                  <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; max-width: 200px;">
+                    <div style="width: 80%; height: 100%; background: #00C853; border-radius: 3px;"></div>
+                  </div>
+                  <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); min-width: 32px;">20</span>
+                </div>
+              </td>
+              <td style="text-align: right;"><span class="approval-rate rate-high">91%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="team-member">
+                  <div class="team-avatar">LP</div>
+                  <div class="team-name">Lisa Park</div>
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); font-size: 13px;">35</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                  <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; max-width: 200px;">
+                    <div style="width: 72%; height: 100%; background: #0070F3; border-radius: 3px;"></div>
+                  </div>
+                  <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); min-width: 32px;">18</span>
+                </div>
+              </td>
+              <td style="text-align: right;"><span class="approval-rate rate-mid">85%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="team-member">
+                  <div class="team-avatar">MJ</div>
+                  <div class="team-name">Marcus Johnson</div>
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); font-size: 13px;">29</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                  <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; max-width: 200px;">
+                    <div style="width: 60%; height: 100%; background: #0070F3; border-radius: 3px;"></div>
+                  </div>
+                  <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); min-width: 32px;">15</span>
+                </div>
+              </td>
+              <td style="text-align: right;"><span class="approval-rate rate-mid">82%</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="team-member">
+                  <div class="team-avatar">AT</div>
+                  <div class="team-name">Amy Torres</div>
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); font-size: 13px;">24</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: var(--sp-3);">
+                  <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; max-width: 200px;">
+                    <div style="width: 48%; height: 100%; background: #F5A623; border-radius: 3px;"></div>
+                  </div>
+                  <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); min-width: 32px;">12</span>
+                </div>
+              </td>
+              <td style="text-align: right;"><span class="approval-rate rate-low">74%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TWO-COLUMN SECTION
+         ============================================================ -->
+    <div class="section">
+      <div class="grid-2">
+
+        <!-- 9. HEARING CALENDAR HEATMAP -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Hearing Calendar</h3>
+            <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">last 3 months</span>
+          </div>
+          <div class="card-body">
+            <!-- Month labels -->
+            <div class="heatmap-month-labels">
+              <span style="width: 37%;">January</span>
+              <span style="width: 33%;">February</span>
+              <span style="width: 30%;">March</span>
+            </div>
+            <div style="display: flex;">
+              <!-- Day labels -->
+              <div class="heatmap-day-labels">
+                <span></span>
+                <span>Mon</span>
+                <span></span>
+                <span>Wed</span>
+                <span></span>
+                <span>Fri</span>
+                <span></span>
+              </div>
+              <!-- Heatmap grid: ~13 weeks -->
+              <div class="heatmap-grid">
+                <!-- Week 1 (Jan 1-5) -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 2 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 3 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 4 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 5 (Feb starts) -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 6 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 7 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 8 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 9 (Mar starts) -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 10 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 11 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 12 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+                <!-- Week 13 -->
+                <div class="heatmap-week">
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-1"></div>
+                  <div class="heatmap-cell heatmap-3"></div>
+                  <div class="heatmap-cell heatmap-2"></div>
+                  <div class="heatmap-cell heatmap-4"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                  <div class="heatmap-cell heatmap-0"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Legend -->
+            <div class="heatmap-labels" style="margin-top: var(--sp-4);">
+              <span>Less</span>
+              <div class="heatmap-legend">
+                <div class="heatmap-legend-cell heatmap-0"></div>
+                <div class="heatmap-legend-cell heatmap-1"></div>
+                <div class="heatmap-legend-cell heatmap-2"></div>
+                <div class="heatmap-legend-cell heatmap-3"></div>
+                <div class="heatmap-legend-cell heatmap-4"></div>
+              </div>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 11. ACTIVE VS CLOSED — STACKED BAR CHART -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Active vs Closed</h3>
+            <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">monthly case volume</span>
+          </div>
+          <div class="card-body">
+            <svg viewBox="0 0 440 260" width="100%" height="260" style="display: block;">
+              <!-- Grid -->
+              <g class="chart-grid">
+                <line x1="40" y1="20" x2="420" y2="20"/>
+                <line x1="40" y1="80" x2="420" y2="80"/>
+                <line x1="40" y1="140" x2="420" y2="140"/>
+                <line x1="40" y1="200" x2="420" y2="200"/>
+              </g>
+              <!-- Y labels -->
+              <text x="35" y="24" text-anchor="end" class="chart-label">60</text>
+              <text x="35" y="84" text-anchor="end" class="chart-label">45</text>
+              <text x="35" y="144" text-anchor="end" class="chart-label">30</text>
+              <text x="35" y="204" text-anchor="end" class="chart-label">15</text>
+              <!-- Legend -->
+              <rect x="300" y="6" width="10" height="10" rx="2" fill="#0070F3"/>
+              <text x="314" y="15" class="chart-label" font-size="10">Active</text>
+              <rect x="355" y="6" width="10" height="10" rx="2" fill="#00C853"/>
+              <text x="369" y="15" class="chart-label" font-size="10">Closed</text>
+
+              <!-- Stacked bars (6 months for readability) -->
+              <!-- Oct: Active 32, Closed 18 => Active h=96, Closed h=54 -->
+              <rect x="55"  y="150" width="42" height="54" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="55"  y="54"  width="42" height="96" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- Nov: Active 35, Closed 20 -->
+              <rect x="115" y="144" width="42" height="60" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="115" y="39"  width="42" height="105" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- Dec: Active 28, Closed 22 -->
+              <rect x="175" y="138" width="42" height="66" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="175" y="54"  width="42" height="84" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- Jan: Active 40, Closed 15 -->
+              <rect x="235" y="159" width="42" height="45" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="235" y="39"  width="42" height="120" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- Feb: Active 38, Closed 24 -->
+              <rect x="295" y="132" width="42" height="72" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="295" y="18"  width="42" height="114" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- Mar: Active 44, Closed 19 -->
+              <rect x="355" y="147" width="42" height="57" rx="2" fill="#00C853" opacity="0.7"/>
+              <rect x="355" y="15"  width="42" height="132" rx="2" fill="#0070F3" opacity="0.8"/>
+
+              <!-- X labels -->
+              <text x="76"  y="248" text-anchor="middle" class="chart-label">Oct</text>
+              <text x="136" y="248" text-anchor="middle" class="chart-label">Nov</text>
+              <text x="196" y="248" text-anchor="middle" class="chart-label">Dec</text>
+              <text x="256" y="248" text-anchor="middle" class="chart-label">Jan</text>
+              <text x="316" y="248" text-anchor="middle" class="chart-label">Feb</text>
+              <text x="376" y="248" text-anchor="middle" class="chart-label">Mar</text>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         12. DENIAL REASONS — TREEMAP
+         ============================================================ -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Denial Reasons</h2>
+        <div class="section-desc">Proportional breakdown of common denial reasons</div>
+      </div>
+      <div class="card card-padded">
+        <div class="treemap-container">
+          <!-- Insufficient Medical Evidence: 40% -->
+          <div class="treemap-block" style="flex: 40; background: #0070F3;">
+            <div class="treemap-pct">40%</div>
+            <div class="treemap-label">Insufficient Medical Evidence</div>
+          </div>
+          <!-- SGA: 15% -->
+          <div class="treemap-block" style="flex: 15; background: #3B9AE8;">
+            <div class="treemap-pct">15%</div>
+            <div class="treemap-label">Substantial Gainful Activity</div>
+          </div>
+          <!-- Duration: 12% -->
+          <div class="treemap-block" style="flex: 12; background: #F5A623;">
+            <div class="treemap-pct">12%</div>
+            <div class="treemap-label">Duration</div>
+          </div>
+          <!-- Non-compliance: 10% -->
+          <div class="treemap-block" style="flex: 10; background: #E8913B;">
+            <div class="treemap-pct">10%</div>
+            <div class="treemap-label">Non-compliance</div>
+          </div>
+          <!-- RFC: 8% -->
+          <div class="treemap-block" style="flex: 8; background: #EE0000;">
+            <div class="treemap-pct">8%</div>
+            <div class="treemap-label">RFC Assessment</div>
+          </div>
+          <!-- DAA: 8% -->
+          <div class="treemap-block" style="flex: 8; background: #CC0000;">
+            <div class="treemap-pct">8%</div>
+            <div class="treemap-label">DAA Material</div>
+          </div>
+          <!-- Other: 7% -->
+          <div class="treemap-block" style="flex: 7; background: #999999;">
+            <div class="treemap-pct">7%</div>
+            <div class="treemap-label">Other</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+    --accent-purple:  #7928CA;
+    --accent-cyan:    #00B4D8;
+    --accent-teal:    #0D9488;
+
+    --green-bg:       #EDFCF2;
+    --green-border:   #B4DFC4;
+    --amber-bg:       #FEF7EC;
+    --amber-border:   #F5D19E;
+    --red-bg:         #FFF0F0;
+    --red-border:     #F9C6C6;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    --transition:     200ms ease;
+
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: var(--sp-4) 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-black);
+    border-radius: var(--radius-sm);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section { margin-bottom: var(--sp-6); }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover { color: var(--text-primary); background: var(--bg-hover); }
+  .sidebar-link.active { color: var(--text-primary); background: var(--bg-card); }
+
+  .sidebar-link .icon {
+    width: 16px; height: 16px; opacity: 0.5;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-primary);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    margin-left: 240px;
+    padding: var(--sp-6) var(--sp-8) var(--sp-12);
+    overflow-y: auto;
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-6);
+  }
+
+  .main-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .live-label {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* DATE RANGE TOGGLE */
+  .period-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-left: var(--sp-4);
+  }
+
+  .period-selector button {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    border: none;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    transition: all var(--transition);
+  }
+
+  .period-selector button:last-child { border-right: none; }
+
+  .period-selector button.active {
+    background: var(--text-primary);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .period-selector button:hover:not(.active) {
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     SECTION LABELS
+     ============================================================ */
+  .section-group {
+    margin-bottom: var(--sp-8);
+  }
+
+  .section-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-3);
+    padding-bottom: var(--sp-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: var(--sp-4);
+  }
+
+  /* ============================================================
+     GRIDS
+     ============================================================ */
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-4); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-4); }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-4); }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+  .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* ============================================================
+     STAT CARDS
+     ============================================================ */
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-4) var(--sp-5);
+    transition: border-color var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stat-card:hover { border-color: var(--border-hover); }
+
+  .stat-info { flex: 1; }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-1);
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .stat-change {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    margin-top: var(--sp-1);
+  }
+
+  .stat-change.up { color: var(--accent-green); }
+  .stat-change.down { color: var(--accent-red); }
+  .stat-change.neutral { color: var(--text-tertiary); }
+
+  .sparkline-mini {
+    width: 64px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: var(--sp-3);
+  }
+
+  .sparkline-mini svg { width: 100%; height: 100%; }
+
+  /* ============================================================
+     CHART CARDS
+     ============================================================ */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .card:hover { border-color: var(--border-hover); }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--sp-3);
+  }
+
+  .card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .card-title-row .card-title { margin-bottom: 0; }
+
+  .card-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .card-urgent {
+    border-color: var(--accent-red);
+    border-width: 2px;
+  }
+  .card-urgent:hover { border-color: var(--accent-red); }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--border-hover); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-danger { background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-size: 11px; padding: 3px 8px; }
+  .btn-danger:hover { background: var(--accent-red); color: #FFF; }
+
+  /* ============================================================
+     CHART LEGENDS
+     ============================================================ */
+  .chart-legend {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-3);
+  }
+
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .chart-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  .legend-sq {
+    width: 8px; height: 8px; border-radius: 2px;
+  }
+
+  /* ============================================================
+     FUNNEL BARS
+     ============================================================ */
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .funnel-label {
+    width: 130px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .funnel-bar-wrap {
+    flex: 1;
+    height: 28px;
+    position: relative;
+  }
+
+  .funnel-bar {
+    height: 100%;
+    background: var(--accent-blue);
+    border-radius: var(--radius-sm);
+    transition: width 600ms ease;
+    display: flex;
+    align-items: center;
+    padding-left: var(--sp-3);
+  }
+
+  .funnel-bar span {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .funnel-pct {
+    width: 40px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     GAUGE / DONUT
+     ============================================================ */
+  .gauge-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-6);
+  }
+
+  .gauge-svg { width: 140px; height: 140px; }
+
+  .gauge-center-text {
+    font-family: var(--font-mono); font-weight: 600; font-size: 28px; fill: var(--text-primary);
+  }
+
+  .gauge-sub-text {
+    font-family: var(--font-mono); font-size: 10px; fill: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .gauge-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .gauge-stat-item {
+    display: flex; align-items: center; gap: var(--sp-2);
+    font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary);
+  }
+
+  .gauge-stat-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* ============================================================
+     TREEMAP (DENIAL REASONS)
+     ============================================================ */
+  .treemap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto auto;
+    gap: 3px;
+    height: 180px;
+  }
+
+  .treemap-cell {
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-2);
+    transition: opacity var(--transition);
+    cursor: default;
+  }
+
+  .treemap-cell:hover { opacity: 0.85; }
+
+  .treemap-cell-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .treemap-cell-pct {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--font-mono);
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+     STEPPED BARS (APPEALS)
+     ============================================================ */
+  .stepped-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .stepped-label {
+    width: 110px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .stepped-track {
+    flex: 1;
+    height: 26px;
+    background: var(--bg-card-alt);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stepped-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    padding-left: var(--sp-2);
+    transition: width 600ms ease;
+  }
+
+  .stepped-fill span {
+    font-size: 11px; font-family: var(--font-mono); font-weight: 500; color: #fff;
+  }
+
+  .stepped-pct {
+    width: 44px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     ALJ STACKED BARS
+     ============================================================ */
+  .alj-row {
+    display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3);
+  }
+
+  .alj-name {
+    width: 140px; min-width: 140px; font-size: 12px; text-align: right;
+    color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .alj-bar-container {
+    flex: 1; height: 22px; display: flex;
+    border-radius: var(--radius-sm); overflow: hidden; position: relative;
+  }
+
+  .alj-bar-seg { height: 100%; transition: width 0.6s ease; }
+  .alj-bar-seg.favorable { background: var(--accent-green); }
+  .alj-bar-seg.unfavorable { background: var(--accent-red); opacity: 0.7; }
+  .alj-bar-seg.remand { background: var(--accent-amber); }
+
+  .alj-pct {
+    width: 44px; min-width: 44px; font-size: 12px;
+    font-family: var(--font-mono); font-weight: 500; text-align: right;
+  }
+
+  .alj-national-avg {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: var(--text-primary); z-index: 2; opacity: 0.6;
+  }
+
+  .alj-national-avg::after {
+    content: 'Nat. Avg 46%';
+    position: absolute; top: -18px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px; font-family: var(--font-mono); color: var(--text-tertiary); white-space: nowrap;
+  }
+
+  /* ============================================================
+     BUBBLE CHART (LISTING MATCH)
+     ============================================================ */
+  .bubble-chart-svg {
+    width: 100%;
+    height: 300px;
+  }
+
+  .bubble-chart-svg svg { width: 100%; height: 100%; }
+
+  /* ============================================================
+     HEATMAP TABLE
+     ============================================================ */
+  .heatmap-table {
+    width: 100%; border-collapse: collapse;
+  }
+
+  .heatmap-table th {
+    font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-tertiary); padding: var(--sp-2) var(--sp-3); text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .heatmap-table th:first-child { text-align: left; }
+
+  .heatmap-table td {
+    padding: var(--sp-2) var(--sp-3); font-size: 12px;
+    font-family: var(--font-mono); text-align: center;
+  }
+
+  .heatmap-table td:first-child {
+    text-align: left; color: var(--text-secondary); font-family: var(--font-sans); font-size: 12px;
+  }
+
+  .heatmap-table tr { border-bottom: 1px solid var(--border); }
+  .heatmap-table tr:last-child { border-bottom: none; }
+
+  .heatmap-cell {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 26px; border-radius: var(--radius-sm);
+    font-size: 10px; font-family: var(--font-mono); font-weight: 500;
+  }
+
+  /* ============================================================
+     SCATTER PLOT
+     ============================================================ */
+  .scatter-plot {
+    position: relative; height: 220px;
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-left: var(--sp-8); margin-bottom: var(--sp-6);
+  }
+
+  .scatter-dot {
+    position: absolute; border-radius: 50%; transition: transform 0.2s ease; cursor: default;
+  }
+
+  .scatter-dot:hover { transform: scale(1.5); }
+
+  .scatter-y-label {
+    position: absolute; left: -50px; top: 50%;
+    transform: rotate(-90deg) translateX(-50%);
+    font-size: 10px; color: var(--text-tertiary); font-family: var(--font-mono);
+    transform-origin: center center; white-space: nowrap;
+  }
+
+  .scatter-x-label {
+    position: absolute; bottom: -20px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px; color: var(--text-tertiary); font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     AREA CHART (PAST-DUE BENEFITS)
+     ============================================================ */
+  .area-chart { width: 100%; height: 180px; }
+  .area-chart svg { width: 100%; height: 100%; }
+
+  /* ============================================================
+     HISTOGRAM
+     ============================================================ */
+  .histogram {
+    display: flex; align-items: flex-end; gap: var(--sp-2); height: 140px;
+    padding-top: var(--sp-4);
+  }
+
+  .hist-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; height: 100%; justify-content: flex-end;
+  }
+
+  .hist-fill {
+    width: 100%; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 400ms ease; min-height: 2px;
+  }
+
+  .hist-label {
+    font-size: 9px; font-family: var(--font-mono); color: var(--text-tertiary);
+    margin-top: var(--sp-1); white-space: nowrap;
+  }
+
+  .hist-value {
+    font-size: 10px; font-family: var(--font-mono); font-weight: 500;
+    color: var(--text-primary); margin-bottom: 2px;
+  }
+
+  /* ============================================================
+     BAR CHART (REVENUE)
+     ============================================================ */
+  .bar-chart {
+    display: flex; align-items: flex-end; gap: 6px; height: 160px;
+    padding-top: var(--sp-4); position: relative;
+  }
+
+  .bar-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; height: 100%; justify-content: flex-end;
+  }
+
+  .bar-fill {
+    width: 100%; background: var(--accent-blue);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 400ms ease; min-height: 2px;
+  }
+
+  .bar-fill.current { background: var(--accent-black); }
+
+  .bar-label {
+    font-size: 10px; font-family: var(--font-mono); color: var(--text-tertiary);
+    margin-top: var(--sp-1);
+  }
+
+  .bar-value {
+    font-size: 9px; font-family: var(--font-mono); color: var(--text-secondary);
+    margin-bottom: 2px; white-space: nowrap;
+  }
+
+  /* ============================================================
+     GROUPED BARS (RFC LIMITATIONS)
+     ============================================================ */
+  .grouped-bar-row {
+    display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-2);
+  }
+
+  .grouped-bar-label {
+    width: 120px; font-size: 11px; color: var(--text-secondary);
+    text-align: right; flex-shrink: 0;
+  }
+
+  .grouped-bar-pair {
+    flex: 1; display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .grouped-bar-track {
+    height: 14px; background: var(--bg-card-alt);
+    border-radius: var(--radius-sm); overflow: hidden;
+  }
+
+  .grouped-bar-fill {
+    height: 100%; border-radius: var(--radius-sm);
+    display: flex; align-items: center; padding-left: 4px;
+    transition: width 600ms ease;
+  }
+
+  .grouped-bar-fill span {
+    font-size: 9px; font-family: var(--font-mono); font-weight: 500; color: #fff;
+  }
+
+  /* ============================================================
+     PROGRESS BARS (HEARING PREP)
+     ============================================================ */
+  .prep-item {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-3) 0; border-bottom: 1px solid var(--bg-hover);
+  }
+
+  .prep-item:last-child { border-bottom: none; }
+
+  .prep-case {
+    width: 160px; flex-shrink: 0;
+  }
+
+  .prep-case-name {
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+  }
+
+  .prep-case-date {
+    font-size: 11px; font-family: var(--font-mono); color: var(--text-tertiary);
+  }
+
+  .prep-progress {
+    flex: 1; display: flex; flex-direction: column; gap: 3px;
+  }
+
+  .prep-track {
+    height: 8px; background: var(--bg-card-alt); border-radius: 4px; overflow: hidden;
+  }
+
+  .prep-fill {
+    height: 100%; border-radius: 4px; transition: width 600ms ease;
+  }
+
+  .prep-pct {
+    font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary);
+  }
+
+  .prep-status {
+    width: 80px; flex-shrink: 0; text-align: right;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .status-badge.ready { background: var(--green-bg); color: #2E7D32; }
+  .status-badge.warning { background: var(--amber-bg); color: #E65100; }
+  .status-badge.critical { background: var(--red-bg); color: var(--accent-red); }
+
+  /* ============================================================
+     RING GAUGE (CLIENT SATISFACTION)
+     ============================================================ */
+  .ring-gauge-wrap {
+    display: flex; align-items: center; justify-content: center;
+    gap: var(--sp-6); padding: var(--sp-3) 0;
+  }
+
+  .ring-gauge-svg { width: 120px; height: 120px; }
+
+  /* ============================================================
+     ACTIVITY FEED
+     ============================================================ */
+  .activity-feed {
+    max-height: 400px; overflow-y: auto;
+  }
+
+  .activity-feed::-webkit-scrollbar { width: 4px; }
+  .activity-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .feed-group-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text-tertiary);
+    padding: var(--sp-3) 0; position: sticky; top: 0;
+    background: var(--bg-card); z-index: 1;
+    border-bottom: 1px solid var(--border); margin-bottom: var(--sp-2);
+  }
+
+  .feed-item {
+    display: flex; gap: var(--sp-3); padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--bg-hover); transition: background var(--transition); cursor: pointer;
+  }
+
+  .feed-item:hover { background: var(--bg-card-alt); }
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-avatar {
+    width: 28px; height: 28px; min-width: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #FFF; margin-top: 2px;
+  }
+
+  .feed-avatar.blue { background: var(--accent-blue); }
+  .feed-avatar.green { background: var(--accent-green); }
+  .feed-avatar.amber { background: var(--accent-amber); }
+  .feed-avatar.red { background: var(--accent-red); }
+  .feed-avatar.purple { background: var(--accent-purple); }
+
+  .feed-content { flex: 1; min-width: 0; }
+
+  .feed-narrative {
+    font-size: 13px; line-height: 1.4; color: var(--text-primary);
+  }
+
+  .feed-narrative strong { font-weight: 600; }
+
+  .feed-narrative .case-link {
+    color: var(--accent-blue); font-family: var(--font-mono); font-size: 12px;
+  }
+
+  .feed-meta {
+    display: flex; align-items: center; gap: var(--sp-2); margin-top: 2px;
+    font-size: 11px; color: var(--text-tertiary);
+  }
+
+  .feed-type-badge {
+    display: inline-flex; align-items: center; padding: 1px 6px;
+    border-radius: 3px; font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+
+  .feed-type-badge.hearing { background: #FFF3E0; color: #E65100; }
+  .feed-type-badge.doc-uploaded { background: #E3F2FD; color: #1565C0; }
+  .feed-type-badge.decision { background: #F3E5F5; color: #6A1B9A; }
+  .feed-type-badge.task { background: #FAFAFA; color: #666; border: 1px solid var(--border); }
+  .feed-type-badge.stage-change { background: #FFF8E1; color: #F57F17; }
+
+  /* ============================================================
+     DECISION CARDS
+     ============================================================ */
+  .decision-card {
+    padding: var(--sp-3); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: var(--sp-3);
+    transition: border-color var(--transition); cursor: pointer;
+  }
+
+  .decision-card:hover { border-color: var(--border-hover); }
+  .decision-card:last-child { margin-bottom: 0; }
+
+  .decision-card.favorable { border-left: 3px solid var(--accent-green); }
+  .decision-card.unfavorable { border-left: 3px solid var(--accent-red); }
+
+  .decision-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2);
+  }
+
+  .decision-case {
+    font-size: 13px; font-weight: 600;
+  }
+
+  .decision-outcome {
+    font-size: 11px; font-weight: 500; padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .decision-outcome.won { background: var(--green-bg); color: #2E7D32; }
+  .decision-outcome.lost { background: var(--red-bg); color: var(--accent-red); }
+
+  .decision-details {
+    display: flex; gap: var(--sp-4); font-size: 12px; color: var(--text-secondary);
+  }
+
+  .decision-detail-label { color: var(--text-tertiary); font-size: 11px; }
+
+  /* ============================================================
+     TEAM ACTIVITY HEATMAP
+     ============================================================ */
+  .team-heatmap { overflow-x: auto; }
+
+  .team-heatmap-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(12, 1fr);
+    gap: 2px;
+    font-size: 10px;
+  }
+
+  .team-heatmap-header {
+    font-weight: 500; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: var(--sp-1) var(--sp-2); text-align: center;
+  }
+
+  .team-heatmap-header:first-child { text-align: left; }
+
+  .team-heatmap-name {
+    font-size: 11px; color: var(--text-secondary);
+    padding: var(--sp-1) var(--sp-2);
+    display: flex; align-items: center;
+  }
+
+  .team-heatmap-cell {
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 9px;
+    padding: var(--sp-1); min-height: 24px;
+  }
+
+  /* ============================================================
+     DOCUMENT PROCESSING PIPELINE
+     ============================================================ */
+  .doc-pipeline {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3);
+  }
+
+  .pipeline-stage {
+    text-align: center; padding: var(--sp-3);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    position: relative;
+  }
+
+  .pipeline-stage::after {
+    content: '';
+    position: absolute; top: 50%; right: -10px;
+    width: 16px; height: 2px;
+    background: var(--border);
+  }
+
+  .pipeline-stage:last-child::after { display: none; }
+
+  .pipeline-count {
+    font-size: 24px; font-weight: 600; font-family: var(--font-mono);
+    letter-spacing: -0.5px;
+  }
+
+  .pipeline-label {
+    font-size: 11px; color: var(--text-tertiary); text-transform: uppercase;
+    letter-spacing: 0.04em; margin-top: 2px;
+  }
+
+  /* ============================================================
+     TASK SPARKLINES (PER TEAM MEMBER)
+     ============================================================ */
+  .task-row {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-2) 0; border-bottom: 1px solid var(--border);
+  }
+
+  .task-row:last-child { border-bottom: none; }
+
+  .task-name {
+    width: 100px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0;
+  }
+
+  .task-sparkline {
+    flex: 1; height: 24px;
+  }
+
+  .task-sparkline svg { width: 100%; height: 100%; }
+
+  .task-pct {
+    width: 44px; font-size: 12px; font-family: var(--font-mono);
+    font-weight: 500; color: var(--text-primary); text-align: right; flex-shrink: 0;
+  }
+
+  /* ============================================================
+     VELOCITY GRID
+     ============================================================ */
+  .velocity-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-3);
+  }
+
+  .velocity-item {
+    border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--sp-3);
+  }
+
+  .velocity-label {
+    font-size: 10px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: var(--sp-1);
+  }
+
+  .velocity-value {
+    font-size: 20px; font-weight: 600; font-family: var(--font-mono);
+    letter-spacing: -0.5px; margin-bottom: var(--sp-2);
+  }
+
+  .velocity-spark { height: 28px; }
+  .velocity-spark svg { width: 100%; height: 100%; }
+
+  /* ============================================================
+     URGENT QUEUE
+     ============================================================ */
+  .urgent-list { list-style: none; }
+
+  .urgent-item {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-3) 0; border-bottom: 1px solid var(--bg-hover); font-size: 13px;
+  }
+
+  .urgent-item:last-child { border-bottom: none; }
+
+  .urgent-icon {
+    width: 20px; height: 20px; min-width: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 10px;
+  }
+
+  .urgent-icon.overdue { background: #FDECEA; color: var(--accent-red); }
+  .urgent-icon.warning { background: #FFF3E0; color: var(--accent-amber); }
+  .urgent-icon.critical { background: var(--accent-red); color: #FFF; }
+
+  .urgent-text { flex: 1; }
+
+  .urgent-text .case-ref {
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent-blue);
+  }
+
+  .urgent-action { flex-shrink: 0; }
+
+  /* ============================================================
+     VE TABLE
+     ============================================================ */
+  .ve-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+
+  .ve-table th {
+    font-size: 10px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--text-tertiary);
+    padding: var(--sp-2) var(--sp-3); text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ve-table td {
+    padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--bg-hover);
+    color: var(--text-secondary);
+  }
+
+  .ve-table tr:last-child td { border-bottom: none; }
+
+  .ve-table .mono { font-family: var(--font-mono); }
+
+  .ve-bar {
+    height: 14px; border-radius: var(--radius-sm);
+    display: inline-block; vertical-align: middle;
+  }
+
+  /* ============================================================
+     LINE CHART AREA
+     ============================================================ */
+  .line-chart-area { width: 100%; height: 180px; }
+  .line-chart-area svg { width: 100%; height: 100%; }
+
+  /* ============================================================
+     UTILITY
+     ============================================================ */
+  .mono { font-family: var(--font-mono); }
+  .text-green { color: var(--accent-green); }
+  .text-red { color: var(--accent-red); }
+  .text-blue { color: var(--accent-blue); }
+  .text-amber { color: var(--accent-amber); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ========== SIDEBAR ========== -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Command Center
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Cases
+        <span class="badge">847</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13V3h10v10H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h4M6 8h4M6 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Documents
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Hearings
+        <span class="badge">12</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workflows</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Tasks
+        <span class="badge">38</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h12v10H2zM2 6h12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Calendar
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Reports
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M5 5c0-1.1.9-2 3-2s3 .9 3 2-1.3 2-3 2-3 .9-3 2 .9 2 3 2 3-.9 3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Fees &amp; Billing
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M5 5c0-1.1.9-2 3-2s3 .9 3 2-1.3 2-3 2-3 .9-3 2 .9 2 3 2 3-.9 3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Revenue
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-section">
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SM</div>
+      <div>
+        <div style="font-size:13px;color:var(--text-primary);">Sarah Mitchell</div>
+        <div style="font-size:11px;color:var(--text-tertiary);">Managing Attorney</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main">
+
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
+    <div class="main-header">
+      <div>
+        <h1>Command Center</h1>
+      </div>
+      <div class="header-actions">
+        <div class="live-dot"></div>
+        <span class="live-label">Live</span>
+        <div class="period-selector">
+          <button>Today</button>
+          <button>This Week</button>
+          <button class="active">This Month</button>
+          <button>This Quarter</button>
+          <button>YTD</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TOP: STAT CARDS
+         ============================================================ -->
+    <div class="grid-5" style="margin-bottom: var(--sp-4);">
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Active Cases</div>
+          <div class="stat-value">847</div>
+          <div class="stat-change up">+12 this week</div>
+        </div>
+        <div class="sparkline-mini">
+          <svg viewBox="0 0 64 32" preserveAspectRatio="none">
+            <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0070F3" stop-opacity="0.3"/><stop offset="100%" stop-color="#0070F3" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,28 L8,24 L16,26 L24,20 L32,18 L40,14 L48,16 L56,10 L64,6" fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,28 L8,24 L16,26 L24,20 L32,18 L40,14 L48,16 L56,10 L64,6 V32 H0 Z" fill="url(#sg1)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Pending Tasks</div>
+          <div class="stat-value">38</div>
+          <div class="stat-change down">+5 overdue</div>
+        </div>
+        <div class="sparkline-mini">
+          <svg viewBox="0 0 64 32" preserveAspectRatio="none">
+            <defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F5A623" stop-opacity="0.3"/><stop offset="100%" stop-color="#F5A623" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,20 L8,18 L16,22 L24,16 L32,20 L40,24 L48,18 L56,22 L64,16" fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,20 L8,18 L16,22 L24,16 L32,20 L40,24 L48,18 L56,22 L64,16 V32 H0 Z" fill="url(#sg2)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Win Rate %</div>
+          <div class="stat-value">67%</div>
+          <div class="stat-change up">+3% vs prior</div>
+        </div>
+        <div class="sparkline-mini">
+          <svg viewBox="0 0 64 32" preserveAspectRatio="none">
+            <defs><linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00C853" stop-opacity="0.3"/><stop offset="100%" stop-color="#00C853" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,26 L8,22 L16,24 L24,20 L32,16 L40,18 L48,12 L56,10 L64,8" fill="none" stroke="#00C853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,26 L8,22 L16,24 L24,20 L32,16 L40,18 L48,12 L56,10 L64,8 V32 H0 Z" fill="url(#sg3)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Revenue MTD</div>
+          <div class="stat-value">$184K</div>
+          <div class="stat-change up">+22% vs prior</div>
+        </div>
+        <div class="sparkline-mini">
+          <svg viewBox="0 0 64 32" preserveAspectRatio="none">
+            <defs><linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0070F3" stop-opacity="0.3"/><stop offset="100%" stop-color="#0070F3" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,24 L8,22 L16,20 L24,18 L32,22 L40,14 L48,10 L56,12 L64,4" fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,24 L8,22 L16,20 L24,18 L32,22 L40,14 L48,10 L56,12 L64,4 V32 H0 Z" fill="url(#sg4)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Avg Days to Hearing</div>
+          <div class="stat-value">287</div>
+          <div class="stat-change down">+14 days</div>
+        </div>
+        <div class="sparkline-mini">
+          <svg viewBox="0 0 64 32" preserveAspectRatio="none">
+            <defs><linearGradient id="sg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EE0000" stop-opacity="0.2"/><stop offset="100%" stop-color="#EE0000" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,16 L8,18 L16,14 L24,20 L32,18 L40,22 L48,20 L56,24 L64,22" fill="none" stroke="#EE0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,16 L8,18 L16,14 L24,20 L32,18 L40,22 L48,20 L56,24 L64,22 V32 H0 Z" fill="url(#sg5)"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         TOP: URGENT ATTENTION QUEUE
+         ============================================================ -->
+    <div class="card card-urgent" style="margin-bottom: var(--sp-8);">
+      <div class="card-title-row">
+        <div class="card-title" style="color: var(--accent-red);">Urgent Attention Queue</div>
+        <div class="card-meta">7 items need attention</div>
+      </div>
+      <ul class="urgent-list">
+        <li class="urgent-item">
+          <div class="urgent-icon overdue">!</div>
+          <div class="urgent-text"><strong>Overdue task:</strong> Request medical records for <span class="case-ref">Thompson v. SSA</span> &mdash; 3 days past due</div>
+          <div class="urgent-action"><button class="btn-danger">Resolve</button></div>
+        </li>
+        <li class="urgent-item">
+          <div class="urgent-icon critical">!</div>
+          <div class="urgent-text"><strong>Hearing in 48 hours:</strong> <span class="case-ref">Garcia v. SSA</span> &mdash; Brief not yet filed</div>
+          <div class="urgent-action"><button class="btn-danger">View</button></div>
+        </li>
+        <li class="urgent-item">
+          <div class="urgent-icon warning">!</div>
+          <div class="urgent-text"><strong>Missing evidence:</strong> <span class="case-ref">Williams v. SSA</span> &mdash; RFC form not submitted, hearing in 12 days</div>
+          <div class="urgent-action"><button class="btn-danger">Upload</button></div>
+        </li>
+        <li class="urgent-item">
+          <div class="urgent-icon overdue">!</div>
+          <div class="urgent-text"><strong>Deadline tomorrow:</strong> Appeals Council brief for <span class="case-ref">Rodriguez v. SSA</span></div>
+          <div class="urgent-action"><button class="btn-danger">Draft</button></div>
+        </li>
+        <li class="urgent-item">
+          <div class="urgent-icon warning">!</div>
+          <div class="urgent-text"><strong>Client unresponsive:</strong> <span class="case-ref">Davis v. SSA</span> &mdash; 3 contact attempts, no reply in 14 days</div>
+          <div class="urgent-action"><button class="btn-danger">Escalate</button></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ============================================================
+         SECTION 1: PIPELINE & OUTCOMES
+         ============================================================ -->
+    <div class="section-group">
+      <div class="section-group-label">Pipeline &amp; Outcomes</div>
+
+      <div class="grid-2">
+
+        <!-- PIPELINE FUNNEL -->
+        <div class="card">
+          <div class="card-title">Pipeline Funnel</div>
+          <div style="margin-top: var(--sp-2);">
+            <div class="funnel-stage">
+              <div class="funnel-label">Initial App</div>
+              <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%; background: #0070F3;"><span>342</span></div></div>
+              <div class="funnel-pct">100%</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-label">Reconsideration</div>
+              <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:68%; background: #2B8CF7;"><span>233</span></div></div>
+              <div class="funnel-pct">68%</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-label">ALJ Hearing</div>
+              <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:45%; background: #5DA8F9;"><span>156</span></div></div>
+              <div class="funnel-pct">45%</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-label">Appeals Council</div>
+              <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:22%; background: #8EC3FB;"><span>76</span></div></div>
+              <div class="funnel-pct">22%</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-label">Federal Court</div>
+              <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:12%; background: #B8D9FD;"><span>40</span></div></div>
+              <div class="funnel-pct">12%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WIN RATE GAUGE -->
+        <div class="card">
+          <div class="card-title">Overall Win Rate</div>
+          <div class="gauge-wrap" style="margin-top: var(--sp-3);">
+            <svg class="gauge-svg" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="56" fill="none" stroke="#EAEAEA" stroke-width="12"/>
+              <circle cx="70" cy="70" r="56" fill="none" stroke="#00C853" stroke-width="12"
+                stroke-dasharray="235.6 352"
+                stroke-dashoffset="-88"
+                stroke-linecap="round" transform="rotate(-90 70 70)"/>
+              <text x="70" y="68" text-anchor="middle" class="gauge-center-text">67%</text>
+              <text x="70" y="84" text-anchor="middle" class="gauge-sub-text">WIN RATE</text>
+            </svg>
+            <div class="gauge-stats">
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #00C853;"></div>
+                Won: 567
+              </div>
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #EE0000;"></div>
+                Denied: 279
+              </div>
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #F5A623;"></div>
+                Pending: 156
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DENIAL REASONS TREEMAP -->
+        <div class="card">
+          <div class="card-title">Denial Reasons</div>
+          <div class="treemap">
+            <div class="treemap-cell" style="background: #0070F3; grid-column: span 2; grid-row: span 2;">
+              <div class="treemap-cell-label">Insufficient<br>Evidence</div>
+              <div class="treemap-cell-pct">40%</div>
+            </div>
+            <div class="treemap-cell" style="background: #7928CA;">
+              <div class="treemap-cell-label">SGA</div>
+              <div class="treemap-cell-pct">15%</div>
+            </div>
+            <div class="treemap-cell" style="background: #00B4D8;">
+              <div class="treemap-cell-label">Duration</div>
+              <div class="treemap-cell-pct">12%</div>
+            </div>
+            <div class="treemap-cell" style="background: #0D9488;">
+              <div class="treemap-cell-label">Non-Compliant</div>
+              <div class="treemap-cell-pct">10%</div>
+            </div>
+            <div class="treemap-cell" style="background: #F5A623;">
+              <div class="treemap-cell-label">RFC Mismatch</div>
+              <div class="treemap-cell-pct">8%</div>
+            </div>
+            <div class="treemap-cell" style="background: #EE0000; grid-column: span 2;">
+              <div class="treemap-cell-label">Grid Rules / Age</div>
+              <div class="treemap-cell-pct">7%</div>
+            </div>
+            <div class="treemap-cell" style="background: #999; grid-column: span 2;">
+              <div class="treemap-cell-label">Other</div>
+              <div class="treemap-cell-pct">8%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPEALS SUCCESS RATE -->
+        <div class="card">
+          <div class="card-title">Appeals Success Rate by Level</div>
+          <div style="margin-top: var(--sp-3);">
+            <div class="stepped-bar-row">
+              <div class="stepped-label">Initial App</div>
+              <div class="stepped-track"><div class="stepped-fill" style="width:33%; background: var(--accent-blue);"><span>33%</span></div></div>
+              <div class="stepped-pct text-blue">33%</div>
+            </div>
+            <div class="stepped-bar-row">
+              <div class="stepped-label">Reconsideration</div>
+              <div class="stepped-track"><div class="stepped-fill" style="width:15%; background: var(--accent-amber);"><span>15%</span></div></div>
+              <div class="stepped-pct text-amber">15%</div>
+            </div>
+            <div class="stepped-bar-row">
+              <div class="stepped-label">ALJ Hearing</div>
+              <div class="stepped-track"><div class="stepped-fill" style="width:52%; background: var(--accent-green);"><span>52%</span></div></div>
+              <div class="stepped-pct text-green">52%</div>
+            </div>
+            <div class="stepped-bar-row">
+              <div class="stepped-label">Appeals Council</div>
+              <div class="stepped-track"><div class="stepped-fill" style="width:12%; background: var(--accent-purple);"><span>12%</span></div></div>
+              <div class="stepped-pct" style="color: var(--accent-purple);">12%</div>
+            </div>
+            <div class="stepped-bar-row">
+              <div class="stepped-label">Federal Court</div>
+              <div class="stepped-track"><div class="stepped-fill" style="width:8%; background: var(--accent-red);"><span>8%</span></div></div>
+              <div class="stepped-pct text-red">8%</div>
+            </div>
+          </div>
+          <div class="chart-legend" style="margin-top: var(--sp-3);">
+            <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-green);"></div>Best: ALJ Hearing (52%)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECTION 2: INTELLIGENCE
+         ============================================================ -->
+    <div class="section-group">
+      <div class="section-group-label">Intelligence</div>
+
+      <!-- ALJ APPROVAL RATES (full width) -->
+      <div class="card" style="margin-bottom: var(--sp-4);">
+        <div class="card-title-row">
+          <div class="card-title">ALJ Approval Rates &mdash; Top 10 Judges</div>
+          <div class="card-meta">Favorable / Remand / Unfavorable</div>
+        </div>
+        <div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Harrison</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:72%;"></div>
+              <div class="alj-bar-seg remand" style="width:10%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:18%;"></div>
+              <div class="alj-national-avg" style="left:46%;"></div>
+            </div>
+            <div class="alj-pct text-green">72%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Kowalski</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:68%;"></div>
+              <div class="alj-bar-seg remand" style="width:12%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:20%;"></div>
+            </div>
+            <div class="alj-pct text-green">68%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Patel</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:65%;"></div>
+              <div class="alj-bar-seg remand" style="width:8%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:27%;"></div>
+            </div>
+            <div class="alj-pct text-green">65%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Brennan</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:60%;"></div>
+              <div class="alj-bar-seg remand" style="width:15%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:25%;"></div>
+            </div>
+            <div class="alj-pct text-green">60%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Chen</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:55%;"></div>
+              <div class="alj-bar-seg remand" style="width:18%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:27%;"></div>
+            </div>
+            <div class="alj-pct">55%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Morales</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:50%;"></div>
+              <div class="alj-bar-seg remand" style="width:14%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:36%;"></div>
+            </div>
+            <div class="alj-pct">50%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Sullivan</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:48%;"></div>
+              <div class="alj-bar-seg remand" style="width:12%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:40%;"></div>
+            </div>
+            <div class="alj-pct">48%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Fitzgerald</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:42%;"></div>
+              <div class="alj-bar-seg remand" style="width:20%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:38%;"></div>
+            </div>
+            <div class="alj-pct text-red">42%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Okafor</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:38%;"></div>
+              <div class="alj-bar-seg remand" style="width:14%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:48%;"></div>
+            </div>
+            <div class="alj-pct text-red">38%</div>
+          </div>
+          <div class="alj-row">
+            <div class="alj-name">Judge Whitfield</div>
+            <div class="alj-bar-container">
+              <div class="alj-bar-seg favorable" style="width:30%;"></div>
+              <div class="alj-bar-seg remand" style="width:10%;"></div>
+              <div class="alj-bar-seg unfavorable" style="width:60%;"></div>
+            </div>
+            <div class="alj-pct text-red">30%</div>
+          </div>
+        </div>
+        <div class="chart-legend" style="margin-top: var(--sp-3); padding-left: 152px;">
+          <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-green);"></div>Favorable</div>
+          <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-amber);"></div>Remand</div>
+          <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-red); opacity: 0.7;"></div>Unfavorable</div>
+          <div class="chart-legend-item"><div style="width:2px; height:12px; background: var(--text-primary); opacity:0.6;"></div>National Avg (46%)</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- LISTING MATCH ANALYSIS (Bubble Chart) -->
+        <div class="card">
+          <div class="card-title">Listing Match Analysis</div>
+          <div class="bubble-chart-svg">
+            <svg viewBox="0 0 500 300" preserveAspectRatio="xMidYMid meet">
+              <!-- Musculoskeletal -->
+              <circle cx="130" cy="120" r="60" fill="#0070F3" opacity="0.85"/>
+              <text x="130" y="114" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Musculoskeletal</text>
+              <text x="130" y="128" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="10" font-family="Geist Mono, monospace">142 cases</text>
+              <text x="130" y="140" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Geist Mono, monospace">Win: 64%</text>
+
+              <!-- Mental Disorders -->
+              <circle cx="285" cy="100" r="52" fill="#7928CA" opacity="0.85"/>
+              <text x="285" y="94" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Mental</text>
+              <text x="285" y="108" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="10" font-family="Geist Mono, monospace">98 cases</text>
+              <text x="285" y="120" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Geist Mono, monospace">Win: 71%</text>
+
+              <!-- Cardiovascular -->
+              <circle cx="400" cy="160" r="40" fill="#00B4D8" opacity="0.85"/>
+              <text x="400" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Cardio</text>
+              <text x="400" y="168" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="9" font-family="Geist Mono, monospace">67 cases</text>
+
+              <!-- Neurological -->
+              <circle cx="220" cy="220" r="38" fill="#0D9488" opacity="0.85"/>
+              <text x="220" y="216" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Neuro</text>
+              <text x="220" y="228" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="9" font-family="Geist Mono, monospace">58 cases</text>
+
+              <!-- Respiratory -->
+              <circle cx="370" cy="250" r="30" fill="#F5A623" opacity="0.85"/>
+              <text x="370" y="247" text-anchor="middle" fill="#fff" font-size="9" font-weight="600">Respiratory</text>
+              <text x="370" y="259" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="8" font-family="Geist Mono, monospace">34 cases</text>
+
+              <!-- Immune -->
+              <circle cx="80" cy="235" r="24" fill="#EE0000" opacity="0.75"/>
+              <text x="80" y="233" text-anchor="middle" fill="#fff" font-size="9" font-weight="600">Immune</text>
+              <text x="80" y="244" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="8" font-family="Geist Mono, monospace">22</text>
+
+              <!-- Endocrine -->
+              <circle cx="460" cy="80" r="20" fill="#666" opacity="0.75"/>
+              <text x="460" y="78" text-anchor="middle" fill="#fff" font-size="8" font-weight="600">Endocrine</text>
+              <text x="460" y="88" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="8" font-family="Geist Mono, monospace">18</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- DENIAL PATTERN TRACKER (HEATMAP) -->
+        <div class="card">
+          <div class="card-title">Denial Pattern Tracker</div>
+          <table class="heatmap-table">
+            <thead>
+              <tr>
+                <th>Reason</th>
+                <th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Insufficient Evidence</td>
+                <td><span class="heatmap-cell" style="background:#FDECEA; color:#c62828;">14</span></td>
+                <td><span class="heatmap-cell" style="background:#FCE4EC; color:#c62828;">12</span></td>
+                <td><span class="heatmap-cell" style="background:#FDECEA; color:#c62828;">16</span></td>
+                <td><span class="heatmap-cell" style="background:#FFEBEE; color:#c62828;">11</span></td>
+                <td><span class="heatmap-cell" style="background:#FDECEA; color:#c62828;">13</span></td>
+                <td><span class="heatmap-cell" style="background:#F9C6C6; color:#c62828;">18</span></td>
+              </tr>
+              <tr>
+                <td>SGA</td>
+                <td><span class="heatmap-cell" style="background:#FFF3E0; color:#e65100;">5</span></td>
+                <td><span class="heatmap-cell" style="background:#FFF8E1; color:#e65100;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#FFF3E0; color:#e65100;">6</span></td>
+                <td><span class="heatmap-cell" style="background:#FFF8E1; color:#e65100;">4</span></td>
+                <td><span class="heatmap-cell" style="background:#FFF3E0; color:#e65100;">5</span></td>
+                <td><span class="heatmap-cell" style="background:#FFF3E0; color:#e65100;">7</span></td>
+              </tr>
+              <tr>
+                <td>Duration</td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">4</span></td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">2</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">5</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">2</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">4</span></td>
+              </tr>
+              <tr>
+                <td>RFC Mismatch</td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">2</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">1</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">4</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">2</span></td>
+              </tr>
+              <tr>
+                <td>Non-Compliance</td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#E8F5E9; color:#2E7D32;">2</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">4</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">5</span></td>
+                <td><span class="heatmap-cell" style="background:#E3F2FD; color:#1565C0;">3</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="grid-3">
+
+        <!-- TIME TO HEARING BY OFFICE (Scatter) -->
+        <div class="card">
+          <div class="card-title">Time to Hearing by Office</div>
+          <div class="scatter-plot">
+            <span class="scatter-y-label">Days to Hearing</span>
+            <span class="scatter-x-label">Hearing Office</span>
+            <!-- Grid lines -->
+            <div style="position:absolute; left:0; right:0; top:25%; border-top:1px dashed var(--border);"></div>
+            <div style="position:absolute; left:0; right:0; top:50%; border-top:1px dashed var(--border);"></div>
+            <div style="position:absolute; left:0; right:0; top:75%; border-top:1px dashed var(--border);"></div>
+            <!-- Dots -->
+            <div class="scatter-dot" style="width:10px; height:10px; background:var(--accent-blue); left:10%; top:30%;" title="Atlanta: 245 days"></div>
+            <div class="scatter-dot" style="width:12px; height:12px; background:var(--accent-blue); left:22%; top:15%;" title="Chicago: 320 days"></div>
+            <div class="scatter-dot" style="width:8px; height:8px; background:var(--accent-green); left:35%; top:60%;" title="Dallas: 180 days"></div>
+            <div class="scatter-dot" style="width:14px; height:14px; background:var(--accent-red); left:48%; top:8%;" title="LA: 380 days"></div>
+            <div class="scatter-dot" style="width:10px; height:10px; background:var(--accent-blue); left:60%; top:35%;" title="NYC: 240 days"></div>
+            <div class="scatter-dot" style="width:9px; height:9px; background:var(--accent-green); left:72%; top:55%;" title="Phoenix: 190 days"></div>
+            <div class="scatter-dot" style="width:11px; height:11px; background:var(--accent-amber); left:85%; top:22%;" title="Seattle: 290 days"></div>
+            <!-- Average line -->
+            <div style="position:absolute; left:0; right:0; top:38%; border-top:2px solid var(--text-primary); opacity:0.3;"></div>
+            <div style="position:absolute; right:4px; top:33%; font-size:9px; font-family: var(--font-mono); color:var(--text-tertiary);">Avg: 287 days</div>
+          </div>
+        </div>
+
+        <!-- PAST-DUE BENEFITS PROJECTION -->
+        <div class="card">
+          <div class="card-title">Past-Due Benefits Projection</div>
+          <div class="area-chart">
+            <svg viewBox="0 0 400 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="pdg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0070F3" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#0070F3" stop-opacity="0.02"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <line x1="40" y1="155" x2="390" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+              <line x1="40" y1="20" x2="40" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+              <line x1="40" y1="120" x2="390" y2="120" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="40" y1="85" x2="390" y2="85" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="40" y1="50" x2="390" y2="50" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <!-- Y labels -->
+              <text x="35" y="158" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$0</text>
+              <text x="35" y="123" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$50K</text>
+              <text x="35" y="88" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$100K</text>
+              <text x="35" y="53" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$150K</text>
+              <!-- X labels -->
+              <text x="100" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">Apr</text>
+              <text x="160" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">May</text>
+              <text x="220" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">Jun</text>
+              <text x="280" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">Jul</text>
+              <text x="340" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">Aug</text>
+              <!-- Area fill -->
+              <path d="M100,130 L160,110 L220,95 L280,70 L340,45 L340,155 L100,155 Z" fill="url(#pdg)"/>
+              <!-- Line -->
+              <polyline fill="none" stroke="#0070F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                points="100,130 160,110 220,95 280,70 340,45"/>
+              <!-- Projected (dashed) -->
+              <polyline fill="none" stroke="#0070F3" stroke-width="2" stroke-dasharray="6,4" stroke-linecap="round"
+                points="340,45 380,30"/>
+              <circle cx="340" cy="45" r="3" fill="#0070F3"/>
+              <text x="350" y="38" fill="#0070F3" font-family="Geist Mono, monospace" font-size="9">$142K</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- CASE COMPLEXITY SCORE (Histogram) -->
+        <div class="card">
+          <div class="card-title">Case Complexity Distribution</div>
+          <div class="histogram">
+            <div class="hist-col">
+              <div class="hist-value">28</div>
+              <div class="hist-fill" style="height:20%; background: var(--accent-green);"></div>
+              <div class="hist-label">1-2</div>
+            </div>
+            <div class="hist-col">
+              <div class="hist-value">65</div>
+              <div class="hist-fill" style="height:47%; background: var(--accent-green);"></div>
+              <div class="hist-label">3-4</div>
+            </div>
+            <div class="hist-col">
+              <div class="hist-value">142</div>
+              <div class="hist-fill" style="height:100%; background: var(--accent-blue);"></div>
+              <div class="hist-label">5-6</div>
+            </div>
+            <div class="hist-col">
+              <div class="hist-value">118</div>
+              <div class="hist-fill" style="height:83%; background: var(--accent-blue);"></div>
+              <div class="hist-label">7-8</div>
+            </div>
+            <div class="hist-col">
+              <div class="hist-value">52</div>
+              <div class="hist-fill" style="height:37%; background: var(--accent-amber);"></div>
+              <div class="hist-label">9-10</div>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--text-tertiary); font-family: var(--font-mono); margin-top: var(--sp-2);">
+            Complexity Score (Low &rarr; High)
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECTION 3: EVIDENCE & HEARINGS
+         ============================================================ -->
+    <div class="section-group">
+      <div class="section-group-label">Evidence &amp; Hearings</div>
+
+      <div class="grid-2">
+
+        <!-- RFC LIMITATION PATTERNS (Grouped Bars) -->
+        <div class="card">
+          <div class="card-title">RFC Limitation Patterns</div>
+          <div style="margin-top: var(--sp-3);">
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Lifting/Carrying</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:78%; background: var(--accent-blue);"><span>78%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:45%; background: var(--accent-purple);"><span>45%</span></div></div>
+              </div>
+            </div>
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Standing/Walking</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:72%; background: var(--accent-blue);"><span>72%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:38%; background: var(--accent-purple);"><span>38%</span></div></div>
+              </div>
+            </div>
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Sitting</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:55%; background: var(--accent-blue);"><span>55%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:30%; background: var(--accent-purple);"><span>30%</span></div></div>
+              </div>
+            </div>
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Concentration</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:40%; background: var(--accent-blue);"><span>40%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:68%; background: var(--accent-purple);"><span>68%</span></div></div>
+              </div>
+            </div>
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Social Interaction</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:25%; background: var(--accent-blue);"><span>25%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:62%; background: var(--accent-purple);"><span>62%</span></div></div>
+              </div>
+            </div>
+            <div class="grouped-bar-row">
+              <div class="grouped-bar-label">Absenteeism</div>
+              <div class="grouped-bar-pair">
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:35%; background: var(--accent-blue);"><span>35%</span></div></div>
+                <div class="grouped-bar-track"><div class="grouped-bar-fill" style="width:52%; background: var(--accent-purple);"><span>52%</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-legend" style="margin-top: var(--sp-3);">
+            <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-blue);"></div>Physical</div>
+            <div class="chart-legend-item"><div class="legend-sq" style="background: var(--accent-purple);"></div>Mental</div>
+          </div>
+        </div>
+
+        <!-- CE OUTCOMES (Donut) -->
+        <div class="card">
+          <div class="card-title">CE Outcomes</div>
+          <div class="gauge-wrap" style="margin-top: var(--sp-3);">
+            <svg class="gauge-svg" viewBox="0 0 140 140">
+              <!-- Supportive: 52% -->
+              <circle cx="70" cy="70" r="50" fill="none" stroke="#EAEAEA" stroke-width="14"/>
+              <circle cx="70" cy="70" r="50" fill="none" stroke="#00C853" stroke-width="14"
+                stroke-dasharray="163.4 314.2"
+                stroke-linecap="round" transform="rotate(-90 70 70)"/>
+              <!-- Neutral: 28% -->
+              <circle cx="70" cy="70" r="50" fill="none" stroke="#F5A623" stroke-width="14"
+                stroke-dasharray="87.96 314.2"
+                stroke-linecap="round" transform="rotate(97.2 70 70)"/>
+              <!-- Unsupportive: 20% -->
+              <circle cx="70" cy="70" r="50" fill="none" stroke="#EE0000" stroke-width="14"
+                stroke-dasharray="62.8 314.2" stroke-opacity="0.7"
+                stroke-linecap="round" transform="rotate(197.9 70 70)"/>
+              <text x="70" y="66" text-anchor="middle" font-family="Geist Mono, monospace" font-weight="600" font-size="18" fill="#171717">126</text>
+              <text x="70" y="82" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#999" text-transform="uppercase" letter-spacing="0.05em">TOTAL CEs</text>
+            </svg>
+            <div class="gauge-stats">
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #00C853;"></div>
+                Supportive: 52%
+              </div>
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #F5A623;"></div>
+                Neutral: 28%
+              </div>
+              <div class="gauge-stat-item">
+                <div class="gauge-stat-dot" style="background: #EE0000; opacity:0.7;"></div>
+                Unsupportive: 20%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VOCATIONAL EXPERT ANALYSIS (Table-Chart Hybrid) -->
+        <div class="card">
+          <div class="card-title">Vocational Expert Analysis</div>
+          <table class="ve-table">
+            <thead>
+              <tr>
+                <th>Expert</th>
+                <th>Cases</th>
+                <th>Favorable %</th>
+                <th style="width:40%;">Distribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dr. Nguyen</td>
+                <td class="mono">34</td>
+                <td class="mono" style="color:var(--accent-green);">76%</td>
+                <td><div class="ve-bar" style="width:76%; background:var(--accent-green);"></div></td>
+              </tr>
+              <tr>
+                <td>Dr. Campbell</td>
+                <td class="mono">28</td>
+                <td class="mono" style="color:var(--accent-green);">68%</td>
+                <td><div class="ve-bar" style="width:68%; background:var(--accent-green);"></div></td>
+              </tr>
+              <tr>
+                <td>Dr. Roberts</td>
+                <td class="mono">22</td>
+                <td class="mono">52%</td>
+                <td><div class="ve-bar" style="width:52%; background:var(--accent-blue);"></div></td>
+              </tr>
+              <tr>
+                <td>Dr. Jackson</td>
+                <td class="mono">31</td>
+                <td class="mono" style="color:var(--accent-red);">38%</td>
+                <td><div class="ve-bar" style="width:38%; background:var(--accent-red); opacity:0.7;"></div></td>
+              </tr>
+              <tr>
+                <td>Dr. Alvarez</td>
+                <td class="mono">19</td>
+                <td class="mono" style="color:var(--accent-red);">32%</td>
+                <td><div class="ve-bar" style="width:32%; background:var(--accent-red); opacity:0.7;"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- HEARING PREP READINESS -->
+        <div class="card">
+          <div class="card-title">Hearing Prep Readiness</div>
+          <div>
+            <div class="prep-item">
+              <div class="prep-case">
+                <div class="prep-case-name">Garcia v. SSA</div>
+                <div class="prep-case-date">2 days &mdash; Mar 30</div>
+              </div>
+              <div class="prep-progress">
+                <div class="prep-track"><div class="prep-fill" style="width:45%; background:var(--accent-red);"></div></div>
+                <div class="prep-pct">45% complete</div>
+              </div>
+              <div class="prep-status"><span class="status-badge critical">Critical</span></div>
+            </div>
+            <div class="prep-item">
+              <div class="prep-case">
+                <div class="prep-case-name">Thompson v. SSA</div>
+                <div class="prep-case-date">8 days &mdash; Apr 5</div>
+              </div>
+              <div class="prep-progress">
+                <div class="prep-track"><div class="prep-fill" style="width:72%; background:var(--accent-amber);"></div></div>
+                <div class="prep-pct">72% complete</div>
+              </div>
+              <div class="prep-status"><span class="status-badge warning">In Progress</span></div>
+            </div>
+            <div class="prep-item">
+              <div class="prep-case">
+                <div class="prep-case-name">Williams v. SSA</div>
+                <div class="prep-case-date">12 days &mdash; Apr 9</div>
+              </div>
+              <div class="prep-progress">
+                <div class="prep-track"><div class="prep-fill" style="width:68%; background:var(--accent-amber);"></div></div>
+                <div class="prep-pct">68% complete</div>
+              </div>
+              <div class="prep-status"><span class="status-badge warning">In Progress</span></div>
+            </div>
+            <div class="prep-item">
+              <div class="prep-case">
+                <div class="prep-case-name">Johnson v. SSA</div>
+                <div class="prep-case-date">21 days &mdash; Apr 18</div>
+              </div>
+              <div class="prep-progress">
+                <div class="prep-track"><div class="prep-fill" style="width:95%; background:var(--accent-green);"></div></div>
+                <div class="prep-pct">95% complete</div>
+              </div>
+              <div class="prep-status"><span class="status-badge ready">Ready</span></div>
+            </div>
+            <div class="prep-item">
+              <div class="prep-case">
+                <div class="prep-case-name">Martinez v. SSA</div>
+                <div class="prep-case-date">28 days &mdash; Apr 25</div>
+              </div>
+              <div class="prep-progress">
+                <div class="prep-track"><div class="prep-fill" style="width:88%; background:var(--accent-green);"></div></div>
+                <div class="prep-pct">88% complete</div>
+              </div>
+              <div class="prep-status"><span class="status-badge ready">Ready</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CLIENT SATISFACTION (standalone) -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">Client Satisfaction Score</div>
+          <div class="ring-gauge-wrap">
+            <svg class="ring-gauge-svg" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#EAEAEA" stroke-width="10"/>
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#00C853" stroke-width="10"
+                stroke-dasharray="247.3 301.6"
+                stroke-linecap="round" transform="rotate(-90 60 60)"/>
+              <text x="60" y="58" text-anchor="middle" font-family="Geist Mono, monospace" font-weight="700" font-size="26" fill="#171717">82</text>
+              <text x="60" y="74" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#999">/ 100</text>
+            </svg>
+            <div class="gauge-stats">
+              <div class="gauge-stat-item" style="color:var(--accent-green);">+4 vs last quarter</div>
+              <div class="gauge-stat-item">Communication: 88</div>
+              <div class="gauge-stat-item">Responsiveness: 79</div>
+              <div class="gauge-stat-item">Outcome Satisfaction: 84</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-2" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECTION 4: ACTIVITY & FEEDS
+         ============================================================ -->
+    <div class="section-group">
+      <div class="section-group-label">Activity &amp; Feeds</div>
+
+      <div class="grid-2">
+
+        <!-- LIVE ACTIVITY FEED -->
+        <div class="card">
+          <div class="card-title">Live Activity Feed</div>
+          <div class="activity-feed">
+            <div class="feed-group-label">Today</div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SM</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Mitchell</strong> filed hearing brief for <span class="case-link">Garcia v. SSA</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge hearing">Hearing</span>
+                  <span>2 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">JK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>James Kim</strong> uploaded CE report to <span class="case-link">Williams v. SSA</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Document</span>
+                  <span>18 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar purple">AL</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Ana Lopez</strong> completed task &ldquo;Review medical records&rdquo; for <span class="case-link">Davis v. SSA</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge task">Task</span>
+                  <span>42 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar amber">MR</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Mike Rivera</strong> moved <span class="case-link">Chen v. SSA</span> from Reconsideration to ALJ Hearing</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge stage-change">Stage Change</span>
+                  <span>1 hr ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-group-label">Yesterday</div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SM</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Mitchell</strong> received favorable decision on <span class="case-link">Patel v. SSA</span> &mdash; $34,200 past-due benefits</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge decision">Decision</span>
+                  <span>Yesterday 4:32 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">JK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>James Kim</strong> created new case <span class="case-link">Robertson v. SSA</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge stage-change">New Case</span>
+                  <span>Yesterday 2:15 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar red">TC</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Teresa Clark</strong> received unfavorable decision on <span class="case-link">Murray v. SSA</span> &mdash; filing appeal</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge decision">Decision</span>
+                  <span>Yesterday 11:08 AM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECENT DECISIONS FEED -->
+        <div class="card">
+          <div class="card-title">Recent Decisions</div>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <div class="decision-card favorable">
+              <div class="decision-header">
+                <div class="decision-case">Patel v. SSA</div>
+                <div class="decision-outcome won">Favorable</div>
+              </div>
+              <div class="decision-details">
+                <div><span class="decision-detail-label">ALJ</span> Judge Harrison</div>
+                <div><span class="decision-detail-label">Benefits</span> <strong style="color:var(--accent-green);">$34,200</strong></div>
+                <div><span class="decision-detail-label">Onset</span> 03/2024</div>
+              </div>
+            </div>
+
+            <div class="decision-card unfavorable">
+              <div class="decision-header">
+                <div class="decision-case">Murray v. SSA</div>
+                <div class="decision-outcome lost">Unfavorable</div>
+              </div>
+              <div class="decision-details">
+                <div><span class="decision-detail-label">ALJ</span> Judge Whitfield</div>
+                <div><span class="decision-detail-label">Reason</span> Insufficient Evidence</div>
+                <div><span class="decision-detail-label">Appeal</span> Filed</div>
+              </div>
+            </div>
+
+            <div class="decision-card favorable">
+              <div class="decision-header">
+                <div class="decision-case">Robinson v. SSA</div>
+                <div class="decision-outcome won">Favorable</div>
+              </div>
+              <div class="decision-details">
+                <div><span class="decision-detail-label">ALJ</span> Judge Kowalski</div>
+                <div><span class="decision-detail-label">Benefits</span> <strong style="color:var(--accent-green);">$28,450</strong></div>
+                <div><span class="decision-detail-label">Onset</span> 11/2023</div>
+              </div>
+            </div>
+
+            <div class="decision-card favorable">
+              <div class="decision-header">
+                <div class="decision-case">Lee v. SSA</div>
+                <div class="decision-outcome won">Favorable</div>
+              </div>
+              <div class="decision-details">
+                <div><span class="decision-detail-label">ALJ</span> Judge Patel</div>
+                <div><span class="decision-detail-label">Benefits</span> <strong style="color:var(--accent-green);">$41,800</strong></div>
+                <div><span class="decision-detail-label">Onset</span> 06/2023</div>
+              </div>
+            </div>
+
+            <div class="decision-card unfavorable">
+              <div class="decision-header">
+                <div class="decision-case">Foster v. SSA</div>
+                <div class="decision-outcome lost">Unfavorable</div>
+              </div>
+              <div class="decision-details">
+                <div><span class="decision-detail-label">ALJ</span> Judge Okafor</div>
+                <div><span class="decision-detail-label">Reason</span> SGA Above Limit</div>
+                <div><span class="decision-detail-label">Appeal</span> Considering</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid-2" style="margin-top: var(--sp-4);">
+
+        <!-- TEAM ACTIVITY HEATMAP -->
+        <div class="card">
+          <div class="card-title">Team Activity Heatmap</div>
+          <div class="team-heatmap">
+            <div class="team-heatmap-grid">
+              <!-- Header row -->
+              <div class="team-heatmap-header"></div>
+              <div class="team-heatmap-header">8a</div>
+              <div class="team-heatmap-header">9a</div>
+              <div class="team-heatmap-header">10a</div>
+              <div class="team-heatmap-header">11a</div>
+              <div class="team-heatmap-header">12p</div>
+              <div class="team-heatmap-header">1p</div>
+              <div class="team-heatmap-header">2p</div>
+              <div class="team-heatmap-header">3p</div>
+              <div class="team-heatmap-header">4p</div>
+              <div class="team-heatmap-header">5p</div>
+              <div class="team-heatmap-header">6p</div>
+              <div class="team-heatmap-header">7p</div>
+
+              <!-- Sarah -->
+              <div class="team-heatmap-name">Sarah M.</div>
+              <div class="team-heatmap-cell" style="background:#E8F5E9;">2</div>
+              <div class="team-heatmap-cell" style="background:#C8E6C9;">5</div>
+              <div class="team-heatmap-cell" style="background:#A5D6A7;">8</div>
+              <div class="team-heatmap-cell" style="background:#81C784;">12</div>
+              <div class="team-heatmap-cell" style="background:#E8F5E9;">3</div>
+              <div class="team-heatmap-cell" style="background:#C8E6C9;">6</div>
+              <div class="team-heatmap-cell" style="background:#A5D6A7;">9</div>
+              <div class="team-heatmap-cell" style="background:#81C784;">11</div>
+              <div class="team-heatmap-cell" style="background:#C8E6C9;">7</div>
+              <div class="team-heatmap-cell" style="background:#E8F5E9;">4</div>
+              <div class="team-heatmap-cell" style="background:#F5F5F5;">1</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+
+              <!-- James -->
+              <div class="team-heatmap-name">James K.</div>
+              <div class="team-heatmap-cell" style="background:#E3F2FD;">1</div>
+              <div class="team-heatmap-cell" style="background:#BBDEFB;">4</div>
+              <div class="team-heatmap-cell" style="background:#90CAF9;">7</div>
+              <div class="team-heatmap-cell" style="background:#64B5F6;">10</div>
+              <div class="team-heatmap-cell" style="background:#BBDEFB;">5</div>
+              <div class="team-heatmap-cell" style="background:#E3F2FD;">2</div>
+              <div class="team-heatmap-cell" style="background:#90CAF9;">8</div>
+              <div class="team-heatmap-cell" style="background:#64B5F6;">9</div>
+              <div class="team-heatmap-cell" style="background:#90CAF9;">6</div>
+              <div class="team-heatmap-cell" style="background:#BBDEFB;">3</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+
+              <!-- Ana -->
+              <div class="team-heatmap-name">Ana L.</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+              <div class="team-heatmap-cell" style="background:#F3E5F5;">3</div>
+              <div class="team-heatmap-cell" style="background:#E1BEE7;">6</div>
+              <div class="team-heatmap-cell" style="background:#CE93D8;">9</div>
+              <div class="team-heatmap-cell" style="background:#E1BEE7;">7</div>
+              <div class="team-heatmap-cell" style="background:#F3E5F5;">4</div>
+              <div class="team-heatmap-cell" style="background:#CE93D8;">8</div>
+              <div class="team-heatmap-cell" style="background:#BA68C8;">11</div>
+              <div class="team-heatmap-cell" style="background:#CE93D8;">10</div>
+              <div class="team-heatmap-cell" style="background:#E1BEE7;">5</div>
+              <div class="team-heatmap-cell" style="background:#F3E5F5;">2</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+
+              <!-- Mike -->
+              <div class="team-heatmap-name">Mike R.</div>
+              <div class="team-heatmap-cell" style="background:#FFF3E0;">2</div>
+              <div class="team-heatmap-cell" style="background:#FFE0B2;">6</div>
+              <div class="team-heatmap-cell" style="background:#FFCC80;">9</div>
+              <div class="team-heatmap-cell" style="background:#FFB74D;">13</div>
+              <div class="team-heatmap-cell" style="background:#FFF3E0;">3</div>
+              <div class="team-heatmap-cell" style="background:#FFE0B2;">5</div>
+              <div class="team-heatmap-cell" style="background:#FFCC80;">7</div>
+              <div class="team-heatmap-cell" style="background:#FFB74D;">10</div>
+              <div class="team-heatmap-cell" style="background:#FFCC80;">8</div>
+              <div class="team-heatmap-cell" style="background:#FFE0B2;">4</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">1</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+
+              <!-- Teresa -->
+              <div class="team-heatmap-name">Teresa C.</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">1</div>
+              <div class="team-heatmap-cell" style="background:#FFEBEE;">4</div>
+              <div class="team-heatmap-cell" style="background:#FFCDD2;">7</div>
+              <div class="team-heatmap-cell" style="background:#EF9A9A;">10</div>
+              <div class="team-heatmap-cell" style="background:#FFCDD2;">8</div>
+              <div class="team-heatmap-cell" style="background:#EF9A9A;">11</div>
+              <div class="team-heatmap-cell" style="background:#E57373;">14</div>
+              <div class="team-heatmap-cell" style="background:#EF9A9A;">9</div>
+              <div class="team-heatmap-cell" style="background:#FFCDD2;">6</div>
+              <div class="team-heatmap-cell" style="background:#FFEBEE;">3</div>
+              <div class="team-heatmap-cell" style="background:#FAFAFA;">0</div>
+            </div>
+          </div>
+          <div style="font-size:10px; color:var(--text-tertiary); font-family: var(--font-mono); margin-top: var(--sp-2); text-align:center;">
+            Actions per hour &mdash; Today
+          </div>
+        </div>
+
+        <!-- DOCUMENT PROCESSING QUEUE -->
+        <div class="card">
+          <div class="card-title">Document Processing Queue</div>
+          <div class="doc-pipeline" style="margin-top: var(--sp-4);">
+            <div class="pipeline-stage" style="border-color: var(--accent-amber);">
+              <div class="pipeline-count" style="color: var(--accent-amber);">23</div>
+              <div class="pipeline-label">Received</div>
+            </div>
+            <div class="pipeline-stage" style="border-color: var(--accent-blue);">
+              <div class="pipeline-count" style="color: var(--accent-blue);">15</div>
+              <div class="pipeline-label">Reviewing</div>
+            </div>
+            <div class="pipeline-stage" style="border-color: var(--accent-purple);">
+              <div class="pipeline-count" style="color: var(--accent-purple);">8</div>
+              <div class="pipeline-label">Indexing</div>
+            </div>
+            <div class="pipeline-stage" style="border-color: var(--accent-green);">
+              <div class="pipeline-count" style="color: var(--accent-green);">142</div>
+              <div class="pipeline-label">Filed</div>
+            </div>
+          </div>
+          <div style="margin-top: var(--sp-6);">
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:var(--sp-2);">Processing Stats</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3);">
+              <div>
+                <div style="font-size:10px; color:var(--text-tertiary);">Avg. Processing</div>
+                <div style="font-size:16px; font-weight:600; font-family:var(--font-mono);">2.4 hrs</div>
+              </div>
+              <div>
+                <div style="font-size:10px; color:var(--text-tertiary);">Today Processed</div>
+                <div style="font-size:16px; font-weight:600; font-family:var(--font-mono);">47</div>
+              </div>
+              <div>
+                <div style="font-size:10px; color:var(--text-tertiary);">Oldest Pending</div>
+                <div style="font-size:16px; font-weight:600; font-family:var(--font-mono); color:var(--accent-amber);">18 hrs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECTION 5: TRENDS
+         ============================================================ -->
+    <div class="section-group">
+      <div class="section-group-label">Trends</div>
+
+      <div class="grid-2">
+
+        <!-- CASE VOLUME TREND (12-Month) -->
+        <div class="card">
+          <div class="card-title-row">
+            <div class="card-title">Case Volume Trend</div>
+            <div class="card-meta">Opened vs Closed / Month</div>
+          </div>
+          <div class="line-chart-area">
+            <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="cvg1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0070F3" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#0070F3" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="cvg2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00C853" stop-opacity="0.12"/>
+                  <stop offset="100%" stop-color="#00C853" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <line x1="35" y1="155" x2="580" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+              <line x1="35" y1="20" x2="35" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+              <line x1="35" y1="120" x2="580" y2="120" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="35" y1="85" x2="580" y2="85" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="35" y1="50" x2="580" y2="50" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <!-- Y labels -->
+              <text x="30" y="158" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">0</text>
+              <text x="30" y="123" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">25</text>
+              <text x="30" y="88" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">50</text>
+              <text x="30" y="53" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">75</text>
+              <!-- X labels -->
+              <text x="80" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Apr</text>
+              <text x="126" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">May</text>
+              <text x="172" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Jun</text>
+              <text x="218" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Jul</text>
+              <text x="264" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Aug</text>
+              <text x="310" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Sep</text>
+              <text x="356" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Oct</text>
+              <text x="402" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Nov</text>
+              <text x="448" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Dec</text>
+              <text x="494" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Jan</text>
+              <text x="540" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Feb</text>
+              <text x="575" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8">Mar</text>
+
+              <!-- Opened area -->
+              <path d="M80,98 L126,90 L172,80 L218,84 L264,73 L310,67 L356,76 L402,60 L448,71 L494,63 L540,58 L575,50 V155 H80 Z" fill="url(#cvg1)"/>
+              <!-- Opened line -->
+              <polyline fill="none" stroke="#0070F3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"
+                points="80,98 126,90 172,80 218,84 264,73 310,67 356,76 402,60 448,71 494,63 540,58 575,50"/>
+              <!-- Closed area -->
+              <path d="M80,112 L126,107 L172,100 L218,96 L264,91 L310,85 L356,88 L402,82 L448,78 L494,84 L540,76 L575,70 V155 H80 Z" fill="url(#cvg2)"/>
+              <!-- Closed line -->
+              <polyline fill="none" stroke="#00C853" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"
+                points="80,112 126,107 172,100 218,96 264,91 310,85 356,88 402,82 448,78 494,84 540,76 575,70"/>
+              <!-- Dots -->
+              <g fill="#0070F3">
+                <circle cx="80" cy="98" r="2.5"/><circle cx="126" cy="90" r="2.5"/><circle cx="172" cy="80" r="2.5"/>
+                <circle cx="218" cy="84" r="2.5"/><circle cx="264" cy="73" r="2.5"/><circle cx="310" cy="67" r="2.5"/>
+                <circle cx="356" cy="76" r="2.5"/><circle cx="402" cy="60" r="2.5"/><circle cx="448" cy="71" r="2.5"/>
+                <circle cx="494" cy="63" r="2.5"/><circle cx="540" cy="58" r="2.5"/><circle cx="575" cy="50" r="2.5"/>
+              </g>
+              <g fill="#00C853">
+                <circle cx="80" cy="112" r="2.5"/><circle cx="126" cy="107" r="2.5"/><circle cx="172" cy="100" r="2.5"/>
+                <circle cx="218" cy="96" r="2.5"/><circle cx="264" cy="91" r="2.5"/><circle cx="310" cy="85" r="2.5"/>
+                <circle cx="356" cy="88" r="2.5"/><circle cx="402" cy="82" r="2.5"/><circle cx="448" cy="78" r="2.5"/>
+                <circle cx="494" cy="84" r="2.5"/><circle cx="540" cy="76" r="2.5"/><circle cx="575" cy="70" r="2.5"/>
+              </g>
+            </svg>
+          </div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#0070F3;"></div>Opened</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#00C853;"></div>Closed</div>
+          </div>
+        </div>
+
+        <!-- REVENUE BY MONTH (Bar + Trend Line) -->
+        <div class="card">
+          <div class="card-title-row">
+            <div class="card-title">Revenue by Month</div>
+            <div class="card-meta">Fees collected</div>
+          </div>
+          <div class="bar-chart">
+            <div class="bar-col">
+              <div class="bar-value">$122K</div>
+              <div class="bar-fill" style="height:61%;"></div>
+              <div class="bar-label">Apr</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$138K</div>
+              <div class="bar-fill" style="height:69%;"></div>
+              <div class="bar-label">May</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$95K</div>
+              <div class="bar-fill" style="height:48%;"></div>
+              <div class="bar-label">Jun</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$156K</div>
+              <div class="bar-fill" style="height:78%;"></div>
+              <div class="bar-label">Jul</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$142K</div>
+              <div class="bar-fill" style="height:71%;"></div>
+              <div class="bar-label">Aug</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$168K</div>
+              <div class="bar-fill" style="height:84%;"></div>
+              <div class="bar-label">Sep</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$145K</div>
+              <div class="bar-fill" style="height:73%;"></div>
+              <div class="bar-label">Oct</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$152K</div>
+              <div class="bar-fill" style="height:76%;"></div>
+              <div class="bar-label">Nov</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$175K</div>
+              <div class="bar-fill" style="height:88%;"></div>
+              <div class="bar-label">Dec</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$148K</div>
+              <div class="bar-fill" style="height:74%;"></div>
+              <div class="bar-label">Jan</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$162K</div>
+              <div class="bar-fill" style="height:81%;"></div>
+              <div class="bar-label">Feb</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-value">$184K</div>
+              <div class="bar-fill current" style="height:92%;"></div>
+              <div class="bar-label">Mar</div>
+            </div>
+            <!-- SVG Trend line overlay -->
+            <svg style="position:absolute; top:0; left:0; width:100%; height:calc(100% - 20px); pointer-events:none;" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#171717" stroke-width="0.5" stroke-opacity="0.4"
+                stroke-dasharray="2,2"
+                points="4,39 12,31 20,52 28,22 36,29 44,16 52,27 60,24 68,12 76,26 84,19 92,8"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid-2" style="margin-top: var(--sp-4);">
+
+        <!-- TASK COMPLETION SPARKLINES -->
+        <div class="card">
+          <div class="card-title">Task Completion by Team Member</div>
+          <div>
+            <div class="task-row">
+              <div class="task-name">Sarah M.</div>
+              <div class="task-sparkline">
+                <svg viewBox="0 0 200 24" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    points="0,18 20,14 40,16 60,10 80,8 100,12 120,6 140,8 160,4 180,6 200,2"/>
+                </svg>
+              </div>
+              <div class="task-pct text-green">94%</div>
+            </div>
+            <div class="task-row">
+              <div class="task-name">James K.</div>
+              <div class="task-sparkline">
+                <svg viewBox="0 0 200 24" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    points="0,16 20,12 40,14 60,10 80,12 100,8 120,10 140,6 160,8 180,4 200,6"/>
+                </svg>
+              </div>
+              <div class="task-pct text-blue">88%</div>
+            </div>
+            <div class="task-row">
+              <div class="task-name">Ana L.</div>
+              <div class="task-sparkline">
+                <svg viewBox="0 0 200 24" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    points="0,14 20,16 40,12 60,14 80,10 100,12 120,8 140,10 160,6 180,8 200,4"/>
+                </svg>
+              </div>
+              <div class="task-pct text-blue">91%</div>
+            </div>
+            <div class="task-row">
+              <div class="task-name">Mike R.</div>
+              <div class="task-sparkline">
+                <svg viewBox="0 0 200 24" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    points="0,10 20,14 40,12 60,16 80,14 100,18 120,12 140,16 160,14 180,10 200,12"/>
+                </svg>
+              </div>
+              <div class="task-pct text-amber">78%</div>
+            </div>
+            <div class="task-row">
+              <div class="task-name">Teresa C.</div>
+              <div class="task-sparkline">
+                <svg viewBox="0 0 200 24" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    points="0,20 20,16 40,18 60,12 80,14 100,10 120,8 140,12 160,6 180,8 200,4"/>
+                </svg>
+              </div>
+              <div class="task-pct text-green">92%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEEKLY VELOCITY -->
+        <div class="card">
+          <div class="card-title">Weekly Velocity</div>
+          <div class="velocity-grid">
+            <div class="velocity-item">
+              <div class="velocity-label">Cases Opened</div>
+              <div class="velocity-value">18</div>
+              <div class="velocity-spark">
+                <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linecap="round"
+                    points="0,20 20,16 40,22 60,12 80,18 100,8 120,14"/>
+                </svg>
+              </div>
+            </div>
+            <div class="velocity-item">
+              <div class="velocity-label">Cases Closed</div>
+              <div class="velocity-value">14</div>
+              <div class="velocity-spark">
+                <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linecap="round"
+                    points="0,22 20,18 40,20 60,14 80,16 100,10 120,12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="velocity-item">
+              <div class="velocity-label">Tasks Completed</div>
+              <div class="velocity-value">47</div>
+              <div class="velocity-spark">
+                <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#7928CA" stroke-width="1.5" stroke-linecap="round"
+                    points="0,24 20,18 40,20 60,10 80,14 100,6 120,8"/>
+                </svg>
+              </div>
+            </div>
+            <div class="velocity-item">
+              <div class="velocity-label">Docs Processed</div>
+              <div class="velocity-value">83</div>
+              <div class="velocity-spark">
+                <svg viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round"
+                    points="0,18 20,14 40,20 60,8 80,16 100,4 120,10"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Activity Stream Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #FAFAFA;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+    --accent-purple:  #7928CA;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    --transition:     200ms ease;
+
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+    --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: var(--sp-4) 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-black);
+    border-radius: var(--radius-sm);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-8);
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-6);
+  }
+
+  .main-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .main-header-sub {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    margin-left: var(--sp-3);
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 12px;
+    color: var(--accent-green);
+    font-weight: 500;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn-primary {
+    background: var(--accent-black);
+    color: #FFFFFF;
+    border-color: var(--accent-black);
+  }
+
+  .btn-primary:hover {
+    background: #333333;
+    border-color: #333333;
+  }
+
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--accent-red);
+    border-color: var(--accent-red);
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .btn-danger:hover {
+    background: var(--accent-red);
+    color: #FFFFFF;
+  }
+
+  /* ============================================================
+     CARDS
+     ============================================================ */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--sp-3);
+  }
+
+  .card-urgent {
+    border-color: var(--accent-red);
+  }
+
+  .card-urgent:hover {
+    border-color: var(--accent-red);
+  }
+
+  /* ============================================================
+     1. TODAY'S PULSE STRIP
+     ============================================================ */
+  .pulse-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+  }
+
+  .pulse-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-4) var(--sp-5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color var(--transition);
+  }
+
+  .pulse-card:hover { border-color: var(--border-hover); }
+
+  .pulse-card.alert-card {
+    border-color: #f5c6c6;
+    background: #fffafa;
+  }
+
+  .pulse-info { flex: 1; }
+
+  .pulse-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+
+  .pulse-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    font-feature-settings: "tnum";
+  }
+
+  .pulse-value .alert-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  .pulse-change {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    margin-top: 2px;
+  }
+
+  .pulse-change.up { color: var(--accent-green); }
+  .pulse-change.down { color: var(--accent-red); }
+  .pulse-change.neutral { color: var(--text-tertiary); }
+
+  /* Sparkline */
+  .sparkline-container {
+    width: 64px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: var(--sp-3);
+  }
+
+  .sparkline-container svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     TWO-COLUMN LAYOUT
+     ============================================================ */
+  .dashboard-columns {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+
+  .col-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+  }
+
+  .col-right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+  }
+
+  /* ============================================================
+     2. LIVE ACTIVITY FEED
+     ============================================================ */
+  .activity-feed {
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+  }
+
+  .activity-feed::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .activity-feed::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .feed-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    padding: var(--sp-3) 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 1;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--sp-2);
+  }
+
+  .feed-item {
+    display: flex;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--bg-hover);
+    transition: background var(--transition);
+    cursor: pointer;
+  }
+
+  .feed-item:hover {
+    background: var(--bg-card-alt);
+  }
+
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-top: 2px;
+  }
+
+  .feed-avatar.blue { background: var(--accent-blue); }
+  .feed-avatar.green { background: var(--accent-green); }
+  .feed-avatar.amber { background: var(--accent-amber); }
+  .feed-avatar.red { background: var(--accent-red); }
+  .feed-avatar.purple { background: var(--accent-purple); }
+  .feed-avatar.gray { background: var(--text-tertiary); }
+
+  .feed-content { flex: 1; min-width: 0; }
+
+  .feed-narrative {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text-primary);
+  }
+
+  .feed-narrative strong {
+    font-weight: 600;
+  }
+
+  .feed-narrative .case-link {
+    color: var(--accent-blue);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .feed-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .feed-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .feed-type-badge.case-created { background: #E8F5E9; color: #2E7D32; }
+  .feed-type-badge.doc-uploaded { background: #E3F2FD; color: #1565C0; }
+  .feed-type-badge.hearing { background: #FFF3E0; color: #E65100; }
+  .feed-type-badge.decision { background: #F3E5F5; color: #6A1B9A; }
+  .feed-type-badge.task { background: #FAFAFA; color: #666666; border: 1px solid var(--border); }
+  .feed-type-badge.stage-change { background: #FFF8E1; color: #F57F17; }
+  .feed-type-badge.note { background: #F1F8E9; color: #558B2F; }
+
+  /* ============================================================
+     3. URGENT ATTENTION QUEUE
+     ============================================================ */
+  .urgent-list {
+    list-style: none;
+  }
+
+  .urgent-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--bg-hover);
+    font-size: 13px;
+  }
+
+  .urgent-item:last-child { border-bottom: none; }
+
+  .urgent-icon {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .urgent-icon.overdue { background: #FDECEA; color: var(--accent-red); }
+  .urgent-icon.warning { background: #FFF3E0; color: var(--accent-amber); }
+  .urgent-icon.critical { background: var(--accent-red); color: #FFFFFF; }
+
+  .urgent-text { flex: 1; }
+  .urgent-text .days-overdue {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-red);
+    font-weight: 500;
+  }
+
+  .urgent-text .case-ref {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-blue);
+  }
+
+  .urgent-action {
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     4. HEARING COUNTDOWN
+     ============================================================ */
+  .hearing-list { list-style: none; }
+
+  .hearing-item {
+    display: flex;
+    align-items: stretch;
+    gap: var(--sp-4);
+    padding: var(--sp-4) 0;
+    border-bottom: 1px solid var(--bg-hover);
+  }
+
+  .hearing-item:last-child { border-bottom: none; }
+
+  .hearing-item.primary {
+    padding: var(--sp-5) 0;
+  }
+
+  .hearing-countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    padding: var(--sp-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card-alt);
+    font-family: var(--font-mono);
+    text-align: center;
+  }
+
+  .hearing-item.primary .hearing-countdown {
+    min-width: 72px;
+    border-color: var(--accent-amber);
+    background: #FFFDF5;
+  }
+
+  .countdown-number {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .hearing-item.primary .countdown-number {
+    font-size: 22px;
+  }
+
+  .countdown-unit {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .hearing-details { flex: 1; }
+
+  .hearing-case-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .hearing-item.primary .hearing-case-name {
+    font-size: 14px;
+  }
+
+  .hearing-meta-line {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-2);
+  }
+
+  .hearing-prep-bar {
+    height: 4px;
+    background: var(--bg-hover);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: var(--sp-2);
+  }
+
+  .hearing-prep-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .hearing-prep-fill.good { background: var(--accent-green); }
+  .hearing-prep-fill.mid { background: var(--accent-amber); }
+  .hearing-prep-fill.low { background: var(--accent-red); }
+
+  .hearing-prep-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     5. TEAM ACTIVITY HEATMAP
+     ============================================================ */
+  .heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .heatmap-table th {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 2px 0;
+    font-family: var(--font-mono);
+  }
+
+  .heatmap-table td {
+    text-align: center;
+    padding: 3px 1px;
+  }
+
+  .heatmap-name {
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left !important;
+    white-space: nowrap;
+    padding-right: var(--sp-2) !important;
+    width: 80px;
+  }
+
+  .heatmap-cell {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+  }
+
+  .heatmap-cell.l1 { background: #E3F2FD; border-color: #E3F2FD; }
+  .heatmap-cell.l2 { background: #90CAF9; border-color: #90CAF9; }
+  .heatmap-cell.l3 { background: #42A5F5; border-color: #42A5F5; }
+  .heatmap-cell.l4 { background: #1565C0; border-color: #1565C0; }
+  .heatmap-cell.now { border-color: var(--accent-green); border-width: 2px; }
+
+  /* ============================================================
+     6. CASE STAGE MOVEMENT (Subway-style flow)
+     ============================================================ */
+  .stage-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: var(--sp-3) 0;
+    overflow-x: auto;
+  }
+
+  .stage-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+    position: relative;
+  }
+
+  .stage-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    z-index: 1;
+  }
+
+  .stage-dot.active { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+  .stage-name {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 60px;
+  }
+
+  .stage-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    min-width: 20px;
+    position: relative;
+    align-self: center;
+    margin-bottom: 18px;
+  }
+
+  .stage-connector.has-flow {
+    background: var(--accent-blue);
+  }
+
+  .flow-count {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent-blue);
+    background: var(--bg-card);
+    padding: 0 4px;
+    border-radius: 3px;
+    border: 1px solid #D0E8FF;
+  }
+
+  .stage-arrow {
+    position: absolute;
+    right: -4px;
+    top: -3px;
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid var(--accent-blue);
+  }
+
+  /* ============================================================
+     7. DOCUMENT PROCESSING QUEUE
+     ============================================================ */
+  .doc-pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .doc-stage {
+    flex: 1;
+    text-align: center;
+    padding: var(--sp-3) var(--sp-2);
+    position: relative;
+  }
+
+  .doc-stage + .doc-stage {
+    border-left: 1px solid var(--border);
+  }
+
+  .doc-stage-count {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    letter-spacing: -0.5px;
+  }
+
+  .doc-stage-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  .doc-progress {
+    margin-top: var(--sp-4);
+  }
+
+  .doc-progress-bar {
+    height: 6px;
+    background: var(--bg-hover);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .doc-progress-bar .seg {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .doc-progress-bar .seg.received { background: var(--accent-blue); }
+  .doc-progress-bar .seg.ocr { background: var(--accent-purple); }
+  .doc-progress-bar .seg.classified { background: var(--accent-amber); }
+  .doc-progress-bar .seg.reviewed { background: var(--accent-green); }
+
+  .doc-progress-legend {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-2);
+    font-size: 10px;
+    color: var(--text-tertiary);
+  }
+
+  .doc-progress-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ============================================================
+     8. WEEKLY VELOCITY CHART
+     ============================================================ */
+  .velocity-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sp-2);
+    height: 100px;
+    padding-top: var(--sp-3);
+  }
+
+  .velocity-week {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .velocity-bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 72px;
+  }
+
+  .velocity-bar {
+    width: 10px;
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: height 0.3s ease;
+  }
+
+  .velocity-bar.opened { background: var(--accent-blue); }
+  .velocity-bar.closed { background: var(--accent-green); }
+  .velocity-bar.tasks { background: var(--accent-amber); }
+  .velocity-bar.docs { background: var(--accent-purple); }
+
+  .velocity-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .velocity-week.current .velocity-label {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .velocity-legend {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-3);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    flex-wrap: wrap;
+  }
+
+  .velocity-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ============================================================
+     9. UPCOMING DEADLINES CALENDAR
+     ============================================================ */
+  .mini-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+  }
+
+  .mini-cal-header {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    padding: 4px 0;
+  }
+
+  .mini-cal-day {
+    position: relative;
+    padding: 4px 0;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition);
+    color: var(--text-secondary);
+  }
+
+  .mini-cal-day:hover { background: var(--bg-hover); }
+
+  .mini-cal-day.today {
+    font-weight: 700;
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .mini-cal-day.outside { color: var(--border); }
+
+  .mini-cal-day .cal-dot {
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+  }
+
+  .cal-dot.green { background: var(--accent-green); }
+  .cal-dot.amber { background: var(--accent-amber); }
+  .cal-dot.red { background: var(--accent-red); }
+
+  .cal-detail {
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .cal-detail-title {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: var(--sp-2);
+  }
+
+  .cal-detail-item {
+    font-size: 12px;
+    padding: 3px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+  }
+
+  .cal-detail-item .case-ref {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-blue);
+  }
+
+  /* ============================================================
+     10. STAFF WORKLOAD BALANCE
+     ============================================================ */
+  .workload-list { list-style: none; }
+
+  .workload-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+  }
+
+  .workload-name {
+    font-size: 12px;
+    font-weight: 500;
+    width: 80px;
+    min-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .workload-bar-container {
+    flex: 1;
+    height: 14px;
+    background: var(--bg-hover);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .workload-seg {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .workload-seg.intake { background: var(--accent-blue); }
+  .workload-seg.active { background: var(--accent-green); }
+  .workload-seg.hearing-prep { background: var(--accent-amber); }
+  .workload-seg.post-hearing { background: #BBBBBB; }
+
+  .workload-total {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    width: 28px;
+    text-align: right;
+  }
+
+  .workload-legend {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-3);
+    font-size: 10px;
+    color: var(--text-tertiary);
+  }
+
+  .workload-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ============================================================
+     11. RECENT DECISIONS FEED
+     ============================================================ */
+  .decisions-list { list-style: none; }
+
+  .decision-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--bg-hover);
+  }
+
+  .decision-item:last-child { border-bottom: none; }
+
+  .decision-outcome {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .decision-outcome.favorable { background: #E8F5E9; color: var(--accent-green); }
+  .decision-outcome.unfavorable { background: #FDECEA; color: var(--accent-red); }
+  .decision-outcome.remand { background: #FFF3E0; color: var(--accent-amber); }
+
+  .decision-info { flex: 1; }
+
+  .decision-case {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .decision-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .decision-amount {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent-green);
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     12. CASE INTAKE FUNNEL
+     ============================================================ */
+  .funnel-stages {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    position: relative;
+  }
+
+  .funnel-bar-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .funnel-bar {
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sp-3);
+    transition: width 0.3s ease;
+    min-width: 40px;
+  }
+
+  .funnel-bar.step-1 { background: #0070F3; }
+  .funnel-bar.step-2 { background: #2196F3; }
+  .funnel-bar.step-3 { background: #42A5F5; }
+  .funnel-bar.step-4 { background: #1565C0; }
+
+  .funnel-bar-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #FFFFFF;
+    white-space: nowrap;
+  }
+
+  .funnel-count {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    min-width: 28px;
+  }
+
+  .funnel-conversion {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .funnel-arrow {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 0 var(--sp-3);
+  }
+
+  /* ============================================================
+     UTILITY
+     ============================================================ */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: var(--sp-3) 0;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  .text-secondary { color: var(--text-secondary); }
+  .text-tertiary { color: var(--text-tertiary); }
+  .text-green { color: var(--accent-green); }
+  .text-red { color: var(--accent-red); }
+  .text-amber { color: var(--accent-amber); }
+  .text-blue { color: var(--accent-blue); }
+
+  .flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mb-2 { margin-bottom: var(--sp-2); }
+  .mb-3 { margin-bottom: var(--sp-3); }
+  .mb-4 { margin-bottom: var(--sp-4); }
+
+  /* SVG Charts — shared */
+  svg text {
+    font-family: var(--font-mono);
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#9889;</span> Activity Stream
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9632;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9998;</span> Cases <span class="badge">247</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workflow</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9745;</span> Tasks <span class="badge">12</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9878;</span> Hearings
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128202;</span> Reports
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128101;</span> Team
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">JK</div>
+      <span>Jake Klinvex</span>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main">
+
+    <!-- Header -->
+    <div class="main-header">
+      <div>
+        <h1>Activity Stream <span class="main-header-sub">Friday, Mar 28</span></h1>
+      </div>
+      <div class="header-actions">
+        <div class="live-indicator">
+          <span class="live-dot"></span> Live
+        </div>
+        <button class="btn btn-secondary btn-sm">Filter</button>
+        <button class="btn btn-primary btn-sm">+ New Case</button>
+      </div>
+    </div>
+
+    <!-- ===== 1. PULSE STRIP ===== -->
+    <div class="pulse-strip">
+      <!-- New Cases -->
+      <div class="pulse-card">
+        <div class="pulse-info">
+          <div class="pulse-label">New Cases</div>
+          <div class="pulse-value">3</div>
+          <div class="pulse-change up">+1 vs avg</div>
+        </div>
+        <div class="sparkline-container">
+          <svg viewBox="0 0 64 32" fill="none">
+            <polyline points="2,24 12,20 22,26 32,18 42,22 52,16 62,12" stroke="#00C853" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="12" r="2" fill="#00C853"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Tasks Due -->
+      <div class="pulse-card">
+        <div class="pulse-info">
+          <div class="pulse-label">Tasks Due</div>
+          <div class="pulse-value">12</div>
+          <div class="pulse-change down">+4 vs avg</div>
+        </div>
+        <div class="sparkline-container">
+          <svg viewBox="0 0 64 32" fill="none">
+            <polyline points="2,20 12,16 22,18 32,14 42,20 52,22 62,8" stroke="#EE0000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="8" r="2" fill="#EE0000"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Hearings Today -->
+      <div class="pulse-card">
+        <div class="pulse-info">
+          <div class="pulse-label">Hearings Today</div>
+          <div class="pulse-value">2</div>
+          <div class="pulse-change neutral">= avg</div>
+        </div>
+        <div class="sparkline-container">
+          <svg viewBox="0 0 64 32" fill="none">
+            <polyline points="2,16 12,18 22,14 32,20 42,16 52,18 62,16" stroke="#999999" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="16" r="2" fill="#999999"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Docs Received -->
+      <div class="pulse-card">
+        <div class="pulse-info">
+          <div class="pulse-label">Docs Received</div>
+          <div class="pulse-value">8</div>
+          <div class="pulse-change up">+2 vs avg</div>
+        </div>
+        <div class="sparkline-container">
+          <svg viewBox="0 0 64 32" fill="none">
+            <polyline points="2,22 12,18 22,20 32,16 42,14 52,18 62,10" stroke="#00C853" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="10" r="2" fill="#00C853"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="pulse-card alert-card">
+        <div class="pulse-info">
+          <div class="pulse-label">Alerts</div>
+          <div class="pulse-value">4 <span class="alert-dot"></span></div>
+          <div class="pulse-change down">+2 vs avg</div>
+        </div>
+        <div class="sparkline-container">
+          <svg viewBox="0 0 64 32" fill="none">
+            <polyline points="2,26 12,22 22,24 32,20 42,18 52,14 62,8" stroke="#EE0000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="8" r="2" fill="#EE0000"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TWO-COLUMN LAYOUT ===== -->
+    <div class="dashboard-columns">
+
+      <!-- ===== LEFT COLUMN — Activity Feed + Charts ===== -->
+      <div class="col-left">
+
+        <!-- 2. LIVE ACTIVITY FEED -->
+        <div class="card" style="padding: 0;">
+          <div style="padding: var(--sp-5); padding-bottom: 0;">
+            <div class="flex-between mb-3">
+              <div class="card-title" style="margin-bottom: 0;">Live Activity Feed</div>
+              <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">50 events</span>
+            </div>
+          </div>
+          <div class="activity-feed" style="padding: 0 var(--sp-5) var(--sp-5);">
+
+            <!-- Last Hour -->
+            <div class="feed-group-label">Last Hour</div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SR</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Rivera</strong> uploaded medical records (42 pages) to <span class="case-link">CS-2024-0891</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Doc</span>
+                  <span>3 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">MK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Michael Kim</strong> completed task "Request CE from Dr. Patel" on <span class="case-link">CS-2024-0847</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge task">Task</span>
+                  <span>8 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar purple">SYS</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>System</strong> received favorable decision for <span class="case-link">CS-2023-0612</span> &mdash; Johnson v. SSA</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge decision">Decision</span>
+                  <span>12 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar amber">LT</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Lisa Torres</strong> scheduled hearing for <span class="case-link">CS-2024-0723</span> &mdash; Apr 15, ALJ Williams</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge hearing">Hearing</span>
+                  <span>18 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SR</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Rivera</strong> moved <span class="case-link">CS-2024-0815</span> from <em>Intake</em> to <em>Initial Development</em></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge stage-change">Stage</span>
+                  <span>24 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">MK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Michael Kim</strong> added note to <span class="case-link">CS-2024-0891</span>: "Claimant confirmed CE appointment for 4/2"</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge note">Note</span>
+                  <span>31 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar gray">DW</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>David Washington</strong> created new case <span class="case-link">CS-2026-0103</span> &mdash; Martinez, Elena</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge case-created">New Case</span>
+                  <span>38 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar red">AM</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Anna Morgan</strong> flagged missing medical evidence on <span class="case-link">CS-2024-0756</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge hearing">Alert</span>
+                  <span>44 min ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Today -->
+            <div class="feed-group-label">Earlier Today</div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">MK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Michael Kim</strong> uploaded hearing brief (18 pages) to <span class="case-link">CS-2024-0698</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Doc</span>
+                  <span>2 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar amber">LT</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Lisa Torres</strong> completed task "Submit 1696 form" on <span class="case-link">CS-2024-0834</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge task">Task</span>
+                  <span>2 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar purple">SYS</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>System</strong> received unfavorable decision for <span class="case-link">CS-2023-0558</span> &mdash; Garcia v. SSA</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge decision">Decision</span>
+                  <span>3 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar gray">DW</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>David Washington</strong> created new case <span class="case-link">CS-2026-0102</span> &mdash; Thompson, Robert</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge case-created">New Case</span>
+                  <span>3 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SR</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Rivera</strong> moved <span class="case-link">CS-2024-0790</span> from <em>Hearing Prep</em> to <em>Awaiting Decision</em></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge stage-change">Stage</span>
+                  <span>4 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar red">AM</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Anna Morgan</strong> uploaded CE report from Dr. Singh to <span class="case-link">CS-2024-0812</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Doc</span>
+                  <span>4 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">MK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Michael Kim</strong> completed 3 tasks on <span class="case-link">CS-2024-0651</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge task">Task</span>
+                  <span>5 hrs ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Yesterday -->
+            <div class="feed-group-label">Yesterday</div>
+
+            <div class="feed-item">
+              <div class="feed-avatar amber">LT</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Lisa Torres</strong> scheduled hearing for <span class="case-link">CS-2024-0812</span> &mdash; May 3, ALJ Cooper</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge hearing">Hearing</span>
+                  <span>Yesterday 4:32 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar gray">DW</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>David Washington</strong> created new case <span class="case-link">CS-2026-0101</span> &mdash; Williams, Angela</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge case-created">New Case</span>
+                  <span>Yesterday 3:15 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar purple">SYS</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>System</strong> received remand decision for <span class="case-link">CS-2023-0491</span> &mdash; Brown v. SSA</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge decision">Decision</span>
+                  <span>Yesterday 2:48 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar blue">SR</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Sarah Rivera</strong> uploaded treating source statement from Dr. Allen to <span class="case-link">CS-2024-0778</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Doc</span>
+                  <span>Yesterday 1:20 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar red">AM</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Anna Morgan</strong> completed task "Follow up on ODAR status" on <span class="case-link">CS-2024-0634</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge task">Task</span>
+                  <span>Yesterday 11:05 AM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar green">MK</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Michael Kim</strong> moved <span class="case-link">CS-2024-0701</span> from <em>Initial Development</em> to <em>Hearing Prep</em></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge stage-change">Stage</span>
+                  <span>Yesterday 10:22 AM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar amber">LT</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>Lisa Torres</strong> added note to <span class="case-link">CS-2024-0756</span>: "Dr. Patel office confirmed records will be sent by 3/31"</div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge note">Note</span>
+                  <span>Yesterday 9:45 AM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-item">
+              <div class="feed-avatar gray">DW</div>
+              <div class="feed-content">
+                <div class="feed-narrative"><strong>David Washington</strong> uploaded intake questionnaire to <span class="case-link">CS-2026-0100</span></div>
+                <div class="feed-meta">
+                  <span class="feed-type-badge doc-uploaded">Doc</span>
+                  <span>Yesterday 9:10 AM</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 6. CASE STAGE MOVEMENT -->
+        <div class="card">
+          <div class="card-title">Case Stage Movement &mdash; Today</div>
+          <div class="stage-flow">
+            <div class="stage-node">
+              <div class="stage-dot active">3</div>
+              <div class="stage-name">Intake</div>
+            </div>
+            <div class="stage-connector has-flow">
+              <span class="flow-count">2</span>
+              <span class="stage-arrow"></span>
+            </div>
+            <div class="stage-node">
+              <div class="stage-dot active">5</div>
+              <div class="stage-name">Initial Dev</div>
+            </div>
+            <div class="stage-connector has-flow">
+              <span class="flow-count">3</span>
+              <span class="stage-arrow"></span>
+            </div>
+            <div class="stage-node">
+              <div class="stage-dot active">4</div>
+              <div class="stage-name">Recon</div>
+            </div>
+            <div class="stage-connector has-flow">
+              <span class="flow-count">1</span>
+              <span class="stage-arrow"></span>
+            </div>
+            <div class="stage-node">
+              <div class="stage-dot active">2</div>
+              <div class="stage-name">Hearing Prep</div>
+            </div>
+            <div class="stage-connector has-flow">
+              <span class="flow-count">1</span>
+              <span class="stage-arrow"></span>
+            </div>
+            <div class="stage-node">
+              <div class="stage-dot">1</div>
+              <div class="stage-name">Awaiting Decision</div>
+            </div>
+            <div class="stage-connector">
+            </div>
+            <div class="stage-node">
+              <div class="stage-dot">0</div>
+              <div class="stage-name">Post-Decision</div>
+            </div>
+          </div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: var(--sp-2);">7 cases moved stages today &middot; 2 new intake, 1 to awaiting decision</div>
+        </div>
+
+        <!-- 8. WEEKLY VELOCITY CHART -->
+        <div class="card">
+          <div class="card-title">Weekly Velocity</div>
+          <div class="velocity-chart">
+            <div class="velocity-week">
+              <div class="velocity-bars">
+                <div class="velocity-bar opened" style="height: 28px;" title="Opened: 7"></div>
+                <div class="velocity-bar closed" style="height: 20px;" title="Closed: 5"></div>
+                <div class="velocity-bar tasks" style="height: 44px;" title="Tasks: 38"></div>
+                <div class="velocity-bar docs" style="height: 32px;" title="Docs: 22"></div>
+              </div>
+              <div class="velocity-label">W9</div>
+            </div>
+            <div class="velocity-week">
+              <div class="velocity-bars">
+                <div class="velocity-bar opened" style="height: 36px;" title="Opened: 9"></div>
+                <div class="velocity-bar closed" style="height: 28px;" title="Closed: 7"></div>
+                <div class="velocity-bar tasks" style="height: 52px;" title="Tasks: 45"></div>
+                <div class="velocity-bar docs" style="height: 40px;" title="Docs: 28"></div>
+              </div>
+              <div class="velocity-label">W10</div>
+            </div>
+            <div class="velocity-week">
+              <div class="velocity-bars">
+                <div class="velocity-bar opened" style="height: 24px;" title="Opened: 6"></div>
+                <div class="velocity-bar closed" style="height: 32px;" title="Closed: 8"></div>
+                <div class="velocity-bar tasks" style="height: 48px;" title="Tasks: 41"></div>
+                <div class="velocity-bar docs" style="height: 36px;" title="Docs: 25"></div>
+              </div>
+              <div class="velocity-label">W11</div>
+            </div>
+            <div class="velocity-week">
+              <div class="velocity-bars">
+                <div class="velocity-bar opened" style="height: 32px;" title="Opened: 8"></div>
+                <div class="velocity-bar closed" style="height: 24px;" title="Closed: 6"></div>
+                <div class="velocity-bar tasks" style="height: 56px;" title="Tasks: 48"></div>
+                <div class="velocity-bar docs" style="height: 44px;" title="Docs: 31"></div>
+              </div>
+              <div class="velocity-label">W12</div>
+            </div>
+            <div class="velocity-week current">
+              <div class="velocity-bars">
+                <div class="velocity-bar opened" style="height: 40px;" title="Opened: 10"></div>
+                <div class="velocity-bar closed" style="height: 16px;" title="Closed: 4"></div>
+                <div class="velocity-bar tasks" style="height: 60px;" title="Tasks: 52"></div>
+                <div class="velocity-bar docs" style="height: 48px;" title="Docs: 34"></div>
+              </div>
+              <div class="velocity-label">W13</div>
+            </div>
+          </div>
+          <div class="velocity-legend">
+            <span><span class="legend-dot" style="background: var(--accent-blue);"></span> Opened</span>
+            <span><span class="legend-dot" style="background: var(--accent-green);"></span> Closed</span>
+            <span><span class="legend-dot" style="background: var(--accent-amber);"></span> Tasks</span>
+            <span><span class="legend-dot" style="background: var(--accent-purple);"></span> Docs</span>
+          </div>
+        </div>
+
+        <!-- 5. TEAM ACTIVITY HEATMAP -->
+        <div class="card">
+          <div class="card-title">Team Activity &mdash; Today</div>
+          <table class="heatmap-table">
+            <thead>
+              <tr>
+                <th class="heatmap-name"></th>
+                <th>8a</th><th>9a</th><th>10a</th><th>11a</th><th>12p</th><th>1p</th><th>2p</th><th>3p</th><th>4p</th><th>5p</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="heatmap-name">S. Rivera</td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l4"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l4 now"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+              </tr>
+              <tr>
+                <td class="heatmap-name">M. Kim</td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l4"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l4"></span></td>
+                <td><span class="heatmap-cell l2 now"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+              </tr>
+              <tr>
+                <td class="heatmap-name">L. Torres</td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l1 now"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+              </tr>
+              <tr>
+                <td class="heatmap-name">D. Wash.</td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l3"></span></td>
+                <td><span class="heatmap-cell l3 now"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+              </tr>
+              <tr>
+                <td class="heatmap-name">A. Morgan</td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l4"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell l2"></span></td>
+                <td><span class="heatmap-cell l1"></span></td>
+                <td><span class="heatmap-cell now"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+                <td><span class="heatmap-cell"></span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex; gap: var(--sp-4); margin-top: var(--sp-3); font-size: 10px; color: var(--text-tertiary);">
+            <span><span class="heatmap-cell l1" style="width: 10px; height: 10px; vertical-align: middle;"></span> Low</span>
+            <span><span class="heatmap-cell l2" style="width: 10px; height: 10px; vertical-align: middle;"></span> Moderate</span>
+            <span><span class="heatmap-cell l3" style="width: 10px; height: 10px; vertical-align: middle;"></span> High</span>
+            <span><span class="heatmap-cell l4" style="width: 10px; height: 10px; vertical-align: middle;"></span> Peak</span>
+            <span style="margin-left: auto;"><span class="heatmap-cell now" style="width: 10px; height: 10px; vertical-align: middle; border-color: var(--accent-green);"></span> Now</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== RIGHT COLUMN — Urgent Queue + Cards ===== -->
+      <div class="col-right">
+
+        <!-- 3. URGENT ATTENTION QUEUE -->
+        <div class="card card-urgent">
+          <div class="flex-between mb-3">
+            <div class="card-title" style="margin-bottom: 0; color: var(--accent-red);">Urgent Attention</div>
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-red); font-weight: 600;">6 items</span>
+          </div>
+          <ul class="urgent-list">
+            <li class="urgent-item">
+              <span class="urgent-icon critical">!</span>
+              <div class="urgent-text">
+                SOL expiring <strong>Apr 1</strong> &mdash; <span class="case-ref">CS-2024-0634</span>
+                <div><span class="days-overdue">4 days left</span></div>
+              </div>
+              <button class="btn btn-danger btn-sm urgent-action">Review</button>
+            </li>
+            <li class="urgent-item">
+              <span class="urgent-icon overdue">!</span>
+              <div class="urgent-text">
+                Overdue: "Submit medical brief" &mdash; <span class="case-ref">CS-2024-0756</span>
+                <div><span class="days-overdue">3 days overdue</span></div>
+              </div>
+              <button class="btn btn-danger btn-sm urgent-action">Act</button>
+            </li>
+            <li class="urgent-item">
+              <span class="urgent-icon overdue">!</span>
+              <div class="urgent-text">
+                Overdue: "Request updated RFC" &mdash; <span class="case-ref">CS-2024-0698</span>
+                <div><span class="days-overdue">1 day overdue</span></div>
+              </div>
+              <button class="btn btn-danger btn-sm urgent-action">Act</button>
+            </li>
+            <li class="urgent-item">
+              <span class="urgent-icon warning">!</span>
+              <div class="urgent-text">
+                Hearing in 5 days &mdash; <span class="case-ref">CS-2024-0847</span>
+                <div style="font-size: 11px; color: var(--text-tertiary);">Prep checklist 60% complete</div>
+              </div>
+              <button class="btn btn-secondary btn-sm urgent-action">Prep</button>
+            </li>
+            <li class="urgent-item">
+              <span class="urgent-icon warning">!</span>
+              <div class="urgent-text">
+                Missing medical evidence &mdash; <span class="case-ref">CS-2024-0812</span>
+                <div style="font-size: 11px; color: var(--text-tertiary);">CE report not yet received</div>
+              </div>
+              <button class="btn btn-secondary btn-sm urgent-action">Follow Up</button>
+            </li>
+            <li class="urgent-item">
+              <span class="urgent-icon warning">!</span>
+              <div class="urgent-text">
+                Hearing in 6 days &mdash; <span class="case-ref">CS-2024-0723</span>
+                <div style="font-size: 11px; color: var(--text-tertiary);">Prep checklist 45% complete</div>
+              </div>
+              <button class="btn btn-secondary btn-sm urgent-action">Prep</button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 4. HEARING COUNTDOWN -->
+        <div class="card">
+          <div class="card-title">Hearing Countdown</div>
+          <ul class="hearing-list">
+            <li class="hearing-item primary">
+              <div class="hearing-countdown">
+                <div class="countdown-number text-amber">5d</div>
+                <div class="countdown-unit">12:30</div>
+              </div>
+              <div class="hearing-details">
+                <div class="hearing-case-name">Patterson v. SSA</div>
+                <div class="hearing-meta-line">ALJ Williams &middot; ODAR Nashville &middot; CS-2024-0847</div>
+                <div class="hearing-prep-bar"><div class="hearing-prep-fill mid" style="width: 60%;"></div></div>
+                <div class="hearing-prep-label">Prep: 60% &middot; 3 items remaining</div>
+              </div>
+            </li>
+            <li class="hearing-item">
+              <div class="hearing-countdown">
+                <div class="countdown-number">6d</div>
+                <div class="countdown-unit">08:15</div>
+              </div>
+              <div class="hearing-details">
+                <div class="hearing-case-name">Henderson v. SSA</div>
+                <div class="hearing-meta-line">ALJ Cooper &middot; ODAR Atlanta &middot; CS-2024-0723</div>
+                <div class="hearing-prep-bar"><div class="hearing-prep-fill low" style="width: 45%;"></div></div>
+                <div class="hearing-prep-label">Prep: 45% &middot; 5 items remaining</div>
+              </div>
+            </li>
+            <li class="hearing-item">
+              <div class="hearing-countdown">
+                <div class="countdown-number">12d</div>
+                <div class="countdown-unit">10:00</div>
+              </div>
+              <div class="hearing-details">
+                <div class="hearing-case-name">Chen v. SSA</div>
+                <div class="hearing-meta-line">ALJ Roberts &middot; ODAR Chicago &middot; CS-2024-0778</div>
+                <div class="hearing-prep-bar"><div class="hearing-prep-fill good" style="width: 85%;"></div></div>
+                <div class="hearing-prep-label">Prep: 85% &middot; 1 item remaining</div>
+              </div>
+            </li>
+            <li class="hearing-item">
+              <div class="hearing-countdown">
+                <div class="countdown-number">18d</div>
+                <div class="countdown-unit">14:00</div>
+              </div>
+              <div class="hearing-details">
+                <div class="hearing-case-name">Nguyen v. SSA</div>
+                <div class="hearing-meta-line">ALJ Williams &middot; ODAR Nashville &middot; CS-2024-0812</div>
+                <div class="hearing-prep-bar"><div class="hearing-prep-fill mid" style="width: 50%;"></div></div>
+                <div class="hearing-prep-label">Prep: 50% &middot; 4 items remaining</div>
+              </div>
+            </li>
+            <li class="hearing-item">
+              <div class="hearing-countdown">
+                <div class="countdown-number">24d</div>
+                <div class="countdown-unit">09:30</div>
+              </div>
+              <div class="hearing-details">
+                <div class="hearing-case-name">Davis v. SSA</div>
+                <div class="hearing-meta-line">ALJ Martinez &middot; ODAR Dallas &middot; CS-2024-0790</div>
+                <div class="hearing-prep-bar"><div class="hearing-prep-fill good" style="width: 90%;"></div></div>
+                <div class="hearing-prep-label">Prep: 90% &middot; 1 item remaining</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 7. DOCUMENT PROCESSING QUEUE -->
+        <div class="card">
+          <div class="card-title">Document Processing Queue</div>
+          <div class="doc-pipeline">
+            <div class="doc-stage">
+              <div class="doc-stage-count text-blue">5</div>
+              <div class="doc-stage-label">Received</div>
+            </div>
+            <div class="doc-stage">
+              <div class="doc-stage-count" style="color: var(--accent-purple);">3</div>
+              <div class="doc-stage-label">OCR'd</div>
+            </div>
+            <div class="doc-stage">
+              <div class="doc-stage-count text-amber">2</div>
+              <div class="doc-stage-label">Classified</div>
+            </div>
+            <div class="doc-stage">
+              <div class="doc-stage-count text-green">8</div>
+              <div class="doc-stage-label">Reviewed</div>
+            </div>
+          </div>
+          <div class="doc-progress" style="margin-top: var(--sp-4);">
+            <div class="doc-progress-bar">
+              <div class="seg received" style="width: 28%;"></div>
+              <div class="seg ocr" style="width: 17%;"></div>
+              <div class="seg classified" style="width: 11%;"></div>
+              <div class="seg reviewed" style="width: 44%;"></div>
+            </div>
+            <div class="doc-progress-legend">
+              <span><span class="legend-dot" style="background: var(--accent-blue);"></span> Received</span>
+              <span><span class="legend-dot" style="background: var(--accent-purple);"></span> OCR'd</span>
+              <span><span class="legend-dot" style="background: var(--accent-amber);"></span> Classified</span>
+              <span><span class="legend-dot" style="background: var(--accent-green);"></span> Reviewed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12. CASE INTAKE FUNNEL (Today) -->
+        <div class="card">
+          <div class="card-title">Case Intake Funnel &mdash; Today</div>
+          <div class="funnel-stages">
+            <div class="funnel-step">
+              <div class="funnel-count">8</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar step-1" style="width: 100%;">
+                  <span class="funnel-bar-label">Leads Received</span>
+                </div>
+              </div>
+              <div class="funnel-conversion"></div>
+            </div>
+            <div class="funnel-arrow">&#8595; 75%</div>
+            <div class="funnel-step">
+              <div class="funnel-count">6</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar step-2" style="width: 75%;">
+                  <span class="funnel-bar-label">Screened</span>
+                </div>
+              </div>
+              <div class="funnel-conversion"></div>
+            </div>
+            <div class="funnel-arrow">&#8595; 67%</div>
+            <div class="funnel-step">
+              <div class="funnel-count">4</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar step-3" style="width: 50%;">
+                  <span class="funnel-bar-label">Qualified</span>
+                </div>
+              </div>
+              <div class="funnel-conversion"></div>
+            </div>
+            <div class="funnel-arrow">&#8595; 75%</div>
+            <div class="funnel-step">
+              <div class="funnel-count">3</div>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar step-4" style="width: 37.5%;">
+                  <span class="funnel-bar-label">Signed</span>
+                </div>
+              </div>
+              <div class="funnel-conversion"></div>
+            </div>
+          </div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: var(--sp-3); font-family: var(--font-mono);">Overall: 37.5% conversion</div>
+        </div>
+
+        <!-- 11. RECENT DECISIONS FEED -->
+        <div class="card">
+          <div class="card-title">Recent Decisions &mdash; Last 7 Days</div>
+          <ul class="decisions-list">
+            <li class="decision-item">
+              <div class="decision-outcome favorable">&#10003;</div>
+              <div class="decision-info">
+                <div class="decision-case">Johnson v. SSA</div>
+                <div class="decision-meta">ALJ Cooper &middot; Today &middot; CS-2023-0612</div>
+              </div>
+              <div class="decision-amount">$48,200</div>
+            </li>
+            <li class="decision-item">
+              <div class="decision-outcome unfavorable">&#10007;</div>
+              <div class="decision-info">
+                <div class="decision-case">Garcia v. SSA</div>
+                <div class="decision-meta">ALJ Roberts &middot; Today &middot; CS-2023-0558</div>
+              </div>
+              <div class="decision-amount" style="color: var(--text-tertiary);">&mdash;</div>
+            </li>
+            <li class="decision-item">
+              <div class="decision-outcome remand">&#8635;</div>
+              <div class="decision-info">
+                <div class="decision-case">Brown v. SSA</div>
+                <div class="decision-meta">ALJ Martinez &middot; Yesterday &middot; CS-2023-0491</div>
+              </div>
+              <div class="decision-amount" style="color: var(--text-tertiary);">Remand</div>
+            </li>
+            <li class="decision-item">
+              <div class="decision-outcome favorable">&#10003;</div>
+              <div class="decision-info">
+                <div class="decision-case">Wilson v. SSA</div>
+                <div class="decision-meta">ALJ Williams &middot; Mar 25 &middot; CS-2023-0534</div>
+              </div>
+              <div class="decision-amount">$62,400</div>
+            </li>
+            <li class="decision-item">
+              <div class="decision-outcome favorable">&#10003;</div>
+              <div class="decision-info">
+                <div class="decision-case">Lee v. SSA</div>
+                <div class="decision-meta">ALJ Cooper &middot; Mar 24 &middot; CS-2023-0498</div>
+              </div>
+              <div class="decision-amount">$31,800</div>
+            </li>
+            <li class="decision-item">
+              <div class="decision-outcome unfavorable">&#10007;</div>
+              <div class="decision-info">
+                <div class="decision-case">Taylor v. SSA</div>
+                <div class="decision-meta">ALJ Martinez &middot; Mar 23 &middot; CS-2023-0467</div>
+              </div>
+              <div class="decision-amount" style="color: var(--text-tertiary);">&mdash;</div>
+            </li>
+          </ul>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: var(--sp-3); font-family: var(--font-mono);">3 favorable &middot; 2 unfavorable &middot; 1 remand &middot; $142,400 past-due</div>
+        </div>
+
+        <!-- 9. UPCOMING DEADLINES CALENDAR -->
+        <div class="card">
+          <div class="card-title">Deadlines &mdash; March 2026</div>
+          <div class="mini-cal-grid">
+            <!-- Headers -->
+            <div class="mini-cal-header">Su</div>
+            <div class="mini-cal-header">Mo</div>
+            <div class="mini-cal-header">Tu</div>
+            <div class="mini-cal-header">We</div>
+            <div class="mini-cal-header">Th</div>
+            <div class="mini-cal-header">Fr</div>
+            <div class="mini-cal-header">Sa</div>
+            <!-- Row 1: Mar 1 starts on Sunday -->
+            <div class="mini-cal-day">1</div>
+            <div class="mini-cal-day">2<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">3</div>
+            <div class="mini-cal-day">4<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">5</div>
+            <div class="mini-cal-day">6<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">7</div>
+            <!-- Row 2 -->
+            <div class="mini-cal-day">8</div>
+            <div class="mini-cal-day">9<span class="cal-dot amber"></span></div>
+            <div class="mini-cal-day">10</div>
+            <div class="mini-cal-day">11<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">12<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">13</div>
+            <div class="mini-cal-day">14</div>
+            <!-- Row 3 -->
+            <div class="mini-cal-day">15</div>
+            <div class="mini-cal-day">16<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">17</div>
+            <div class="mini-cal-day">18<span class="cal-dot amber"></span></div>
+            <div class="mini-cal-day">19</div>
+            <div class="mini-cal-day">20<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">21</div>
+            <!-- Row 4 -->
+            <div class="mini-cal-day">22</div>
+            <div class="mini-cal-day">23<span class="cal-dot green"></span></div>
+            <div class="mini-cal-day">24</div>
+            <div class="mini-cal-day">25<span class="cal-dot amber"></span></div>
+            <div class="mini-cal-day">26</div>
+            <div class="mini-cal-day">27</div>
+            <div class="mini-cal-day today">28<span class="cal-dot red"></span></div>
+            <!-- Row 5 -->
+            <div class="mini-cal-day">29</div>
+            <div class="mini-cal-day">30<span class="cal-dot red"></span></div>
+            <div class="mini-cal-day">31<span class="cal-dot red"></span></div>
+            <div class="mini-cal-day outside">1<span class="cal-dot amber"></span></div>
+            <div class="mini-cal-day outside">2</div>
+            <div class="mini-cal-day outside">3<span class="cal-dot red"></span></div>
+            <div class="mini-cal-day outside">4</div>
+          </div>
+          <div class="cal-detail">
+            <div class="cal-detail-title">Today &mdash; Mar 28 (3 deadlines)</div>
+            <div class="cal-detail-item">
+              <span>Task: Submit medical brief</span>
+              <span class="case-ref">CS-2024-0756</span>
+            </div>
+            <div class="cal-detail-item">
+              <span>Task: Follow up CE report</span>
+              <span class="case-ref">CS-2024-0812</span>
+            </div>
+            <div class="cal-detail-item">
+              <span>SOL deadline approaching</span>
+              <span class="case-ref">CS-2024-0634</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. STAFF WORKLOAD BALANCE -->
+        <div class="card">
+          <div class="card-title">Staff Workload Balance</div>
+          <ul class="workload-list">
+            <li class="workload-row">
+              <div class="workload-name">S. Rivera</div>
+              <div class="workload-bar-container">
+                <div class="workload-seg intake" style="width: 16%;"></div>
+                <div class="workload-seg active" style="width: 40%;"></div>
+                <div class="workload-seg hearing-prep" style="width: 28%;"></div>
+                <div class="workload-seg post-hearing" style="width: 16%;"></div>
+              </div>
+              <div class="workload-total">52</div>
+            </li>
+            <li class="workload-row">
+              <div class="workload-name">M. Kim</div>
+              <div class="workload-bar-container">
+                <div class="workload-seg intake" style="width: 10%;"></div>
+                <div class="workload-seg active" style="width: 35%;"></div>
+                <div class="workload-seg hearing-prep" style="width: 35%;"></div>
+                <div class="workload-seg post-hearing" style="width: 20%;"></div>
+              </div>
+              <div class="workload-total">48</div>
+            </li>
+            <li class="workload-row">
+              <div class="workload-name">L. Torres</div>
+              <div class="workload-bar-container">
+                <div class="workload-seg intake" style="width: 22%;"></div>
+                <div class="workload-seg active" style="width: 44%;"></div>
+                <div class="workload-seg hearing-prep" style="width: 22%;"></div>
+                <div class="workload-seg post-hearing" style="width: 12%;"></div>
+              </div>
+              <div class="workload-total">55</div>
+            </li>
+            <li class="workload-row">
+              <div class="workload-name">D. Wash.</div>
+              <div class="workload-bar-container">
+                <div class="workload-seg intake" style="width: 30%;"></div>
+                <div class="workload-seg active" style="width: 38%;"></div>
+                <div class="workload-seg hearing-prep" style="width: 18%;"></div>
+                <div class="workload-seg post-hearing" style="width: 14%;"></div>
+              </div>
+              <div class="workload-total">42</div>
+            </li>
+            <li class="workload-row">
+              <div class="workload-name">A. Morgan</div>
+              <div class="workload-bar-container">
+                <div class="workload-seg intake" style="width: 12%;"></div>
+                <div class="workload-seg active" style="width: 30%;"></div>
+                <div class="workload-seg hearing-prep" style="width: 38%;"></div>
+                <div class="workload-seg post-hearing" style="width: 20%;"></div>
+              </div>
+              <div class="workload-total">50</div>
+            </li>
+          </ul>
+          <div class="workload-legend">
+            <span><span class="legend-dot" style="background: var(--accent-blue);"></span> Intake</span>
+            <span><span class="legend-dot" style="background: var(--accent-green);"></span> Active</span>
+            <span><span class="legend-dot" style="background: var(--accent-amber);"></span> Hearing Prep</span>
+            <span><span class="legend-dot" style="background: #BBBBBB;"></span> Post-Hearing</span>
+          </div>
+        </div>
+
+      </div><!-- /col-right -->
+    </div><!-- /dashboard-columns -->
+
+  </main>
+</div>
+</body>
+</html>

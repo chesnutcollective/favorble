@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — KPI Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-blue:    #0070F3;
+    --accent-green:   #00A651;
+    --accent-amber:   #E8890C;
+    --accent-red:     #E5484D;
+
+    --green-bg:       #EDFCF2;
+    --green-border:   #B4DFC4;
+    --amber-bg:       #FEF7EC;
+    --amber-border:   #F5D19E;
+    --red-bg:         #FFF0F0;
+    --red-border:     #F9C6C6;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --transition:     200ms ease;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: 16px 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-brand svg { flex-shrink: 0; }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-nav { flex: 1; }
+
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .sidebar-nav a:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .sidebar-nav a.active {
+    color: var(--text-primary);
+    font-weight: 500;
+    background: var(--bg-hover);
+  }
+
+  .sidebar-nav a svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 0 20px;
+    margin: 20px 0 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    min-height: 52px;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .period-selector {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .period-selector button {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    border: none;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    transition: all var(--transition);
+  }
+
+  .period-selector button:last-child { border-right: none; }
+
+  .period-selector button.active {
+    background: var(--text-primary);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .period-selector button:hover:not(.active) {
+    background: var(--bg-hover);
+  }
+
+  .last-updated {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .content {
+    padding: 24px 32px 48px;
+    flex: 1;
+  }
+
+  /* ============================================================
+     KPI CARDS (Row of 6)
+     ============================================================ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .kpi-card.status-green::before  { background: var(--accent-green); }
+  .kpi-card.status-amber::before  { background: var(--accent-amber); }
+  .kpi-card.status-red::before    { background: var(--accent-red); }
+
+  .kpi-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+  .kpi-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .kpi-status.green  { background: var(--accent-green); }
+  .kpi-status.amber  { background: var(--accent-amber); }
+  .kpi-status.red    { background: var(--accent-red); }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-target {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+  }
+
+  .kpi-progress-track {
+    height: 4px;
+    background: var(--bg-hover);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .kpi-progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  .kpi-progress-bar.green  { background: var(--accent-green); }
+  .kpi-progress-bar.amber  { background: var(--accent-amber); }
+  .kpi-progress-bar.red    { background: var(--accent-red); }
+
+  /* ============================================================
+     CHART GRID
+     ============================================================ */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .chart-subtitle {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+  }
+
+  /* ============================================================
+     CHART: REVENUE BAR + LINE
+     ============================================================ */
+  .revenue-chart {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    position: relative;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .revenue-bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .revenue-bar {
+    width: 70%;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.8s ease;
+    position: relative;
+  }
+
+  .revenue-bar .bar-val {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .revenue-bar.above { background: var(--accent-green); }
+  .revenue-bar.below { background: var(--accent-red); opacity: 0.8; }
+
+  .revenue-month {
+    position: absolute;
+    bottom: -20px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .target-line-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 24px;
+    pointer-events: none;
+  }
+
+  .target-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px dashed var(--text-tertiary);
+    opacity: 0.4;
+  }
+
+  .target-line-label {
+    position: absolute;
+    right: 0;
+    top: -14px;
+    font-size: 9px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     CHART: WIN RATE LINE
+     ============================================================ */
+  .line-chart-container {
+    position: relative;
+    height: 180px;
+    padding-bottom: 24px;
+  }
+
+  .line-chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     CHART: FUNNEL
+     ============================================================ */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+  }
+
+  .funnel-stage + .funnel-stage {
+    border-top: 1px solid var(--border);
+  }
+
+  .funnel-bar-container {
+    flex: 1;
+    height: 32px;
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .funnel-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    background: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    transition: width 1s ease;
+  }
+
+  .funnel-fill span {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .funnel-label {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .funnel-count {
+    width: 50px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .funnel-conversion {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0 4px 116px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .funnel-conversion svg {
+    width: 10px;
+    height: 10px;
+    color: var(--accent-amber);
+  }
+
+  /* ============================================================
+     CHART: RADAR / SPIDER
+     ============================================================ */
+  .radar-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .radar-svg {
+    width: 240px;
+    height: 240px;
+    flex-shrink: 0;
+  }
+
+  .radar-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .radar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .radar-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     CHART: CASE AGE GAUGE
+     ============================================================ */
+  .age-gauges {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .age-gauge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .age-gauge-label {
+    width: 80px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .age-gauge-track {
+    flex: 1;
+    height: 24px;
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .age-gauge-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+  }
+
+  .age-gauge-fill.green  { background: var(--green-bg); border: 1px solid var(--green-border); }
+  .age-gauge-fill.amber  { background: var(--amber-bg); border: 1px solid var(--amber-border); }
+  .age-gauge-fill.red    { background: var(--red-bg); border: 1px solid var(--red-border); }
+
+  .age-gauge-fill span {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .age-gauge-fill.green span  { color: var(--accent-green); }
+  .age-gauge-fill.amber span  { color: var(--accent-amber); }
+  .age-gauge-fill.red span    { color: var(--accent-red); }
+
+  .age-gauge-count {
+    width: 60px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     CHART: TASK VELOCITY BURNDOWN
+     ============================================================ */
+  .burndown-container {
+    position: relative;
+    height: 180px;
+    padding-bottom: 24px;
+  }
+
+  /* ============================================================
+     CHART: MED RECORDS TURNAROUND
+     ============================================================ */
+  .med-records-container {
+    position: relative;
+    height: 180px;
+    padding-bottom: 24px;
+  }
+
+  /* ============================================================
+     CHART: CLIENT SATISFACTION GAUGE
+     ============================================================ */
+  .satisfaction-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+  }
+
+  .gauge-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+  }
+
+  .gauge-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .gauge-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .gauge-score {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+
+  .gauge-label-text {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .gauge-trend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--accent-green);
+    font-weight: 500;
+  }
+
+  .gauge-trend svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ============================================================
+     CHART: FEE COLLECTION WATERFALL
+     ============================================================ */
+  .waterfall {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    height: 200px;
+    padding-bottom: 28px;
+    position: relative;
+  }
+
+  .waterfall-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  .waterfall-bar {
+    width: 60%;
+    border-radius: 3px;
+    position: relative;
+  }
+
+  .waterfall-bar .wf-val {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .waterfall-label {
+    position: absolute;
+    bottom: -22px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .waterfall-connector {
+    position: absolute;
+    border-top: 1px dashed var(--border-hover);
+  }
+
+  /* ============================================================
+     CHART: HEARING PREP READINESS
+     ============================================================ */
+  .hearing-prep {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hearing-row {
+    display: grid;
+    grid-template-columns: 140px 70px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hearing-row:last-child { border-bottom: none; }
+
+  .hearing-case {
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hearing-days {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .hearing-progress-track {
+    height: 6px;
+    background: var(--bg-hover);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .hearing-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+
+  .hearing-status {
+    font-size: 11px;
+    font-weight: 500;
+    text-align: right;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    text-align: center;
+  }
+
+  .hearing-status.ready {
+    background: var(--green-bg);
+    color: var(--accent-green);
+    border: 1px solid var(--green-border);
+  }
+
+  .hearing-status.in-progress {
+    background: var(--amber-bg);
+    color: var(--accent-amber);
+    border: 1px solid var(--amber-border);
+  }
+
+  .hearing-status.behind {
+    background: var(--red-bg);
+    color: var(--accent-red);
+    border: 1px solid var(--red-border);
+  }
+
+  .hearing-header {
+    display: grid;
+    grid-template-columns: 140px 70px 1fr 80px;
+    gap: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .hearing-header span {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .hearing-header span:nth-child(2),
+  .hearing-header span:last-child {
+    text-align: center;
+  }
+
+  /* ============================================================
+     CHART: MONTHLY COMPARISON TABLE
+     ============================================================ */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .comparison-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comparison-table th:not(:first-child) {
+    text-align: right;
+  }
+
+  .comparison-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+
+  .comparison-table td:first-child {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .comparison-table td:not(:first-child) {
+    text-align: right;
+    color: var(--text-secondary);
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .trend-up {
+    color: var(--accent-green) !important;
+  }
+
+  .trend-down {
+    color: var(--accent-red) !important;
+  }
+
+  .comparison-table .delta {
+    font-size: 10px;
+    margin-left: 4px;
+  }
+
+  /* ============================================================
+     UTILITY
+     ============================================================ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 100px;
+  }
+
+  .badge-green {
+    background: var(--green-bg);
+    color: var(--accent-green);
+    border: 1px solid var(--green-border);
+  }
+
+  .badge-amber {
+    background: var(--amber-bg);
+    color: var(--accent-amber);
+    border: 1px solid var(--amber-border);
+  }
+
+  .badge-red {
+    background: var(--red-bg);
+    color: var(--accent-red);
+    border: 1px solid var(--red-border);
+  }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span>Favorble</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="#" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        KPI Scorecard
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Cases
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Hearings
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Tasks
+      </a>
+
+      <div class="sidebar-section">Reports</div>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exports
+      </a>
+
+      <div class="sidebar-section">Settings</div>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Firm Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>KPI Scorecard</h1>
+        <span class="badge badge-green">6 of 6 KPIs tracked</span>
+      </div>
+      <div class="topbar-right">
+        <div class="period-selector">
+          <button>Week</button>
+          <button class="active">Month</button>
+          <button>Quarter</button>
+          <button>Year</button>
+        </div>
+        <span class="last-updated">Updated 12 min ago</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ============================================================
+           1. KPI CARDS ROW
+           ============================================================ -->
+      <div class="kpi-row">
+        <!-- Cases Won -->
+        <div class="kpi-card status-amber">
+          <div class="kpi-header">
+            <span class="kpi-label">Cases Won This Month</span>
+            <div class="kpi-status amber"></div>
+          </div>
+          <div class="kpi-value">12</div>
+          <div class="kpi-target">Target: 15</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar amber" style="width: 80%"></div>
+          </div>
+        </div>
+
+        <!-- Revenue MTD -->
+        <div class="kpi-card status-amber">
+          <div class="kpi-header">
+            <span class="kpi-label">Revenue MTD</span>
+            <div class="kpi-status amber"></div>
+          </div>
+          <div class="kpi-value">$45K</div>
+          <div class="kpi-target">Target: $60K</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar amber" style="width: 75%"></div>
+          </div>
+        </div>
+
+        <!-- Avg Days to Hearing -->
+        <div class="kpi-card status-red">
+          <div class="kpi-header">
+            <span class="kpi-label">Avg Days to Hearing</span>
+            <div class="kpi-status red"></div>
+          </div>
+          <div class="kpi-value">185</div>
+          <div class="kpi-target">Target: &le;150</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar red" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Hearings This Month -->
+        <div class="kpi-card status-amber">
+          <div class="kpi-header">
+            <span class="kpi-label">Hearings This Month</span>
+            <div class="kpi-status amber"></div>
+          </div>
+          <div class="kpi-value">8</div>
+          <div class="kpi-target">Target: 10</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar amber" style="width: 80%"></div>
+          </div>
+        </div>
+
+        <!-- New Intakes -->
+        <div class="kpi-card status-green">
+          <div class="kpi-header">
+            <span class="kpi-label">New Intakes</span>
+            <div class="kpi-status green"></div>
+          </div>
+          <div class="kpi-value">22</div>
+          <div class="kpi-target">Target: 20</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar green" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Open Tasks -->
+        <div class="kpi-card status-red">
+          <div class="kpi-header">
+            <span class="kpi-label">Open Tasks</span>
+            <div class="kpi-status red"></div>
+          </div>
+          <div class="kpi-value">47</div>
+          <div class="kpi-target">Target: &le;30</div>
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-bar red" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           CHARTS GRID
+           ============================================================ -->
+      <div class="chart-grid">
+
+        <!-- 2. MONTHLY REVENUE VS TARGET -->
+        <div class="chart-card">
+          <div class="chart-title">Monthly Revenue vs Target</div>
+          <div class="chart-subtitle">Green = above target, Red = below target. Dashed line = $55K target</div>
+          <div class="revenue-chart">
+            <div class="target-line-container">
+              <div class="target-line" style="bottom: 68.75%">
+                <span class="target-line-label">$55K target</span>
+              </div>
+            </div>
+            <!-- Oct -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 75%"><span class="bar-val">$60K</span></div>
+              <span class="revenue-month">Oct</span>
+            </div>
+            <!-- Nov -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar below" style="height: 56.25%"><span class="bar-val">$45K</span></div>
+              <span class="revenue-month">Nov</span>
+            </div>
+            <!-- Dec -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 87.5%"><span class="bar-val">$70K</span></div>
+              <span class="revenue-month">Dec</span>
+            </div>
+            <!-- Jan -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar below" style="height: 50%"><span class="bar-val">$40K</span></div>
+              <span class="revenue-month">Jan</span>
+            </div>
+            <!-- Feb -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 81.25%"><span class="bar-val">$65K</span></div>
+              <span class="revenue-month">Feb</span>
+            </div>
+            <!-- Mar -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar below" style="height: 56.25%"><span class="bar-val">$45K</span></div>
+              <span class="revenue-month">Mar</span>
+            </div>
+            <!-- Apr -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 68.75%"><span class="bar-val">$55K</span></div>
+              <span class="revenue-month">Apr</span>
+            </div>
+            <!-- May -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 93.75%"><span class="bar-val">$75K</span></div>
+              <span class="revenue-month">May</span>
+            </div>
+            <!-- Jun -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar below" style="height: 43.75%"><span class="bar-val">$35K</span></div>
+              <span class="revenue-month">Jun</span>
+            </div>
+            <!-- Jul -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 75%"><span class="bar-val">$60K</span></div>
+              <span class="revenue-month">Jul</span>
+            </div>
+            <!-- Aug -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar above" style="height: 81.25%"><span class="bar-val">$65K</span></div>
+              <span class="revenue-month">Aug</span>
+            </div>
+            <!-- Sep -->
+            <div class="revenue-bar-group">
+              <div class="revenue-bar below" style="height: 56.25%"><span class="bar-val">$45K</span></div>
+              <span class="revenue-month">Sep</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. WIN RATE TREND -->
+        <div class="chart-card">
+          <div class="chart-title">Win Rate Trend</div>
+          <div class="chart-subtitle">Monthly win rate vs 65% target (12 months)</div>
+          <div class="line-chart-container">
+            <svg class="line-chart-svg" viewBox="0 0 500 156" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="0" x2="500" y2="0" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="39" x2="500" y2="39" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="78" x2="500" y2="78" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="117" x2="500" y2="117" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="156" x2="500" y2="156" stroke="#EAEAEA" stroke-width="0.5"/>
+
+              <!-- Target line at 65% => y = 156 - (65/100)*156 = 156 - 101.4 = 54.6 -->
+              <line x1="0" y1="54.6" x2="500" y2="54.6" stroke="#999" stroke-width="1" stroke-dasharray="6,4"/>
+              <text x="505" y="58" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="start">65%</text>
+
+              <!-- Y-axis labels -->
+              <text x="-4" y="4" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">100%</text>
+              <text x="-4" y="43" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">75%</text>
+              <text x="-4" y="82" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">50%</text>
+              <text x="-4" y="121" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">25%</text>
+              <text x="-4" y="160" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">0%</text>
+
+              <!--
+                Data: Oct=62, Nov=58, Dec=70, Jan=55, Feb=68, Mar=72, Apr=60, May=75, Jun=63, Jul=69, Aug=71, Sep=66
+                y = 156 - (val/100)*156
+                x spacing: 500/11 = 45.45 per step, starting at 0
+              -->
+
+              <!-- Area fill (gradient) -->
+              <defs>
+                <linearGradient id="winGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0070F3" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#0070F3" stop-opacity="0.01"/>
+                </linearGradient>
+              </defs>
+              <polygon points="0,59.3 45.5,65.5 91,46.8 136.5,70.2 182,49.9 227.5,43.7 273,62.4 318.5,39 364,57.7 409.5,48.4 455,45.2 500,53 500,156 0,156" fill="url(#winGrad)"/>
+
+              <!-- Win rate line -->
+              <polyline
+                points="0,59.3 45.5,65.5 91,46.8 136.5,70.2 182,49.9 227.5,43.7 273,62.4 318.5,39 364,57.7 409.5,48.4 455,45.2 500,53"
+                fill="none" stroke="#0070F3" stroke-width="2"/>
+
+              <!-- Data points with color coding -->
+              <!-- Oct 62% (below) --> <circle cx="0" cy="59.3" r="3.5" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <!-- Nov 58% (below) --> <circle cx="45.5" cy="65.5" r="3.5" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <!-- Dec 70% (above) --> <circle cx="91" cy="46.8" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Jan 55% (below) --> <circle cx="136.5" cy="70.2" r="3.5" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <!-- Feb 68% (above) --> <circle cx="182" cy="49.9" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Mar 72% (above) --> <circle cx="227.5" cy="43.7" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Apr 60% (below) --> <circle cx="273" cy="62.4" r="3.5" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <!-- May 75% (above) --> <circle cx="318.5" cy="39" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Jun 63% (below) --> <circle cx="364" cy="57.7" r="3.5" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <!-- Jul 69% (above) --> <circle cx="409.5" cy="48.4" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Aug 71% (above) --> <circle cx="455" cy="45.2" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+              <!-- Sep 66% (above) --> <circle cx="500" cy="53" r="3.5" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+
+              <!-- Month labels -->
+              <text x="0" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Oct</text>
+              <text x="45.5" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Nov</text>
+              <text x="91" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Dec</text>
+              <text x="136.5" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Jan</text>
+              <text x="182" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Feb</text>
+              <text x="227.5" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Mar</text>
+              <text x="273" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Apr</text>
+              <text x="318.5" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">May</text>
+              <text x="364" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Jun</text>
+              <text x="409.5" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Jul</text>
+              <text x="455" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Aug</text>
+              <text x="500" y="172" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Sep</text>
+
+              <!-- Value labels -->
+              <text x="0" y="53" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">62%</text>
+              <text x="45.5" y="76" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">58%</text>
+              <text x="91" y="41" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">70%</text>
+              <text x="136.5" y="81" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">55%</text>
+              <text x="182" y="44" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">68%</text>
+              <text x="227.5" y="38" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">72%</text>
+              <text x="273" y="73" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">60%</text>
+              <text x="318.5" y="33" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">75%</text>
+              <text x="364" y="68" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">63%</text>
+              <text x="409.5" y="42" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">69%</text>
+              <text x="455" y="39" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">71%</text>
+              <text x="500" y="47" font-size="8" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle">66%</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 4. STAGE CONVERSION FUNNEL -->
+        <div class="chart-card">
+          <div class="chart-title">Stage Conversion Funnel</div>
+          <div class="chart-subtitle">Conversion rates between case stages</div>
+          <div class="funnel">
+            <div class="funnel-stage">
+              <span class="funnel-label">Intake</span>
+              <div class="funnel-bar-container">
+                <div class="funnel-fill" style="width: 100%; background: #0070F3;"><span>250</span></div>
+              </div>
+              <span class="funnel-count">250</span>
+            </div>
+            <div class="funnel-conversion">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              92% conversion
+            </div>
+            <div class="funnel-stage">
+              <span class="funnel-label">Application</span>
+              <div class="funnel-bar-container">
+                <div class="funnel-fill" style="width: 92%; background: #2E8AEF;"><span>230</span></div>
+              </div>
+              <span class="funnel-count">230</span>
+            </div>
+            <div class="funnel-conversion">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              68% conversion
+            </div>
+            <div class="funnel-stage">
+              <span class="funnel-label">Hearing</span>
+              <div class="funnel-bar-container">
+                <div class="funnel-fill" style="width: 62.6%; background: #5BA3F5;"><span>156</span></div>
+              </div>
+              <span class="funnel-count">156</span>
+            </div>
+            <div class="funnel-conversion">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              52% conversion
+            </div>
+            <div class="funnel-stage">
+              <span class="funnel-label">Favorable</span>
+              <div class="funnel-bar-container">
+                <div class="funnel-fill" style="width: 32.4%; background: #00A651;"><span>81</span></div>
+              </div>
+              <span class="funnel-count">81</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. ATTORNEY PERFORMANCE MATRIX (RADAR) -->
+        <div class="chart-card">
+          <div class="chart-title">Attorney Performance Matrix</div>
+          <div class="chart-subtitle">Multi-dimensional comparison across key metrics</div>
+          <div class="radar-container">
+            <svg class="radar-svg" viewBox="0 0 300 300">
+              <defs>
+                <style>
+                  .radar-text { font-size: 9px; fill: #666; font-family: 'Geist', sans-serif; }
+                </style>
+              </defs>
+              <!--
+                5 axes: Win Rate, Cases Handled, Avg Revenue, Client Satisfaction, Time to Close
+                Center: 150,150. Radius levels: 30, 60, 90, 120
+                Angles: -90, -18, 54, 126, 198 degrees
+                Points at radius r:
+                  Win Rate (-90): (150, 150-r)
+                  Cases Handled (-18): (150 + r*cos(-18*pi/180), 150 + r*sin(-18*pi/180)) = (150+r*0.951, 150-r*0.309)
+                  Avg Revenue (54): (150+r*cos(54*pi/180-pi/2), ...) Let me recalculate with even spacing:
+                  5 axes, 72 degrees apart, starting from top (-90deg)
+                  Axis 0 (top):     angle = -90deg => (150, 150-r)
+                  Axis 1 (top-R):   angle = -90+72 = -18deg => (150+r*cos(-18), 150+r*sin(-18)) => (150+0.951r, 150-0.309r)
+                  Axis 2 (bot-R):   angle = -90+144 = 54deg => (150+r*cos(54), 150+r*sin(54)) => (150+0.588r, 150+0.809r)
+                  Axis 3 (bot-L):   angle = -90+216 = 126deg => (150+r*cos(126), 150+r*sin(126)) => (150-0.588r, 150+0.809r)
+                  Axis 4 (top-L):   angle = -90+288 = 198deg => (150+r*cos(198), 150+r*sin(198)) => (150-0.951r, 150-0.309r)
+              -->
+
+              <!-- Grid rings -->
+              <!-- r=30 -->
+              <polygon points="150,120 178.5,140.7 167.6,174.3 132.4,174.3 121.5,140.7" fill="none" stroke="#EAEAEA" stroke-width="0.5"/>
+              <!-- r=60 -->
+              <polygon points="150,90 207.1,131.5 185.3,198.5 114.7,198.5 92.9,131.5" fill="none" stroke="#EAEAEA" stroke-width="0.5"/>
+              <!-- r=90 -->
+              <polygon points="150,60 235.6,122.2 202.9,222.8 97.1,222.8 64.4,122.2" fill="none" stroke="#EAEAEA" stroke-width="0.5"/>
+              <!-- r=120 -->
+              <polygon points="150,30 264.1,112.9 220.6,247.1 79.4,247.1 35.9,112.9" fill="none" stroke="#EAEAEA" stroke-width="0.5"/>
+
+              <!-- Axis lines -->
+              <line x1="150" y1="150" x2="150" y2="30" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="150" y1="150" x2="264.1" y2="112.9" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="150" y1="150" x2="220.6" y2="247.1" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="150" y1="150" x2="79.4" y2="247.1" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="150" y1="150" x2="35.9" y2="112.9" stroke="#EAEAEA" stroke-width="0.5"/>
+
+              <!-- Axis labels -->
+              <text x="150" y="18" class="radar-text" text-anchor="middle">Win Rate</text>
+              <text x="274" y="112" class="radar-text" text-anchor="start">Cases Handled</text>
+              <text x="228" y="262" class="radar-text" text-anchor="start">Avg Revenue</text>
+              <text x="72" y="262" class="radar-text" text-anchor="end">Client Sat.</text>
+              <text x="28" y="112" class="radar-text" text-anchor="end">Time to Close</text>
+
+              <!--
+                Attorney data (scale 0-100, mapped to r=0-120):
+                Martinez:    Win=85, Cases=70, Revenue=90, Satisfaction=75, TimeClose=60
+                Johnson:     Win=65, Cases=90, Revenue=60, Satisfaction=85, TimeClose=80
+                Williams:    Win=75, Cases=55, Revenue=75, Satisfaction=90, TimeClose=70
+                Chen:        Win=90, Cases=60, Revenue=85, Satisfaction=70, TimeClose=55
+
+                For value v (0-100): r = v/100 * 120
+                Then compute point at each axis using r.
+              -->
+
+              <!-- Martinez (blue) - Win=85,Cases=70,Rev=90,Sat=75,Time=60 -->
+              <!-- r: 102, 84, 108, 90, 72 -->
+              <polygon
+                points="150,48 229.9,124 213.5,237.4 97.1,222.8 81.5,127.7"
+                fill="rgba(0,112,243,0.12)" stroke="#0070F3" stroke-width="1.5"/>
+
+              <!-- Johnson (green) - Win=65,Cases=90,Rev=60,Sat=85,Time=80 -->
+              <!-- r: 78, 108, 72, 102, 96 -->
+              <polygon
+                points="150,72 252.7,116.6 192.3,208.2 89.9,232.5 58.6,120.3"
+                fill="rgba(0,166,81,0.12)" stroke="#00A651" stroke-width="1.5"/>
+
+              <!-- Williams (amber) - Win=75,Cases=55,Rev=75,Sat=90,Time=70 -->
+              <!-- r: 90, 66, 90, 108, 84 -->
+              <polygon
+                points="150,60 212.8,129.6 202.9,222.8 86.6,237.4 70.1,124"
+                fill="rgba(232,137,12,0.12)" stroke="#E8890C" stroke-width="1.5"/>
+
+              <!-- Chen (red/purple) - Win=90,Cases=60,Rev=85,Sat=70,Time=55 -->
+              <!-- r: 108, 72, 102, 84, 66 -->
+              <polygon
+                points="150,42 218.5,127.7 209.9,232.5 100.7,217.9 87.2,129.6"
+                fill="rgba(134,80,220,0.12)" stroke="#8650DC" stroke-width="1.5"/>
+
+              <!-- Data point dots -->
+              <!-- Martinez -->
+              <circle cx="150" cy="48" r="2.5" fill="#0070F3"/>
+              <circle cx="229.9" cy="124" r="2.5" fill="#0070F3"/>
+              <circle cx="213.5" cy="237.4" r="2.5" fill="#0070F3"/>
+              <circle cx="97.1" cy="222.8" r="2.5" fill="#0070F3"/>
+              <circle cx="81.5" cy="127.7" r="2.5" fill="#0070F3"/>
+
+              <!-- Johnson -->
+              <circle cx="150" cy="72" r="2.5" fill="#00A651"/>
+              <circle cx="252.7" cy="116.6" r="2.5" fill="#00A651"/>
+              <circle cx="192.3" cy="208.2" r="2.5" fill="#00A651"/>
+              <circle cx="89.9" cy="232.5" r="2.5" fill="#00A651"/>
+              <circle cx="58.6" cy="120.3" r="2.5" fill="#00A651"/>
+
+              <!-- Williams -->
+              <circle cx="150" cy="60" r="2.5" fill="#E8890C"/>
+              <circle cx="212.8" cy="129.6" r="2.5" fill="#E8890C"/>
+              <circle cx="202.9" cy="222.8" r="2.5" fill="#E8890C"/>
+              <circle cx="86.6" cy="237.4" r="2.5" fill="#E8890C"/>
+              <circle cx="70.1" cy="124" r="2.5" fill="#E8890C"/>
+
+              <!-- Chen -->
+              <circle cx="150" cy="42" r="2.5" fill="#8650DC"/>
+              <circle cx="218.5" cy="127.7" r="2.5" fill="#8650DC"/>
+              <circle cx="209.9" cy="232.5" r="2.5" fill="#8650DC"/>
+              <circle cx="100.7" cy="217.9" r="2.5" fill="#8650DC"/>
+              <circle cx="87.2" cy="129.6" r="2.5" fill="#8650DC"/>
+            </svg>
+
+            <div class="radar-legend">
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background: #0070F3;"></div>
+                Martinez
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background: #00A651;"></div>
+                Johnson
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background: #E8890C;"></div>
+                Williams
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background: #8650DC;"></div>
+                Chen
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. CASE AGE WARNING -->
+        <div class="chart-card">
+          <div class="chart-title">Case Age Distribution</div>
+          <div class="chart-subtitle">Cases by age bracket with health indicators</div>
+          <div class="age-gauges">
+            <div class="age-gauge">
+              <span class="age-gauge-label" style="color: var(--accent-green);">Healthy</span>
+              <div class="age-gauge-track">
+                <div class="age-gauge-fill green" style="width: 64%;">
+                  <span>&lt;180 days</span>
+                </div>
+              </div>
+              <span class="age-gauge-count" style="color: var(--accent-green);">89</span>
+            </div>
+            <div class="age-gauge">
+              <span class="age-gauge-label" style="color: var(--accent-amber);">At Risk</span>
+              <div class="age-gauge-track">
+                <div class="age-gauge-fill amber" style="width: 26%;">
+                  <span>180-365 days</span>
+                </div>
+              </div>
+              <span class="age-gauge-count" style="color: var(--accent-amber);">36</span>
+            </div>
+            <div class="age-gauge">
+              <span class="age-gauge-label" style="color: var(--accent-red);">Critical</span>
+              <div class="age-gauge-track">
+                <div class="age-gauge-fill red" style="width: 10%;">
+                  <span>&gt;365 days</span>
+                </div>
+              </div>
+              <span class="age-gauge-count" style="color: var(--accent-red);">14</span>
+            </div>
+          </div>
+
+          <!-- Summary row -->
+          <div style="display: flex; gap: 16px; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div style="flex: 1; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700; color: var(--accent-green);">64%</div>
+              <div style="font-size: 10px; color: var(--text-tertiary);">Healthy</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700; color: var(--accent-amber);">26%</div>
+              <div style="font-size: 10px; color: var(--text-tertiary);">At Risk</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700; color: var(--accent-red);">10%</div>
+              <div style="font-size: 10px; color: var(--text-tertiary);">Critical</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="font-size: 20px; font-weight: 700;">139</div>
+              <div style="font-size: 10px; color: var(--text-tertiary);">Total Open</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. TASK VELOCITY BURNDOWN -->
+        <div class="chart-card">
+          <div class="chart-title">Task Velocity</div>
+          <div class="chart-subtitle">Tasks created vs completed over the last 4 weeks</div>
+          <div class="burndown-container">
+            <svg class="line-chart-svg" viewBox="0 0 500 156" preserveAspectRatio="none">
+              <!-- Grid -->
+              <line x1="0" y1="0" x2="500" y2="0" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="39" x2="500" y2="39" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="78" x2="500" y2="78" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="117" x2="500" y2="117" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="156" x2="500" y2="156" stroke="#EAEAEA" stroke-width="0.5"/>
+
+              <!-- Y-axis -->
+              <text x="-4" y="4" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">50</text>
+              <text x="-4" y="82" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">25</text>
+              <text x="-4" y="160" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">0</text>
+
+              <!--
+                4 weeks, each has 5 business days = 20 data points
+                x spacing: 500/19 = 26.3 per point
+                Created line (red-ish): starts at 0, accumulates: 3,5,8,10,14,17,20,22,25,28,30,33,35,38,40,42,44,46,48,50
+                Completed line (green): starts at 0, lags: 0,2,5,8,11,13,16,19,21,24,26,28,31,33,36,38,40,43,45,47
+                Scale: max ~50. y = 156 - (val/50)*156
+              -->
+
+              <!-- Created area -->
+              <defs>
+                <linearGradient id="createdGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#E5484D" stop-opacity="0.1"/>
+                  <stop offset="100%" stop-color="#E5484D" stop-opacity="0.02"/>
+                </linearGradient>
+                <linearGradient id="completedGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00A651" stop-opacity="0.1"/>
+                  <stop offset="100%" stop-color="#00A651" stop-opacity="0.02"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Created line -->
+              <polyline
+                points="0,146.6 26.3,140.4 52.6,131.0 78.9,124.8 105.3,112.3 131.6,103.0 157.9,93.6 184.2,87.4 210.5,78 236.8,68.6 263.2,62.4 289.5,53 315.8,46.8 342.1,37.4 368.4,31.2 394.7,24.9 421.1,18.7 447.4,12.5 473.7,6.2 500,0"
+                fill="none" stroke="#E5484D" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+
+              <!-- Completed line -->
+              <polyline
+                points="0,156 26.3,149.8 52.6,140.4 78.9,131 105.3,121.7 131.6,115.4 157.9,106.1 184.2,96.7 210.5,90.5 236.8,81.1 263.2,74.9 289.5,68.6 315.8,59.3 342.1,53 368.4,43.7 394.7,37.4 421.1,31.2 447.4,21.8 473.7,15.6 500,9.4"
+                fill="none" stroke="#00A651" stroke-width="2"/>
+
+              <!-- Net open area (gap between lines) -->
+              <polygon
+                points="0,146.6 26.3,140.4 52.6,131 78.9,124.8 105.3,112.3 131.6,103 157.9,93.6 184.2,87.4 210.5,78 236.8,68.6 263.2,62.4 289.5,53 315.8,46.8 342.1,37.4 368.4,31.2 394.7,24.9 421.1,18.7 447.4,12.5 473.7,6.2 500,0 500,9.4 473.7,15.6 447.4,21.8 421.1,31.2 394.7,37.4 368.4,43.7 342.1,53 315.8,59.3 289.5,68.6 263.2,74.9 236.8,81.1 210.5,90.5 184.2,96.7 157.9,106.1 131.6,115.4 105.3,121.7 78.9,131 52.6,140.4 26.3,149.8 0,156"
+                fill="#E8890C" opacity="0.08"/>
+
+              <!-- Week labels -->
+              <text x="66" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Week 1</text>
+              <text x="197" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Week 2</text>
+              <text x="329" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Week 3</text>
+              <text x="461" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Week 4</text>
+            </svg>
+          </div>
+          <!-- Legend -->
+          <div style="display: flex; gap: 20px; justify-content: center; margin-top: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary);">
+              <div style="width: 16px; height: 2px; background: #E5484D; opacity: 0.7;"></div>
+              Created (cumulative)
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary);">
+              <div style="width: 16px; height: 2px; background: #00A651;"></div>
+              Completed (cumulative)
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary);">
+              <div style="width: 12px; height: 8px; background: #E8890C; opacity: 0.2; border-radius: 2px;"></div>
+              Net Open
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. MEDICAL RECORDS TURNAROUND -->
+        <div class="chart-card">
+          <div class="chart-title">Medical Records Turnaround</div>
+          <div class="chart-subtitle">Avg days from request to receipt (target: 14 days)</div>
+          <div class="med-records-container">
+            <svg class="line-chart-svg" viewBox="0 0 500 156" preserveAspectRatio="none">
+              <!-- Grid -->
+              <line x1="0" y1="0" x2="500" y2="0" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="39" x2="500" y2="39" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="78" x2="500" y2="78" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="117" x2="500" y2="117" stroke="#EAEAEA" stroke-width="0.5"/>
+              <line x1="0" y1="156" x2="500" y2="156" stroke="#EAEAEA" stroke-width="0.5"/>
+
+              <!-- Y labels (0-30 days) -->
+              <text x="-4" y="4" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">30d</text>
+              <text x="-4" y="43" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">22d</text>
+              <text x="-4" y="82" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">15d</text>
+              <text x="-4" y="121" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">7d</text>
+              <text x="-4" y="160" font-size="8" fill="#999" font-family="'Geist Mono', monospace" text-anchor="end">0d</text>
+
+              <!-- Target line at 14 days => y = 156 - (14/30)*156 = 156 - 72.8 = 83.2 -->
+              <line x1="0" y1="83.2" x2="500" y2="83.2" stroke="#00A651" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+              <text x="505" y="87" font-size="9" fill="#00A651" font-family="'Geist Mono', monospace" text-anchor="start">14d target</text>
+
+              <!--
+                6 months: Apr=22, May=19, Jun=24, Jul=18, Aug=16, Sep=12
+                y = 156 - (val/30)*156
+                Apr: 156-114.4=41.6, May: 156-98.8=57.2, Jun: 156-124.8=31.2, Jul: 156-93.6=62.4, Aug: 156-83.2=72.8, Sep: 156-62.4=93.6
+                x: 0, 100, 200, 300, 400, 500
+              -->
+
+              <!-- Area -->
+              <defs>
+                <linearGradient id="medGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#E8890C" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#E8890C" stop-opacity="0.01"/>
+                </linearGradient>
+              </defs>
+              <polygon points="0,41.6 100,57.2 200,31.2 300,62.4 400,72.8 500,93.6 500,156 0,156" fill="url(#medGrad)"/>
+
+              <!-- Line -->
+              <polyline points="0,41.6 100,57.2 200,31.2 300,62.4 400,72.8 500,93.6" fill="none" stroke="#E8890C" stroke-width="2"/>
+
+              <!-- Points - red if above target, green if below -->
+              <circle cx="0" cy="41.6" r="4" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="100" cy="57.2" r="4" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="200" cy="31.2" r="4" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="300" cy="62.4" r="4" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="400" cy="72.8" r="4" fill="#E5484D" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="500" cy="93.6" r="4" fill="#00A651" stroke="#fff" stroke-width="1.5"/>
+
+              <!-- Value labels -->
+              <text x="0" y="35" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">22d</text>
+              <text x="100" y="51" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">19d</text>
+              <text x="200" y="25" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">24d</text>
+              <text x="300" y="56" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">18d</text>
+              <text x="400" y="66" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">16d</text>
+              <text x="500" y="87" font-size="9" fill="#666" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">12d</text>
+
+              <!-- Month labels -->
+              <text x="0" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Apr</text>
+              <text x="100" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">May</text>
+              <text x="200" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Jun</text>
+              <text x="300" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Jul</text>
+              <text x="400" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Aug</text>
+              <text x="500" y="172" font-size="9" fill="#999" font-family="'Geist Mono', monospace" text-anchor="middle">Sep</text>
+            </svg>
+          </div>
+          <div style="text-align: center; margin-top: 4px;">
+            <span class="badge badge-green">Trending down - 12 days in Sep (below 14-day target)</span>
+          </div>
+        </div>
+
+        <!-- 9. CLIENT SATISFACTION SCORE -->
+        <div class="chart-card">
+          <div class="chart-title">Client Satisfaction Score</div>
+          <div class="chart-subtitle">NPS-based score from post-case surveys</div>
+          <div class="satisfaction-container">
+            <div class="gauge-ring">
+              <svg viewBox="0 0 120 120">
+                <!-- Background ring -->
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#EAEAEA" stroke-width="8" stroke-linecap="round"/>
+                <!-- Score ring: 82/100. Circumference = 2*pi*52 = 326.7. dasharray = 82% of 326.7 = 267.9 -->
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#00A651" stroke-width="8" stroke-linecap="round"
+                  stroke-dasharray="267.9 326.7" opacity="0.9"/>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-score">82</div>
+                <div class="gauge-label-text">out of 100</div>
+              </div>
+            </div>
+            <div class="gauge-trend">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"/>
+                <polyline points="5 12 12 5 19 12"/>
+              </svg>
+              +3 from last month (79)
+            </div>
+          </div>
+
+          <!-- Breakdown -->
+          <div style="display: flex; gap: 12px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div style="flex: 1; text-align: center; padding: 8px; background: var(--green-bg); border: 1px solid var(--green-border); border-radius: var(--radius-sm);">
+              <div style="font-size: 16px; font-weight: 700; color: var(--accent-green);">68%</div>
+              <div style="font-size: 10px; color: var(--accent-green);">Promoters</div>
+            </div>
+            <div style="flex: 1; text-align: center; padding: 8px; background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: var(--radius-sm);">
+              <div style="font-size: 16px; font-weight: 700; color: var(--accent-amber);">22%</div>
+              <div style="font-size: 10px; color: var(--accent-amber);">Passives</div>
+            </div>
+            <div style="flex: 1; text-align: center; padding: 8px; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--radius-sm);">
+              <div style="font-size: 16px; font-weight: 700; color: var(--accent-red);">10%</div>
+              <div style="font-size: 10px; color: var(--accent-red);">Detractors</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. FEE COLLECTION RATE (WATERFALL) -->
+        <div class="chart-card">
+          <div class="chart-title">Fee Collection Rate</div>
+          <div class="chart-subtitle">Waterfall from total awarded to collected, outstanding, and written off</div>
+          <div class="waterfall">
+            <!--
+              Total Awarded: $320K (100%) - height 172px (full bar)
+              Collected: $268K (83.75%) - height 144px, starts from bottom
+              Outstanding: $38K (11.875%) - height ~20px, floating segment
+              Written Off: $14K (4.375%) - height ~8px, floating segment
+
+              We'll show 4 bars. Heights based on 320K max = 172px available
+              Total: 172px, bottom=0
+              Collected: 144px, bottom=0
+              Outstanding: 20px, bottom=144
+              Written Off: 8px, bottom=164 (but show as loss from top)
+            -->
+            <div class="waterfall-col">
+              <div class="waterfall-bar" style="height: 172px; background: var(--accent-blue);">
+                <span class="wf-val" style="color: var(--accent-blue);">$320K</span>
+              </div>
+              <span class="waterfall-label">Total Awarded</span>
+            </div>
+            <div class="waterfall-col">
+              <div class="waterfall-bar" style="height: 144px; background: var(--accent-green);">
+                <span class="wf-val" style="color: var(--accent-green);">$268K</span>
+              </div>
+              <span class="waterfall-label">Collected</span>
+            </div>
+            <div class="waterfall-col">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="height: 28px;"></div>
+                <div class="waterfall-bar" style="height: 20px; background: var(--accent-amber); width: 60%; margin-bottom: 124px;">
+                  <span class="wf-val" style="color: var(--accent-amber);">$38K</span>
+                </div>
+              </div>
+              <span class="waterfall-label">Outstanding</span>
+            </div>
+            <div class="waterfall-col">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="height: 48px;"></div>
+                <div class="waterfall-bar" style="height: 8px; background: var(--accent-red); width: 60%; margin-bottom: 116px;">
+                  <span class="wf-val" style="color: var(--accent-red);">$14K</span>
+                </div>
+              </div>
+              <span class="waterfall-label">Written Off</span>
+            </div>
+          </div>
+          <!-- Rate badge -->
+          <div style="display: flex; gap: 12px; justify-content: center; margin-top: 8px;">
+            <span class="badge badge-green">83.8% collection rate</span>
+            <span class="badge badge-amber">11.9% outstanding</span>
+            <span class="badge badge-red">4.4% written off</span>
+          </div>
+        </div>
+
+        <!-- 11. HEARING PREP READINESS -->
+        <div class="chart-card">
+          <div class="chart-title">Hearing Prep Readiness</div>
+          <div class="chart-subtitle">Upcoming hearings with document checklist and prep status</div>
+          <div class="hearing-prep">
+            <div class="hearing-header">
+              <span>Case</span>
+              <span>Days Out</span>
+              <span>Doc Checklist</span>
+              <span>Status</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Thompson v. SSA</span>
+              <span class="hearing-days">3 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 100%; background: var(--accent-green);"></div>
+              </div>
+              <span class="hearing-status ready">Ready</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Garcia v. SSA</span>
+              <span class="hearing-days">7 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 85%; background: var(--accent-green);"></div>
+              </div>
+              <span class="hearing-status ready">Ready</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Williams v. SSA</span>
+              <span class="hearing-days">12 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 62%; background: var(--accent-amber);"></div>
+              </div>
+              <span class="hearing-status in-progress">In Progress</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Roberts v. SSA</span>
+              <span class="hearing-days">15 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 45%; background: var(--accent-amber);"></div>
+              </div>
+              <span class="hearing-status in-progress">In Progress</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Chen v. SSA</span>
+              <span class="hearing-days">18 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 30%; background: var(--accent-red);"></div>
+              </div>
+              <span class="hearing-status behind">Behind</span>
+            </div>
+            <div class="hearing-row">
+              <span class="hearing-case">Davis v. SSA</span>
+              <span class="hearing-days">22 days</span>
+              <div class="hearing-progress-track">
+                <div class="hearing-progress-fill" style="width: 20%; background: var(--accent-red);"></div>
+              </div>
+              <span class="hearing-status behind">Behind</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12. MONTHLY COMPARISON TABLE -->
+        <div class="chart-card full-width">
+          <div class="chart-title">Monthly Comparison</div>
+          <div class="chart-subtitle">This month vs last month vs same month last year</div>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Mar 2026</th>
+                <th>Feb 2026</th>
+                <th>MoM Change</th>
+                <th>Mar 2025</th>
+                <th>YoY Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cases Opened</td>
+                <td>22</td>
+                <td>18</td>
+                <td class="trend-up">+4 <span class="delta">(+22%)</span></td>
+                <td>16</td>
+                <td class="trend-up">+6 <span class="delta">(+38%)</span></td>
+              </tr>
+              <tr>
+                <td>Cases Closed</td>
+                <td>15</td>
+                <td>13</td>
+                <td class="trend-up">+2 <span class="delta">(+15%)</span></td>
+                <td>11</td>
+                <td class="trend-up">+4 <span class="delta">(+36%)</span></td>
+              </tr>
+              <tr>
+                <td>Cases Won</td>
+                <td>12</td>
+                <td>10</td>
+                <td class="trend-up">+2 <span class="delta">(+20%)</span></td>
+                <td>8</td>
+                <td class="trend-up">+4 <span class="delta">(+50%)</span></td>
+              </tr>
+              <tr>
+                <td>Cases Lost</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="color: var(--text-tertiary);">0 <span class="delta">(0%)</span></td>
+                <td>3</td>
+                <td style="color: var(--text-tertiary);">0 <span class="delta">(0%)</span></td>
+              </tr>
+              <tr>
+                <td>Revenue</td>
+                <td>$45K</td>
+                <td>$65K</td>
+                <td class="trend-down">-$20K <span class="delta">(-31%)</span></td>
+                <td>$38K</td>
+                <td class="trend-up">+$7K <span class="delta">(+18%)</span></td>
+              </tr>
+              <tr>
+                <td>Avg Days to Close</td>
+                <td>185</td>
+                <td>172</td>
+                <td class="trend-down">+13 <span class="delta">(+8%)</span></td>
+                <td>195</td>
+                <td class="trend-up">-10 <span class="delta">(-5%)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <!-- end chart-grid -->
+
+    </div>
+    <!-- end content -->
+  </main>
+</div>
+</body>
+</html>

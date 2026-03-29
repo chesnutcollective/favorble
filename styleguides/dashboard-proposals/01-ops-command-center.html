@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Operations Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #FAFAFA;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    --transition:     200ms ease;
+
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+    --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: var(--sp-4) 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-black);
+    border-radius: var(--radius-sm);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-6) var(--sp-8);
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-6);
+  }
+
+  .main-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+
+  .header-actions .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .header-actions .live-label {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================================
+     STAT CARDS ROW
+     ============================================================ */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-4) var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-1);
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .stat-change {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    margin-top: var(--sp-1);
+  }
+
+  .stat-change.up { color: var(--accent-green); }
+  .stat-change.down { color: var(--accent-red); }
+
+  /* ============================================================
+     CHART GRID
+     ============================================================ */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-4);
+  }
+
+  .chart-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-4);
+  }
+
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .chart-card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .chart-card.span-2 {
+    grid-column: span 2;
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .chart-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .chart-subtitle {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  /* ============================================================
+     1. CASE VOLUME TREND (SVG Line Chart)
+     ============================================================ */
+  .line-chart-area {
+    width: 100%;
+    height: 180px;
+  }
+
+  .line-chart-area svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-3);
+  }
+
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .chart-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ============================================================
+     2. PIPELINE FUNNEL
+     ============================================================ */
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .funnel-label {
+    width: 130px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .funnel-bar-wrap {
+    flex: 1;
+    height: 28px;
+    position: relative;
+  }
+
+  .funnel-bar {
+    height: 100%;
+    background: var(--accent-blue);
+    border-radius: var(--radius-sm);
+    transition: width 600ms ease;
+    display: flex;
+    align-items: center;
+    padding-left: var(--sp-3);
+  }
+
+  .funnel-bar span {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .funnel-pct {
+    width: 40px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     3. WIN RATE GAUGE (SVG Donut)
+     ============================================================ */
+  .gauge-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-6);
+  }
+
+  .gauge-svg {
+    width: 140px;
+    height: 140px;
+  }
+
+  .gauge-center-text {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 28px;
+    fill: var(--text-primary);
+  }
+
+  .gauge-sub-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .gauge-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .gauge-stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .gauge-stat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* ============================================================
+     4. CASES BY TYPE (SVG Donut)
+     ============================================================ */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    justify-content: center;
+  }
+
+  .donut-svg {
+    width: 130px;
+    height: 130px;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .donut-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     5. REVENUE BAR CHART
+     ============================================================ */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 160px;
+    padding-top: var(--sp-4);
+    position: relative;
+  }
+
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar-fill {
+    width: 100%;
+    background: var(--accent-blue);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 400ms ease, background 200ms ease;
+    min-height: 2px;
+    position: relative;
+  }
+
+  .bar-fill.current {
+    background: var(--accent-black);
+  }
+
+  .bar-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    margin-top: var(--sp-1);
+  }
+
+  .bar-value {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  .revenue-trend-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     6. TIME IN STAGE (Horizontal Bars)
+     ============================================================ */
+  .h-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .h-bar-label {
+    width: 110px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .h-bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--bg-card-alt);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .h-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    padding-left: var(--sp-2);
+    transition: width 600ms ease;
+  }
+
+  .h-bar-fill span {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .h-bar-days {
+    width: 50px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     7. TASK COMPLETION SPARKLINES
+     ============================================================ */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .task-row:last-child {
+    border-bottom: none;
+  }
+
+  .task-name {
+    width: 100px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .task-sparkline {
+    flex: 1;
+    height: 24px;
+  }
+
+  .task-sparkline svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .task-pct {
+    width: 44px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     8. ALJ HEATMAP
+     ============================================================ */
+  .heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .heatmap-table th {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    padding: var(--sp-2) var(--sp-3);
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .heatmap-table th:first-child {
+    text-align: left;
+  }
+
+  .heatmap-table td {
+    padding: var(--sp-2) var(--sp-3);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    text-align: center;
+  }
+
+  .heatmap-table td:first-child {
+    text-align: left;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+  }
+
+  .heatmap-table tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .heatmap-table tr:last-child {
+    border-bottom: none;
+  }
+
+  .heatmap-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  /* ============================================================
+     9. DOCUMENT PROCESSING (SVG Stacked Area)
+     ============================================================ */
+  .area-chart {
+    width: 100%;
+    height: 160px;
+  }
+
+  .area-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     10. CASE AGE DISTRIBUTION (Histogram)
+     ============================================================ */
+  .histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sp-3);
+    height: 140px;
+    padding-top: var(--sp-4);
+  }
+
+  .hist-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .hist-fill {
+    width: 100%;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 400ms ease;
+    min-height: 2px;
+  }
+
+  .hist-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    margin-top: var(--sp-2);
+    white-space: nowrap;
+  }
+
+  .hist-value {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  /* ============================================================
+     11. WEEKLY VELOCITY (Small Multiples)
+     ============================================================ */
+  .velocity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-3);
+  }
+
+  .velocity-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-3);
+  }
+
+  .velocity-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-1);
+  }
+
+  .velocity-value {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: -0.5px;
+    margin-bottom: var(--sp-2);
+  }
+
+  .velocity-spark {
+    height: 28px;
+  }
+
+  .velocity-spark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     12. FEE RECOVERY SCATTER (SVG)
+     ============================================================ */
+  .scatter-chart {
+    width: 100%;
+    height: 180px;
+    position: relative;
+  }
+
+  .scatter-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .scatter-axis-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  /* ============================================================
+     UTILITY
+     ============================================================ */
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  .text-green { color: var(--accent-green); }
+  .text-red { color: var(--accent-red); }
+  .text-blue { color: var(--accent-blue); }
+  .text-amber { color: var(--accent-amber); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+  }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ========== SIDEBAR ========== -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Command Center
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Cases
+        <span class="badge">847</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13V3h10v10H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h4M6 8h4M6 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Documents
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Hearings
+        <span class="badge">12</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workflows</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Tasks
+        <span class="badge">38</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h12v10H2zM2 6h12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Calendar
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Reports
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M5 5c0-1.1.9-2 3-2s3 .9 3 2-1.3 2-3 2-3 .9-3 2 .9 2 3 2 3-.9 3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Fees & Billing
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Revenue
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-section">
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SM</div>
+      <div>
+        <div style="font-size:13px;color:var(--text-primary);">Sarah Mitchell</div>
+        <div style="font-size:11px;color:var(--text-tertiary);">Managing Attorney</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main">
+    <!-- HEADER -->
+    <div class="main-header">
+      <h1>Operations Command Center</h1>
+      <div class="header-actions">
+        <div class="live-dot"></div>
+        <span class="live-label">Live</span>
+        <button class="btn btn-secondary btn-sm" style="margin-left: var(--sp-4);">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Export
+        </button>
+        <button class="btn btn-secondary btn-sm">Last 12 Months</button>
+      </div>
+    </div>
+
+    <!-- ========== STAT CARDS ========== -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value">847</div>
+        <div class="stat-change up">+12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win Rate (TTM)</div>
+        <div class="stat-value">67%</div>
+        <div class="stat-change up">+3% vs prior</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Days to Decision</div>
+        <div class="stat-value">287</div>
+        <div class="stat-change down">+14 days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Revenue MTD</div>
+        <div class="stat-value">$184K</div>
+        <div class="stat-change up">+22% vs prior</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Hearings</div>
+        <div class="stat-value">156</div>
+        <div class="stat-change" style="color:var(--text-tertiary);">next 90 days</div>
+      </div>
+    </div>
+
+    <!-- ========== ROW 1: 3 columns ========== -->
+    <div class="chart-grid">
+
+      <!-- 1. CASE VOLUME TREND -->
+      <div class="chart-card span-2">
+        <div class="chart-header">
+          <span class="chart-title">Case Volume Trend</span>
+          <span class="chart-subtitle">Cases Opened vs Closed / Month</span>
+        </div>
+        <div class="line-chart-area">
+          <svg viewBox="0 0 700 180" preserveAspectRatio="none">
+            <!-- Grid lines -->
+            <line x1="40" y1="20" x2="40" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="40" y1="155" x2="690" y2="155" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="40" y1="120" x2="690" y2="120" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="40" y1="85" x2="690" y2="85" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="40" y1="50" x2="690" y2="50" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="40" y1="20" x2="690" y2="20" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+            <!-- Y-axis labels -->
+            <text x="35" y="158" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="10">0</text>
+            <text x="35" y="123" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="10">25</text>
+            <text x="35" y="88" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="10">50</text>
+            <text x="35" y="53" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="10">75</text>
+            <text x="35" y="23" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="10">100</text>
+
+            <!-- X-axis labels -->
+            <text x="94" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Apr</text>
+            <text x="148" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">May</text>
+            <text x="202" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Jun</text>
+            <text x="256" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Jul</text>
+            <text x="310" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Aug</text>
+            <text x="364" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Sep</text>
+            <text x="418" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Oct</text>
+            <text x="472" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Nov</text>
+            <text x="526" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Dec</text>
+            <text x="580" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Jan</text>
+            <text x="634" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Feb</text>
+            <text x="688" y="172" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="10">Mar</text>
+
+            <!-- Opened line (blue) — data: 42,48,55,52,60,65,58,70,62,68,72,78 -->
+            <polyline
+              fill="none"
+              stroke="#0070F3"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              points="94,98 148,90 202,80 256,84 310,73 364,67 418,76 472,60 526,71 580,63 634,58 688,50"
+            />
+            <!-- Opened dots -->
+            <g fill="#0070F3">
+              <circle cx="94" cy="98" r="3"/><circle cx="148" cy="90" r="3"/><circle cx="202" cy="80" r="3"/>
+              <circle cx="256" cy="84" r="3"/><circle cx="310" cy="73" r="3"/><circle cx="364" cy="67" r="3"/>
+              <circle cx="418" cy="76" r="3"/><circle cx="472" cy="60" r="3"/><circle cx="526" cy="71" r="3"/>
+              <circle cx="580" cy="63" r="3"/><circle cx="634" cy="58" r="3"/><circle cx="688" cy="50" r="3"/>
+            </g>
+
+            <!-- Closed line (green) — data: 35,38,42,45,48,52,50,55,58,54,60,65 -->
+            <polyline
+              fill="none"
+              stroke="#00C853"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              points="94,108 148,104 202,98 256,94 310,90 364,85 418,88 472,81 526,77 580,82 634,74 688,67"
+            />
+            <!-- Closed dots -->
+            <g fill="#00C853">
+              <circle cx="94" cy="108" r="3"/><circle cx="148" cy="104" r="3"/><circle cx="202" cy="98" r="3"/>
+              <circle cx="256" cy="94" r="3"/><circle cx="310" cy="90" r="3"/><circle cx="364" cy="85" r="3"/>
+              <circle cx="418" cy="88" r="3"/><circle cx="472" cy="81" r="3"/><circle cx="526" cy="77" r="3"/>
+              <circle cx="580" cy="82" r="3"/><circle cx="634" cy="74" r="3"/><circle cx="688" cy="67" r="3"/>
+            </g>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#0070F3;"></div>
+            Opened
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#00C853;"></div>
+            Closed
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. WIN RATE GAUGE -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Win Rate</span>
+          <span class="chart-subtitle">Overall</span>
+        </div>
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 140 140">
+            <!-- Background circle -->
+            <circle cx="70" cy="70" r="55" fill="none" stroke="#EAEAEA" stroke-width="12"/>
+            <!-- Wins segment (67% = 241.2 deg) -->
+            <circle cx="70" cy="70" r="55" fill="none" stroke="#00C853" stroke-width="12"
+              stroke-dasharray="231.5 345.6"
+              stroke-dashoffset="86.4"
+              transform="rotate(-90 70 70)"/>
+            <!-- Losses segment (24% = 86.4 deg) -->
+            <circle cx="70" cy="70" r="55" fill="none" stroke="#EE0000" stroke-width="12"
+              stroke-dasharray="82.9 345.6"
+              stroke-dashoffset="-145.1"
+              transform="rotate(-90 70 70)"/>
+            <!-- Pending segment (9% = 32.4 deg) — gray, fills the rest -->
+            <circle cx="70" cy="70" r="55" fill="none" stroke="#CCCCCC" stroke-width="12"
+              stroke-dasharray="31.1 345.6"
+              stroke-dashoffset="-228.0"
+              transform="rotate(-90 70 70)"/>
+            <!-- Center text -->
+            <text x="70" y="66" text-anchor="middle" class="gauge-center-text">67%</text>
+            <text x="70" y="82" text-anchor="middle" class="gauge-sub-text">WIN RATE</text>
+          </svg>
+        </div>
+        <div class="gauge-stats" style="margin-top:var(--sp-4);">
+          <div class="gauge-stat-item">
+            <div class="gauge-stat-dot" style="background:#00C853;"></div>
+            Approved &mdash; 412
+          </div>
+          <div class="gauge-stat-item">
+            <div class="gauge-stat-dot" style="background:#EE0000;"></div>
+            Denied &mdash; 148
+          </div>
+          <div class="gauge-stat-item">
+            <div class="gauge-stat-dot" style="background:#CCC;"></div>
+            Pending &mdash; 287
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ROW 2: 3 columns ========== -->
+    <div class="chart-grid">
+
+      <!-- 2. PIPELINE FUNNEL -->
+      <div class="chart-card span-2">
+        <div class="chart-header">
+          <span class="chart-title">Pipeline Funnel</span>
+          <span class="chart-subtitle">Active Cases by Stage</span>
+        </div>
+        <div style="padding: var(--sp-2) 0;">
+          <div class="funnel-stage">
+            <div class="funnel-label">Initial App</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:100%;background:#0070F3;">
+                <span>847</span>
+              </div>
+            </div>
+            <div class="funnel-pct">100%</div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-label">Reconsideration</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:68%;background:#2488F5;">
+                <span>576</span>
+              </div>
+            </div>
+            <div class="funnel-pct">68%</div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-label">ALJ Hearing</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:45%;background:#4DA0F7;">
+                <span>381</span>
+              </div>
+            </div>
+            <div class="funnel-pct">45%</div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-label">Appeals Council</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:12%;background:#79B8F9;">
+                <span>102</span>
+              </div>
+            </div>
+            <div class="funnel-pct">12%</div>
+          </div>
+          <div class="funnel-stage">
+            <div class="funnel-label">Federal Court</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:3%;background:#A5D0FB;min-width:40px;">
+                <span>25</span>
+              </div>
+            </div>
+            <div class="funnel-pct">3%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. CASES BY TYPE -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Cases by Type</span>
+          <span class="chart-subtitle">Active Portfolio</span>
+        </div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 130 130">
+            <!-- SSDI 55% -->
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#0070F3" stroke-width="18"
+              stroke-dasharray="172.8 314.2"
+              stroke-dashoffset="78.5"
+              transform="rotate(-90 65 65)"/>
+            <!-- SSI 30% -->
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#4DA0F7" stroke-width="18"
+              stroke-dasharray="94.2 314.2"
+              stroke-dashoffset="-94.2"
+              transform="rotate(-90 65 65)"/>
+            <!-- SSDI+SSI 12% -->
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#99C9FA" stroke-width="18"
+              stroke-dasharray="37.7 314.2"
+              stroke-dashoffset="-188.5"
+              transform="rotate(-90 65 65)"/>
+            <!-- CDB 3% -->
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#CCE4FD" stroke-width="18"
+              stroke-dasharray="9.4 314.2"
+              stroke-dashoffset="-226.2"
+              transform="rotate(-90 65 65)"/>
+            <!-- Center -->
+            <text x="65" y="62" text-anchor="middle" fill="#171717" font-family="Geist Mono, monospace" font-weight="600" font-size="20">847</text>
+            <text x="65" y="76" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9" text-transform="uppercase" letter-spacing="0.05em">TOTAL</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:#0070F3;"></div>
+              SSDI &mdash; 466 (55%)
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:#4DA0F7;"></div>
+              SSI &mdash; 254 (30%)
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:#99C9FA;"></div>
+              SSDI+SSI &mdash; 102 (12%)
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:#CCE4FD;"></div>
+              CDB &mdash; 25 (3%)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ROW 3: 2 columns ========== -->
+    <div class="chart-grid-2">
+
+      <!-- 5. REVENUE BY MONTH -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Revenue by Month</span>
+          <span class="chart-subtitle">Attorney Fees Collected ($K)</span>
+        </div>
+        <div class="bar-chart" style="position:relative;">
+          <!-- Revenue data: 95,110,88,125,140,132,118,155,148,162,170,184 -->
+          <svg class="revenue-trend-line" viewBox="0 0 12 184" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:100%;height:160px;z-index:1;">
+            <polyline fill="none" stroke="#F5A623" stroke-width="0.15" stroke-dasharray="0.3,0.15"
+              points="0.5,89 1.5,74 2.5,96 3.5,59 4.5,44 5.5,52 6.5,66 7.5,29 8.5,36 9.5,22 10.5,14 11.5,0"/>
+          </svg>
+          <div class="bar-col">
+            <div class="bar-value">$95K</div>
+            <div class="bar-fill" style="height:52%;"></div>
+            <div class="bar-label">Apr</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$110K</div>
+            <div class="bar-fill" style="height:60%;"></div>
+            <div class="bar-label">May</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$88K</div>
+            <div class="bar-fill" style="height:48%;"></div>
+            <div class="bar-label">Jun</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$125K</div>
+            <div class="bar-fill" style="height:68%;"></div>
+            <div class="bar-label">Jul</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$140K</div>
+            <div class="bar-fill" style="height:76%;"></div>
+            <div class="bar-label">Aug</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$132K</div>
+            <div class="bar-fill" style="height:72%;"></div>
+            <div class="bar-label">Sep</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$118K</div>
+            <div class="bar-fill" style="height:64%;"></div>
+            <div class="bar-label">Oct</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$155K</div>
+            <div class="bar-fill" style="height:84%;"></div>
+            <div class="bar-label">Nov</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$148K</div>
+            <div class="bar-fill" style="height:80%;"></div>
+            <div class="bar-label">Dec</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$162K</div>
+            <div class="bar-fill" style="height:88%;"></div>
+            <div class="bar-label">Jan</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$170K</div>
+            <div class="bar-fill" style="height:92%;"></div>
+            <div class="bar-label">Feb</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">$184K</div>
+            <div class="bar-fill current" style="height:100%;"></div>
+            <div class="bar-label">Mar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. TIME IN STAGE -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Avg Time in Stage</span>
+          <span class="chart-subtitle">Calendar Days</span>
+        </div>
+        <div style="padding: var(--sp-2) 0;">
+          <div class="h-bar-row">
+            <div class="h-bar-label">Application</div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" style="width:25%;background:#A5D0FB;">
+                <span>45d</span>
+              </div>
+            </div>
+            <div class="h-bar-days">45 days</div>
+          </div>
+          <div class="h-bar-row">
+            <div class="h-bar-label">Reconsideration</div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" style="width:50%;background:#4DA0F7;">
+                <span>90d</span>
+              </div>
+            </div>
+            <div class="h-bar-days">90 days</div>
+          </div>
+          <div class="h-bar-row">
+            <div class="h-bar-label">Hearing</div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" style="width:100%;background:#0070F3;">
+                <span>180d</span>
+              </div>
+            </div>
+            <div class="h-bar-days">180 days</div>
+          </div>
+          <div class="h-bar-row">
+            <div class="h-bar-label">Appeals</div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" style="width:67%;background:#2488F5;">
+                <span>120d</span>
+              </div>
+            </div>
+            <div class="h-bar-days">120 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ROW 4: 3 columns ========== -->
+    <div class="chart-grid">
+
+      <!-- 7. TASK COMPLETION SPARKLINES -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Task Completion</span>
+          <span class="chart-subtitle">Last 30 Days</span>
+        </div>
+        <div class="task-list">
+          <div class="task-row">
+            <div class="task-name">S. Mitchell</div>
+            <div class="task-sparkline">
+              <svg viewBox="0 0 120 24" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,18 4,15 8,12 12,14 16,10 20,8 24,11 28,7 32,9 36,6 40,8 44,5 48,7 52,4 56,6 60,3 64,5 68,4 72,6 76,3 80,5 84,3 88,4 92,3 96,4 100,3 104,2 108,3 112,2 116,2 120,1"/>
+              </svg>
+            </div>
+            <div class="task-pct text-green">94%</div>
+          </div>
+          <div class="task-row">
+            <div class="task-name">R. Chen</div>
+            <div class="task-sparkline">
+              <svg viewBox="0 0 120 24" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,14 4,12 8,15 12,10 16,13 20,9 24,11 28,8 32,10 36,7 40,9 44,6 48,8 52,5 56,7 60,6 64,8 68,5 72,7 76,5 80,6 84,4 88,6 92,5 96,4 100,5 104,4 108,3 112,4 116,3 120,3"/>
+              </svg>
+            </div>
+            <div class="task-pct">88%</div>
+          </div>
+          <div class="task-row">
+            <div class="task-name">M. Torres</div>
+            <div class="task-sparkline">
+              <svg viewBox="0 0 120 24" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,10 4,12 8,9 12,14 16,11 20,13 24,10 28,12 32,9 36,11 40,8 44,10 48,7 52,9 56,7 60,8 64,6 68,8 72,6 76,7 80,5 84,7 88,5 92,6 96,4 100,6 104,4 108,5 112,4 116,3 120,4"/>
+              </svg>
+            </div>
+            <div class="task-pct">85%</div>
+          </div>
+          <div class="task-row">
+            <div class="task-name">J. Patel</div>
+            <div class="task-sparkline">
+              <svg viewBox="0 0 120 24" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,8 4,10 8,12 12,9 16,14 20,11 24,13 28,10 32,12 36,14 40,11 44,13 48,10 52,12 56,9 60,11 64,9 68,11 72,8 76,10 80,8 84,9 88,7 92,9 96,7 100,8 104,6 108,8 112,6 116,7 120,6"/>
+              </svg>
+            </div>
+            <div class="task-pct text-amber">76%</div>
+          </div>
+          <div class="task-row">
+            <div class="task-name">L. Washington</div>
+            <div class="task-sparkline">
+              <svg viewBox="0 0 120 24" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,6 4,9 8,11 12,8 16,12 20,14 24,11 28,13 32,15 36,12 40,14 44,11 48,13 52,10 56,12 60,14 64,11 68,13 72,10 76,12 80,9 84,11 88,9 92,10 96,8 100,10 104,8 108,9 112,7 116,8 120,8"/>
+              </svg>
+            </div>
+            <div class="task-pct text-amber">72%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. HEARING OUTCOMES BY ALJ -->
+      <div class="chart-card span-2">
+        <div class="chart-header">
+          <span class="chart-title">Hearing Outcomes by ALJ</span>
+          <span class="chart-subtitle">Top 5 Judges / Last 12 Months</span>
+        </div>
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th style="width:140px;">Judge</th>
+              <th>Cases</th>
+              <th>Approved</th>
+              <th>Denied</th>
+              <th>Remand</th>
+              <th>Approval %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Judge R. Morrison</td>
+              <td><span class="mono">42</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(0,200,83,0.20);color:#00873A;">28</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(238,0,0,0.10);color:#CC0000;">8</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(245,166,35,0.15);color:#C78400;">6</span></td>
+              <td><span class="mono text-green" style="font-weight:600;">67%</span></td>
+            </tr>
+            <tr>
+              <td>Judge K. Thompson</td>
+              <td><span class="mono">38</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(0,200,83,0.30);color:#00873A;">29</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(238,0,0,0.08);color:#CC0000;">5</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(245,166,35,0.12);color:#C78400;">4</span></td>
+              <td><span class="mono text-green" style="font-weight:600;">76%</span></td>
+            </tr>
+            <tr>
+              <td>Judge M. Huang</td>
+              <td><span class="mono">35</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(0,200,83,0.14);color:#00873A;">18</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(238,0,0,0.18);color:#CC0000;">12</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(245,166,35,0.12);color:#C78400;">5</span></td>
+              <td><span class="mono text-amber" style="font-weight:600;">51%</span></td>
+            </tr>
+            <tr>
+              <td>Judge D. Okafor</td>
+              <td><span class="mono">31</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(0,200,83,0.26);color:#00873A;">22</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(238,0,0,0.10);color:#CC0000;">6</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(245,166,35,0.10);color:#C78400;">3</span></td>
+              <td><span class="mono text-green" style="font-weight:600;">71%</span></td>
+            </tr>
+            <tr>
+              <td>Judge S. Petrov</td>
+              <td><span class="mono">28</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(0,200,83,0.10);color:#00873A;">11</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(238,0,0,0.24);color:#CC0000;">14</span></td>
+              <td><span class="heatmap-cell" style="background:rgba(245,166,35,0.10);color:#C78400;">3</span></td>
+              <td><span class="mono text-red" style="font-weight:600;">39%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== ROW 5: 3 columns ========== -->
+    <div class="chart-grid">
+
+      <!-- 9. DOCUMENT PROCESSING (Stacked Area) -->
+      <div class="chart-card span-2">
+        <div class="chart-header">
+          <span class="chart-title">Document Processing</span>
+          <span class="chart-subtitle">Received / Processed / Pending &mdash; Last 30 Days</span>
+        </div>
+        <div class="area-chart">
+          <svg viewBox="0 0 600 160" preserveAspectRatio="none">
+            <!-- Grid -->
+            <line x1="30" y1="10" x2="30" y2="140" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="30" y1="140" x2="590" y2="140" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="30" y1="107" x2="590" y2="107" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="30" y1="75" x2="590" y2="75" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="30" y1="42" x2="590" y2="42" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+            <!-- Y labels -->
+            <text x="26" y="143" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">0</text>
+            <text x="26" y="110" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">20</text>
+            <text x="26" y="78" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">40</text>
+            <text x="26" y="45" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">60</text>
+
+            <!-- X labels (every 5 days) -->
+            <text x="124" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D5</text>
+            <text x="217" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D10</text>
+            <text x="310" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D15</text>
+            <text x="403" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D20</text>
+            <text x="497" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D25</text>
+            <text x="583" y="155" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">D30</text>
+
+            <!-- Received area (bottom layer — blue) -->
+            <polygon fill="rgba(0,112,243,0.12)" stroke="none"
+              points="30,140 49,105 68,98 86,108 105,95 124,88 142,100 161,85 180,92 198,82 217,78 236,85 254,75 273,80 292,72 310,68 329,75 348,70 366,65 385,72 403,62 422,68 441,58 459,65 478,55 497,60 515,52 534,58 553,48 571,55 583,50 590,50 590,140"/>
+            <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linejoin="round"
+              points="30,105 49,105 68,98 86,108 105,95 124,88 142,100 161,85 180,92 198,82 217,78 236,85 254,75 273,80 292,72 310,68 329,75 348,70 366,65 385,72 403,62 422,68 441,58 459,65 478,55 497,60 515,52 534,58 553,48 571,55 583,50"/>
+
+            <!-- Processed area (middle layer — green) -->
+            <polygon fill="rgba(0,200,83,0.12)" stroke="none"
+              points="30,140 49,112 68,105 86,115 105,102 124,95 142,108 161,92 180,100 198,90 217,85 236,92 254,82 273,88 292,78 310,75 329,82 348,78 366,72 385,80 403,70 422,75 441,65 459,72 478,62 497,68 515,60 534,65 553,55 571,62 583,58 590,58 590,140"/>
+            <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linejoin="round"
+              points="30,112 49,112 68,105 86,115 105,102 124,95 142,108 161,92 180,100 198,90 217,85 236,92 254,82 273,88 292,78 310,75 329,82 348,78 366,72 385,80 403,70 422,75 441,65 459,72 478,62 497,68 515,60 534,65 553,55 571,62 583,58"/>
+
+            <!-- Pending area (top layer — amber) -->
+            <polygon fill="rgba(245,166,35,0.10)" stroke="none"
+              points="30,140 49,125 68,120 86,128 105,118 124,122 142,126 161,115 180,120 198,112 217,108 236,115 254,105 273,110 292,102 310,98 329,105 348,100 366,95 385,102 403,92 422,98 441,88 459,95 478,85 497,90 515,82 534,88 553,78 571,85 583,80 590,80 590,140"/>
+            <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="4,3"
+              points="30,125 49,125 68,120 86,128 105,118 124,122 142,126 161,115 180,120 198,112 217,108 236,115 254,105 273,110 292,102 310,98 329,105 348,100 366,95 385,102 403,92 422,98 441,88 459,95 478,85 497,90 515,82 534,88 553,78 571,85 583,80"/>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#0070F3;"></div>
+            Received
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#00C853;"></div>
+            Processed
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#F5A623;"></div>
+            Pending
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. CASE AGE DISTRIBUTION -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Case Age Distribution</span>
+          <span class="chart-subtitle">Active Cases</span>
+        </div>
+        <div class="histogram">
+          <div class="hist-col">
+            <div class="hist-value">218</div>
+            <div class="hist-fill" style="height:60%;background:#A5D0FB;"></div>
+            <div class="hist-label">0-90d</div>
+          </div>
+          <div class="hist-col">
+            <div class="hist-value">312</div>
+            <div class="hist-fill" style="height:86%;background:#4DA0F7;"></div>
+            <div class="hist-label">91-180d</div>
+          </div>
+          <div class="hist-col">
+            <div class="hist-value">195</div>
+            <div class="hist-fill" style="height:54%;background:#2488F5;"></div>
+            <div class="hist-label">181-365d</div>
+          </div>
+          <div class="hist-col">
+            <div class="hist-value">122</div>
+            <div class="hist-fill" style="height:34%;background:#0070F3;"></div>
+            <div class="hist-label">365+d</div>
+          </div>
+        </div>
+        <div style="margin-top:var(--sp-3);display:flex;justify-content:space-between;font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);">
+          <span>Median: 148 days</span>
+          <span>P90: 412 days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ROW 6: 2 columns ========== -->
+    <div class="chart-grid-2">
+
+      <!-- 11. WEEKLY CASE VELOCITY -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Weekly Case Velocity</span>
+          <span class="chart-subtitle">This Week (Mar 24 - 28)</span>
+        </div>
+        <div class="velocity-grid">
+          <div class="velocity-item">
+            <div class="velocity-label">Intake</div>
+            <div class="velocity-value">18</div>
+            <div class="velocity-spark">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#0070F3" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,20 20,14 40,18 60,10 80,12 100,6"/>
+              </svg>
+            </div>
+          </div>
+          <div class="velocity-item">
+            <div class="velocity-label">Filings</div>
+            <div class="velocity-value">24</div>
+            <div class="velocity-spark">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#00C853" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,22 20,16 40,20 60,8 80,14 100,4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="velocity-item">
+            <div class="velocity-label">Hearings</div>
+            <div class="velocity-value">7</div>
+            <div class="velocity-spark">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#F5A623" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,16 20,20 40,12 60,18 80,8 100,10"/>
+              </svg>
+            </div>
+          </div>
+          <div class="velocity-item">
+            <div class="velocity-label">Decisions</div>
+            <div class="velocity-value">12</div>
+            <div class="velocity-spark">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#171717" stroke-width="1.5" stroke-linejoin="round"
+                  points="0,18 20,22 40,14 60,10 80,16 100,6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 12. FEE RECOVERY TIMELINE -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Fee Recovery Timeline</span>
+          <span class="chart-subtitle">Approved Fees ($) vs Time-to-Payment (Days)</span>
+        </div>
+        <div class="scatter-chart">
+          <svg viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid -->
+            <line x1="50" y1="10" x2="50" y2="150" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="50" y1="150" x2="490" y2="150" stroke="#EAEAEA" stroke-width="1"/>
+            <line x1="50" y1="115" x2="490" y2="115" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="50" y1="80" x2="490" y2="80" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="50" y1="45" x2="490" y2="45" stroke="#EAEAEA" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+            <!-- Y-axis labels (Fee amount) -->
+            <text x="46" y="153" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$0</text>
+            <text x="46" y="118" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$3K</text>
+            <text x="46" y="83" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$6K</text>
+            <text x="46" y="48" text-anchor="end" fill="#999" font-family="Geist Mono, monospace" font-size="9">$9K</text>
+
+            <!-- X-axis labels (Days to payment) -->
+            <text x="50" y="167" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">0d</text>
+            <text x="160" y="167" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">30d</text>
+            <text x="270" y="167" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">60d</text>
+            <text x="380" y="167" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">90d</text>
+            <text x="490" y="167" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="9">120d</text>
+
+            <!-- Axis labels -->
+            <text x="270" y="180" text-anchor="middle" fill="#999" font-family="Geist Mono, monospace" font-size="8" text-transform="uppercase">DAYS TO PAYMENT</text>
+
+            <!-- Scatter dots — each represents a recent case fee payment -->
+            <!-- cluster 1: fast payments, varied fees -->
+            <circle cx="72" cy="105" r="5" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="85" cy="88" r="6" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="95" cy="125" r="4" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="110" cy="72" r="7" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="100" cy="95" r="5" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+
+            <!-- cluster 2: 20-40 day payments -->
+            <circle cx="135" cy="110" r="4" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="155" cy="60" r="8" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="165" cy="95" r="5" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="180" cy="78" r="6" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="190" cy="130" r="4" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+
+            <!-- cluster 3: 40-60 day payments -->
+            <circle cx="225" cy="45" r="9" fill="rgba(0,200,83,0.5)" stroke="#00C853" stroke-width="1"/>
+            <circle cx="245" cy="85" r="5" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="260" cy="68" r="6" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="275" cy="100" r="5" fill="rgba(0,112,243,0.6)" stroke="#0070F3" stroke-width="1"/>
+            <circle cx="290" cy="55" r="7" fill="rgba(0,200,83,0.5)" stroke="#00C853" stroke-width="1"/>
+
+            <!-- cluster 4: 60-90 day payments -->
+            <circle cx="320" cy="92" r="5" fill="rgba(245,166,35,0.5)" stroke="#F5A623" stroke-width="1"/>
+            <circle cx="345" cy="70" r="6" fill="rgba(245,166,35,0.5)" stroke="#F5A623" stroke-width="1"/>
+            <circle cx="360" cy="115" r="4" fill="rgba(245,166,35,0.5)" stroke="#F5A623" stroke-width="1"/>
+            <circle cx="375" cy="48" r="8" fill="rgba(245,166,35,0.5)" stroke="#F5A623" stroke-width="1"/>
+
+            <!-- outliers: 90+ days -->
+            <circle cx="420" cy="82" r="5" fill="rgba(238,0,0,0.4)" stroke="#EE0000" stroke-width="1"/>
+            <circle cx="455" cy="38" r="9" fill="rgba(238,0,0,0.4)" stroke="#EE0000" stroke-width="1"/>
+            <circle cx="475" cy="105" r="4" fill="rgba(238,0,0,0.4)" stroke="#EE0000" stroke-width="1"/>
+
+            <!-- Trend line -->
+            <line x1="60" y1="108" x2="480" y2="68" stroke="#171717" stroke-width="1" stroke-dasharray="6,3" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="chart-legend" style="margin-top:var(--sp-2);">
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#0070F3;"></div>
+            &lt;45 days
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#00C853;"></div>
+            45-60 days
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#F5A623;"></div>
+            60-90 days
+          </div>
+          <div class="chart-legend-item">
+            <div class="chart-legend-dot" style="background:#EE0000;"></div>
+            90+ days
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer timestamp -->
+    <div style="text-align:right;font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);margin-top:var(--sp-4);padding-bottom:var(--sp-8);">
+      Last refreshed: Mar 28, 2026 &middot; 14:32:08 UTC &nbsp;&middot;&nbsp; Data latency: &lt;5s
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

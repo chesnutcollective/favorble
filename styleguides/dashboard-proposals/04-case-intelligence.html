@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT
+     ============================================================ */
+  :root {
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #FAFAFA;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+    --accent-purple:  #7928CA;
+    --accent-cyan:    #00B4D8;
+    --accent-teal:    #0D9488;
+
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    --transition:     200ms ease;
+
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+    --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-root);
+    padding: var(--sp-4) 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-black);
+    border-radius: var(--radius-sm);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-8);
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-8);
+  }
+
+  .main-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .main-header .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-3);
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn-primary {
+    background: var(--accent-black);
+    color: #FFFFFF;
+    border-color: var(--accent-black);
+  }
+
+  .btn-primary:hover {
+    background: #333333;
+    border-color: #333333;
+  }
+
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+  }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  /* ============================================================
+     CARDS
+     ============================================================ */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--sp-3);
+  }
+
+  .card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .card-title-row .card-title {
+    margin-bottom: 0;
+  }
+
+  .card-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     STAT CARDS
+     ============================================================ */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .stat-card:hover { border-color: var(--border-hover); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: var(--sp-2);
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    font-feature-settings: "tnum";
+  }
+
+  .stat-meta {
+    margin-top: var(--sp-2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .stat-meta .up { color: var(--accent-green); }
+  .stat-meta .down { color: var(--accent-red); }
+
+  /* ============================================================
+     DASHBOARD GRID
+     ============================================================ */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-4);
+  }
+
+  .dash-grid .full-width {
+    grid-column: 1 / -1;
+  }
+
+  .dash-grid .col-span-2 {
+    grid-column: span 2;
+  }
+
+  /* ============================================================
+     CHART: ALJ HORIZONTAL BAR (1)
+     ============================================================ */
+  .alj-chart { margin-bottom: var(--sp-4); }
+
+  .alj-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .alj-name {
+    width: 160px;
+    min-width: 160px;
+    font-size: 13px;
+    text-align: right;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .alj-bar-container {
+    flex: 1;
+    height: 24px;
+    display: flex;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .alj-bar-seg {
+    height: 100%;
+    transition: width 0.6s ease;
+    position: relative;
+  }
+
+  .alj-bar-seg.favorable { background: var(--accent-green); }
+  .alj-bar-seg.unfavorable { background: var(--accent-red); opacity: 0.7; }
+  .alj-bar-seg.remand { background: var(--accent-amber); }
+
+  .alj-pct {
+    width: 48px;
+    min-width: 48px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .alj-national-avg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--text-primary);
+    z-index: 2;
+    opacity: 0.6;
+  }
+
+  .alj-national-avg::after {
+    content: 'Nat. Avg 46%';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .alj-legend {
+    display: flex;
+    gap: var(--sp-5);
+    margin-top: var(--sp-3);
+    padding-left: 172px;
+  }
+
+  .alj-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .alj-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  /* ============================================================
+     CHART: LISTING MATCH BUBBLE (2)
+     ============================================================ */
+  .bubble-chart {
+    position: relative;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    padding: var(--sp-4);
+  }
+
+  .bubble {
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s ease;
+    cursor: default;
+  }
+
+  .bubble:hover {
+    transform: scale(1.08);
+  }
+
+  .bubble-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #FFF;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .bubble-count {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: rgba(255,255,255,0.85);
+    margin-top: 1px;
+  }
+
+  .bubble-win {
+    font-size: 8px;
+    font-family: var(--font-mono);
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ============================================================
+     CHART: GRID RULE (3)
+     ============================================================ */
+  .grid-rule-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sp-3);
+    height: 200px;
+    padding-top: var(--sp-4);
+  }
+
+  .grid-rule-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-1);
+  }
+
+  .grid-rule-bar-stack {
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .grid-rule-seg {
+    width: 100%;
+    transition: height 0.5s ease;
+  }
+
+  .grid-rule-seg.sedentary { background: var(--accent-blue); }
+  .grid-rule-seg.light { background: var(--accent-cyan); }
+  .grid-rule-seg.medium { background: var(--accent-teal); }
+
+  .grid-rule-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: var(--sp-1);
+  }
+
+  .grid-rule-group.magic .grid-rule-bar-stack {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
+
+  .grid-rule-group.magic .grid-rule-label {
+    color: var(--accent-green);
+    font-weight: 600;
+  }
+
+  .grid-rule-group.magic {
+    position: relative;
+  }
+
+  .grid-rule-group.magic::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--radius);
+    background: rgba(0, 200, 83, 0.06);
+    z-index: 0;
+  }
+
+  .grid-rule-group.magic .grid-rule-bar-stack {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================================
+     CHART: SCATTER PLOT (4)
+     ============================================================ */
+  .scatter-plot {
+    position: relative;
+    height: 240px;
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-left: var(--sp-8);
+    margin-bottom: var(--sp-6);
+  }
+
+  .scatter-y-label {
+    position: absolute;
+    left: -50px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(-50%);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .scatter-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+    cursor: default;
+  }
+
+  .scatter-dot:hover {
+    opacity: 1;
+    transform: scale(1.5);
+    z-index: 2;
+  }
+
+  .scatter-dot.slow { background: var(--accent-red); opacity: 0.5; }
+  .scatter-dot.medium-speed { background: var(--accent-amber); opacity: 0.5; }
+  .scatter-dot.fast { background: var(--accent-green); opacity: 0.5; }
+
+  .scatter-x-labels {
+    display: flex;
+    justify-content: space-around;
+    padding-top: var(--sp-2);
+    margin-left: var(--sp-8);
+  }
+
+  .scatter-x-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    transform: rotate(-30deg);
+    transform-origin: top left;
+    white-space: nowrap;
+  }
+
+  .scatter-y-ticks {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .scatter-y-tick {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  .scatter-gridline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+    opacity: 0.5;
+  }
+
+  /* ============================================================
+     CHART: RADAR (5)
+     ============================================================ */
+  .radar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--sp-3) 0;
+  }
+
+  .radar-svg {
+    width: 240px;
+    height: 240px;
+  }
+
+  .radar-case-selector {
+    display: flex;
+    gap: var(--sp-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--sp-3);
+  }
+
+  .radar-case-btn {
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+  }
+
+  .radar-case-btn.active {
+    background: var(--accent-black);
+    color: #FFF;
+    border-color: var(--accent-black);
+  }
+
+  /* ============================================================
+     CHART: HEATMAP (6)
+     ============================================================ */
+  .heatmap-grid {
+    display: grid;
+    gap: 2px;
+  }
+
+  .heatmap-cell {
+    border-radius: 2px;
+    aspect-ratio: 1;
+    transition: transform 0.15s;
+    cursor: default;
+    min-height: 24px;
+  }
+
+  .heatmap-cell:hover {
+    transform: scale(1.15);
+    z-index: 2;
+  }
+
+  .heatmap-row-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    padding-right: var(--sp-2);
+    white-space: nowrap;
+  }
+
+  .heatmap-col-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    text-align: center;
+  }
+
+  /* ============================================================
+     CHART: LINE CHART (7)
+     ============================================================ */
+  .line-chart-container {
+    position: relative;
+    height: 200px;
+    padding: var(--sp-2) 0;
+  }
+
+  .line-chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     CHART: DISTRIBUTION (8)
+     ============================================================ */
+  .distribution-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 140px;
+    padding: var(--sp-3) 0;
+  }
+
+  .dist-bar {
+    flex: 1;
+    background: var(--border);
+    border-radius: 2px 2px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .dist-bar.has-cases {
+    background: var(--accent-blue);
+    opacity: 0.7;
+  }
+
+  .dist-bar:hover {
+    opacity: 1;
+  }
+
+  .dist-labels {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--sp-1);
+  }
+
+  .dist-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  /* ============================================================
+     CHART: VE TABLE (9)
+     ============================================================ */
+  .ve-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .ve-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: var(--sp-2) var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .ve-table td {
+    padding: var(--sp-2) var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: top;
+  }
+
+  .ve-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .ve-table tr:hover td {
+    background: var(--bg-hover);
+  }
+
+  .ve-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin: 1px 2px;
+    color: var(--text-secondary);
+  }
+
+  .ve-freq {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ve-freq-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--accent-blue);
+    opacity: 0.6;
+  }
+
+  /* ============================================================
+     CHART: GROUPED HORIZONTAL BARS (10)
+     ============================================================ */
+  .rfc-group {
+    margin-bottom: var(--sp-4);
+  }
+
+  .rfc-group-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-2);
+  }
+
+  .rfc-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .rfc-label {
+    width: 140px;
+    min-width: 140px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rfc-bar-bg {
+    flex: 1;
+    height: 16px;
+    background: var(--bg-card-alt);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .rfc-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width 0.5s ease;
+  }
+
+  .rfc-bar-fill.physical { background: var(--accent-blue); opacity: 0.7; }
+  .rfc-bar-fill.mental { background: var(--accent-purple); opacity: 0.7; }
+
+  .rfc-count {
+    width: 36px;
+    min-width: 36px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-align: right;
+  }
+
+  /* ============================================================
+     CHART: DONUT (11)
+     ============================================================ */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    padding: var(--sp-3) 0;
+  }
+
+  .donut-svg {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .donut-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .donut-legend-pct {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-left: auto;
+    padding-left: var(--sp-3);
+  }
+
+  .donut-trend {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    margin-top: var(--sp-2);
+    padding-left: 22px;
+  }
+
+  .donut-trend .up { color: var(--accent-green); }
+  .donut-trend .down { color: var(--accent-red); }
+
+  /* ============================================================
+     CHART: STEPPED LINE (12)
+     ============================================================ */
+  .appeals-chart {
+    position: relative;
+    padding: var(--sp-4) 0;
+  }
+
+  .appeals-steps {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    height: 200px;
+    position: relative;
+  }
+
+  .appeal-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .appeal-bar {
+    width: 60%;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+    cursor: default;
+  }
+
+  .appeal-bar:hover {
+    filter: brightness(1.1);
+  }
+
+  .appeal-bar-value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+  }
+
+  .appeal-connector {
+    position: absolute;
+    top: 0;
+    right: -20%;
+    width: 40%;
+    border-top: 2px dashed var(--border);
+    z-index: 1;
+  }
+
+  .appeal-step-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: var(--sp-2);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .appeal-step .firm-marker {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+  }
+
+  .appeal-step.highlight .appeal-bar {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
+
+  .appeal-step.highlight .appeal-step-label {
+    color: var(--accent-green);
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+  .text-mono { font-family: var(--font-mono); }
+  .text-sm { font-size: 12px; }
+  .text-xs { font-size: 11px; }
+  .text-muted { color: var(--text-secondary); }
+  .text-tertiary { color: var(--text-tertiary); }
+  .mt-2 { margin-top: var(--sp-2); }
+  .mt-3 { margin-top: var(--sp-3); }
+  .mb-2 { margin-bottom: var(--sp-2); }
+  .mb-4 { margin-bottom: var(--sp-4); }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: var(--sp-2); }
+  .gap-3 { gap: var(--sp-3); }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======== SIDEBAR ======== -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9632;</span> Dashboard
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#9830;</span> Case Intelligence
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Case Management</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9744;</span> Cases
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9783;</span> Chronology
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9998;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#8505;</span> Medical Records
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9878;</span> Calendar
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9992;</span> Tasks
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">MH</div>
+      <span>Maria Hernandez</span>
+    </div>
+  </nav>
+
+  <!-- ======== MAIN CONTENT ======== -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <h1>Case Intelligence</h1>
+        <div class="subtitle">SSA disability analytics, ALJ patterns, and hearing preparation insights</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm">Last 12 Months</button>
+        <button class="btn btn-primary btn-sm">Export Report</button>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Overall Win Rate</div>
+        <div class="stat-value">62%</div>
+        <div class="stat-meta"><span class="up">+4%</span> vs. national avg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Days to Hearing</div>
+        <div class="stat-value">387</div>
+        <div class="stat-meta"><span class="down">+12d</span> from last quarter</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value">284</div>
+        <div class="stat-meta">78 hearings scheduled</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Projected Past-Due Benefits</div>
+        <div class="stat-value">$2.1M</div>
+        <div class="stat-meta"><span class="up">+$340K</span> from last month</div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         CHART 1: ALJ APPROVAL RATES (Full Width)
+         ============================================================ -->
+    <div class="card full-width mb-4">
+      <div class="card-title-row">
+        <div class="card-title">ALJ Approval Rates &mdash; Your Assigned Judges</div>
+        <div class="card-meta">Top 10 by case volume &middot; Nat. avg 46%</div>
+      </div>
+      <div class="alj-chart" id="alj-chart"></div>
+      <div class="alj-legend">
+        <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-green)"></div> Favorable</div>
+        <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-red);opacity:0.7"></div> Unfavorable</div>
+        <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-amber)"></div> Remand</div>
+        <div class="alj-legend-item"><div style="width:2px;height:10px;background:var(--text-primary);opacity:0.6"></div> National Avg</div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         CHARTS 2-6 (3-column grid)
+         ============================================================ -->
+    <div class="dash-grid">
+
+      <!-- CHART 2: LISTING MATCH ANALYSIS -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Listing Match Analysis</div>
+          <div class="card-meta">Size = count, color = win rate</div>
+        </div>
+        <div class="bubble-chart" id="bubble-chart"></div>
+      </div>
+
+      <!-- CHART 3: GRID RULE ELIGIBILITY -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Grid Rule Eligibility</div>
+          <div class="card-meta">Green = favorable age brackets</div>
+        </div>
+        <div class="grid-rule-chart" id="grid-rule-chart"></div>
+        <div class="flex gap-3 mt-3" style="justify-content:center">
+          <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-blue)"></div><span class="text-xs text-muted">Sedentary</span></div>
+          <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-cyan)"></div><span class="text-xs text-muted">Light</span></div>
+          <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-teal)"></div><span class="text-xs text-muted">Medium</span></div>
+        </div>
+      </div>
+
+      <!-- CHART 4: TIME TO HEARING BY OFFICE -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Time to Hearing by Office</div>
+          <div class="card-meta">Each dot = 1 case</div>
+        </div>
+        <div class="scatter-plot" id="scatter-plot">
+          <div class="scatter-y-label">Days to Hearing</div>
+          <div class="scatter-y-ticks">
+            <span class="scatter-y-tick">600</span>
+            <span class="scatter-y-tick">450</span>
+            <span class="scatter-y-tick">300</span>
+            <span class="scatter-y-tick">150</span>
+          </div>
+          <div class="scatter-gridline" style="top:0%"></div>
+          <div class="scatter-gridline" style="top:25%"></div>
+          <div class="scatter-gridline" style="top:50%"></div>
+          <div class="scatter-gridline" style="top:75%"></div>
+        </div>
+        <div class="scatter-x-labels" id="scatter-labels"></div>
+      </div>
+
+      <!-- CHART 5: MEDICAL EVIDENCE STRENGTH (Radar) -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Medical Evidence Strength</div>
+          <div class="card-meta">Active case evidence profile</div>
+        </div>
+        <div class="radar-case-selector" id="radar-selector"></div>
+        <div class="radar-container">
+          <svg class="radar-svg" viewBox="0 0 240 240" id="radar-chart"></svg>
+        </div>
+      </div>
+
+      <!-- CHART 6: DENIAL PATTERN TRACKER (Heatmap) -->
+      <div class="card col-span-2">
+        <div class="card-title-row">
+          <div class="card-title">Denial Pattern Tracker</div>
+          <div class="card-meta">Last 12 months &middot; Intensity = frequency</div>
+        </div>
+        <div id="heatmap"></div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         CHARTS 7-9 (3-column grid)
+         ============================================================ -->
+    <div class="dash-grid">
+
+      <!-- CHART 7: PAST DUE BENEFITS PROJECTION -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Past-Due Benefits Projection</div>
+          <div class="card-meta">Upcoming hearings &middot; estimated</div>
+        </div>
+        <div class="line-chart-container">
+          <svg class="line-chart-svg" viewBox="0 0 400 200" preserveAspectRatio="none" id="benefits-chart"></svg>
+        </div>
+        <div class="flex gap-3 mt-2" style="justify-content:space-between">
+          <span class="text-xs text-tertiary text-mono">Apr '26</span>
+          <span class="text-xs text-tertiary text-mono">Jul '26</span>
+          <span class="text-xs text-tertiary text-mono">Oct '26</span>
+          <span class="text-xs text-tertiary text-mono">Jan '27</span>
+        </div>
+      </div>
+
+      <!-- CHART 8: CASE COMPLEXITY SCORE -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Case Complexity Distribution</div>
+          <div class="card-meta">Score 1-10 &middot; Your caseload</div>
+        </div>
+        <div class="distribution-chart" id="complexity-chart"></div>
+        <div class="dist-labels">
+          <span class="dist-label">1 (Simple)</span>
+          <span class="dist-label">5</span>
+          <span class="dist-label">10 (Complex)</span>
+        </div>
+        <div class="text-xs text-muted mt-3" style="text-align:center">Mean: 5.8 &middot; Median: 6 &middot; Your firm avg: <strong>6.2</strong></div>
+      </div>
+
+      <!-- CHART 9: VOCATIONAL EXPERT ANALYSIS -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">Vocational Expert Patterns</div>
+          <div class="card-meta">Recent 30 hearings</div>
+        </div>
+        <div style="overflow-y:auto; max-height:280px;">
+          <table class="ve-table">
+            <thead>
+              <tr>
+                <th>DOT Code</th>
+                <th>Title</th>
+                <th>Exertion</th>
+                <th>Sit/Stand</th>
+                <th>Freq</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="ve-tag">209.587-034</span></td>
+                <td>Document Preparer</td>
+                <td>Sedentary</td>
+                <td>Yes</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:80px"></div><span class="text-xs text-mono text-muted">18</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">237.367-046</span></td>
+                <td>Telephone Quotation Clerk</td>
+                <td>Sedentary</td>
+                <td>Yes</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:60px"></div><span class="text-xs text-mono text-muted">14</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">726.684-110</span></td>
+                <td>Circuit Board Assembler</td>
+                <td>Light</td>
+                <td>No</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:48px"></div><span class="text-xs text-mono text-muted">11</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">713.687-018</span></td>
+                <td>Final Assembler</td>
+                <td>Sedentary</td>
+                <td>Yes</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:40px"></div><span class="text-xs text-mono text-muted">9</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">734.687-018</span></td>
+                <td>Addresser</td>
+                <td>Sedentary</td>
+                <td>Yes</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:36px"></div><span class="text-xs text-mono text-muted">8</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">559.687-074</span></td>
+                <td>Tube Operator</td>
+                <td>Light</td>
+                <td>No</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:28px"></div><span class="text-xs text-mono text-muted">6</span></div></td>
+              </tr>
+              <tr>
+                <td><span class="ve-tag">706.684-022</span></td>
+                <td>Bench Assembler</td>
+                <td>Light</td>
+                <td>No</td>
+                <td><div class="ve-freq"><div class="ve-freq-bar" style="width:22px"></div><span class="text-xs text-mono text-muted">5</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         CHARTS 10-12 (3-column grid)
+         ============================================================ -->
+    <div class="dash-grid">
+
+      <!-- CHART 10: RFC LIMITATION PATTERNS -->
+      <div class="card col-span-2">
+        <div class="card-title-row">
+          <div class="card-title">RFC Limitation Patterns</div>
+          <div class="card-meta">Most common in active caseload</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6)">
+          <!-- Physical -->
+          <div class="rfc-group">
+            <div class="rfc-group-label">Physical Limitations</div>
+            <div class="rfc-row"><div class="rfc-label">Lift &lt; 10 lbs</div><div class="rfc-bar-bg"><div class="rfc-bar-fill physical" style="width:78%"></div></div><div class="rfc-count">142</div></div>
+            <div class="rfc-row"><div class="rfc-label">Stand &lt; 2 hrs</div><div class="rfc-bar-bg"><div class="rfc-bar-fill physical" style="width:65%"></div></div><div class="rfc-count">118</div></div>
+            <div class="rfc-row"><div class="rfc-label">Walk &lt; 1 hr</div><div class="rfc-bar-bg"><div class="rfc-bar-fill physical" style="width:52%"></div></div><div class="rfc-count">94</div></div>
+            <div class="rfc-row"><div class="rfc-label">No overhead reach</div><div class="rfc-bar-bg"><div class="rfc-bar-fill physical" style="width:38%"></div></div><div class="rfc-count">69</div></div>
+            <div class="rfc-row"><div class="rfc-label">Sit/stand option</div><div class="rfc-bar-bg"><div class="rfc-bar-fill physical" style="width:45%"></div></div><div class="rfc-count">82</div></div>
+          </div>
+          <!-- Mental -->
+          <div class="rfc-group">
+            <div class="rfc-group-label">Mental Limitations</div>
+            <div class="rfc-row"><div class="rfc-label">Concentration deficits</div><div class="rfc-bar-bg"><div class="rfc-bar-fill mental" style="width:72%"></div></div><div class="rfc-count">131</div></div>
+            <div class="rfc-row"><div class="rfc-label">Social interaction ltd</div><div class="rfc-bar-bg"><div class="rfc-bar-fill mental" style="width:58%"></div></div><div class="rfc-count">105</div></div>
+            <div class="rfc-row"><div class="rfc-label">Simple instructions only</div><div class="rfc-bar-bg"><div class="rfc-bar-fill mental" style="width:48%"></div></div><div class="rfc-count">87</div></div>
+            <div class="rfc-row"><div class="rfc-label">No public contact</div><div class="rfc-bar-bg"><div class="rfc-bar-fill mental" style="width:40%"></div></div><div class="rfc-count">73</div></div>
+            <div class="rfc-row"><div class="rfc-label">Off-task &gt; 15%</div><div class="rfc-bar-bg"><div class="rfc-bar-fill mental" style="width:30%"></div></div><div class="rfc-count">55</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHART 11: CONSULTATIVE EXAM OUTCOMES (Donut) -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">CE Outcomes</div>
+          <div class="card-meta">Last 12 months</div>
+        </div>
+        <div class="donut-container" id="donut-chart-container">
+          <svg class="donut-svg" viewBox="0 0 140 140" id="donut-chart"></svg>
+          <div class="donut-legend">
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:var(--accent-green)"></div>
+              Supportive
+              <span class="donut-legend-pct">35%</span>
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:var(--accent-amber)"></div>
+              Neutral
+              <span class="donut-legend-pct">40%</span>
+            </div>
+            <div class="donut-legend-item">
+              <div class="donut-legend-dot" style="background:var(--accent-red);opacity:0.7"></div>
+              Unsupportive
+              <span class="donut-legend-pct">25%</span>
+            </div>
+            <div class="donut-trend"><span class="up">+5%</span> supportive vs. prior year</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         CHART 12: APPEALS SUCCESS RATE BY LEVEL (Full Width)
+         ============================================================ -->
+    <div class="card mb-4">
+      <div class="card-title-row">
+        <div class="card-title">Appeals Success Rate by Level</div>
+        <div class="card-meta">National average vs. your firm &middot; Green = your firm outperforms</div>
+      </div>
+      <div class="appeals-chart">
+        <div class="appeals-steps" id="appeals-chart"></div>
+      </div>
+      <div class="flex gap-3 mt-2" style="justify-content:center">
+        <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-blue);opacity:0.5"></div><span class="text-xs text-muted">National Avg</span></div>
+        <div class="alj-legend-item"><div class="alj-legend-dot" style="background:var(--accent-green)"></div><span class="text-xs text-muted">Your Firm</span></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Chart Rendering
+     ============================================================ -->
+<script>
+(function() {
+
+  /* ----------------------------------------------------------
+     CHART 1: ALJ APPROVAL RATES — Horizontal stacked bars
+     ---------------------------------------------------------- */
+  const aljData = [
+    { name: 'Hon. R. Williams',   fav: 72, unfav: 18, remand: 10 },
+    { name: 'Hon. S. Chen',       fav: 65, unfav: 22, remand: 13 },
+    { name: 'Hon. M. Davis',      fav: 61, unfav: 26, remand: 13 },
+    { name: 'Hon. P. O\'Brien',   fav: 58, unfav: 30, remand: 12 },
+    { name: 'Hon. L. Martinez',   fav: 55, unfav: 33, remand: 12 },
+    { name: 'Hon. K. Johnson',    fav: 52, unfav: 34, remand: 14 },
+    { name: 'Hon. A. Thompson',   fav: 48, unfav: 38, remand: 14 },
+    { name: 'Hon. J. Patel',      fav: 44, unfav: 40, remand: 16 },
+    { name: 'Hon. D. Wilson',     fav: 38, unfav: 48, remand: 14 },
+    { name: 'Hon. T. Anderson',   fav: 31, unfav: 55, remand: 14 },
+  ];
+
+  const aljContainer = document.getElementById('alj-chart');
+  aljData.forEach(alj => {
+    const row = document.createElement('div');
+    row.className = 'alj-row';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'alj-name';
+    nameEl.textContent = alj.name;
+
+    const barContainer = document.createElement('div');
+    barContainer.className = 'alj-bar-container';
+
+    const favBar = document.createElement('div');
+    favBar.className = 'alj-bar-seg favorable';
+    favBar.style.width = alj.fav + '%';
+    favBar.title = 'Favorable: ' + alj.fav + '%';
+
+    const remBar = document.createElement('div');
+    remBar.className = 'alj-bar-seg remand';
+    remBar.style.width = alj.remand + '%';
+    remBar.title = 'Remand: ' + alj.remand + '%';
+
+    const unfBar = document.createElement('div');
+    unfBar.className = 'alj-bar-seg unfavorable';
+    unfBar.style.width = alj.unfav + '%';
+    unfBar.title = 'Unfavorable: ' + alj.unfav + '%';
+
+    barContainer.appendChild(favBar);
+    barContainer.appendChild(remBar);
+    barContainer.appendChild(unfBar);
+
+    // National average line at 46%
+    const avgLine = document.createElement('div');
+    avgLine.className = 'alj-national-avg';
+    avgLine.style.left = '46%';
+    barContainer.appendChild(avgLine);
+
+    const pct = document.createElement('div');
+    pct.className = 'alj-pct';
+    pct.textContent = alj.fav + '%';
+
+    row.appendChild(nameEl);
+    row.appendChild(barContainer);
+    row.appendChild(pct);
+    aljContainer.appendChild(row);
+  });
+
+  /* ----------------------------------------------------------
+     CHART 2: LISTING MATCH ANALYSIS — Bubble chart
+     ---------------------------------------------------------- */
+  const listings = [
+    { code: '12.04',  label: 'Depression',  count: 98,  win: 65, color: '#0070F3' },
+    { code: '12.06',  label: 'Anxiety',     count: 74,  win: 58, color: '#3B82F6' },
+    { code: '1.04',   label: 'Spine',       count: 86,  win: 52, color: '#7928CA' },
+    { code: '1.02',   label: 'Joint',       count: 52,  win: 60, color: '#8B5CF6' },
+    { code: '14.02',  label: 'Lupus',       count: 28,  win: 71, color: '#00C853' },
+    { code: '12.15',  label: 'Trauma',      count: 34,  win: 48, color: '#F5A623' },
+    { code: '11.02',  label: 'Epilepsy',    count: 18,  win: 44, color: '#EE0000' },
+    { code: '4.02',   label: 'COPD',        count: 22,  win: 55, color: '#0D9488' },
+    { code: '12.08',  label: 'Personality', count: 16,  win: 38, color: '#DC2626' },
+    { code: '1.18',   label: 'Fracture',    count: 30,  win: 50, color: '#6366F1' },
+  ];
+
+  const bubbleContainer = document.getElementById('bubble-chart');
+
+  // Color by win rate: high win = green tones, low win = red tones
+  function winColor(win) {
+    if (win >= 65) return 'rgba(0, 200, 83, 0.85)';
+    if (win >= 55) return 'rgba(0, 112, 243, 0.8)';
+    if (win >= 45) return 'rgba(245, 166, 35, 0.8)';
+    return 'rgba(238, 0, 0, 0.7)';
+  }
+
+  listings.forEach(l => {
+    const size = Math.max(48, Math.sqrt(l.count) * 10);
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.background = winColor(l.win);
+    bubble.title = l.code + ' ' + l.label + ': ' + l.count + ' cases, ' + l.win + '% win rate';
+
+    const label = document.createElement('div');
+    label.className = 'bubble-label';
+    label.textContent = l.code;
+
+    const count = document.createElement('div');
+    count.className = 'bubble-count';
+    count.textContent = l.count + ' cases';
+
+    const win = document.createElement('div');
+    win.className = 'bubble-win';
+    win.textContent = l.win + '% win';
+
+    bubble.appendChild(label);
+    bubble.appendChild(count);
+    if (size > 55) bubble.appendChild(win);
+    bubbleContainer.appendChild(bubble);
+  });
+
+  /* ----------------------------------------------------------
+     CHART 3: GRID RULE ELIGIBILITY — Stacked bar by age
+     ---------------------------------------------------------- */
+  const gridData = [
+    { label: '18-44', sedentary: 12, light: 28, medium: 45, magic: false },
+    { label: '45-49', sedentary: 18, light: 24, medium: 32, magic: false },
+    { label: '50-54', sedentary: 26, light: 20, medium: 18, magic: true },
+    { label: '55+',   sedentary: 34, light: 16, medium: 8,  magic: true },
+  ];
+
+  const gridContainer = document.getElementById('grid-rule-chart');
+  const maxGridTotal = Math.max(...gridData.map(d => d.sedentary + d.light + d.medium));
+
+  gridData.forEach(d => {
+    const total = d.sedentary + d.light + d.medium;
+    const group = document.createElement('div');
+    group.className = 'grid-rule-group' + (d.magic ? ' magic' : '');
+
+    const stack = document.createElement('div');
+    stack.className = 'grid-rule-bar-stack';
+    stack.style.height = (total / maxGridTotal * 170) + 'px';
+
+    const seg1 = document.createElement('div');
+    seg1.className = 'grid-rule-seg sedentary';
+    seg1.style.height = (d.sedentary / total * 100) + '%';
+    seg1.title = 'Sedentary: ' + d.sedentary;
+
+    const seg2 = document.createElement('div');
+    seg2.className = 'grid-rule-seg light';
+    seg2.style.height = (d.light / total * 100) + '%';
+    seg2.title = 'Light: ' + d.light;
+
+    const seg3 = document.createElement('div');
+    seg3.className = 'grid-rule-seg medium';
+    seg3.style.height = (d.medium / total * 100) + '%';
+    seg3.title = 'Medium: ' + d.medium;
+
+    stack.appendChild(seg1);
+    stack.appendChild(seg2);
+    stack.appendChild(seg3);
+
+    const label = document.createElement('div');
+    label.className = 'grid-rule-label';
+    label.textContent = d.label;
+
+    group.appendChild(stack);
+    group.appendChild(label);
+    gridContainer.appendChild(group);
+  });
+
+  /* ----------------------------------------------------------
+     CHART 4: TIME TO HEARING BY OFFICE — Scatter plot
+     ---------------------------------------------------------- */
+  const offices = ['Atlanta', 'Chicago', 'Dallas', 'Denver', 'NYC', 'Phoenix', 'Portland'];
+  const scatterPlot = document.getElementById('scatter-plot');
+  const scatterLabels = document.getElementById('scatter-labels');
+
+  offices.forEach((office, i) => {
+    const numDots = 5 + Math.floor(Math.random() * 6);
+    const baseX = (i / (offices.length - 1)) * 88 + 6;
+
+    for (let j = 0; j < numDots; j++) {
+      const days = 120 + Math.floor(Math.random() * 480);
+      const yPct = (1 - (days - 100) / 520) * 100;
+      const xOffset = (Math.random() - 0.5) * 8;
+
+      const dot = document.createElement('div');
+      dot.className = 'scatter-dot';
+      if (days > 450) dot.className += ' slow';
+      else if (days > 300) dot.className += ' medium-speed';
+      else dot.className += ' fast';
+
+      dot.style.left = (baseX + xOffset) + '%';
+      dot.style.top = Math.max(2, Math.min(95, yPct)) + '%';
+      dot.title = office + ': ' + days + ' days';
+      scatterPlot.appendChild(dot);
+    }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'scatter-x-label';
+    lbl.textContent = office;
+    scatterLabels.appendChild(lbl);
+  });
+
+  /* ----------------------------------------------------------
+     CHART 5: MEDICAL EVIDENCE STRENGTH — Radar chart (SVG)
+     ---------------------------------------------------------- */
+  const radarCases = [
+    { id: 'Johnson',  scores: [0.9, 0.7, 0.8, 0.6, 0.95] },
+    { id: 'Martinez', scores: [0.5, 0.8, 0.4, 0.9, 0.7]  },
+    { id: 'Williams', scores: [0.7, 0.3, 0.6, 0.5, 0.4]  },
+  ];
+  const radarLabels = ['Treating\nSource', 'Objective\nTesting', 'Functional\nLimitations', 'Treatment\nCompliance', 'Duration'];
+  const radarSvg = document.getElementById('radar-chart');
+  const radarSelector = document.getElementById('radar-selector');
+  const cx = 120, cy = 120, maxR = 85;
+
+  function polarToCart(angle, radius) {
+    const a = angle - Math.PI / 2;
+    return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
+  }
+
+  function drawRadar(caseIdx) {
+    radarSvg.innerHTML = '';
+
+    // Background rings
+    [0.2, 0.4, 0.6, 0.8, 1.0].forEach(r => {
+      const pts = [];
+      for (let i = 0; i < 5; i++) {
+        const angle = (2 * Math.PI / 5) * i;
+        const p = polarToCart(angle, maxR * r);
+        pts.push(p.x + ',' + p.y);
+      }
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', pts.join(' '));
+      polygon.setAttribute('fill', 'none');
+      polygon.setAttribute('stroke', '#EAEAEA');
+      polygon.setAttribute('stroke-width', '1');
+      radarSvg.appendChild(polygon);
+    });
+
+    // Axis lines
+    for (let i = 0; i < 5; i++) {
+      const angle = (2 * Math.PI / 5) * i;
+      const p = polarToCart(angle, maxR);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', cx);
+      line.setAttribute('y1', cy);
+      line.setAttribute('x2', p.x);
+      line.setAttribute('y2', p.y);
+      line.setAttribute('stroke', '#EAEAEA');
+      line.setAttribute('stroke-width', '1');
+      radarSvg.appendChild(line);
+    }
+
+    // Labels
+    for (let i = 0; i < 5; i++) {
+      const angle = (2 * Math.PI / 5) * i;
+      const p = polarToCart(angle, maxR + 18);
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', p.x);
+      text.setAttribute('y', p.y);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('fill', '#999');
+      text.setAttribute('font-size', '9');
+      text.setAttribute('font-family', 'Geist, system-ui, sans-serif');
+
+      // Split multi-line labels
+      const parts = radarLabels[i].split('\n');
+      parts.forEach((part, j) => {
+        const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan.setAttribute('x', p.x);
+        tspan.setAttribute('dy', j === 0 ? (parts.length > 1 ? '-0.4em' : '0') : '1.1em');
+        tspan.textContent = part;
+        text.appendChild(tspan);
+      });
+      radarSvg.appendChild(text);
+    }
+
+    // Data polygon
+    const scores = radarCases[caseIdx].scores;
+    const dataPts = [];
+    for (let i = 0; i < 5; i++) {
+      const angle = (2 * Math.PI / 5) * i;
+      const p = polarToCart(angle, maxR * scores[i]);
+      dataPts.push(p.x + ',' + p.y);
+    }
+
+    const fill = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    fill.setAttribute('points', dataPts.join(' '));
+    fill.setAttribute('fill', 'rgba(0, 112, 243, 0.15)');
+    fill.setAttribute('stroke', '#0070F3');
+    fill.setAttribute('stroke-width', '2');
+    radarSvg.appendChild(fill);
+
+    // Data points
+    for (let i = 0; i < 5; i++) {
+      const angle = (2 * Math.PI / 5) * i;
+      const p = polarToCart(angle, maxR * scores[i]);
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', '#0070F3');
+      circle.setAttribute('stroke', '#FFF');
+      circle.setAttribute('stroke-width', '2');
+      radarSvg.appendChild(circle);
+
+      // Score value
+      const val = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      const vp = polarToCart(angle, maxR * scores[i] - 14);
+      val.setAttribute('x', vp.x);
+      val.setAttribute('y', vp.y);
+      val.setAttribute('text-anchor', 'middle');
+      val.setAttribute('dominant-baseline', 'middle');
+      val.setAttribute('fill', '#171717');
+      val.setAttribute('font-size', '10');
+      val.setAttribute('font-weight', '600');
+      val.setAttribute('font-family', 'Geist Mono, monospace');
+      val.textContent = Math.round(scores[i] * 100) + '%';
+      radarSvg.appendChild(val);
+    }
+  }
+
+  // Selector buttons
+  radarCases.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'radar-case-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = c.id;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.radar-case-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawRadar(i);
+    });
+    radarSelector.appendChild(btn);
+  });
+  drawRadar(0);
+
+  /* ----------------------------------------------------------
+     CHART 6: DENIAL PATTERN TRACKER — Heatmap
+     ---------------------------------------------------------- */
+  const denialReasons = ['Insufficient Evidence', 'SGA Issue', 'Duration Not Met', 'RFC Overcapacity', 'Credibility'];
+  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
+  const heatmapData = [
+    [6, 8, 5, 9, 7, 10, 8, 12, 11, 14, 9, 7],
+    [2, 1, 3, 2, 1, 2, 3, 2, 1, 3, 2, 1],
+    [4, 3, 5, 4, 6, 3, 5, 4, 3, 5, 6, 4],
+    [5, 7, 6, 8, 5, 6, 7, 9, 8, 6, 5, 7],
+    [3, 4, 5, 3, 6, 7, 8, 5, 6, 8, 9, 7],
+  ];
+
+  const heatmap = document.getElementById('heatmap');
+
+  // Create grid: rows + 1 for header, cols + 1 for labels
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '140px repeat(' + months.length + ', 1fr)';
+  grid.style.gap = '2px';
+  grid.style.alignItems = 'center';
+
+  // Header row
+  const emptyCorner = document.createElement('div');
+  grid.appendChild(emptyCorner);
+  months.forEach(m => {
+    const lbl = document.createElement('div');
+    lbl.className = 'heatmap-col-label';
+    lbl.textContent = m;
+    grid.appendChild(lbl);
+  });
+
+  // Data rows
+  const maxVal = Math.max(...heatmapData.flat());
+  denialReasons.forEach((reason, ri) => {
+    const label = document.createElement('div');
+    label.className = 'heatmap-row-label';
+    label.textContent = reason;
+    grid.appendChild(label);
+
+    heatmapData[ri].forEach(val => {
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+      const intensity = val / maxVal;
+      cell.style.background = 'rgba(238, 0, 0, ' + (0.08 + intensity * 0.72) + ')';
+      cell.title = reason + ': ' + val + ' denials';
+      grid.appendChild(cell);
+    });
+  });
+
+  heatmap.appendChild(grid);
+
+  /* ----------------------------------------------------------
+     CHART 7: PAST DUE BENEFITS PROJECTION — Line chart (SVG)
+     ---------------------------------------------------------- */
+  const benefitsSvg = document.getElementById('benefits-chart');
+
+  // Projected data: cumulative past-due benefits by month
+  const benefitsData = [420, 510, 640, 780, 920, 1080, 1240, 1420, 1620, 1850, 2100, 2380];
+  const maxBenefit = Math.max(...benefitsData);
+
+  // Grid lines
+  for (let i = 0; i <= 4; i++) {
+    const y = 10 + (180 / 4) * i;
+    const gridLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    gridLine.setAttribute('x1', '0');
+    gridLine.setAttribute('x2', '400');
+    gridLine.setAttribute('y1', y);
+    gridLine.setAttribute('y2', y);
+    gridLine.setAttribute('stroke', '#EAEAEA');
+    gridLine.setAttribute('stroke-width', '1');
+    benefitsSvg.appendChild(gridLine);
+
+    // Y labels
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', '4');
+    label.setAttribute('y', y - 4);
+    label.setAttribute('fill', '#999');
+    label.setAttribute('font-size', '10');
+    label.setAttribute('font-family', 'Geist Mono, monospace');
+    const val = Math.round(maxBenefit * (1 - i / 4));
+    label.textContent = '$' + (val >= 1000 ? (val / 1000).toFixed(1) + 'M' : val + 'K');
+    benefitsSvg.appendChild(label);
+  }
+
+  // Area fill
+  let pathD = 'M ';
+  const points = benefitsData.map((v, i) => {
+    const x = (i / (benefitsData.length - 1)) * 390 + 5;
+    const y = 190 - (v / maxBenefit) * 175;
+    return x + ',' + y;
+  });
+  pathD += points.join(' L ');
+
+  const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const lastX = 390 + 5;
+  area.setAttribute('d', pathD + ' L ' + lastX + ',190 L 5,190 Z');
+  area.setAttribute('fill', 'rgba(0, 112, 243, 0.08)');
+  benefitsSvg.appendChild(area);
+
+  // Line
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  line.setAttribute('d', 'M ' + points.join(' L '));
+  line.setAttribute('fill', 'none');
+  line.setAttribute('stroke', '#0070F3');
+  line.setAttribute('stroke-width', '2');
+  benefitsSvg.appendChild(line);
+
+  // Dots
+  benefitsData.forEach((v, i) => {
+    const x = (i / (benefitsData.length - 1)) * 390 + 5;
+    const y = 190 - (v / maxBenefit) * 175;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', '3');
+    circle.setAttribute('fill', '#0070F3');
+    circle.setAttribute('stroke', '#FFF');
+    circle.setAttribute('stroke-width', '1.5');
+    benefitsSvg.appendChild(circle);
+  });
+
+  // Dashed future projection line (last 4 points)
+  const projLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const projPoints = points.slice(-4);
+  projLine.setAttribute('d', 'M ' + projPoints.join(' L '));
+  projLine.setAttribute('fill', 'none');
+  projLine.setAttribute('stroke', '#0070F3');
+  projLine.setAttribute('stroke-width', '1.5');
+  projLine.setAttribute('stroke-dasharray', '4 3');
+  projLine.setAttribute('opacity', '0.5');
+  benefitsSvg.appendChild(projLine);
+
+  /* ----------------------------------------------------------
+     CHART 8: CASE COMPLEXITY DISTRIBUTION — Bar/Bell curve
+     ---------------------------------------------------------- */
+  // Bell-curve-like distribution
+  const complexityDist = [4, 12, 28, 48, 62, 58, 42, 24, 14, 6];
+  const complexityContainer = document.getElementById('complexity-chart');
+  const maxComplexity = Math.max(...complexityDist);
+
+  // Also mark which bars have the firm's cases concentrated
+  const firmHighBars = [3, 4, 5, 6]; // 0-indexed, scores 4-7
+
+  complexityDist.forEach((count, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'dist-bar';
+    if (firmHighBars.includes(i)) bar.classList.add('has-cases');
+    bar.style.height = (count / maxComplexity * 100) + '%';
+    bar.title = 'Score ' + (i + 1) + ': ' + count + ' cases';
+    complexityContainer.appendChild(bar);
+  });
+
+  /* ----------------------------------------------------------
+     CHART 11: CE OUTCOMES — Donut chart (SVG)
+     ---------------------------------------------------------- */
+  const donutSvg = document.getElementById('donut-chart');
+  const donutData = [
+    { pct: 35, color: '#00C853' },
+    { pct: 40, color: '#F5A623' },
+    { pct: 25, color: 'rgba(238, 0, 0, 0.7)' },
+  ];
+
+  const donutCx = 70, donutCy = 70, donutR = 52, donutStroke = 20;
+  const circumference = 2 * Math.PI * donutR;
+  let donutOffset = 0;
+
+  donutData.forEach(seg => {
+    const segLen = (seg.pct / 100) * circumference;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', donutCx);
+    circle.setAttribute('cy', donutCy);
+    circle.setAttribute('r', donutR);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', seg.color);
+    circle.setAttribute('stroke-width', donutStroke);
+    circle.setAttribute('stroke-dasharray', segLen + ' ' + (circumference - segLen));
+    circle.setAttribute('stroke-dashoffset', -donutOffset);
+    circle.setAttribute('transform', 'rotate(-90 ' + donutCx + ' ' + donutCy + ')');
+    donutSvg.appendChild(circle);
+    donutOffset += segLen;
+  });
+
+  // Center text
+  const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerText.setAttribute('x', donutCx);
+  centerText.setAttribute('y', donutCy - 4);
+  centerText.setAttribute('text-anchor', 'middle');
+  centerText.setAttribute('fill', '#171717');
+  centerText.setAttribute('font-size', '18');
+  centerText.setAttribute('font-weight', '700');
+  centerText.setAttribute('font-family', 'Geist, system-ui, sans-serif');
+  centerText.textContent = '147';
+  donutSvg.appendChild(centerText);
+
+  const subText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  subText.setAttribute('x', donutCx);
+  subText.setAttribute('y', donutCy + 12);
+  subText.setAttribute('text-anchor', 'middle');
+  subText.setAttribute('fill', '#999');
+  subText.setAttribute('font-size', '9');
+  subText.setAttribute('font-family', 'Geist, system-ui, sans-serif');
+  subText.textContent = 'Total CEs';
+  donutSvg.appendChild(subText);
+
+  /* ----------------------------------------------------------
+     CHART 12: APPEALS SUCCESS RATE — Stepped bar chart
+     ---------------------------------------------------------- */
+  const appealsData = [
+    { label: 'Initial\nApplication', national: 33, firm: 38 },
+    { label: 'Reconsideration', national: 15, firm: 19 },
+    { label: 'ALJ\nHearing', national: 52, firm: 62, highlight: true },
+    { label: 'Appeals\nCouncil', national: 12, firm: 14 },
+    { label: 'Federal\nCourt', national: 3, firm: 5 },
+  ];
+
+  const appealsContainer = document.getElementById('appeals-chart');
+  const maxAppeals = 70; // max scale
+
+  appealsData.forEach((step, i) => {
+    const stepEl = document.createElement('div');
+    stepEl.className = 'appeal-step' + (step.highlight ? ' highlight' : '');
+
+    // Two bars side by side
+    const barsRow = document.createElement('div');
+    barsRow.style.display = 'flex';
+    barsRow.style.gap = '4px';
+    barsRow.style.width = '80%';
+    barsRow.style.justifyContent = 'center';
+    barsRow.style.alignItems = 'flex-end';
+    barsRow.style.height = '100%';
+
+    // National bar
+    const natBar = document.createElement('div');
+    natBar.className = 'appeal-bar';
+    natBar.style.height = (step.national / maxAppeals * 100) + '%';
+    natBar.style.background = 'rgba(0, 112, 243, 0.3)';
+    natBar.style.flex = '1';
+    natBar.title = 'National: ' + step.national + '%';
+
+    const natVal = document.createElement('div');
+    natVal.className = 'appeal-bar-value';
+    natVal.style.color = 'var(--text-tertiary)';
+    natVal.style.fontSize = '11px';
+    natVal.textContent = step.national + '%';
+    natBar.appendChild(natVal);
+
+    // Firm bar
+    const firmBar = document.createElement('div');
+    firmBar.className = 'appeal-bar';
+    firmBar.style.height = (step.firm / maxAppeals * 100) + '%';
+    firmBar.style.background = step.highlight ? 'rgba(0, 200, 83, 0.7)' : 'rgba(0, 200, 83, 0.5)';
+    firmBar.style.flex = '1';
+    firmBar.title = 'Your firm: ' + step.firm + '%';
+
+    const firmVal = document.createElement('div');
+    firmVal.className = 'appeal-bar-value';
+    firmVal.style.fontSize = '12px';
+    firmVal.textContent = step.firm + '%';
+    firmBar.appendChild(firmVal);
+
+    barsRow.appendChild(natBar);
+    barsRow.appendChild(firmBar);
+    stepEl.appendChild(barsRow);
+
+    const label = document.createElement('div');
+    label.className = 'appeal-step-label';
+    label.innerHTML = step.label.replace('\n', '<br>');
+    stepEl.appendChild(label);
+
+    appealsContainer.appendChild(stepEl);
+  });
+
+})();
+</script>
+</body>
+</html>
