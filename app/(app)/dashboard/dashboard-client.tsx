@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
+import { RevealOnScroll } from "@/components/shared/reveal-on-scroll";
 import { IntelligenceSection } from "@/components/dashboard/intelligence-section";
 import { EvidenceSection } from "@/components/dashboard/evidence-section";
 import { ActivitySection } from "@/components/dashboard/activity-section";
 import { TrendsSection } from "@/components/dashboard/trends-section";
+import { useCountUp } from "@/hooks/use-count-up";
 import type { DashboardData } from "@/app/actions/dashboard-data";
 
 type DateRange = "today" | "week" | "month" | "quarter" | "ytd";
@@ -89,6 +91,37 @@ function DashboardStatCard({
       </div>
       <Sparkline path={sparkPath} color={sparkColor} />
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Animated Stat Card (applies count-up to numeric values)
+// ---------------------------------------------------------------------------
+function AnimatedStatCard({
+  label,
+  value,
+  trend,
+  sparkColor,
+  sparkPath,
+}: {
+  label: string;
+  value: string | number;
+  trend: { value: number; label: string };
+  sparkColor: string;
+  sparkPath: string;
+}) {
+  const numericValue = typeof value === "number" ? value : 0;
+  const animated = useCountUp(numericValue);
+  const displayValue = typeof value === "number" ? animated : value;
+
+  return (
+    <DashboardStatCard
+      label={label}
+      value={displayValue}
+      trend={trend}
+      sparkColor={sparkColor}
+      sparkPath={sparkPath}
+    />
   );
 }
 
@@ -405,7 +438,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       {/* Stat Cards — 5 across */}
       <div className="grid gap-4 grid-cols-5">
         {data.stats.map((stat) => (
-          <DashboardStatCard
+          <AnimatedStatCard
             key={stat.label}
             label={stat.label}
             value={stat.value}
@@ -433,39 +466,47 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       </div>
 
       {/* SECTION 2: Intelligence */}
-      <IntelligenceSection
-        aljApprovalRates={data.aljApprovalRates}
-        listingMatchData={data.listingMatchData}
-        denialPatterns={data.denialPatterns}
-        timeToHearing={data.timeToHearing}
-        pastDueProjection={data.pastDueProjection}
-        caseComplexity={data.caseComplexity}
-      />
+      <RevealOnScroll>
+        <IntelligenceSection
+          aljApprovalRates={data.aljApprovalRates}
+          listingMatchData={data.listingMatchData}
+          denialPatterns={data.denialPatterns}
+          timeToHearing={data.timeToHearing}
+          pastDueProjection={data.pastDueProjection}
+          caseComplexity={data.caseComplexity}
+        />
+      </RevealOnScroll>
 
       {/* SECTION 3: Evidence & Hearings */}
-      <EvidenceSection
-        rfcLimitations={data.rfcLimitations}
-        ceOutcomes={data.ceOutcomes}
-        vocationalExperts={data.vocationalExperts}
-        upcomingHearings={data.upcomingHearings}
-        clientSatisfaction={data.clientSatisfaction}
-      />
+      <RevealOnScroll>
+        <EvidenceSection
+          rfcLimitations={data.rfcLimitations}
+          ceOutcomes={data.ceOutcomes}
+          vocationalExperts={data.vocationalExperts}
+          upcomingHearings={data.upcomingHearings}
+          clientSatisfaction={data.clientSatisfaction}
+        />
+      </RevealOnScroll>
 
       {/* SECTION 4: Activity & Feeds */}
-      <ActivitySection
-        recentActivity={data.recentActivity}
-        recentDecisions={data.recentDecisions}
-        teamActivity={data.teamActivity}
-        documentQueue={data.documentQueue}
-      />
+      <RevealOnScroll>
+        <ActivitySection
+          recentActivity={data.recentActivity}
+          recentDecisions={data.recentDecisions}
+          teamActivity={data.teamActivity}
+          documentQueue={data.documentQueue}
+        />
+      </RevealOnScroll>
 
       {/* SECTION 5: Trends */}
-      <TrendsSection
-        casesByMonth={data.casesByMonth}
-        revenueByMonth={data.revenueByMonth}
-        taskSparklines={data.taskSparklines}
-        weeklyVelocity={data.weeklyVelocity}
-      />
+      <RevealOnScroll>
+        <TrendsSection
+          casesByMonth={data.casesByMonth}
+          revenueByMonth={data.revenueByMonth}
+          taskSparklines={data.taskSparklines}
+          weeklyVelocity={data.weeklyVelocity}
+        />
+      </RevealOnScroll>
     </div>
   );
 }

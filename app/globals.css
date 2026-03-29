@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -167,20 +168,12 @@
 
 /* ── Keyframes ── */
 @keyframes fade-up {
-	from { opacity: 0; transform: translateY(8px); }
+	from { opacity: 0; transform: translateY(4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
 @keyframes shimmer {
 	0% { background-position: -600px 0; }
 	100% { background-position: 600px 0; }
-}
-@keyframes toast-in {
-	from { opacity: 0; transform: translateY(8px) scale(0.97); }
-	to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes toast-out {
-	from { opacity: 1; transform: translateY(0) scale(1); }
-	to { opacity: 0; transform: translateY(4px) scale(0.97); }
 }
 @keyframes spin {
 	from { transform: rotate(0deg); }
@@ -1054,6 +1047,14 @@
 	.text-subtitle {
 		color: var(--muted-foreground);
 	}
+	.animate-page-in {
+		animation: fade-up 200ms cubic-bezier(0, 0, 0.25, 1) both;
+	}
+	.skeleton-shimmer {
+		background: linear-gradient(90deg, #F0F0F0 25%, #E8E8E8 37%, #F0F0F0 63%);
+		background-size: 600px 100%;
+		animation: shimmer 1.5s linear infinite;
+	}
 }
 
 /* ── Monospace sizing: one step smaller than body (12px) ── */
@@ -1064,6 +1065,14 @@ kbd,
 samp,
 pre {
 	font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Print styles for PDF export ── */

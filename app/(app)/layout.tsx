@@ -3,6 +3,7 @@ import { requireSession } from "@/lib/auth/session";
 import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { TwoTierNav } from "@/components/layout/two-tier-nav";
 import { Header } from "@/components/layout/header";
+import { PageTransition } from "@/components/layout/page-transition";
 import { getActiveCaseCount } from "@/app/actions/cases";
 import { getNavPanelData } from "@/app/actions/nav-data";
 
@@ -25,7 +26,9 @@ export default async function AppLayout({
         </Suspense>
         <main className="ttn-main-area">
           <Header />
-          <div className="flex-1 overflow-auto p-4 md:p-8">{children}</div>
+          <div className="flex-1 overflow-auto p-4 md:p-8">
+            <PageTransition>{children}</PageTransition>
+          </div>
         </main>
       </div>
     </ThemeWrapper>
