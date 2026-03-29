@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,8 +83,35 @@ function formatTime(dateStr: string): string {
 
 const PAGE_SIZE = 20;
 
-export function MessageFeed({ messages }: { messages: Message[] }) {
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+export function MessageFeed({
+  messages,
+  highlightId,
+}: {
+  messages: Message[];
+  highlightId?: string;
+}) {
+  const [visibleCount, setVisibleCount] = useState(() => {
+    // If the highlighted message is beyond the initial page, expand to include it
+    if (highlightId) {
+      const idx = messages.findIndex((m) => m.id === highlightId);
+      if (idx >= PAGE_SIZE) return idx + 1;
+    }
+    return PAGE_SIZE;
+  });
+  const [activeHighlight, setActiveHighlight] = useState(highlightId);
+  const highlightRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId]);
+
+  useEffect(() => {
+    if (!activeHighlight) return;
+    const timer = setTimeout(() => setActiveHighlight(undefined), 3000);
+    return () => clearTimeout(timer);
+  }, [activeHighlight]);
 
   const visibleMessages = messages.slice(0, visibleCount);
   const hasMore = visibleCount < messages.length;
@@ -122,10 +149,12 @@ export function MessageFeed({ messages }: { messages: Message[] }) {
           <div className="space-y-2">
             {group.messages.map((msg) => {
               const typeInfo = formatMessageType(msg.type);
+              const isHighlighted = activeHighlight === msg.id;
               return (
                 <Card
                   key={msg.id}
-                  className="border-[#eaeaea] transition-colors duration-200 hover:border-[#999]"
+                  ref={msg.id === highlightId ? highlightRef : undefined}
+                  className={`border-[#eaeaea] transition-colors duration-200 hover:border-[#999]${isHighlighted ? " ring-2 ring-[#10B981] bg-[#ECFDF5]" : ""}`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">

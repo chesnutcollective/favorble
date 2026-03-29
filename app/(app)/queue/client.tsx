@@ -165,6 +165,8 @@ function isInNextWeek(dueDate: string | null): boolean {
   return due >= endOfWeek && due <= endOfNextWeek;
 }
 
+const VALID_TABS = ["all", "overdue", "today", "this_week", "next_week", "no_date"];
+
 export function QueueClient({
   initialTasks,
   counts,
@@ -172,6 +174,7 @@ export function QueueClient({
   teamTasks,
   orgUsers,
   caseStages,
+  initialTab,
 }: {
   initialTasks: QueueTask[];
   counts: Counts;
@@ -179,9 +182,12 @@ export function QueueClient({
   teamTasks: TeamQueueTask[];
   orgUsers: OrgUser[];
   caseStages: CaseStage[];
+  initialTab?: string;
 }) {
   const [queueMode, setQueueMode] = useState<QueueMode>("my");
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState(
+    initialTab && VALID_TABS.includes(initialTab) ? initialTab : "all",
+  );
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedTask, setSelectedTask] = useState<QueueTask | null>(null);

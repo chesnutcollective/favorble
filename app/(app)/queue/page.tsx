@@ -14,7 +14,12 @@ export const metadata: Metadata = {
   title: "My Queue",
 };
 
-export default async function QueuePage() {
+export default async function QueuePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab: initialTab } = await searchParams;
   const session = await requireSession();
   const isManager = session.role === "admin" || session.role === "case_manager";
 
@@ -78,6 +83,7 @@ export default async function QueuePage() {
         }))}
         orgUsers={orgUsers}
         caseStages={caseStages}
+        initialTab={initialTab}
       />
     </div>
   );

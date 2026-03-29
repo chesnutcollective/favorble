@@ -100,6 +100,7 @@ type Props = {
   ) => Promise<{ success: boolean; error?: string }>;
   caseOptions: Array<{ id: string; caseNumber: string }>;
   outlookConfigured: boolean;
+  initialDay?: number;
 };
 
 export function CalendarGrid({
@@ -113,13 +114,18 @@ export function CalendarGrid({
   onSendReminder,
   caseOptions,
   outlookConfigured,
+  initialDay,
 }: Props) {
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    initialDay ? "day" : "month",
+  );
   const [currentDate, setCurrentDate] = useState(
-    new Date(initialYear, initialMonth, 1),
+    new Date(initialYear, initialMonth, initialDay ?? 1),
   );
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(
+    initialDay ? new Date(initialYear, initialMonth, initialDay) : null,
+  );
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);

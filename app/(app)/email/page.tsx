@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Email",
 };
 
-export default async function EmailPage() {
+export default async function EmailPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter: initialFilter } = await searchParams;
   const isConfigured = outlook.isConfigured();
 
   let emails: Awaited<ReturnType<typeof getAllEmails>> = [];
@@ -78,6 +83,7 @@ export default async function EmailPage() {
             caseNumber: e.caseNumber,
           }))}
           cases={casesForPicker}
+          initialFilter={initialFilter}
         />
       )}
     </div>

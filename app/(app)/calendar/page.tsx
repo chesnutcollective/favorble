@@ -47,10 +47,17 @@ async function handleSendReminder(eventId: string) {
   return sendHearingReminder(eventId);
 }
 
-export default async function CalendarPage() {
+export default async function CalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
   await requireSession();
+  const { date: initialDateParam } = await searchParams;
 
-  const now = new Date();
+  // If a date param is provided (YYYY-MM-DD), use that; otherwise default to today
+  const parsedDate = initialDateParam ? new Date(initialDateParam) : null;
+  const now = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
 
@@ -86,6 +93,7 @@ export default async function CalendarPage() {
         onSendReminder={handleSendReminder}
         caseOptions={caseOptions}
         outlookConfigured={outlookConfigured}
+        initialDay={parsedDate ? now.getDate() : undefined}
       />
     </div>
   );

@@ -16,12 +16,14 @@ type GlobalDocument = DocumentItem & {
 
 type GlobalDocumentsClientProps = {
   documents: GlobalDocument[];
+  initialSource?: string | null;
 };
 
 export function GlobalDocumentsClient({
   documents,
+  initialSource,
 }: GlobalDocumentsClientProps) {
-  const [sourceFilter, setSourceFilter] = useState<string | null>(null);
+  const [sourceFilter, setSourceFilter] = useState<string | null>(initialSource ?? null);
   const [previewDoc, setPreviewDoc] = useState<{
     fileName: string;
     fileType: string;

@@ -109,6 +109,7 @@ export type MessageSummary = {
     direction: string | null;
     createdAt: Date;
     caseId: string | null;
+    caseNumber: string | null;
   }[];
 };
 
@@ -459,8 +460,10 @@ async function getMessageSummary(
         direction: communications.direction,
         createdAt: communications.createdAt,
         caseId: communications.caseId,
+        caseNumber: cases.caseNumber,
       })
       .from(communications)
+      .leftJoin(cases, eq(communications.caseId, cases.id))
       .where(
         and(
           eq(communications.organizationId, organizationId),

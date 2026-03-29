@@ -35,7 +35,12 @@ async function fetchRecentMessages(organizationId: string) {
     .limit(100);
 }
 
-export default async function MessagesPage() {
+export default async function MessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ highlight?: string }>;
+}) {
+  const params = await searchParams;
   const user = await requireSession();
   const isConfigured = caseStatusIntegration.isConfigured();
 
@@ -90,6 +95,7 @@ export default async function MessagesPage() {
             ...msg,
             createdAt: msg.createdAt.toISOString(),
           }))}
+          highlightId={params.highlight}
         />
       )}
     </div>

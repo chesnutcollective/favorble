@@ -611,6 +611,8 @@ function MessagesPanel({ active, navData }: { active: boolean; navData?: NavPane
         subject: m.subject ?? "(no subject)",
         snippet: m.body ? m.body.substring(0, 60) + "..." : "",
         time: formatRelativeTime(m.createdAt),
+        caseId: m.caseId,
+        caseNumber: m.caseNumber,
       }))
     : null;
 
@@ -627,22 +629,38 @@ function MessagesPanel({ active, navData }: { active: boolean; navData?: NavPane
       <div className="ttn-section-label" style={{ marginTop: 16 }}>
         Recent
       </div>
-      {(recentMessages ?? fallbackMessages).map((msg, i) => (
-        <Link key={"id" in msg ? (msg as { id: string }).id : i} href="/messages" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="ttn-msg-preview">
-            <div className={`ttn-msg-avatar${msg.unread ? " unread" : ""}`}>
-              {msg.initials}
-            </div>
-            <div className="ttn-msg-body">
-              <div className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}>
-                {msg.subject}
+      {(recentMessages ?? fallbackMessages).map((msg, i) => {
+        const msgId = "id" in msg ? (msg as { id: string }).id : null;
+        const caseId = "caseId" in msg ? (msg as { caseId: string | null }).caseId : null;
+        const caseNumber = "caseNumber" in msg ? (msg as { caseNumber: string | null }).caseNumber : null;
+        return (
+          <div key={msgId ?? i}>
+            <Link href={msgId ? `/messages?highlight=${msgId}` : "/messages"} style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="ttn-msg-preview">
+                <div className={`ttn-msg-avatar${msg.unread ? " unread" : ""}`}>
+                  {msg.initials}
+                </div>
+                <div className="ttn-msg-body">
+                  <div className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}>
+                    {msg.subject}
+                  </div>
+                  <div className="ttn-msg-snippet">{msg.snippet}</div>
+                </div>
+                <span className="ttn-msg-time">{msg.time}</span>
               </div>
-              <div className="ttn-msg-snippet">{msg.snippet}</div>
-            </div>
-            <span className="ttn-msg-time">{msg.time}</span>
+            </Link>
+            {caseId && caseNumber && (
+              <Link
+                href={`/cases/${caseId}`}
+                className="ttn-msg-case-link"
+                style={{ display: "block", fontSize: 11, color: "#666", paddingLeft: 44, marginTop: -4, marginBottom: 4, textDecoration: "none" }}
+              >
+                Case #{caseNumber}
+              </Link>
+            )}
           </div>
-        </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1316,17 +1334,19 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
             </Link>
           ))}
         {activeTab === "unmatched" && (
-          <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
-            {unmatchedCount > 0
-              ? `${unmatchedCount} email${unmatchedCount === 1 ? "" : "s"} need case matching`
-              : "No unmatched emails"}
-          </div>
+          <Link href="/email?filter=unmatched" style={{ textDecoration: "none", color: "inherit" }}>
+            <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
+              {unmatchedCount > 0
+                ? `${unmatchedCount} email${unmatchedCount === 1 ? "" : "s"} need case matching`
+                : "No unmatched emails"}
+            </div>
+          </Link>
         )}
       </div>
 
       <div style={{ padding: "12px 12px 0" }}>
         <Link
-          href="/email"
+          href={activeTab === "unmatched" ? "/email?filter=unmatched" : "/email"}
           style={{
             fontSize: 12,
             color: "#059669",

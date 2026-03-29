@@ -37,7 +37,13 @@ async function fetchDocuments(organizationId: string) {
     .limit(100);
 }
 
-export default async function DocumentsPage() {
+export default async function DocumentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const initialSource = params.source ?? null;
   const user = await requireSession();
 
   let recentDocs: Awaited<ReturnType<typeof fetchDocuments>> = [];
@@ -74,6 +80,7 @@ export default async function DocumentsPage() {
             caseNumber: d.caseNumber,
             caseId: d.caseId,
           }))}
+          initialSource={initialSource}
         />
       )}
     </div>

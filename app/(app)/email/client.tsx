@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,9 +39,11 @@ type CaseOption = {
 type EmailQueueClientProps = {
   emails: Email[];
   cases: CaseOption[];
+  initialFilter?: string;
 };
 
-export function EmailQueueClient({ emails, cases }: EmailQueueClientProps) {
+export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueClientProps) {
+  const unmatchedRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
@@ -88,6 +90,13 @@ export function EmailQueueClient({ emails, cases }: EmailQueueClientProps) {
   const unmatchedEmails = emails.filter((e) => !e.caseId);
   const matchedEmails = emails.filter((e) => e.caseId);
 
+  // Scroll to unmatched section when arriving via ?filter=unmatched
+  useEffect(() => {
+    if (initialFilter === "unmatched" && unmatchedRef.current) {
+      unmatchedRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [initialFilter]);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -105,7 +114,7 @@ export function EmailQueueClient({ emails, cases }: EmailQueueClientProps) {
       </div>
 
       {unmatchedEmails.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2" ref={unmatchedRef}>
           <h2 className="text-sm font-medium text-foreground">
             Unmatched Emails
           </h2>
