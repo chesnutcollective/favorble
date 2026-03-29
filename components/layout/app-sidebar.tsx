@@ -103,12 +103,16 @@ export function AppSidebar({
                       <HugeiconsIcon
                         icon={item.icon}
                         size={16}
-                        className={isActive(item.href) ? "opacity-100" : "opacity-50"}
+                        className={
+                          isActive(item.href) ? "opacity-100" : "opacity-50"
+                        }
                       />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {badge != null && <SidebarMenuBadge>{badge}</SidebarMenuBadge>}
+                  {badge != null && (
+                    <SidebarMenuBadge>{badge}</SidebarMenuBadge>
+                  )}
                 </SidebarMenuItem>
               );
             })}

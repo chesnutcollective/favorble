@@ -144,9 +144,7 @@ export type NavPanelData = {
 
 /* ─── Sub-queries ─── */
 
-async function getStageCounts(
-  organizationId: string,
-): Promise<StageCounts[]> {
+async function getStageCounts(organizationId: string): Promise<StageCounts[]> {
   const result = await db
     .select({
       stageId: cases.currentStageId,
@@ -177,9 +175,7 @@ async function getStageCounts(
   return result;
 }
 
-async function getTaskSummary(
-  userId: string,
-): Promise<TaskSummary> {
+async function getTaskSummary(userId: string): Promise<TaskSummary> {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today);
@@ -218,7 +214,9 @@ async function getTaskSummary(
           title: tasks.title,
           dueDate: tasks.dueDate,
           priority: tasks.priority,
-          caseNumber: sql<string | null>`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${tasks.caseId})`,
+          caseNumber: sql<
+            string | null
+          >`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${tasks.caseId})`,
         })
         .from(tasks)
         .where(and(...baseConditions))
@@ -234,9 +232,7 @@ async function getTaskSummary(
   };
 }
 
-async function getLeadCounts(
-  organizationId: string,
-): Promise<LeadCount[]> {
+async function getLeadCounts(organizationId: string): Promise<LeadCount[]> {
   const result = await db
     .select({
       status: leads.status,
@@ -244,19 +240,14 @@ async function getLeadCounts(
     })
     .from(leads)
     .where(
-      and(
-        eq(leads.organizationId, organizationId),
-        isNull(leads.deletedAt),
-      ),
+      and(eq(leads.organizationId, organizationId), isNull(leads.deletedAt)),
     )
     .groupBy(leads.status);
 
   return result;
 }
 
-async function getTodayEvents(
-  organizationId: string,
-): Promise<TodayEvent[]> {
+async function getTodayEvents(organizationId: string): Promise<TodayEvent[]> {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today);
@@ -269,7 +260,9 @@ async function getTodayEvents(
       startTime: calendarEvents.startAt,
       eventType: calendarEvents.eventType,
       caseId: calendarEvents.caseId,
-      caseNumber: sql<string | null>`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${calendarEvents.caseId})`,
+      caseNumber: sql<
+        string | null
+      >`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${calendarEvents.caseId})`,
     })
     .from(calendarEvents)
     .where(
@@ -295,7 +288,9 @@ async function getRecentActivity(
       action: auditLog.action,
       entityType: auditLog.entityType,
       entityId: auditLog.entityId,
-      userName: sql<string | null>`(select concat(${users.firstName}, ' ', ${users.lastName}) from ${users} where ${users.id} = ${auditLog.userId})`,
+      userName: sql<
+        string | null
+      >`(select concat(${users.firstName}, ' ', ${users.lastName}) from ${users} where ${users.id} = ${auditLog.userId})`,
       timestamp: auditLog.createdAt,
     })
     .from(auditLog)
@@ -309,64 +304,65 @@ async function getRecentActivity(
 async function getDocumentSummary(
   organizationId: string,
 ): Promise<DocumentSummary> {
-  const [totalResult, categoryCounts, sourceCounts, recentUploads] = await Promise.all([
-    db
-      .select({ count: count() })
-      .from(documents)
-      .innerJoin(cases, eq(documents.caseId, cases.id))
-      .where(
-        and(
-          eq(cases.organizationId, organizationId),
-          isNull(documents.deletedAt),
+  const [totalResult, categoryCounts, sourceCounts, recentUploads] =
+    await Promise.all([
+      db
+        .select({ count: count() })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+          ),
         ),
-      ),
-    db
-      .select({
-        category: documents.category,
-        count: count(),
-      })
-      .from(documents)
-      .innerJoin(cases, eq(documents.caseId, cases.id))
-      .where(
-        and(
-          eq(cases.organizationId, organizationId),
-          isNull(documents.deletedAt),
-        ),
-      )
-      .groupBy(documents.category),
-    db
-      .select({
-        source: documents.source,
-        count: count(),
-      })
-      .from(documents)
-      .innerJoin(cases, eq(documents.caseId, cases.id))
-      .where(
-        and(
-          eq(cases.organizationId, organizationId),
-          isNull(documents.deletedAt),
-        ),
-      )
-      .groupBy(documents.source),
-    db
-      .select({
-        id: documents.id,
-        fileName: documents.fileName,
-        fileType: documents.fileType,
-        createdAt: documents.createdAt,
-        caseNumber: cases.caseNumber,
-      })
-      .from(documents)
-      .innerJoin(cases, eq(documents.caseId, cases.id))
-      .where(
-        and(
-          eq(cases.organizationId, organizationId),
-          isNull(documents.deletedAt),
-        ),
-      )
-      .orderBy(desc(documents.createdAt))
-      .limit(5),
-  ]);
+      db
+        .select({
+          category: documents.category,
+          count: count(),
+        })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+          ),
+        )
+        .groupBy(documents.category),
+      db
+        .select({
+          source: documents.source,
+          count: count(),
+        })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+          ),
+        )
+        .groupBy(documents.source),
+      db
+        .select({
+          id: documents.id,
+          fileName: documents.fileName,
+          fileType: documents.fileType,
+          createdAt: documents.createdAt,
+          caseNumber: cases.caseNumber,
+        })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+          ),
+        )
+        .orderBy(desc(documents.createdAt))
+        .limit(5),
+    ]);
 
   const byCategoryCount: Record<string, number> = {};
   for (const row of categoryCounts) {
@@ -498,9 +494,7 @@ async function getMessageSummary(
   };
 }
 
-async function getEmailSummary(
-  organizationId: string,
-): Promise<EmailSummary> {
+async function getEmailSummary(organizationId: string): Promise<EmailSummary> {
   const isOutlookConfigured = !!(
     process.env.MICROSOFT_CLIENT_ID &&
     process.env.MICROSOFT_CLIENT_SECRET &&
@@ -535,7 +529,9 @@ async function getEmailSummary(
         fromAddress: communications.fromAddress,
         createdAt: communications.createdAt,
         caseId: communications.caseId,
-        caseNumber: sql<string | null>`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${communications.caseId})`,
+        caseNumber: sql<
+          string | null
+        >`(select ${cases.caseNumber} from ${cases} where ${cases.id} = ${communications.caseId})`,
       })
       .from(communications)
       .where(

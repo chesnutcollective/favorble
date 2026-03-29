@@ -100,9 +100,7 @@ function CardTitleRow({ children }: { children: React.ReactNode }) {
 }
 
 function CardMeta({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[11px] text-[#999] font-mono">{children}</div>
-  );
+  return <div className="text-[11px] text-[#999] font-mono">{children}</div>;
 }
 
 // ── Section label ───────────────────────────────────────────────────────────
@@ -136,17 +134,11 @@ function ALJApprovalRates({
       <div>
         {data.map((alj, i) => {
           const favPct =
-            alj.total > 0
-              ? Math.round((alj.favorable / alj.total) * 100)
-              : 0;
+            alj.total > 0 ? Math.round((alj.favorable / alj.total) * 100) : 0;
           const remPct =
-            alj.total > 0
-              ? Math.round((alj.remand / alj.total) * 100)
-              : 0;
+            alj.total > 0 ? Math.round((alj.remand / alj.total) * 100) : 0;
           const unfPct =
-            alj.total > 0
-              ? Math.round((alj.unfavorable / alj.total) * 100)
-              : 0;
+            alj.total > 0 ? Math.round((alj.unfavorable / alj.total) * 100) : 0;
 
           const pctColor =
             favPct >= 55
@@ -156,10 +148,7 @@ function ALJApprovalRates({
                 : COLORS.textPrimary;
 
           return (
-            <div
-              key={alj.aljName}
-              className="flex items-center gap-3 mb-3"
-            >
+            <div key={alj.aljName} className="flex items-center gap-3 mb-3">
               {/* ALJ name */}
               <div className="w-[140px] min-w-[140px] text-[12px] text-right text-[#171717] whitespace-nowrap overflow-hidden text-ellipsis">
                 {alj.aljName}
@@ -301,7 +290,7 @@ function ListingMatchAnalysis({
             const pos = positions[i % positions.length];
             const r =
               maxCount > 0
-                ? minR + ((item.count / maxCount) * (maxR - minR))
+                ? minR + (item.count / maxCount) * (maxR - minR)
                 : minR;
             const fill = bubbleColor(item.winRate);
 
@@ -401,45 +390,45 @@ function DenialPatternTracker({
     <Card>
       <CardTitle>Denial Pattern Tracker</CardTitle>
       <div className="overflow-x-auto -mx-5 px-5">
-      <table className="w-full border-collapse min-w-[500px]">
-        <thead>
-          <tr>
-            <th className="text-[10px] font-medium uppercase tracking-[0.05em] text-[#999] px-3 py-2 text-left border-b border-[#EAEAEA]">
-              Reason
-            </th>
-            {monthHeaders.map((m) => (
-              <th
-                key={m}
-                className="text-[10px] font-medium uppercase tracking-[0.05em] text-[#999] px-3 py-2 text-center border-b border-[#EAEAEA]"
-              >
-                {m}
+        <table className="w-full border-collapse min-w-[500px]">
+          <thead>
+            <tr>
+              <th className="text-[10px] font-medium uppercase tracking-[0.05em] text-[#999] px-3 py-2 text-left border-b border-[#EAEAEA]">
+                Reason
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr
-              key={row.reason}
-              className="border-b border-[#EAEAEA] last:border-b-0"
-            >
-              <td className="text-left text-[#666] text-[12px] px-3 py-2">
-                {row.reason}
-              </td>
-              {row.monthlyData.map((val, mi) => (
-                <td key={mi} className="text-center px-3 py-2">
-                  <span
-                    className="inline-flex items-center justify-center w-[44px] h-[26px] rounded-[4px] text-[10px] font-mono font-medium"
-                    style={cellStyle(val)}
-                  >
-                    {val}
-                  </span>
-                </td>
+              {monthHeaders.map((m) => (
+                <th
+                  key={m}
+                  className="text-[10px] font-medium uppercase tracking-[0.05em] text-[#999] px-3 py-2 text-center border-b border-[#EAEAEA]"
+                >
+                  {m}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr
+                key={row.reason}
+                className="border-b border-[#EAEAEA] last:border-b-0"
+              >
+                <td className="text-left text-[#666] text-[12px] px-3 py-2">
+                  {row.reason}
+                </td>
+                {row.monthlyData.map((val, mi) => (
+                  <td key={mi} className="text-center px-3 py-2">
+                    <span
+                      className="inline-flex items-center justify-center w-[44px] h-[26px] rounded-[4px] text-[10px] font-mono font-medium"
+                      style={cellStyle(val)}
+                    >
+                      {val}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Card>
   );
@@ -570,9 +559,8 @@ function TimeToHearingScatter({
           const cx = officeXMap[d.hearingOffice] ?? padL;
           // Add a small random-ish offset per case so dots don't all stack
           const hash =
-            d.caseId
-              .split("")
-              .reduce((acc, c) => acc + c.charCodeAt(0), 0) % 30;
+            d.caseId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+            30;
           const offsetX = hash - 15;
           const cy = yPos(Math.min(d.daysToHearing, maxDays));
           return (
@@ -666,11 +654,7 @@ function PastDueBenefitsProjection({
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={COLORS.blue} stopOpacity={0.25} />
-              <stop
-                offset="100%"
-                stopColor={COLORS.blue}
-                stopOpacity={0.02}
-              />
+              <stop offset="100%" stopColor={COLORS.blue} stopOpacity={0.02} />
             </linearGradient>
           </defs>
 
@@ -781,9 +765,7 @@ function PastDueBenefitsProjection({
                 fontSize={9}
                 fontFamily="'Geist Mono', monospace"
               >
-                {formatDollars(
-                  solidPoints[solidPoints.length - 1].projected,
-                )}
+                {formatDollars(solidPoints[solidPoints.length - 1].projected)}
               </text>
             </>
           )}

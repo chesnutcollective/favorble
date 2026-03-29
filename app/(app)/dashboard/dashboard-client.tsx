@@ -95,11 +95,7 @@ function DashboardStatCard({
 // ---------------------------------------------------------------------------
 // Urgent Queue
 // ---------------------------------------------------------------------------
-function UrgentQueue({
-  items,
-}: {
-  items: DashboardData["urgentItems"];
-}) {
+function UrgentQueue({ items }: { items: DashboardData["urgentItems"] }) {
   const iconClass: Record<string, string> = {
     overdue: "bg-[#FDECEA] text-[#EE0000]",
     warning: "bg-[#FFF3E0] text-[#F5A623]",
@@ -146,11 +142,7 @@ function UrgentQueue({
 // ---------------------------------------------------------------------------
 // Pipeline Funnel
 // ---------------------------------------------------------------------------
-function PipelineFunnel({
-  stages,
-}: {
-  stages: DashboardData["funnelStages"];
-}) {
+function PipelineFunnel({ stages }: { stages: DashboardData["funnelStages"] }) {
   return (
     <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">

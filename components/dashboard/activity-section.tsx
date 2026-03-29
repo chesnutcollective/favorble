@@ -205,9 +205,7 @@ function LiveActivityFeed({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[13px] leading-[1.4] text-[#171717]">
-                      <strong className="font-semibold">
-                        {item.userName}
-                      </strong>{" "}
+                      <strong className="font-semibold">{item.userName}</strong>{" "}
                       <span
                         dangerouslySetInnerHTML={{
                           __html: item.description,
@@ -354,10 +352,7 @@ function TeamActivityHeatmap({
     "7p",
   ];
 
-  const globalMax = Math.max(
-    ...data.flatMap((m) => m.hourlyActivity),
-    1,
-  );
+  const globalMax = Math.max(...data.flatMap((m) => m.hourlyActivity), 1);
 
   return (
     <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">

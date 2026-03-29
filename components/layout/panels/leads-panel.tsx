@@ -82,8 +82,7 @@ export function LeadsPanel({
               </span>
               <span
                 style={{
-                  fontFamily:
-                    "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   fontSize: 11,
                   fontWeight: 600,
                   color: "#10B981",

@@ -139,7 +139,9 @@ export function ChronologyTimeline({
                             )
                           : "No date"}
                       </span>
-                      <Badge className={cn("text-xs bg-transparent", colors.label)}>
+                      <Badge
+                        className={cn("text-xs bg-transparent", colors.label)}
+                      >
                         {ENTRY_TYPE_LABELS[entry.entryType] ?? entry.entryType}
                       </Badge>
                       {entry.isVerified && (

@@ -77,10 +77,7 @@ function RfcLimitationPatterns({
           const physPct = Math.round((row.physical / maxCount) * 100);
           const mentPct = Math.round((row.mental / maxCount) * 100);
           return (
-            <div
-              key={row.limitation}
-              className="flex items-center gap-3 mb-2"
-            >
+            <div key={row.limitation} className="flex items-center gap-3 mb-2">
               <div className="w-[120px] text-[11px] text-[#666] text-right shrink-0">
                 {row.limitation}
               </div>
@@ -122,11 +119,17 @@ function RfcLimitationPatterns({
       </div>
       <div className="flex gap-4 mt-3">
         <div className="flex items-center gap-2 text-[11px] font-mono text-[#666]">
-          <div className="w-2 h-2 rounded-sm" style={{ background: "#0070F3" }} />
+          <div
+            className="w-2 h-2 rounded-sm"
+            style={{ background: "#0070F3" }}
+          />
           Physical
         </div>
         <div className="flex items-center gap-2 text-[11px] font-mono text-[#666]">
-          <div className="w-2 h-2 rounded-sm" style={{ background: "#7928CA" }} />
+          <div
+            className="w-2 h-2 rounded-sm"
+            style={{ background: "#7928CA" }}
+          />
           Mental
         </div>
       </div>
@@ -244,11 +247,17 @@ function CeOutcomesDonut({
         </svg>
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-xs font-mono text-[#666]">
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ background: "#00C853" }} />
+            <div
+              className="w-2.5 h-2.5 rounded-sm"
+              style={{ background: "#00C853" }}
+            />
             Supportive: {supportivePct}%
           </div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#666]">
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ background: "#F5A623" }} />
+            <div
+              className="w-2.5 h-2.5 rounded-sm"
+              style={{ background: "#F5A623" }}
+            />
             Neutral: {neutralPct}%
           </div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#666]">

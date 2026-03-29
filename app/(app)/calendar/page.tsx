@@ -57,7 +57,8 @@ export default async function CalendarPage({
 
   // If a date param is provided (YYYY-MM-DD), use that; otherwise default to today
   const parsedDate = initialDateParam ? new Date(initialDateParam) : null;
-  const now = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+  const now =
+    parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
 

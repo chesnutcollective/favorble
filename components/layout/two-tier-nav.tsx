@@ -32,7 +32,13 @@ const mainNav: RailItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M4 2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm12 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 14h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm12 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z" />
       </svg>
     ),
@@ -42,7 +48,13 @@ const mainNav: RailItem[] = [
     label: "Cases",
     href: "/cases",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M20 6h-8l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z" />
       </svg>
     ),
@@ -52,7 +64,13 @@ const mainNav: RailItem[] = [
     label: "Leads",
     href: "/leads",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
       </svg>
     ),
@@ -62,7 +80,13 @@ const mainNav: RailItem[] = [
     label: "Queue",
     href: "/queue",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
       </svg>
     ),
@@ -72,7 +96,13 @@ const mainNav: RailItem[] = [
     label: "Calendar",
     href: "/calendar",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z" />
       </svg>
     ),
@@ -82,7 +112,13 @@ const mainNav: RailItem[] = [
     label: "Messages",
     href: "/messages",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
       </svg>
     ),
@@ -93,7 +129,13 @@ const mainNav: RailItem[] = [
     label: "Email",
     href: "/email",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
       </svg>
     ),
@@ -103,7 +145,13 @@ const mainNav: RailItem[] = [
     label: "Contacts",
     href: "/contacts",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
       </svg>
     ),
@@ -113,7 +161,13 @@ const mainNav: RailItem[] = [
     label: "Documents",
     href: "/documents",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z" />
       </svg>
     ),
@@ -123,7 +177,13 @@ const mainNav: RailItem[] = [
     label: "Reports",
     href: "/reports",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
         <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
       </svg>
     ),
@@ -131,7 +191,13 @@ const mainNav: RailItem[] = [
 ];
 
 const settingsIcon = (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    width="18"
+    height="18"
+  >
     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z" />
   </svg>
 );
@@ -145,13 +211,37 @@ interface SettingsItem {
 }
 
 const settingsNav: SettingsItem[] = [
-  { label: "General", href: "/admin/settings", description: "Organization and account" },
+  {
+    label: "General",
+    href: "/admin/settings",
+    description: "Organization and account",
+  },
   { label: "Users", href: "/admin/users", description: "Manage team access" },
-  { label: "Stages", href: "/admin/stages", description: "Define case progression" },
-  { label: "Fields", href: "/admin/fields", description: "Customize data fields" },
-  { label: "Templates", href: "/admin/templates", description: "Document templates" },
-  { label: "Workflows", href: "/admin/workflows", description: "Automate case actions" },
-  { label: "Integrations", href: "/admin/integrations", description: "Connect external services" },
+  {
+    label: "Stages",
+    href: "/admin/stages",
+    description: "Define case progression",
+  },
+  {
+    label: "Fields",
+    href: "/admin/fields",
+    description: "Customize data fields",
+  },
+  {
+    label: "Templates",
+    href: "/admin/templates",
+    description: "Document templates",
+  },
+  {
+    label: "Workflows",
+    href: "/admin/workflows",
+    description: "Automate case actions",
+  },
+  {
+    label: "Integrations",
+    href: "/admin/integrations",
+    description: "Connect external services",
+  },
 ];
 
 /* ─── Determine active rail item from pathname ─── */
@@ -309,7 +399,10 @@ export function TwoTierNav({
             <CasesPanel active={visiblePanel === "cases"} navData={navData} />
 
             {/* Messages Panel */}
-            <MessagesPanel active={visiblePanel === "messages"} navData={navData} />
+            <MessagesPanel
+              active={visiblePanel === "messages"}
+              navData={navData}
+            />
 
             {/* Leads Panel */}
             <LeadsPanel active={visiblePanel === "leads"} />
@@ -318,19 +411,31 @@ export function TwoTierNav({
             <QueuePanel active={visiblePanel === "queue"} navData={navData} />
 
             {/* Calendar Panel */}
-            <CalendarPanel active={visiblePanel === "calendar"} navData={navData} />
+            <CalendarPanel
+              active={visiblePanel === "calendar"}
+              navData={navData}
+            />
 
             {/* Email Panel */}
             <EmailPanel active={visiblePanel === "email"} navData={navData} />
 
             {/* Contacts Panel */}
-            <ContactsPanel active={visiblePanel === "contacts"} navData={navData} />
+            <ContactsPanel
+              active={visiblePanel === "contacts"}
+              navData={navData}
+            />
 
             {/* Documents Panel */}
-            <DocumentsPanel active={visiblePanel === "documents"} navData={navData} />
+            <DocumentsPanel
+              active={visiblePanel === "documents"}
+              navData={navData}
+            />
 
             {/* Reports Panel */}
-            <ReportsPanel active={visiblePanel === "reports"} navData={navData} />
+            <ReportsPanel
+              active={visiblePanel === "reports"}
+              navData={navData}
+            />
 
             {/* Settings Panel */}
             <SettingsPanel
@@ -342,7 +447,18 @@ export function TwoTierNav({
             {mainNav
               .filter(
                 (item) =>
-                  !["dashboard", "cases", "messages", "leads", "queue", "calendar", "email", "contacts", "documents", "reports"].includes(item.id),
+                  ![
+                    "dashboard",
+                    "cases",
+                    "messages",
+                    "leads",
+                    "queue",
+                    "calendar",
+                    "email",
+                    "contacts",
+                    "documents",
+                    "reports",
+                  ].includes(item.id),
               )
               .map((item) => (
                 <DefaultPanel
@@ -393,7 +509,11 @@ function formatRelativeTime(dateStr: string | Date): string {
 
 function formatEventTime(dateStr: string | Date): string {
   const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
-  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 function getInitials(str: string | null): string {
@@ -405,14 +525,18 @@ function getInitials(str: string | null): string {
 
 function getEventColor(eventType: string | null): string {
   switch (eventType) {
-    case "hearing": return "#059669";
-    case "deadline": return "#F59E0B";
-    case "consultation": return "#3B82F6";
-    case "meeting": return "#8B5CF6";
-    default: return "#059669";
+    case "hearing":
+      return "#059669";
+    case "deadline":
+      return "#F59E0B";
+    case "consultation":
+      return "#3B82F6";
+    case "meeting":
+      return "#8B5CF6";
+    default:
+      return "#059669";
   }
 }
-
 
 function DashboardPanel({
   active,
@@ -536,7 +660,10 @@ function DashboardPanel({
 function CasesPanel({
   active,
   navData,
-}: { active: boolean; navData?: NavPanelData }) {
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const searchParams = useSearchParams();
   const activeStageId = searchParams.get("stage");
   const currentPathname = usePathname();
@@ -602,13 +729,10 @@ function CasesPanel({
       </Link>
 
       {stages.map((stage) => {
-        const isStageActive =
-          isCasesPage && activeStageId === stage.stageId;
+        const isStageActive = isCasesPage && activeStageId === stage.stageId;
         return (
           <Link
-            href={
-              isStageActive ? "/cases" : `/cases?stage=${stage.stageId}`
-            }
+            href={isStageActive ? "/cases" : `/cases?stage=${stage.stageId}`}
             key={stage.stageId}
             className="ttn-stage-item"
             style={{
@@ -672,28 +796,50 @@ function CasesPanel({
 function MessagesPanel({
   active,
   navData,
-}: { active: boolean; navData?: NavPanelData }) {
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const msgs = navData?.messageSummary;
   const unreadCount = msgs?.unreadCount ?? 0;
 
   const fallbackMessages = [
-    { initials: "SM", unread: true, subject: "Martinez Case Update", snippet: "Re: Updated medical records received from...", time: "12m" },
-    { initials: "JD", unread: true, subject: "Thompson Hearing Date", snippet: "The ALJ has scheduled the hearing for...", time: "2h" },
-    { initials: "KL", unread: false, subject: "Chen Document Review", snippet: "Please review the attached brief when...", time: "1d" },
+    {
+      initials: "SM",
+      unread: true,
+      subject: "Martinez Case Update",
+      snippet: "Re: Updated medical records received from...",
+      time: "12m",
+    },
+    {
+      initials: "JD",
+      unread: true,
+      subject: "Thompson Hearing Date",
+      snippet: "The ALJ has scheduled the hearing for...",
+      time: "2h",
+    },
+    {
+      initials: "KL",
+      unread: false,
+      subject: "Chen Document Review",
+      snippet: "Please review the attached brief when...",
+      time: "1d",
+    },
   ];
 
-  const recentMessages = msgs?.recentMessages && msgs.recentMessages.length > 0
-    ? msgs.recentMessages.slice(0, 3).map((m) => ({
-        id: m.id,
-        initials: getInitials(m.fromAddress),
-        unread: m.direction === "inbound",
-        subject: m.subject ?? "(no subject)",
-        snippet: m.body ? m.body.substring(0, 60) + "..." : "",
-        time: formatRelativeTime(m.createdAt),
-        caseId: m.caseId,
-        caseNumber: m.caseNumber,
-      }))
-    : null;
+  const recentMessages =
+    msgs?.recentMessages && msgs.recentMessages.length > 0
+      ? msgs.recentMessages.slice(0, 3).map((m) => ({
+          id: m.id,
+          initials: getInitials(m.fromAddress),
+          unread: m.direction === "inbound",
+          subject: m.subject ?? "(no subject)",
+          snippet: m.body ? m.body.substring(0, 60) + "..." : "",
+          time: formatRelativeTime(m.createdAt),
+          caseId: m.caseId,
+          caseNumber: m.caseNumber,
+        }))
+      : null;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -702,7 +848,9 @@ function MessagesPanel({
       <div className="ttn-section-label">Folders</div>
       <Link href="/messages" className="ttn-msg-folder active">
         <span>Inbox</span>
-        {unreadCount > 0 && <span className="ttn-folder-count">{unreadCount}</span>}
+        {unreadCount > 0 && (
+          <span className="ttn-folder-count">{unreadCount}</span>
+        )}
       </Link>
 
       <div className="ttn-section-label" style={{ marginTop: 16 }}>
@@ -710,17 +858,26 @@ function MessagesPanel({
       </div>
       {(recentMessages ?? fallbackMessages).map((msg, i) => {
         const msgId = "id" in msg ? (msg as { id: string }).id : null;
-        const caseId = "caseId" in msg ? (msg as { caseId: string | null }).caseId : null;
-        const caseNumber = "caseNumber" in msg ? (msg as { caseNumber: string | null }).caseNumber : null;
+        const caseId =
+          "caseId" in msg ? (msg as { caseId: string | null }).caseId : null;
+        const caseNumber =
+          "caseNumber" in msg
+            ? (msg as { caseNumber: string | null }).caseNumber
+            : null;
         return (
           <div key={msgId ?? i}>
-            <Link href={msgId ? `/messages?highlight=${msgId}` : "/messages"} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link
+              href={msgId ? `/messages?highlight=${msgId}` : "/messages"}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
               <div className="ttn-msg-preview">
                 <div className={`ttn-msg-avatar${msg.unread ? " unread" : ""}`}>
                   {msg.initials}
                 </div>
                 <div className="ttn-msg-body">
-                  <div className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}>
+                  <div
+                    className={`ttn-msg-subject${msg.unread ? " unread" : ""}`}
+                  >
                     {msg.subject}
                   </div>
                   <div className="ttn-msg-snippet">{msg.snippet}</div>
@@ -732,7 +889,15 @@ function MessagesPanel({
               <Link
                 href={`/cases/${caseId}`}
                 className="ttn-msg-case-link"
-                style={{ display: "block", fontSize: 11, color: "#666", paddingLeft: 44, marginTop: -4, marginBottom: 4, textDecoration: "none" }}
+                style={{
+                  display: "block",
+                  fontSize: 11,
+                  color: "#666",
+                  paddingLeft: 44,
+                  marginTop: -4,
+                  marginBottom: 4,
+                  textDecoration: "none",
+                }}
               >
                 Case #{caseNumber}
               </Link>
@@ -762,9 +927,23 @@ function SettingsPanel({
           className={`ttn-panel-item${pathname === item.href || pathname.startsWith(item.href + "/") ? " active" : ""}`}
           style={{ alignItems: "flex-start", paddingTop: 8, paddingBottom: 8 }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              minWidth: 0,
+            }}
+          >
             <span>{item.label}</span>
-            <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 400, lineHeight: 1.3 }}>
+            <span
+              style={{
+                fontSize: 11,
+                color: "#9CA3AF",
+                fontWeight: 400,
+                lineHeight: 1.3,
+              }}
+            >
               {item.description}
             </span>
           </div>
@@ -788,7 +967,13 @@ function SettingsPanel({
   );
 }
 
-function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function LeadsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const STAGE_COLORS: Record<string, string> = {
     new: "#10B981",
     contacted: "#3B82F6",
@@ -796,7 +981,13 @@ function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
     contract_sent: "#8B5CF6",
     contract_signed: "#059669",
   };
-  const PIPELINE_ORDER = ["new", "contacted", "intake_in_progress", "contract_sent", "contract_signed"];
+  const PIPELINE_ORDER = [
+    "new",
+    "contacted",
+    "intake_in_progress",
+    "contract_sent",
+    "contract_signed",
+  ];
   const LABEL_MAP: Record<string, string> = {
     new: "New",
     contacted: "Contacted",
@@ -824,20 +1015,36 @@ function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   }
   const maxCount = Math.max(...pipelineStages.map((s) => s.count), 1);
   const totalLeads = pipelineStages.reduce((sum, s) => sum + s.count, 0);
-  const signedCount = pipelineStages.find((s) => s.status === "contract_signed")?.count ?? 0;
-  const conversionRate = totalLeads > 0 ? Math.round((signedCount / totalLeads) * 100) : 0;
+  const signedCount =
+    pipelineStages.find((s) => s.status === "contract_signed")?.count ?? 0;
+  const conversionRate =
+    totalLeads > 0 ? Math.round((signedCount / totalLeads) * 100) : 0;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
       <div className="ttn-panel-header">Leads</div>
 
       <div className="ttn-section-label">Pipeline</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: "0 12px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 0,
+          padding: "0 12px",
+        }}
+      >
         {pipelineStages.map((stage, i) => (
           <React.Fragment key={stage.status}>
             <Link
               href={`/leads?status=${stage.status}`}
-              style={{ display: "flex", flexDirection: "column", gap: 4, padding: "6px 0", textDecoration: "none", color: "inherit" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                padding: "6px 0",
+                textDecoration: "none",
+                color: "inherit",
+              }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span
@@ -849,7 +1056,9 @@ function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 12, color: "#1C1C1E", flex: 1 }}>{stage.label}</span>
+                <span style={{ fontSize: 12, color: "#1C1C1E", flex: 1 }}>
+                  {stage.label}
+                </span>
                 <span
                   style={{
                     fontSize: 10,
@@ -925,20 +1134,54 @@ function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   );
 }
 
-function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function QueuePanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const fallbackTasks = [
-    { id: "1", title: "Follow up with Martinez on medical records", due: "Today", overdue: true },
-    { id: "2", title: "File Thompson motion to compel", due: "Today", overdue: true },
-    { id: "3", title: "Review Chen deposition transcript", due: "Yesterday", overdue: true },
-    { id: "4", title: "Draft Wilson intake summary", due: "Mar 30", overdue: false },
-    { id: "5", title: "Schedule Davis hearing prep call", due: "Mar 31", overdue: false },
+    {
+      id: "1",
+      title: "Follow up with Martinez on medical records",
+      due: "Today",
+      overdue: true,
+    },
+    {
+      id: "2",
+      title: "File Thompson motion to compel",
+      due: "Today",
+      overdue: true,
+    },
+    {
+      id: "3",
+      title: "Review Chen deposition transcript",
+      due: "Yesterday",
+      overdue: true,
+    },
+    {
+      id: "4",
+      title: "Draft Wilson intake summary",
+      due: "Mar 30",
+      overdue: false,
+    },
+    {
+      id: "5",
+      title: "Schedule Davis hearing prep call",
+      due: "Mar 31",
+      overdue: false,
+    },
   ];
 
   const taskSummary = navData?.taskSummary;
   const totalTasks = taskSummary?.total ?? 12;
   const overdueCount = taskSummary?.overdue ?? 3;
 
-  function formatTaskDue(dueDate: Date | null): { label: string; isOverdue: boolean } {
+  function formatTaskDue(dueDate: Date | null): {
+    label: string;
+    isOverdue: boolean;
+  } {
     if (!dueDate) return { label: "No date", isOverdue: false };
     const due = new Date(dueDate);
     const now = new Date();
@@ -950,18 +1193,30 @@ function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelDa
     const diff = Math.ceil((due.getTime() - today.getTime()) / 86400000);
     if (diff === 1) return { label: "Tomorrow", isOverdue: false };
     return {
-      label: due.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      label: due.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
       isOverdue: false,
     };
   }
 
-  const displayTasks: Array<{ id: string; title: string; due: string; overdue: boolean }> =
-    taskSummary?.topTasks?.length
-      ? taskSummary.topTasks.map((t) => {
-          const dueInfo = formatTaskDue(t.dueDate);
-          return { id: t.id, title: t.title, due: dueInfo.label, overdue: dueInfo.isOverdue };
-        })
-      : fallbackTasks;
+  const displayTasks: Array<{
+    id: string;
+    title: string;
+    due: string;
+    overdue: boolean;
+  }> = taskSummary?.topTasks?.length
+    ? taskSummary.topTasks.map((t) => {
+        const dueInfo = formatTaskDue(t.dueDate);
+        return {
+          id: t.id,
+          title: t.title,
+          due: dueInfo.label,
+          overdue: dueInfo.isOverdue,
+        };
+      })
+    : fallbackTasks;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -976,7 +1231,10 @@ function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelDa
       >
         {totalTasks} task{totalTasks !== 1 ? "s" : ""} &middot;{" "}
         {overdueCount > 0 ? (
-          <Link href="/queue?tab=overdue" style={{ color: "#EE0000", textDecoration: "none" }}>
+          <Link
+            href="/queue?tab=overdue"
+            style={{ color: "#EE0000", textDecoration: "none" }}
+          >
             {overdueCount} overdue
           </Link>
         ) : (
@@ -994,7 +1252,8 @@ function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelDa
               alignItems: "flex-start",
               gap: 8,
               padding: "8px 12px",
-              borderBottom: i < displayTasks.length - 1 ? "1px solid #F0F0F0" : "none",
+              borderBottom:
+                i < displayTasks.length - 1 ? "1px solid #F0F0F0" : "none",
               textDecoration: "none",
               color: "inherit",
             }}
@@ -1052,7 +1311,13 @@ function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   );
 }
 
-function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function CalendarPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const now = new Date();
   const monthYear = now
     .toLocaleDateString("en-US", { month: "long", year: "numeric" })
@@ -1060,7 +1325,12 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
 
   const today = now.getDate();
   const dayOfWeek = now.getDay();
-  const weekDays: { label: string; date: number; isToday: boolean; fullDate: string }[] = [];
+  const weekDays: {
+    label: string;
+    date: number;
+    isToday: boolean;
+    fullDate: string;
+  }[] = [];
   for (let i = 0; i < 7; i++) {
     const diff = i - dayOfWeek;
     const d = new Date(now);
@@ -1082,9 +1352,30 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
   const MAX_DISPLAY_EVENTS = 5;
 
   const fallbackEvents = [
-    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669", href: "/calendar", caseName: null as string | null },
-    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B", href: "/calendar", caseName: null as string | null },
-    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669", href: "/calendar", caseName: null as string | null },
+    {
+      time: "10:00 AM",
+      title: "Martinez Hearing",
+      type: "Hearing",
+      color: "#059669",
+      href: "/calendar",
+      caseName: null as string | null,
+    },
+    {
+      time: "1:30 PM",
+      title: "Thompson Filing Deadline",
+      type: "Deadline",
+      color: "#F59E0B",
+      href: "/calendar",
+      caseName: null as string | null,
+    },
+    {
+      time: "3:00 PM",
+      title: "Chen Status Conference",
+      type: "Hearing",
+      color: "#059669",
+      href: "/calendar",
+      caseName: null as string | null,
+    },
   ];
 
   const events = hasEvents
@@ -1099,11 +1390,18 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
       }))
     : null;
 
-  const remainingEvents = eventCount > MAX_DISPLAY_EVENTS ? eventCount - MAX_DISPLAY_EVENTS : 0;
+  const remainingEvents =
+    eventCount > MAX_DISPLAY_EVENTS ? eventCount - MAX_DISPLAY_EVENTS : 0;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div className="ttn-panel-header">Calendar</div>
         <Link
           href="/calendar?action=new"
@@ -1232,7 +1530,9 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
                 }}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: "#1C1C1E" }}>{event.title}</div>
+                <div style={{ fontSize: 12, color: "#1C1C1E" }}>
+                  {event.title}
+                </div>
                 {event.caseName && (
                   <div style={{ fontSize: 10, color: "#999", marginTop: 1 }}>
                     {event.caseName}
@@ -1289,29 +1589,66 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
   );
 }
 
-function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
-  const [activeTab, setActiveTab] = useState<"matched" | "unmatched">("matched");
+function EmailPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const [activeTab, setActiveTab] = useState<"matched" | "unmatched">(
+    "matched",
+  );
   const emailData = navData?.emailSummary;
   const connected = emailData?.isOutlookConfigured ?? false;
   const unmatchedCount = emailData?.unmatchedCount ?? 0;
 
   const fallbackEmails = [
-    { id: "fb-1", initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015" as string | null, caseId: null as string | null, time: "9:14 AM" },
-    { id: "fb-2", initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987" as string | null, caseId: null as string | null, time: "8:42 AM" },
-    { id: "fb-3", initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102" as string | null, caseId: null as string | null, time: "Yesterday" },
-    { id: "fb-4", initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098" as string | null, caseId: null as string | null, time: "Yesterday" },
+    {
+      id: "fb-1",
+      initials: "JM",
+      subject: "RE: Medical records request for Martinez",
+      caseLink: "HS-2026-1015" as string | null,
+      caseId: null as string | null,
+      time: "9:14 AM",
+    },
+    {
+      id: "fb-2",
+      initials: "KT",
+      subject: "Thompson hearing confirmation from ALJ",
+      caseLink: "HS-2026-0987" as string | null,
+      caseId: null as string | null,
+      time: "8:42 AM",
+    },
+    {
+      id: "fb-3",
+      initials: "LD",
+      subject: "Davis CE appointment scheduling",
+      caseLink: "HS-2026-1102" as string | null,
+      caseId: null as string | null,
+      time: "Yesterday",
+    },
+    {
+      id: "fb-4",
+      initials: "RW",
+      subject: "Wilson intake documents received",
+      caseLink: "HS-2026-1098" as string | null,
+      caseId: null as string | null,
+      time: "Yesterday",
+    },
   ];
 
-  const realEmails = emailData?.recentEmails && emailData.recentEmails.length > 0
-    ? emailData.recentEmails.slice(0, 4).map((e) => ({
-        id: e.id,
-        initials: getInitials(e.fromAddress),
-        subject: e.subject ?? "(no subject)",
-        caseLink: e.caseNumber ?? null,
-        caseId: e.caseId,
-        time: formatRelativeTime(e.createdAt),
-      }))
-    : null;
+  const realEmails =
+    emailData?.recentEmails && emailData.recentEmails.length > 0
+      ? emailData.recentEmails.slice(0, 4).map((e) => ({
+          id: e.id,
+          initials: getInitials(e.fromAddress),
+          subject: e.subject ?? "(no subject)",
+          caseLink: e.caseNumber ?? null,
+          caseId: e.caseId,
+          time: formatRelativeTime(e.createdAt),
+        }))
+      : null;
 
   const displayEmails = realEmails ?? fallbackEmails;
 
@@ -1320,7 +1657,14 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
       <div className="ttn-panel-header">Email</div>
 
       {/* Connection status */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px 8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "0 12px 8px",
+        }}
+      >
         <span
           style={{
             width: 6,
@@ -1330,13 +1674,22 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
             flexShrink: 0,
           }}
         />
-        <span style={{ fontSize: 11, color: connected ? "#10B981" : "#9CA3AF" }}>
+        <span
+          style={{ fontSize: 11, color: connected ? "#10B981" : "#9CA3AF" }}
+        >
           {connected ? "Outlook Connected" : "Not Connected"}
         </span>
       </div>
 
       {/* Tabs: Matched / Unmatched */}
-      <div style={{ display: "flex", gap: 12, padding: "0 12px 8px", borderBottom: "1px solid #F0F0F0" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          padding: "0 12px 8px",
+          borderBottom: "1px solid #F0F0F0",
+        }}
+      >
         <button
           type="button"
           onClick={() => setActiveTab("matched")}
@@ -1346,7 +1699,10 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
             color: activeTab === "matched" ? "#1C1C1E" : "#999",
             background: "none",
             border: "none",
-            borderBottom: activeTab === "matched" ? "2px solid #10B981" : "2px solid transparent",
+            borderBottom:
+              activeTab === "matched"
+                ? "2px solid #10B981"
+                : "2px solid transparent",
             padding: "4px 0",
             cursor: "pointer",
           }}
@@ -1362,7 +1718,10 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
             color: activeTab === "unmatched" ? "#1C1C1E" : "#999",
             background: "none",
             border: "none",
-            borderBottom: activeTab === "unmatched" ? "2px solid #10B981" : "2px solid transparent",
+            borderBottom:
+              activeTab === "unmatched"
+                ? "2px solid #10B981"
+                : "2px solid transparent",
             padding: "4px 0",
             cursor: "pointer",
             display: "flex",
@@ -1409,7 +1768,8 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
                   alignItems: "flex-start",
                   gap: 8,
                   padding: "8px 12px",
-                  borderBottom: i < displayEmails.length - 1 ? "1px solid #F0F0F0" : "none",
+                  borderBottom:
+                    i < displayEmails.length - 1 ? "1px solid #F0F0F0" : "none",
                 }}
               >
                 <div
@@ -1442,7 +1802,14 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
                   >
                     {email.subject}
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginTop: 2,
+                    }}
+                  >
                     {email.caseLink && (
                       <span
                         style={{
@@ -1452,7 +1819,11 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
                         }}
                       >
                         {email.caseId ? (
-                          <Link href={`/cases/${email.caseId}`} style={{ color: "#059669", textDecoration: "none" }} onClick={(ev) => ev.stopPropagation()}>
+                          <Link
+                            href={`/cases/${email.caseId}`}
+                            style={{ color: "#059669", textDecoration: "none" }}
+                            onClick={(ev) => ev.stopPropagation()}
+                          >
                             &rarr; {email.caseLink}
                           </Link>
                         ) : (
@@ -1500,7 +1871,9 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
 
       <div style={{ padding: "12px 12px 0" }}>
         <Link
-          href={activeTab === "unmatched" ? "/email?filter=unmatched" : "/email"}
+          href={
+            activeTab === "unmatched" ? "/email?filter=unmatched" : "/email"
+          }
           style={{
             fontSize: 12,
             color: "#059669",
@@ -1514,15 +1887,21 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   );
 }
 
-function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function ContactsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const router = useRouter();
   const typeMap: Record<string, string> = {
-    "All": "",
-    "Claimants": "claimant",
-    "Providers": "medical_provider",
-    "Attorneys": "attorney",
-    "SSA": "ssa_office",
-    "Experts": "expert",
+    All: "",
+    Claimants: "claimant",
+    Providers: "medical_provider",
+    Attorneys: "attorney",
+    SSA: "ssa_office",
+    Experts: "expert",
   };
   const TYPE_LABELS: Record<string, string> = {
     claimant: "Claimant",
@@ -1532,27 +1911,70 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
     expert: "Expert",
   };
   const [activeFilter, setActiveFilter] = useState("All");
-  const filters = ["All", "Claimants", "Providers", "Attorneys", "SSA", "Experts"];
+  const filters = [
+    "All",
+    "Claimants",
+    "Providers",
+    "Attorneys",
+    "SSA",
+    "Experts",
+  ];
 
   const fallbackContacts = [
-    { id: "", initials: "RM", name: "Rosa Martinez", type: "claimant", email: null as string | null, phone: null as string | null },
-    { id: "", initials: "DT", name: "Dr. David Thompson", type: "medical_provider", email: null as string | null, phone: null as string | null },
-    { id: "", initials: "SC", name: "Sarah Chen, Esq.", type: "attorney", email: null as string | null, phone: null as string | null },
-    { id: "", initials: "JW", name: "James Wilson", type: "claimant", email: null as string | null, phone: null as string | null },
-    { id: "", initials: "KP", name: "Karen Phillips", type: "ssa_office", email: null as string | null, phone: null as string | null },
+    {
+      id: "",
+      initials: "RM",
+      name: "Rosa Martinez",
+      type: "claimant",
+      email: null as string | null,
+      phone: null as string | null,
+    },
+    {
+      id: "",
+      initials: "DT",
+      name: "Dr. David Thompson",
+      type: "medical_provider",
+      email: null as string | null,
+      phone: null as string | null,
+    },
+    {
+      id: "",
+      initials: "SC",
+      name: "Sarah Chen, Esq.",
+      type: "attorney",
+      email: null as string | null,
+      phone: null as string | null,
+    },
+    {
+      id: "",
+      initials: "JW",
+      name: "James Wilson",
+      type: "claimant",
+      email: null as string | null,
+      phone: null as string | null,
+    },
+    {
+      id: "",
+      initials: "KP",
+      name: "Karen Phillips",
+      type: "ssa_office",
+      email: null as string | null,
+      phone: null as string | null,
+    },
   ];
 
   const recentContacts = navData?.contactSummary?.recentContacts;
-  const allContacts = recentContacts && recentContacts.length > 0
-    ? recentContacts.map((c) => ({
-        id: c.id,
-        initials: getInitials(`${c.firstName} ${c.lastName}`),
-        name: `${c.firstName} ${c.lastName}`,
-        type: c.contactType,
-        email: c.email,
-        phone: c.phone,
-      }))
-    : fallbackContacts;
+  const allContacts =
+    recentContacts && recentContacts.length > 0
+      ? recentContacts.map((c) => ({
+          id: c.id,
+          initials: getInitials(`${c.firstName} ${c.lastName}`),
+          name: `${c.firstName} ${c.lastName}`,
+          type: c.contactType,
+          email: c.email,
+          phone: c.phone,
+        }))
+      : fallbackContacts;
 
   const filterTypeValue = typeMap[activeFilter] ?? "";
   const displayContacts = filterTypeValue
@@ -1564,7 +1986,14 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
       <div className="ttn-panel-header">Contacts</div>
 
       {/* Type filter pills */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "0 12px 8px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 4,
+          padding: "0 12px 8px",
+        }}
+      >
         {filters.map((filter) => (
           <button
             key={filter}
@@ -1572,13 +2001,16 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
             onClick={() => {
               setActiveFilter(filter);
               const typeValue = typeMap[filter];
-              router.push(typeValue ? `/contacts?type=${typeValue}` : "/contacts");
+              router.push(
+                typeValue ? `/contacts?type=${typeValue}` : "/contacts",
+              );
             }}
             style={{
               fontSize: 10,
               fontWeight: 500,
               color: activeFilter === filter ? "#059669" : "#999",
-              backgroundColor: activeFilter === filter ? "#ECFDF5" : "transparent",
+              backgroundColor:
+                activeFilter === filter ? "#ECFDF5" : "transparent",
               border: "none",
               borderRadius: 9,
               padding: "2px 8px",
@@ -1600,7 +2032,9 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
         )}
         {displayContacts.map((contact, i) => {
           const secondaryInfo = contact.email || contact.phone || null;
-          const contactLink = contact.id ? `/contacts/${contact.id}` : "/contacts";
+          const contactLink = contact.id
+            ? `/contacts/${contact.id}`
+            : "/contacts";
           return (
             <Link
               key={contact.id || i}
@@ -1613,7 +2047,10 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
                   alignItems: "center",
                   gap: 8,
                   padding: "8px 12px",
-                  borderBottom: i < displayContacts.length - 1 ? "1px solid #F0F0F0" : "none",
+                  borderBottom:
+                    i < displayContacts.length - 1
+                      ? "1px solid #F0F0F0"
+                      : "none",
                 }}
               >
                 <div
@@ -1634,8 +2071,17 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
                   {contact.initials}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, color: "#1C1C1E" }}>{contact.name}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 1 }}>
+                  <div style={{ fontSize: 12, color: "#1C1C1E" }}>
+                    {contact.name}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginTop: 1,
+                    }}
+                  >
                     <span style={{ fontSize: 10, color: "#999" }}>
                       {TYPE_LABELS[contact.type] ?? contact.type}
                     </span>
@@ -1662,7 +2108,14 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
       </div>
 
       {/* Footer links */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 12px 0" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 12px 0",
+        }}
+      >
         <Link
           href="/contacts?action=new"
           style={{
@@ -1691,7 +2144,13 @@ function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPane
   );
 }
 
-function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function DocumentsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const docData = navData?.documentSummary;
 
   const sources = [
@@ -1707,15 +2166,39 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
   const recentUploads = (docData?.recentUploads ?? []).map((u) => ({
     id: u.id,
     name: u.fileName,
-    type: u.fileType?.includes("pdf") ? "pdf" : u.fileType?.includes("doc") ? "doc" : u.fileType?.includes("xls") ? "xls" : "other",
+    type: u.fileType?.includes("pdf")
+      ? "pdf"
+      : u.fileType?.includes("doc")
+        ? "doc"
+        : u.fileType?.includes("xls")
+          ? "xls"
+          : "other",
     time: formatRelativeTime(u.createdAt),
     caseNumber: u.caseNumber ?? null,
   }));
   if (recentUploads.length === 0) {
     recentUploads.push(
-      { id: "fallback-1", name: "Martinez_MedRecords.pdf", type: "pdf", time: "2h ago", caseNumber: "HS-2026-1015" },
-      { id: "fallback-2", name: "Thompson_Decision.docx", type: "doc", time: "5h ago", caseNumber: null },
-      { id: "fallback-3", name: "Chen_Billing.xlsx", type: "xls", time: "1d ago", caseNumber: null },
+      {
+        id: "fallback-1",
+        name: "Martinez_MedRecords.pdf",
+        type: "pdf",
+        time: "2h ago",
+        caseNumber: "HS-2026-1015",
+      },
+      {
+        id: "fallback-2",
+        name: "Thompson_Decision.docx",
+        type: "doc",
+        time: "5h ago",
+        caseNumber: null,
+      },
+      {
+        id: "fallback-3",
+        name: "Chen_Billing.xlsx",
+        type: "xls",
+        time: "1d ago",
+        caseNumber: null,
+      },
     );
   }
 
@@ -1736,7 +2219,14 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
 
       {/* Source filters */}
       <div className="ttn-section-label">By Source</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "0 8px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          padding: "0 8px",
+        }}
+      >
         {sources.map((src) => {
           const count = docData?.bySourceCount?.[src.key] ?? 0;
           if (count === 0 && !docData) return null;
@@ -1755,11 +2245,21 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
                 color: "inherit",
                 transition: "background 0.12s ease",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#F0F0F0"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#F0F0F0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               <span style={{ fontSize: 12, color: "#555" }}>{src.label}</span>
-              <span style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", color: "#999" }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "#999",
+                }}
+              >
                 {count}
               </span>
             </Link>
@@ -1768,8 +2268,17 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
       </div>
 
       {/* Recent uploads */}
-      <div className="ttn-section-label" style={{ marginTop: 12 }}>Recent Uploads</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>
+      <div className="ttn-section-label" style={{ marginTop: 12 }}>
+        Recent Uploads
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          padding: "0 8px",
+        }}
+      >
         {recentUploads.map((file) => (
           <Link
             key={file.id}
@@ -1849,7 +2358,13 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
       </div>
 
       {/* Footer links */}
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 12px 0" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "12px 12px 0",
+        }}
+      >
         <Link
           href="/documents"
           style={{
@@ -1875,13 +2390,25 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
   );
 }
 
-function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function ReportsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
   const reportTypes = [
     {
       name: "Cases by Stage",
       slug: "cases-by-stage",
       icon: (
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          style={{ flexShrink: 0 }}
+        >
           <rect x="1" y="8" width="3" height="5" rx="0.5" fill="#059669" />
           <rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="#059669" />
           <rect x="10" y="2" width="3" height="11" rx="0.5" fill="#059669" />
@@ -1892,7 +2419,14 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
       name: "Team Performance",
       slug: "team-member",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#059669"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
           <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
         </svg>
       ),
@@ -1901,7 +2435,14 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
       name: "Time in Stage",
       slug: "time-in-stage",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#059669"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
           <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
         </svg>
       ),
@@ -1910,7 +2451,14 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
       name: "Case Trends",
       slug: "cases-over-time",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#059669"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
           <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
         </svg>
       ),
@@ -1919,7 +2467,13 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
       name: "Pipeline Funnel",
       slug: "pipeline-funnel",
       icon: (
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="#059669" style={{ flexShrink: 0 }}>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="#059669"
+          style={{ flexShrink: 0 }}
+        >
           <path d="M1 1h12L9 6v5l-4 2V6L1 1z" />
         </svg>
       ),
@@ -1928,7 +2482,14 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
       name: "Task Completion",
       slug: "task-completion",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#059669"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
           <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
         </svg>
       ),
@@ -1941,7 +2502,14 @@ function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanel
 
       {/* Report type list */}
       <div className="ttn-section-label">Available Reports</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "0 8px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          padding: "0 8px",
+        }}
+      >
         {reportTypes.map((report) => (
           <Link
             key={report.slug}
@@ -2043,25 +2611,47 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
 
   return (
     <>
-      <div className="ttn-section-label" style={{ marginTop: 12 }}>Quick Stats</div>
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 12px", gap: 8 }}>
-        <Link href="/reports/pipeline-funnel" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <div className="ttn-section-label" style={{ marginTop: 12 }}>
+        Quick Stats
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "0 12px",
+          gap: 8,
+        }}
+      >
+        <Link
+          href="/reports/pipeline-funnel"
+          style={boxStyle}
+          onMouseEnter={onEnter}
+          onMouseLeave={onLeave}
+        >
           <div style={labelStyle}>Conversion</div>
           <div style={{ ...valueStyle, color: "#059669" }}>
             {conversionRate != null ? `${conversionRate}%` : "--"}
           </div>
         </Link>
-        <Link href="/reports/cases-by-stage" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+        <Link
+          href="/reports/cases-by-stage"
+          style={boxStyle}
+          onMouseEnter={onEnter}
+          onMouseLeave={onLeave}
+        >
           <div style={labelStyle}>Active Cases</div>
           <div style={valueStyle}>
             {activeCases != null ? activeCases : "--"}
           </div>
         </Link>
-        <Link href="/reports/task-completion" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+        <Link
+          href="/reports/task-completion"
+          style={boxStyle}
+          onMouseEnter={onEnter}
+          onMouseLeave={onLeave}
+        >
           <div style={labelStyle}>Open Tasks</div>
-          <div style={valueStyle}>
-            {openTasks != null ? openTasks : "--"}
-          </div>
+          <div style={valueStyle}>{openTasks != null ? openTasks : "--"}</div>
         </Link>
       </div>
     </>

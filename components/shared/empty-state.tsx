@@ -35,9 +35,7 @@ export function EmptyState({
       <h3 className="mt-4 text-[14px] font-medium text-foreground">{title}</h3>
       <p className="mt-1 max-w-sm text-[13px] text-[#666]">{description}</p>
       {action && <div className="mt-4">{action}</div>}
-      {secondary && (
-        <div className="mt-2 text-xs text-[#666]">{secondary}</div>
-      )}
+      {secondary && <div className="mt-2 text-xs text-[#666]">{secondary}</div>}
     </div>
   );
 }

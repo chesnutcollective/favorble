@@ -165,7 +165,14 @@ function isInNextWeek(dueDate: string | null): boolean {
   return due >= endOfWeek && due <= endOfNextWeek;
 }
 
-const VALID_TABS = ["all", "overdue", "today", "this_week", "next_week", "no_date"];
+const VALID_TABS = [
+  "all",
+  "overdue",
+  "today",
+  "this_week",
+  "next_week",
+  "no_date",
+];
 
 export function QueueClient({
   initialTasks,
@@ -206,7 +213,9 @@ export function QueueClient({
   const [reassignOpen, setReassignOpen] = useState(false);
   const [snoozeCustomOpen, setSnoozeCustomOpen] = useState(false);
   const [snoozeCustomDate, setSnoozeCustomDate] = useState("");
-  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
+  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(
+    null,
+  );
   const [, startTransition] = useTransition();
   const taskListRef = useRef<HTMLDivElement>(null);
 

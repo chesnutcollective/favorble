@@ -91,12 +91,22 @@ function CaseVolumeTrend({
   const dataMax = Math.max(...allVals, 1);
   // Round up to a nice ceiling
   const yMax = Math.ceil(dataMax / 5) * 5 || 20;
-  const yTicks = [0, Math.round(yMax / 4), Math.round(yMax / 2), Math.round((yMax * 3) / 4), yMax];
+  const yTicks = [
+    0,
+    Math.round(yMax / 4),
+    Math.round(yMax / 2),
+    Math.round((yMax * 3) / 4),
+    yMax,
+  ];
 
   const toY = (v: number) => scaleY(v, 0, yMax, chartTop, chartBot);
 
-  const openedPoints = data.map((d, i) => `${xs[i]},${toY(d.opened)}`).join(" ");
-  const closedPoints = data.map((d, i) => `${xs[i]},${toY(d.closed)}`).join(" ");
+  const openedPoints = data
+    .map((d, i) => `${xs[i]},${toY(d.opened)}`)
+    .join(" ");
+  const closedPoints = data
+    .map((d, i) => `${xs[i]},${toY(d.closed)}`)
+    .join(" ");
 
   // Area fill paths (close polygon at baseline)
   const openedArea = data.map((d, i) => `${xs[i]},${toY(d.opened)}`).join(" L");
@@ -290,54 +300,63 @@ function RevenueByMonth({
 
       {/* Y-axis tick labels */}
       <div className="relative" style={{ height: 160, paddingTop: 16 }}>
-        <div className="absolute left-0 top-0 bottom-[20px] flex flex-col justify-between pointer-events-none" style={{ width: 32 }}>
+        <div
+          className="absolute left-0 top-0 bottom-[20px] flex flex-col justify-between pointer-events-none"
+          style={{ width: 32 }}
+        >
           {[...yTicks].reverse().map((tick) => (
-            <div key={tick} className="text-[9px] font-mono text-[#999] text-right pr-1">
+            <div
+              key={tick}
+              className="text-[9px] font-mono text-[#999] text-right pr-1"
+            >
               {formatDollar(tick)}
             </div>
           ))}
         </div>
-        <div className="flex items-end gap-[6px] h-full" style={{ marginLeft: 36 }}>
-        {data.map((d, i) => {
-          const pct = (d.amount / yMax) * 100;
-          const isLast = i === data.length - 1;
-          return (
-            <div
-              key={i}
-              className="flex-1 flex flex-col items-center h-full justify-end"
-            >
-              <div className="text-[9px] font-mono text-[#666] mb-[2px] whitespace-nowrap">
-                {formatDollar(d.amount)}
-              </div>
-              <div
-                className={`w-full rounded-t-[4px] transition-[height] duration-400 ease-out ${
-                  isLast ? "bg-black" : "bg-[#0070F3]"
-                }`}
-                style={{ height: `${pct}%`, minHeight: 2 }}
-              />
-              <div className="text-[10px] font-mono text-[#999] mt-1">
-                {d.month}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Trend line overlay */}
-        <svg
-          className="absolute top-0 left-0 pointer-events-none"
-          style={{ width: "100%", height: "calc(100% - 20px)" }}
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
+        <div
+          className="flex items-end gap-[6px] h-full"
+          style={{ marginLeft: 36 }}
         >
-          <polyline
-            fill="none"
-            stroke="#171717"
-            strokeWidth={0.5}
-            strokeOpacity={0.4}
-            strokeDasharray="2,2"
-            points={trendPoints}
-          />
-        </svg>
+          {data.map((d, i) => {
+            const pct = (d.amount / yMax) * 100;
+            const isLast = i === data.length - 1;
+            return (
+              <div
+                key={i}
+                className="flex-1 flex flex-col items-center h-full justify-end"
+              >
+                <div className="text-[9px] font-mono text-[#666] mb-[2px] whitespace-nowrap">
+                  {formatDollar(d.amount)}
+                </div>
+                <div
+                  className={`w-full rounded-t-[4px] transition-[height] duration-400 ease-out ${
+                    isLast ? "bg-black" : "bg-[#0070F3]"
+                  }`}
+                  style={{ height: `${pct}%`, minHeight: 2 }}
+                />
+                <div className="text-[10px] font-mono text-[#999] mt-1">
+                  {d.month}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Trend line overlay */}
+          <svg
+            className="absolute top-0 left-0 pointer-events-none"
+            style={{ width: "100%", height: "calc(100% - 20px)" }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <polyline
+              fill="none"
+              stroke="#171717"
+              strokeWidth={0.5}
+              strokeOpacity={0.4}
+              strokeDasharray="2,2"
+              points={trendPoints}
+            />
+          </svg>
         </div>
       </div>
     </div>
@@ -379,9 +398,7 @@ function TaskCompletionSparklines({
             <div
               key={idx}
               className={`flex items-center gap-3 py-2 ${
-                idx < data.length - 1
-                  ? "border-b border-[#EAEAEA]"
-                  : ""
+                idx < data.length - 1 ? "border-b border-[#EAEAEA]" : ""
               }`}
             >
               <div className="w-[100px] text-[12px] text-[#666] shrink-0">
@@ -474,9 +491,7 @@ function WeeklyVelocity({
               {/* Week label */}
               <div
                 className={`text-[10px] font-mono mt-1.5 ${
-                  isCurrentWeek
-                    ? "text-[#171717] font-semibold"
-                    : "text-[#999]"
+                  isCurrentWeek ? "text-[#171717] font-semibold" : "text-[#999]"
                 }`}
               >
                 {week.week}

@@ -122,9 +122,7 @@ export function DocumentList({
             color="#999"
             className="mx-auto"
           />
-          <p className="mt-2 text-[13px] text-[#666]">
-            No documents found
-          </p>
+          <p className="mt-2 text-[13px] text-[#666]">No documents found</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-md border border-[#EAEAEA]">

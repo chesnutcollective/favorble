@@ -103,7 +103,10 @@ export function MessageFeed({
 
   useEffect(() => {
     if (highlightId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      highlightRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, [highlightId]);
 

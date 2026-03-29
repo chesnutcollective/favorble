@@ -20,10 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Search01Icon,
-  Cancel01Icon,
-} from "@hugeicons/core-free-icons";
+import { Search01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 
 type ContactRow = {
   id: string;
@@ -79,8 +76,12 @@ export function ContactsListClient({
   const [typeFilter, setTypeFilter] = useState(initialType);
 
   // Sync when URL searchParams change (e.g., sidebar panel navigation)
-  useEffect(() => { setTypeFilter(initialType); }, [initialType]);
-  useEffect(() => { setSearch(initialSearch); }, [initialSearch]);
+  useEffect(() => {
+    setTypeFilter(initialType);
+  }, [initialType]);
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
 
   const totalPages = Math.ceil(total / pageSize);
 

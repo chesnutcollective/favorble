@@ -89,8 +89,7 @@ export function MessagesPanel({
               borderRadius: 6,
               cursor: "pointer",
               background: isActive ? "#ECFDF5" : "transparent",
-              transition:
-                "color 0.12s ease, background 0.12s ease",
+              transition: "color 0.12s ease, background 0.12s ease",
               lineHeight: 1.4,
             }}
             onMouseEnter={(e) => {
@@ -110,8 +109,7 @@ export function MessagesPanel({
             {folder.count != null && (
               <span
                 style={{
-                  fontFamily:
-                    "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   fontSize: 10,
                   color: "#10B981",
                   background: "transparent",
@@ -222,8 +220,7 @@ export function MessagesPanel({
             <span
               style={{
                 fontSize: 10,
-                fontFamily:
-                  "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                 color: "#999",
               }}
             >

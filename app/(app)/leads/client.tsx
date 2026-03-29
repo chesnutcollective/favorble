@@ -98,7 +98,7 @@ export function LeadsPipelineClient({
     // Small delay to ensure the DOM has rendered
     const timer = setTimeout(() => {
       const col = pipelineRef.current?.querySelector<HTMLElement>(
-        `[data-status="${initialStatus}"]`
+        `[data-status="${initialStatus}"]`,
       );
       if (col) {
         col.scrollIntoView({ behavior: "smooth", inline: "center" });
@@ -337,9 +337,7 @@ export function LeadsPipelineClient({
             key={col.status}
             data-status={col.status}
             className={`min-w-[280px] max-w-[320px] flex-1 rounded-[6px] border border-[#eaeaea] bg-[#fafafa] p-3 transition-colors duration-200 ${
-              dragOverColumn === col.status
-                ? "border-[#999]"
-                : ""
+              dragOverColumn === col.status ? "border-[#999]" : ""
             }`}
             onDragOver={(e) => handleDragOver(e, col.status)}
             onDragLeave={handleDragLeave}
@@ -350,9 +348,7 @@ export function LeadsPipelineClient({
               <h3 className="text-sm font-medium text-[#171717]">
                 {col.label}
               </h3>
-              <span className="text-xs text-[#666]">
-                {col.leads.length}
-              </span>
+              <span className="text-xs text-[#666]">{col.leads.length}</span>
             </div>
 
             {/* Cards */}
@@ -394,7 +390,10 @@ export function LeadsPipelineClient({
                       )}
                     </div>
                     {lead.source && (
-                      <Badge variant="outline" className="text-xs border-[#eaeaea] text-[#666]">
+                      <Badge
+                        variant="outline"
+                        className="text-xs border-[#eaeaea] text-[#666]"
+                      >
                         {lead.source}
                       </Badge>
                     )}

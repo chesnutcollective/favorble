@@ -73,38 +73,151 @@ function ssaClaimNumber(): string {
 // ---------------------------------------------------------------------------
 
 const FIRST_NAMES = [
-  "Robert", "Patricia", "James", "Jennifer", "Michael", "Linda", "William",
-  "Barbara", "David", "Elizabeth", "Richard", "Susan", "Joseph", "Jessica",
-  "Thomas", "Sarah", "Charles", "Karen", "Christopher", "Lisa", "Daniel",
-  "Nancy", "Matthew", "Betty", "Anthony", "Margaret", "Mark", "Sandra",
-  "Donald", "Ashley", "Steven", "Dorothy", "Paul", "Kimberly", "Andrew",
-  "Emily", "Joshua", "Donna", "Kenneth", "Michelle", "George", "Carol",
-  "Edward", "Amanda", "Brian", "Melissa", "Ronald", "Deborah", "Timothy",
-  "Stephanie", "Jason", "Rebecca", "Jeffrey", "Laura", "Ryan", "Sharon",
-  "Jacob", "Cynthia", "Gary", "Kathleen",
+  "Robert",
+  "Patricia",
+  "James",
+  "Jennifer",
+  "Michael",
+  "Linda",
+  "William",
+  "Barbara",
+  "David",
+  "Elizabeth",
+  "Richard",
+  "Susan",
+  "Joseph",
+  "Jessica",
+  "Thomas",
+  "Sarah",
+  "Charles",
+  "Karen",
+  "Christopher",
+  "Lisa",
+  "Daniel",
+  "Nancy",
+  "Matthew",
+  "Betty",
+  "Anthony",
+  "Margaret",
+  "Mark",
+  "Sandra",
+  "Donald",
+  "Ashley",
+  "Steven",
+  "Dorothy",
+  "Paul",
+  "Kimberly",
+  "Andrew",
+  "Emily",
+  "Joshua",
+  "Donna",
+  "Kenneth",
+  "Michelle",
+  "George",
+  "Carol",
+  "Edward",
+  "Amanda",
+  "Brian",
+  "Melissa",
+  "Ronald",
+  "Deborah",
+  "Timothy",
+  "Stephanie",
+  "Jason",
+  "Rebecca",
+  "Jeffrey",
+  "Laura",
+  "Ryan",
+  "Sharon",
+  "Jacob",
+  "Cynthia",
+  "Gary",
+  "Kathleen",
 ];
 
 const LAST_NAMES = [
-  "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-  "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson",
-  "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee",
-  "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez",
-  "Lewis", "Robinson", "Walker", "Young", "Allen", "King", "Wright", "Scott",
-  "Torres", "Nguyen", "Hill", "Flores", "Green", "Adams", "Nelson", "Baker",
-  "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Phillips",
-  "Evans", "Turner", "Parker", "Collins", "Edwards", "Stewart", "Morris",
-  "Murphy", "Cook", "Rogers",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin",
+  "Lee",
+  "Perez",
+  "Thompson",
+  "White",
+  "Harris",
+  "Sanchez",
+  "Clark",
+  "Ramirez",
+  "Lewis",
+  "Robinson",
+  "Walker",
+  "Young",
+  "Allen",
+  "King",
+  "Wright",
+  "Scott",
+  "Torres",
+  "Nguyen",
+  "Hill",
+  "Flores",
+  "Green",
+  "Adams",
+  "Nelson",
+  "Baker",
+  "Hall",
+  "Rivera",
+  "Campbell",
+  "Mitchell",
+  "Carter",
+  "Roberts",
+  "Phillips",
+  "Evans",
+  "Turner",
+  "Parker",
+  "Collins",
+  "Edwards",
+  "Stewart",
+  "Morris",
+  "Murphy",
+  "Cook",
+  "Rogers",
 ];
 
 const SSA_OFFICES = [
-  "Birmingham, AL", "Mobile, AL", "Huntsville, AL", "Atlanta, GA",
-  "Nashville, TN", "Jacksonville, FL", "Charlotte, NC", "Dallas, TX",
-  "Houston, TX", "New Orleans, LA",
+  "Birmingham, AL",
+  "Mobile, AL",
+  "Huntsville, AL",
+  "Atlanta, GA",
+  "Nashville, TN",
+  "Jacksonville, FL",
+  "Charlotte, NC",
+  "Dallas, TX",
+  "Houston, TX",
+  "New Orleans, LA",
 ];
 
 const HEARING_OFFICES = [
-  "Birmingham ODAR", "Atlanta ODAR", "Nashville ODAR",
-  "Charlotte ODAR", "Dallas ODAR", "Houston ODAR",
+  "Birmingham ODAR",
+  "Atlanta ODAR",
+  "Nashville ODAR",
+  "Charlotte ODAR",
+  "Dallas ODAR",
+  "Houston ODAR",
 ];
 
 // 12 ALJs with target approval rates (range 30%-80%)
@@ -112,13 +225,13 @@ const ALJ_DATA: { name: string; approvalRate: number }[] = [
   { name: "Hon. Patricia Hartwell", approvalRate: 0.72 },
   { name: "Hon. Robert Chen", approvalRate: 0.65 },
   { name: "Hon. Maria Santos", approvalRate: 0.58 },
-  { name: "Hon. William Foster", approvalRate: 0.80 },
+  { name: "Hon. William Foster", approvalRate: 0.8 },
   { name: "Hon. Angela Richardson", approvalRate: 0.45 },
   { name: "Hon. Thomas Bradley", approvalRate: 0.52 },
   { name: "Hon. Susan Yamamoto", approvalRate: 0.68 },
   { name: "Hon. James Patterson", approvalRate: 0.38 },
   { name: "Hon. David Morales", approvalRate: 0.75 },
-  { name: "Hon. Catherine Shaw", approvalRate: 0.30 },
+  { name: "Hon. Catherine Shaw", approvalRate: 0.3 },
   { name: "Hon. Marcus Wells", approvalRate: 0.62 },
   { name: "Hon. Rachel Thornton", approvalRate: 0.55 },
 ];
@@ -248,15 +361,34 @@ async function main() {
   const hearingsUser = userByEmail.get("hearings@hogansmith.com") ?? fallback;
 
   const staffPool = [
-    adminUser, attorneyUser, filingUser, intakeUser,
-    medRecUser, caseMgrUser, hearingsUser,
+    adminUser,
+    attorneyUser,
+    filingUser,
+    intakeUser,
+    medRecUser,
+    caseMgrUser,
+    hearingsUser,
   ];
   const allUserIds = existingUsers.map((u) => u.id);
 
   // Stage sequence for building transitions
   const stageSequence = [
-    "1A", "2A", "2B", "2E", "3A", "3B", "3C", "3D", "3E",
-    "4A", "4B", "4C", "4D", "4E", "5A", "5B",
+    "1A",
+    "2A",
+    "2B",
+    "2E",
+    "3A",
+    "3B",
+    "3C",
+    "3D",
+    "3E",
+    "4A",
+    "4B",
+    "4C",
+    "4D",
+    "4E",
+    "5A",
+    "5B",
   ];
 
   // -----------------------------------------------------------------------
@@ -302,7 +434,12 @@ async function main() {
       const stageEnteredAt = daysAgo(stageEnteredDaysAgo);
 
       // Determine case status
-      let status: "active" | "on_hold" | "closed_won" | "closed_lost" | "closed_withdrawn" = "active";
+      let status:
+        | "active"
+        | "on_hold"
+        | "closed_won"
+        | "closed_lost"
+        | "closed_withdrawn" = "active";
       let closedAt: Date | null = null;
       let closedReason: string | null = null;
 
@@ -341,9 +478,7 @@ async function main() {
       if (code.startsWith("4") || code.startsWith("5")) {
         hearingOffice = HEARING_OFFICES[caseIdx % HEARING_OFFICES.length];
       }
-      if (
-        code === "4D" || code === "4E" || code === "5A" || code === "5B"
-      ) {
+      if (code === "4D" || code === "4E" || code === "5A" || code === "5B") {
         // Cycle through ALJs so each gets multiple cases
         const alj = ALJ_DATA[aljAssignIdx % ALJ_DATA.length];
         adminLawJudge = alj.name;
@@ -400,9 +535,11 @@ async function main() {
       });
 
       // Case assignments: primary attorney + team-specific person
-      const assignmentRoles: { userId: string; role: string; isPrimary: boolean }[] = [
-        { userId: attorneyUser.id, role: "attorney", isPrimary: true },
-      ];
+      const assignmentRoles: {
+        userId: string;
+        role: string;
+        isPrimary: boolean;
+      }[] = [{ userId: attorneyUser.id, role: "attorney", isPrimary: true }];
 
       if (code.startsWith("4") || code.startsWith("5")) {
         assignmentRoles.push({
@@ -505,7 +642,14 @@ async function main() {
         email: `${c.firstName.toLowerCase()}.${c.lastName.toLowerCase()}@email.com`,
         phone: `(${randomInt(200, 999)}) ${randomInt(200, 999)}-${String(randomInt(1000, 9999))}`,
         address: `${randomInt(100, 9999)} ${randomItem(["Oak", "Maple", "Pine", "Elm", "Cedar"])} ${randomItem(["St", "Ave", "Blvd", "Dr", "Ln"])}`,
-        city: randomItem(["Birmingham", "Atlanta", "Nashville", "Charlotte", "Dallas", "Houston"]),
+        city: randomItem([
+          "Birmingham",
+          "Atlanta",
+          "Nashville",
+          "Charlotte",
+          "Dallas",
+          "Houston",
+        ]),
         state: randomItem(["AL", "GA", "TN", "NC", "TX", "FL"]),
         zip: String(randomInt(30000, 79999)),
         contactType: "claimant",
@@ -553,7 +697,12 @@ async function main() {
         createdBy: adminUser.id,
       })
       .returning();
-    createdContacts.push({ id: contact.id, contactType: "attorney", firstName: name.first, lastName: name.last });
+    createdContacts.push({
+      id: contact.id,
+      contactType: "attorney",
+      firstName: name.first,
+      lastName: name.last,
+    });
   }
 
   // 5 medical providers
@@ -581,7 +730,12 @@ async function main() {
         createdBy: medRecUser.id,
       })
       .returning();
-    createdContacts.push({ id: contact.id, contactType: "medical_provider", firstName: prov.first, lastName: prov.last });
+    createdContacts.push({
+      id: contact.id,
+      contactType: "medical_provider",
+      firstName: prov.first,
+      lastName: prov.last,
+    });
   }
 
   // 3 SSA office contacts
@@ -605,7 +759,12 @@ async function main() {
         createdBy: adminUser.id,
       })
       .returning();
-    createdContacts.push({ id: contact.id, contactType: "ssa_office", firstName: "SSA Office", lastName: ssa.name });
+    createdContacts.push({
+      id: contact.id,
+      contactType: "ssa_office",
+      firstName: "SSA Office",
+      lastName: ssa.name,
+    });
   }
 
   // 2 vocational experts
@@ -629,7 +788,12 @@ async function main() {
         createdBy: hearingsUser.id,
       })
       .returning();
-    createdContacts.push({ id: contact.id, contactType: "expert", firstName: ve.first, lastName: ve.last });
+    createdContacts.push({
+      id: contact.id,
+      contactType: "expert",
+      firstName: ve.first,
+      lastName: ve.last,
+    });
   }
 
   console.log(`  Created ${createdContacts.length} contacts`);
@@ -641,30 +805,126 @@ async function main() {
   console.log("\n--- Creating 120 tasks ---");
 
   const TASK_TEMPLATES = [
-    { title: "Complete intake questionnaire", priority: "high" as const, user: intakeUser },
-    { title: "Verify claimant identity documents", priority: "medium" as const, user: intakeUser },
-    { title: "Obtain signed retainer agreement", priority: "urgent" as const, user: intakeUser },
-    { title: "Request SSA earnings record", priority: "medium" as const, user: intakeUser },
-    { title: "File SSDI Application", priority: "high" as const, user: filingUser },
-    { title: "File SSI Application", priority: "high" as const, user: filingUser },
-    { title: "Submit SSA-1696 Appointment of Representative", priority: "urgent" as const, user: filingUser },
-    { title: "File Request for Reconsideration", priority: "high" as const, user: filingUser },
-    { title: "File Request for Hearing", priority: "high" as const, user: filingUser },
-    { title: "Request medical records from primary physician", priority: "high" as const, user: medRecUser },
-    { title: "Request records from specialist", priority: "medium" as const, user: medRecUser },
-    { title: "Follow up on outstanding records request", priority: "high" as const, user: medRecUser },
-    { title: "Prepare medical evidence summary", priority: "high" as const, user: medRecUser },
-    { title: "Obtain RFC statement from treating physician", priority: "urgent" as const, user: medRecUser },
-    { title: "Review denial letter and identify issues", priority: "urgent" as const, user: caseMgrUser },
-    { title: "Schedule client check-in call", priority: "medium" as const, user: caseMgrUser },
-    { title: "Send status update letter to claimant", priority: "medium" as const, user: caseMgrUser },
-    { title: "Review SSA decision for appeal options", priority: "urgent" as const, user: caseMgrUser },
-    { title: "Prepare pre-hearing brief", priority: "urgent" as const, user: hearingsUser },
-    { title: "Compile hearing exhibit list", priority: "high" as const, user: hearingsUser },
-    { title: "Schedule hearing prep with claimant", priority: "high" as const, user: hearingsUser },
-    { title: "Research ALJ decision patterns", priority: "medium" as const, user: hearingsUser },
-    { title: "Prepare claimant for hearing testimony", priority: "urgent" as const, user: hearingsUser },
-    { title: "Submit hearing exhibits to ODAR", priority: "high" as const, user: hearingsUser },
+    {
+      title: "Complete intake questionnaire",
+      priority: "high" as const,
+      user: intakeUser,
+    },
+    {
+      title: "Verify claimant identity documents",
+      priority: "medium" as const,
+      user: intakeUser,
+    },
+    {
+      title: "Obtain signed retainer agreement",
+      priority: "urgent" as const,
+      user: intakeUser,
+    },
+    {
+      title: "Request SSA earnings record",
+      priority: "medium" as const,
+      user: intakeUser,
+    },
+    {
+      title: "File SSDI Application",
+      priority: "high" as const,
+      user: filingUser,
+    },
+    {
+      title: "File SSI Application",
+      priority: "high" as const,
+      user: filingUser,
+    },
+    {
+      title: "Submit SSA-1696 Appointment of Representative",
+      priority: "urgent" as const,
+      user: filingUser,
+    },
+    {
+      title: "File Request for Reconsideration",
+      priority: "high" as const,
+      user: filingUser,
+    },
+    {
+      title: "File Request for Hearing",
+      priority: "high" as const,
+      user: filingUser,
+    },
+    {
+      title: "Request medical records from primary physician",
+      priority: "high" as const,
+      user: medRecUser,
+    },
+    {
+      title: "Request records from specialist",
+      priority: "medium" as const,
+      user: medRecUser,
+    },
+    {
+      title: "Follow up on outstanding records request",
+      priority: "high" as const,
+      user: medRecUser,
+    },
+    {
+      title: "Prepare medical evidence summary",
+      priority: "high" as const,
+      user: medRecUser,
+    },
+    {
+      title: "Obtain RFC statement from treating physician",
+      priority: "urgent" as const,
+      user: medRecUser,
+    },
+    {
+      title: "Review denial letter and identify issues",
+      priority: "urgent" as const,
+      user: caseMgrUser,
+    },
+    {
+      title: "Schedule client check-in call",
+      priority: "medium" as const,
+      user: caseMgrUser,
+    },
+    {
+      title: "Send status update letter to claimant",
+      priority: "medium" as const,
+      user: caseMgrUser,
+    },
+    {
+      title: "Review SSA decision for appeal options",
+      priority: "urgent" as const,
+      user: caseMgrUser,
+    },
+    {
+      title: "Prepare pre-hearing brief",
+      priority: "urgent" as const,
+      user: hearingsUser,
+    },
+    {
+      title: "Compile hearing exhibit list",
+      priority: "high" as const,
+      user: hearingsUser,
+    },
+    {
+      title: "Schedule hearing prep with claimant",
+      priority: "high" as const,
+      user: hearingsUser,
+    },
+    {
+      title: "Research ALJ decision patterns",
+      priority: "medium" as const,
+      user: hearingsUser,
+    },
+    {
+      title: "Prepare claimant for hearing testimony",
+      priority: "urgent" as const,
+      user: hearingsUser,
+    },
+    {
+      title: "Submit hearing exhibits to ODAR",
+      priority: "high" as const,
+      user: hearingsUser,
+    },
   ];
 
   let taskCount = 0;
@@ -679,11 +939,17 @@ async function main() {
     if (i < 25) {
       // Overdue (for overdue count chart)
       dueDate = daysAgo(randomInt(1, 14));
-      taskStatus = randomItem<"pending" | "in_progress">(["pending", "in_progress"]);
+      taskStatus = randomItem<"pending" | "in_progress">([
+        "pending",
+        "in_progress",
+      ]);
     } else if (i < 40) {
       // Due today/this week
       dueDate = daysFromNow(randomInt(0, 5));
-      taskStatus = randomItem<"pending" | "in_progress">(["pending", "in_progress"]);
+      taskStatus = randomItem<"pending" | "in_progress">([
+        "pending",
+        "in_progress",
+      ]);
     } else if (i < 70) {
       // Upcoming
       dueDate = daysFromNow(randomInt(6, 45));
@@ -696,13 +962,15 @@ async function main() {
       completedAt = daysAgo(completedDaysAgo);
     }
 
-    const titleSuffix = i % 3 === 0 ? ` -- ${caseRecord.firstName} ${caseRecord.lastName}` : "";
+    const titleSuffix =
+      i % 3 === 0 ? ` -- ${caseRecord.firstName} ${caseRecord.lastName}` : "";
 
     await db.insert(schema.tasks).values({
       organizationId,
       caseId: caseRecord.id,
       title: `${template.title}${titleSuffix}`,
-      description: i % 4 === 0 ? `Case ${caseRecord.caseNumber}: Follow up needed.` : null,
+      description:
+        i % 4 === 0 ? `Case ${caseRecord.caseNumber}: Follow up needed.` : null,
       status: taskStatus,
       priority: template.priority,
       assignedToId: template.user.id,
@@ -723,29 +991,112 @@ async function main() {
   console.log("\n--- Creating 60 documents ---");
 
   const DOC_TEMPLATES = [
-    { fileName: "Medical_Records_Primary_Care.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "MRI_Lumbar_Spine_Report.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Psychiatric_Evaluation.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Physical_Therapy_Notes.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Lab_Results_Blood_Panel.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Treating_Physician_RFC.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Hospital_Discharge_Summary.pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "SSA_Initial_Denial_Notice.pdf", category: "SSA Correspondence", source: "chronicle" as const },
-    { fileName: "SSA_Reconsideration_Denial.pdf", category: "SSA Correspondence", source: "chronicle" as const },
-    { fileName: "SSA_Favorable_Decision.pdf", category: "SSA Decision", source: "chronicle" as const },
-    { fileName: "SSA_Hearing_Notice.pdf", category: "SSA Correspondence", source: "case_status" as const },
-    { fileName: "SSA_Consultative_Exam_Notice.pdf", category: "SSA Correspondence", source: "case_status" as const },
-    { fileName: "SSA_1696_Appointment.pdf", category: "Forms", source: "template" as const },
-    { fileName: "SSA_561_Reconsideration.pdf", category: "Forms", source: "template" as const },
-    { fileName: "Retainer_Agreement_Signed.pdf", category: "Forms", source: "esignature" as const },
-    { fileName: "Pre_Hearing_Brief.pdf", category: "Hearing Exhibits", source: "upload" as const },
-    { fileName: "Exhibit_List.pdf", category: "Hearing Exhibits", source: "upload" as const },
-    { fileName: "ERE_Case_Documents.pdf", category: "ERE Records", source: "ere" as const },
-    { fileName: "Status_Update_Letter.pdf", category: "Correspondence", source: "template" as const },
-    { fileName: "Function_Report.pdf", category: "Forms", source: "upload" as const },
+    {
+      fileName: "Medical_Records_Primary_Care.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "MRI_Lumbar_Spine_Report.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Psychiatric_Evaluation.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Physical_Therapy_Notes.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Lab_Results_Blood_Panel.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Treating_Physician_RFC.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Hospital_Discharge_Summary.pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "SSA_Initial_Denial_Notice.pdf",
+      category: "SSA Correspondence",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Reconsideration_Denial.pdf",
+      category: "SSA Correspondence",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Favorable_Decision.pdf",
+      category: "SSA Decision",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Hearing_Notice.pdf",
+      category: "SSA Correspondence",
+      source: "case_status" as const,
+    },
+    {
+      fileName: "SSA_Consultative_Exam_Notice.pdf",
+      category: "SSA Correspondence",
+      source: "case_status" as const,
+    },
+    {
+      fileName: "SSA_1696_Appointment.pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
+    {
+      fileName: "SSA_561_Reconsideration.pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
+    {
+      fileName: "Retainer_Agreement_Signed.pdf",
+      category: "Forms",
+      source: "esignature" as const,
+    },
+    {
+      fileName: "Pre_Hearing_Brief.pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Exhibit_List.pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
+    {
+      fileName: "ERE_Case_Documents.pdf",
+      category: "ERE Records",
+      source: "ere" as const,
+    },
+    {
+      fileName: "Status_Update_Letter.pdf",
+      category: "Correspondence",
+      source: "template" as const,
+    },
+    {
+      fileName: "Function_Report.pdf",
+      category: "Forms",
+      source: "upload" as const,
+    },
   ];
 
-  interface DocRecord { id: string; caseId: string; }
+  interface DocRecord {
+    id: string;
+    caseId: string;
+  }
   const createdDocs: DocRecord[] = [];
 
   for (let i = 0; i < 60; i++) {
@@ -769,8 +1120,14 @@ async function main() {
         storagePath: `documents/${caseRecord.caseNumber}/${uniqueFileName}`,
         category: template.category,
         source: template.source,
-        description: i % 5 === 0 ? `${template.category} for ${caseRecord.firstName} ${caseRecord.lastName}` : null,
-        tags: template.category === "Medical Records" ? ["medical", "evidence"] : null,
+        description:
+          i % 5 === 0
+            ? `${template.category} for ${caseRecord.firstName} ${caseRecord.lastName}`
+            : null,
+        tags:
+          template.category === "Medical Records"
+            ? ["medical", "evidence"]
+            : null,
         isConfidential: template.category === "Medical Records",
         createdAt: createdAtDate,
         createdBy: randomItem(allUserIds),
@@ -784,9 +1141,27 @@ async function main() {
   // Document processing results for ~40 docs
   console.log("\n--- Creating document processing results ---");
 
-  const DOC_CATEGORIES = ["medical_records", "ssa_correspondence", "hearing_notice", "decision", "forms"];
-  const PROVIDER_NAMES = ["Dr. Sarah Mitchell", "Dr. Robert Chang", "Dr. Maria Gonzalez", "Dr. James Patel", "Dr. Angela Freeman"];
-  const PROVIDER_TYPES = ["primary_care", "orthopedic", "psychiatry", "neurology", "pain_management"];
+  const DOC_CATEGORIES = [
+    "medical_records",
+    "ssa_correspondence",
+    "hearing_notice",
+    "decision",
+    "forms",
+  ];
+  const PROVIDER_NAMES = [
+    "Dr. Sarah Mitchell",
+    "Dr. Robert Chang",
+    "Dr. Maria Gonzalez",
+    "Dr. James Patel",
+    "Dr. Angela Freeman",
+  ];
+  const PROVIDER_TYPES = [
+    "primary_care",
+    "orthopedic",
+    "psychiatry",
+    "neurology",
+    "pain_management",
+  ];
 
   let procCount = 0;
   for (let i = 0; i < 40; i++) {
@@ -798,16 +1173,28 @@ async function main() {
       documentId: doc.id,
       caseId: doc.caseId,
       status: processingStatus as "pending" | "completed",
-      extractedText: processingStatus === "completed" ? "Sample extracted text content..." : null,
+      extractedText:
+        processingStatus === "completed"
+          ? "Sample extracted text content..."
+          : null,
       pageCount: randomInt(2, 120),
       documentCategory: DOC_CATEGORIES[i % DOC_CATEGORIES.length],
-      providerName: i % 3 === 0 ? PROVIDER_NAMES[i % PROVIDER_NAMES.length] : null,
-      providerType: i % 3 === 0 ? PROVIDER_TYPES[i % PROVIDER_TYPES.length] : null,
+      providerName:
+        i % 3 === 0 ? PROVIDER_NAMES[i % PROVIDER_NAMES.length] : null,
+      providerType:
+        i % 3 === 0 ? PROVIDER_TYPES[i % PROVIDER_TYPES.length] : null,
       treatmentDateStart: i % 3 === 0 ? daysAgo(randomInt(60, 365)) : null,
       treatmentDateEnd: i % 3 === 0 ? daysAgo(randomInt(1, 59)) : null,
-      aiClassification: processingStatus === "completed" ? { category: DOC_CATEGORIES[i % DOC_CATEGORIES.length], confidence: randomInt(75, 99) / 100 } : {},
+      aiClassification:
+        processingStatus === "completed"
+          ? {
+              category: DOC_CATEGORIES[i % DOC_CATEGORIES.length],
+              confidence: randomInt(75, 99) / 100,
+            }
+          : {},
       aiConfidence: processingStatus === "completed" ? randomInt(75, 99) : null,
-      processingTimeMs: processingStatus === "completed" ? randomInt(500, 15000) : null,
+      processingTimeMs:
+        processingStatus === "completed" ? randomInt(500, 15000) : null,
     });
     procCount++;
   }
@@ -866,11 +1253,18 @@ async function main() {
     } else if (actType.action === "note_added") {
       changes = { note: NOTE_TEXTS[i % NOTE_TEXTS.length] };
     } else if (actType.action === "document_uploaded") {
-      changes = { fileName: DOC_TEMPLATES[i % DOC_TEMPLATES.length].fileName, category: DOC_TEMPLATES[i % DOC_TEMPLATES.length].category };
+      changes = {
+        fileName: DOC_TEMPLATES[i % DOC_TEMPLATES.length].fileName,
+        category: DOC_TEMPLATES[i % DOC_TEMPLATES.length].category,
+      };
     } else if (actType.action === "task_completed") {
       changes = { taskTitle: TASK_TEMPLATES[i % TASK_TEMPLATES.length].title };
     } else if (actType.action === "field_updated") {
-      changes = { field: "hearing_date", oldValue: null, newValue: daysFromNow(30).toISOString() };
+      changes = {
+        field: "hearing_date",
+        oldValue: null,
+        newValue: daysFromNow(30).toISOString(),
+      };
     }
 
     await db.insert(schema.auditLog).values({
@@ -1016,13 +1410,29 @@ async function main() {
   console.log("\n--- Creating 35 medical chronology entries ---");
 
   const MED_ENTRY_TYPES: (
-    | "office_visit" | "hospitalization" | "emergency" | "lab_result"
-    | "imaging" | "mental_health" | "physical_therapy" | "surgery"
-    | "prescription" | "diagnosis" | "functional_assessment"
+    | "office_visit"
+    | "hospitalization"
+    | "emergency"
+    | "lab_result"
+    | "imaging"
+    | "mental_health"
+    | "physical_therapy"
+    | "surgery"
+    | "prescription"
+    | "diagnosis"
+    | "functional_assessment"
   )[] = [
-    "office_visit", "hospitalization", "emergency", "lab_result",
-    "imaging", "mental_health", "physical_therapy", "surgery",
-    "prescription", "diagnosis", "functional_assessment",
+    "office_visit",
+    "hospitalization",
+    "emergency",
+    "lab_result",
+    "imaging",
+    "mental_health",
+    "physical_therapy",
+    "surgery",
+    "prescription",
+    "diagnosis",
+    "functional_assessment",
   ];
 
   const MED_SUMMARIES = [
@@ -1044,20 +1454,34 @@ async function main() {
   ];
 
   const FACILITIES = [
-    "UAB Medical Center", "St. Vincent's Hospital", "Brookwood Baptist",
-    "Grandview Medical", "Princeton Baptist", "Shelby Baptist",
-    "Southeast Health", "Huntsville Hospital",
+    "UAB Medical Center",
+    "St. Vincent's Hospital",
+    "Brookwood Baptist",
+    "Grandview Medical",
+    "Princeton Baptist",
+    "Shelby Baptist",
+    "Southeast Health",
+    "Huntsville Hospital",
   ];
 
   const DIAGNOSES_POOL = [
     ["M54.5 Low back pain", "M51.16 Lumbar radiculopathy"],
-    ["F32.2 Major depressive disorder, severe", "F41.1 Generalized anxiety disorder"],
+    [
+      "F32.2 Major depressive disorder, severe",
+      "F41.1 Generalized anxiety disorder",
+    ],
     ["I50.9 Heart failure, unspecified", "I25.10 Coronary artery disease"],
     ["M06.9 Rheumatoid arthritis", "M79.7 Fibromyalgia"],
-    ["E11.65 Type 2 diabetes with hyperglycemia", "G62.9 Peripheral neuropathy"],
+    [
+      "E11.65 Type 2 diabetes with hyperglycemia",
+      "G62.9 Peripheral neuropathy",
+    ],
     ["J44.1 COPD with acute exacerbation", "J43.9 Emphysema"],
     ["F31.9 Bipolar disorder", "F41.0 Panic disorder"],
-    ["M47.816 Spondylosis with myelopathy, lumbar", "M48.06 Spinal stenosis, lumbar"],
+    [
+      "M47.816 Spondylosis with myelopathy, lumbar",
+      "M48.06 Spinal stenosis, lumbar",
+    ],
   ];
 
   const TREATMENTS_POOL = [
@@ -1074,7 +1498,11 @@ async function main() {
   let medChronCount = 0;
 
   for (let i = 0; i < 35; i++) {
-    const caseRecord = createdCases[medChronCaseIndices[i % medChronCaseIndices.length] % createdCases.length];
+    const caseRecord =
+      createdCases[
+        medChronCaseIndices[i % medChronCaseIndices.length] %
+          createdCases.length
+      ];
     const entryType = MED_ENTRY_TYPES[i % MED_ENTRY_TYPES.length];
     const eventDate = daysAgo(randomInt(30, 730));
     const providerIdx = i % medProviders.length;
@@ -1088,15 +1516,25 @@ async function main() {
       sourceDocumentId: matchingDoc?.id ?? null,
       entryType,
       eventDate,
-      eventDateEnd: entryType === "hospitalization" ? new Date(eventDate.getTime() + randomInt(1, 7) * 86400000) : null,
+      eventDateEnd:
+        entryType === "hospitalization"
+          ? new Date(eventDate.getTime() + randomInt(1, 7) * 86400000)
+          : null,
       providerName: `${medProviders[providerIdx].first} ${medProviders[providerIdx].last}`,
       providerType: medProviders[providerIdx].specialty,
       facilityName: FACILITIES[i % FACILITIES.length],
       summary: MED_SUMMARIES[i % MED_SUMMARIES.length],
-      details: i % 3 === 0 ? "Detailed clinical notes documenting examination findings, diagnostic impressions, and treatment plan." : null,
+      details:
+        i % 3 === 0
+          ? "Detailed clinical notes documenting examination findings, diagnostic impressions, and treatment plan."
+          : null,
       diagnoses: DIAGNOSES_POOL[i % DIAGNOSES_POOL.length],
-      treatments: i % 2 === 0 ? TREATMENTS_POOL[i % TREATMENTS_POOL.length] : null,
-      medications: i % 3 === 0 ? ["Gabapentin 300mg", "Sertraline 100mg", "Ibuprofen 800mg"] : null,
+      treatments:
+        i % 2 === 0 ? TREATMENTS_POOL[i % TREATMENTS_POOL.length] : null,
+      medications:
+        i % 3 === 0
+          ? ["Gabapentin 300mg", "Sertraline 100mg", "Ibuprofen 800mg"]
+          : null,
       pageReference: `pp. ${randomInt(1, 50)}-${randomInt(51, 120)}`,
       aiGenerated: true,
       isVerified: i < 20,
@@ -1169,7 +1607,8 @@ async function main() {
         .values({
           caseId: caseRecord.id,
           fieldDefinitionId: disabilityField.id,
-          textValue: DISABILITY_DESCRIPTIONS[caseIdx % DISABILITY_DESCRIPTIONS.length],
+          textValue:
+            DISABILITY_DESCRIPTIONS[caseIdx % DISABILITY_DESCRIPTIONS.length],
           updatedBy: intakeUser.id,
         })
         .onConflictDoNothing();
@@ -1178,7 +1617,10 @@ async function main() {
     }
 
     // Hearing type for hearing cases
-    if (caseRecord.stageCode.startsWith("4") || caseRecord.stageCode.startsWith("5")) {
+    if (
+      caseRecord.stageCode.startsWith("4") ||
+      caseRecord.stageCode.startsWith("5")
+    ) {
       const hearingTypeField = fieldBySlug.get("hearing_type");
       if (hearingTypeField) {
         await db
@@ -1231,8 +1673,11 @@ async function main() {
 
   // Compute some stats
   const wonCases = createdCases.filter((c) => c.stageCode === "5A").length;
-  const resolvedCases = createdCases.filter((c) => c.stageCode.startsWith("5")).length;
-  const winRate = resolvedCases > 0 ? Math.round((wonCases / resolvedCases) * 100) : 0;
+  const resolvedCases = createdCases.filter((c) =>
+    c.stageCode.startsWith("5"),
+  ).length;
+  const winRate =
+    resolvedCases > 0 ? Math.round((wonCases / resolvedCases) * 100) : 0;
 
   console.log("\n=== Dashboard Data Seed Complete ===");
   console.log(`

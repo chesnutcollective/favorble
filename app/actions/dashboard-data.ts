@@ -222,8 +222,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       value: activeCases || 847,
       trend: { value: 12, label: "this week" },
       sparkColor: "#0070F3",
-      sparkPath:
-        "M0,28 L8,24 L16,26 L24,20 L32,18 L40,14 L48,16 L56,10 L64,6",
+      sparkPath: "M0,28 L8,24 L16,26 L24,20 L32,18 L40,14 L48,16 L56,10 L64,6",
     },
     {
       label: "Pending Tasks",
@@ -233,32 +232,28 @@ export async function getDashboardData(): Promise<DashboardData> {
         label: "overdue",
       },
       sparkColor: "#F5A623",
-      sparkPath:
-        "M0,20 L8,18 L16,22 L24,16 L32,20 L40,24 L48,18 L56,22 L64,16",
+      sparkPath: "M0,20 L8,18 L16,22 L24,16 L32,20 L40,24 L48,18 L56,22 L64,16",
     },
     {
       label: "Win Rate %",
       value: "67%",
       trend: { value: 3, label: "vs prior" },
       sparkColor: "#00C853",
-      sparkPath:
-        "M0,26 L8,22 L16,24 L24,20 L32,16 L40,18 L48,12 L56,10 L64,8",
+      sparkPath: "M0,26 L8,22 L16,24 L24,20 L32,16 L40,18 L48,12 L56,10 L64,8",
     },
     {
       label: "Revenue MTD",
       value: "$184K",
       trend: { value: 22, label: "vs prior" },
       sparkColor: "#0070F3",
-      sparkPath:
-        "M0,24 L8,22 L16,20 L24,18 L32,22 L40,14 L48,10 L56,12 L64,4",
+      sparkPath: "M0,24 L8,22 L16,20 L24,18 L32,22 L40,14 L48,10 L56,12 L64,4",
     },
     {
       label: "Avg Days to Hearing",
       value: 287,
       trend: { value: -14, label: "days" },
       sparkColor: "#EE0000",
-      sparkPath:
-        "M0,16 L8,18 L16,14 L24,20 L32,18 L40,22 L48,20 L56,24 L64,22",
+      sparkPath: "M0,16 L8,18 L16,14 L24,20 L32,18 L40,22 L48,20 L56,24 L64,22",
     },
   ];
 
@@ -359,18 +354,71 @@ export async function getDashboardData(): Promise<DashboardData> {
   };
 
   const vocationalExperts: VocationalExpert[] = [
-    { dotCode: "209.562-010", jobTitle: "Cashier II", exertionalLevel: "Light", frequency: 34 },
-    { dotCode: "239.567-010", jobTitle: "Info Clerk", exertionalLevel: "Sedentary", frequency: 28 },
-    { dotCode: "222.587-038", jobTitle: "Marker", exertionalLevel: "Light", frequency: 22 },
-    { dotCode: "249.587-018", jobTitle: "Document Prep", exertionalLevel: "Sedentary", frequency: 18 },
-    { dotCode: "209.587-034", jobTitle: "Sorter", exertionalLevel: "Light", frequency: 15 },
+    {
+      dotCode: "209.562-010",
+      jobTitle: "Cashier II",
+      exertionalLevel: "Light",
+      frequency: 34,
+    },
+    {
+      dotCode: "239.567-010",
+      jobTitle: "Info Clerk",
+      exertionalLevel: "Sedentary",
+      frequency: 28,
+    },
+    {
+      dotCode: "222.587-038",
+      jobTitle: "Marker",
+      exertionalLevel: "Light",
+      frequency: 22,
+    },
+    {
+      dotCode: "249.587-018",
+      jobTitle: "Document Prep",
+      exertionalLevel: "Sedentary",
+      frequency: 18,
+    },
+    {
+      dotCode: "209.587-034",
+      jobTitle: "Sorter",
+      exertionalLevel: "Light",
+      frequency: 15,
+    },
   ];
 
   const upcomingHearings: UpcomingHearing[] = [
-    { caseId: "c1", caseName: "Garcia v. SSA", aljName: "Judge Harrison", hearingDate: "2026-04-01", prepProgress: 85, daysUntil: 4 },
-    { caseId: "c2", caseName: "Thompson v. SSA", aljName: "Judge Patel", hearingDate: "2026-04-05", prepProgress: 60, daysUntil: 8 },
-    { caseId: "c3", caseName: "Williams v. SSA", aljName: "Judge Brennan", hearingDate: "2026-04-10", prepProgress: 35, daysUntil: 13 },
-    { caseId: "c4", caseName: "Rodriguez v. SSA", aljName: "Judge Chen", hearingDate: "2026-04-15", prepProgress: 20, daysUntil: 18 },
+    {
+      caseId: "c1",
+      caseName: "Garcia v. SSA",
+      aljName: "Judge Harrison",
+      hearingDate: "2026-04-01",
+      prepProgress: 85,
+      daysUntil: 4,
+    },
+    {
+      caseId: "c2",
+      caseName: "Thompson v. SSA",
+      aljName: "Judge Patel",
+      hearingDate: "2026-04-05",
+      prepProgress: 60,
+      daysUntil: 8,
+    },
+    {
+      caseId: "c3",
+      caseName: "Williams v. SSA",
+      aljName: "Judge Brennan",
+      hearingDate: "2026-04-10",
+      prepProgress: 35,
+      daysUntil: 13,
+    },
+    {
+      caseId: "c4",
+      caseName: "Rodriguez v. SSA",
+      aljName: "Judge Chen",
+      hearingDate: "2026-04-15",
+      prepProgress: 20,
+      daysUntil: 18,
+    },
   ];
 
   const clientSatisfaction: ClientSatisfaction = { score: 4.6, trend: 0.3 };
@@ -394,10 +442,26 @@ export async function getDashboardData(): Promise<DashboardData> {
   ];
 
   const taskSparklines: TaskSparkline[] = [
-    { name: "Sarah M.", sparklineData: [80, 85, 78, 90, 88, 92], currentRate: 92 },
-    { name: "John D.", sparklineData: [70, 65, 72, 68, 75, 78], currentRate: 78 },
-    { name: "Lisa K.", sparklineData: [90, 88, 92, 95, 93, 96], currentRate: 96 },
-    { name: "Mike R.", sparklineData: [55, 60, 58, 62, 65, 68], currentRate: 68 },
+    {
+      name: "Sarah M.",
+      sparklineData: [80, 85, 78, 90, 88, 92],
+      currentRate: 92,
+    },
+    {
+      name: "John D.",
+      sparklineData: [70, 65, 72, 68, 75, 78],
+      currentRate: 78,
+    },
+    {
+      name: "Lisa K.",
+      sparklineData: [90, 88, 92, 95, 93, 96],
+      currentRate: 96,
+    },
+    {
+      name: "Mike R.",
+      sparklineData: [55, 60, 58, 62, 65, 68],
+      currentRate: 68,
+    },
   ];
 
   const weeklyVelocity: WeeklyVelocity[] = [
@@ -408,7 +472,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   ];
 
   const now = new Date();
-  const minAgo = (m: number) => new Date(now.getTime() - m * 60000).toISOString();
+  const minAgo = (m: number) =>
+    new Date(now.getTime() - m * 60000).toISOString();
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayAt = (h: number, m: number) => {
@@ -425,45 +490,276 @@ export async function getDashboardData(): Promise<DashboardData> {
   };
 
   const recentActivity: ActivityItem[] = [
-    { id: "a1", action: "upload", entityType: "document", description: 'filed hearing brief for <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>', userName: "Sarah Mitchell", timestamp: minAgo(2) },
-    { id: "a2", action: "upload", entityType: "document", description: 'uploaded CE report to <span class="font-mono text-xs text-[#0070F3]">Williams v. SSA</span>', userName: "James Kim", timestamp: minAgo(18) },
-    { id: "a3", action: "complete", entityType: "task", description: 'completed task "Review medical records" for <span class="font-mono text-xs text-[#0070F3]">Davis v. SSA</span>', userName: "Ana Lopez", timestamp: minAgo(42) },
-    { id: "a4", action: "transition", entityType: "stage_change", description: 'moved <span class="font-mono text-xs text-[#0070F3]">Chen v. SSA</span> from Reconsideration to ALJ Hearing', userName: "Mike Rivera", timestamp: minAgo(60) },
-    { id: "a5", action: "update", entityType: "hearing", description: 'scheduled pre-hearing conference for <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>', userName: "Sarah Mitchell", timestamp: minAgo(95) },
-    { id: "a6", action: "create", entityType: "note", description: 'added client interview notes to <span class="font-mono text-xs text-[#0070F3]">Thompson v. SSA</span>', userName: "Teresa Clark", timestamp: minAgo(120) },
-    { id: "a7", action: "upload", entityType: "document", description: 'uploaded RFC form for <span class="font-mono text-xs text-[#0070F3]">Martinez v. SSA</span>', userName: "James Kim", timestamp: minAgo(150) },
-    { id: "a8", action: "decision", entityType: "decision", description: 'received favorable decision on <span class="font-mono text-xs text-[#0070F3]">Patel v. SSA</span> &mdash; $34,200 past-due benefits', userName: "Sarah Mitchell", timestamp: yesterdayAt(16, 32) },
-    { id: "a9", action: "create", entityType: "case", description: 'created new case <span class="font-mono text-xs text-[#0070F3]">Robertson v. SSA</span>', userName: "James Kim", timestamp: yesterdayAt(14, 15) },
-    { id: "a10", action: "decision", entityType: "decision", description: 'received unfavorable decision on <span class="font-mono text-xs text-[#0070F3]">Murray v. SSA</span> &mdash; filing appeal', userName: "Teresa Clark", timestamp: yesterdayAt(11, 8) },
-    { id: "a11", action: "complete", entityType: "task", description: 'completed brief review for <span class="font-mono text-xs text-[#0070F3]">Lee v. SSA</span>', userName: "Ana Lopez", timestamp: yesterdayAt(10, 22) },
-    { id: "a12", action: "upload", entityType: "document", description: 'uploaded psychological evaluation to <span class="font-mono text-xs text-[#0070F3]">Foster v. SSA</span>', userName: "Mike Rivera", timestamp: yesterdayAt(9, 45) },
-    { id: "a13", action: "transition", entityType: "stage_change", description: 'moved <span class="font-mono text-xs text-[#0070F3]">Robinson v. SSA</span> to Appeals Council', userName: "Sarah Mitchell", timestamp: yesterdayAt(9, 10) },
-    { id: "a14", action: "update", entityType: "hearing", description: 'updated hearing exhibits for <span class="font-mono text-xs text-[#0070F3]">Davis v. SSA</span>', userName: "Teresa Clark", timestamp: yesterdayAt(8, 30) },
-    { id: "a15", action: "create", entityType: "task", description: 'assigned "Obtain treating physician letter" for <span class="font-mono text-xs text-[#0070F3]">Chen v. SSA</span>', userName: "James Kim", timestamp: twoDaysAgoAt(16, 0) },
-    { id: "a16", action: "upload", entityType: "document", description: 'uploaded work history report to <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>', userName: "Ana Lopez", timestamp: twoDaysAgoAt(15, 20) },
-    { id: "a17", action: "complete", entityType: "task", description: 'completed "Review denial letter" for <span class="font-mono text-xs text-[#0070F3]">Thompson v. SSA</span>', userName: "Mike Rivera", timestamp: twoDaysAgoAt(14, 5) },
-    { id: "a18", action: "update", entityType: "case", description: 'updated onset date for <span class="font-mono text-xs text-[#0070F3]">Williams v. SSA</span>', userName: "Sarah Mitchell", timestamp: twoDaysAgoAt(11, 30) },
-    { id: "a19", action: "create", entityType: "note", description: 'added vocational analysis notes to <span class="font-mono text-xs text-[#0070F3]">Rodriguez v. SSA</span>', userName: "Teresa Clark", timestamp: twoDaysAgoAt(10, 15) },
-    { id: "a20", action: "upload", entityType: "document", description: 'uploaded medical summary to <span class="font-mono text-xs text-[#0070F3]">Martinez v. SSA</span>', userName: "James Kim", timestamp: twoDaysAgoAt(9, 0) },
+    {
+      id: "a1",
+      action: "upload",
+      entityType: "document",
+      description:
+        'filed hearing brief for <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>',
+      userName: "Sarah Mitchell",
+      timestamp: minAgo(2),
+    },
+    {
+      id: "a2",
+      action: "upload",
+      entityType: "document",
+      description:
+        'uploaded CE report to <span class="font-mono text-xs text-[#0070F3]">Williams v. SSA</span>',
+      userName: "James Kim",
+      timestamp: minAgo(18),
+    },
+    {
+      id: "a3",
+      action: "complete",
+      entityType: "task",
+      description:
+        'completed task "Review medical records" for <span class="font-mono text-xs text-[#0070F3]">Davis v. SSA</span>',
+      userName: "Ana Lopez",
+      timestamp: minAgo(42),
+    },
+    {
+      id: "a4",
+      action: "transition",
+      entityType: "stage_change",
+      description:
+        'moved <span class="font-mono text-xs text-[#0070F3]">Chen v. SSA</span> from Reconsideration to ALJ Hearing',
+      userName: "Mike Rivera",
+      timestamp: minAgo(60),
+    },
+    {
+      id: "a5",
+      action: "update",
+      entityType: "hearing",
+      description:
+        'scheduled pre-hearing conference for <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>',
+      userName: "Sarah Mitchell",
+      timestamp: minAgo(95),
+    },
+    {
+      id: "a6",
+      action: "create",
+      entityType: "note",
+      description:
+        'added client interview notes to <span class="font-mono text-xs text-[#0070F3]">Thompson v. SSA</span>',
+      userName: "Teresa Clark",
+      timestamp: minAgo(120),
+    },
+    {
+      id: "a7",
+      action: "upload",
+      entityType: "document",
+      description:
+        'uploaded RFC form for <span class="font-mono text-xs text-[#0070F3]">Martinez v. SSA</span>',
+      userName: "James Kim",
+      timestamp: minAgo(150),
+    },
+    {
+      id: "a8",
+      action: "decision",
+      entityType: "decision",
+      description:
+        'received favorable decision on <span class="font-mono text-xs text-[#0070F3]">Patel v. SSA</span> &mdash; $34,200 past-due benefits',
+      userName: "Sarah Mitchell",
+      timestamp: yesterdayAt(16, 32),
+    },
+    {
+      id: "a9",
+      action: "create",
+      entityType: "case",
+      description:
+        'created new case <span class="font-mono text-xs text-[#0070F3]">Robertson v. SSA</span>',
+      userName: "James Kim",
+      timestamp: yesterdayAt(14, 15),
+    },
+    {
+      id: "a10",
+      action: "decision",
+      entityType: "decision",
+      description:
+        'received unfavorable decision on <span class="font-mono text-xs text-[#0070F3]">Murray v. SSA</span> &mdash; filing appeal',
+      userName: "Teresa Clark",
+      timestamp: yesterdayAt(11, 8),
+    },
+    {
+      id: "a11",
+      action: "complete",
+      entityType: "task",
+      description:
+        'completed brief review for <span class="font-mono text-xs text-[#0070F3]">Lee v. SSA</span>',
+      userName: "Ana Lopez",
+      timestamp: yesterdayAt(10, 22),
+    },
+    {
+      id: "a12",
+      action: "upload",
+      entityType: "document",
+      description:
+        'uploaded psychological evaluation to <span class="font-mono text-xs text-[#0070F3]">Foster v. SSA</span>',
+      userName: "Mike Rivera",
+      timestamp: yesterdayAt(9, 45),
+    },
+    {
+      id: "a13",
+      action: "transition",
+      entityType: "stage_change",
+      description:
+        'moved <span class="font-mono text-xs text-[#0070F3]">Robinson v. SSA</span> to Appeals Council',
+      userName: "Sarah Mitchell",
+      timestamp: yesterdayAt(9, 10),
+    },
+    {
+      id: "a14",
+      action: "update",
+      entityType: "hearing",
+      description:
+        'updated hearing exhibits for <span class="font-mono text-xs text-[#0070F3]">Davis v. SSA</span>',
+      userName: "Teresa Clark",
+      timestamp: yesterdayAt(8, 30),
+    },
+    {
+      id: "a15",
+      action: "create",
+      entityType: "task",
+      description:
+        'assigned "Obtain treating physician letter" for <span class="font-mono text-xs text-[#0070F3]">Chen v. SSA</span>',
+      userName: "James Kim",
+      timestamp: twoDaysAgoAt(16, 0),
+    },
+    {
+      id: "a16",
+      action: "upload",
+      entityType: "document",
+      description:
+        'uploaded work history report to <span class="font-mono text-xs text-[#0070F3]">Garcia v. SSA</span>',
+      userName: "Ana Lopez",
+      timestamp: twoDaysAgoAt(15, 20),
+    },
+    {
+      id: "a17",
+      action: "complete",
+      entityType: "task",
+      description:
+        'completed "Review denial letter" for <span class="font-mono text-xs text-[#0070F3]">Thompson v. SSA</span>',
+      userName: "Mike Rivera",
+      timestamp: twoDaysAgoAt(14, 5),
+    },
+    {
+      id: "a18",
+      action: "update",
+      entityType: "case",
+      description:
+        'updated onset date for <span class="font-mono text-xs text-[#0070F3]">Williams v. SSA</span>',
+      userName: "Sarah Mitchell",
+      timestamp: twoDaysAgoAt(11, 30),
+    },
+    {
+      id: "a19",
+      action: "create",
+      entityType: "note",
+      description:
+        'added vocational analysis notes to <span class="font-mono text-xs text-[#0070F3]">Rodriguez v. SSA</span>',
+      userName: "Teresa Clark",
+      timestamp: twoDaysAgoAt(10, 15),
+    },
+    {
+      id: "a20",
+      action: "upload",
+      entityType: "document",
+      description:
+        'uploaded medical summary to <span class="font-mono text-xs text-[#0070F3]">Martinez v. SSA</span>',
+      userName: "James Kim",
+      timestamp: twoDaysAgoAt(9, 0),
+    },
   ];
 
   const recentDecisions: RecentDecision[] = [
-    { caseId: "d1", caseName: "Patel v. SSA", aljName: "Judge Harrison", outcome: "favorable", pastDueBenefits: 34200, decisionDate: "Mar 27, 2026" },
-    { caseId: "d2", caseName: "Murray v. SSA", aljName: "Judge Whitfield", outcome: "unfavorable", pastDueBenefits: 0, decisionDate: "Mar 27, 2026" },
-    { caseId: "d3", caseName: "Robinson v. SSA", aljName: "Judge Kowalski", outcome: "favorable", pastDueBenefits: 28450, decisionDate: "Mar 25, 2026" },
-    { caseId: "d4", caseName: "Lee v. SSA", aljName: "Judge Patel", outcome: "favorable", pastDueBenefits: 41800, decisionDate: "Mar 24, 2026" },
-    { caseId: "d5", caseName: "Foster v. SSA", aljName: "Judge Okafor", outcome: "unfavorable", pastDueBenefits: 0, decisionDate: "Mar 23, 2026" },
-    { caseId: "d6", caseName: "Chen v. SSA", aljName: "Judge Brennan", outcome: "favorable", pastDueBenefits: 22100, decisionDate: "Mar 21, 2026" },
-    { caseId: "d7", caseName: "Davis v. SSA", aljName: "Judge Nguyen", outcome: "remand", pastDueBenefits: 0, decisionDate: "Mar 20, 2026" },
-    { caseId: "d8", caseName: "Taylor v. SSA", aljName: "Judge Harrison", outcome: "favorable", pastDueBenefits: 38900, decisionDate: "Mar 18, 2026" },
+    {
+      caseId: "d1",
+      caseName: "Patel v. SSA",
+      aljName: "Judge Harrison",
+      outcome: "favorable",
+      pastDueBenefits: 34200,
+      decisionDate: "Mar 27, 2026",
+    },
+    {
+      caseId: "d2",
+      caseName: "Murray v. SSA",
+      aljName: "Judge Whitfield",
+      outcome: "unfavorable",
+      pastDueBenefits: 0,
+      decisionDate: "Mar 27, 2026",
+    },
+    {
+      caseId: "d3",
+      caseName: "Robinson v. SSA",
+      aljName: "Judge Kowalski",
+      outcome: "favorable",
+      pastDueBenefits: 28450,
+      decisionDate: "Mar 25, 2026",
+    },
+    {
+      caseId: "d4",
+      caseName: "Lee v. SSA",
+      aljName: "Judge Patel",
+      outcome: "favorable",
+      pastDueBenefits: 41800,
+      decisionDate: "Mar 24, 2026",
+    },
+    {
+      caseId: "d5",
+      caseName: "Foster v. SSA",
+      aljName: "Judge Okafor",
+      outcome: "unfavorable",
+      pastDueBenefits: 0,
+      decisionDate: "Mar 23, 2026",
+    },
+    {
+      caseId: "d6",
+      caseName: "Chen v. SSA",
+      aljName: "Judge Brennan",
+      outcome: "favorable",
+      pastDueBenefits: 22100,
+      decisionDate: "Mar 21, 2026",
+    },
+    {
+      caseId: "d7",
+      caseName: "Davis v. SSA",
+      aljName: "Judge Nguyen",
+      outcome: "remand",
+      pastDueBenefits: 0,
+      decisionDate: "Mar 20, 2026",
+    },
+    {
+      caseId: "d8",
+      caseName: "Taylor v. SSA",
+      aljName: "Judge Harrison",
+      outcome: "favorable",
+      pastDueBenefits: 38900,
+      decisionDate: "Mar 18, 2026",
+    },
   ];
 
   const teamActivity: TeamMemberActivity[] = [
-    { userName: "Sarah M.", hourlyActivity: [2, 5, 8, 12, 3, 6, 9, 11, 7, 4, 1, 0] },
-    { userName: "James K.", hourlyActivity: [1, 4, 7, 10, 5, 2, 8, 9, 6, 3, 0, 0] },
-    { userName: "Ana L.", hourlyActivity: [0, 3, 6, 9, 7, 4, 8, 11, 10, 5, 2, 0] },
-    { userName: "Mike R.", hourlyActivity: [2, 6, 9, 13, 3, 5, 7, 10, 8, 4, 1, 0] },
-    { userName: "Teresa C.", hourlyActivity: [0, 1, 4, 7, 10, 8, 11, 14, 9, 6, 3, 0] },
+    {
+      userName: "Sarah M.",
+      hourlyActivity: [2, 5, 8, 12, 3, 6, 9, 11, 7, 4, 1, 0],
+    },
+    {
+      userName: "James K.",
+      hourlyActivity: [1, 4, 7, 10, 5, 2, 8, 9, 6, 3, 0, 0],
+    },
+    {
+      userName: "Ana L.",
+      hourlyActivity: [0, 3, 6, 9, 7, 4, 8, 11, 10, 5, 2, 0],
+    },
+    {
+      userName: "Mike R.",
+      hourlyActivity: [2, 6, 9, 13, 3, 5, 7, 10, 8, 4, 1, 0],
+    },
+    {
+      userName: "Teresa C.",
+      hourlyActivity: [0, 1, 4, 7, 10, 8, 11, 14, 9, 6, 3, 0],
+    },
   ];
 
   const documentQueue: DocumentQueue = {
@@ -474,16 +770,76 @@ export async function getDashboardData(): Promise<DashboardData> {
   };
 
   const aljApprovalRates: AljApprovalRate[] = [
-    { aljName: "Judge Harrison", favorable: 72, unfavorable: 18, remand: 10, total: 120 },
-    { aljName: "Judge Kowalski", favorable: 68, unfavorable: 20, remand: 12, total: 95 },
-    { aljName: "Judge Patel", favorable: 65, unfavorable: 27, remand: 8, total: 88 },
-    { aljName: "Judge Brennan", favorable: 60, unfavorable: 25, remand: 15, total: 102 },
-    { aljName: "Judge Chen", favorable: 55, unfavorable: 27, remand: 18, total: 76 },
-    { aljName: "Judge Morales", favorable: 50, unfavorable: 36, remand: 14, total: 68 },
-    { aljName: "Judge Sullivan", favorable: 48, unfavorable: 40, remand: 12, total: 82 },
-    { aljName: "Judge Fitzgerald", favorable: 42, unfavorable: 38, remand: 20, total: 64 },
-    { aljName: "Judge Okafor", favorable: 38, unfavorable: 48, remand: 14, total: 58 },
-    { aljName: "Judge Whitfield", favorable: 30, unfavorable: 60, remand: 10, total: 44 },
+    {
+      aljName: "Judge Harrison",
+      favorable: 72,
+      unfavorable: 18,
+      remand: 10,
+      total: 120,
+    },
+    {
+      aljName: "Judge Kowalski",
+      favorable: 68,
+      unfavorable: 20,
+      remand: 12,
+      total: 95,
+    },
+    {
+      aljName: "Judge Patel",
+      favorable: 65,
+      unfavorable: 27,
+      remand: 8,
+      total: 88,
+    },
+    {
+      aljName: "Judge Brennan",
+      favorable: 60,
+      unfavorable: 25,
+      remand: 15,
+      total: 102,
+    },
+    {
+      aljName: "Judge Chen",
+      favorable: 55,
+      unfavorable: 27,
+      remand: 18,
+      total: 76,
+    },
+    {
+      aljName: "Judge Morales",
+      favorable: 50,
+      unfavorable: 36,
+      remand: 14,
+      total: 68,
+    },
+    {
+      aljName: "Judge Sullivan",
+      favorable: 48,
+      unfavorable: 40,
+      remand: 12,
+      total: 82,
+    },
+    {
+      aljName: "Judge Fitzgerald",
+      favorable: 42,
+      unfavorable: 38,
+      remand: 20,
+      total: 64,
+    },
+    {
+      aljName: "Judge Okafor",
+      favorable: 38,
+      unfavorable: 48,
+      remand: 14,
+      total: 58,
+    },
+    {
+      aljName: "Judge Whitfield",
+      favorable: 30,
+      unfavorable: 60,
+      remand: 10,
+      total: 44,
+    },
   ];
 
   const listingMatchData: ListingMatch[] = [
@@ -496,10 +852,16 @@ export async function getDashboardData(): Promise<DashboardData> {
   ];
 
   const denialPatterns: DenialPattern[] = [
-    { reason: "Insufficient Evidence", monthlyData: [12, 15, 10, 18, 14, 16, 11, 13, 17, 14, 12, 15] },
+    {
+      reason: "Insufficient Evidence",
+      monthlyData: [12, 15, 10, 18, 14, 16, 11, 13, 17, 14, 12, 15],
+    },
     { reason: "SGA", monthlyData: [5, 7, 4, 6, 8, 5, 7, 4, 6, 5, 7, 6] },
     { reason: "Duration", monthlyData: [3, 4, 5, 3, 4, 6, 3, 5, 4, 3, 5, 4] },
-    { reason: "RFC Mismatch", monthlyData: [2, 3, 4, 2, 3, 3, 4, 2, 3, 4, 2, 3] },
+    {
+      reason: "RFC Mismatch",
+      monthlyData: [2, 3, 4, 2, 3, 3, 4, 2, 3, 4, 2, 3],
+    },
   ];
 
   const timeToHearing: TimeToHearingItem[] = [

@@ -227,9 +227,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
         )}
 
         {testResult && (
-          <p className="mt-3 text-sm text-[#666]">
-            {testResult.message}
-          </p>
+          <p className="mt-3 text-sm text-[#666]">{testResult.message}</p>
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-2">

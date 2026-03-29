@@ -56,7 +56,11 @@ export default async function LeadsPage({
 
   return (
     <div className="space-y-4">
-      <LeadsPipelineClient columns={columns} initialAction={action} initialStatus={status} />
+      <LeadsPipelineClient
+        columns={columns}
+        initialAction={action}
+        initialStatus={status}
+      />
     </div>
   );
 }

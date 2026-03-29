@@ -164,7 +164,9 @@ export function CasesListClient({
   const [sortDir, setSortDir] = useState<"asc" | "desc">(initialSortDir);
 
   // Sync when URL searchParams change (e.g., sidebar panel navigation)
-  useEffect(() => { setStageFilter(initialStageId); }, [initialStageId]);
+  useEffect(() => {
+    setStageFilter(initialStageId);
+  }, [initialStageId]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [newCaseOpen, setNewCaseOpen] = useState(false);
@@ -647,7 +649,8 @@ export function CasesListClient({
                         <span
                           className="inline-block h-[6px] w-[6px] shrink-0 rounded-full"
                           style={{
-                            backgroundColor: c.stageColor ?? c.stageGroupColor ?? "#888",
+                            backgroundColor:
+                              c.stageColor ?? c.stageGroupColor ?? "#888",
                           }}
                         />
                         {c.stageName}
@@ -658,10 +661,12 @@ export function CasesListClient({
                     {c.assignedStaff.length > 0 ? (
                       <div className="flex items-center gap-2">
                         <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#EAEAEA] text-[9px] font-semibold text-[#171717]">
-                          {c.assignedStaff[0].firstName.charAt(0)}{c.assignedStaff[0].lastName.charAt(0)}
+                          {c.assignedStaff[0].firstName.charAt(0)}
+                          {c.assignedStaff[0].lastName.charAt(0)}
                         </span>
                         <span className="text-[13px] text-foreground">
-                          {c.assignedStaff[0].firstName.charAt(0)}. {c.assignedStaff[0].lastName}
+                          {c.assignedStaff[0].firstName.charAt(0)}.{" "}
+                          {c.assignedStaff[0].lastName}
                         </span>
                       </div>
                     ) : (

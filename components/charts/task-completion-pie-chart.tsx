@@ -24,15 +24,32 @@ export function TaskCompletionPieChart({ data }: { data: TaskStats }) {
 
   if (data.total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-6 text-center" style={{ animation: "emptyStateIn 0.3s ease-out" }}>
+      <div
+        className="flex flex-col items-center justify-center py-6 text-center"
+        style={{ animation: "emptyStateIn 0.3s ease-out" }}
+      >
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(0,0,0,0.04)]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="text-[#8b8b97]">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-[#8b8b97]"
+          >
             <circle cx="12" cy="12" r="10" />
             <path d="M12 2a10 10 0 0 1 0 20" />
           </svg>
         </div>
-        <p className="mt-2 text-sm font-medium text-foreground">No tasks to display</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">Task data will populate once tasks are assigned</p>
+        <p className="mt-2 text-sm font-medium text-foreground">
+          No tasks to display
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Task data will populate once tasks are assigned
+        </p>
       </div>
     );
   }

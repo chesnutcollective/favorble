@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect, type RefObject } from "react";
+import {
+  useState,
+  useTransition,
+  useRef,
+  useEffect,
+  type RefObject,
+} from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,7 +49,12 @@ type EmailQueueClientProps = {
   highlightId?: string;
 };
 
-export function EmailQueueClient({ emails, cases, initialFilter, highlightId }: EmailQueueClientProps) {
+export function EmailQueueClient({
+  emails,
+  cases,
+  initialFilter,
+  highlightId,
+}: EmailQueueClientProps) {
   const unmatchedRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -96,14 +107,20 @@ export function EmailQueueClient({ emails, cases, initialFilter, highlightId }: 
   // Scroll to unmatched section when arriving via ?filter=unmatched
   useEffect(() => {
     if (initialFilter === "unmatched" && unmatchedRef.current) {
-      unmatchedRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      unmatchedRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }, [initialFilter]);
 
   // Scroll to highlighted email when arriving via ?highlight=
   useEffect(() => {
     if (highlightId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      highlightRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, [highlightId]);
 

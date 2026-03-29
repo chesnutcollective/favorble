@@ -1,6 +1,12 @@
 "use client";
 
-type EventType = "Hearing" | "CE" | "Deadline" | "Consult" | "Deposition" | "Court";
+type EventType =
+  | "Hearing"
+  | "CE"
+  | "Deadline"
+  | "Consult"
+  | "Deposition"
+  | "Court";
 
 type CalendarEvent = {
   id: string;
@@ -98,8 +104,7 @@ export function CalendarPanel({ events = defaultEvents }: CalendarPanelProps) {
                 fontSize: 11,
                 fontWeight: 600,
                 color: "#999",
-                fontFamily:
-                  "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
               }}
             >
               {event.time}
@@ -141,8 +146,7 @@ export function CalendarPanel({ events = defaultEvents }: CalendarPanelProps) {
               <span
                 style={{
                   fontSize: 10,
-                  fontFamily:
-                    "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   color: "#999",
                 }}
               >

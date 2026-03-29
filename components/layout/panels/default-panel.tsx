@@ -89,8 +89,7 @@ export function DefaultPanel({
                 padding: "6px 8px",
                 borderRadius: 6,
                 cursor: "pointer",
-                transition:
-                  "color 0.12s ease, background 0.12s ease",
+                transition: "color 0.12s ease, background 0.12s ease",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "#F3F4F6";
@@ -116,8 +115,7 @@ export function DefaultPanel({
                 <span
                   style={{
                     fontSize: 10,
-                    fontFamily:
-                      "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                    fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                     color: "#999",
                     flexShrink: 0,
                     marginLeft: 8,

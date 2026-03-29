@@ -23,7 +23,9 @@ export function GlobalDocumentsClient({
   documents,
   initialSource,
 }: GlobalDocumentsClientProps) {
-  const [sourceFilter, setSourceFilter] = useState<string | null>(initialSource ?? null);
+  const [sourceFilter, setSourceFilter] = useState<string | null>(
+    initialSource ?? null,
+  );
 
   // Sync filter when URL searchParams change (e.g., panel navigation)
   useEffect(() => {

@@ -101,7 +101,10 @@ export function EreDocumentsFeed({
             </thead>
             <tbody className="divide-y divide-[#eaeaea]">
               {documents.map((doc) => (
-                <tr key={doc.id} className="hover:bg-[#fafafa] transition-colors duration-200">
+                <tr
+                  key={doc.id}
+                  className="hover:bg-[#fafafa] transition-colors duration-200"
+                >
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
                       <HugeiconsIcon

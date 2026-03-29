@@ -289,9 +289,7 @@ function InfoItem({
 }) {
   return (
     <div className="py-2">
-      <p className="text-xs text-[#666] uppercase tracking-wider">
-        {label}
-      </p>
+      <p className="text-xs text-[#666] uppercase tracking-wider">{label}</p>
       <p className="mt-1 text-sm font-medium">{value ?? "—"}</p>
     </div>
   );

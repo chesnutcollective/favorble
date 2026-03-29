@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FolderPlus,
-  UserPlus,
-  Upload,
-  CalendarPlus,
-} from "lucide-react";
+import { FolderPlus, UserPlus, Upload, CalendarPlus } from "lucide-react";
 
 type ActivityItem = {
   id: string;
@@ -99,10 +94,7 @@ export function DashboardPanel({
         />
         <QuickActionButton icon={<UserPlus size={16} />} label="New Lead" />
         <QuickActionButton icon={<Upload size={16} />} label="Upload Doc" />
-        <QuickActionButton
-          icon={<CalendarPlus size={16} />}
-          label="Schedule"
-        />
+        <QuickActionButton icon={<CalendarPlus size={16} />} label="Schedule" />
       </div>
 
       {/* Today's Numbers */}
@@ -182,8 +174,7 @@ export function DashboardPanel({
               <div
                 style={{
                   fontSize: 10,
-                  fontFamily:
-                    "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   color: "#9CA3AF",
                   marginTop: 1,
                 }}
