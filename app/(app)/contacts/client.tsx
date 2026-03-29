@@ -178,7 +178,8 @@ export function ContactsListClient({
               contacts.map((c) => (
                 <TableRow
                   key={c.id}
-                  className="hover:bg-[#FAFAFA] transition-colors duration-200"
+                  className="hover:bg-[#FAFAFA] transition-colors duration-200 cursor-pointer"
+                  onClick={() => router.push(`/contacts/${c.id}`)}
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
