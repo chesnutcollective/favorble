@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Top Nav + Context Sidebar Hybrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #FAFAFA;
+    color: #111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── View Switcher (meta UI for this proposal) ── */
+  .proposal-header {
+    background: #111;
+    color: #fff;
+    padding: 20px 32px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .proposal-header h1 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .proposal-header span {
+    color: #888;
+    font-size: 12px;
+  }
+
+  .view-switcher {
+    display: flex;
+    gap: 1px;
+    background: #333;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 0 32px 0;
+    border: 1px solid #333;
+  }
+
+  .view-switcher button {
+    flex: 1;
+    padding: 10px 24px;
+    background: #1a1a1a;
+    color: #888;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .view-switcher button:hover {
+    color: #ccc;
+    background: #222;
+  }
+
+  .view-switcher button.active {
+    background: #fff;
+    color: #111;
+  }
+
+  .demo-frame {
+    display: none;
+    min-height: calc(100vh - 100px);
+  }
+
+  .demo-frame.active {
+    display: block;
+  }
+
+  /* ── Top Navigation Bar ── */
+  .topnav {
+    height: 48px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #EAEAEA;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topnav-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 32px;
+    text-decoration: none;
+    color: #111;
+    flex-shrink: 0;
+  }
+
+  .topnav-logo .logo-mark {
+    width: 20px;
+    height: 20px;
+    background: #111;
+    border-radius: 4px;
+  }
+
+  .topnav-logo .logo-text {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .topnav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    flex: 1;
+  }
+
+  .topnav-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  .topnav-tab:hover {
+    color: #000;
+  }
+
+  .topnav-tab.active {
+    color: #000;
+  }
+
+  .topnav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: #000;
+    border-radius: 1px 1px 0 0;
+  }
+
+  .topnav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: #F0F0F0;
+    color: #666;
+    padding: 1px 6px;
+    border-radius: 10px;
+    line-height: 1.4;
+  }
+
+  .topnav-tab.active .topnav-badge {
+    background: #111;
+    color: #fff;
+  }
+
+  .topnav-more {
+    position: relative;
+  }
+
+  .topnav-more-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    min-width: 180px;
+    padding: 4px;
+    z-index: 200;
+  }
+
+  .topnav-more-dropdown.open {
+    display: block;
+  }
+
+  .topnav-more-dropdown a {
+    display: block;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #444;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .topnav-more-dropdown a:hover {
+    background: #F5F5F5;
+    color: #111;
+  }
+
+  .topnav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .topnav-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #666;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .topnav-icon-btn:hover {
+    background: #F0F0F0;
+    color: #111;
+  }
+
+  .topnav-search-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    height: 30px;
+    border: 1px solid #EAEAEA;
+    background: #FAFAFA;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #999;
+    font-family: inherit;
+    font-size: 12px;
+    margin-right: 4px;
+    transition: border-color 0.15s;
+  }
+
+  .topnav-search-btn:hover {
+    border-color: #ccc;
+  }
+
+  .topnav-search-btn kbd {
+    font-family: inherit;
+    font-size: 11px;
+    color: #bbb;
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 3px;
+    padding: 0 4px;
+    line-height: 1.5;
+  }
+
+  .topnav-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #E0E0E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .topnav-avatar:hover {
+    opacity: 0.8;
+  }
+
+  .topnav-notification-dot {
+    position: relative;
+  }
+
+  .topnav-notification-dot::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    background: #E5484D;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+  }
+
+  /* ── Page Layout ── */
+  .page-layout {
+    display: flex;
+    min-height: calc(100vh - 48px);
+  }
+
+  .page-layout--full .main-content {
+    max-width: 100%;
+  }
+
+  /* ── Context Sidebar ── */
+  .context-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #FAFAFA;
+    border-right: 1px solid #EAEAEA;
+    padding: 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .context-sidebar-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    color: #111;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .context-sidebar-search:focus {
+    border-color: #999;
+  }
+
+  .context-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid #EAEAEA;
+    border-radius: 20px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .filter-pill:hover {
+    border-color: #ccc;
+    background: #F5F5F5;
+  }
+
+  .filter-pill.active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+
+  .filter-pill .pill-count {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  .sidebar-section {
+    margin-bottom: 8px;
+  }
+
+  .sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  .sidebar-section-header:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar-section-header .chevron {
+    font-size: 10px;
+    color: #bbb;
+    transition: transform 0.15s;
+  }
+
+  .sidebar-section-header.collapsed .chevron {
+    transform: rotate(-90deg);
+  }
+
+  .sidebar-section-items {
+    padding: 2px 0;
+  }
+
+  .sidebar-section-header.collapsed + .sidebar-section-items {
+    display: none;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: #444;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+
+  .sidebar-item:hover {
+    background: #F0F0F0;
+    color: #111;
+  }
+
+  .sidebar-item.active {
+    background: #EDEDED;
+    color: #111;
+    font-weight: 500;
+  }
+
+  .sidebar-item-count {
+    font-size: 11px;
+    color: #999;
+  }
+
+  .sidebar-item .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-item-left {
+    display: flex;
+    align-items: center;
+  }
+
+  /* ── Settings sidebar ── */
+  .settings-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #444;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+    margin-bottom: 1px;
+  }
+
+  .settings-nav-item:hover {
+    background: #F0F0F0;
+    color: #111;
+  }
+
+  .settings-nav-item.active {
+    background: #EDEDED;
+    color: #111;
+    font-weight: 500;
+  }
+
+  .settings-nav-item svg {
+    color: #888;
+    flex-shrink: 0;
+  }
+
+  /* ── Main Content Area ── */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 32px;
+    background: #FAFAFA;
+  }
+
+  .page-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 32px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-primary:hover {
+    background: #333;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 32px;
+    background: #fff;
+    color: #111;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .btn-secondary:hover {
+    border-color: #ccc;
+  }
+
+  /* ── Dashboard Cards ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .stat-card-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .stat-card-value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: #111;
+    margin-bottom: 4px;
+  }
+
+  .stat-card-delta {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .stat-card-delta.up {
+    color: #18794E;
+  }
+
+  .stat-card-delta.down {
+    color: #E5484D;
+  }
+
+  .content-section {
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .content-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #EAEAEA;
+  }
+
+  .content-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .content-section-body {
+    padding: 0;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+    color: #444;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ccc;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .activity-dot.green {
+    background: #18794E;
+  }
+
+  .activity-dot.blue {
+    background: #0070F3;
+  }
+
+  .activity-dot.orange {
+    background: #F5A623;
+  }
+
+  .activity-time {
+    color: #999;
+    font-size: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* ── Cases Table ── */
+  .cases-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .cases-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #EAEAEA;
+    background: #FAFAFA;
+  }
+
+  .cases-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #F5F5F5;
+    color: #333;
+  }
+
+  .cases-table tr:hover td {
+    background: #FAFAFA;
+  }
+
+  .cases-table .case-name {
+    font-weight: 500;
+    color: #111;
+  }
+
+  .case-stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 20px;
+    background: #F0F0F0;
+    color: #555;
+  }
+
+  .case-stage-badge .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ── Dashboard upcoming / tasks ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+    color: #444;
+  }
+
+  .task-item:last-child {
+    border-bottom: none;
+  }
+
+  .task-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .task-due {
+    margin-left: auto;
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+  }
+
+  .task-due.overdue {
+    color: #E5484D;
+  }
+
+  .calendar-mini-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+    color: #444;
+  }
+
+  .calendar-mini-item:last-child {
+    border-bottom: none;
+  }
+
+  .calendar-mini-time {
+    font-size: 12px;
+    font-weight: 500;
+    color: #888;
+    width: 56px;
+    flex-shrink: 0;
+  }
+
+  .calendar-mini-bar {
+    width: 3px;
+    height: 24px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Design note block ── */
+  .design-note {
+    margin: 32px;
+    padding: 16px 20px;
+    background: #FFFBE6;
+    border: 1px solid #F5E6A3;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .design-note strong {
+    color: #444;
+  }
+</style>
+</head>
+<body>
+
+<!-- Proposal Header -->
+<div class="proposal-header">
+  <div>
+    <h1>Proposal 04 — Top Nav + Context Sidebar Hybrid</h1>
+    <span>Favorble Navigation Exploration</span>
+  </div>
+  <span>Inspired by GitHub / Vercel / Notion</span>
+</div>
+
+<!-- View Switcher -->
+<div class="view-switcher">
+  <button class="active" onclick="switchView('dashboard')">Dashboard View</button>
+  <button onclick="switchView('cases')">Cases View</button>
+  <button onclick="switchView('settings')">Settings View</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- VIEW 1: DASHBOARD (no context sidebar, full width)  -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="view-dashboard" class="demo-frame active">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <a class="topnav-logo" href="#">
+      <div class="logo-mark"></div>
+      <span class="logo-text">Favorble</span>
+    </a>
+
+    <div class="topnav-tabs">
+      <a class="topnav-tab active" href="#">Dashboard</a>
+      <a class="topnav-tab" href="#" onclick="event.preventDefault(); switchView('cases')">
+        Cases <span class="topnav-badge">44</span>
+      </a>
+      <a class="topnav-tab" href="#">Leads</a>
+      <a class="topnav-tab" href="#">Calendar</a>
+      <a class="topnav-tab" href="#">Queue</a>
+      <div class="topnav-more">
+        <button class="topnav-tab" onclick="toggleMore(this, event)">
+          More
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4L5 6.5L7.5 4"/></svg>
+        </button>
+        <div class="topnav-more-dropdown">
+          <a href="#">Messages</a>
+          <a href="#">Email</a>
+          <a href="#">Contacts</a>
+          <a href="#">Documents</a>
+          <a href="#">Reports</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="topnav-right">
+      <button class="topnav-search-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search
+        <kbd>&#8984;K</kbd>
+      </button>
+      <button class="topnav-icon-btn topnav-notification-dot" title="Notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Settings" onclick="switchView('settings')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <div class="topnav-avatar">JK</div>
+    </div>
+  </nav>
+
+  <!-- Dashboard: Full Width (no context sidebar) -->
+  <div class="page-layout page-layout--full">
+    <div class="main-content">
+      <div class="page-title-row">
+        <h2 class="page-title">Dashboard</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary">Export</button>
+          <button class="btn-primary">+ New Case</button>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Active Cases</div>
+          <div class="stat-card-value">44</div>
+          <div class="stat-card-delta up">+3 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Open Leads</div>
+          <div class="stat-card-value">18</div>
+          <div class="stat-card-delta up">+5 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Revenue (MTD)</div>
+          <div class="stat-card-value">$142K</div>
+          <div class="stat-card-delta up">+12% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Pending Tasks</div>
+          <div class="stat-card-value">12</div>
+          <div class="stat-card-delta down">3 overdue</div>
+        </div>
+      </div>
+
+      <!-- Two-column: tasks + upcoming -->
+      <div class="two-col">
+        <div class="content-section">
+          <div class="content-section-header">
+            <span class="content-section-title">My Tasks</span>
+            <button class="btn-secondary" style="height: 26px; font-size: 12px; padding: 0 10px;">View All</button>
+          </div>
+          <div class="content-section-body">
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              File motion for Smith v. Anderson
+              <span class="task-due overdue">Overdue</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              Review discovery docs - Garcia Estate
+              <span class="task-due">Today</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              Draft demand letter - Thompson claim
+              <span class="task-due">Mar 30</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              Schedule deposition - Williams case
+              <span class="task-due">Apr 1</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              Prepare trial exhibits - Davis matter
+              <span class="task-due">Apr 3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="content-section-header">
+            <span class="content-section-title">Upcoming</span>
+            <button class="btn-secondary" style="height: 26px; font-size: 12px; padding: 0 10px;">Calendar</button>
+          </div>
+          <div class="content-section-body">
+            <div class="calendar-mini-item">
+              <span class="calendar-mini-time">9:00 AM</span>
+              <div class="calendar-mini-bar" style="background: #0070F3;"></div>
+              Client call — Garcia Estate
+            </div>
+            <div class="calendar-mini-item">
+              <span class="calendar-mini-time">11:30 AM</span>
+              <div class="calendar-mini-bar" style="background: #18794E;"></div>
+              Mediation — Smith v. Anderson
+            </div>
+            <div class="calendar-mini-item">
+              <span class="calendar-mini-time">2:00 PM</span>
+              <div class="calendar-mini-bar" style="background: #F5A623;"></div>
+              Filing deadline — Thompson claim
+            </div>
+            <div class="calendar-mini-item">
+              <span class="calendar-mini-time">4:00 PM</span>
+              <div class="calendar-mini-bar" style="background: #7C3AED;"></div>
+              Team standup
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="content-section" style="margin-top: 12px;">
+        <div class="content-section-header">
+          <span class="content-section-title">Recent Activity</span>
+        </div>
+        <div class="content-section-body">
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <span><strong style="font-weight: 500; color: #111;">Garcia Estate</strong> moved to Discovery stage</span>
+            <span class="activity-time">2 min ago</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <span>New document uploaded to <strong style="font-weight: 500; color: #111;">Williams v. Metro</strong></span>
+            <span class="activity-time">15 min ago</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <span>Settlement offer received for <strong style="font-weight: 500; color: #111;">Thompson claim</strong></span>
+            <span class="activity-time">1 hr ago</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot"></div>
+            <span>Invoice #2847 sent to <strong style="font-weight: 500; color: #111;">Davis, Margaret</strong></span>
+            <span class="activity-time">3 hr ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- VIEW 2: CASES (with context sidebar)                -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="view-cases" class="demo-frame">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <a class="topnav-logo" href="#">
+      <div class="logo-mark"></div>
+      <span class="logo-text">Favorble</span>
+    </a>
+
+    <div class="topnav-tabs">
+      <a class="topnav-tab" href="#" onclick="event.preventDefault(); switchView('dashboard')">Dashboard</a>
+      <a class="topnav-tab active" href="#">
+        Cases <span class="topnav-badge">44</span>
+      </a>
+      <a class="topnav-tab" href="#">Leads</a>
+      <a class="topnav-tab" href="#">Calendar</a>
+      <a class="topnav-tab" href="#">Queue</a>
+      <div class="topnav-more">
+        <button class="topnav-tab" onclick="toggleMore(this, event)">
+          More
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4L5 6.5L7.5 4"/></svg>
+        </button>
+        <div class="topnav-more-dropdown">
+          <a href="#">Messages</a>
+          <a href="#">Email</a>
+          <a href="#">Contacts</a>
+          <a href="#">Documents</a>
+          <a href="#">Reports</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="topnav-right">
+      <button class="topnav-search-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search
+        <kbd>&#8984;K</kbd>
+      </button>
+      <button class="topnav-icon-btn topnav-notification-dot" title="Notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Settings" onclick="switchView('settings')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <div class="topnav-avatar">JK</div>
+    </div>
+  </nav>
+
+  <!-- Cases: Context Sidebar + Content -->
+  <div class="page-layout">
+    <!-- Context Sidebar (case-specific) -->
+    <aside class="context-sidebar">
+      <input class="context-sidebar-search" placeholder="Filter cases..." type="text">
+
+      <div class="context-filter-pills">
+        <span class="filter-pill active">All <span class="pill-count">44</span></span>
+        <span class="filter-pill">My Cases <span class="pill-count">12</span></span>
+        <span class="filter-pill">Starred</span>
+      </div>
+
+      <!-- Stage: Intake -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header" onclick="toggleSection(this)">
+          Intake
+          <span class="chevron">&#9660;</span>
+        </div>
+        <div class="sidebar-section-items">
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #0070F3;"></span>
+              New Leads
+            </span>
+            <span class="sidebar-item-count">6</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #0070F3;"></span>
+              Consultation
+            </span>
+            <span class="sidebar-item-count">4</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #0070F3;"></span>
+              Under Review
+            </span>
+            <span class="sidebar-item-count">3</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stage: Active -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header" onclick="toggleSection(this)">
+          Active
+          <span class="chevron">&#9660;</span>
+        </div>
+        <div class="sidebar-section-items">
+          <a class="sidebar-item active" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #18794E;"></span>
+              Discovery
+            </span>
+            <span class="sidebar-item-count">8</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #18794E;"></span>
+              Negotiation
+            </span>
+            <span class="sidebar-item-count">5</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #18794E;"></span>
+              Litigation
+            </span>
+            <span class="sidebar-item-count">7</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #18794E;"></span>
+              Trial Prep
+            </span>
+            <span class="sidebar-item-count">3</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stage: Closed -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header" onclick="toggleSection(this)">
+          Closed
+          <span class="chevron">&#9660;</span>
+        </div>
+        <div class="sidebar-section-items">
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #888;"></span>
+              Settled
+            </span>
+            <span class="sidebar-item-count">5</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #888;"></span>
+              Won
+            </span>
+            <span class="sidebar-item-count">2</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="sidebar-item-left">
+              <span class="dot" style="background: #888;"></span>
+              Lost / Declined
+            </span>
+            <span class="sidebar-item-count">1</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Cases Main Content -->
+    <div class="main-content">
+      <div class="page-title-row">
+        <h2 class="page-title">Cases</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            Sort
+          </button>
+          <button class="btn-primary">+ New Case</button>
+        </div>
+      </div>
+
+      <div class="content-section">
+        <div class="content-section-body">
+          <table class="cases-table">
+            <thead>
+              <tr>
+                <th>Case Name</th>
+                <th>Client</th>
+                <th>Stage</th>
+                <th>Assigned</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="case-name">Smith v. Anderson Corp</td>
+                <td>Smith, Robert</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Discovery</span></td>
+                <td>JK</td>
+                <td style="color: #888;">2 hr ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Garcia Estate Planning</td>
+                <td>Garcia, Maria</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Discovery</span></td>
+                <td>JK</td>
+                <td style="color: #888;">15 min ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Williams v. Metro Transit</td>
+                <td>Williams, James</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Negotiation</span></td>
+                <td>SM</td>
+                <td style="color: #888;">1 hr ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Thompson Insurance Claim</td>
+                <td>Thompson, Diana</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Litigation</span></td>
+                <td>JK</td>
+                <td style="color: #888;">3 hr ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Davis Contract Dispute</td>
+                <td>Davis, Margaret</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #0070F3;"></span>Under Review</span></td>
+                <td>AR</td>
+                <td style="color: #888;">5 hr ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Chen Property Acquisition</td>
+                <td>Chen, Wei</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Discovery</span></td>
+                <td>JK</td>
+                <td style="color: #888;">Yesterday</td>
+              </tr>
+              <tr>
+                <td class="case-name">Parker v. Eastside HOA</td>
+                <td>Parker, Linda</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Trial Prep</span></td>
+                <td>SM</td>
+                <td style="color: #888;">Yesterday</td>
+              </tr>
+              <tr>
+                <td class="case-name">Reeves Workers Comp</td>
+                <td>Reeves, Thomas</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #888;"></span>Settled</span></td>
+                <td>AR</td>
+                <td style="color: #888;">2 days ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Nakamura IP Filing</td>
+                <td>Nakamura, Yuki</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #0070F3;"></span>Consultation</span></td>
+                <td>JK</td>
+                <td style="color: #888;">2 days ago</td>
+              </tr>
+              <tr>
+                <td class="case-name">Morrison Family Trust</td>
+                <td>Morrison, David</td>
+                <td><span class="case-stage-badge"><span class="badge-dot" style="background: #18794E;"></span>Negotiation</span></td>
+                <td>SM</td>
+                <td style="color: #888;">3 days ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- VIEW 3: SETTINGS (with settings context sidebar)    -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="view-settings" class="demo-frame">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <a class="topnav-logo" href="#">
+      <div class="logo-mark"></div>
+      <span class="logo-text">Favorble</span>
+    </a>
+
+    <div class="topnav-tabs">
+      <a class="topnav-tab" href="#" onclick="event.preventDefault(); switchView('dashboard')">Dashboard</a>
+      <a class="topnav-tab" href="#" onclick="event.preventDefault(); switchView('cases')">
+        Cases <span class="topnav-badge">44</span>
+      </a>
+      <a class="topnav-tab" href="#">Leads</a>
+      <a class="topnav-tab" href="#">Calendar</a>
+      <a class="topnav-tab" href="#">Queue</a>
+      <div class="topnav-more">
+        <button class="topnav-tab" onclick="toggleMore(this, event)">
+          More
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4L5 6.5L7.5 4"/></svg>
+        </button>
+        <div class="topnav-more-dropdown">
+          <a href="#">Messages</a>
+          <a href="#">Email</a>
+          <a href="#">Contacts</a>
+          <a href="#">Documents</a>
+          <a href="#">Reports</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="topnav-right">
+      <button class="topnav-search-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search
+        <kbd>&#8984;K</kbd>
+      </button>
+      <button class="topnav-icon-btn topnav-notification-dot" title="Notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Settings" style="background: #F0F0F0; color: #111;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <div class="topnav-avatar">JK</div>
+    </div>
+  </nav>
+
+  <!-- Settings: Context Sidebar + Content -->
+  <div class="page-layout">
+    <aside class="context-sidebar">
+      <div style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 8px 10px;">Settings</div>
+
+      <a class="settings-nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+        Integrations
+      </a>
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Workflows
+      </a>
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Stages
+      </a>
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+        Fields
+      </a>
+
+      <div style="height: 16px;"></div>
+      <div style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 8px 10px;">Account</div>
+
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Team
+      </a>
+      <a class="settings-nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Billing
+      </a>
+    </aside>
+
+    <!-- Settings Main Content -->
+    <div class="main-content">
+      <div class="page-title-row">
+        <h2 class="page-title">Integrations</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: #F0F0F0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px;">G</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 500;">Google Workspace</div>
+              <div style="font-size: 11px; color: #18794E;">Connected</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #888; line-height: 1.5;">Calendar, Gmail, and Drive sync for your workspace.</div>
+          <button class="btn-secondary" style="height: 28px; font-size: 12px; align-self: flex-start; margin-top: auto;">Configure</button>
+        </div>
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: #F0F0F0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px;">Q</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 500;">QuickBooks</div>
+              <div style="font-size: 11px; color: #18794E;">Connected</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #888; line-height: 1.5;">Sync invoices and billing data with your accounting.</div>
+          <button class="btn-secondary" style="height: 28px; font-size: 12px; align-self: flex-start; margin-top: auto;">Configure</button>
+        </div>
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: #F0F0F0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px;">D</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 500;">DocuSign</div>
+              <div style="font-size: 11px; color: #888;">Not connected</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #888; line-height: 1.5;">Send and manage e-signatures directly from cases.</div>
+          <button class="btn-primary" style="height: 28px; font-size: 12px; align-self: flex-start; margin-top: auto;">Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Design Note -->
+<div class="design-note">
+  <strong>Design Rationale:</strong> This hybrid pattern keeps primary navigation horizontal at the top (like GitHub / Vercel), giving maximum horizontal space to content. The context sidebar only appears when the current section has meaningful sub-navigation (Cases shows stage filters, Settings shows config categories). Dashboard gets the full viewport width. Secondary nav items (Messages, Email, Contacts, Documents, Reports) live behind a "More" dropdown and are also accessible via &#8984;K search. This avoids the left sidebar "wall of links" while still providing quick access to contextual filtering.
+</div>
+
+<script>
+  // View switching
+  function switchView(view) {
+    document.querySelectorAll('.demo-frame').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.view-switcher button').forEach(el => el.classList.remove('active'));
+
+    document.getElementById('view-' + view).classList.add('active');
+
+    const buttons = document.querySelectorAll('.view-switcher button');
+    const viewMap = { dashboard: 0, cases: 1, settings: 2 };
+    if (viewMap[view] !== undefined) {
+      buttons[viewMap[view]].classList.add('active');
+    }
+
+    // Close any open dropdowns
+    document.querySelectorAll('.topnav-more-dropdown').forEach(el => el.classList.remove('open'));
+  }
+
+  // More dropdown toggle
+  function toggleMore(btn, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropdown = btn.parentElement.querySelector('.topnav-more-dropdown');
+    const isOpen = dropdown.classList.contains('open');
+
+    // Close all dropdowns first
+    document.querySelectorAll('.topnav-more-dropdown').forEach(el => el.classList.remove('open'));
+
+    if (!isOpen) {
+      dropdown.classList.add('open');
+    }
+  }
+
+  // Sidebar section collapse
+  function toggleSection(header) {
+    header.classList.toggle('collapsed');
+  }
+
+  // Close dropdowns on click outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.topnav-more')) {
+      document.querySelectorAll('.topnav-more-dropdown').forEach(el => el.classList.remove('open'));
+    }
+  });
+</script>
+</body>
+</html>

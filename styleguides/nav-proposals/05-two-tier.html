@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble - Two-Tier Sidebar Nav</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #FAFAFA;
+    color: #111;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Tier 1: Icon Rail ── */
+
+  .icon-rail {
+    width: 56px;
+    min-width: 56px;
+    height: 100vh;
+    background: #171717;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .rail-logo {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .rail-logo span {
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFF;
+    letter-spacing: -0.02em;
+  }
+
+  .rail-divider {
+    width: 24px;
+    height: 1px;
+    background: #333;
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rail-spacer {
+    flex: 1;
+  }
+
+  .rail-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease;
+    position: relative;
+  }
+
+  .rail-btn svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.12s ease;
+  }
+
+  .rail-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .rail-btn:hover svg {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .rail-btn.active {
+    background: #333;
+  }
+
+  .rail-btn.active svg {
+    color: #FFF;
+  }
+
+  .rail-btn .tooltip {
+    display: none;
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #333;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .rail-btn:hover .tooltip {
+    display: block;
+  }
+
+  .rail-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.12s ease;
+  }
+
+  .rail-avatar:hover {
+    background: #555;
+  }
+
+  .rail-avatar span {
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFF;
+  }
+
+  /* ── Tier 2: Label Panel ── */
+
+  .label-panel {
+    width: 184px;
+    min-width: 184px;
+    height: 100vh;
+    background: #FFFFFF;
+    border-right: 1px solid #EAEAEA;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    overflow-y: auto;
+  }
+
+  .panel-content {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px 16px;
+  }
+
+  .panel-content.active {
+    display: flex;
+  }
+
+  .panel-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .panel-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #999;
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .panel-section-label:first-of-type {
+    margin-top: 0;
+  }
+
+  .panel-search {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #333;
+    background: #FAFAFA;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.12s ease;
+  }
+
+  .panel-search::placeholder {
+    color: #BBB;
+  }
+
+  .panel-search:focus {
+    border-color: #CCC;
+    background: #FFF;
+  }
+
+  .panel-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #555;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.12s ease, background 0.12s ease;
+    line-height: 1.4;
+  }
+
+  .panel-item:hover {
+    color: #000;
+    background: #F5F5F5;
+  }
+
+  .panel-item.active {
+    color: #000;
+    font-weight: 500;
+    background: #F0F0F0;
+  }
+
+  .panel-item .badge {
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 10px;
+    color: #999;
+    background: #F0F0F0;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 400;
+  }
+
+  .panel-item.active .badge {
+    background: #E5E5E5;
+  }
+
+  .panel-pinned-label {
+    font-size: 11px;
+    color: #BBB;
+    margin-top: 20px;
+    margin-bottom: 6px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .panel-pinned-label svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Dashboard panel shortcuts */
+
+  .shortcut-card {
+    padding: 10px 12px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+  }
+
+  .shortcut-card:hover {
+    border-color: #CCC;
+  }
+
+  .shortcut-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  .shortcut-meta {
+    font-size: 11px;
+    color: #999;
+  }
+
+  /* Panel footer */
+
+  .panel-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #EAEAEA;
+    margin-top: auto;
+  }
+
+  .panel-footer-text {
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 11px;
+    color: #BBB;
+  }
+
+  /* ── Main content ── */
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.02em;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* Stats row */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-card .change {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .stat-card .change .up {
+    color: #10B981;
+  }
+
+  .stat-card .change .down {
+    color: #EF4444;
+  }
+
+  /* Content grid */
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .content-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .content-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 16px;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-item .desc {
+    color: #444;
+  }
+
+  .activity-item .time {
+    font-size: 11px;
+    color: #BBB;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  .case-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+  }
+
+  .case-row:last-child {
+    border-bottom: none;
+  }
+
+  .case-row .case-name {
+    color: #444;
+  }
+
+  .case-row .case-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .case-row .case-status.active {
+    color: #10B981;
+    background: #F0FDF4;
+  }
+
+  .case-row .case-status.review {
+    color: #F59E0B;
+    background: #FFFBEB;
+  }
+
+  .case-row .case-status.pending {
+    color: #888;
+    background: #F5F5F5;
+  }
+
+  /* ── State indicator ── */
+
+  .state-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 50;
+  }
+
+  .state-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #EAEAEA;
+    background: #FFF;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .state-btn:hover {
+    border-color: #CCC;
+    color: #333;
+  }
+
+  .state-btn.active {
+    background: #171717;
+    color: #FFF;
+    border-color: #171717;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .icon-rail,
+    .label-panel {
+      display: none;
+    }
+
+    .main {
+      padding: 24px 20px;
+    }
+
+    .stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .state-indicator {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Tier 1: Icon Rail -->
+  <nav class="icon-rail">
+    <div class="rail-logo"><span>F</span></div>
+
+    <!-- Primary -->
+    <div class="rail-group">
+      <button class="rail-btn" data-panel="dashboard" onclick="switchPanel('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="tooltip">Dashboard</span>
+      </button>
+      <button class="rail-btn active" data-panel="cases" onclick="switchPanel('cases')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span class="tooltip">Cases</span>
+      </button>
+      <button class="rail-btn" data-panel="leads" onclick="switchPanel('leads')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="tooltip">Leads</span>
+      </button>
+      <button class="rail-btn" data-panel="queue" onclick="switchPanel('queue')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span class="tooltip">Queue</span>
+      </button>
+      <button class="rail-btn" data-panel="calendar" onclick="switchPanel('calendar')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="tooltip">Calendar</span>
+      </button>
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <!-- Tools -->
+    <div class="rail-group">
+      <button class="rail-btn" data-panel="messages" onclick="switchPanel('messages')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="tooltip">Messages</span>
+      </button>
+      <button class="rail-btn" data-panel="email" onclick="switchPanel('email')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span class="tooltip">Email</span>
+      </button>
+      <button class="rail-btn" data-panel="contacts" onclick="switchPanel('contacts')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="tooltip">Contacts</span>
+      </button>
+      <button class="rail-btn" data-panel="documents" onclick="switchPanel('documents')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="tooltip">Documents</span>
+      </button>
+      <button class="rail-btn" data-panel="reports" onclick="switchPanel('reports')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="tooltip">Reports</span>
+      </button>
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <!-- Bottom: avatar + settings -->
+    <div class="rail-avatar" title="Jake Klinvex"><span>JK</span></div>
+    <button class="rail-btn" data-panel="settings" onclick="switchPanel('settings')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="tooltip">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Tier 2: Label Panel -->
+  <aside class="label-panel">
+
+    <!-- Dashboard panel -->
+    <div class="panel-content" data-panel="dashboard">
+      <div class="panel-header">Dashboard</div>
+      <div class="panel-section-label">Quick Access</div>
+      <a class="panel-item active" href="#">Overview</a>
+      <a class="panel-item" href="#">My Tasks <span class="badge">5</span></a>
+      <a class="panel-item" href="#">Notifications <span class="badge">3</span></a>
+
+      <div class="panel-section-label">Recent Activity</div>
+      <div class="shortcut-card">
+        <div class="shortcut-title">Martinez v. State Farm</div>
+        <div class="shortcut-meta">Status changed - 12m ago</div>
+      </div>
+      <div class="shortcut-card">
+        <div class="shortcut-title">Thompson Estate</div>
+        <div class="shortcut-meta">Document uploaded - 1h ago</div>
+      </div>
+      <div class="shortcut-card">
+        <div class="shortcut-title">Davis Personal Injury</div>
+        <div class="shortcut-meta">Deposition scheduled - 3h ago</div>
+      </div>
+
+      <div class="panel-footer">
+        <span class="panel-footer-text">v1.2.4</span>
+      </div>
+    </div>
+
+    <!-- Cases panel -->
+    <div class="panel-content active" data-panel="cases">
+      <div class="panel-header">Cases</div>
+      <input type="text" class="panel-search" placeholder="Search cases...">
+
+      <div class="panel-section-label">Stages</div>
+      <a class="panel-item" href="#">All Cases <span class="badge">44</span></a>
+      <a class="panel-item active" href="#">Intake <span class="badge">8</span></a>
+      <a class="panel-item" href="#">Investigation <span class="badge">12</span></a>
+      <a class="panel-item" href="#">Negotiation <span class="badge">9</span></a>
+      <a class="panel-item" href="#">Litigation <span class="badge">6</span></a>
+      <a class="panel-item" href="#">Settlement <span class="badge">5</span></a>
+      <a class="panel-item" href="#">Closed <span class="badge">4</span></a>
+
+      <div class="panel-pinned-label">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l0 20"/><path d="M18 8l-6-6-6 6"/></svg>
+        Pinned
+      </div>
+      <a class="panel-item" href="#">Martinez v. State Farm</a>
+      <a class="panel-item" href="#">Thompson Estate</a>
+      <a class="panel-item" href="#">Chen v. Riverside LLC</a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-text">44 cases</span>
+      </div>
+    </div>
+
+    <!-- Leads panel -->
+    <div class="panel-content" data-panel="leads">
+      <div class="panel-header">Leads</div>
+      <input type="text" class="panel-search" placeholder="Search leads...">
+      <div class="panel-section-label">Status</div>
+      <a class="panel-item active" href="#">All Leads <span class="badge">18</span></a>
+      <a class="panel-item" href="#">New <span class="badge">5</span></a>
+      <a class="panel-item" href="#">Contacted <span class="badge">7</span></a>
+      <a class="panel-item" href="#">Qualified <span class="badge">4</span></a>
+      <a class="panel-item" href="#">Converted <span class="badge">2</span></a>
+    </div>
+
+    <!-- Queue panel -->
+    <div class="panel-content" data-panel="queue">
+      <div class="panel-header">Queue</div>
+      <div class="panel-section-label">Views</div>
+      <a class="panel-item active" href="#">My Queue <span class="badge">12</span></a>
+      <a class="panel-item" href="#">Unassigned <span class="badge">3</span></a>
+      <a class="panel-item" href="#">High Priority <span class="badge">4</span></a>
+      <a class="panel-item" href="#">Due Today <span class="badge">2</span></a>
+      <a class="panel-item" href="#">Overdue <span class="badge">1</span></a>
+    </div>
+
+    <!-- Calendar panel -->
+    <div class="panel-content" data-panel="calendar">
+      <div class="panel-header">Calendar</div>
+      <div class="panel-section-label">Views</div>
+      <a class="panel-item active" href="#">Week</a>
+      <a class="panel-item" href="#">Month</a>
+      <a class="panel-item" href="#">Day</a>
+      <div class="panel-section-label">Calendars</div>
+      <a class="panel-item" href="#">Depositions</a>
+      <a class="panel-item" href="#">Court Dates</a>
+      <a class="panel-item" href="#">Deadlines</a>
+      <a class="panel-item" href="#">Meetings</a>
+    </div>
+
+    <!-- Messages panel -->
+    <div class="panel-content" data-panel="messages">
+      <div class="panel-header">Messages</div>
+      <input type="text" class="panel-search" placeholder="Search messages...">
+      <div class="panel-section-label">Inbox</div>
+      <a class="panel-item active" href="#">All Messages <span class="badge">7</span></a>
+      <a class="panel-item" href="#">Unread <span class="badge">3</span></a>
+      <a class="panel-item" href="#">Sent</a>
+      <a class="panel-item" href="#">Archived</a>
+    </div>
+
+    <!-- Email panel -->
+    <div class="panel-content" data-panel="email">
+      <div class="panel-header">Email</div>
+      <input type="text" class="panel-search" placeholder="Search email...">
+      <div class="panel-section-label">Folders</div>
+      <a class="panel-item active" href="#">Inbox <span class="badge">14</span></a>
+      <a class="panel-item" href="#">Sent</a>
+      <a class="panel-item" href="#">Drafts <span class="badge">2</span></a>
+      <a class="panel-item" href="#">Archived</a>
+    </div>
+
+    <!-- Contacts panel -->
+    <div class="panel-content" data-panel="contacts">
+      <div class="panel-header">Contacts</div>
+      <input type="text" class="panel-search" placeholder="Search contacts...">
+      <div class="panel-section-label">Groups</div>
+      <a class="panel-item active" href="#">All Contacts <span class="badge">238</span></a>
+      <a class="panel-item" href="#">Clients <span class="badge">44</span></a>
+      <a class="panel-item" href="#">Opposing Counsel <span class="badge">31</span></a>
+      <a class="panel-item" href="#">Experts <span class="badge">12</span></a>
+      <a class="panel-item" href="#">Vendors <span class="badge">8</span></a>
+    </div>
+
+    <!-- Documents panel -->
+    <div class="panel-content" data-panel="documents">
+      <div class="panel-header">Documents</div>
+      <input type="text" class="panel-search" placeholder="Search documents...">
+      <div class="panel-section-label">Categories</div>
+      <a class="panel-item active" href="#">All Documents</a>
+      <a class="panel-item" href="#">Pleadings</a>
+      <a class="panel-item" href="#">Discovery</a>
+      <a class="panel-item" href="#">Correspondence</a>
+      <a class="panel-item" href="#">Medical Records</a>
+      <a class="panel-item" href="#">Templates</a>
+    </div>
+
+    <!-- Reports panel -->
+    <div class="panel-content" data-panel="reports">
+      <div class="panel-header">Reports</div>
+      <div class="panel-section-label">Standard</div>
+      <a class="panel-item active" href="#">Case Summary</a>
+      <a class="panel-item" href="#">Revenue</a>
+      <a class="panel-item" href="#">Pipeline</a>
+      <a class="panel-item" href="#">Staff Performance</a>
+      <div class="panel-section-label">Custom</div>
+      <a class="panel-item" href="#">Monthly Overview</a>
+      <a class="panel-item" href="#">Settlement Tracker</a>
+    </div>
+
+    <!-- Settings panel -->
+    <div class="panel-content" data-panel="settings">
+      <div class="panel-header">Settings</div>
+      <div class="panel-section-label">Configuration</div>
+      <a class="panel-item active" href="#">Integrations</a>
+      <a class="panel-item" href="#">Workflows</a>
+      <a class="panel-item" href="#">Stages</a>
+      <a class="panel-item" href="#">Fields</a>
+      <div class="panel-section-label">Account</div>
+      <a class="panel-item" href="#">Profile</a>
+      <a class="panel-item" href="#">Team Members</a>
+      <a class="panel-item" href="#">Billing</a>
+      <a class="panel-item" href="#">Preferences</a>
+    </div>
+
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="page-header">
+      <h1>Cases</h1>
+      <p>44 active cases across all stages</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Active Cases</div>
+        <div class="value">44</div>
+        <div class="change"><span class="up">+3</span> this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">In Intake</div>
+        <div class="value">8</div>
+        <div class="change"><span class="up">+2</span> this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">In Litigation</div>
+        <div class="value">6</div>
+        <div class="change">unchanged</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pending Settlement</div>
+        <div class="value">5</div>
+        <div class="change"><span class="down">-1</span> since yesterday</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="content-card">
+        <h3>Recent Activity</h3>
+        <div class="activity-item">
+          <span class="desc">Status changed on Martinez v. State Farm</span>
+          <span class="time">12 min ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">New document uploaded to Thompson case</span>
+          <span class="time">1 hr ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Email received from opposing counsel</span>
+          <span class="time">2 hr ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Calendar event: Davis deposition</span>
+          <span class="time">3 hr ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Lead converted: Wilson inquiry</span>
+          <span class="time">Yesterday</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3>Cases by Stage</h3>
+        <div class="case-row">
+          <span class="case-name">Martinez v. State Farm</span>
+          <span class="case-status active">Negotiation</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Thompson Estate</span>
+          <span class="case-status review">Investigation</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Davis Personal Injury</span>
+          <span class="case-status active">Litigation</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Chen v. Riverside LLC</span>
+          <span class="case-status pending">Intake</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Wilson Workers' Comp</span>
+          <span class="case-status review">Settlement</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- State switcher buttons -->
+<div class="state-indicator">
+  <button class="state-btn" onclick="switchPanel('dashboard')">Dashboard</button>
+  <button class="state-btn active" onclick="switchPanel('cases')">Cases</button>
+  <button class="state-btn" onclick="switchPanel('settings')">Settings</button>
+</div>
+
+<script>
+  function switchPanel(panelName) {
+    // Update rail buttons
+    document.querySelectorAll('.rail-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-panel') === panelName) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Update panel content
+    document.querySelectorAll('.panel-content').forEach(function(panel) {
+      panel.classList.remove('active');
+      if (panel.getAttribute('data-panel') === panelName) {
+        panel.classList.add('active');
+      }
+    });
+
+    // Update state indicator buttons
+    document.querySelectorAll('.state-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.textContent.trim().toLowerCase() === panelName.toLowerCase()) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  // Panel item click handling (within Tier 2)
+  document.querySelectorAll('.panel-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      var panel = this.closest('.panel-content');
+      panel.querySelectorAll('.panel-item').forEach(function(i) {
+        i.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

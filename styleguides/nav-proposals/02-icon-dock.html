@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Icon-Forward Dock Sidebar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Geist', -apple-system, sans-serif;
+    background: #FAFAFA;
+    color: #111;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ───────── SIDEBAR BASE ───────── */
+  .sidebar {
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #EAEAEA;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ───────── COLLAPSED SIDEBAR ───────── */
+  .sidebar--collapsed {
+    width: 64px;
+  }
+
+  .sidebar--collapsed .sidebar__logo {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #EAEAEA;
+  }
+
+  .sidebar--collapsed .sidebar__logo-square {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 6px;
+  }
+
+  .sidebar--collapsed .sidebar__logo-text { display: none; }
+
+  .sidebar--collapsed .sidebar__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar--collapsed .sidebar__group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+  }
+
+  .sidebar--collapsed .sidebar__group + .sidebar__group {
+    margin-top: 16px;
+  }
+
+  .sidebar--collapsed .sidebar__group-label { display: none; }
+
+  .sidebar--collapsed .nav-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: background 150ms;
+    text-decoration: none;
+  }
+
+  .sidebar--collapsed .nav-item:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar--collapsed .nav-item .nav-icon {
+    width: 20px;
+    height: 20px;
+    color: #666;
+    transition: color 150ms;
+    flex-shrink: 0;
+  }
+
+  .sidebar--collapsed .nav-item:hover .nav-icon,
+  .sidebar--collapsed .nav-item.active .nav-icon {
+    color: #000;
+  }
+
+  .sidebar--collapsed .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #000;
+  }
+
+  .sidebar--collapsed .nav-item .nav-label { display: none; }
+  .sidebar--collapsed .nav-item .nav-badge { display: none; }
+
+  .sidebar--collapsed .sidebar__footer {
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid #EAEAEA;
+  }
+
+  .sidebar--collapsed .sidebar__toggle {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #EAEAEA;
+    background: #fff;
+    cursor: pointer;
+    color: #999;
+    transition: color 150ms, background 150ms;
+  }
+
+  .sidebar--collapsed .sidebar__toggle:hover {
+    background: #F0F0F0;
+    color: #666;
+  }
+
+  .sidebar--collapsed .sidebar__toggle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .sidebar--collapsed .sidebar__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ───────── EXPANDED SIDEBAR ───────── */
+  .sidebar--expanded {
+    width: 240px;
+  }
+
+  .sidebar--expanded .sidebar__logo {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    border-bottom: 1px solid #EAEAEA;
+  }
+
+  .sidebar--expanded .sidebar__logo-square {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .sidebar--expanded .sidebar__logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar--expanded .sidebar__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar--expanded .sidebar__group {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px;
+  }
+
+  .sidebar--expanded .sidebar__group + .sidebar__group {
+    margin-top: 16px;
+  }
+
+  .sidebar--expanded .sidebar__group-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #999;
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar--expanded .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: background 150ms;
+    text-decoration: none;
+  }
+
+  .sidebar--expanded .nav-item:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar--expanded .nav-item .nav-icon {
+    width: 18px;
+    height: 18px;
+    color: #666;
+    transition: color 150ms;
+    flex-shrink: 0;
+  }
+
+  .sidebar--expanded .nav-item:hover .nav-icon,
+  .sidebar--expanded .nav-item.active .nav-icon {
+    color: #000;
+  }
+
+  .sidebar--expanded .nav-item .nav-label {
+    font-size: 13px;
+    color: #444;
+    transition: color 150ms;
+    flex: 1;
+  }
+
+  .sidebar--expanded .nav-item:hover .nav-label,
+  .sidebar--expanded .nav-item.active .nav-label {
+    color: #000;
+  }
+
+  .sidebar--expanded .nav-item.active {
+    background: #F5F5F5;
+  }
+
+  .sidebar--expanded .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    border-radius: 0 2px 2px 0;
+    background: #000;
+  }
+
+  .sidebar--expanded .nav-item .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #999;
+    background: #F0F0F0;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+
+  .sidebar--expanded .sidebar__footer {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid #EAEAEA;
+  }
+
+  .sidebar--expanded .sidebar__user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 150ms;
+  }
+
+  .sidebar--expanded .sidebar__user-row:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar--expanded .sidebar__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .sidebar--expanded .sidebar__user-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sidebar--expanded .sidebar__user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+  }
+
+  .sidebar--expanded .sidebar__user-role {
+    font-size: 11px;
+    color: #999;
+  }
+
+  .sidebar--expanded .sidebar__toggle {
+    width: 100%;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #EAEAEA;
+    background: #fff;
+    cursor: pointer;
+    color: #999;
+    transition: color 150ms, background 150ms;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'Geist', sans-serif;
+  }
+
+  .sidebar--expanded .sidebar__toggle:hover {
+    background: #F0F0F0;
+    color: #666;
+  }
+
+  .sidebar--expanded .sidebar__toggle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ───────── INTERACTIVE SIDEBAR ───────── */
+  .sidebar--interactive {
+    width: 64px;
+    transition: width 200ms ease;
+  }
+
+  .sidebar--interactive.is-expanded {
+    width: 240px;
+  }
+
+  .sidebar--interactive .sidebar__logo {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    border-bottom: 1px solid #EAEAEA;
+    overflow: hidden;
+  }
+
+  .sidebar--interactive .sidebar__logo-square {
+    width: 28px;
+    height: 28px;
+    background: #000;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .sidebar--interactive .sidebar__logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 150ms ease 0ms;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__logo-text {
+    opacity: 1;
+    transition: opacity 150ms ease 100ms;
+  }
+
+  .sidebar--interactive .sidebar__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar--interactive .sidebar__group {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px;
+  }
+
+  .sidebar--interactive .sidebar__group + .sidebar__group {
+    margin-top: 16px;
+  }
+
+  .sidebar--interactive .sidebar__group-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #999;
+    padding: 0 8px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 150ms ease 0ms;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__group-label {
+    opacity: 1;
+    height: auto;
+    margin-bottom: 4px;
+    transition: opacity 150ms ease 100ms;
+  }
+
+  .sidebar--interactive .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: background 150ms, border-radius 200ms;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item {
+    border-radius: 6px;
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .sidebar--interactive .nav-item:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar--interactive .nav-item .nav-icon {
+    width: 20px;
+    height: 20px;
+    color: #666;
+    transition: color 150ms;
+    flex-shrink: 0;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item .nav-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sidebar--interactive .nav-item:hover .nav-icon,
+  .sidebar--interactive .nav-item.active .nav-icon {
+    color: #000;
+  }
+
+  .sidebar--interactive .nav-item .nav-label {
+    font-size: 13px;
+    color: #444;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 150ms ease 0ms, color 150ms;
+    flex: 1;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item .nav-label {
+    opacity: 1;
+    transition: opacity 150ms ease 100ms, color 150ms;
+  }
+
+  .sidebar--interactive .nav-item:hover .nav-label,
+  .sidebar--interactive .nav-item.active .nav-label {
+    color: #000;
+  }
+
+  .sidebar--interactive .nav-item .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #999;
+    background: #F0F0F0;
+    padding: 1px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 150ms ease 0ms;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item .nav-badge {
+    opacity: 1;
+    transition: opacity 150ms ease 100ms;
+  }
+
+  .sidebar--interactive .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #000;
+    transition: opacity 200ms;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item.active::after {
+    opacity: 0;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item.active {
+    background: #F5F5F5;
+  }
+
+  .sidebar--interactive.is-expanded .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    border-radius: 0 2px 2px 0;
+    background: #000;
+  }
+
+  .sidebar--interactive .sidebar__footer {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #EAEAEA;
+    overflow: hidden;
+  }
+
+  .sidebar--interactive .sidebar__user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    width: 100%;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 150ms;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__user-row {
+    padding: 4px 8px;
+    justify-content: flex-start;
+  }
+
+  .sidebar--interactive .sidebar__user-row:hover {
+    background: #F0F0F0;
+  }
+
+  .sidebar--interactive .sidebar__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .sidebar--interactive .sidebar__user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    opacity: 0;
+    transition: opacity 150ms ease 0ms;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__user-info {
+    opacity: 1;
+    transition: opacity 150ms ease 100ms;
+  }
+
+  .sidebar--interactive .sidebar__user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+    white-space: nowrap;
+  }
+
+  .sidebar--interactive .sidebar__user-role {
+    font-size: 11px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  .sidebar--interactive .sidebar__toggle {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #EAEAEA;
+    background: #fff;
+    cursor: pointer;
+    color: #999;
+    transition: color 150ms, background 150ms, width 200ms;
+    font-size: 11px;
+    font-family: 'Geist', sans-serif;
+    overflow: hidden;
+    white-space: nowrap;
+    gap: 6px;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__toggle {
+    width: 100%;
+  }
+
+  .sidebar--interactive .sidebar__toggle:hover {
+    background: #F0F0F0;
+    color: #666;
+  }
+
+  .sidebar--interactive .sidebar__toggle svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform 200ms;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__toggle svg {
+    transform: rotate(180deg);
+  }
+
+  .sidebar--interactive .sidebar__toggle-label {
+    opacity: 0;
+    transition: opacity 150ms ease 0ms;
+    font-size: 11px;
+  }
+
+  .sidebar--interactive.is-expanded .sidebar__toggle-label {
+    opacity: 1;
+    transition: opacity 150ms ease 100ms;
+  }
+
+  /* ───────── DIVIDER ───────── */
+  .demo-divider {
+    width: 1px;
+    background: #EAEAEA;
+    flex-shrink: 0;
+  }
+
+  /* ───────── MAIN CONTENT ───────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid #EAEAEA;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    background: #fff;
+    flex-shrink: 0;
+  }
+
+  .topbar__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .topbar__label {
+    margin-left: auto;
+    font-size: 12px;
+    color: #999;
+    background: #F0F0F0;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+  }
+
+  .content h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .content p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    max-width: 540px;
+    margin-bottom: 24px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 600px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .stat-card__label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+
+  .stat-card__value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.5px;
+  }
+
+  /* ───────── DEMO LAYOUT ───────── */
+  .demo-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .demo-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .demo-label {
+    position: absolute;
+    top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #bbb;
+    z-index: 10;
+  }
+
+  .demo-section--collapsed {
+    position: relative;
+  }
+
+  .demo-section--collapsed .demo-label {
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .demo-section--expanded {
+    position: relative;
+  }
+
+  .demo-section--expanded .demo-label {
+    left: 20px;
+  }
+
+  .demo-section--interactive {
+    position: relative;
+  }
+
+  .demo-section--interactive .demo-label {
+    left: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="demo-layout">
+
+  <!-- ========== COLLAPSED SIDEBAR ========== -->
+  <div class="demo-section demo-section--collapsed">
+    <nav class="sidebar sidebar--collapsed">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-square"></div>
+      </div>
+      <div class="sidebar__nav">
+        <!-- OVERVIEW -->
+        <div class="sidebar__group">
+          <a class="nav-item active" title="Dashboard">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </a>
+          <a class="nav-item" title="Cases">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </a>
+          <a class="nav-item" title="My Queue">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+          </a>
+          <a class="nav-item" title="Calendar">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </a>
+        </div>
+        <!-- TOOLS -->
+        <div class="sidebar__group">
+          <a class="nav-item" title="Leads">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </a>
+          <a class="nav-item" title="Messages">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </a>
+          <a class="nav-item" title="Email">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </a>
+          <a class="nav-item" title="Contacts">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </a>
+          <a class="nav-item" title="Documents">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </a>
+          <a class="nav-item" title="Reports">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </a>
+        </div>
+        <!-- SETTINGS -->
+        <div class="sidebar__group">
+          <a class="nav-item" title="Integrations">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><path d="M14 18h8"/><path d="M18 14v8"/></svg>
+          </a>
+          <a class="nav-item" title="Workflows">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          </a>
+          <a class="nav-item" title="Stages">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="m4.2 4.2 2.8 2.8"/><path d="m17 17 2.8 2.8"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="m4.2 19.8 2.8-2.8"/><path d="m17 7 2.8-2.8"/></svg>
+          </a>
+          <a class="nav-item" title="Fields">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="sidebar__footer">
+        <button class="sidebar__toggle" title="Expand sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar__avatar">JK</div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="demo-divider"></div>
+
+  <!-- ========== EXPANDED SIDEBAR ========== -->
+  <div class="demo-section demo-section--expanded">
+    <nav class="sidebar sidebar--expanded">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-square"></div>
+        <span class="sidebar__logo-text">Favorble</span>
+      </div>
+      <div class="sidebar__nav">
+        <!-- OVERVIEW -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Overview</div>
+          <a class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="nav-label">Cases</span>
+            <span class="nav-badge">44</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            <span class="nav-label">My Queue</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="nav-label">Calendar</span>
+          </a>
+        </div>
+        <!-- TOOLS -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Tools</div>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="nav-label">Leads</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="nav-label">Messages</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span class="nav-label">Email</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="nav-label">Contacts</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span class="nav-label">Documents</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="nav-label">Reports</span>
+          </a>
+        </div>
+        <!-- SETTINGS -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Settings</div>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><path d="M14 18h8"/><path d="M18 14v8"/></svg>
+            <span class="nav-label">Integrations</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+            <span class="nav-label">Workflows</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="m4.2 4.2 2.8 2.8"/><path d="m17 17 2.8 2.8"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="m4.2 19.8 2.8-2.8"/><path d="m17 7 2.8-2.8"/></svg>
+            <span class="nav-label">Stages</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span class="nav-label">Fields</span>
+          </a>
+        </div>
+      </div>
+      <div class="sidebar__footer">
+        <div class="sidebar__user-row">
+          <div class="sidebar__avatar">JK</div>
+          <div class="sidebar__user-info">
+            <div class="sidebar__user-name">Jake K.</div>
+            <div class="sidebar__user-role">Admin</div>
+          </div>
+        </div>
+        <button class="sidebar__toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Collapse</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <div class="demo-divider"></div>
+
+  <!-- ========== INTERACTIVE SIDEBAR + CONTENT ========== -->
+  <div class="demo-section demo-section--interactive" style="flex:1; display:flex;">
+    <nav class="sidebar sidebar--interactive" id="interactiveSidebar">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-square"></div>
+        <span class="sidebar__logo-text">Favorble</span>
+      </div>
+      <div class="sidebar__nav">
+        <!-- OVERVIEW -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Overview</div>
+          <a class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="nav-label">Cases</span>
+            <span class="nav-badge">44</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            <span class="nav-label">My Queue</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="nav-label">Calendar</span>
+          </a>
+        </div>
+        <!-- TOOLS -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Tools</div>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="nav-label">Leads</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="nav-label">Messages</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span class="nav-label">Email</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="nav-label">Contacts</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span class="nav-label">Documents</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="nav-label">Reports</span>
+          </a>
+        </div>
+        <!-- SETTINGS -->
+        <div class="sidebar__group">
+          <div class="sidebar__group-label">Settings</div>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><path d="M14 18h8"/><path d="M18 14v8"/></svg>
+            <span class="nav-label">Integrations</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+            <span class="nav-label">Workflows</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="m4.2 4.2 2.8 2.8"/><path d="m17 17 2.8 2.8"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="m4.2 19.8 2.8-2.8"/><path d="m17 7 2.8-2.8"/></svg>
+            <span class="nav-label">Stages</span>
+          </a>
+          <a class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span class="nav-label">Fields</span>
+          </a>
+        </div>
+      </div>
+      <div class="sidebar__footer">
+        <div class="sidebar__user-row">
+          <div class="sidebar__avatar">JK</div>
+          <div class="sidebar__user-info">
+            <div class="sidebar__user-name">Jake K.</div>
+            <div class="sidebar__user-role">Admin</div>
+          </div>
+        </div>
+        <button class="sidebar__toggle" id="toggleBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="sidebar__toggle-label">Collapse</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <span class="topbar__title">Dashboard</span>
+        <span class="topbar__label">Icon-Forward Dock &mdash; Interactive Demo</span>
+      </div>
+      <div class="content">
+        <h2>Good morning, Jake</h2>
+        <p>This sidebar toggles between collapsed (64px, icon-only) and expanded (240px, icon+label) states. Click the chevron at the bottom to pin it open or closed. Hover the collapsed sidebar to temporarily expand it.</p>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-card__label">Active Cases</div>
+            <div class="stat-card__value">44</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">My Queue</div>
+            <div class="stat-card__value">12</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Leads</div>
+            <div class="stat-card__value">8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Interactive sidebar toggle
+  const sidebar = document.getElementById('interactiveSidebar');
+  const toggleBtn = document.getElementById('toggleBtn');
+  let pinned = false;
+  let hoverTimeout;
+
+  toggleBtn.addEventListener('click', () => {
+    pinned = !pinned;
+    if (pinned) {
+      sidebar.classList.add('is-expanded');
+    } else {
+      sidebar.classList.remove('is-expanded');
+    }
+  });
+
+  sidebar.addEventListener('mouseenter', () => {
+    if (!pinned) {
+      clearTimeout(hoverTimeout);
+      sidebar.classList.add('is-expanded');
+    }
+  });
+
+  sidebar.addEventListener('mouseleave', () => {
+    if (!pinned) {
+      hoverTimeout = setTimeout(() => {
+        sidebar.classList.remove('is-expanded');
+      }, 150);
+    }
+  });
+
+  // Nav item click handler (set active state)
+  document.querySelectorAll('.sidebar--interactive .nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      document.querySelectorAll('.sidebar--interactive .nav-item').forEach(i => i.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

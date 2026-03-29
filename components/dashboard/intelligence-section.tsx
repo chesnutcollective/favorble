@@ -400,7 +400,8 @@ function DenialPatternTracker({
   return (
     <Card>
       <CardTitle>Denial Pattern Tracker</CardTitle>
-      <table className="w-full border-collapse">
+      <div className="overflow-x-auto -mx-5 px-5">
+      <table className="w-full border-collapse min-w-[500px]">
         <thead>
           <tr>
             <th className="text-[10px] font-medium uppercase tracking-[0.05em] text-[#999] px-3 py-2 text-left border-b border-[#EAEAEA]">
@@ -439,6 +440,7 @@ function DenialPatternTracker({
           ))}
         </tbody>
       </table>
+      </div>
     </Card>
   );
 }
