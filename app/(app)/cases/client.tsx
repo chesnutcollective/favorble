@@ -629,20 +629,9 @@ export function CasesListClient({
                   </TableCell>
                   <TableCell>
                     {c.stageName && (
-                      <span
-                        className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium"
-                        style={{
-                          borderColor: c.stageColor ?? c.stageGroupColor
-                            ? `color-mix(in srgb, ${c.stageColor ?? c.stageGroupColor} 30%, transparent)`
-                            : "#DDD",
-                          color: c.stageColor ?? c.stageGroupColor ?? "#888",
-                          background: c.stageColor ?? c.stageGroupColor
-                            ? `color-mix(in srgb, ${c.stageColor ?? c.stageGroupColor} 6%, transparent)`
-                            : "rgba(136,136,136,0.06)",
-                        }}
-                      >
+                      <span className="inline-flex items-center gap-[6px] text-[13px]">
                         <span
-                          className="inline-block h-1.5 w-1.5 rounded-full"
+                          className="inline-block h-[6px] w-[6px] shrink-0 rounded-full"
                           style={{
                             backgroundColor: c.stageColor ?? c.stageGroupColor ?? "#888",
                           }}

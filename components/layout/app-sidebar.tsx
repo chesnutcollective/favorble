@@ -103,7 +103,7 @@ export function AppSidebar({
                       <HugeiconsIcon
                         icon={item.icon}
                         size={16}
-                        className="opacity-50 [[data-active=true]_&]:opacity-100"
+                        className={isActive(item.href) ? "opacity-100" : "opacity-50"}
                       />
                       <span>{item.title}</span>
                     </Link>

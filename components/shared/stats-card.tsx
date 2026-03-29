@@ -45,15 +45,15 @@ export function StatsCard({
         </p>
       )}
       {subtitle && (
-        <p
-          className={cn(
-            "mt-2 text-xs font-mono",
-            subtitleVariant === "danger"
-              ? "text-[#EE0000]"
-              : "text-[#666]",
+        <p className="mt-2 text-xs font-mono text-[#666]">
+          {subtitleVariant === "danger" ? (
+            <>
+              <span className="text-[#EE0000]">{subtitle.split(" ")[0]}</span>{" "}
+              {subtitle.split(" ").slice(1).join(" ")}
+            </>
+          ) : (
+            subtitle
           )}
-        >
-          {subtitle}
         </p>
       )}
     </div>

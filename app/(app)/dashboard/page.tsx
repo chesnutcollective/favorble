@@ -100,7 +100,7 @@ export default async function DashboardPage() {
           title="Tasks Due Today"
           value={tasksDueToday}
           subtitle={
-            overdueTaskCount > 0 ? `${overdueTaskCount} overdue` : undefined
+            overdueTaskCount > 0 ? `+${overdueTaskCount} overdue` : undefined
           }
           subtitleVariant={overdueTaskCount > 0 ? "danger" : "default"}
         />
@@ -155,10 +155,7 @@ export default async function DashboardPage() {
               </div>
               {myTasks.length === 0 ? (
                 <div className="py-6 text-center">
-                  <p className="text-[13px] text-foreground">
-                    You&apos;re all caught up.
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-[#999]">
+                  <p className="text-[13px] text-[#666]">
                     No tasks due today
                   </p>
                 </div>
