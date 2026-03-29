@@ -66,9 +66,30 @@ export function MessageThread({
     <div className="space-y-4">
       {/* Message list */}
       {optimisticMessages.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-sm text-muted-foreground">
-            No messages yet. Send the first message below.
+        <div
+          className="flex flex-col items-center justify-center py-10 text-center"
+          style={{ animation: "emptyStateIn 0.3s ease-out" }}
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(59,89,152,0.08)]">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-[#3b5998]"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            No messages yet
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Send the first message below
           </p>
         </div>
       ) : (

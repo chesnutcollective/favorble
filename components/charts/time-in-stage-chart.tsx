@@ -27,11 +27,7 @@ export function TimeInStageChart({ data }: { data: TimeInStageRow[] }) {
 
   return (
     <ResponsiveContainer width="100%" height={Math.max(data.length * 40, 200)}>
-      <BarChart
-        data={data}
-        layout="vertical"
-        margin={{ left: 10, right: 20 }}
-      >
+      <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
         <XAxis
           type="number"
           allowDecimals={false}

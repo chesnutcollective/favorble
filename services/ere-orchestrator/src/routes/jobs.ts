@@ -26,17 +26,31 @@ jobRoutes.post("/", async (c) => {
   try {
     const body = await c.req.json<CreateJobBody>();
 
-    if (!body.caseId || !body.credentialId || !body.jobType || !body.ssaClaimNumber) {
+    if (
+      !body.caseId ||
+      !body.credentialId ||
+      !body.jobType ||
+      !body.ssaClaimNumber
+    ) {
       return c.json(
-        { error: "Missing required fields: caseId, credentialId, jobType, ssaClaimNumber" },
+        {
+          error:
+            "Missing required fields: caseId, credentialId, jobType, ssaClaimNumber",
+        },
         400,
       );
     }
 
-    const validJobTypes: JobType[] = ["ere_pull", "ere_status_check", "ere_submit"];
+    const validJobTypes: JobType[] = [
+      "ere_pull",
+      "ere_status_check",
+      "ere_submit",
+    ];
     if (!validJobTypes.includes(body.jobType)) {
       return c.json(
-        { error: `Invalid jobType. Must be one of: ${validJobTypes.join(", ")}` },
+        {
+          error: `Invalid jobType. Must be one of: ${validJobTypes.join(", ")}`,
+        },
         400,
       );
     }
@@ -49,7 +63,9 @@ jobRoutes.post("/", async (c) => {
       callbackUrl: body.callbackUrl ?? null,
     });
 
-    console.log(`Job created: ${job.id} (type=${body.jobType}, case=${body.caseId})`);
+    console.log(
+      `Job created: ${job.id} (type=${body.jobType}, case=${body.caseId})`,
+    );
 
     return c.json({ jobId: job.id, status: "pending" }, 201);
   } catch (err) {
@@ -104,7 +120,10 @@ jobRoutes.post("/:id/cancel", async (c) => {
     const result = await cancelJob(id);
 
     if (!result) {
-      return c.json({ error: "Job not found or not in a cancellable state" }, 404);
+      return c.json(
+        { error: "Job not found or not in a cancellable state" },
+        404,
+      );
     }
 
     console.log(`Job cancelled: ${id}`);

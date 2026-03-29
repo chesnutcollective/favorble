@@ -5,12 +5,11 @@ import { communications, cases } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Message01Icon } from "@hugeicons/core-free-icons";
-import Link from "next/link";
 import * as caseStatusIntegration from "@/lib/integrations/case-status";
+import { MessageFeed } from "./message-feed";
 
 export const metadata: Metadata = {
   title: "Messages",
@@ -33,7 +32,7 @@ async function fetchRecentMessages(organizationId: string) {
     .leftJoin(cases, eq(communications.caseId, cases.id))
     .where(eq(communications.organizationId, organizationId))
     .orderBy(desc(communications.createdAt))
-    .limit(50);
+    .limit(100);
 }
 
 export default async function MessagesPage() {
@@ -60,7 +59,11 @@ export default async function MessagesPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <HugeiconsIcon icon={Message01Icon} size={20} color="rgb(245 158 11)" />
+              <HugeiconsIcon
+                icon={Message01Icon}
+                size={20}
+                color="rgb(245 158 11)"
+              />
               <div>
                 <p className="text-sm font-medium text-foreground">
                   Case Status not configured
@@ -80,60 +83,16 @@ export default async function MessagesPage() {
           icon={Message01Icon}
           title="No messages yet"
           description="Messages from clients via Case Status will appear here."
+          accent="blue"
+          bordered
         />
       ) : (
-        <div className="space-y-2">
-          {recentMessages.map((msg) => (
-            <Card key={msg.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={
-                          msg.type === "message_inbound"
-                            ? "border-green-300 text-green-700"
-                            : "border-blue-300 text-blue-700"
-                        }
-                      >
-                        {msg.type === "message_inbound"
-                          ? "Inbound"
-                          : "Outbound"}
-                      </Badge>
-                      {msg.caseId && msg.caseNumber && (
-                        <Link
-                          href={`/cases/${msg.caseId}/messages`}
-                          className="text-sm font-medium text-primary hover:underline"
-                        >
-                          Case #{msg.caseNumber}
-                        </Link>
-                      )}
-                    </div>
-                    {msg.subject && (
-                      <p className="mt-1 text-sm font-medium text-foreground">
-                        {msg.subject}
-                      </p>
-                    )}
-                    {msg.body && (
-                      <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
-                        {msg.body}
-                      </p>
-                    )}
-                    {msg.fromAddress && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        From: {msg.fromAddress}
-                      </p>
-                    )}
-                  </div>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {msg.createdAt.toLocaleString()}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <MessageFeed
+          messages={recentMessages.map((msg) => ({
+            ...msg,
+            createdAt: msg.createdAt.toISOString(),
+          }))}
+        />
       )}
     </div>
   );

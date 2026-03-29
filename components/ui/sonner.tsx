@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { HugeiconsIcon } from "@hugeicons/react"
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   CheckmarkCircle01Icon,
   InformationCircleIcon,
   Loading01Icon,
   AlertCircleIcon,
   AlertTriangle,
-} from "@hugeicons/core-free-icons"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+} from "@hugeicons/core-free-icons";
+import { useTheme } from "next-themes";
+import { Toaster as Sonner } from "sonner";
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <Sonner
@@ -25,7 +25,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <HugeiconsIcon icon={InformationCircleIcon} size={16} />,
         warning: <HugeiconsIcon icon={AlertTriangle} size={16} />,
         error: <HugeiconsIcon icon={AlertCircleIcon} size={16} />,
-        loading: <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />,
+        loading: (
+          <HugeiconsIcon
+            icon={Loading01Icon}
+            size={16}
+            className="animate-spin"
+          />
+        ),
       }}
       toastOptions={{
         classNames: {
@@ -40,7 +46,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

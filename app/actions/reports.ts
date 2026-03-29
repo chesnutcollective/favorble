@@ -37,11 +37,14 @@ export async function getCasesByStageReport() {
       caseCount: count(cases.id),
     })
     .from(caseStages)
-    .leftJoin(cases, and(
-      eq(cases.currentStageId, caseStages.id),
-      eq(cases.status, "active"),
-      isNull(cases.deletedAt),
-    ))
+    .leftJoin(
+      cases,
+      and(
+        eq(cases.currentStageId, caseStages.id),
+        eq(cases.status, "active"),
+        isNull(cases.deletedAt),
+      ),
+    )
     .innerJoin(caseStageGroups, eq(caseStages.stageGroupId, caseStageGroups.id))
     .where(
       and(
@@ -196,10 +199,7 @@ export async function getCasesByStageReportFiltered(
     })
     .from(caseStages)
     .leftJoin(cases, and(...caseConditions))
-    .innerJoin(
-      caseStageGroups,
-      eq(caseStages.stageGroupId, caseStageGroups.id),
-    )
+    .innerJoin(caseStageGroups, eq(caseStages.stageGroupId, caseStageGroups.id))
     .where(
       and(
         eq(caseStages.organizationId, session.organizationId),
@@ -415,7 +415,8 @@ export async function getCasesOverTime(
       })()
     : new Date();
 
-  const interval = granularity === "week" ? sql`'1 week'::interval` : sql`'1 month'::interval`;
+  const interval =
+    granularity === "week" ? sql`'1 week'::interval` : sql`'1 month'::interval`;
   const trunc = granularity === "week" ? sql`'week'` : sql`'month'`;
 
   const result = await db.execute<{
@@ -568,7 +569,9 @@ export async function filterDetailedReport(
       return { pipelineFunnel: await getPipelineFunnelData() };
     case "cases-by-stage":
       return {
-        stageReport: (await getCasesByStageReportFiltered(startDate, endDate)).map((r) => ({
+        stageReport: (
+          await getCasesByStageReportFiltered(startDate, endDate)
+        ).map((r) => ({
           stageName: r.stageName,
           stageCode: r.stageCode,
           stageGroupName: r.stageGroupName,
@@ -577,7 +580,9 @@ export async function filterDetailedReport(
         })),
       };
     case "task-completion":
-      return { taskStats: await getTaskCompletionStatsFiltered(startDate, endDate) };
+      return {
+        taskStats: await getTaskCompletionStatsFiltered(startDate, endDate),
+      };
     default:
       return {};
   }

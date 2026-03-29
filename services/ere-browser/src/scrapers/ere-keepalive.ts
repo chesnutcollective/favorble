@@ -1,5 +1,9 @@
 import type { Page } from "playwright";
-import { classifyPage, humanDelay, type PageType } from "../browser/page-classifier.js";
+import {
+  classifyPage,
+  humanDelay,
+  type PageType,
+} from "../browser/page-classifier.js";
 
 export interface KeepaliveResult {
   success: boolean;
@@ -13,7 +17,9 @@ export async function performKeepalive(page: Page): Promise<KeepaliveResult> {
     console.log("Performing session keepalive...");
 
     // Navigate to ERE home
-    await page.goto("https://secure.ssa.gov/apps9/ERE/home.do", { waitUntil: "networkidle" });
+    await page.goto("https://secure.ssa.gov/apps9/ERE/home.do", {
+      waitUntil: "networkidle",
+    });
     await humanDelay(page);
 
     let pageType = await classifyPage(page);
@@ -23,7 +29,8 @@ export async function performKeepalive(page: Page): Promise<KeepaliveResult> {
     if (pageType === "ere_timeout_warning") {
       console.log("Timeout warning detected, dismissing...");
       try {
-        const continueButton = page.getByRole("button", { name: /continue|ok|yes|i'm still here/i })
+        const continueButton = page
+          .getByRole("button", { name: /continue|ok|yes|i'm still here/i })
           .or(page.locator('button:has-text("Continue")'))
           .or(page.locator('input[value*="Continue"]'));
 

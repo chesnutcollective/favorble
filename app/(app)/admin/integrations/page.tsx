@@ -4,7 +4,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { GlobeIcon, Message01Icon, Mail01Icon, WebhookIcon, LinkSquare02Icon, FileSearchIcon } from "@hugeicons/core-free-icons";
+import {
+  GlobeIcon,
+  Message01Icon,
+  Mail01Icon,
+  WebhookIcon,
+  LinkSquare02Icon,
+  FileSearchIcon,
+  Tick01Icon,
+} from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 import * as outlookClient from "@/lib/integrations/outlook";
 import { getEreCredentials } from "@/app/actions/ere";
@@ -35,13 +43,30 @@ function IntegrationCard({
   manageUrl,
 }: IntegrationCardProps) {
   return (
-    <Card>
+    <Card
+      className={
+        isConfigured
+          ? "border-l-[3px] border-l-green-400"
+          : "border-l-[3px] border-l-transparent border-dashed opacity-80"
+      }
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-muted p-2.5">{icon}</div>
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-muted">
+              {icon}
+            </div>
             <div>
-              <h3 className="font-medium text-foreground">{name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-foreground">{name}</h3>
+                {isConfigured && (
+                  <HugeiconsIcon
+                    icon={Tick01Icon}
+                    size={16}
+                    className="text-green-600"
+                  />
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">{description}</p>
             </div>
           </div>
@@ -49,7 +74,7 @@ function IntegrationCard({
             variant="outline"
             className={
               isConfigured
-                ? "border-green-300 text-green-700"
+                ? "border-green-300 bg-green-50 text-green-700"
                 : "border-border text-muted-foreground"
             }
           >
@@ -68,15 +93,17 @@ function IntegrationCard({
         <div className="mt-4 flex items-center gap-2">
           {manageUrl && (
             <Button variant="outline" size="sm" asChild>
-              <a href={manageUrl}>
-                Manage
-              </a>
+              <a href={manageUrl}>Manage</a>
             </Button>
           )}
           {docsUrl && (
             <Button variant="outline" size="sm" asChild>
               <a href={docsUrl} target="_blank" rel="noopener noreferrer">
-                <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="mr-1.5" />
+                <HugeiconsIcon
+                  icon={LinkSquare02Icon}
+                  size={14}
+                  className="mr-1.5"
+                />
                 Documentation
               </a>
             </Button>
@@ -99,10 +126,20 @@ export default async function IntegrationsPage() {
     // DB unavailable
   }
 
+  const integrations = [
+    { configured: true }, // Chronicle (always deep-linked)
+    { configured: ereConfigured },
+    { configured: caseStatusConfigured },
+    { configured: outlookConfigured },
+    { configured: true }, // Zapier (always active)
+  ];
+  const activeCount = integrations.filter((i) => i.configured).length;
+  const totalCount = integrations.length;
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Integrations"
+        title={`Integrations \u00B7 ${activeCount} of ${totalCount} active`}
         description="Configure connections to Chronicle, Case Status, Outlook, and other services."
       />
 
@@ -110,7 +147,9 @@ export default async function IntegrationsPage() {
         <IntegrationCard
           name="Chronicle"
           description="SSA document sync and ERE access"
-          icon={<HugeiconsIcon icon={GlobeIcon} size={20} color="rgb(147 51 234)" />}
+          icon={
+            <HugeiconsIcon icon={GlobeIcon} size={24} color="rgb(147 51 234)" />
+          }
           isConfigured={true}
           status="Deep Link"
           details={[
@@ -123,7 +162,13 @@ export default async function IntegrationsPage() {
         <IntegrationCard
           name="ERE (Electronic Records Express)"
           description="Direct SSA document scraping and retrieval"
-          icon={<HugeiconsIcon icon={FileSearchIcon} size={20} color="rgb(37 99 235)" />}
+          icon={
+            <HugeiconsIcon
+              icon={FileSearchIcon}
+              size={24}
+              color="rgb(37 99 235)"
+            />
+          }
           isConfigured={ereConfigured}
           status={ereConfigured ? "Configured" : "Not configured"}
           details={
@@ -143,7 +188,13 @@ export default async function IntegrationsPage() {
         <IntegrationCard
           name="Case Status"
           description="Client messaging and Pizza Tracker"
-          icon={<HugeiconsIcon icon={Message01Icon} size={20} color="rgb(22 163 74)" />}
+          icon={
+            <HugeiconsIcon
+              icon={Message01Icon}
+              size={24}
+              color="rgb(22 163 74)"
+            />
+          }
           isConfigured={caseStatusConfigured}
           status={caseStatusConfigured ? "Connected" : "Not configured"}
           details={
@@ -163,7 +214,13 @@ export default async function IntegrationsPage() {
         <IntegrationCard
           name="Microsoft Outlook"
           description="Email association and calendar sync"
-          icon={<HugeiconsIcon icon={Mail01Icon} size={20} className="text-primary" />}
+          icon={
+            <HugeiconsIcon
+              icon={Mail01Icon}
+              size={24}
+              className="text-primary"
+            />
+          }
           isConfigured={outlookConfigured}
           status={outlookConfigured ? "Connected" : "Not configured"}
           details={
@@ -183,7 +240,13 @@ export default async function IntegrationsPage() {
         <IntegrationCard
           name="Zapier (Website Leads)"
           description="Inbound lead capture from website forms"
-          icon={<HugeiconsIcon icon={WebhookIcon} size={20} color="rgb(217 119 6)" />}
+          icon={
+            <HugeiconsIcon
+              icon={WebhookIcon}
+              size={24}
+              color="rgb(217 119 6)"
+            />
+          }
           isConfigured={true}
           status="Active"
           details={[

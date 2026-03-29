@@ -23,7 +23,14 @@ export type DocumentItem = {
   fileType: string;
   fileSizeBytes: number | null;
   category: string | null;
-  source: "upload" | "template" | "chronicle" | "case_status" | "email" | "esignature" | "ere";
+  source:
+    | "upload"
+    | "template"
+    | "chronicle"
+    | "case_status"
+    | "email"
+    | "esignature"
+    | "ere";
   createdAt: string;
   createdByName?: string;
 };
@@ -119,15 +126,24 @@ export function DocumentList({
       {/* Document table */}
       {filteredDocs.length === 0 ? (
         <div className="py-12 text-center">
-          <HugeiconsIcon icon={File01Icon} size={32} color="rgb(209 213 219)" className="mx-auto" />
-          <p className="mt-2 text-sm text-muted-foreground">No documents found</p>
+          <HugeiconsIcon
+            icon={File01Icon}
+            size={32}
+            color="rgb(209 213 219)"
+            className="mx-auto"
+          />
+          <p className="mt-2 text-sm text-muted-foreground">
+            No documents found
+          </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-accent">
               <tr>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground">Name</th>
+                <th className="px-4 py-2.5 font-medium text-muted-foreground">
+                  Name
+                </th>
                 <th className="hidden px-4 py-2.5 font-medium text-muted-foreground sm:table-cell">
                   Source
                 </th>
@@ -175,7 +191,9 @@ export function DocumentList({
                       {doc.category ?? "—"}
                     </td>
                     <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
-                      {doc.fileSizeBytes ? formatFileSize(doc.fileSizeBytes) : "—"}
+                      {doc.fileSizeBytes
+                        ? formatFileSize(doc.fileSizeBytes)
+                        : "—"}
                     </td>
                     <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
                       {new Date(doc.createdAt).toLocaleDateString()}
@@ -204,12 +222,13 @@ export function DocumentList({
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                setMenuOpen(
-                                  menuOpen === doc.id ? null : doc.id,
-                                )
+                                setMenuOpen(menuOpen === doc.id ? null : doc.id)
                               }
                             >
-                              <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
+                              <HugeiconsIcon
+                                icon={MoreHorizontalIcon}
+                                size={16}
+                              />
                             </Button>
                             {menuOpen === doc.id && (
                               <>
@@ -226,7 +245,10 @@ export function DocumentList({
                                     }}
                                     className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                                   >
-                                    <HugeiconsIcon icon={Delete01Icon} size={14} />
+                                    <HugeiconsIcon
+                                      icon={Delete01Icon}
+                                      size={14}
+                                    />
                                     Delete
                                   </button>
                                 </div>
@@ -257,5 +279,11 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
     unknown: "text-muted-foreground",
   };
 
-  return <HugeiconsIcon icon={File01Icon} size={16} className={cn("shrink-0", colors[type])} />;
+  return (
+    <HugeiconsIcon
+      icon={File01Icon}
+      size={16}
+      className={cn("shrink-0", colors[type])}
+    />
+  );
 }

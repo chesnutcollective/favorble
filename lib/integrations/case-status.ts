@@ -25,7 +25,8 @@ type CaseStatusConfig = {
 
 function getConfig(): CaseStatusConfig {
   const apiKey = process.env.CASE_STATUS_API_KEY;
-  const baseUrl = process.env.CASE_STATUS_API_URL ?? "https://api.casestatus.com";
+  const baseUrl =
+    process.env.CASE_STATUS_API_URL ?? "https://api.casestatus.com";
 
   if (!apiKey) {
     throw new Error("CASE_STATUS_API_KEY environment variable is not set");
@@ -46,17 +47,20 @@ export async function sendMessage(
   try {
     const config = getConfig();
 
-    const response = await fetch(`${config.baseUrl}/v1/cases/${caseExternalId}/messages`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${config.baseUrl}/v1/cases/${caseExternalId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: message,
+          sender: senderName,
+        }),
       },
-      body: JSON.stringify({
-        content: message,
-        sender: senderName,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -86,17 +90,20 @@ export async function updateCaseStage(
   try {
     const config = getConfig();
 
-    const response = await fetch(`${config.baseUrl}/v1/cases/${caseExternalId}/stage`, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${config.baseUrl}/v1/cases/${caseExternalId}/stage`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: stageName,
+          description: stageDescription,
+        }),
       },
-      body: JSON.stringify({
-        name: stageName,
-        description: stageDescription,
-      }),
-    });
+    );
 
     if (!response.ok) {
       logger.error("Case Status stage update failed", {
@@ -139,7 +146,7 @@ export async function getMessages(
       `${config.baseUrl}/v1/cases/${caseExternalId}/messages?${params}`,
       {
         headers: {
-          "Authorization": `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
         },
       },
     );

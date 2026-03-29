@@ -12,10 +12,7 @@ import * as caseStatusClient from "@/lib/integrations/case-status";
  * Send an outbound message on a case.
  * Inserts into communications and optionally forwards to Case Status.
  */
-export async function sendCaseMessage(data: {
-  caseId: string;
-  body: string;
-}) {
+export async function sendCaseMessage(data: { caseId: string; body: string }) {
   const session = await requireSession();
 
   // Insert local record

@@ -34,7 +34,10 @@ export function CasesOverTimeChart({ data }: { data: CasesOverTimeRow[] }) {
 
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <LineChart data={formatted} margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
+      <LineChart
+        data={formatted}
+        margin={{ left: 10, right: 20, top: 5, bottom: 5 }}
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="label"

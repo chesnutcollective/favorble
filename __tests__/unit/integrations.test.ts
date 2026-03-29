@@ -99,9 +99,9 @@ describe("Chronicle integration", () => {
 
   describe("extractClaimantId", () => {
     it("extracts claimant ID from URL", () => {
-      expect(
-        extractClaimantId("https://chronicle.app/claimants/ABC123"),
-      ).toBe("ABC123");
+      expect(extractClaimantId("https://chronicle.app/claimants/ABC123")).toBe(
+        "ABC123",
+      );
     });
 
     it("returns null for URLs without claimant path", () => {

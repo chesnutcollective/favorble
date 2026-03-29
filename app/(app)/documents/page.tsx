@@ -60,6 +60,8 @@ export default async function DocumentsPage() {
           icon={File01Icon}
           title="No documents yet"
           description="Documents uploaded to cases will appear here."
+          accent="blue"
+          bordered
         />
       ) : (
         <GlobalDocumentsClient

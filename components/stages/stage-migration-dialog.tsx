@@ -50,7 +50,9 @@ export function StageMigrationDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Stage: {stageToDelete.name}</AlertDialogTitle>
+          <AlertDialogTitle>
+            Delete Stage: {stageToDelete.name}
+          </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4">
               <p>

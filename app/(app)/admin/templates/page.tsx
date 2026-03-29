@@ -10,34 +10,34 @@ import { File01Icon } from "@hugeicons/core-free-icons";
 import { TemplatesClient } from "./client";
 
 export const metadata: Metadata = {
-	title: "Document Templates",
+  title: "Document Templates",
 };
 
 export default async function TemplatesPage() {
-	const session = await requireSession();
+  const session = await requireSession();
 
-	let templates: Awaited<ReturnType<typeof getDocumentTemplates>> = [];
+  let templates: Awaited<ReturnType<typeof getDocumentTemplates>> = [];
 
-	try {
-		templates = await getDocumentTemplates();
-	} catch {
-		// DB unavailable
-	}
+  try {
+    templates = await getDocumentTemplates();
+  } catch {
+    // DB unavailable
+  }
 
-	return (
-		<div className="space-y-6">
-			<TemplatesClient
-				templates={templates.map((t) => ({
-					id: t.id,
-					name: t.name,
-					description: t.description,
-					category: t.category,
-					mergeFields: t.mergeFields,
-					requiresSignature: t.requiresSignature,
-					createdAt: t.createdAt.toISOString(),
-					updatedAt: t.updatedAt.toISOString(),
-				}))}
-			/>
-		</div>
-	);
+  return (
+    <div className="space-y-6">
+      <TemplatesClient
+        templates={templates.map((t) => ({
+          id: t.id,
+          name: t.name,
+          description: t.description,
+          category: t.category,
+          mergeFields: t.mergeFields,
+          requiresSignature: t.requiresSignature,
+          createdAt: t.createdAt.toISOString(),
+          updatedAt: t.updatedAt.toISOString(),
+        }))}
+      />
+    </div>
+  );
 }

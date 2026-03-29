@@ -66,7 +66,9 @@ sessionRoutes.get("/status", (c) => {
 // Exported for use by other modules (e.g., the job processor)
 export function registerSession(session: SessionInfo): void {
   activeSessions.set(session.id, session);
-  console.log(`Session registered: ${session.id} (credential=${session.credentialId})`);
+  console.log(
+    `Session registered: ${session.id} (credential=${session.credentialId})`,
+  );
 }
 
 export function removeSession(sessionId: string): boolean {

@@ -110,10 +110,7 @@ async function main() {
   console.log(`Found ${allStages.length} stages`);
 
   const customFieldDefs = await db.query.customFieldDefinitions.findMany({
-    where: eq(
-      schema.customFieldDefinitions.organizationId,
-      organizationId,
-    ),
+    where: eq(schema.customFieldDefinitions.organizationId, organizationId),
   });
   console.log(`Found ${customFieldDefs.length} custom field definitions`);
 
@@ -376,7 +373,12 @@ async function main() {
       const stageEnteredAt = daysAgo(stageEnteredDaysAgo);
 
       // Determine status based on stage code
-      let status: "active" | "on_hold" | "closed_won" | "closed_lost" | "closed_withdrawn" = "active";
+      let status:
+        | "active"
+        | "on_hold"
+        | "closed_won"
+        | "closed_lost"
+        | "closed_withdrawn" = "active";
       let closedAt: Date | null = null;
       let closedReason: string | null = null;
       if (code === "5A") {
@@ -453,9 +455,11 @@ async function main() {
       });
 
       // Create case assignment (primary attorney + case manager)
-      const assignmentRoles: { userId: string; role: string; isPrimary: boolean }[] = [
-        { userId: attorneyUser.id, role: "attorney", isPrimary: true },
-      ];
+      const assignmentRoles: {
+        userId: string;
+        role: string;
+        isPrimary: boolean;
+      }[] = [{ userId: attorneyUser.id, role: "attorney", isPrimary: true }];
 
       // Assign case manager or hearings depending on stage
       if (code.startsWith("4")) {
@@ -622,7 +626,12 @@ async function main() {
         phone: faker.phone.number({ style: "national" }),
         address: faker.location.streetAddress(),
         city: name.last,
-        state: name.last === "Birmingham" ? "AL" : name.last === "Atlanta" ? "GA" : "TN",
+        state:
+          name.last === "Birmingham"
+            ? "AL"
+            : name.last === "Atlanta"
+              ? "GA"
+              : "TN",
         zip: faker.location.zipCode(),
         contactType: "ssa_office",
         createdBy: adminUser.id,
@@ -676,54 +685,214 @@ async function main() {
 
   const taskTemplates = [
     // Intake tasks
-    { title: "Complete intake questionnaire", priority: "high" as const, team: "intake" },
-    { title: "Verify claimant identity documents", priority: "medium" as const, team: "intake" },
-    { title: "Obtain signed retainer agreement", priority: "urgent" as const, team: "intake" },
-    { title: "Request SSA earnings record", priority: "medium" as const, team: "intake" },
-    { title: "Complete disability description form", priority: "high" as const, team: "intake" },
+    {
+      title: "Complete intake questionnaire",
+      priority: "high" as const,
+      team: "intake",
+    },
+    {
+      title: "Verify claimant identity documents",
+      priority: "medium" as const,
+      team: "intake",
+    },
+    {
+      title: "Obtain signed retainer agreement",
+      priority: "urgent" as const,
+      team: "intake",
+    },
+    {
+      title: "Request SSA earnings record",
+      priority: "medium" as const,
+      team: "intake",
+    },
+    {
+      title: "Complete disability description form",
+      priority: "high" as const,
+      team: "intake",
+    },
     // Filing tasks
-    { title: "File SSDI Application", priority: "high" as const, team: "filing" },
-    { title: "File SSI Application", priority: "high" as const, team: "filing" },
-    { title: "Submit SSA-1696 Appointment of Representative", priority: "urgent" as const, team: "filing" },
-    { title: "File Request for Reconsideration", priority: "high" as const, team: "filing" },
-    { title: "File Request for Hearing", priority: "high" as const, team: "filing" },
-    { title: "Submit updated medical evidence to SSA", priority: "medium" as const, team: "filing" },
-    { title: "File SSA-561 Request for Reconsideration", priority: "high" as const, team: "filing" },
+    {
+      title: "File SSDI Application",
+      priority: "high" as const,
+      team: "filing",
+    },
+    {
+      title: "File SSI Application",
+      priority: "high" as const,
+      team: "filing",
+    },
+    {
+      title: "Submit SSA-1696 Appointment of Representative",
+      priority: "urgent" as const,
+      team: "filing",
+    },
+    {
+      title: "File Request for Reconsideration",
+      priority: "high" as const,
+      team: "filing",
+    },
+    {
+      title: "File Request for Hearing",
+      priority: "high" as const,
+      team: "filing",
+    },
+    {
+      title: "Submit updated medical evidence to SSA",
+      priority: "medium" as const,
+      team: "filing",
+    },
+    {
+      title: "File SSA-561 Request for Reconsideration",
+      priority: "high" as const,
+      team: "filing",
+    },
     // Medical records tasks
-    { title: "Request medical records from primary physician", priority: "high" as const, team: "medical_records" },
-    { title: "Request records from orthopedic specialist", priority: "medium" as const, team: "medical_records" },
-    { title: "Request records from mental health provider", priority: "medium" as const, team: "medical_records" },
-    { title: "Follow up on outstanding records request", priority: "high" as const, team: "medical_records" },
-    { title: "Prepare medical evidence summary", priority: "high" as const, team: "medical_records" },
-    { title: "Request updated treatment notes", priority: "medium" as const, team: "medical_records" },
-    { title: "Obtain RFC statement from treating physician", priority: "urgent" as const, team: "medical_records" },
-    { title: "Review MRI/imaging results", priority: "medium" as const, team: "medical_records" },
+    {
+      title: "Request medical records from primary physician",
+      priority: "high" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Request records from orthopedic specialist",
+      priority: "medium" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Request records from mental health provider",
+      priority: "medium" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Follow up on outstanding records request",
+      priority: "high" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Prepare medical evidence summary",
+      priority: "high" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Request updated treatment notes",
+      priority: "medium" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Obtain RFC statement from treating physician",
+      priority: "urgent" as const,
+      team: "medical_records",
+    },
+    {
+      title: "Review MRI/imaging results",
+      priority: "medium" as const,
+      team: "medical_records",
+    },
     // Case management tasks
-    { title: "Review denial letter and identify issues", priority: "urgent" as const, team: "case_management" },
-    { title: "Schedule client check-in call", priority: "medium" as const, team: "case_management" },
-    { title: "Update case status in system", priority: "low" as const, team: "case_management" },
-    { title: "Review consultative exam report", priority: "high" as const, team: "case_management" },
-    { title: "Send status update letter to claimant", priority: "medium" as const, team: "case_management" },
-    { title: "Review SSA decision for appeal options", priority: "urgent" as const, team: "case_management" },
-    { title: "Coordinate with co-counsel on case strategy", priority: "high" as const, team: "case_management" },
+    {
+      title: "Review denial letter and identify issues",
+      priority: "urgent" as const,
+      team: "case_management",
+    },
+    {
+      title: "Schedule client check-in call",
+      priority: "medium" as const,
+      team: "case_management",
+    },
+    {
+      title: "Update case status in system",
+      priority: "low" as const,
+      team: "case_management",
+    },
+    {
+      title: "Review consultative exam report",
+      priority: "high" as const,
+      team: "case_management",
+    },
+    {
+      title: "Send status update letter to claimant",
+      priority: "medium" as const,
+      team: "case_management",
+    },
+    {
+      title: "Review SSA decision for appeal options",
+      priority: "urgent" as const,
+      team: "case_management",
+    },
+    {
+      title: "Coordinate with co-counsel on case strategy",
+      priority: "high" as const,
+      team: "case_management",
+    },
     // Hearing tasks
-    { title: "Prepare pre-hearing brief", priority: "urgent" as const, team: "hearings" },
-    { title: "Compile hearing exhibit list", priority: "high" as const, team: "hearings" },
-    { title: "Schedule hearing prep meeting with claimant", priority: "high" as const, team: "hearings" },
-    { title: "Research ALJ decision patterns", priority: "medium" as const, team: "hearings" },
-    { title: "Prepare claimant for hearing testimony", priority: "urgent" as const, team: "hearings" },
-    { title: "Submit hearing exhibits to ODAR", priority: "high" as const, team: "hearings" },
-    { title: "Review vocational expert interrogatories", priority: "medium" as const, team: "hearings" },
-    { title: "Upload claimant statement to file", priority: "medium" as const, team: "hearings" },
+    {
+      title: "Prepare pre-hearing brief",
+      priority: "urgent" as const,
+      team: "hearings",
+    },
+    {
+      title: "Compile hearing exhibit list",
+      priority: "high" as const,
+      team: "hearings",
+    },
+    {
+      title: "Schedule hearing prep meeting with claimant",
+      priority: "high" as const,
+      team: "hearings",
+    },
+    {
+      title: "Research ALJ decision patterns",
+      priority: "medium" as const,
+      team: "hearings",
+    },
+    {
+      title: "Prepare claimant for hearing testimony",
+      priority: "urgent" as const,
+      team: "hearings",
+    },
+    {
+      title: "Submit hearing exhibits to ODAR",
+      priority: "high" as const,
+      team: "hearings",
+    },
+    {
+      title: "Review vocational expert interrogatories",
+      priority: "medium" as const,
+      team: "hearings",
+    },
+    {
+      title: "Upload claimant statement to file",
+      priority: "medium" as const,
+      team: "hearings",
+    },
     // Administration
-    { title: "Send fee agreement to claimant", priority: "medium" as const, team: "administration" },
-    { title: "Update Chronicle with latest SSA status", priority: "low" as const, team: "administration" },
-    { title: "Close case file and archive documents", priority: "low" as const, team: "administration" },
-    { title: "Generate monthly case status report", priority: "low" as const, team: "administration" },
-    { title: "Verify fee petition filing deadline", priority: "high" as const, team: "administration" },
+    {
+      title: "Send fee agreement to claimant",
+      priority: "medium" as const,
+      team: "administration",
+    },
+    {
+      title: "Update Chronicle with latest SSA status",
+      priority: "low" as const,
+      team: "administration",
+    },
+    {
+      title: "Close case file and archive documents",
+      priority: "low" as const,
+      team: "administration",
+    },
+    {
+      title: "Generate monthly case status report",
+      priority: "low" as const,
+      team: "administration",
+    },
+    {
+      title: "Verify fee petition filing deadline",
+      priority: "high" as const,
+      team: "administration",
+    },
   ];
 
-  const teamToUser: Record<string, typeof existingUsers[0]> = {
+  const teamToUser: Record<string, (typeof existingUsers)[0]> = {
     intake: intakeUser,
     filing: filingUser,
     medical_records: medRecUser,
@@ -742,8 +911,7 @@ async function main() {
   for (let i = 0; i < 200; i++) {
     const template = taskTemplates[i % taskTemplates.length];
     const caseRecord = createdCases[i % createdCases.length];
-    const assignedUser =
-      teamToUser[template.team] || randomItem(existingUsers);
+    const assignedUser = teamToUser[template.team] || randomItem(existingUsers);
 
     // Distribute due dates: 40 overdue, 20 due today, 40 due this week, 100 upcoming
     let dueDate: Date;
@@ -753,15 +921,24 @@ async function main() {
     if (i < 40) {
       // Overdue
       dueDate = daysAgo(Math.floor(Math.random() * 14) + 1);
-      taskStatus = randomItem<"pending" | "in_progress">(["pending", "in_progress"]);
+      taskStatus = randomItem<"pending" | "in_progress">([
+        "pending",
+        "in_progress",
+      ]);
     } else if (i < 60) {
       // Due today
       dueDate = new Date();
-      taskStatus = randomItem<"pending" | "in_progress">(["pending", "in_progress"]);
+      taskStatus = randomItem<"pending" | "in_progress">([
+        "pending",
+        "in_progress",
+      ]);
     } else if (i < 100) {
       // Due this week
       dueDate = daysFromNow(Math.floor(Math.random() * 5) + 1);
-      taskStatus = randomItem<"pending" | "in_progress">(["pending", "in_progress"]);
+      taskStatus = randomItem<"pending" | "in_progress">([
+        "pending",
+        "in_progress",
+      ]);
     } else if (i < 150) {
       // Upcoming
       dueDate = daysFromNow(Math.floor(Math.random() * 30) + 7);
@@ -776,9 +953,7 @@ async function main() {
 
     // Add case-specific detail to task titles
     const titleSuffix =
-      i % 3 === 0
-        ? ` — ${caseRecord.firstName} ${caseRecord.lastName}`
-        : "";
+      i % 3 === 0 ? ` — ${caseRecord.firstName} ${caseRecord.lastName}` : "";
 
     await db.insert(schema.tasks).values({
       organizationId,
@@ -809,40 +984,190 @@ async function main() {
 
   const documentTemplates = [
     // Medical records
-    { fileName: "Medical_Records_Primary_Care.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "MRI_Lumbar_Spine_Report.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Psychiatric_Evaluation.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Physical_Therapy_Notes.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Lab_Results_Blood_Panel.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Treating_Physician_RFC.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Hospital_Discharge_Summary.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
-    { fileName: "Pain_Management_Records.pdf", fileType: "application/pdf", category: "Medical Records", source: "upload" as const },
+    {
+      fileName: "Medical_Records_Primary_Care.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "MRI_Lumbar_Spine_Report.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Psychiatric_Evaluation.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Physical_Therapy_Notes.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Lab_Results_Blood_Panel.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Treating_Physician_RFC.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Hospital_Discharge_Summary.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Pain_Management_Records.pdf",
+      fileType: "application/pdf",
+      category: "Medical Records",
+      source: "upload" as const,
+    },
     // SSA decisions / correspondence
-    { fileName: "SSA_Initial_Denial_Notice.pdf", fileType: "application/pdf", category: "SSA Decision", source: "chronicle" as const },
-    { fileName: "SSA_Reconsideration_Denial.pdf", fileType: "application/pdf", category: "SSA Decision", source: "chronicle" as const },
-    { fileName: "SSA_Favorable_Decision.pdf", fileType: "application/pdf", category: "SSA Decision", source: "chronicle" as const },
-    { fileName: "SSA_Acknowledgment_Letter.pdf", fileType: "application/pdf", category: "SSA Correspondence", source: "chronicle" as const },
-    { fileName: "SSA_Consultative_Exam_Notice.pdf", fileType: "application/pdf", category: "SSA Correspondence", source: "case_status" as const },
-    { fileName: "SSA_Hearing_Notice.pdf", fileType: "application/pdf", category: "SSA Correspondence", source: "case_status" as const },
+    {
+      fileName: "SSA_Initial_Denial_Notice.pdf",
+      fileType: "application/pdf",
+      category: "SSA Decision",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Reconsideration_Denial.pdf",
+      fileType: "application/pdf",
+      category: "SSA Decision",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Favorable_Decision.pdf",
+      fileType: "application/pdf",
+      category: "SSA Decision",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Acknowledgment_Letter.pdf",
+      fileType: "application/pdf",
+      category: "SSA Correspondence",
+      source: "chronicle" as const,
+    },
+    {
+      fileName: "SSA_Consultative_Exam_Notice.pdf",
+      fileType: "application/pdf",
+      category: "SSA Correspondence",
+      source: "case_status" as const,
+    },
+    {
+      fileName: "SSA_Hearing_Notice.pdf",
+      fileType: "application/pdf",
+      category: "SSA Correspondence",
+      source: "case_status" as const,
+    },
     // Forms
-    { fileName: "SSA_1696_Representative_Appointment.pdf", fileType: "application/pdf", category: "Forms", source: "template" as const },
-    { fileName: "SSA_561_Request_for_Reconsideration.pdf", fileType: "application/pdf", category: "Forms", source: "template" as const },
-    { fileName: "SSA_HA_501_Request_for_Hearing.pdf", fileType: "application/pdf", category: "Forms", source: "template" as const },
-    { fileName: "Retainer_Agreement_Signed.pdf", fileType: "application/pdf", category: "Forms", source: "esignature" as const },
-    { fileName: "Fee_Agreement_Signed.pdf", fileType: "application/pdf", category: "Forms", source: "esignature" as const },
-    { fileName: "Medical_Records_Authorization.pdf", fileType: "application/pdf", category: "Forms", source: "template" as const },
+    {
+      fileName: "SSA_1696_Representative_Appointment.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
+    {
+      fileName: "SSA_561_Request_for_Reconsideration.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
+    {
+      fileName: "SSA_HA_501_Request_for_Hearing.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
+    {
+      fileName: "Retainer_Agreement_Signed.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "esignature" as const,
+    },
+    {
+      fileName: "Fee_Agreement_Signed.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "esignature" as const,
+    },
+    {
+      fileName: "Medical_Records_Authorization.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "template" as const,
+    },
     // Hearing exhibits
-    { fileName: "Pre_Hearing_Brief.pdf", fileType: "application/pdf", category: "Hearing Exhibits", source: "upload" as const },
-    { fileName: "Exhibit_List.pdf", fileType: "application/pdf", category: "Hearing Exhibits", source: "upload" as const },
-    { fileName: "Claimant_Written_Statement.pdf", fileType: "application/pdf", category: "Hearing Exhibits", source: "upload" as const },
-    { fileName: "Vocational_Expert_Interrogatories.pdf", fileType: "application/pdf", category: "Hearing Exhibits", source: "upload" as const },
+    {
+      fileName: "Pre_Hearing_Brief.pdf",
+      fileType: "application/pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Exhibit_List.pdf",
+      fileType: "application/pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Claimant_Written_Statement.pdf",
+      fileType: "application/pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Vocational_Expert_Interrogatories.pdf",
+      fileType: "application/pdf",
+      category: "Hearing Exhibits",
+      source: "upload" as const,
+    },
     // Correspondence
-    { fileName: "Status_Update_Letter.pdf", fileType: "application/pdf", category: "Correspondence", source: "template" as const },
-    { fileName: "Client_Welcome_Packet.pdf", fileType: "application/pdf", category: "Correspondence", source: "template" as const },
-    { fileName: "Records_Request_Letter.pdf", fileType: "application/pdf", category: "Correspondence", source: "template" as const },
-    { fileName: "Claimant_Function_Report.pdf", fileType: "application/pdf", category: "Forms", source: "upload" as const },
-    { fileName: "Third_Party_Function_Report.pdf", fileType: "application/pdf", category: "Forms", source: "upload" as const },
-    { fileName: "Work_History_Report.pdf", fileType: "application/pdf", category: "Forms", source: "upload" as const },
+    {
+      fileName: "Status_Update_Letter.pdf",
+      fileType: "application/pdf",
+      category: "Correspondence",
+      source: "template" as const,
+    },
+    {
+      fileName: "Client_Welcome_Packet.pdf",
+      fileType: "application/pdf",
+      category: "Correspondence",
+      source: "template" as const,
+    },
+    {
+      fileName: "Records_Request_Letter.pdf",
+      fileType: "application/pdf",
+      category: "Correspondence",
+      source: "template" as const,
+    },
+    {
+      fileName: "Claimant_Function_Report.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Third_Party_Function_Report.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "upload" as const,
+    },
+    {
+      fileName: "Work_History_Report.pdf",
+      fileType: "application/pdf",
+      category: "Forms",
+      source: "upload" as const,
+    },
   ];
 
   let docCount = 0;
@@ -940,14 +1265,20 @@ async function main() {
     } else if (actType.action === "note_added") {
       changes = { note: noteTexts[i % noteTexts.length] };
     } else if (actType.action === "document_uploaded") {
-      const docTemplate =
-        documentTemplates[i % documentTemplates.length];
-      changes = { fileName: docTemplate.fileName, category: docTemplate.category };
+      const docTemplate = documentTemplates[i % documentTemplates.length];
+      changes = {
+        fileName: docTemplate.fileName,
+        category: docTemplate.category,
+      };
     } else if (actType.action === "task_completed") {
       const taskTemplate = taskTemplates[i % taskTemplates.length];
       changes = { taskTitle: taskTemplate.title };
     } else if (actType.action === "field_updated") {
-      changes = { field: "case_priority", oldValue: "Normal", newValue: "High" };
+      changes = {
+        field: "case_priority",
+        oldValue: "Normal",
+        newValue: "High",
+      };
     }
 
     await db.insert(schema.auditLog).values({
@@ -972,33 +1303,119 @@ async function main() {
 
   const eventDefs: {
     titleFn: (c: CaseRecord) => string;
-    eventType: "hearing" | "deadline" | "appointment" | "follow_up" | "reminder";
+    eventType:
+      | "hearing"
+      | "deadline"
+      | "appointment"
+      | "follow_up"
+      | "reminder";
     dayOffset: number; // days from now
   }[] = [
     // Upcoming hearings (6)
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 7 },
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 14 },
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 21 },
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 30 },
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 45 },
-    { titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`, eventType: "hearing", dayOffset: 60 },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 7,
+    },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 14,
+    },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 21,
+    },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 30,
+    },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 45,
+    },
+    {
+      titleFn: (c) => `Hearing: ${c.firstName} ${c.lastName} (${c.caseNumber})`,
+      eventType: "hearing",
+      dayOffset: 60,
+    },
     // Deadlines (5)
-    { titleFn: (c) => `Reconsideration filing deadline — ${c.caseNumber}`, eventType: "deadline", dayOffset: 3 },
-    { titleFn: (c) => `SSA document submission deadline — ${c.caseNumber}`, eventType: "deadline", dayOffset: 5 },
-    { titleFn: (c) => `Appeal deadline — ${c.caseNumber}`, eventType: "deadline", dayOffset: 10 },
-    { titleFn: (c) => `Pre-hearing brief due — ${c.caseNumber}`, eventType: "deadline", dayOffset: 12 },
-    { titleFn: (c) => `Exhibit submission deadline — ${c.caseNumber}`, eventType: "deadline", dayOffset: 18 },
+    {
+      titleFn: (c) => `Reconsideration filing deadline — ${c.caseNumber}`,
+      eventType: "deadline",
+      dayOffset: 3,
+    },
+    {
+      titleFn: (c) => `SSA document submission deadline — ${c.caseNumber}`,
+      eventType: "deadline",
+      dayOffset: 5,
+    },
+    {
+      titleFn: (c) => `Appeal deadline — ${c.caseNumber}`,
+      eventType: "deadline",
+      dayOffset: 10,
+    },
+    {
+      titleFn: (c) => `Pre-hearing brief due — ${c.caseNumber}`,
+      eventType: "deadline",
+      dayOffset: 12,
+    },
+    {
+      titleFn: (c) => `Exhibit submission deadline — ${c.caseNumber}`,
+      eventType: "deadline",
+      dayOffset: 18,
+    },
     // Appointments (5)
-    { titleFn: (c) => `Client meeting: ${c.firstName} ${c.lastName}`, eventType: "appointment", dayOffset: 2 },
-    { titleFn: (c) => `Hearing prep: ${c.firstName} ${c.lastName}`, eventType: "appointment", dayOffset: 4 },
-    { titleFn: (c) => `Consultative exam: ${c.firstName} ${c.lastName}`, eventType: "appointment", dayOffset: 8 },
-    { titleFn: (c) => `Intake consultation: ${c.firstName} ${c.lastName}`, eventType: "appointment", dayOffset: 1 },
-    { titleFn: (c) => `Case review meeting — ${c.caseNumber}`, eventType: "appointment", dayOffset: 6 },
+    {
+      titleFn: (c) => `Client meeting: ${c.firstName} ${c.lastName}`,
+      eventType: "appointment",
+      dayOffset: 2,
+    },
+    {
+      titleFn: (c) => `Hearing prep: ${c.firstName} ${c.lastName}`,
+      eventType: "appointment",
+      dayOffset: 4,
+    },
+    {
+      titleFn: (c) => `Consultative exam: ${c.firstName} ${c.lastName}`,
+      eventType: "appointment",
+      dayOffset: 8,
+    },
+    {
+      titleFn: (c) => `Intake consultation: ${c.firstName} ${c.lastName}`,
+      eventType: "appointment",
+      dayOffset: 1,
+    },
+    {
+      titleFn: (c) => `Case review meeting — ${c.caseNumber}`,
+      eventType: "appointment",
+      dayOffset: 6,
+    },
     // Follow-ups (4)
-    { titleFn: (c) => `Follow up with ${c.firstName} ${c.lastName} re: missing docs`, eventType: "follow_up", dayOffset: 2 },
-    { titleFn: (c) => `Follow up on records request — ${c.caseNumber}`, eventType: "follow_up", dayOffset: 5 },
-    { titleFn: (c) => `Follow up with SSA office — ${c.caseNumber}`, eventType: "follow_up", dayOffset: 9 },
-    { titleFn: (c) => `Check on medical records status — ${c.caseNumber}`, eventType: "follow_up", dayOffset: 11 },
+    {
+      titleFn: (c) =>
+        `Follow up with ${c.firstName} ${c.lastName} re: missing docs`,
+      eventType: "follow_up",
+      dayOffset: 2,
+    },
+    {
+      titleFn: (c) => `Follow up on records request — ${c.caseNumber}`,
+      eventType: "follow_up",
+      dayOffset: 5,
+    },
+    {
+      titleFn: (c) => `Follow up with SSA office — ${c.caseNumber}`,
+      eventType: "follow_up",
+      dayOffset: 9,
+    },
+    {
+      titleFn: (c) => `Check on medical records status — ${c.caseNumber}`,
+      eventType: "follow_up",
+      dayOffset: 11,
+    },
   ];
 
   let eventCount = 0;
@@ -1030,8 +1447,7 @@ async function main() {
             : null,
       hearingOffice:
         def.eventType === "hearing" ? randomItem(hearingOffices) : null,
-      adminLawJudge:
-        def.eventType === "hearing" ? randomItem(aljNames) : null,
+      adminLawJudge: def.eventType === "hearing" ? randomItem(aljNames) : null,
       createdBy:
         def.eventType === "hearing" ? hearingsUser.id : randomItem(allUserIds),
     });
@@ -1109,9 +1525,7 @@ async function main() {
       organizationId,
       firstName,
       lastName,
-      email: faker.internet
-        .email({ firstName, lastName })
-        .toLowerCase(),
+      email: faker.internet.email({ firstName, lastName }).toLowerCase(),
       phone: faker.phone.number({ style: "national" }),
       status: leadStatuses[i],
       source: randomItem(leadSources),
@@ -1251,7 +1665,11 @@ async function main() {
       organizationId,
       caseId: caseRecord.id,
       type: template.type,
-      direction: isInbound ? "inbound" : template.type === "note" ? null : "outbound",
+      direction: isInbound
+        ? "inbound"
+        : template.type === "note"
+          ? null
+          : "outbound",
       subject: template.subject,
       body: template.body,
       fromAddress: template.type === "note" ? null : fromAddr,
@@ -1315,7 +1733,10 @@ async function main() {
         .values({
           caseId: caseRecord.id,
           fieldDefinitionId: physicianField.id,
-          textValue: randomItem(providerNames).first + " " + randomItem(providerNames).last,
+          textValue:
+            randomItem(providerNames).first +
+            " " +
+            randomItem(providerNames).last,
           updatedBy: medRecUser.id,
         })
         .onConflictDoNothing();
@@ -1364,7 +1785,10 @@ async function main() {
     }
 
     // Hearing details for hearing stage cases
-    if (caseRecord.stageCode.startsWith("4") || caseRecord.stageCode.startsWith("5")) {
+    if (
+      caseRecord.stageCode.startsWith("4") ||
+      caseRecord.stageCode.startsWith("5")
+    ) {
       const hearingDateField = fieldBySlug.get("hearing_date");
       if (hearingDateField) {
         await db
@@ -1472,7 +1896,23 @@ async function main() {
   console.log("\n--- Creating stage transitions ---");
 
   let transitionCount = 0;
-  const stageSequence = ["1A", "2A", "2B", "2E", "3A", "3B", "3C", "3D", "3E", "4A", "4B", "4C", "4D", "4E", "5A"];
+  const stageSequence = [
+    "1A",
+    "2A",
+    "2B",
+    "2E",
+    "3A",
+    "3B",
+    "3C",
+    "3D",
+    "3E",
+    "4A",
+    "4B",
+    "4C",
+    "4D",
+    "4E",
+    "5A",
+  ];
 
   for (const caseRecord of createdCases) {
     // Build the path this case took through stages
@@ -1500,10 +1940,7 @@ async function main() {
         toStageId: toStage.id,
         transitionedAt: transitionDate,
         transitionedBy: randomItem(allUserIds),
-        notes:
-          j === currentIdx - 1
-            ? `Moved to ${toStage.name}`
-            : null,
+        notes: j === currentIdx - 1 ? `Moved to ${toStage.name}` : null,
         isAutomatic: Math.random() < 0.3,
       });
       transitionCount++;

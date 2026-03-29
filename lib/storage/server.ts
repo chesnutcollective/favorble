@@ -28,10 +28,7 @@ function buildDocumentPath(
  * Build a storage path for a template.
  * Format: {orgId}/templates/{timestamp}-{sanitizedFilename}
  */
-function buildTemplatePath(
-  organizationId: string,
-  fileName: string,
-): string {
+function buildTemplatePath(organizationId: string, fileName: string): string {
   const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
   const timestamp = Date.now();
   return `${organizationId}/templates/${timestamp}-${sanitized}`;
@@ -167,9 +164,7 @@ export async function getTemplateSignedUrl(
 /**
  * Delete a document from storage.
  */
-export async function deleteDocumentFile(
-  storagePath: string,
-): Promise<void> {
+export async function deleteDocumentFile(storagePath: string): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase.storage
@@ -184,9 +179,7 @@ export async function deleteDocumentFile(
 /**
  * Delete a template from storage.
  */
-export async function deleteTemplateFile(
-  storagePath: string,
-): Promise<void> {
+export async function deleteTemplateFile(storagePath: string): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase.storage
@@ -204,7 +197,9 @@ export async function deleteTemplateFile(
 export async function listCaseDocuments(
   organizationId: string,
   caseId: string,
-): Promise<Array<{ name: string; id: string; metadata: Record<string, string> }>> {
+): Promise<
+  Array<{ name: string; id: string; metadata: Record<string, string> }>
+> {
   const supabase = await createClient();
   const prefix = `${organizationId}/${caseId}/`;
 

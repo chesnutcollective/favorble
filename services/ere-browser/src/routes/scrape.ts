@@ -14,10 +14,18 @@ export const scrapeRoutes = new Hono();
  */
 scrapeRoutes.post("/login", async (c) => {
   try {
-    const body = await c.req.json<LoginCredentials & { credentialId: string }>();
+    const body = await c.req.json<
+      LoginCredentials & { credentialId: string }
+    >();
 
     if (!body.email || !body.password || !body.credentialId) {
-      return c.json({ success: false, error: "Missing required fields: email, password, credentialId" }, 400);
+      return c.json(
+        {
+          success: false,
+          error: "Missing required fields: email, password, credentialId",
+        },
+        400,
+      );
     }
 
     const context = await browserPool.getContext(body.credentialId);
@@ -54,7 +62,10 @@ scrapeRoutes.post("/status-report", async (c) => {
     const body = await c.req.json<{ credentialId: string }>();
 
     if (!body.credentialId) {
-      return c.json({ success: false, error: "Missing required field: credentialId" }, 400);
+      return c.json(
+        { success: false, error: "Missing required field: credentialId" },
+        400,
+      );
     }
 
     const context = await browserPool.getContext(body.credentialId);
@@ -82,7 +93,10 @@ scrapeRoutes.post("/efolder", async (c) => {
     const body = await c.req.json<{ credentialId: string; ssn: string }>();
 
     if (!body.credentialId || !body.ssn) {
-      return c.json({ success: false, error: "Missing required fields: credentialId, ssn" }, 400);
+      return c.json(
+        { success: false, error: "Missing required fields: credentialId, ssn" },
+        400,
+      );
     }
 
     const context = await browserPool.getContext(body.credentialId);
@@ -107,10 +121,16 @@ scrapeRoutes.post("/efolder", async (c) => {
  */
 scrapeRoutes.post("/pickup", async (c) => {
   try {
-    const body = await c.req.json<{ credentialId: string; ssnLast4?: string }>();
+    const body = await c.req.json<{
+      credentialId: string;
+      ssnLast4?: string;
+    }>();
 
     if (!body.credentialId) {
-      return c.json({ success: false, error: "Missing required field: credentialId" }, 400);
+      return c.json(
+        { success: false, error: "Missing required field: credentialId" },
+        400,
+      );
     }
 
     const context = await browserPool.getContext(body.credentialId);
@@ -138,7 +158,10 @@ scrapeRoutes.post("/keepalive", async (c) => {
     const body = await c.req.json<{ credentialId: string }>();
 
     if (!body.credentialId) {
-      return c.json({ success: false, error: "Missing required field: credentialId" }, 400);
+      return c.json(
+        { success: false, error: "Missing required field: credentialId" },
+        400,
+      );
     }
 
     const context = await browserPool.getContext(body.credentialId);

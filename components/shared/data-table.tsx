@@ -61,9 +61,7 @@ export function DataTable<TData, TValue>({
       {searchKey && (
         <Input
           placeholder={searchPlaceholder}
-          value={
-            (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-          }
+          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
           onChange={(e) =>
             table.getColumn(searchKey)?.setFilterValue(e.target.value)
           }
@@ -95,6 +93,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-muted/50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

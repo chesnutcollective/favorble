@@ -78,8 +78,7 @@ export function ReportsChartsClient({
     const header = "Stage,Stage Group,Case Count\n";
     const rows = stageReport
       .map(
-        (row) =>
-          `"${row.stageName}","${row.stageGroupName}",${row.caseCount}`,
+        (row) => `"${row.stageName}","${row.stageGroupName}",${row.caseCount}`,
       )
       .join("\n");
 
@@ -140,15 +139,16 @@ export function ReportsChartsClient({
       {/* Cases by Stage BarChart */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-foreground mb-4">
-            Cases by Stage
-          </h3>
+          <h3 className="font-medium text-foreground mb-4">Cases by Stage</h3>
           {barData.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
               No stage data
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={Math.max(barData.length * 36, 200)}>
+            <ResponsiveContainer
+              width="100%"
+              height={Math.max(barData.length * 36, 200)}
+            >
               <BarChart
                 data={barData}
                 layout="vertical"
@@ -186,9 +186,7 @@ export function ReportsChartsClient({
       {/* Task Completion PieChart */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-foreground mb-4">
-            Task Completion
-          </h3>
+          <h3 className="font-medium text-foreground mb-4">Task Completion</h3>
           <TaskCompletionPieChart data={taskStats} />
         </CardContent>
       </Card>

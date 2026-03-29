@@ -56,15 +56,22 @@ export function EreDocumentsFeed({
       <Card>
         <CardContent className="p-6">
           <h3 className="font-medium text-foreground mb-3">ERE Documents</h3>
-          <div className="py-8 text-center">
-            <HugeiconsIcon
-              icon={File01Icon}
-              size={32}
-              color="rgb(209 213 219)"
-              className="mx-auto"
-            />
-            <p className="mt-2 text-sm text-muted-foreground">
-              No documents downloaded from ERE yet.
+          <div
+            className="flex flex-col items-center justify-center py-8 text-center"
+            style={{ animation: "emptyStateIn 0.3s ease-out" }}
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(59,89,152,0.08)]">
+              <HugeiconsIcon
+                icon={File01Icon}
+                size={20}
+                className="text-[#3b5998]"
+              />
+            </div>
+            <p className="mt-2 text-sm font-medium text-foreground">
+              No documents downloaded yet
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Documents from ERE will appear here once synced
             </p>
           </div>
         </CardContent>
@@ -99,10 +106,7 @@ export function EreDocumentsFeed({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {documents.map((doc) => (
-                <tr
-                  key={doc.id}
-                  className="hover:bg-accent transition-colors"
-                >
+                <tr key={doc.id} className="hover:bg-accent transition-colors">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
                       <HugeiconsIcon
@@ -133,12 +137,11 @@ export function EreDocumentsFeed({
                         variant="outline"
                         className={
                           PROCESSING_STATUS_BADGE[doc.processingStatus]
-                            ?.className ??
-                          "border-border text-muted-foreground"
+                            ?.className ?? "border-border text-muted-foreground"
                         }
                       >
-                        {PROCESSING_STATUS_BADGE[doc.processingStatus]
-                          ?.label ?? doc.processingStatus}
+                        {PROCESSING_STATUS_BADGE[doc.processingStatus]?.label ??
+                          doc.processingStatus}
                       </Badge>
                     ) : (
                       <span className="text-muted-foreground">--</span>

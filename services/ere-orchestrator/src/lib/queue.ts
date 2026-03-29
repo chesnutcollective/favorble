@@ -1,7 +1,12 @@
 import postgres from "postgres";
 
 export type JobType = "ere_pull" | "ere_status_check" | "ere_submit";
-export type JobStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
+export type JobStatus =
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 export interface Job {
   id: string;
@@ -46,7 +51,9 @@ function getClient(): ReturnType<typeof postgres> {
   if (!sql) {
     const connectionString = getConnectionString();
     if (!connectionString) {
-      throw new Error("DATABASE_URL or POSTGRES_URL environment variable is required");
+      throw new Error(
+        "DATABASE_URL or POSTGRES_URL environment variable is required",
+      );
     }
     sql = postgres(connectionString, {
       max: 10,
@@ -172,7 +179,10 @@ export async function completeJob(
 /**
  * Mark a job as failed with an error message.
  */
-export async function failJob(jobId: string, errorMessage: string): Promise<Job | null> {
+export async function failJob(
+  jobId: string,
+  errorMessage: string,
+): Promise<Job | null> {
   const db = getClient();
   const [job] = await db<Job[]>`
     UPDATE ere_jobs

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const html = readFileSync(
     join(process.cwd(), "concepts/styleguide.html"),
-    "utf-8"
+    "utf-8",
   );
   return new NextResponse(html, {
     headers: { "Content-Type": "text/html" },

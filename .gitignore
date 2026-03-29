@@ -33,3 +33,4 @@ npm-debug.log*
 CLAUDE.local.md
 
 supabase/.temp/
+.env*.local

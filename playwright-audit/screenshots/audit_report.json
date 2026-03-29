@@ -7,16 +7,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/dashboard"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/dashboard"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "02_dashboard.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 2,
@@ -26,16 +20,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/queue"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/queue"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "03_queue.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 3,
@@ -45,16 +33,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/cases"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/cases"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "04_cases.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 4,
@@ -64,16 +46,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/leads"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/leads"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "05_leads.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 5,
@@ -83,16 +59,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/calendar"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/calendar"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "06_calendar.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 6,
@@ -102,16 +72,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/messages"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/messages"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "07_messages.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 7,
@@ -135,16 +99,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/documents"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/documents"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "09_documents.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 9,
@@ -154,16 +112,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/reports"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/reports"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "10_reports.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 10,
@@ -173,16 +125,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/admin/workflows"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/admin/workflows"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "11_admin_workflows.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 11,
@@ -234,16 +180,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/admin/users"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/admin/users"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "15_admin_users.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 15,
@@ -253,16 +193,10 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/admin/integrations"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/admin/integrations"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "16_admin_integrations.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   },
   {
     "index": 16,
@@ -272,15 +206,9 @@
     "consoleErrors": [
       "Failed to load resource: the server responded with a status of 500 ()"
     ],
-    "networkErrors": [
-      "500 https://hogansmith.vercel.app/admin/settings"
-    ],
-    "visibleErrors": [
-      "error occurred"
-    ],
+    "networkErrors": ["500 https://hogansmith.vercel.app/admin/settings"],
+    "visibleErrors": ["error occurred"],
     "screenshotFile": "17_admin_settings.png",
-    "layoutIssues": [
-      "[INFO] sidebar found: false, main found: false"
-    ]
+    "layoutIssues": ["[INFO] sidebar found: false, main found: false"]
   }
 ]

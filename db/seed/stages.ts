@@ -127,8 +127,7 @@ export const defaultStageGroups = [
     name: "Resolution",
     color: "#8B5CF6",
     clientVisibleName: "Case Decision",
-    clientVisibleDescription:
-      "A decision has been made on your case.",
+    clientVisibleDescription: "A decision has been made on your case.",
     stages: [
       {
         name: "Favorable Decision",

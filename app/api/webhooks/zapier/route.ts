@@ -33,8 +33,7 @@ export async function POST(request: NextRequest) {
     // Resolve organization: try slug from payload/header, else fall back to first org
     let organizationId: string | null = null;
     const orgSlug =
-      body.organizationSlug ??
-      request.headers.get("x-organization-slug");
+      body.organizationSlug ?? request.headers.get("x-organization-slug");
 
     if (orgSlug) {
       const [org] = await db
@@ -93,7 +92,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract known fields, store everything else in sourceData
-    const { firstName, lastName, email, phone, source, organizationSlug: _os, ...additionalFields } = body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      source,
+      organizationSlug: _os,
+      ...additionalFields
+    } = body;
 
     const [lead] = await db
       .insert(leads)

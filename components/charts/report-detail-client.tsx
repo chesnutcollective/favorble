@@ -508,7 +508,10 @@ function ReportTable({
         completed: 0,
         overdue: 0,
       }) as { total: number; completed: number; overdue: number };
-      const pending = Math.max(stats.total - stats.completed - stats.overdue, 0);
+      const pending = Math.max(
+        stats.total - stats.completed - stats.overdue,
+        0,
+      );
       return (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -560,7 +563,10 @@ function ReportTable({
 function formatPeriod(period: string): string {
   try {
     const date = new Date(period.trim());
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    });
   } catch {
     return period;
   }

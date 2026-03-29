@@ -162,7 +162,11 @@ export default async function CaseSsaPage({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-purple-100 p-2">
-                <HugeiconsIcon icon={GlobeIcon} size={20} color="rgb(147 51 234)" />
+                <HugeiconsIcon
+                  icon={GlobeIcon}
+                  size={20}
+                  color="rgb(147 51 234)"
+                />
               </div>
               <div>
                 <h3 className="font-medium text-foreground">Chronicle</h3>
@@ -172,11 +176,17 @@ export default async function CaseSsaPage({
               </div>
             </div>
             {hasChronicle ? (
-              <Badge variant="outline" className="text-green-700 border-green-300">
+              <Badge
+                variant="outline"
+                className="text-green-700 border-green-300 bg-green-50 dark:bg-green-950/20"
+              >
                 Connected
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-muted-foreground">
+              <Badge
+                variant="outline"
+                className="text-amber-700 border-amber-300 bg-amber-50 dark:bg-amber-950/20"
+              >
                 Not linked
               </Badge>
             )}
@@ -191,7 +201,11 @@ export default async function CaseSsaPage({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <HugeiconsIcon icon={LinkSquare02Icon} size={16} className="mr-2" />
+                    <HugeiconsIcon
+                      icon={LinkSquare02Icon}
+                      size={16}
+                      className="mr-2"
+                    />
                     Open in Chronicle
                   </a>
                 </Button>
@@ -214,7 +228,14 @@ export default async function CaseSsaPage({
             </div>
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
-              Add a Chronicle URL to this case to enable quick access.
+              Link this case to Chronicle to enable SSA document sync and ERE
+              access.{" "}
+              <a
+                href={`/cases/${caseId}/fields`}
+                className="text-primary hover:underline"
+              >
+                Add Chronicle URL in Fields
+              </a>
             </p>
           )}
         </CardContent>
@@ -226,7 +247,7 @@ export default async function CaseSsaPage({
           <h3 className="font-medium text-foreground mb-4">
             SSA Case Information
           </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-b [&>*]:border-border/40 [&>*:nth-last-child(-n+3)]:border-b-0 sm:[&>*:nth-last-child(-n+2)]:border-b-0 lg:[&>*:nth-last-child(-n+3)]:border-b-0">
             <InfoItem
               label="SSA Claim Number"
               value={caseData.ssaClaimNumber}
@@ -256,10 +277,7 @@ export default async function CaseSsaPage({
                   : null
               }
             />
-            <InfoItem
-              label="Hearing Office"
-              value={caseData.hearingOffice}
-            />
+            <InfoItem label="Hearing Office" value={caseData.hearingOffice} />
             <InfoItem
               label="Administrative Law Judge"
               value={caseData.adminLawJudge}
@@ -289,9 +307,11 @@ function InfoItem({
   value: string | null | undefined;
 }) {
   return (
-    <div>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-sm text-foreground">{value ?? "—"}</p>
+    <div className="py-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value ?? "—"}</p>
     </div>
   );
 }

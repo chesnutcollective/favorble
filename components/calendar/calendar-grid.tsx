@@ -76,10 +76,18 @@ type Props = {
   initialYear: number;
   initialMonth: number;
   onMonthChange: (year: number, month: number) => Promise<CalendarEvent[]>;
-  onRangeChange: (startDate: string, endDate: string) => Promise<CalendarEvent[]>;
+  onRangeChange: (
+    startDate: string,
+    endDate: string,
+  ) => Promise<CalendarEvent[]>;
   onCreateEvent: (data: {
     title: string;
-    eventType: "hearing" | "deadline" | "appointment" | "follow_up" | "reminder";
+    eventType:
+      | "hearing"
+      | "deadline"
+      | "appointment"
+      | "follow_up"
+      | "reminder";
     startAt: string;
     endAt?: string;
     caseId?: string;
@@ -87,7 +95,9 @@ type Props = {
     description?: string;
   }) => Promise<unknown>;
   onSyncOutlook: () => Promise<{ imported: number; error?: string }>;
-  onSendReminder: (eventId: string) => Promise<{ success: boolean; error?: string }>;
+  onSendReminder: (
+    eventId: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   caseOptions: Array<{ id: string; caseNumber: string }>;
   outlookConfigured: boolean;
 };
@@ -156,32 +166,23 @@ export function CalendarGrid({
 
   // Events for the selected day
   const selectedDayEvents = selectedDay
-    ? eventsByDate.get(format(selectedDay, "yyyy-MM-dd")) ?? []
+    ? (eventsByDate.get(format(selectedDay, "yyyy-MM-dd")) ?? [])
     : [];
 
   function refreshEvents(date: Date, mode: ViewMode) {
     startTransition(async () => {
       if (mode === "month") {
-        const result = await onMonthChange(
-          date.getFullYear(),
-          date.getMonth(),
-        );
+        const result = await onMonthChange(date.getFullYear(), date.getMonth());
         setEvents(result);
       } else if (mode === "week") {
         const ws = startOfWeek(date);
         const we = endOfWeek(date);
-        const result = await onRangeChange(
-          ws.toISOString(),
-          we.toISOString(),
-        );
+        const result = await onRangeChange(ws.toISOString(), we.toISOString());
         setEvents(result);
       } else {
         const ds = startOfDay(date);
         const de = endOfDay(date);
-        const result = await onRangeChange(
-          ds.toISOString(),
-          de.toISOString(),
-        );
+        const result = await onRangeChange(ds.toISOString(), de.toISOString());
         setEvents(result);
       }
     });
@@ -217,9 +218,7 @@ export function CalendarGrid({
   function handleDayClick(clickedDay: Date) {
     if (viewMode === "month") {
       setSelectedDay(
-        selectedDay && isSameDay(selectedDay, clickedDay)
-          ? null
-          : clickedDay,
+        selectedDay && isSameDay(selectedDay, clickedDay) ? null : clickedDay,
       );
     } else {
       // In week view, clicking a day switches to day view
@@ -270,7 +269,9 @@ export function CalendarGrid({
     if (result.error) {
       setSyncMessage(result.error);
     } else {
-      setSyncMessage(`Imported ${result.imported} event${result.imported !== 1 ? "s" : ""} from Outlook`);
+      setSyncMessage(
+        `Imported ${result.imported} event${result.imported !== 1 ? "s" : ""} from Outlook`,
+      );
       refreshEvents(currentDate, viewMode);
     }
     setTimeout(() => setSyncMessage(null), 4000);
@@ -482,7 +483,9 @@ export function CalendarGrid({
                   }`}
                 >
                   <div>{format(wd, "EEE")}</div>
-                  <div className={`text-lg ${isToday(wd) ? "bg-primary text-primary-foreground rounded-full w-8 h-8 inline-flex items-center justify-center" : ""}`}>
+                  <div
+                    className={`text-lg ${isToday(wd) ? "bg-primary text-primary-foreground rounded-full w-8 h-8 inline-flex items-center justify-center" : ""}`}
+                  >
                     {format(wd, "d")}
                   </div>
                 </button>
@@ -732,9 +735,7 @@ export function CalendarGrid({
                     id="evt-type"
                     value={newType}
                     onChange={(e) =>
-                      setNewType(
-                        e.target.value as typeof newType,
-                      )
+                      setNewType(e.target.value as typeof newType)
                     }
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >

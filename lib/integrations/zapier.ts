@@ -34,7 +34,10 @@ export function validatePayload(
   const payload = body as Record<string, unknown>;
 
   if (!payload.firstName || typeof payload.firstName !== "string") {
-    return { valid: false, error: "firstName is required and must be a string" };
+    return {
+      valid: false,
+      error: "firstName is required and must be a string",
+    };
   }
 
   if (!payload.lastName || typeof payload.lastName !== "string") {

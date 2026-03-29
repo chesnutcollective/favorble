@@ -204,9 +204,7 @@ export async function executeStageWorkflows(
  * Preview what workflows would fire for a stage transition.
  * Used in the confirmation dialog before a stage change.
  */
-export async function previewStageWorkflows(
-  newStageId: string,
-): Promise<
+export async function previewStageWorkflows(newStageId: string): Promise<
   Array<{
     id: string;
     name: string;

@@ -25,8 +25,7 @@ const REPORT_META: Record<string, { title: string; description: string }> = {
   },
   "time-in-stage": {
     title: "Average Time in Stage",
-    description:
-      "Average number of days cases spend in each pipeline stage.",
+    description: "Average number of days cases spend in each pipeline stage.",
   },
   "cases-over-time": {
     title: "Cases Over Time",

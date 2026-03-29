@@ -43,7 +43,9 @@ export default async function SettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Name</p>
-              <p className="mt-0.5 text-sm text-foreground">{org?.name ?? "—"}</p>
+              <p className="mt-0.5 text-sm text-foreground">
+                {org?.name ?? "—"}
+              </p>
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground">Slug</p>
@@ -52,7 +54,9 @@ export default async function SettingsPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Created</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Created
+              </p>
               <p className="mt-0.5 text-sm text-foreground">
                 {org?.createdAt.toLocaleDateString() ?? "—"}
               </p>
@@ -93,7 +97,9 @@ export default async function SettingsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-medium text-foreground mb-2">System Information</h3>
+          <h3 className="font-medium text-foreground mb-2">
+            System Information
+          </h3>
           <div className="grid gap-3 sm:grid-cols-2 text-sm">
             <div>
               <span className="text-muted-foreground">Framework:</span>{" "}

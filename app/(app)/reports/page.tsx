@@ -107,7 +107,9 @@ export default async function ReportsPage() {
                 key={status}
                 className="rounded-md border border-border p-3 text-center"
               >
-                <p className="text-2xl font-semibold text-foreground">{count}</p>
+                <p className="text-2xl font-semibold text-foreground">
+                  {count}
+                </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {status.replace(/_/g, " ")}
                 </p>

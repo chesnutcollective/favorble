@@ -85,7 +85,7 @@ async function triggerDocumentPickupCheck(): Promise<TriggerResult> {
 
 async function main() {
   console.log(
-    `[ere-cron] Starting scheduled run at ${new Date().toISOString()}`
+    `[ere-cron] Starting scheduled run at ${new Date().toISOString()}`,
   );
   console.log(`[ere-cron] Orchestrator URL: ${ORCHESTRATOR_URL}`);
 

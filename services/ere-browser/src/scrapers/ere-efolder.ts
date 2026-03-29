@@ -17,42 +17,63 @@ export interface EFolderResult {
   error?: string;
 }
 
-export async function navigateEFolder(page: Page, ssn: string): Promise<EFolderResult> {
+export async function navigateEFolder(
+  page: Page,
+  ssn: string,
+): Promise<EFolderResult> {
   try {
     console.log(`Navigating to eFolder for SSN ending in ${ssn.slice(-4)}...`);
 
     // Navigate to ERE home first to verify authentication
-    await page.goto("https://secure.ssa.gov/apps9/ERE/home.do", { waitUntil: "networkidle" });
+    await page.goto("https://secure.ssa.gov/apps9/ERE/home.do", {
+      waitUntil: "networkidle",
+    });
     await humanDelay(page);
 
     const pageType = await classifyPage(page);
 
-    if (pageType === "ere_session_expired" || pageType === "login_gov_email" || pageType === "login_gov_password") {
-      return { success: false, error: "Session expired — re-authentication required" };
+    if (
+      pageType === "ere_session_expired" ||
+      pageType === "login_gov_email" ||
+      pageType === "login_gov_password"
+    ) {
+      return {
+        success: false,
+        error: "Session expired — re-authentication required",
+      };
     }
     if (pageType === "ere_maintenance") {
       return { success: false, error: "ERE is in maintenance mode" };
     }
     if (pageType !== "ere_home") {
-      return { success: false, error: `Unexpected page state: ${pageType} (URL: ${page.url()})` };
+      return {
+        success: false,
+        error: `Unexpected page state: ${pageType} (URL: ${page.url()})`,
+      };
     }
 
     // Navigate to eFolder section
     console.log("Navigating to eFolder search...");
     try {
-      const efolderLink = page.getByRole("link", { name: /efolder|electronic folder/i })
+      const efolderLink = page
+        .getByRole("link", { name: /efolder|electronic folder/i })
         .or(page.locator('a[href*="eFol"]'))
         .or(page.locator('a[href*="efol"]'));
       await efolderLink.click();
       await page.waitForLoadState("networkidle");
       await humanDelay(page);
     } catch (error) {
-      return { success: false, error: `Failed to navigate to eFolder: ${error instanceof Error ? error.message : "unknown"}` };
+      return {
+        success: false,
+        error: `Failed to navigate to eFolder: ${error instanceof Error ? error.message : "unknown"}`,
+      };
     }
 
     // Handle agreement/disclaimer page if it appears
     try {
-      const agreeButton = page.getByRole("button", { name: /agree|accept|i accept|continue/i });
+      const agreeButton = page.getByRole("button", {
+        name: /agree|accept|i accept|continue/i,
+      });
       if (await agreeButton.isVisible({ timeout: 3000 })) {
         console.log("Accepting eFolder agreement...");
         await agreeButton.click();
@@ -67,14 +88,22 @@ export async function navigateEFolder(page: Page, ssn: string): Promise<EFolderR
     console.log("Entering SSN in search...");
     try {
       // SSN fields can be split into 3 parts or a single field
-      const singleInput = page.locator('input[name*="ssn"]').or(page.getByLabel(/social security/i));
-      const ssnPart1 = page.locator('input[name*="ssn1"]').or(page.locator('input[name*="ssnArea"]'));
+      const singleInput = page
+        .locator('input[name*="ssn"]')
+        .or(page.getByLabel(/social security/i));
+      const ssnPart1 = page
+        .locator('input[name*="ssn1"]')
+        .or(page.locator('input[name*="ssnArea"]'));
 
       if (await ssnPart1.isVisible({ timeout: 3000 })) {
         // Split SSN fields (XXX-XX-XXXX)
         const cleanSSN = ssn.replace(/\D/g, "");
-        const ssnPart2 = page.locator('input[name*="ssn2"]').or(page.locator('input[name*="ssnGroup"]'));
-        const ssnPart3 = page.locator('input[name*="ssn3"]').or(page.locator('input[name*="ssnSerial"]'));
+        const ssnPart2 = page
+          .locator('input[name*="ssn2"]')
+          .or(page.locator('input[name*="ssnGroup"]'));
+        const ssnPart3 = page
+          .locator('input[name*="ssn3"]')
+          .or(page.locator('input[name*="ssnSerial"]'));
 
         await ssnPart1.fill(cleanSSN.substring(0, 3));
         await humanDelay(page, 200, 500);
@@ -84,18 +113,26 @@ export async function navigateEFolder(page: Page, ssn: string): Promise<EFolderR
       } else if (await singleInput.isVisible({ timeout: 3000 })) {
         await singleInput.fill(ssn);
       } else {
-        return { success: false, error: "Could not find SSN input field on eFolder page" };
+        return {
+          success: false,
+          error: "Could not find SSN input field on eFolder page",
+        };
       }
 
       await humanDelay(page, 500, 1500);
 
       // Submit the search
-      const searchButton = page.getByRole("button", { name: /search|submit|go|find/i });
+      const searchButton = page.getByRole("button", {
+        name: /search|submit|go|find/i,
+      });
       await searchButton.click();
       await page.waitForLoadState("networkidle");
       await humanDelay(page);
     } catch (error) {
-      return { success: false, error: `Failed to search by SSN: ${error instanceof Error ? error.message : "unknown"}` };
+      return {
+        success: false,
+        error: `Failed to search by SSN: ${error instanceof Error ? error.message : "unknown"}`,
+      };
     }
 
     // Check for timeout warning after search
@@ -106,13 +143,17 @@ export async function navigateEFolder(page: Page, ssn: string): Promise<EFolderR
         await page.waitForLoadState("networkidle");
         await humanDelay(page);
       } catch {
-        return { success: false, error: "Session timeout warning appeared and could not be dismissed" };
+        return {
+          success: false,
+          error: "Session timeout warning appeared and could not be dismissed",
+        };
       }
     }
 
     // Click "Show All" to expand all sections
     try {
-      const showAllButton = page.getByRole("button", { name: /show all/i })
+      const showAllButton = page
+        .getByRole("button", { name: /show all/i })
         .or(page.getByRole("link", { name: /show all/i }))
         .or(page.locator('a:has-text("Show All")'));
 
@@ -129,7 +170,9 @@ export async function navigateEFolder(page: Page, ssn: string): Promise<EFolderR
     // Extract claimant name if visible
     let claimantName: string | undefined;
     try {
-      const nameEl = page.locator(".claimant-name, [class*=claimant], [id*=claimant]").first();
+      const nameEl = page
+        .locator(".claimant-name, [class*=claimant], [id*=claimant]")
+        .first();
       if (await nameEl.isVisible({ timeout: 2000 })) {
         claimantName = (await nameEl.textContent())?.trim();
       }
@@ -169,7 +212,9 @@ async function extractDocuments(page: Page): Promise<EFolderDocument[]> {
       }> = [];
 
       // Try table rows first
-      const rows = document.querySelectorAll("table tr, .document-row, [class*='doc-row']");
+      const rows = document.querySelectorAll(
+        "table tr, .document-row, [class*='doc-row']",
+      );
       for (const row of rows) {
         const cells = row.querySelectorAll("td");
         if (cells.length >= 3) {
@@ -190,7 +235,12 @@ async function extractDocuments(page: Page): Promise<EFolderDocument[]> {
     });
 
     // Filter out empty/header rows
-    return documents.filter((doc) => doc.name && doc.name.length > 0 && !doc.name.toLowerCase().includes("document name"));
+    return documents.filter(
+      (doc) =>
+        doc.name &&
+        doc.name.length > 0 &&
+        !doc.name.toLowerCase().includes("document name"),
+    );
   } catch (error) {
     console.error("Failed to extract documents:", error);
     return [];

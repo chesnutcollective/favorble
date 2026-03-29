@@ -1,7 +1,12 @@
 import type { Page } from "playwright";
-import { classifyPage, humanDelay, type PageType } from "../browser/page-classifier.js";
+import {
+  classifyPage,
+  humanDelay,
+  type PageType,
+} from "../browser/page-classifier.js";
 
-const ERE_LOGIN_URL = "https://secure.ssa.gov/acu/iresear/login?URL=/apps9/ERE/home.do";
+const ERE_LOGIN_URL =
+  "https://secure.ssa.gov/acu/iresear/login?URL=/apps9/ERE/home.do";
 
 export interface LoginCredentials {
   email: string;
@@ -15,7 +20,10 @@ export interface LoginResult {
   error?: string;
 }
 
-export async function loginToERE(page: Page, credentials: LoginCredentials): Promise<LoginResult> {
+export async function loginToERE(
+  page: Page,
+  credentials: LoginCredentials,
+): Promise<LoginResult> {
   try {
     console.log("Starting ERE login flow...");
 
@@ -28,7 +36,11 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
 
     // Handle unexpected states early
     if (pageType === "ere_maintenance") {
-      return { success: false, pageType, error: "ERE is currently in maintenance mode" };
+      return {
+        success: false,
+        pageType,
+        error: "ERE is currently in maintenance mode",
+      };
     }
     if (pageType === "ere_access_denied") {
       return { success: false, pageType, error: "Access denied to ERE" };
@@ -46,11 +58,17 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
       try {
         await page.getByLabel("Email address").fill(credentials.email);
         await humanDelay(page, 500, 1500);
-        await page.getByRole("button", { name: /sign in|submit|continue/i }).click();
+        await page
+          .getByRole("button", { name: /sign in|submit|continue/i })
+          .click();
         await page.waitForLoadState("networkidle");
         await humanDelay(page);
       } catch (error) {
-        return { success: false, pageType, error: `Failed at email step: ${error instanceof Error ? error.message : "unknown"}` };
+        return {
+          success: false,
+          pageType,
+          error: `Failed at email step: ${error instanceof Error ? error.message : "unknown"}`,
+        };
       }
 
       pageType = await classifyPage(page);
@@ -63,11 +81,17 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
       try {
         await page.getByLabel("Password").fill(credentials.password);
         await humanDelay(page, 500, 1500);
-        await page.getByRole("button", { name: /sign in|submit|continue/i }).click();
+        await page
+          .getByRole("button", { name: /sign in|submit|continue/i })
+          .click();
         await page.waitForLoadState("networkidle");
         await humanDelay(page);
       } catch (error) {
-        return { success: false, pageType, error: `Failed at password step: ${error instanceof Error ? error.message : "unknown"}` };
+        return {
+          success: false,
+          pageType,
+          error: `Failed at password step: ${error instanceof Error ? error.message : "unknown"}`,
+        };
       }
 
       pageType = await classifyPage(page);
@@ -77,7 +101,11 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
     // Step 3: MFA / TOTP
     if (pageType === "login_gov_mfa") {
       if (!credentials.totpSecret) {
-        return { success: false, pageType, error: "MFA required but no TOTP secret provided" };
+        return {
+          success: false,
+          pageType,
+          error: "MFA required but no TOTP secret provided",
+        };
       }
 
       console.log("Generating and entering TOTP code...");
@@ -85,7 +113,8 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
         const totpCode = generateTOTP(credentials.totpSecret);
 
         // Look for the OTP input field
-        const otpInput = page.getByLabel(/one-time code|security code|authentication code/i)
+        const otpInput = page
+          .getByLabel(/one-time code|security code|authentication code/i)
           .or(page.locator('input[name="code"]'))
           .or(page.locator('input[type="tel"]'));
 
@@ -102,11 +131,17 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
           // Checkbox not present, continue
         }
 
-        await page.getByRole("button", { name: /submit|continue|verify/i }).click();
+        await page
+          .getByRole("button", { name: /submit|continue|verify/i })
+          .click();
         await page.waitForLoadState("networkidle");
         await humanDelay(page);
       } catch (error) {
-        return { success: false, pageType, error: `Failed at MFA step: ${error instanceof Error ? error.message : "unknown"}` };
+        return {
+          success: false,
+          pageType,
+          error: `Failed at MFA step: ${error instanceof Error ? error.message : "unknown"}`,
+        };
       }
 
       pageType = await classifyPage(page);
@@ -121,7 +156,9 @@ export async function loginToERE(page: Page, credentials: LoginCredentials): Pro
 
     // If we ended up somewhere unexpected, wait a bit and re-check
     // (SSA can be slow with redirects)
-    console.log(`Unexpected page after login flow: ${pageType}. Waiting for possible redirect...`);
+    console.log(
+      `Unexpected page after login flow: ${pageType}. Waiting for possible redirect...`,
+    );
     try {
       await page.waitForURL(/ERE|ere/i, { timeout: 15_000 });
       pageType = await classifyPage(page);

@@ -45,6 +45,12 @@
 	--green: #2b8a3e;
 	--green-subtle: rgba(43,138,62,0.08);
 
+	/* ── Domain semantic (oklch) ── */
+	--urgent: oklch(0.65 0.2 25);
+	--success: oklch(0.75 0.15 155);
+	--warning: oklch(0.8 0.15 85);
+	--info: oklch(0.7 0.15 250);
+
 	/* ── Shadows (brand-tinted) ── */
 	--shadow-xs: 0 1px 2px rgba(59,89,152,0.06);
 	--shadow-sm: 0 1px 3px rgba(59,89,152,0.07), 0 1px 2px rgba(0,0,0,0.02);
@@ -175,6 +181,12 @@
 	--color-sidebar-primary: var(--sidebar-primary);
 	--color-sidebar-foreground: var(--sidebar-foreground);
 	--color-sidebar: var(--sidebar);
+
+	/* ── Domain semantic colors (Tailwind utilities) ── */
+	--color-urgent: var(--urgent);
+	--color-success: var(--success);
+	--color-warning: var(--warning);
+	--color-info: var(--info);
 }
 
 @layer base {
@@ -186,6 +198,16 @@
 		font-optical-sizing: auto;
 		font-feature-settings: "calt" 1, "kern" 1;
 		line-height: 1.48;
+	}
+	/* ── Typography: distinctive heading treatment ── */
+	h1 {
+		@apply font-semibold tracking-tight;
+	}
+	h2 {
+		@apply font-semibold tracking-tight;
+	}
+	h3 {
+		@apply font-medium tracking-tight;
 	}
 }
 
@@ -210,6 +232,15 @@
 		font-weight: 500;
 		letter-spacing: 0.02em;
 		color: var(--text-3);
+	}
+	/* Tabular nums for stat cards and numeric alignment */
+	.font-stat {
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.01em;
+	}
+	/* Page subtitle helper */
+	.text-subtitle {
+		color: var(--muted-foreground);
 	}
 }
 

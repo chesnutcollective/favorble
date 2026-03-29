@@ -14,11 +14,7 @@ async function fetchCaseMessages(caseId: string) {
   return db
     .select()
     .from(communications)
-    .where(
-      and(
-        eq(communications.caseId, caseId),
-      ),
-    )
+    .where(and(eq(communications.caseId, caseId)))
     .orderBy(desc(communications.createdAt));
 }
 

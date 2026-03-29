@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
 export default async function CaseDetailPage({
-	params,
+  params,
 }: {
-	params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
-	redirect(`/cases/${id}/overview`);
+  const { id } = await params;
+  redirect(`/cases/${id}/overview`);
 }

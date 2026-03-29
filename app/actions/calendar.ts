@@ -149,7 +149,10 @@ export async function createCalendarEvent(data: {
  * Fetch events from Outlook and import them into the app.
  * Returns the count of newly imported events.
  */
-export async function syncFromOutlook(): Promise<{ imported: number; error?: string }> {
+export async function syncFromOutlook(): Promise<{
+  imported: number;
+  error?: string;
+}> {
   const session = await requireSession();
 
   if (!outlook.isConfigured()) {
@@ -174,7 +177,9 @@ export async function syncFromOutlook(): Promise<{ imported: number; error?: str
     );
 
     if (!response.ok) {
-      logger.error("Outlook calendar fetch failed", { status: response.status });
+      logger.error("Outlook calendar fetch failed", {
+        status: response.status,
+      });
       return { imported: 0, error: "Failed to fetch events from Outlook" };
     }
 
@@ -328,7 +333,10 @@ export async function sendHearingReminder(eventId: string): Promise<{
       senderName,
     );
     if (!result.success) {
-      return { success: false, error: "Failed to send reminder via Case Status" };
+      return {
+        success: false,
+        error: "Failed to send reminder via Case Status",
+      };
     }
   }
 
@@ -390,7 +398,10 @@ export async function getUpcomingEvents(limit = 5) {
 /**
  * Fetch events for a specific date range (used by week/day views).
  */
-export async function getCalendarEventsForRange(startDate: string, endDate: string) {
+export async function getCalendarEventsForRange(
+  startDate: string,
+  endDate: string,
+) {
   const session = await requireSession();
 
   const start = new Date(startDate);

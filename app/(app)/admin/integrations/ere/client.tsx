@@ -60,14 +60,14 @@ export function EreCredentialsClient({
       />
 
       {/* Security notice */}
-      <Card>
+      <Card className="border-l-[3px] border-l-blue-400 bg-gradient-to-r from-blue-50/40 to-transparent dark:from-blue-950/20">
         <CardContent className="p-6">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-muted p-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100/60 dark:bg-blue-900/30">
               <HugeiconsIcon
                 icon={ShieldKeyIcon}
-                size={20}
-                className="text-primary"
+                size={22}
+                className="text-blue-600 dark:text-blue-400"
               />
             </div>
             <p className="text-sm text-muted-foreground">
@@ -84,6 +84,37 @@ export function EreCredentialsClient({
           icon={ShieldKeyIcon}
           title="No ERE credentials configured"
           description="Add your SSA Login.gov credentials to enable automatic case monitoring."
+          accent="blue"
+          bordered
+          action={<AddCredentialDialog />}
+          secondary={
+            <div className="mt-2 flex flex-col items-center gap-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                How to get your credentials:
+              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
+                  1
+                </span>
+                <span>Log into login.gov</span>
+                <span className="text-muted-foreground/40">&rarr;</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
+                  2
+                </span>
+                <span>Add authenticator app</span>
+                <span className="text-muted-foreground/40">&rarr;</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
+                  3
+                </span>
+                <span>Copy TOTP secret</span>
+                <span className="text-muted-foreground/40">&rarr;</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
+                  4
+                </span>
+                <span>Paste here</span>
+              </div>
+            </div>
+          }
         />
       ) : (
         <div className="grid gap-4">
@@ -116,7 +147,10 @@ function CredentialCard({ credential }: { credential: Credential }) {
         const result = await testEreCredential(credential.id);
         setTestResult(result);
       } catch {
-        setTestResult({ success: false, message: "Failed to test connection." });
+        setTestResult({
+          success: false,
+          message: "Failed to test connection.",
+        });
       }
     });
   }
@@ -166,10 +200,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
 
   const statusBadge = {
     active: (
-      <Badge
-        variant="outline"
-        className="border-green-300 text-green-700"
-      >
+      <Badge variant="outline" className="border-green-300 text-green-700">
         Active
       </Badge>
     ),
@@ -302,11 +333,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
                 className="text-red-600 hover:text-red-700"
                 disabled={isPending}
               >
-                <HugeiconsIcon
-                  icon={Delete01Icon}
-                  size={14}
-                  className="mr-1"
-                />
+                <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-1" />
                 Delete
               </Button>
             </DialogTrigger>
