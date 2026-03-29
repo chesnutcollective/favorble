@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -160,6 +160,10 @@ export function CasesListClient({
   const [assignedToFilter, setAssignedToFilter] = useState(initialAssignedTo);
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDir, setSortDir] = useState<"asc" | "desc">(initialSortDir);
+
+  // Sync when URL searchParams change (e.g., sidebar panel navigation)
+  useEffect(() => { setStageFilter(initialStageId); }, [initialStageId]);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [bulkStageOpen, setBulkStageOpen] = useState(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,10 @@ export function ContactsListClient({
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
   const [typeFilter, setTypeFilter] = useState(initialType);
+
+  // Sync when URL searchParams change (e.g., sidebar panel navigation)
+  useEffect(() => { setTypeFilter(initialType); }, [initialType]);
+  useEffect(() => { setSearch(initialSearch); }, [initialSearch]);
 
   const totalPages = Math.ceil(total / pageSize);
 

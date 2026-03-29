@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DocumentList,
   type DocumentItem,
@@ -24,6 +24,11 @@ export function GlobalDocumentsClient({
   initialSource,
 }: GlobalDocumentsClientProps) {
   const [sourceFilter, setSourceFilter] = useState<string | null>(initialSource ?? null);
+
+  // Sync filter when URL searchParams change (e.g., panel navigation)
+  useEffect(() => {
+    setSourceFilter(initialSource ?? null);
+  }, [initialSource]);
   const [previewDoc, setPreviewDoc] = useState<{
     fileName: string;
     fileType: string;

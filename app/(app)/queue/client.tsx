@@ -188,6 +188,12 @@ export function QueueClient({
   const [activeTab, setActiveTab] = useState(
     initialTab && VALID_TABS.includes(initialTab) ? initialTab : "all",
   );
+
+  // Sync when URL searchParams change (e.g., sidebar panel navigation)
+  useEffect(() => {
+    if (initialTab && VALID_TABS.includes(initialTab)) setActiveTab(initialTab);
+  }, [initialTab]);
+
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedTask, setSelectedTask] = useState<QueueTask | null>(null);
