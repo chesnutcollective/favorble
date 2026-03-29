@@ -89,7 +89,9 @@ export async function GET(request: NextRequest) {
   ) as EntityType | null;
   const limitParam = request.nextUrl.searchParams.get("limit");
 
-  if (!rawQ || rawQ.length < 2) {
+  const isBrowseMode = rawQ === "*";
+
+  if (!rawQ || (!isBrowseMode && rawQ.length < 2)) {
     return NextResponse.json({
       results: {
         cases: [],
@@ -105,7 +107,7 @@ export async function GET(request: NextRequest) {
   }
 
   const q: string = rawQ;
-  const pattern = `%${q}%`;
+  const pattern = isBrowseMode ? "%" : `%${q}%`;
 
   function shouldSearch(type: EntityType): boolean {
     return !typeFilter || typeFilter === type;

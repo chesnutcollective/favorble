@@ -639,7 +639,7 @@ export function GlobalSearch() {
 
   const isCommandMode = query.startsWith(">");
 
-  // Load recents when dialog opens
+  // Load recents + suggested items when dialog opens
   useEffect(() => {
     if (open) {
       setRecents(loadRecents());
@@ -648,8 +648,24 @@ export function GlobalSearch() {
       setTopHit(null);
       setFilter("all");
       setSelectedIndex(0);
+      // Pre-fetch suggested results (recent cases, contacts, tasks)
+      fetchSuggestions();
     }
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [suggestions, setSuggestions] = useState<SearchResultItem[]>([]);
+
+  const fetchSuggestions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/search?q=*&limit=12");
+      if (res.ok) {
+        const data: APISearchResults = await res.json();
+        setSuggestions(transformAPIResults(data));
+      }
+    } catch {
+      // Silently fail
+    }
+  }, []);
 
   // Cmd+K keyboard shortcut
   useEffect(() => {
@@ -856,6 +872,7 @@ export function GlobalSearch() {
   const showResults = hasQuery && filteredResults.length > 0;
   const showEmpty = hasQuery && !isSearching && filteredResults.length === 0;
   const showRecents = !query && recents.length > 0;
+  const showSuggestions = !query && suggestions.length > 0;
   const showQuickActions = !query;
   const showCommands = isCommandMode;
   const showPreviewPanel =
@@ -1175,6 +1192,44 @@ export function GlobalSearch() {
                             <span className="text-[10px] text-[#CCC] shrink-0">
                               {formatTimeAgo(r.timestamp)}
                             </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Suggested items from DB */}
+                    {showSuggestions && (
+                      <div className="mb-1">
+                        <div className="px-2 pb-1 pt-1">
+                          <span className="text-[11px] font-medium uppercase tracking-wider text-[#999]">
+                            Suggested
+                          </span>
+                        </div>
+                        {suggestions.slice(0, 6).map((s) => (
+                          <button
+                            key={`${s.type}-${s.id}`}
+                            type="button"
+                            onClick={() => navigate(s.href, { id: s.id, type: s.type, title: s.title, subtitle: s.subtitle, href: s.href, timestamp: Date.now() })}
+                            className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors duration-75 hover:bg-[#FAFAFA]"
+                          >
+                            <span className="text-[13px] shrink-0 w-5 text-center">
+                              {typeIcon(s.type)}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[13px] font-medium text-[#111] truncate">
+                                {s.title}
+                              </p>
+                              {s.subtitle && (
+                                <p className="text-[11px] text-[#999] truncate">
+                                  {s.subtitle}
+                                </p>
+                              )}
+                            </div>
+                            {s.badge && (
+                              <span className="text-[10px] font-mono text-[#999] shrink-0">
+                                {s.badge}
+                              </span>
+                            )}
                           </button>
                         ))}
                       </div>
