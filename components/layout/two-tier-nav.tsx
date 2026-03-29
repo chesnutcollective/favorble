@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -325,7 +325,7 @@ export function TwoTierNav({
             <ContactsPanel active={visiblePanel === "contacts"} />
 
             {/* Documents Panel */}
-            <DocumentsPanel active={visiblePanel === "documents"} />
+            <DocumentsPanel active={visiblePanel === "documents"} navData={navData} />
 
             {/* Reports Panel */}
             <ReportsPanel active={visiblePanel === "reports"} />
@@ -1361,8 +1361,17 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
 }
 
 function ContactsPanel({ active }: { active: boolean }) {
+  const router = useRouter();
+  const typeMap: Record<string, string> = {
+    "All": "",
+    "Claimants": "claimant",
+    "Providers": "medical_provider",
+    "Attorneys": "attorney",
+    "SSA": "ssa_office",
+    "Experts": "expert",
+  };
   const [activeFilter, setActiveFilter] = useState("All");
-  const filters = ["All", "Claimants", "Providers", "Attorneys", "SSA"];
+  const filters = ["All", "Claimants", "Providers", "Attorneys", "SSA", "Experts"];
 
   const contacts = [
     { initials: "RM", name: "Rosa Martinez", type: "Claimant", cases: 1 },
@@ -1382,7 +1391,11 @@ function ContactsPanel({ active }: { active: boolean }) {
           <button
             key={filter}
             type="button"
-            onClick={() => setActiveFilter(filter)}
+            onClick={() => {
+              setActiveFilter(filter);
+              const typeValue = typeMap[filter];
+              router.push(typeValue ? `/contacts?type=${typeValue}` : "/contacts");
+            }}
             style={{
               fontSize: 10,
               fontWeight: 500,
@@ -1473,23 +1486,32 @@ function ContactsPanel({ active }: { active: boolean }) {
   );
 }
 
-function DocumentsPanel({ active }: { active: boolean }) {
-  const [activeCategory, setActiveCategory] = useState<string | null>("Medical Records");
+function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+  const router = useRouter();
+  const docData = navData?.documentSummary;
 
-  const categories = [
-    { name: "Medical Records", count: 84 },
-    { name: "SSA Correspondence", count: 52 },
-    { name: "Hearing Notices", count: 28 },
-    { name: "Decisions", count: 15 },
-    { name: "Legal Filings", count: 31 },
-    { name: "Other", count: 37 },
+  const sources = [
+    { key: "upload", label: "Uploaded" },
+    { key: "ere", label: "ERE" },
+    { key: "chronicle", label: "Chronicle" },
+    { key: "template", label: "Template" },
+    { key: "case_status", label: "Case Status" },
+    { key: "email", label: "Email" },
+    { key: "esignature", label: "eSignature" },
   ];
 
-  const recentUploads = [
-    { name: "Martinez_MedRecords_031528.pdf", type: "pdf", time: "2h ago" },
-    { name: "Thompson_SSA_Decision.docx", type: "doc", time: "5h ago" },
-    { name: "Chen_Billing_Summary.xlsx", type: "xls", time: "1d ago" },
-  ];
+  const recentUploads = (docData?.recentUploads ?? []).map((u) => ({
+    name: u.fileName,
+    type: u.fileType?.includes("pdf") ? "pdf" : u.fileType?.includes("doc") ? "doc" : u.fileType?.includes("xls") ? "xls" : "other",
+    time: formatRelativeTime(u.createdAt),
+  }));
+  if (recentUploads.length === 0) {
+    recentUploads.push(
+      { name: "Martinez_MedRecords.pdf", type: "pdf", time: "2h ago" },
+      { name: "Thompson_Decision.docx", type: "doc", time: "5h ago" },
+      { name: "Chen_Billing.xlsx", type: "xls", time: "1d ago" },
+    );
+  }
 
   const fileTypeColors: Record<string, string> = {
     pdf: "#EF4444",
@@ -1502,25 +1524,20 @@ function DocumentsPanel({ active }: { active: boolean }) {
       <div className="ttn-panel-header">Documents</div>
 
       {/* Stats bar */}
-      <div
-        style={{
-          fontSize: 11,
-          color: "#999",
-          padding: "0 12px 8px",
-        }}
-      >
-        247 documents &middot; 12 pending review
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {docData?.total ?? 0} documents
       </div>
 
-      {/* Category filters */}
-      <div className="ttn-section-label">Categories</div>
+      {/* Source filters */}
+      <div className="ttn-section-label">By Source</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "0 8px" }}>
-        {categories.map((cat) => {
-          const isActive = activeCategory === cat.name;
+        {sources.map((src) => {
+          const count = docData?.bySourceCount?.[src.key] ?? 0;
+          if (count === 0 && !docData) return null;
           return (
             <div
-              key={cat.name}
-              onClick={() => setActiveCategory(cat.name)}
+              key={src.key}
+              onClick={() => router.push(`/documents?source=${src.key}`)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1528,32 +1545,14 @@ function DocumentsPanel({ active }: { active: boolean }) {
                 padding: "5px 8px",
                 borderRadius: 6,
                 cursor: "pointer",
-                backgroundColor: isActive ? "#ECFDF5" : "transparent",
                 transition: "background 0.12s ease",
               }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = "#F0F0F0";
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = "transparent";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#F0F0F0"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
             >
-              <span
-                style={{
-                  fontSize: 12,
-                  color: isActive ? "#059669" : "#555",
-                }}
-              >
-                {cat.name}
-              </span>
-              <span
-                style={{
-                  fontSize: 10,
-                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
-                  color: "#999",
-                }}
-              >
-                {cat.count}
+              <span style={{ fontSize: 12, color: "#555" }}>{src.label}</span>
+              <span style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", color: "#999" }}>
+                {count}
               </span>
             </div>
           );
@@ -1622,7 +1621,7 @@ function DocumentsPanel({ active }: { active: boolean }) {
       {/* Footer links */}
       <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 12px 0" }}>
         <Link
-          href="/documents?action=upload"
+          href="/documents"
           style={{
             fontSize: 12,
             color: "#059669",
@@ -1661,7 +1660,7 @@ function ReportsPanel({ active }: { active: boolean }) {
     },
     {
       name: "Team Performance",
-      slug: "team-performance",
+      slug: "team-member",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
           <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
@@ -1679,7 +1678,7 @@ function ReportsPanel({ active }: { active: boolean }) {
     },
     {
       name: "Case Trends",
-      slug: "case-trends",
+      slug: "cases-over-time",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
           <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
@@ -1716,7 +1715,7 @@ function ReportsPanel({ active }: { active: boolean }) {
         {reportTypes.map((report) => (
           <Link
             key={report.slug}
-            href={`/reports?view=${report.slug}`}
+            href={`/reports/${report.slug}`}
             style={{
               display: "flex",
               alignItems: "center",
