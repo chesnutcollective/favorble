@@ -59,8 +59,6 @@ export default async function FieldsPage() {
           icon={TextField}
           title="No custom fields"
           description="Create custom fields to track team-specific case data."
-          accent="blue"
-          bordered
           action={<NewFieldDialog />}
         />
       ) : (

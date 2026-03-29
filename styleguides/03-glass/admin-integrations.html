@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Integrations (Glassmorphism)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep: #0F172A; --bg-purple: #1E1B4B;
+    --glass-bg: rgba(255,255,255,0.08); --glass-bg-hover: rgba(255,255,255,0.12);
+    --glass-border: rgba(255,255,255,0.12); --glass-border-hover: rgba(255,255,255,0.20);
+    --glass-blur: blur(20px); --glass-blur-heavy: blur(40px);
+    --text-primary: #FFFFFF; --text-secondary: rgba(255,255,255,0.7); --text-tertiary: rgba(255,255,255,0.45);
+    --accent-cyan: #06B6D4; --accent-magenta: #EC4899;
+    --accent-gradient: linear-gradient(135deg, #06B6D4, #EC4899);
+    --status-success: #34D399; --status-warning: #FBBF24; --status-danger: #F87171; --status-info: #60A5FA;
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.3); --shadow-elevated: 0 16px 48px rgba(0,0,0,0.4);
+    --shadow-glow-cyan: 0 0 20px rgba(6,182,212,0.15); --shadow-glow-magenta: 0 0 20px rgba(236,72,153,0.15);
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-pill: 9999px;
+    --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-xs: 11px; --font-size-sm: 12px; --font-size-base: 14px; --font-size-md: 16px;
+    --font-size-lg: 20px; --font-size-xl: 24px; --font-size-2xl: 32px;
+    --sidebar-width: 260px;
+    --transition-fast: 150ms ease; --transition-base: 250ms ease;
+  }
+
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family); color: var(--text-primary); line-height: 1.5;
+    min-height: 100vh; background: var(--bg-deep);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(6,182,212,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(236,72,153,0.10) 0%, transparent 60%),
+      linear-gradient(160deg, #0F172A 0%, #1E1B4B 50%, #0c1631 100%);
+    background-attachment: fixed;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width); position: fixed; top: 0; left: 0; bottom: 0;
+    background: rgba(255,255,255,0.05); backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; z-index: 100; padding: var(--space-lg) 0;
+  }
+  .sidebar-brand { padding: 0 var(--space-lg); margin-bottom: var(--space-xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: var(--font-size-lg); color: white; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-section { margin-bottom: var(--space-lg); }
+  .sidebar-section-title { padding: 0 var(--space-lg); font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-sm); }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item a { display: flex; align-items: center; gap: var(--space-sm); padding: 10px var(--space-lg); color: var(--text-secondary); text-decoration: none; font-size: var(--font-size-base); font-weight: 500; transition: all var(--transition-fast); border-left: 3px solid transparent; }
+  .sidebar-nav-item a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .sidebar-nav-item.active a { color: var(--accent-cyan); background: rgba(6,182,212,0.08); border-left-color: var(--accent-cyan); }
+  .sidebar-nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-badge { margin-left: auto; background: var(--accent-gradient); color: white; font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-pill); }
+  .sidebar-footer { margin-top: auto; padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--glass-border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-avatar { width: 36px; height: 36px; border-radius: var(--radius-pill); background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: var(--font-size-sm); }
+  .sidebar-user-name { font-weight: 500; font-size: var(--font-size-sm); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* Main */
+  .main { margin-left: var(--sidebar-width); flex: 1; padding: var(--space-xl); max-width: 1200px; }
+
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-xl); }
+  .page-title { font-size: var(--font-size-2xl); font-weight: 700; }
+  .page-subtitle { color: var(--text-secondary); font-size: var(--font-size-base); margin-top: var(--space-xs); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-sm); padding: 10px 20px; border-radius: var(--radius-md); font-family: var(--font-family); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; transition: all var(--transition-fast); border: none; text-decoration: none; }
+  .btn-primary { background: var(--accent-gradient); color: white; box-shadow: var(--shadow-glow-cyan); }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(6,182,212,0.3); transform: translateY(-1px); }
+  .btn-glass { background: var(--glass-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); color: var(--text-primary); }
+  .btn-glass:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-hover); }
+  .btn-sm { padding: 6px 14px; font-size: var(--font-size-sm); }
+  .btn-success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.2); color: var(--status-success); }
+  .btn-danger { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--status-danger); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--radius-pill); font-size: var(--font-size-xs); font-weight: 500; }
+  .badge-success { background: rgba(52,211,153,0.15); color: var(--status-success); border: 1px solid rgba(52,211,153,0.2); }
+  .badge-warning { background: rgba(251,191,36,0.15); color: var(--status-warning); border: 1px solid rgba(251,191,36,0.2); }
+  .badge-danger { background: rgba(248,113,113,0.15); color: var(--status-danger); border: 1px solid rgba(248,113,113,0.2); }
+  .badge-info { background: rgba(96,165,250,0.15); color: var(--status-info); border: 1px solid rgba(96,165,250,0.2); }
+  .badge-neutral { background: rgba(255,255,255,0.08); color: var(--text-tertiary); border: 1px solid rgba(255,255,255,0.08); }
+
+  /* Search */
+  .search-wrapper { position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 14px; }
+  .search-input {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 10px 16px 10px 36px; font-family: var(--font-family); font-size: var(--font-size-base);
+    color: var(--text-primary); outline: none; width: 300px; transition: all var(--transition-fast);
+  }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+
+  /* Category Tabs */
+  .category-tabs { display: flex; gap: var(--space-sm); margin-bottom: var(--space-xl); flex-wrap: wrap; }
+  .category-tab {
+    padding: 8px 18px; border-radius: var(--radius-pill);
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 500;
+    color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
+  }
+  .category-tab:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+  .category-tab.active { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border-color: rgba(6,182,212,0.3); }
+
+  /* Integration Cards Grid */
+  .integrations-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-bottom: var(--space-xl); }
+
+  /* Integration Card */
+  .integration-card {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass); padding: var(--space-lg);
+    transition: all var(--transition-base); position: relative; overflow: hidden;
+  }
+  .integration-card:hover {
+    background: var(--glass-bg-hover); border-color: var(--glass-border-hover);
+    transform: translateY(-2px); box-shadow: var(--shadow-elevated);
+  }
+  .integration-card.connected { border-color: rgba(52,211,153,0.2); }
+  .integration-card.connected::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--status-success), transparent);
+  }
+
+  .integration-header { display: flex; align-items: flex-start; gap: var(--space-md); margin-bottom: var(--space-md); }
+  .integration-icon {
+    width: 48px; height: 48px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .integration-icon.blue { background: rgba(96,165,250,0.15); }
+  .integration-icon.green { background: rgba(52,211,153,0.15); }
+  .integration-icon.purple { background: rgba(167,139,250,0.15); }
+  .integration-icon.orange { background: rgba(251,146,60,0.15); }
+  .integration-icon.cyan { background: rgba(6,182,212,0.15); }
+  .integration-icon.pink { background: rgba(236,72,153,0.15); }
+  .integration-icon.red { background: rgba(248,113,113,0.15); }
+  .integration-icon.yellow { background: rgba(251,191,36,0.15); }
+
+  .integration-title-row { flex: 1; }
+  .integration-name { font-size: var(--font-size-md); font-weight: 600; margin-bottom: 2px; }
+  .integration-provider { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  .integration-desc { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--space-md); min-height: 42px; }
+
+  .integration-footer { display: flex; justify-content: space-between; align-items: center; }
+
+  /* Toggle Switch */
+  .toggle {
+    position: relative; width: 44px; height: 24px;
+    background: rgba(255,255,255,0.1); border-radius: 12px;
+    cursor: pointer; transition: all var(--transition-fast);
+  }
+  .toggle.on { background: rgba(52,211,153,0.3); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.5); transition: all var(--transition-fast);
+  }
+  .toggle.on::after { left: 23px; background: var(--status-success); box-shadow: 0 0 8px rgba(52,211,153,0.4); }
+
+  /* Config details */
+  .config-details {
+    margin-top: var(--space-md); padding-top: var(--space-md);
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .config-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; font-size: var(--font-size-xs);
+  }
+  .config-label { color: var(--text-tertiary); }
+  .config-value { color: var(--text-secondary); font-weight: 500; }
+
+  /* Section header */
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); }
+  .section-title { font-size: var(--font-size-lg); font-weight: 600; }
+
+  /* API Key display */
+  .api-key-display {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: 8px 12px; background: rgba(255,255,255,0.04);
+    border-radius: var(--radius-sm); font-family: 'SF Mono', monospace;
+    font-size: var(--font-size-xs); color: var(--text-tertiary);
+  }
+
+  /* Webhook log */
+  .webhook-log {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass); padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+  .log-entry {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: var(--space-sm) 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: var(--font-size-sm);
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .log-status.success { background: var(--status-success); box-shadow: 0 0 6px rgba(52,211,153,0.4); }
+  .log-status.error { background: var(--status-danger); box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+  .log-endpoint { flex: 1; font-family: 'SF Mono', monospace; color: var(--text-secondary); }
+  .log-code { font-family: 'SF Mono', monospace; font-weight: 600; }
+  .log-code.ok { color: var(--status-success); }
+  .log-code.err { color: var(--status-danger); }
+  .log-time { color: var(--text-tertiary); font-size: var(--font-size-xs); min-width: 80px; text-align: right; }
+
+  /* Tokens */
+  .tokens-section { margin-top: var(--space-2xl); padding-top: var(--space-xl); border-top: 1px solid var(--glass-border); }
+  .tokens-section h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-lg); background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .tokens-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+  .token-group h3 { font-size: var(--font-size-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+  .token-name { color: var(--text-secondary); flex: 1; }
+  .token-value { font-family: 'SF Mono', monospace; font-size: var(--font-size-xs); color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Main</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item"><a href="dashboard.html"><span class="sidebar-nav-icon">&#9638;</span> Dashboard</a></li>
+        <li class="sidebar-nav-item"><a href="cases-list.html"><span class="sidebar-nav-icon">&#128194;</span> Cases <span class="sidebar-badge">142</span></a></li>
+        <li class="sidebar-nav-item"><a href="case-detail.html"><span class="sidebar-nav-icon">&#128196;</span> Case Detail</a></li>
+        <li class="sidebar-nav-item"><a href="chronology.html"><span class="sidebar-nav-icon">&#128338;</span> Chronology</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Administration</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item active"><a href="admin-integrations.html"><span class="sidebar-nav-icon">&#9881;</span> Integrations</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128101;</span> Team</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128202;</span> Reports</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">MJ</div>
+        <div>
+          <div class="sidebar-user-name">Maria Johnson</div>
+          <div class="sidebar-user-role">Case Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Integrations</h1>
+        <p class="page-subtitle">Connect your tools and services to streamline your workflow</p>
+      </div>
+      <div style="display:flex;gap:var(--space-sm);">
+        <div class="search-wrapper">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" class="search-input" placeholder="Search integrations...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+      <button class="category-tab active">All Integrations</button>
+      <button class="category-tab">Government &amp; SSA</button>
+      <button class="category-tab">Medical Records</button>
+      <button class="category-tab">Document Management</button>
+      <button class="category-tab">Communication</button>
+      <button class="category-tab">Billing &amp; Payment</button>
+      <button class="category-tab">AI &amp; Automation</button>
+    </div>
+
+    <!-- Connected Integrations -->
+    <div class="section-header">
+      <h2 class="section-title">Connected <span style="color:var(--text-tertiary);font-weight:400;font-size:var(--font-size-base);">(6)</span></h2>
+    </div>
+
+    <div class="integrations-grid">
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon blue">&#127963;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">SSA ERE</div>
+            <div class="integration-provider">Social Security Administration</div>
+          </div>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div class="integration-desc">Electronic Records Express &mdash; submit and retrieve disability case documents directly from SSA.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Last sync</span><span class="config-value">2 min ago</span></div>
+          <div class="config-row"><span class="config-label">Records synced</span><span class="config-value">1,247</span></div>
+        </div>
+      </div>
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon green">&#128196;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">ODAR Hearing</div>
+            <div class="integration-provider">Office of Hearings Operations</div>
+          </div>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div class="integration-desc">Hearing scheduling, ALJ assignment lookup, and hearing office directory integration.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Last sync</span><span class="config-value">15 min ago</span></div>
+          <div class="config-row"><span class="config-label">Upcoming hearings</span><span class="config-value">23</span></div>
+        </div>
+      </div>
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon purple">&#129302;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">Favorble AI</div>
+            <div class="integration-provider">Favorble</div>
+          </div>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div class="integration-desc">AI-powered medical record analysis, chronology generation, and brief drafting assistant.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Model</span><span class="config-value">GPT-4 Turbo</span></div>
+          <div class="config-row"><span class="config-label">Pages analyzed (MTD)</span><span class="config-value">12,450</span></div>
+        </div>
+      </div>
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon cyan">&#128231;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">Microsoft 365</div>
+            <div class="integration-provider">Microsoft</div>
+          </div>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div class="integration-desc">Email, calendar, and document integration. Sync client communications and hearing dates automatically.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Calendars synced</span><span class="config-value">3</span></div>
+          <div class="config-row"><span class="config-label">Email rules active</span><span class="config-value">12</span></div>
+        </div>
+      </div>
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon orange">&#128176;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">LawPay</div>
+            <div class="integration-provider">AffiniPay</div>
+          </div>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div class="integration-desc">Process fee agreements, track past-due balances, and manage contingency fee payments upon favorable decisions.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Pending fees</span><span class="config-value">$34,200</span></div>
+          <div class="config-row"><span class="config-label">Last payment</span><span class="config-value">Mar 25</span></div>
+        </div>
+      </div>
+
+      <div class="integration-card connected">
+        <div class="integration-header">
+          <div class="integration-icon pink">&#128222;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">RingCentral</div>
+            <div class="integration-provider">RingCentral</div>
+          </div>
+          <span class="badge badge-warning">Degraded</span>
+        </div>
+        <div class="integration-desc">VoIP phone system for client calls, call logging, and voicemail transcription integration.</div>
+        <div class="integration-footer">
+          <button class="btn btn-glass btn-sm">Configure</button>
+          <div class="toggle on"></div>
+        </div>
+        <div class="config-details">
+          <div class="config-row"><span class="config-label">Status</span><span class="config-value" style="color:var(--status-warning);">API rate limited</span></div>
+          <div class="config-row"><span class="config-label">Calls logged today</span><span class="config-value">8</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Available Integrations -->
+    <div class="section-header">
+      <h2 class="section-title">Available <span style="color:var(--text-tertiary);font-weight:400;font-size:var(--font-size-base);">(6)</span></h2>
+    </div>
+
+    <div class="integrations-grid">
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon red">&#127973;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">ChartSwap</div>
+            <div class="integration-provider">ChartSwap LLC</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Automated medical record retrieval from hospitals and clinics. Reduces record collection time by 70%.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon yellow">&#128209;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">DocuSign</div>
+            <div class="integration-provider">DocuSign Inc.</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Electronic signatures for fee agreements, medical authorizations, and SSA representation forms.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon blue">&#128202;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">Clio</div>
+            <div class="integration-provider">Themis Solutions</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Practice management sync for time tracking, billing, and conflict checks across your case portfolio.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon green">&#128172;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">Twilio SMS</div>
+            <div class="integration-provider">Twilio</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Automated text message reminders for hearing dates, document deadlines, and appointment confirmations.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon purple">&#128200;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">QuickBooks</div>
+            <div class="integration-provider">Intuit</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Accounting integration for fee tracking, expense management, and financial reporting across cases.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="integration-header">
+          <div class="integration-icon cyan">&#128274;</div>
+          <div class="integration-title-row">
+            <div class="integration-name">Box</div>
+            <div class="integration-provider">Box Inc.</div>
+          </div>
+          <span class="badge badge-neutral">Available</span>
+        </div>
+        <div class="integration-desc">Secure cloud document storage with HIPAA compliance for medical records and sensitive case files.</div>
+        <div class="integration-footer">
+          <button class="btn btn-primary btn-sm">Connect</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Webhook Log -->
+    <div class="section-header">
+      <h2 class="section-title">Recent Webhook Activity</h2>
+      <button class="btn btn-glass btn-sm">View All Logs</button>
+    </div>
+
+    <div class="webhook-log">
+      <div class="log-entry">
+        <div class="log-status success"></div>
+        <span class="log-endpoint">POST /webhooks/ssa-ere/document-received</span>
+        <span class="log-code ok">200</span>
+        <span class="log-time">2 min ago</span>
+      </div>
+      <div class="log-entry">
+        <div class="log-status success"></div>
+        <span class="log-endpoint">POST /webhooks/odar/hearing-update</span>
+        <span class="log-code ok">200</span>
+        <span class="log-time">15 min ago</span>
+      </div>
+      <div class="log-entry">
+        <div class="log-status error"></div>
+        <span class="log-endpoint">POST /webhooks/ringcentral/call-log</span>
+        <span class="log-code err">429</span>
+        <span class="log-time">22 min ago</span>
+      </div>
+      <div class="log-entry">
+        <div class="log-status success"></div>
+        <span class="log-endpoint">POST /webhooks/ms365/calendar-sync</span>
+        <span class="log-code ok">200</span>
+        <span class="log-time">1 hr ago</span>
+      </div>
+      <div class="log-entry">
+        <div class="log-status success"></div>
+        <span class="log-endpoint">POST /webhooks/lawpay/payment-received</span>
+        <span class="log-code ok">200</span>
+        <span class="log-time">3 hrs ago</span>
+      </div>
+    </div>
+
+    <!-- API Keys -->
+    <div class="section-header">
+      <h2 class="section-title">API Keys</h2>
+      <button class="btn btn-primary btn-sm">+ Generate Key</button>
+    </div>
+
+    <div style="background:var(--glass-bg);backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-glass);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div>
+          <div style="font-weight:600;">Production API Key</div>
+          <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px;">Created Jan 15, 2026 &middot; Last used 2 min ago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-md);">
+          <div class="api-key-display">fvbl_prod_****************************a8f2</div>
+          <button class="btn btn-glass btn-sm">Copy</button>
+          <button class="btn btn-danger btn-sm">Revoke</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) 0;">
+        <div>
+          <div style="font-weight:600;">Staging API Key</div>
+          <div style="font-size:var(--font-size-xs);color:var(--text-tertiary);margin-top:2px;">Created Feb 1, 2026 &middot; Last used 1 hr ago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-md);">
+          <div class="api-key-display">fvbl_stg_****************************c3d1</div>
+          <button class="btn btn-glass btn-sm">Copy</button>
+          <button class="btn btn-danger btn-sm">Revoke</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Tokens -->
+    <div class="tokens-section">
+      <h2>Design Tokens &mdash; Glassmorphism</h2>
+      <div class="tokens-grid">
+        <div class="token-group">
+          <h3>Card States</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);"></div>
+            <span class="token-name">Default card</span>
+            <span class="token-value">bg 0.08 / border 0.12</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);"></div>
+            <span class="token-name">Hover card</span>
+            <span class="token-value">bg 0.12 / border 0.20</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.08);border:1px solid rgba(52,211,153,0.2);"></div>
+            <span class="token-name">Connected card</span>
+            <span class="token-value">success border 0.2</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <h3>Integration Status</h3>
+          <div class="token-row"><span class="badge badge-success">Connected</span></div>
+          <div class="token-row"><span class="badge badge-warning">Degraded</span></div>
+          <div class="token-row"><span class="badge badge-danger">Error</span></div>
+          <div class="token-row"><span class="badge badge-neutral">Available</span></div>
+          <div class="token-row"><span class="badge badge-info">Coming Soon</span></div>
+        </div>
+        <div class="token-group">
+          <h3>Button Variants</h3>
+          <div class="token-row"><button class="btn btn-primary btn-sm">Primary</button></div>
+          <div class="token-row"><button class="btn btn-glass btn-sm">Glass</button></div>
+          <div class="token-row"><button class="btn btn-success btn-sm">Success</button></div>
+          <div class="token-row"><button class="btn btn-danger btn-sm">Danger</button></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Cases (Apple HIG v4 Purple Dark)</title>
+<style>
+  :root {
+    --color-accent:#BF5AF2;--color-accent-hover:#D17BF5;--color-accent-light:rgba(191,90,242,0.18);
+    --color-link:#0A84FF;--color-destructive:#FF453A;--color-success:#30D158;--color-warning:#FF9F0A;
+    --color-lavender:#3D2F4A;--color-violet:#C77DFF;--color-plum:#9B59B6;--color-grape:#7B2D8E;--color-deep-purple:#5B2C6F;
+    --color-bg:#1E1C21;--color-surface:#2C2A30;--color-sidebar:rgba(38,35,42,0.72);--color-toolbar:rgba(38,35,42,0.82);
+    --color-text-primary:#F5F5F7;--color-text-secondary:#98989D;--color-text-tertiary:#636366;
+    --color-separator:rgba(255,255,255,0.08);--color-hover:rgba(191,90,242,0.08);--color-selected:rgba(191,90,242,0.18);
+    --shadow-card:0 1px 3px rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.2);--shadow-toolbar:0 0.5px 0 rgba(0,0,0,0.4);
+    --radius-sm:6px;--radius-md:10px;--radius-lg:12px;--radius-xl:16px;
+    --font-family:-apple-system,"SF Pro Display","SF Pro Text",system-ui,BlinkMacSystemFont,sans-serif;
+    --font-size-xs:11px;--font-size-sm:12px;--font-size-base:13px;--font-size-md:15px;--font-size-lg:17px;--font-size-xl:20px;--font-size-2xl:24px;
+    --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:24px;--space-3xl:32px;
+    --sidebar-width:240px;--toolbar-height:52px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font-family);font-size:var(--font-size-base);color:var(--color-text-primary);background:var(--color-bg);-webkit-font-smoothing:antialiased}
+  .app-shell{display:flex;height:100vh;overflow:hidden}
+
+  .sidebar{width:var(--sidebar-width);min-width:var(--sidebar-width);background:var(--color-sidebar);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-right:0.5px solid var(--color-separator);display:flex;flex-direction:column;padding:var(--space-lg) 0;user-select:none;overflow-y:auto}
+  .sidebar-brand{padding:0 var(--space-xl);margin-bottom:var(--space-2xl);display:flex;align-items:center;gap:var(--space-sm)}
+  .sidebar-brand-icon{width:28px;height:28px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--color-accent),var(--color-violet));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .sidebar-brand-name{font-size:var(--font-size-lg);font-weight:700;letter-spacing:-0.3px}
+  .sidebar-section-label{padding:var(--space-lg) var(--space-xl) var(--space-xs);font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+  .sidebar-item{display:flex;align-items:center;gap:var(--space-sm);padding:6px var(--space-xl);margin:1px var(--space-sm);border-radius:var(--radius-sm);font-size:var(--font-size-base);color:var(--color-text-primary);cursor:pointer;transition:background 0.15s;text-decoration:none;position:relative}
+  .sidebar-item:hover{background:var(--color-hover)}
+  .sidebar-item.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .sidebar-item.active::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:0 2px 2px 0;background:var(--color-accent)}
+  .sidebar-item .icon{width:20px;text-align:center;font-size:15px;opacity:0.6}
+  .sidebar-item.active .icon{opacity:1}
+  .sidebar-badge{margin-left:auto;background:var(--color-destructive);color:#fff;font-size:var(--font-size-xs);font-weight:600;padding:1px 6px;border-radius:10px}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--space-md) var(--space-xl);border-top:0.5px solid var(--color-separator);display:flex;align-items:center;gap:var(--space-sm);margin-top:var(--space-sm)}
+  .sidebar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent),var(--color-grape));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .sidebar-user-name{font-size:var(--font-size-sm);font-weight:500}
+  .sidebar-user-role{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .toolbar{height:var(--toolbar-height);min-height:var(--toolbar-height);background:var(--color-toolbar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:0.5px solid var(--color-separator);box-shadow:var(--shadow-toolbar);display:flex;align-items:center;padding:0 var(--space-2xl);gap:var(--space-lg);user-select:none;z-index:10}
+  .toolbar-title{font-size:var(--font-size-lg);font-weight:600;letter-spacing:-0.2px}
+  .toolbar-spacer{flex:1}
+  .toolbar-search{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:0.5px solid var(--color-separator);border-radius:var(--radius-sm);padding:5px 10px;font-size:var(--font-size-sm);color:var(--color-text-secondary);width:240px}
+  .toolbar-search input{border:none;background:none;outline:none;font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);width:100%}
+  .toolbar-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-surface);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);cursor:pointer;transition:all 0.15s}
+  .toolbar-btn:hover{background:var(--color-hover)}
+  .toolbar-btn.primary{background:var(--color-accent);color:#fff;border-color:transparent}
+  .content{flex:1;overflow-y:auto;padding:var(--space-2xl);display:flex;flex-direction:column;gap:var(--space-2xl)}
+
+  .segmented-control{display:inline-flex;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:2px;gap:1px}
+  .segmented-option{padding:5px 16px;border-radius:5px;font-size:var(--font-size-sm);font-weight:500;color:var(--color-text-secondary);cursor:pointer;transition:all 0.2s;user-select:none}
+  .segmented-option.active{background:var(--color-surface);color:var(--color-accent);box-shadow:0 1px 3px rgba(0,0,0,0.3);font-weight:600}
+  .filter-bar{display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap}
+  .filter-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.06);font-size:var(--font-size-sm);color:var(--color-text-secondary);cursor:pointer;transition:all 0.15s;border:none;font-family:var(--font-family)}
+  .filter-chip:hover{background:rgba(191,90,242,0.12)}
+  .filter-chip.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .filter-divider{width:1px;height:20px;background:var(--color-separator)}
+
+  .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-lg)}
+  .stat-card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-lg) var(--space-xl);display:flex;flex-direction:column;gap:var(--space-xs)}
+  .stat-label{font-size:var(--font-size-xs);color:var(--color-text-secondary);font-weight:500}
+  .stat-value{font-size:var(--font-size-2xl);font-weight:700;letter-spacing:-0.5px;line-height:1}
+  .stat-sub{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+
+  .card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
+  thead th{text-align:left;padding:var(--space-md) var(--space-xl);font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;border-bottom:0.5px solid var(--color-separator);background:rgba(255,255,255,0.02)}
+  tbody td{padding:var(--space-md) var(--space-xl);border-bottom:0.5px solid var(--color-separator);vertical-align:middle}
+  tbody tr{transition:background 0.1s;cursor:pointer}
+  tbody tr:hover{background:var(--color-hover)}
+  tbody tr:last-child td{border-bottom:none}
+  .case-name{font-weight:600}
+  .case-id{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:var(--font-size-xs);font-weight:500}
+  .badge.initial{background:rgba(61,47,74,0.8);color:#D4A5F5}
+  .badge.reconsider{background:rgba(199,125,255,0.18);color:var(--color-violet)}
+  .badge.alj{background:rgba(191,90,242,0.18);color:var(--color-accent)}
+  .badge.appeals{background:rgba(155,89,182,0.18);color:var(--color-plum)}
+  .badge.favorable{background:rgba(48,209,88,0.15);color:var(--color-success)}
+  .badge.ssdi{background:rgba(191,90,242,0.12);color:var(--color-accent)}
+  .badge.ssi{background:rgba(123,45,142,0.18);color:#D4A5F5}
+  .badge.high{background:rgba(255,69,58,0.15);color:var(--color-destructive)}
+  .badge.medium{background:rgba(255,159,10,0.15);color:var(--color-warning)}
+  .badge.low{background:rgba(48,209,88,0.15);color:var(--color-success)}
+  .attorney-cell{display:flex;align-items:center;gap:var(--space-sm)}
+  .attorney-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff}
+
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding:var(--space-md) var(--space-xl);border-top:0.5px solid var(--color-separator);font-size:var(--font-size-sm);color:var(--color-text-secondary)}
+  .pagination-btns{display:flex;gap:var(--space-xs)}
+  .page-btn{padding:4px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-surface);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);cursor:pointer;transition:all 0.15s}
+  .page-btn:hover{background:var(--color-hover)}
+  .page-btn.active{background:var(--color-accent);color:#fff;border-color:transparent}
+
+  .design-tokens{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-2xl)}
+  .design-tokens h2{font-size:var(--font-size-xl);font-weight:700;margin-bottom:var(--space-xl);letter-spacing:-0.3px}
+  .token-group{margin-bottom:var(--space-2xl)}.token-group:last-child{margin-bottom:0}
+  .token-group-title{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:var(--space-md)}
+  .token-row{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;font-size:var(--font-size-sm)}
+  .token-swatch{width:24px;height:24px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.1);flex-shrink:0}
+  .token-name{font-weight:500;width:200px}
+  .token-value{font-family:"SF Mono",SFMono-Regular,Menlo,monospace;color:var(--color-text-secondary);font-size:var(--font-size-xs)}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="sidebar-brand-icon">F</div><div class="sidebar-brand-name">Favorble</div></div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item active" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Contacts</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="sidebar-avatar">SM</div><div><div class="sidebar-user-name">Sarah Mitchell</div><div class="sidebar-user-role">Managing Attorney</div></div></div>
+  </nav>
+
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Cases</h1><div class="toolbar-spacer"></div>
+      <div class="toolbar-search"><span>&#128269;</span><input type="text" placeholder="Search claimants, SSN, case #..."></div>
+      <button class="toolbar-btn">&#8595; Export</button>
+      <button class="toolbar-btn primary">+ New Case</button>
+    </header>
+
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Cases</div><div class="stat-value">187</div><div class="stat-sub">All active claims</div></div>
+        <div class="stat-card"><div class="stat-label">Initial App</div><div class="stat-value" style="color:#D4A5F5;">14</div><div class="stat-sub">Pending decision</div></div>
+        <div class="stat-card"><div class="stat-label">ALJ Hearing</div><div class="stat-value" style="color:var(--color-accent);">42</div><div class="stat-sub">Awaiting/scheduled</div></div>
+        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" style="color:var(--color-success);">68%</div><div class="stat-sub">Last 12 months</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Resolution</div><div class="stat-value">14.2</div><div class="stat-sub">Months to decision</div></div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="segmented-control"><div class="segmented-option active">All</div><div class="segmented-option">Active</div><div class="segmented-option">Closed</div></div>
+        <div class="filter-divider"></div>
+        <button class="filter-chip active">All Stages</button><button class="filter-chip">Initial App</button><button class="filter-chip">Reconsideration</button><button class="filter-chip">ALJ Hearing</button><button class="filter-chip">Appeals Council</button><button class="filter-chip">Federal Court</button>
+        <div class="filter-divider"></div><button class="filter-chip">All Attorneys</button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>Claimant</th><th>Type</th><th>Stage</th><th>Impairment</th><th>Attorney</th><th>Priority</th><th>Next Deadline</th></tr></thead>
+          <tbody>
+            <tr onclick="window.location='case-detail.html'"><td><div class="case-name">Thompson, Robert J.</div><div class="case-id">SSA-2025-04871</div></td><td><span class="badge ssdi">SSDI</span></td><td><span class="badge alj">ALJ Hearing</span></td><td>Degenerative Disc Disease, Lumbar Radiculopathy</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-accent),var(--color-grape));">SM</div>Sarah M.</div></td><td><span class="badge high">High</span></td><td>Apr 2, 2026</td></tr>
+            <tr><td><div class="case-name">Martinez, Linda R.</div><div class="case-id">SSA-2025-05102</div></td><td><span class="badge ssi">SSI</span></td><td><span class="badge initial">Initial App</span></td><td>Bipolar I Disorder, GAD</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-violet),var(--color-plum));">MR</div>Maria R.</div></td><td><span class="badge medium">Medium</span></td><td>Apr 8, 2026</td></tr>
+            <tr><td><div class="case-name">Williams, Derek T.</div><div class="case-id">SSA-2024-09834</div></td><td><span class="badge ssdi">SSDI</span></td><td><span class="badge reconsider">Reconsideration</span></td><td>COPD, Chronic Bronchitis</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-accent),var(--color-grape));">SM</div>Sarah M.</div></td><td><span class="badge high">High</span></td><td>Mar 30, 2026</td></tr>
+            <tr><td><div class="case-name">Chen, Michelle Y.</div><div class="case-id">SSA-2024-07256</div></td><td><span class="badge ssdi">SSDI</span></td><td><span class="badge alj">ALJ Hearing</span></td><td>CHF, Cardiomyopathy</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-violet),var(--color-plum));">MR</div>Maria R.</div></td><td><span class="badge high">High</span></td><td>Apr 18, 2026</td></tr>
+            <tr><td><div class="case-name">Davis, Karen L.</div><div class="case-id">SSA-2025-01478</div></td><td><span class="badge ssi">SSI</span></td><td><span class="badge alj">ALJ Hearing</span></td><td>PTSD, Major Depressive Disorder</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-accent),var(--color-grape));">SM</div>Sarah M.</div></td><td><span class="badge medium">Medium</span></td><td>Apr 12, 2026</td></tr>
+            <tr><td><div class="case-name">Brown, Arthur W.</div><div class="case-id">SSA-2023-11205</div></td><td><span class="badge ssdi">SSDI</span></td><td><span class="badge appeals">Appeals Council</span></td><td>Multiple Sclerosis</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-accent),var(--color-grape));">SM</div>Sarah M.</div></td><td><span class="badge high">High</span></td><td>Apr 5, 2026</td></tr>
+            <tr><td><div class="case-name">Patel, Sunita R.</div><div class="case-id">SSA-2024-03982</div></td><td><span class="badge ssdi">SSDI</span></td><td><span class="badge favorable">Favorable</span></td><td>Failed Back Surgery Syndrome</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-violet),var(--color-plum));">MR</div>Maria R.</div></td><td><span class="badge low">Low</span></td><td>Awaiting payment</td></tr>
+            <tr><td><div class="case-name">Jackson, Patricia A.</div><div class="case-id">SSA-2025-02340</div></td><td><span class="badge ssi">SSI</span></td><td><span class="badge reconsider">Reconsideration</span></td><td>Fibromyalgia, CFS</td><td><div class="attorney-cell"><div class="attorney-avatar" style="background:linear-gradient(135deg,var(--color-accent),var(--color-grape));">SM</div>Sarah M.</div></td><td><span class="badge medium">Medium</span></td><td>Apr 15, 2026</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination"><span>Showing 1-8 of 187 cases</span><div class="pagination-btns"><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn">...</button><button class="page-btn">24</button><button class="page-btn">&#8250;</button></div></div>
+      </div>
+
+      <div class="design-tokens">
+        <h2>Design Tokens - Apple HIG v4 Purple (Dark)</h2>
+        <div class="token-group">
+          <div class="token-group-title">Dark Mode Badge Colors</div>
+          <div class="token-row"><div class="token-swatch" style="background:rgba(61,47,74,0.8);"></div><div class="token-name">Initial (dark bg)</div><div class="token-value">rgba(61,47,74,0.8)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:rgba(191,90,242,0.18);"></div><div class="token-name">ALJ Hearing (dark bg)</div><div class="token-value">rgba(191,90,242,0.18)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

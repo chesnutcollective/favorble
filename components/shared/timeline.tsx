@@ -30,21 +30,21 @@ type TimelineProps = {
 };
 
 const EVENT_COLORS: Record<string, string> = {
-  stage_changed: "bg-blue-500",
-  task_created: "bg-green-500",
-  task_completed: "bg-emerald-500",
-  document_uploaded: "bg-purple-500",
-  document_deleted: "bg-red-400",
-  note_added: "bg-amber-500",
-  note_phone_call: "bg-teal-500",
-  note_internal_memo: "bg-violet-500",
-  message_received: "bg-indigo-500",
-  message_sent: "bg-indigo-400",
-  email_received: "bg-cyan-500",
-  email_sent: "bg-cyan-400",
-  assignment_changed: "bg-accent0",
-  case_created: "bg-blue-600",
-  workflow_executed: "bg-green-600",
+  stage_changed: "bg-[#0070F3]",
+  task_created: "bg-[#00C853]",
+  task_completed: "bg-[#00C853]",
+  document_uploaded: "bg-[#666]",
+  document_deleted: "bg-[#EE0000]",
+  note_added: "bg-[#666]",
+  note_phone_call: "bg-[#0070F3]",
+  note_internal_memo: "bg-[#666]",
+  message_received: "bg-[#0070F3]",
+  message_sent: "bg-[#0070F3]",
+  email_received: "bg-[#0070F3]",
+  email_sent: "bg-[#0070F3]",
+  assignment_changed: "bg-[#666]",
+  case_created: "bg-[#0070F3]",
+  workflow_executed: "bg-[#00C853]",
 };
 
 function formatRelativeTime(timestamp: string): string {
@@ -77,7 +77,7 @@ function NoteTypeIcon({ noteType }: { noteType: NoteType }) {
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-teal-600"
+          className="text-[#666]"
         >
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
         </svg>
@@ -93,7 +93,7 @@ function NoteTypeIcon({ noteType }: { noteType: NoteType }) {
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-violet-600"
+          className="text-[#666]"
         >
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
@@ -113,7 +113,7 @@ function NoteTypeIcon({ noteType }: { noteType: NoteType }) {
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-amber-600"
+          className="text-[#666]"
         >
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -178,8 +178,8 @@ function PinButton({
             className={cn(
               "h-6 w-6 p-0",
               pinned
-                ? "text-amber-600"
-                : "text-muted-foreground opacity-0 group-hover:opacity-100",
+                ? "text-[#666]"
+                : "text-[#999] opacity-0 group-hover:opacity-100",
             )}
             onClick={handleToggle}
             disabled={isPendingPin}
@@ -305,7 +305,7 @@ function MarkdownText({ text }: { text: string }) {
             href={earliest.match[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
+            className="text-[#0070F3] hover:underline"
           >
             {earliest.match[1]}
           </a>,
@@ -318,7 +318,7 @@ function MarkdownText({ text }: { text: string }) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline break-all"
+            className="text-[#0070F3] hover:underline break-all"
           >
             {url}
           </a>,
@@ -370,39 +370,31 @@ function getEventDotColor(event: TimelineEvent): string {
         return EVENT_COLORS.note_internal_memo;
     }
   }
-  return EVENT_COLORS[event.type] ?? "bg-gray-400";
+  return EVENT_COLORS[event.type] ?? "bg-[#EAEAEA]";
 }
 
 export function Timeline({ events, className }: TimelineProps) {
   if (events.length === 0) {
     return (
-      <div
-        className="flex flex-col items-center justify-center py-10 text-center"
-        style={{ animation: "emptyStateIn 0.3s ease-out" }}
-      >
-        <div
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(59,89,152,0.08)]"
-          style={{ animation: "emptyStateIconPulse 3s ease-in-out infinite" }}
+      <div className="flex flex-col items-center justify-center py-10 text-center">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-[#999]"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-[#3b5998]"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        </div>
-        <p className="mt-3 text-sm font-medium text-foreground">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <p className="mt-3 text-[14px] font-medium text-foreground">
           No activity yet
         </p>
-        <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+        <p className="mt-1 max-w-xs text-[13px] text-[#666]">
           Activity will appear here as your team works on this case
         </p>
       </div>
@@ -426,11 +418,11 @@ export function Timeline({ events, className }: TimelineProps) {
       {/* Pinned notes section */}
       {pinnedEvents.length > 0 && (
         <div className="mb-4">
-          <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-amber-600">
+          <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-[#666]">
             <PinIcon filled />
             <span>Pinned Notes</span>
           </div>
-          <div className="space-y-0 rounded-md border border-amber-200 bg-amber-50/50 p-2 dark:border-amber-900 dark:bg-amber-950/20">
+          <div className="space-y-0 rounded-md border border-[#EAEAEA] p-2">
             {pinnedEvents.map((event, index) => (
               <TimelineItem
                 key={event.id}
@@ -472,13 +464,13 @@ function TimelineItem({
     <div className="group relative flex gap-3 pb-4">
       {/* Vertical line */}
       {!isLast && (
-        <div className="absolute left-[7px] top-4 h-full w-px bg-muted" />
+        <div className="absolute left-[3px] top-3 h-full w-px bg-[#EAEAEA]" />
       )}
 
-      {/* Dot */}
+      {/* Dot — 8px circle */}
       <div
         className={cn(
-          "relative z-10 mt-1 h-4 w-4 shrink-0 rounded-full border-2 border-white",
+          "relative z-10 mt-1.5 h-2 w-2 shrink-0 rounded-full",
           dotColor,
         )}
       />
@@ -488,7 +480,7 @@ function TimelineItem({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-1.5">
             {isNote && <NoteTypeIcon noteType={noteType} />}
-            <p className="text-sm font-medium text-foreground">
+            <p className="text-[13px] font-medium text-foreground">
               {isNote && noteType !== "general"
                 ? getNoteTypeLabel(noteType)
                 : event.title}
@@ -498,8 +490,8 @@ function TimelineItem({
                 {tags.map((tag) => (
                   <Badge
                     key={tag}
-                    variant="secondary"
-                    className="text-[10px] px-1.5 py-0"
+                    variant="outline"
+                    className="text-[10px] px-1.5 py-0 border-[#EAEAEA] text-[#666]"
                   >
                     {tag}
                   </Badge>
@@ -515,20 +507,18 @@ function TimelineItem({
                 isPinned={isPinned}
               />
             )}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs font-mono text-[#666]">
               {formatRelativeTime(event.timestamp)}
             </span>
           </div>
         </div>
         {event.description && (
-          <div className="mt-0.5 text-sm text-muted-foreground">
+          <div className="mt-0.5 text-[13px] text-[#666]">
             <MarkdownText text={event.description} />
           </div>
         )}
         {event.actor && (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            by {event.actor}
-          </p>
+          <p className="mt-0.5 text-xs text-[#999]">by {event.actor}</p>
         )}
       </div>
     </div>

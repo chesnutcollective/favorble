@@ -69,13 +69,16 @@ export function DataTable<TData, TValue>({
         />
       )}
 
-      <div className="rounded-md border">
+      <div className="rounded-md border border-[#EAEAEA]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b border-[#EAEAEA]">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-xs font-medium text-[#666] uppercase tracking-wider"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -93,7 +96,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/50 transition-colors"
+                  className="hover:bg-[#F0F0F0] transition-colors duration-200 border-b border-[#EAEAEA]"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -121,7 +124,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-[#666]">
           {table.getFilteredRowModel().rows.length} total rows
         </p>
         <div className="flex items-center gap-2">
@@ -133,7 +136,7 @@ export function DataTable<TData, TValue>({
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-[#666]">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>

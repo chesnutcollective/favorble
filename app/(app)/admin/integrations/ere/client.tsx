@@ -60,17 +60,15 @@ export function EreCredentialsClient({
       />
 
       {/* Security notice */}
-      <Card className="border-l-[3px] border-l-blue-400 bg-gradient-to-r from-blue-50/40 to-transparent dark:from-blue-950/20">
+      <Card className="border-[#eaeaea]">
         <CardContent className="p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100/60 dark:bg-blue-900/30">
-              <HugeiconsIcon
-                icon={ShieldKeyIcon}
-                size={22}
-                className="text-blue-600 dark:text-blue-400"
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
+            <HugeiconsIcon
+              icon={ShieldKeyIcon}
+              size={20}
+              className="shrink-0 text-[#666]"
+            />
+            <p className="text-sm text-[#666]">
               Your SSA credentials are encrypted at rest with AES-256-GCM. Only
               admin users can manage credentials.
             </p>
@@ -84,35 +82,18 @@ export function EreCredentialsClient({
           icon={ShieldKeyIcon}
           title="No ERE credentials configured"
           description="Add your SSA Login.gov credentials to enable automatic case monitoring."
-          accent="blue"
-          bordered
           action={<AddCredentialDialog />}
           secondary={
             <div className="mt-2 flex flex-col items-center gap-3">
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="text-xs font-medium text-[#666]">
                 How to get your credentials:
               </p>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
-                  1
-                </span>
-                <span>Log into login.gov</span>
-                <span className="text-muted-foreground/40">&rarr;</span>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
-                  2
-                </span>
-                <span>Add authenticator app</span>
-                <span className="text-muted-foreground/40">&rarr;</span>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
-                  3
-                </span>
-                <span>Copy TOTP secret</span>
-                <span className="text-muted-foreground/40">&rarr;</span>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
-                  4
-                </span>
-                <span>Paste here</span>
-              </div>
+              <ol className="text-xs text-[#666] list-decimal list-inside space-y-1 text-left">
+                <li>Log into login.gov</li>
+                <li>Add authenticator app</li>
+                <li>Copy TOTP secret</li>
+                <li>Paste here</li>
+              </ol>
             </div>
           }
         />
@@ -200,17 +181,17 @@ function CredentialCard({ credential }: { credential: Credential }) {
 
   const statusBadge = {
     active: (
-      <Badge variant="outline" className="border-green-300 text-green-700">
+      <Badge variant="outline" className="border-[#eaeaea] text-[#171717]">
         Active
       </Badge>
     ),
     inactive: (
-      <Badge variant="outline" className="border-border text-muted-foreground">
+      <Badge variant="outline" className="border-[#eaeaea] text-[#666]">
         Inactive
       </Badge>
     ),
     error: (
-      <Badge variant="outline" className="border-red-300 text-red-700">
+      <Badge variant="outline" className="border-[#eaeaea] text-[#666]">
         Error
       </Badge>
     ),
@@ -240,15 +221,13 @@ function CredentialCard({ credential }: { credential: Credential }) {
         </div>
 
         {credential.lastErrorMessage && (
-          <p className="mt-3 text-sm text-red-600">
+          <p className="mt-3 text-sm text-[#666]">
             {credential.lastErrorMessage}
           </p>
         )}
 
         {testResult && (
-          <p
-            className={`mt-3 text-sm ${testResult.success ? "text-green-700" : "text-red-600"}`}
-          >
+          <p className="mt-3 text-sm text-[#666]">
             {testResult.message}
           </p>
         )}
@@ -330,7 +309,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-red-600 hover:text-red-700"
+                className="text-[#666] hover:text-[#171717]"
                 disabled={isPending}
               >
                 <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-1" />

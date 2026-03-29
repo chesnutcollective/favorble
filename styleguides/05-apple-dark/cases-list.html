@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble (Dark) — Cases</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     ============================================================ */
+  :root {
+    --color-bg:              #1C1C1E;
+    --color-surface:         #2C2C2E;
+    --color-sidebar:         rgba(28,28,30,0.82);
+    --color-toolbar:         rgba(44,44,46,0.85);
+    --color-text-primary:    #F5F5F7;
+    --color-text-secondary:  #98989D;
+    --color-text-tertiary:   #636366;
+    --color-accent:          #007AFF;
+    --color-accent-hover:    #0063D1;
+    --color-destructive:     #FF3B30;
+    --color-success:         #34C759;
+    --color-warning:         #FF9F0A;
+    --color-orange:          #FF9500;
+    --color-purple:          #AF52DE;
+    --color-indigo:          #5856D6;
+    --color-teal:            #5AC8FA;
+    --color-separator:       rgba(255,255,255,0.08);
+    --color-hover:           rgba(255,255,255,0.06);
+    --color-selected:        rgba(0,122,255,0.25);
+
+    --shadow-card:  0 2px 8px rgba(0,0,0,0.4);
+    --shadow-popup: 0 4px 16px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.3);
+    --shadow-toolbar: 0 0.5px 0 rgba(0,0,0,0.4);
+
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
+
+    --font-family: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, sans-serif;
+    --font-size-xs:    11px;
+    --font-size-sm:    12px;
+    --font-size-base:  13px;
+    --font-size-md:    15px;
+    --font-size-lg:    17px;
+    --font-size-xl:    20px;
+    --font-size-2xl:   24px;
+
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+
+    --sidebar-width: 240px;
+    --toolbar-height: 52px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background: #3A3A3C;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-right: 0.5px solid var(--color-separator);
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-lg) 0;
+    user-select: none;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--space-xl);
+    margin-bottom: var(--space-2xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .sidebar-brand-icon {
+    width: 28px; height: 28px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--color-accent), #5AC8FA);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 14px;
+  }
+
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+
+  .sidebar-section-label {
+    padding: var(--space-lg) var(--space-xl) var(--space-xs);
+    font-size: var(--font-size-xs); font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .sidebar-item {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: 6px var(--space-xl); margin: 1px var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base); color: var(--color-text-primary);
+    cursor: pointer; transition: background 0.15s; text-decoration: none;
+  }
+  .sidebar-item:hover { background: var(--color-hover); }
+  .sidebar-item.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 15px; opacity: 0.75; }
+  .sidebar-item.active .icon { opacity: 1; }
+
+  .sidebar-badge {
+    margin-left: auto; background: var(--color-destructive); color: #fff;
+    font-size: var(--font-size-xs); font-weight: 600;
+    padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+  }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-user {
+    padding: var(--space-md) var(--space-xl);
+    border-top: 0.5px solid var(--color-separator);
+    display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm);
+  }
+  .sidebar-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B6B, var(--color-orange));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 600;
+  }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 500; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* ---- MAIN ---- */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---- TOOLBAR ---- */
+  .toolbar {
+    height: var(--toolbar-height); min-height: var(--toolbar-height);
+    background: var(--color-toolbar);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 0.5px solid var(--color-separator);
+    box-shadow: var(--shadow-toolbar);
+    display: flex; align-items: center;
+    padding: 0 var(--space-2xl); gap: var(--space-lg);
+    user-select: none; z-index: 10;
+  }
+  .toolbar-title { font-size: var(--font-size-lg); font-weight: 600; letter-spacing: -0.2px; }
+  .toolbar-count { font-size: var(--font-size-sm); color: var(--color-text-secondary); font-weight: 400; }
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-search {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm); padding: 5px 10px;
+    font-size: var(--font-size-sm); color: var(--color-text-secondary); width: 220px;
+  }
+  .toolbar-search input {
+    border: none; background: none; outline: none;
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); width: 100%;
+  }
+
+  .toolbar-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-separator); background: var(--color-surface);
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); cursor: pointer; transition: all 0.15s;
+  }
+  .toolbar-btn:hover { background: var(--color-hover); }
+  .toolbar-btn.primary {
+    background: var(--color-accent); color: #fff; border-color: transparent;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0) 100%);
+  }
+  .toolbar-btn.primary:hover { background-color: var(--color-accent-hover); }
+
+  /* ---- CONTENT ---- */
+  .content {
+    flex: 1; overflow-y: auto;
+    padding: var(--space-2xl);
+    display: flex; flex-direction: column; gap: var(--space-lg);
+  }
+
+  /* ---- FILTER BAR ---- */
+  .filter-bar {
+    display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  }
+
+  .segmented-control {
+    display: inline-flex; background: #3A3A3C;
+    border-radius: var(--radius-sm); padding: 2px; gap: 1px;
+  }
+  .segmented-option {
+    padding: 4px 14px; border-radius: 5px;
+    font-size: var(--font-size-sm); font-weight: 500;
+    color: var(--color-text-secondary); cursor: pointer;
+    transition: all 0.2s; user-select: none;
+  }
+  .segmented-option.active {
+    background: #636366; color: #F5F5F7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px;
+    background: rgba(255,255,255,0.08); font-size: var(--font-size-sm);
+    color: var(--color-text-secondary); cursor: pointer;
+    transition: all 0.15s; border: none; font-family: var(--font-family);
+  }
+  .filter-chip:hover { background: rgba(255,255,255,0.12); }
+  .filter-chip.active {
+    background: var(--color-selected); color: var(--color-accent); font-weight: 500;
+  }
+  .filter-chip .remove {
+    font-size: 10px; opacity: 0.6; margin-left: 2px;
+  }
+
+  .filter-divider {
+    width: 1px; height: 20px; background: var(--color-separator);
+  }
+
+  /* ---- TABLE (GROUPED STYLE) ---- */
+  .table-container {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); border: 0.5px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+  }
+
+  thead th {
+    padding: var(--space-sm) var(--space-lg);
+    text-align: left;
+    font-weight: 500;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 0.5px solid var(--color-separator);
+    background: rgba(255,255,255,0.03);
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  thead th:hover {
+    color: var(--color-text-primary);
+  }
+
+  thead th .sort-arrow {
+    font-size: 9px;
+    margin-left: 3px;
+    opacity: 0.4;
+  }
+
+  thead th.sorted .sort-arrow {
+    opacity: 1;
+    color: var(--color-accent);
+  }
+
+  tbody tr {
+    border-bottom: 0.5px solid var(--color-separator);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--color-hover); }
+
+  tbody td {
+    padding: var(--space-md) var(--space-lg);
+    white-space: nowrap;
+  }
+
+  .case-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .case-name {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+  }
+
+  .case-number {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  /* ---- BADGES ---- */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 4px;
+    font-size: var(--font-size-xs); font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge.intake      { background: rgba(0,122,255,0.1);   color: var(--color-accent); }
+  .badge.review      { background: rgba(88,86,214,0.1);   color: var(--color-indigo); }
+  .badge.discovery   { background: rgba(175,82,222,0.1);  color: var(--color-purple); }
+  .badge.negotiation { background: rgba(255,149,0,0.1);   color: var(--color-orange); }
+  .badge.settlement  { background: rgba(52,199,89,0.1);   color: var(--color-success); }
+  .badge.closed      { background: rgba(255,255,255,0.08);      color: var(--color-text-tertiary); }
+
+  .badge.priority-high   { background: rgba(255,59,48,0.1);  color: var(--color-destructive); }
+  .badge.priority-medium { background: rgba(255,159,10,0.1); color: var(--color-warning); }
+  .badge.priority-low    { background: rgba(0,122,255,0.1);  color: var(--color-accent); }
+
+  .badge.type-auto       { background: rgba(90,200,250,0.12); color: #0A84FF; }
+  .badge.type-medmal     { background: rgba(255,59,48,0.08);  color: #FF453A; }
+  .badge.type-premises   { background: rgba(255,149,0,0.1);   color: var(--color-orange); }
+  .badge.type-product    { background: rgba(175,82,222,0.1);  color: var(--color-purple); }
+  .badge.type-workers    { background: rgba(52,199,89,0.1);   color: var(--color-success); }
+  .badge.type-insurance  { background: rgba(88,86,214,0.1);   color: var(--color-indigo); }
+
+  /* ---- AVATAR GROUP ---- */
+  .avatar-group {
+    display: flex;
+  }
+
+  .avatar-sm {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 600; color: #fff;
+    border: 2px solid #2C2C2E;
+    margin-left: -6px;
+  }
+
+  .avatar-sm:first-child { margin-left: 0; }
+
+  /* ---- VALUE DISPLAY ---- */
+  .case-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .case-date {
+    color: var(--color-text-secondary);
+  }
+
+  /* ---- PAGINATION ---- */
+  .table-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-top: 0.5px solid var(--color-separator);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .pagination {
+    display: flex; align-items: center; gap: 2px;
+  }
+
+  .page-btn {
+    width: 28px; height: 28px;
+    border-radius: var(--radius-sm);
+    border: none; background: none;
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .page-btn:hover { background: var(--color-hover); }
+  .page-btn.active {
+    background: var(--color-accent); color: #fff; font-weight: 500;
+  }
+
+  /* ---- CHECKBOX ---- */
+  .table-check {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--color-text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .table-check:hover { border-color: var(--color-accent); }
+  .table-check.checked {
+    background: var(--color-accent); border-color: var(--color-accent);
+  }
+
+  /* ---- BULK ACTIONS BAR ---- */
+  .bulk-bar {
+    background: #3A3A3C;
+    color: #fff;
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-lg);
+    display: flex; align-items: center; gap: var(--space-lg);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-popup);
+  }
+  .bulk-bar .count { font-weight: 600; }
+  .bulk-action {
+    padding: 4px 10px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: none; font-family: var(--font-family);
+    font-size: var(--font-size-xs); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bulk-action:hover { background: rgba(255,255,255,0.25); }
+  .bulk-action.destructive { background: rgba(255,59,48,0.7); }
+  .bulk-spacer { flex: 1; }
+
+  /* ---- DESIGN TOKENS ---- */
+  .design-tokens {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); border: 0.5px solid rgba(255,255,255,0.08);
+    padding: var(--space-2xl);
+  }
+  .design-tokens h2 {
+    font-size: var(--font-size-xl); font-weight: 700;
+    margin-bottom: var(--space-xl); letter-spacing: -0.3px;
+  }
+  .token-group { margin-bottom: var(--space-2xl); }
+  .token-group:last-child { margin-bottom: 0; }
+  .token-group-title {
+    font-size: var(--font-size-sm); font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: var(--space-md);
+  }
+  .token-row {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: var(--space-sm) 0; font-size: var(--font-size-sm);
+  }
+  .token-swatch {
+    width: 24px; height: 24px; border-radius: 6px;
+    border: 0.5px solid rgba(255,255,255,0.12); flex-shrink: 0;
+  }
+  .token-name { font-weight: 500; width: 200px; }
+  .token-value {
+    font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
+    color: var(--color-text-secondary); font-size: var(--font-size-xs);
+  }
+  .component-preview {
+    display: flex; flex-wrap: wrap; gap: var(--space-md);
+    padding: var(--space-md) 0;
+  }
+  input::placeholder { color: var(--color-text-tertiary); }
+  input { color-scheme: dark; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Favorble</div>
+    </div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item active" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">12</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Contacts</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">JK</div>
+      <div>
+        <div class="sidebar-user-name">Jake Klinvex</div>
+        <div class="sidebar-user-role">Admin</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Cases <span class="toolbar-count">(142)</span></h1>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search">
+        <span>&#128269;</span>
+        <input type="text" placeholder="Search cases...">
+      </div>
+      <button class="toolbar-btn">&#8595; Export</button>
+      <button class="toolbar-btn primary">+ New Case</button>
+    </header>
+
+    <div class="content">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="segmented-control">
+          <div class="segmented-option active">All</div>
+          <div class="segmented-option">Active</div>
+          <div class="segmented-option">Closed</div>
+        </div>
+        <div class="filter-divider"></div>
+        <button class="filter-chip active">Auto Accident <span class="remove">&times;</span></button>
+        <button class="filter-chip">Med Malpractice</button>
+        <button class="filter-chip">Premises Liability</button>
+        <button class="filter-chip">Product Liability</button>
+        <button class="filter-chip">Workers' Comp</button>
+        <div class="filter-divider"></div>
+        <button class="filter-chip">Priority: High</button>
+        <button class="filter-chip">Assigned to Me</button>
+      </div>
+
+      <!-- Bulk Actions Bar -->
+      <div class="bulk-bar">
+        <span class="count">3 selected</span>
+        <button class="bulk-action">Assign</button>
+        <button class="bulk-action">Change Stage</button>
+        <button class="bulk-action">Export</button>
+        <div class="bulk-spacer"></div>
+        <button class="bulk-action destructive">Archive</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px;"><div class="table-check"></div></th>
+                <th class="sorted">Case Name <span class="sort-arrow">&#9660;</span></th>
+                <th>Type</th>
+                <th>Stage</th>
+                <th>Priority</th>
+                <th>Assigned</th>
+                <th>Value</th>
+                <th>Filed</th>
+                <th>SOL Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="table-check checked"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Garcia v. TransCo Logistics</span><span class="case-number">CS-2026-0142</span></div></td>
+                <td><span class="badge type-auto">Auto Accident</span></td>
+                <td><span class="badge intake">Intake</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#FF6B6B,#FF9500);">JK</div>
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#5AC8FA,#007AFF);">SM</div>
+                  </div>
+                </td>
+                <td class="case-value">$285,000</td>
+                <td class="case-date">Mar 15, 2026</td>
+                <td class="case-date">Mar 15, 2028</td>
+              </tr>
+              <tr>
+                <td><div class="table-check checked"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Williams v. MedCorp Health</span><span class="case-number">CS-2026-0138</span></div></td>
+                <td><span class="badge type-medmal">Med Malpractice</span></td>
+                <td><span class="badge intake">Intake</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#34C759,#30D158);">DC</div>
+                  </div>
+                </td>
+                <td class="case-value">$750,000</td>
+                <td class="case-date">Mar 12, 2026</td>
+                <td class="case-date" style="color:var(--color-destructive); font-weight:500;">Apr 12, 2026</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Chen v. ProBuild Construction</span><span class="case-number">CS-2026-0131</span></div></td>
+                <td><span class="badge type-premises">Premises Liability</span></td>
+                <td><span class="badge review">Review</span></td>
+                <td><span class="badge priority-medium">Medium</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#5AC8FA,#007AFF);">SM</div>
+                  </div>
+                </td>
+                <td class="case-value">$120,000</td>
+                <td class="case-date">Feb 28, 2026</td>
+                <td class="case-date">Feb 28, 2028</td>
+              </tr>
+              <tr>
+                <td><div class="table-check checked"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Patel v. HealthFirst Medical</span><span class="case-number">CS-2026-0127</span></div></td>
+                <td><span class="badge type-product">Product Liability</span></td>
+                <td><span class="badge review">Review</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#FF6B6B,#FF9500);">JK</div>
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#AF52DE,#5856D6);">RL</div>
+                  </div>
+                </td>
+                <td class="case-value">$430,000</td>
+                <td class="case-date">Feb 20, 2026</td>
+                <td class="case-date">Feb 20, 2028</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Martinez v. CityBus Transit</span><span class="case-number">CS-2026-0119</span></div></td>
+                <td><span class="badge type-auto">Auto Accident</span></td>
+                <td><span class="badge discovery">Discovery</span></td>
+                <td><span class="badge priority-medium">Medium</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#34C759,#30D158);">DC</div>
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#5AC8FA,#007AFF);">SM</div>
+                  </div>
+                </td>
+                <td class="case-value">$195,000</td>
+                <td class="case-date">Jan 30, 2026</td>
+                <td class="case-date">Jan 30, 2028</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Johnson v. AWG Industries</span><span class="case-number">CS-2026-0112</span></div></td>
+                <td><span class="badge type-workers">Workers' Comp</span></td>
+                <td><span class="badge discovery">Discovery</span></td>
+                <td><span class="badge priority-low">Low</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#AF52DE,#5856D6);">RL</div>
+                  </div>
+                </td>
+                <td class="case-value">$85,000</td>
+                <td class="case-date">Jan 15, 2026</td>
+                <td class="case-date">Jan 15, 2028</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Adams v. BioHealth Sciences</span><span class="case-number">CS-2025-0098</span></div></td>
+                <td><span class="badge type-medmal">Med Malpractice</span></td>
+                <td><span class="badge negotiation">Negotiation</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#FF6B6B,#FF9500);">JK</div>
+                  </div>
+                </td>
+                <td class="case-value">$1,200,000</td>
+                <td class="case-date">Nov 5, 2025</td>
+                <td class="case-date">Nov 5, 2027</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Lee v. Apex Motors Group</span><span class="case-number">CS-2025-0091</span></div></td>
+                <td><span class="badge type-auto">Auto Accident</span></td>
+                <td><span class="badge negotiation">Negotiation</span></td>
+                <td><span class="badge priority-medium">Medium</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#5AC8FA,#007AFF);">SM</div>
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#34C759,#30D158);">DC</div>
+                  </div>
+                </td>
+                <td class="case-value">$310,000</td>
+                <td class="case-date">Oct 18, 2025</td>
+                <td class="case-date">Oct 18, 2027</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Brown v. StateFarm Insurance</span><span class="case-number">CS-2025-0084</span></div></td>
+                <td><span class="badge type-insurance">Insurance Dispute</span></td>
+                <td><span class="badge settlement">Settlement</span></td>
+                <td><span class="badge priority-low">Low</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#FF6B6B,#FF9500);">JK</div>
+                  </div>
+                </td>
+                <td class="case-value">$175,000</td>
+                <td class="case-date">Sep 22, 2025</td>
+                <td class="case-date">Sep 22, 2027</td>
+              </tr>
+              <tr>
+                <td><div class="table-check"></div></td>
+                <td><div class="case-name-cell"><span class="case-name">Thompson v. Metro Health</span><span class="case-number">CS-2025-0076</span></div></td>
+                <td><span class="badge type-medmal">Med Malpractice</span></td>
+                <td><span class="badge closed">Closed</span></td>
+                <td><span class="badge priority-low">Low</span></td>
+                <td>
+                  <div class="avatar-group">
+                    <div class="avatar-sm" style="background:linear-gradient(135deg,#AF52DE,#5856D6);">RL</div>
+                  </div>
+                </td>
+                <td class="case-value" style="color:var(--color-success);">$520,000</td>
+                <td class="case-date">Aug 10, 2025</td>
+                <td class="case-date" style="color:var(--color-text-tertiary);">Settled</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <span>Showing 1-10 of 142 cases</span>
+          <div class="pagination">
+            <button class="page-btn">&lsaquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">15</button>
+            <button class="page-btn">&rsaquo;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="design-tokens">
+        <h2>Design Tokens</h2>
+
+        <div class="token-group">
+          <div class="token-group-title">Badge Variants</div>
+          <div class="component-preview">
+            <span class="badge intake">Intake</span>
+            <span class="badge review">Review</span>
+            <span class="badge discovery">Discovery</span>
+            <span class="badge negotiation">Negotiation</span>
+            <span class="badge settlement">Settlement</span>
+            <span class="badge closed">Closed</span>
+          </div>
+          <div class="component-preview">
+            <span class="badge priority-high">High</span>
+            <span class="badge priority-medium">Medium</span>
+            <span class="badge priority-low">Low</span>
+          </div>
+          <div class="component-preview">
+            <span class="badge type-auto">Auto Accident</span>
+            <span class="badge type-medmal">Med Malpractice</span>
+            <span class="badge type-premises">Premises Liability</span>
+            <span class="badge type-product">Product Liability</span>
+            <span class="badge type-workers">Workers' Comp</span>
+            <span class="badge type-insurance">Insurance Dispute</span>
+          </div>
+        </div>
+
+        <div class="token-group">
+          <div class="token-group-title">Table Patterns</div>
+          <div class="token-row">
+            <div class="token-name">Container</div>
+            <div class="token-value">Rounded card (12px), card shadow, no outer border</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Row Separator</div>
+            <div class="token-value">0.5px solid rgba(0,0,0,0.06)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Header Background</div>
+            <div class="token-value">rgba(255,255,255,0.03) — subtle dark tint</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Hover State</div>
+            <div class="token-value">rgba(255,255,255,0.06)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Checkbox</div>
+            <div class="token-value">16px, 4px radius, 1.5px border</div>
+          </div>
+        </div>
+
+        <div class="token-group">
+          <div class="token-group-title">Filter Patterns</div>
+          <div class="token-row">
+            <div class="token-name">Segmented Control</div>
+            <div class="token-value">#3A3A3C bg, 6px radius, 2px padding</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Filter Chip</div>
+            <div class="token-value">20px radius (pill), rgba(255,255,255,0.08) bg</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Active Chip</div>
+            <div class="token-value">rgba(0,122,255,0.25) bg, accent text</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

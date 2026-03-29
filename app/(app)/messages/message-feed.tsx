@@ -5,14 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowDown01Icon,
-  Mail01Icon,
-  Message01Icon,
-  Call02Icon,
-  NoteIcon,
-} from "@hugeicons/core-free-icons";
-import type { IconSvgElement } from "@hugeicons/react";
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 type Message = {
@@ -27,63 +20,23 @@ type Message = {
   caseNumber: string | null;
 };
 
-const TYPE_CONFIG: Record<
-  string,
-  { label: string; icon: IconSvgElement; colorClass: string }
-> = {
-  message_inbound: {
-    label: "Inbound Message",
-    icon: Message01Icon,
-    colorClass: "border-green-200 bg-green-50 text-green-700",
-  },
-  message_outbound: {
-    label: "Outbound Message",
-    icon: Message01Icon,
-    colorClass: "border-blue-200 bg-blue-50 text-blue-700",
-  },
-  email_inbound: {
-    label: "Inbound Email",
-    icon: Mail01Icon,
-    colorClass: "border-green-200 bg-green-50 text-green-700",
-  },
-  email_outbound: {
-    label: "Outbound Email",
-    icon: Mail01Icon,
-    colorClass: "border-blue-200 bg-blue-50 text-blue-700",
-  },
-  phone_inbound: {
-    label: "Inbound Call",
-    icon: Call02Icon,
-    colorClass: "border-green-200 bg-green-50 text-green-700",
-  },
-  phone_outbound: {
-    label: "Outbound Call",
-    icon: Call02Icon,
-    colorClass: "border-blue-200 bg-blue-50 text-blue-700",
-  },
-  note: {
-    label: "Note",
-    icon: NoteIcon,
-    colorClass: "border-gray-200 bg-gray-50 text-gray-700",
-  },
+const TYPE_CONFIG: Record<string, { label: string }> = {
+  message_inbound: { label: "Inbound Message" },
+  message_outbound: { label: "Outbound Message" },
+  email_inbound: { label: "Inbound Email" },
+  email_outbound: { label: "Outbound Email" },
+  phone_inbound: { label: "Inbound Call" },
+  phone_outbound: { label: "Outbound Call" },
+  note: { label: "Note" },
 };
 
-function formatMessageType(type: string): {
-  label: string;
-  icon: IconSvgElement;
-  colorClass: string;
-} {
+function formatMessageType(type: string): { label: string } {
   if (TYPE_CONFIG[type]) return TYPE_CONFIG[type];
-  // Fallback: convert snake_case to Title Case
   const label = type
     .split("_")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
-  return {
-    label,
-    icon: Message01Icon,
-    colorClass: "border-gray-200 bg-gray-50 text-gray-700",
-  };
+  return { label };
 }
 
 function getDateGroup(dateStr: string): string {
@@ -153,72 +106,64 @@ export function MessageFeed({ messages }: { messages: Message[] }) {
     return groups;
   }, [visibleMessages]);
 
-  // Inbound messages are treated as "unread" for visual distinction
-  const isInbound = (type: string) => type.includes("inbound");
-
   return (
     <div className="space-y-1">
       {groupedMessages.map((group) => (
         <div key={group.label}>
           {/* Date separator */}
           <div className="sticky top-0 z-10 flex items-center gap-3 py-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="shrink-0 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="h-px flex-1 bg-[#eaeaea]" />
+            <span className="shrink-0 font-mono text-xs text-[#999]">
               {group.label}
             </span>
-            <div className="h-px flex-1 bg-border" />
+            <div className="h-px flex-1 bg-[#eaeaea]" />
           </div>
 
           <div className="space-y-2">
             {group.messages.map((msg) => {
               const typeInfo = formatMessageType(msg.type);
-              const inbound = isInbound(msg.type);
               return (
                 <Card
                   key={msg.id}
-                  className={`transition-colors hover:bg-muted/30 ${inbound ? "border-l-2 border-l-green-400" : ""}`}
+                  className="border-[#eaeaea] transition-colors duration-200 hover:border-[#999]"
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
+                          <span className="inline-block h-2 w-2 rounded-full bg-[#999]" />
                           <Badge
                             variant="outline"
-                            className={`gap-1 ${typeInfo.colorClass}`}
+                            className="border-[#eaeaea] text-[#666]"
                           >
-                            <HugeiconsIcon icon={typeInfo.icon} size={12} />
                             {typeInfo.label}
                           </Badge>
                           {msg.caseId && msg.caseNumber && (
                             <Link
                               href={`/cases/${msg.caseId}/messages`}
-                              className="text-sm font-medium text-primary hover:underline"
+                              className="text-sm font-medium text-[#171717] hover:underline"
                             >
                               Case #{msg.caseNumber}
                             </Link>
                           )}
                         </div>
                         {msg.subject && (
-                          <p
-                            className={`mt-1 text-sm text-foreground ${inbound ? "font-semibold" : "font-medium"}`}
-                          >
+                          <p className="mt-1 text-sm font-medium text-[#171717]">
                             {msg.subject}
                           </p>
                         )}
                         {msg.body && (
-                          <p
-                            className={`mt-0.5 text-sm line-clamp-2 ${inbound ? "text-foreground" : "text-muted-foreground"}`}
-                          >
+                          <p className="mt-0.5 text-sm text-[#666] line-clamp-2">
                             {msg.body}
                           </p>
                         )}
                         {msg.fromAddress && (
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="mt-1 text-xs text-[#666]">
                             From: {msg.fromAddress}
                           </p>
                         )}
                       </div>
-                      <span className="shrink-0 text-xs text-muted-foreground">
+                      <span className="shrink-0 text-xs text-[#666]">
                         {formatTime(msg.createdAt)}
                       </span>
                     </div>

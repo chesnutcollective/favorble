@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     ============================================================ */
+  :root {
+    --color-bg:              #F5F5F7;
+    --color-surface:         #FFFFFF;
+    --color-sidebar:         rgba(246,246,248,0.72);
+    --color-toolbar:         rgba(246,246,248,0.82);
+    --color-text-primary:    #1D1D1F;
+    --color-text-secondary:  #86868B;
+    --color-text-tertiary:   #AEAEB2;
+    --color-accent:          #007AFF;
+    --color-accent-hover:    #0063D1;
+    --color-destructive:     #FF3B30;
+    --color-success:         #34C759;
+    --color-warning:         #FF9F0A;
+    --color-orange:          #FF9500;
+    --color-purple:          #AF52DE;
+    --color-indigo:          #5856D6;
+    --color-teal:            #5AC8FA;
+    --color-pink:            #FF2D55;
+    --color-separator:       rgba(0,0,0,0.06);
+    --color-hover:           rgba(0,0,0,0.04);
+    --color-selected:        rgba(0,122,255,0.12);
+
+    --shadow-card:  0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04);
+    --shadow-popup: 0 4px 16px rgba(0,0,0,0.12), 0 16px 48px rgba(0,0,0,0.08);
+    --shadow-toolbar: 0 0.5px 0 rgba(0,0,0,0.12);
+
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
+
+    --font-family: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, sans-serif;
+    --font-size-xs:    11px;
+    --font-size-sm:    12px;
+    --font-size-base:  13px;
+    --font-size-md:    15px;
+    --font-size-lg:    17px;
+    --font-size-xl:    20px;
+    --font-size-2xl:   24px;
+    --font-size-3xl:   28px;
+
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+
+    --sidebar-width: 240px;
+    --toolbar-height: 52px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: var(--sidebar-width); min-width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-right: 0.5px solid var(--color-separator);
+    display: flex; flex-direction: column;
+    padding: var(--space-lg) 0; user-select: none; overflow-y: auto;
+  }
+  .sidebar-brand { padding: 0 var(--space-xl); margin-bottom: var(--space-2xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--color-accent), #5AC8FA); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .sidebar-section-label { padding: var(--space-lg) var(--space-xl) var(--space-xs); font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar-item { display: flex; align-items: center; gap: var(--space-sm); padding: 6px var(--space-xl); margin: 1px var(--space-sm); border-radius: var(--radius-sm); font-size: var(--font-size-base); color: var(--color-text-primary); cursor: pointer; transition: background 0.15s; text-decoration: none; }
+  .sidebar-item:hover { background: var(--color-hover); }
+  .sidebar-item.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 15px; opacity: 0.75; }
+  .sidebar-item.active .icon { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-destructive); color: #fff; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-user { padding: var(--space-md) var(--space-xl); border-top: 0.5px solid var(--color-separator); display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm); }
+  .sidebar-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FF6B6B, var(--color-orange)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 500; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* ---- MAIN ---- */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---- TOOLBAR ---- */
+  .toolbar {
+    height: var(--toolbar-height); min-height: var(--toolbar-height);
+    background: var(--color-toolbar);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 0.5px solid var(--color-separator);
+    box-shadow: var(--shadow-toolbar);
+    display: flex; align-items: center;
+    padding: 0 var(--space-2xl); gap: var(--space-lg);
+    user-select: none; z-index: 10;
+  }
+  .toolbar-title { font-size: var(--font-size-lg); font-weight: 600; letter-spacing: -0.2px; }
+  .toolbar-spacer { flex: 1; }
+  .toolbar-search {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.04); border: 0.5px solid var(--color-separator);
+    border-radius: var(--radius-sm); padding: 5px 10px;
+    font-size: var(--font-size-sm); color: var(--color-text-secondary); width: 220px;
+  }
+  .toolbar-search input { border: none; background: none; outline: none; font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--color-text-primary); width: 100%; }
+  .toolbar-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-separator); background: var(--color-surface);
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); cursor: pointer; transition: all 0.15s;
+  }
+  .toolbar-btn:hover { background: var(--color-hover); }
+  .toolbar-btn.primary {
+    background: var(--color-accent); color: #fff; border-color: transparent;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0) 100%);
+  }
+
+  /* ---- CONTENT ---- */
+  .content {
+    flex: 1; overflow-y: auto;
+    padding: var(--space-2xl);
+    display: flex; flex-direction: column; gap: var(--space-2xl);
+  }
+
+  /* ---- SEGMENTED CONTROL ---- */
+  .segmented-control {
+    display: inline-flex; background: rgba(0,0,0,0.06);
+    border-radius: var(--radius-sm); padding: 2px; gap: 1px;
+  }
+  .segmented-option {
+    padding: 5px 16px; border-radius: 5px;
+    font-size: var(--font-size-sm); font-weight: 500;
+    color: var(--color-text-secondary); cursor: pointer;
+    transition: all 0.2s; user-select: none;
+  }
+  .segmented-option.active {
+    background: var(--color-surface); color: var(--color-text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* ---- STATS ROW ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .stat-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg) var(--space-xl);
+    display: flex; flex-direction: column; gap: var(--space-xs);
+  }
+
+  .stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  .stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  /* ---- CARD ---- */
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 0.5px solid var(--color-separator);
+  }
+  .card-title { font-size: var(--font-size-md); font-weight: 600; letter-spacing: -0.2px; }
+  .card-action { font-size: var(--font-size-sm); color: var(--color-accent); cursor: pointer; font-weight: 500; text-decoration: none; }
+  .card-body { padding: var(--space-lg) var(--space-xl); }
+
+  /* ---- FILTER BAR ---- */
+  .filter-bar {
+    display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px;
+    background: rgba(0,0,0,0.05); font-size: var(--font-size-sm);
+    color: var(--color-text-secondary); cursor: pointer;
+    transition: all 0.15s; border: none; font-family: var(--font-family);
+  }
+  .filter-chip:hover { background: rgba(0,0,0,0.08); }
+  .filter-chip.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .filter-divider { width: 1px; height: 20px; background: var(--color-separator); }
+
+  /* ---- CASE SELECTOR ---- */
+  .case-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg) var(--space-xl);
+  }
+
+  .case-selector-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  .case-selector-dropdown {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-separator);
+    background: var(--color-bg);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .case-selector-dropdown .chevron {
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+    margin-left: 4px;
+  }
+
+  .case-selector-spacer { flex: 1; }
+
+  .case-selector-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  /* ---- TIMELINE ---- */
+  .timeline {
+    position: relative;
+  }
+
+  .timeline-year {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    padding: var(--space-lg) var(--space-xl);
+    background: rgba(0,0,0,0.015);
+    border-bottom: 0.5px solid var(--color-separator);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .timeline-month {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--color-surface);
+    border-bottom: 0.5px solid var(--color-separator);
+    position: sticky;
+    top: 44px;
+    z-index: 1;
+  }
+
+  .timeline-entry {
+    display: flex;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 0.5px solid var(--color-separator);
+    gap: var(--space-lg);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+  .timeline-entry:hover { background: var(--color-hover); }
+  .timeline-entry:last-child { border-bottom: none; }
+
+  .timeline-date-col {
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .timeline-date {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .timeline-day {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  .timeline-marker-col {
+    width: 28px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .timeline-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    z-index: 1;
+    margin-top: 4px;
+  }
+
+  .timeline-dot.emergency   { background: var(--color-destructive); }
+  .timeline-dot.surgery     { background: var(--color-purple); }
+  .timeline-dot.imaging     { background: var(--color-indigo); }
+  .timeline-dot.office      { background: var(--color-accent); }
+  .timeline-dot.therapy     { background: var(--color-teal); }
+  .timeline-dot.medication  { background: var(--color-success); }
+  .timeline-dot.lab         { background: var(--color-orange); }
+  .timeline-dot.incident    { background: var(--color-pink); }
+
+  .timeline-line {
+    width: 1.5px;
+    flex: 1;
+    background: var(--color-separator);
+    margin-top: 4px;
+  }
+
+  .timeline-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .timeline-title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .timeline-provider {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xs);
+  }
+
+  .timeline-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  .timeline-tags {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .timeline-tag {
+    font-size: var(--font-size-xs);
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .timeline-tag.emergency  { background: rgba(255,59,48,0.1);  color: var(--color-destructive); }
+  .timeline-tag.surgery    { background: rgba(175,82,222,0.1); color: var(--color-purple); }
+  .timeline-tag.imaging    { background: rgba(88,86,214,0.1);  color: var(--color-indigo); }
+  .timeline-tag.office     { background: rgba(0,122,255,0.1);  color: var(--color-accent); }
+  .timeline-tag.therapy    { background: rgba(90,200,250,0.12); color: #0A84FF; }
+  .timeline-tag.medication { background: rgba(52,199,89,0.1);  color: var(--color-success); }
+  .timeline-tag.lab        { background: rgba(255,149,0,0.1);  color: var(--color-orange); }
+  .timeline-tag.incident   { background: rgba(255,45,85,0.1);  color: var(--color-pink); }
+
+  .timeline-cost {
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 80px;
+  }
+
+  .timeline-cost-value {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timeline-cost-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  .timeline-source {
+    flex-shrink: 0;
+    width: 60px;
+    text-align: right;
+  }
+
+  .timeline-page {
+    font-size: var(--font-size-xs);
+    color: var(--color-accent);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ---- SUMMARY CARDS ---- */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 0.5px solid var(--color-separator);
+  }
+  .summary-item:last-child { border-bottom: none; }
+
+  .summary-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .summary-label {
+    font-size: var(--font-size-sm);
+    flex: 1;
+  }
+
+  .summary-count {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- BAR CHART (CSS-only) ---- */
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .bar-label {
+    width: 100px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .bar-value {
+    width: 60px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* ---- DESIGN TOKENS ---- */
+  .design-tokens {
+    background: var(--color-surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); padding: var(--space-2xl);
+  }
+  .design-tokens h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-xl); letter-spacing: -0.3px; }
+  .token-group { margin-bottom: var(--space-2xl); }
+  .token-group:last-child { margin-bottom: 0; }
+  .token-group-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 0.5px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .token-name { font-weight: 500; width: 200px; }
+  .token-value { font-family: "SF Mono", SFMono-Regular, Menlo, monospace; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+  .component-preview { display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-md) 0; align-items: center; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Favorble</div>
+    </div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">12</span></a>
+    <a class="sidebar-item active" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Contacts</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">JK</div>
+      <div>
+        <div class="sidebar-user-name">Jake Klinvex</div>
+        <div class="sidebar-user-role">Admin</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Medical Chronology</h1>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search">
+        <span>&#128269;</span>
+        <input type="text" placeholder="Search events...">
+      </div>
+      <button class="toolbar-btn">&#8595; Export PDF</button>
+      <button class="toolbar-btn">&#128424; Print</button>
+      <button class="toolbar-btn primary">+ Add Entry</button>
+    </header>
+
+    <div class="content">
+      <!-- Case Selector -->
+      <div class="case-selector">
+        <span class="case-selector-label">Case:</span>
+        <div class="case-selector-dropdown">
+          Garcia v. TransCo Logistics
+          <span class="chevron">&#9660;</span>
+        </div>
+        <div class="case-selector-spacer"></div>
+        <span class="case-selector-meta">CS-2026-0142 &middot; Auto Accident &middot; Harris County, TX</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Events</div>
+          <div class="stat-value">47</div>
+          <div class="stat-sub">Across 8 providers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Medical Expenses</div>
+          <div class="stat-value" style="color:var(--color-destructive);">$67.4K</div>
+          <div class="stat-sub">Billed to date</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Treatment Period</div>
+          <div class="stat-value">11</div>
+          <div class="stat-sub">Weeks (Jan 12 - Mar 28)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Providers</div>
+          <div class="stat-value">8</div>
+          <div class="stat-sub">Active treating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Records Pages</div>
+          <div class="stat-value">312</div>
+          <div class="stat-sub">Across 14 documents</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="segmented-control">
+          <div class="segmented-option active">Timeline</div>
+          <div class="segmented-option">Table</div>
+          <div class="segmented-option">Summary</div>
+        </div>
+        <div class="filter-divider"></div>
+        <button class="filter-chip active">All Types</button>
+        <button class="filter-chip">Emergency</button>
+        <button class="filter-chip">Surgery</button>
+        <button class="filter-chip">Imaging</button>
+        <button class="filter-chip">Office Visit</button>
+        <button class="filter-chip">Therapy</button>
+        <button class="filter-chip">Medication</button>
+        <button class="filter-chip">Lab Work</button>
+        <div class="filter-divider"></div>
+        <button class="filter-chip">All Providers</button>
+      </div>
+
+      <!-- Two-Column: Timeline + Sidebar -->
+      <div style="display:grid; grid-template-columns: 1fr 320px; gap: var(--space-2xl);">
+        <!-- Timeline -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Treatment Timeline</span>
+            <span style="font-size:var(--font-size-sm); color:var(--color-text-secondary);">47 events</span>
+          </div>
+
+          <!-- 2026 -->
+          <div class="timeline-year">2026</div>
+
+          <!-- March -->
+          <div class="timeline-month">March</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Mar 26</div>
+              <div class="timeline-day">Wednesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot therapy"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Physical Therapy Session #18</div>
+              <div class="timeline-provider">Texas Spine & Rehab Center &middot; Dr. Amanda Foster, PT</div>
+              <div class="timeline-desc">Continued lumbar stabilization exercises. ROM improved to 85% of baseline. Patient reports decreased pain levels (4/10 vs 6/10 last visit). Progressed to resistance band exercises.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag therapy">Therapy</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$185</div>
+              <div class="timeline-cost-label">Per session</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 298-301</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Mar 20</div>
+              <div class="timeline-day">Thursday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot imaging"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Follow-up MRI — Lumbar Spine</div>
+              <div class="timeline-provider">Memorial Hermann Imaging &middot; Dr. Robert Kim, Radiologist</div>
+              <div class="timeline-desc">MRI confirms herniated disc at L4-L5 with moderate central canal stenosis. Mild improvement since prior study (Feb 8). No new disc herniations identified. Facet joint arthropathy at L3-L4.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag imaging">Imaging</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$2,800</div>
+              <div class="timeline-cost-label">Facility + read</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 284-289</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Mar 14</div>
+              <div class="timeline-day">Friday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot office"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Orthopedic Follow-up</div>
+              <div class="timeline-provider">Houston Orthopedic Associates &middot; Dr. James Whitfield, MD</div>
+              <div class="timeline-desc">Patient reports persistent low back pain radiating to left leg. Ordered follow-up MRI. Discussed surgical options if conservative treatment fails. Continuing Gabapentin 300mg TID.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag office">Office Visit</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$450</div>
+              <div class="timeline-cost-label">Specialist visit</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 276-280</div>
+            </div>
+          </div>
+
+          <!-- February -->
+          <div class="timeline-month">February</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Feb 26</div>
+              <div class="timeline-day">Wednesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot lab"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Blood Work — Pre-surgical Evaluation</div>
+              <div class="timeline-provider">Quest Diagnostics &middot; Ordered by Dr. Whitfield</div>
+              <div class="timeline-desc">CBC, CMP, PT/INR, Type & Screen. All results within normal limits. Cleared for potential surgical intervention if warranted.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag lab">Lab Work</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$340</div>
+              <div class="timeline-cost-label">Lab panel</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 260-264</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Feb 14</div>
+              <div class="timeline-day">Friday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot surgery"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Epidural Steroid Injection — L4-L5</div>
+              <div class="timeline-provider">Texas Pain Management &middot; Dr. Patricia Nguyen, MD</div>
+              <div class="timeline-desc">Fluoroscopy-guided transforaminal epidural steroid injection at L4-L5 left. Triamcinolone 80mg + Bupivacaine 0.25% 2mL. Patient tolerated procedure well. Instructed to rest 48 hours.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag surgery">Procedure</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$4,200</div>
+              <div class="timeline-cost-label">Facility + prof</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 240-248</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Feb 8</div>
+              <div class="timeline-day">Saturday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot imaging"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">MRI — Lumbar Spine (Initial)</div>
+              <div class="timeline-provider">Memorial Hermann Imaging &middot; Dr. Robert Kim, Radiologist</div>
+              <div class="timeline-desc">MRI reveals herniated disc at L4-L5 with left lateral recess stenosis and compression of the traversing L5 nerve root. Disc desiccation at L3-L4 and L4-L5. Mild facet arthropathy.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag imaging">Imaging</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$2,800</div>
+              <div class="timeline-cost-label">Facility + read</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 220-226</div>
+            </div>
+          </div>
+
+          <!-- January -->
+          <div class="timeline-month">January</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Jan 22</div>
+              <div class="timeline-day">Wednesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot office"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Initial Orthopedic Consultation</div>
+              <div class="timeline-provider">Houston Orthopedic Associates &middot; Dr. James Whitfield, MD</div>
+              <div class="timeline-desc">Referred from PCP for persistent lower back pain after MVA. Physical exam reveals limited ROM, positive straight leg raise on left, tenderness at L4-L5 region. Ordered MRI. Started Gabapentin 300mg TID and Naproxen 500mg BID.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag office">Office Visit</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$550</div>
+              <div class="timeline-cost-label">New patient</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 198-206</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Jan 15</div>
+              <div class="timeline-day">Wednesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot office"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">PCP Visit — Post-Accident Follow-up</div>
+              <div class="timeline-provider">Bayou City Family Medicine &middot; Dr. Lisa Hernandez, MD</div>
+              <div class="timeline-desc">Patient presents with worsening lower back pain, left leg numbness, and neck stiffness 3 days post-MVA. Referred to orthopedic specialist. Prescribed Flexeril 10mg for muscle spasm. Work restriction: no lifting over 10 lbs.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag office">Office Visit</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$275</div>
+              <div class="timeline-cost-label">PCP visit</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 186-192</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date" style="color:var(--color-destructive);">Jan 12</div>
+              <div class="timeline-day">Sunday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot incident"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title" style="color:var(--color-destructive);">Motor Vehicle Accident — Date of Incident</div>
+              <div class="timeline-provider">I-10 Eastbound at Beltway 8 &middot; HPD Report #2026-0412</div>
+              <div class="timeline-desc">Client's vehicle rear-ended by TransCo Logistics semi-truck at approximately 55 mph while stopped in traffic. Airbags deployed. Client transported by EMS to Memorial Hermann ER.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag incident">Incident</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$1,450</div>
+              <div class="timeline-cost-label">EMS transport</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 1-8</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Jan 12</div>
+              <div class="timeline-day">Sunday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot emergency"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Emergency Room Visit</div>
+              <div class="timeline-provider">Memorial Hermann — Texas Medical Center &middot; Dr. Michael Torres, MD</div>
+              <div class="timeline-desc">Chief complaint: severe neck and low back pain after MVA. X-rays of cervical and lumbar spine negative for fractures. CT head negative. Diagnosis: cervical strain, lumbar strain, contusion to left shoulder. Discharged with Norco 5/325 and Flexeril. Follow-up with PCP in 3 days.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag emergency">Emergency</span>
+                <span class="timeline-tag imaging">Imaging</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$12,400</div>
+              <div class="timeline-cost-label">ER + imaging</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 9-32</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar: Summary & Breakdown -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-2xl);">
+          <!-- By Type -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">By Type</span>
+            </div>
+            <div class="card-body">
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-destructive);"></div>
+                <span class="summary-label">Emergency</span>
+                <span class="summary-count">2</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-purple);"></div>
+                <span class="summary-label">Surgery / Procedures</span>
+                <span class="summary-count">3</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-indigo);"></div>
+                <span class="summary-label">Imaging</span>
+                <span class="summary-count">5</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-accent);"></div>
+                <span class="summary-label">Office Visits</span>
+                <span class="summary-count">9</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-teal);"></div>
+                <span class="summary-label">Physical Therapy</span>
+                <span class="summary-count">18</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-success);"></div>
+                <span class="summary-label">Medications</span>
+                <span class="summary-count">6</span>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-orange);"></div>
+                <span class="summary-label">Lab Work</span>
+                <span class="summary-count">4</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cost Breakdown -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Cost Breakdown</span>
+            </div>
+            <div class="card-body">
+              <div class="bar-chart">
+                <div class="bar-row">
+                  <div class="bar-label">ER / Emergency</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:52%; background:var(--color-destructive);"></div></div>
+                  <div class="bar-value">$13,850</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Imaging</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:36%; background:var(--color-indigo);"></div></div>
+                  <div class="bar-value">$9,600</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Procedures</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:30%; background:var(--color-purple);"></div></div>
+                  <div class="bar-value">$8,100</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Office Visits</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:22%; background:var(--color-accent);"></div></div>
+                  <div class="bar-value">$5,850</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Therapy</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:18%; background:var(--color-teal);"></div></div>
+                  <div class="bar-value">$3,330</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Lab / Rx</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:10%; background:var(--color-orange);"></div></div>
+                  <div class="bar-value">$2,670</div>
+                </div>
+              </div>
+              <div style="margin-top:var(--space-lg); padding-top:var(--space-md); border-top:0.5px solid var(--color-separator); display:flex; justify-content:space-between;">
+                <span style="font-size:var(--font-size-sm); font-weight:600;">Total Billed</span>
+                <span style="font-size:var(--font-size-md); font-weight:700;">$67,400</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Providers -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Providers</span>
+            </div>
+            <div class="card-body">
+              <div class="summary-item">
+                <span class="summary-label">Memorial Hermann TMC</span>
+                <span class="summary-count">6 visits</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Houston Orthopedic Assoc.</span>
+                <span class="summary-count">4 visits</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Texas Spine & Rehab</span>
+                <span class="summary-count">18 visits</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Texas Pain Management</span>
+                <span class="summary-count">3 visits</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Bayou City Family Med</span>
+                <span class="summary-count">2 visits</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Quest Diagnostics</span>
+                <span class="summary-count">4 visits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="design-tokens">
+        <h2>Design Tokens</h2>
+
+        <div class="token-group">
+          <div class="token-group-title">Timeline Category Colors</div>
+          <div class="component-preview">
+            <span class="timeline-tag incident">Incident</span>
+            <span class="timeline-tag emergency">Emergency</span>
+            <span class="timeline-tag surgery">Surgery</span>
+            <span class="timeline-tag imaging">Imaging</span>
+            <span class="timeline-tag office">Office Visit</span>
+            <span class="timeline-tag therapy">Therapy</span>
+            <span class="timeline-tag medication">Medication</span>
+            <span class="timeline-tag lab">Lab Work</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #FF2D55;"></div>
+            <div class="token-name">Incident</div>
+            <div class="token-value">#FF2D55 (Apple pink)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #FF3B30;"></div>
+            <div class="token-name">Emergency</div>
+            <div class="token-value">#FF3B30 (Apple red)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #AF52DE;"></div>
+            <div class="token-name">Surgery / Procedures</div>
+            <div class="token-value">#AF52DE (Apple purple)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #5856D6;"></div>
+            <div class="token-name">Imaging</div>
+            <div class="token-value">#5856D6 (Apple indigo)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #007AFF;"></div>
+            <div class="token-name">Office Visit</div>
+            <div class="token-value">#007AFF (Apple blue)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #5AC8FA;"></div>
+            <div class="token-name">Therapy</div>
+            <div class="token-value">#5AC8FA (Apple teal)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #34C759;"></div>
+            <div class="token-name">Medication</div>
+            <div class="token-value">#34C759 (Apple green)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background: #FF9500;"></div>
+            <div class="token-name">Lab Work</div>
+            <div class="token-value">#FF9500 (Apple orange)</div>
+          </div>
+        </div>
+
+        <div class="token-group">
+          <div class="token-group-title">Timeline Structure</div>
+          <div class="token-row">
+            <div class="token-name">Year Header</div>
+            <div class="token-value">17px, weight 700, sticky, subtle bg tint</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Month Header</div>
+            <div class="token-value">12px, weight 600, sticky (offset below year)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Timeline Dot</div>
+            <div class="token-value">10px, circle, category-colored</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Connector Line</div>
+            <div class="token-value">1.5px width, separator color</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Entry Padding</div>
+            <div class="token-value">16px 20px, separator bottom border</div>
+          </div>
+        </div>
+
+        <div class="token-group">
+          <div class="token-group-title">Bar Chart</div>
+          <div class="token-row">
+            <div class="token-name">Track</div>
+            <div class="token-value">8px height, 4px radius, rgba(0,0,0,0.04) bg</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Fill</div>
+            <div class="token-value">Category-colored, 4px radius, 0.5s transition</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Integrations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0C1117;
+    --bg-card: #151C25;
+    --bg-card-end: #1A222D;
+    --bg-sidebar: #0A0F14;
+    --bg-hover: #1E2733;
+    --bg-input: #111820;
+    --bg-row-alt: #131A22;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-accent: rgba(16,185,129,0.3);
+    --border-hover: rgba(16,185,129,0.5);
+    --text-primary: #E2E8F0;
+    --text-secondary: #64748B;
+    --text-muted: #475569;
+    --text-on-accent: #022C22;
+    --text-white: #FFFFFF;
+    --emerald: #10B981;
+    --emerald-light: #34D399;
+    --emerald-dark: #059669;
+    --emerald-glow: rgba(16,185,129,0.15);
+    --amber: #F59E0B;
+    --amber-bg: rgba(245,158,11,0.12);
+    --red: #EF4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --blue: #3B82F6;
+    --blue-bg: rgba(59,130,246,0.12);
+    --purple: #8B5CF6;
+    --purple-bg: rgba(139,92,246,0.12);
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-accent: 0 4px 16px rgba(16,185,129,0.1);
+    --radius: 8px;
+    --radius-sm: 6px;
+    --radius-lg: 12px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --text-xs: 0.75rem;
+    --text-sm: 0.8125rem;
+    --text-base: 0.875rem;
+    --text-lg: 1rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 2rem;
+    --tracking: -0.01em;
+    --transition: 150ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking);
+    color: var(--text-primary);
+    background: var(--bg-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 248px; min-width: 248px; background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; padding: 20px 0;
+  }
+  .sidebar-brand { padding: 0 20px 24px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-brand-icon {
+    width: 32px; height: 32px; background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: var(--text-lg); color: var(--text-on-accent);
+  }
+  .sidebar-brand-name { font-size: var(--text-lg); font-weight: 600; color: var(--text-white); }
+  .sidebar-section { padding: 0 12px; margin-bottom: 24px; }
+  .sidebar-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 0 8px 8px; }
+  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm); font-weight: 500; transition: all var(--transition); cursor: pointer; }
+  .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .sidebar-link.active { background: var(--emerald-glow); color: var(--emerald); }
+  .sidebar-link svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-link.active svg { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--emerald-glow); color: var(--emerald); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border-subtle); }
+  .sidebar-user { display: flex; align-items: center; gap: 10px; }
+  .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1E293B, #334155); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); font-weight: 600; color: var(--emerald); border: 1px solid var(--border-subtle); }
+  .sidebar-user-name { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+  .sidebar-user-role { font-size: var(--text-xs); color: var(--text-muted); }
+
+  /* MAIN */
+  .main-content { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: 100vh; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: var(--text-2xl); font-weight: 700; color: var(--text-white); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); margin-top: 2px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); font-family: var(--font); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all var(--transition); border: 1px solid transparent; text-decoration: none; }
+  .btn-primary { background: var(--emerald); color: var(--text-on-accent); border-color: var(--emerald); }
+  .btn-primary:hover { background: var(--emerald-light); box-shadow: var(--shadow-accent); }
+  .btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--border-subtle); }
+  .btn-secondary:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.12); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: none; padding: 6px 10px; }
+  .btn-ghost:hover { color: var(--text-primary); background: var(--bg-hover); }
+  .btn-danger { background: transparent; color: var(--red); border-color: rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: var(--red-bg); }
+  .btn svg { width: 16px; height: 16px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-emerald { background: var(--emerald-glow); color: var(--emerald); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-neutral { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+
+  /* SEARCH */
+  .search-wrapper { position: relative; max-width: 320px; }
+  .search-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+  .search-input { width: 100%; padding: 9px 14px 9px 36px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font); font-size: var(--text-sm); outline: none; transition: border-color var(--transition); }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: var(--border-accent); }
+
+  /* TABS (for categories) */
+  .category-tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+  .category-tab { padding: 7px 16px; font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-sm); transition: all var(--transition); border: 1px solid transparent; }
+  .category-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .category-tab.active { background: var(--emerald-glow); color: var(--emerald); border-color: var(--border-accent); }
+
+  /* INTEGRATION GRID */
+  .integrations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .integration-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: all var(--transition);
+    position: relative;
+  }
+
+  .integration-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-accent);
+    transform: translateY(-1px);
+  }
+
+  .integration-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .integration-card-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .integration-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-lg);
+    flex-shrink: 0;
+  }
+
+  .integration-name {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text-white);
+  }
+
+  .integration-category {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .integration-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .integration-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .integration-meta {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  /* Status indicator */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .status-dot.connected { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
+  .status-dot.disconnected { background: var(--text-muted); }
+  .status-dot.error { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .status-dot.pending { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+
+  .status-indicator.connected { color: var(--emerald); }
+  .status-indicator.disconnected { color: var(--text-muted); }
+  .status-indicator.error { color: var(--red); }
+  .status-indicator.pending { color: var(--amber); }
+
+  /* Toggle Switch */
+  .toggle {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    cursor: pointer;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--text-muted);
+    border-radius: 11px;
+    transition: all var(--transition);
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-white);
+    top: 3px;
+    left: 3px;
+    transition: transform var(--transition);
+  }
+
+  .toggle input:checked + .toggle-slider {
+    background: var(--emerald);
+  }
+
+  .toggle input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+  }
+
+  /* Section Title */
+  .section-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-white);
+    margin-bottom: 4px;
+  }
+
+  .section-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  /* Connected integration card variant */
+  .integration-card.connected {
+    border-color: var(--border-accent);
+  }
+
+  .integration-card.connected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--emerald), transparent);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  /* DESIGN TOKENS */
+  .tokens-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border-subtle); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+  .token-swatch { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-input); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
+  .token-color { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .token-name { font-size: var(--text-xs); font-weight: 600; color: var(--text-primary); }
+  .token-value { font-size: var(--text-xs); color: var(--text-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+  /* API key display */
+  .api-key-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .api-key-display .key-text { flex: 1; }
+
+  .api-key-display .copy-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px;
+    transition: color var(--transition);
+  }
+
+  .api-key-display .copy-btn:hover { color: var(--emerald); }
+
+  /* Usage bar */
+  .usage-bar-wrapper { margin-top: 8px; }
+  .usage-bar-label { display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 4px; }
+  .usage-bar { height: 4px; background: var(--bg-input); border-radius: 2px; overflow: hidden; }
+  .usage-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sidebar-link" href="cases-list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Cases<span class="sidebar-badge">47</span></a>
+      <a class="sidebar-link" href="case-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Case Detail</a>
+      <a class="sidebar-link" href="chronology.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Chronology</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a class="sidebar-link active" href="admin-integrations.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Integrations</a>
+      <a class="sidebar-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team</a>
+      <a class="sidebar-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Settings</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JR</div>
+        <div>
+          <div class="sidebar-user-name">Jordan Rivera</div>
+          <div class="sidebar-user-role">Senior Paralegal</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Integrations</div>
+        <div class="page-subtitle">Connect your favorite tools and services to streamline workflows</div>
+      </div>
+      <div class="search-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" placeholder="Search integrations...">
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+      <div class="category-tab active">All</div>
+      <div class="category-tab">Connected</div>
+      <div class="category-tab">Document Management</div>
+      <div class="category-tab">Communication</div>
+      <div class="category-tab">Calendar</div>
+      <div class="category-tab">Billing</div>
+      <div class="category-tab">AI & Automation</div>
+    </div>
+
+    <!-- Connected Integrations -->
+    <div class="section-title">Connected</div>
+    <div class="section-subtitle">Active integrations currently syncing with your workspace</div>
+
+    <div class="integrations-grid">
+      <!-- Google Workspace -->
+      <div class="integration-card connected">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--blue-bg);color:var(--blue)">G</div>
+            <div>
+              <div class="integration-name">Google Workspace</div>
+              <div class="integration-category">Calendar &bull; Drive &bull; Email</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Sync Google Calendar events, access Google Drive documents, and send emails directly from case files. Two-way sync keeps everything up to date.</div>
+        <div class="integration-footer">
+          <div class="status-indicator connected">
+            <span class="status-dot connected"></span>
+            Connected
+          </div>
+          <button class="btn btn-ghost" style="font-size:var(--text-xs)">Configure</button>
+        </div>
+        <div class="usage-bar-wrapper">
+          <div class="usage-bar-label">
+            <span>API Usage</span>
+            <span>2,847 / 10,000 calls</span>
+          </div>
+          <div class="usage-bar"><div class="usage-bar-fill" style="width:28%;background:var(--emerald)"></div></div>
+        </div>
+      </div>
+
+      <!-- Dropbox -->
+      <div class="integration-card connected">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--blue-bg);color:var(--blue)">D</div>
+            <div>
+              <div class="integration-name">Dropbox</div>
+              <div class="integration-category">Document Storage</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Automatically sync case documents to Dropbox folders. Organize files by case number with configurable folder structures.</div>
+        <div class="integration-footer">
+          <div class="status-indicator connected">
+            <span class="status-dot connected"></span>
+            Connected
+          </div>
+          <button class="btn btn-ghost" style="font-size:var(--text-xs)">Configure</button>
+        </div>
+        <div class="usage-bar-wrapper">
+          <div class="usage-bar-label">
+            <span>Storage</span>
+            <span>18.4 GB / 50 GB</span>
+          </div>
+          <div class="usage-bar"><div class="usage-bar-fill" style="width:37%;background:var(--emerald)"></div></div>
+        </div>
+      </div>
+
+      <!-- Slack -->
+      <div class="integration-card connected">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--purple-bg);color:var(--purple)">S</div>
+            <div>
+              <div class="integration-name">Slack</div>
+              <div class="integration-category">Communication</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Get real-time notifications in Slack channels for case updates, task assignments, deadline reminders, and team mentions.</div>
+        <div class="integration-footer">
+          <div class="status-indicator connected">
+            <span class="status-dot connected"></span>
+            Connected
+          </div>
+          <button class="btn btn-ghost" style="font-size:var(--text-xs)">Configure</button>
+        </div>
+        <div class="usage-bar-wrapper">
+          <div class="usage-bar-label">
+            <span>Notifications sent</span>
+            <span>342 this month</span>
+          </div>
+          <div class="usage-bar"><div class="usage-bar-fill" style="width:65%;background:var(--amber)"></div></div>
+        </div>
+      </div>
+
+      <!-- QuickBooks -->
+      <div class="integration-card connected">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--emerald-glow);color:var(--emerald)">Q</div>
+            <div>
+              <div class="integration-name">QuickBooks</div>
+              <div class="integration-category">Billing &amp; Accounting</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Sync invoices, track billable hours, and manage trust accounts. Automatic reconciliation with your accounting system.</div>
+        <div class="integration-footer">
+          <div class="status-indicator error">
+            <span class="status-dot error"></span>
+            Sync Error &mdash; Re-authenticate
+          </div>
+          <button class="btn btn-ghost" style="font-size:var(--text-xs);color:var(--red)">Fix</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Available Integrations -->
+    <div class="section-title" style="margin-top:8px">Available</div>
+    <div class="section-subtitle">Browse and connect new integrations to enhance your workflow</div>
+
+    <div class="integrations-grid">
+      <!-- Microsoft 365 -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--blue-bg);color:var(--blue)">M</div>
+            <div>
+              <div class="integration-name">Microsoft 365</div>
+              <div class="integration-category">Calendar &bull; OneDrive &bull; Email</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Connect Outlook calendar, OneDrive file storage, and Teams messaging for seamless Microsoft ecosystem integration.</div>
+        <div class="integration-footer">
+          <div class="status-indicator disconnected">
+            <span class="status-dot disconnected"></span>
+            Not Connected
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Connect</button>
+        </div>
+      </div>
+
+      <!-- DocuSign -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--amber-bg);color:var(--amber)">DS</div>
+            <div>
+              <div class="integration-name">DocuSign</div>
+              <div class="integration-category">E-Signatures</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Send documents for electronic signatures directly from case files. Track signing status and auto-file completed documents.</div>
+        <div class="integration-footer">
+          <div class="status-indicator disconnected">
+            <span class="status-dot disconnected"></span>
+            Not Connected
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Connect</button>
+        </div>
+      </div>
+
+      <!-- Clio -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--emerald-glow);color:var(--emerald)">C</div>
+            <div>
+              <div class="integration-name">Clio</div>
+              <div class="integration-category">Practice Management</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Import and sync case data with Clio practice management. Bi-directional sync for contacts, matters, and billing entries.</div>
+        <div class="integration-footer">
+          <div class="status-indicator disconnected">
+            <span class="status-dot disconnected"></span>
+            Not Connected
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Connect</button>
+        </div>
+      </div>
+
+      <!-- OpenAI -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:rgba(255,255,255,0.08);color:var(--text-white)">AI</div>
+            <div>
+              <div class="integration-name">OpenAI / Claude</div>
+              <div class="integration-category">AI &amp; Automation</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">AI-powered document summarization, medical chronology generation, and intelligent search across case files using LLMs.</div>
+        <div class="integration-footer">
+          <div class="status-indicator pending">
+            <span class="status-dot pending"></span>
+            Setup Required
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Configure</button>
+        </div>
+      </div>
+
+      <!-- Zoom -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--blue-bg);color:var(--blue)">Z</div>
+            <div>
+              <div class="integration-name">Zoom</div>
+              <div class="integration-category">Video Conferencing</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Schedule Zoom meetings from case views, auto-attach recordings and transcripts to case files for depositions and client meetings.</div>
+        <div class="integration-footer">
+          <div class="status-indicator disconnected">
+            <span class="status-dot disconnected"></span>
+            Not Connected
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Connect</button>
+        </div>
+      </div>
+
+      <!-- LawPay -->
+      <div class="integration-card">
+        <div class="integration-card-header">
+          <div class="integration-card-left">
+            <div class="integration-icon" style="background:var(--emerald-glow);color:var(--emerald)">LP</div>
+            <div>
+              <div class="integration-name">LawPay</div>
+              <div class="integration-category">Payment Processing</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="integration-desc">Accept credit card and eCheck payments from clients. IOLTA-compliant trust account management with automatic receipt generation.</div>
+        <div class="integration-footer">
+          <div class="status-indicator disconnected">
+            <span class="status-dot disconnected"></span>
+            Not Connected
+          </div>
+          <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Keys Section -->
+    <div class="section-title" style="margin-top:8px">API Access</div>
+    <div class="section-subtitle">Manage API keys for custom integrations and third-party development</div>
+
+    <div style="background:linear-gradient(135deg,var(--bg-card),var(--bg-card-end));border:1px solid var(--border-subtle);border-radius:var(--radius);padding:24px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Production API Key</div>
+          <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px">Created Mar 1, 2025 &bull; Last used 2 hours ago</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" style="font-size:var(--text-xs);padding:5px 12px">Regenerate</button>
+          <button class="btn btn-danger" style="font-size:var(--text-xs);padding:5px 12px">Revoke</button>
+        </div>
+      </div>
+      <div class="api-key-display">
+        <span class="key-text">fvbl_prod_sk_••••••••••••••••••••••••r7Kx</span>
+        <button class="copy-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:12px">
+        <div>
+          <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Staging API Key</div>
+          <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px">Created Mar 1, 2025 &bull; Last used 5 days ago</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" style="font-size:var(--text-xs);padding:5px 12px">Regenerate</button>
+        </div>
+      </div>
+      <div class="api-key-display">
+        <span class="key-text">fvbl_stag_sk_••••••••••••••••••••••••m2Pq</span>
+        <button class="copy-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- DESIGN TOKENS -->
+    <div class="tokens-section">
+      <div style="font-size:var(--text-xl);font-weight:700;color:var(--text-white);margin-bottom:4px">Design Tokens</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary)">Midnight Emerald &mdash; Integration Components</div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Status Indicators</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+        <div class="status-indicator connected"><span class="status-dot connected"></span> Connected</div>
+        <div class="status-indicator disconnected"><span class="status-dot disconnected"></span> Not Connected</div>
+        <div class="status-indicator error"><span class="status-dot error"></span> Error</div>
+        <div class="status-indicator pending"><span class="status-dot pending"></span> Pending</div>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Toggle States</div>
+      <div style="margin-top:12px;display:flex;gap:16px;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">On</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Off</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Category Tabs</div>
+      <div style="margin-top:12px;display:flex;gap:4px;flex-wrap:wrap">
+        <div class="category-tab active">Active Tab</div>
+        <div class="category-tab">Inactive Tab</div>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Icon Backgrounds</div>
+      <div class="tokens-grid">
+        <div class="token-swatch"><div class="token-color" style="background:var(--blue-bg)"></div><div><div class="token-name">Blue Icon BG</div><div class="token-value">rgba(59,130,246,0.12)</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:var(--emerald-glow)"></div><div><div class="token-name">Green Icon BG</div><div class="token-value">rgba(16,185,129,0.15)</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:var(--purple-bg)"></div><div><div class="token-name">Purple Icon BG</div><div class="token-value">rgba(139,92,246,0.12)</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:var(--amber-bg)"></div><div><div class="token-name">Amber Icon BG</div><div class="token-value">rgba(245,158,11,0.12)</div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

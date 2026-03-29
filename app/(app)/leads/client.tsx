@@ -308,9 +308,9 @@ export function LeadsPipelineClient({
         {columns.map((col) => (
           <div
             key={col.status}
-            className={`min-w-[280px] max-w-[320px] flex-1 rounded-lg transition-colors ${
+            className={`min-w-[280px] max-w-[320px] flex-1 rounded-[6px] border border-[#eaeaea] bg-[#fafafa] p-3 transition-colors duration-200 ${
               dragOverColumn === col.status
-                ? "bg-accent/50 ring-2 ring-primary/20"
+                ? "border-[#999]"
                 : ""
             }`}
             onDragOver={(e) => handleDragOver(e, col.status)}
@@ -319,12 +319,12 @@ export function LeadsPipelineClient({
           >
             {/* Column Header */}
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-foreground">
+              <h3 className="text-sm font-medium text-[#171717]">
                 {col.label}
               </h3>
-              <Badge variant="secondary" className="text-xs">
+              <span className="text-xs text-[#666]">
                 {col.leads.length}
-              </Badge>
+              </span>
             </div>
 
             {/* Cards */}
@@ -335,7 +335,7 @@ export function LeadsPipelineClient({
                   draggable
                   onDragStart={(e) => handleDragStart(e, lead.id)}
                   onDragEnd={handleDragEnd}
-                  className={`hover:shadow-sm transition-all cursor-grab active:cursor-grabbing ${
+                  className={`border-[#eaeaea] bg-white transition-colors duration-200 hover:border-[#999] cursor-grab active:cursor-grabbing ${
                     draggedLeadId === lead.id ? "opacity-50" : ""
                   }`}
                 >
@@ -343,15 +343,15 @@ export function LeadsPipelineClient({
                     <div className="flex items-start justify-between">
                       <Link
                         href={`/leads/${lead.id}`}
-                        className="text-sm font-medium text-foreground hover:text-primary"
+                        className="text-sm font-medium text-[#171717] hover:underline"
                       >
                         {lead.firstName} {lead.lastName}
                       </Link>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-[#666]">
                         {formatRelative(lead.createdAt)}
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap gap-2 text-xs text-[#666]">
                       {lead.email && (
                         <span className="flex items-center gap-1">
                           <HugeiconsIcon icon={Mail01Icon} size={12} />
@@ -366,7 +366,7 @@ export function LeadsPipelineClient({
                       )}
                     </div>
                     {lead.source && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs border-[#eaeaea] text-[#666]">
                         {lead.source}
                       </Badge>
                     )}
@@ -389,8 +389,8 @@ export function LeadsPipelineClient({
                 </Card>
               ))}
               {col.leads.length === 0 && (
-                <div className="rounded-md border border-dashed p-6 text-center">
-                  <p className="text-xs text-muted-foreground">
+                <div className="rounded-[6px] border border-dashed border-[#eaeaea] p-6 text-center">
+                  <p className="text-xs text-[#666]">
                     {dragOverColumn === col.status ? "Drop here" : "No leads"}
                   </p>
                 </div>

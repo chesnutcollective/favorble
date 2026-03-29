@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology (Neo-Brutalist Dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#111111;--card-bg:#1A1A1A;--sidebar-bg:#0A0A0A;
+    --text-primary:#F0F0F0;--text-secondary:#999;--text-inverse:#F0F0F0;
+    --orange:#FF6B00;--purple:#5B21B6;--yellow:#FFD700;
+    --green:#00CC88;--pink:#FF3366;--blue:#3B82F6;
+    --border:2px solid #444;--shadow:4px 4px 0 rgba(255,255,255,0.15);--shadow-sm:3px 3px 0 rgba(255,255,255,0.1);
+    --radius-none:0px;--radius-pill:999px;
+    --font-heading:'Space Grotesk',sans-serif;
+    --font-body:'DM Sans',sans-serif;
+    --font-mono:'Space Mono',monospace;
+    --space-xs:4px;--space-sm:8px;--space-md:16px;
+    --space-lg:24px;--space-xl:32px;--space-2xl:48px;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary);line-height:1.5;display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:260px;background:var(--sidebar-bg);color:var(--text-inverse);padding:var(--space-lg);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+  .sidebar-logo{font-family:var(--font-heading);font-size:28px;font-weight:700;margin-bottom:var(--space-2xl);letter-spacing:-1px;}
+  .sidebar-logo span{color:var(--orange);}
+  .sidebar nav{flex:1;}
+  .sidebar nav a{display:flex;align-items:center;gap:var(--space-sm);color:#777;text-decoration:none;padding:10px 14px;font-size:15px;font-weight:500;border:2px solid transparent;margin-bottom:4px;transition:all .1s;}
+  .sidebar nav a:hover{color:#F0F0F0;background:rgba(255,255,255,.06);}
+  .sidebar nav a.active{color:#F0F0F0;background:var(--orange);border:2px solid var(--orange);font-weight:700;}
+  .sidebar nav a .icon{width:20px;text-align:center;font-size:16px;}
+  .sidebar-section-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#777;margin:var(--space-lg) 0 var(--space-sm) var(--space-md);}
+  .sidebar-user{border-top:1px solid #333;padding-top:var(--space-md);display:flex;align-items:center;gap:var(--space-sm);}
+  .sidebar-user-avatar{width:36px;height:36px;background:var(--purple);border:2px solid #444;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .sidebar-user-info{font-size:13px;}
+  .sidebar-user-info .name{font-weight:600;}
+  .sidebar-user-info .role{color:#777;font-size:11px;}
+
+  /* Main */
+  .main{flex:1;margin-left:260px;padding:var(--space-xl) var(--space-2xl);max-width:1200px;}
+
+  /* Buttons */
+  .btn{font-family:var(--font-heading);font-size:14px;font-weight:600;padding:10px 20px;border:var(--border);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-sm);transition:transform .1s,box-shadow .1s;box-shadow:var(--shadow-sm);}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(255,255,255,0.2);}
+  .btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent;}
+  .btn-primary{background:var(--orange);color:#F0F0F0;}
+  .btn-secondary{background:var(--card-bg);color:var(--text-primary);}
+  .btn-dark{background:#0A0A0A;color:#F0F0F0;}
+  .btn-sm{font-size:12px;padding:6px 14px;box-shadow:2px 2px 0 rgba(255,255,255,0.1);}
+  .btn-pill{border-radius:var(--radius-pill);}
+
+  /* Badge */
+  .badge{display:inline-block;font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border:var(--border);}
+  .badge-orange{background:var(--orange);color:#F0F0F0;}
+  .badge-purple{background:var(--purple);color:#F0F0F0;}
+  .badge-green{background:var(--green);}
+  .badge-pink{background:var(--pink);color:#F0F0F0;}
+  .badge-yellow{background:var(--yellow);}
+  .badge-blue{background:var(--blue);color:#F0F0F0;}
+
+  /* Card */
+  .card{background:var(--card-bg);border:var(--border);box-shadow:var(--shadow);padding:var(--space-lg);margin-bottom:var(--space-lg);}
+  .card-title{font-family:var(--font-heading);font-size:18px;font-weight:700;margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;}
+
+  /* Page Header */
+  .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-xl);}
+  .page-header h1{font-family:var(--font-heading);font-size:32px;font-weight:700;letter-spacing:-1px;}
+  .page-header .subtitle{color:var(--text-secondary);font-size:15px;margin-top:2px;}
+
+  /* Breadcrumb */
+  .breadcrumb{display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-md);font-size:13px;}
+  .breadcrumb a{color:var(--text-secondary);text-decoration:none;}
+  .breadcrumb a:hover{color:var(--orange);}
+  .breadcrumb .sep{color:#555;}
+  .breadcrumb .current{font-weight:700;color:var(--text-primary);}
+
+  /* Stats Row */
+  .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-md);margin-bottom:var(--space-xl);}
+  .stat-card{background:var(--card-bg);border:var(--border);box-shadow:var(--shadow);padding:var(--space-lg);position:relative;transition:transform .1s,box-shadow .1s;}
+  .stat-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(255,255,255,0.2);}
+  .stat-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-secondary);margin-bottom:var(--space-sm);}
+  .stat-value{font-family:var(--font-heading);font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;}
+  .stat-accent{position:absolute;top:0;right:0;width:8px;height:100%;}
+  .stat-accent.orange{background:var(--orange);}
+  .stat-accent.purple{background:var(--purple);}
+  .stat-accent.green{background:var(--green);}
+  .stat-accent.pink{background:var(--pink);}
+  .stat-accent.blue{background:var(--blue);}
+
+  /* Filters */
+  .filters-bar{display:flex;gap:var(--space-sm);margin-bottom:var(--space-lg);flex-wrap:wrap;align-items:center;}
+  .search-input{font-family:var(--font-body);font-size:14px;padding:10px 16px;border:var(--border);background:var(--card-bg);color:var(--text-primary);box-shadow:var(--shadow-sm);flex:1;min-width:200px;outline:none;}
+  .search-input:focus{box-shadow:4px 4px 0 var(--orange);}
+  .filter-select{font-family:var(--font-heading);font-size:13px;font-weight:600;padding:10px 16px;border:var(--border);background:var(--card-bg);color:var(--text-primary);box-shadow:var(--shadow-sm);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F0F0F0' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+  .filter-select:focus{box-shadow:4px 4px 0 var(--orange);outline:none;}
+
+  .filter-pills{display:flex;gap:var(--space-sm);flex-wrap:wrap;margin-bottom:var(--space-md);}
+  .filter-pill{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:4px 12px;border:var(--border);cursor:pointer;background:var(--bg);transition:all .1s;text-transform:uppercase;letter-spacing:.5px;}
+  .filter-pill:hover{background:var(--yellow);}
+  .filter-pill.active{background:var(--orange);color:#F0F0F0;}
+
+  /* Timeline */
+  .timeline-container{position:relative;}
+
+  /* Year/Month markers */
+  .timeline-year{font-family:var(--font-heading);font-size:24px;font-weight:700;margin-top:var(--space-xl);margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:4px solid #444;display:flex;align-items:center;gap:var(--space-sm);}
+  .timeline-year:first-child{margin-top:0;}
+  .timeline-year .year-count{font-family:var(--font-mono);font-size:12px;font-weight:400;background:var(--bg);padding:2px 10px;border:var(--border);}
+
+  .timeline-month{font-family:var(--font-mono);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-md);padding-left:60px;}
+
+  /* Timeline entries */
+  .timeline-entry{display:flex;gap:var(--space-md);margin-bottom:var(--space-sm);position:relative;}
+
+  .timeline-date{width:50px;flex-shrink:0;text-align:right;padding-top:12px;}
+  .timeline-date-day{font-family:var(--font-heading);font-size:20px;font-weight:700;line-height:1;}
+  .timeline-date-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);}
+
+  .timeline-line{width:24px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;position:relative;}
+  .timeline-line::before{content:'';position:absolute;top:0;bottom:-8px;width:3px;background:#444;left:50%;transform:translateX(-50%);}
+  .timeline-entry:last-child .timeline-line::before{display:none;}
+  .timeline-dot{width:16px;height:16px;border:3px solid #444;background:#1A1A1A;z-index:1;margin-top:14px;flex-shrink:0;}
+  .timeline-dot.emergency{background:var(--pink);}
+  .timeline-dot.surgery{background:var(--orange);}
+  .timeline-dot.visit{background:var(--blue);}
+  .timeline-dot.imaging{background:var(--purple);}
+  .timeline-dot.therapy{background:var(--green);}
+  .timeline-dot.medication{background:var(--yellow);}
+  .timeline-dot.consult{background:#0A0A0A;}
+
+  .timeline-content{flex:1;background:var(--card-bg);border:var(--border);padding:var(--space-md);transition:transform .1s,box-shadow .1s;}
+  .timeline-content:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow);}
+
+  .entry-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--space-sm);gap:var(--space-sm);}
+  .entry-title{font-family:var(--font-heading);font-size:15px;font-weight:700;}
+  .entry-type{font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border:var(--border);white-space:nowrap;}
+  .entry-type.emergency{background:var(--pink);color:#F0F0F0;}
+  .entry-type.surgery{background:var(--orange);color:#F0F0F0;}
+  .entry-type.visit{background:var(--blue);color:#F0F0F0;}
+  .entry-type.imaging{background:var(--purple);color:#F0F0F0;}
+  .entry-type.therapy{background:var(--green);}
+  .entry-type.medication{background:var(--yellow);}
+  .entry-type.consult{background:#0A0A0A;color:#F0F0F0;}
+
+  .entry-provider{font-size:13px;color:var(--text-secondary);margin-bottom:var(--space-sm);}
+  .entry-provider strong{color:var(--text-primary);}
+
+  .entry-details{font-size:13px;line-height:1.6;margin-bottom:var(--space-sm);}
+
+  .entry-findings{background:var(--bg);border:var(--border);padding:var(--space-sm) var(--space-md);font-size:13px;margin-bottom:var(--space-sm);}
+  .entry-findings-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:4px;}
+
+  .entry-meta{display:flex;gap:var(--space-md);font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);flex-wrap:wrap;}
+  .entry-meta-item{display:flex;align-items:center;gap:4px;}
+
+  .entry-tags{display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-top:var(--space-sm);}
+  .entry-tag{font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border:1px solid #444;color:var(--text-secondary);}
+
+  /* Summary Card */
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-lg);margin-bottom:var(--space-xl);}
+  .summary-item{padding:var(--space-sm) 0;border-bottom:2px solid #333;font-size:14px;display:flex;justify-content:space-between;}
+  .summary-item:last-child{border-bottom:none;}
+  .summary-label{color:var(--text-secondary);}
+  .summary-value{font-weight:700;}
+
+  /* Injury diagram placeholder */
+  .body-diagram{width:100%;height:200px;border:var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:var(--space-md);}
+
+  /* Design Tokens */
+  .tokens-section{border-top:4px solid #444;padding-top:var(--space-xl);margin-top:var(--space-2xl);}
+  .tokens-section h2{font-family:var(--font-heading);font-size:24px;font-weight:700;margin-bottom:var(--space-lg);}
+  .token-group{margin-bottom:var(--space-xl);}
+  .token-group h3{font-family:var(--font-mono);font-size:13px;text-transform:uppercase;letter-spacing:2px;margin-bottom:var(--space-md);color:var(--text-secondary);}
+  .color-swatches{display:flex;gap:var(--space-sm);flex-wrap:wrap;}
+  .swatch{width:80px;text-align:center;}
+  .swatch-color{width:80px;height:60px;border:var(--border);box-shadow:var(--shadow-sm);margin-bottom:var(--space-xs);}
+  .swatch-label{font-family:var(--font-mono);font-size:10px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Favor<span>ble</span></div>
+  <nav>
+    <div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+    <a href="cases-list.html"><span class="icon">&#9830;</span> Cases</a>
+    <a href="chronology.html" class="active"><span class="icon">&#9672;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a href="#"><span class="icon">&#9734;</span> Contacts</a>
+    <a href="#"><span class="icon">&#9998;</span> Documents</a>
+    <a href="#"><span class="icon">&#8853;</span> Calendar</a>
+    <div class="sidebar-section-label">Admin</div>
+    <a href="admin-integrations.html"><span class="icon">&#8644;</span> Integrations</a>
+    <a href="#"><span class="icon">&#9881;</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">JR</div>
+    <div class="sidebar-user-info">
+      <div class="name">Jessica Reyes</div>
+      <div class="role">Senior Paralegal</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="cases-list.html">Cases</a>
+    <span class="sep">/</span>
+    <a href="case-detail.html">Garcia v. Metro Health</a>
+    <span class="sep">/</span>
+    <span class="current">Medical Chronology</span>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Medical Chronology</h1>
+      <p class="subtitle">Garcia v. Metro Health Systems &mdash; CS-2026-0284</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">Export PDF</button>
+      <button class="btn btn-dark btn-sm">Print</button>
+      <button class="btn btn-primary">+ Add Entry</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-accent orange"></div>
+      <div class="stat-label">Total Entries</div>
+      <div class="stat-value">47</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent purple"></div>
+      <div class="stat-label">Providers</div>
+      <div class="stat-value">12</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent green"></div>
+      <div class="stat-label">Time Span</div>
+      <div class="stat-value">14 mo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent pink"></div>
+      <div class="stat-label">Medical Costs</div>
+      <div class="stat-value">$42.5K</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent blue"></div>
+      <div class="stat-label">Pages Reviewed</div>
+      <div class="stat-value">1,284</div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="card">
+      <div class="card-title">Patient Summary</div>
+      <div class="summary-item">
+        <span class="summary-label">Patient</span>
+        <span class="summary-value">Maria Garcia</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">DOB</span>
+        <span class="summary-value">Apr 12, 1978 (age 47)</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Date of Incident</span>
+        <span class="summary-value">Jan 14, 2025</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Primary Diagnosis</span>
+        <span class="summary-value">L4-L5 Disc Herniation</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Secondary</span>
+        <span class="summary-value">Cervical Strain, Left Rotator Cuff Tear</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Pre-existing</span>
+        <span class="summary-value">None documented</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Injury Overview</div>
+      <div class="body-diagram">[ Body Diagram — Injury Locations ]</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="badge badge-pink">Lumbar Spine</span>
+        <span class="badge badge-orange">Cervical Spine</span>
+        <span class="badge badge-purple">Left Shoulder</span>
+        <span class="badge badge-blue">Left Knee</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <input type="text" class="search-input" placeholder="Search entries, providers, diagnoses...">
+    <select class="filter-select">
+      <option>All Types</option>
+      <option>Emergency</option>
+      <option>Surgery</option>
+      <option>Office Visit</option>
+      <option>Imaging</option>
+      <option>Therapy</option>
+      <option>Medication</option>
+    </select>
+    <select class="filter-select">
+      <option>All Providers</option>
+      <option>Metro Health ER</option>
+      <option>Dr. Sarah Chen</option>
+      <option>Dr. James Pham</option>
+      <option>Houston Spine Center</option>
+      <option>ProRehab Physical Therapy</option>
+    </select>
+    <select class="filter-select">
+      <option>All Body Regions</option>
+      <option>Lumbar Spine</option>
+      <option>Cervical Spine</option>
+      <option>Left Shoulder</option>
+      <option>Left Knee</option>
+    </select>
+  </div>
+
+  <div class="filter-pills">
+    <div class="filter-pill active">All Entries</div>
+    <div class="filter-pill">Key Events</div>
+    <div class="filter-pill">Surgeries Only</div>
+    <div class="filter-pill">Flagged</div>
+    <div class="filter-pill">Gaps in Treatment</div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline-container">
+
+    <!-- 2025 -->
+    <div class="timeline-year">2025 <span class="year-count">32 entries</span></div>
+
+    <div class="timeline-month">January 2025</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">14</div>
+        <div class="timeline-date-label">Jan</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot emergency"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Emergency Department Visit</div>
+          <span class="entry-type emergency">Emergency</span>
+        </div>
+        <div class="entry-provider"><strong>Metro Health ER</strong> &mdash; Dr. R. Vasquez, MD</div>
+        <div class="entry-details">
+          Patient presented via ambulance following motor vehicle collision. Rear-ended at estimated 45 mph while stopped at red light. Complained of severe lower back pain, neck stiffness, left shoulder pain, and left knee pain. GCS 15, alert and oriented x3.
+        </div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Findings</div>
+          Lumbar spine X-ray: No acute fracture. Mild disc space narrowing at L4-L5. Cervical spine X-ray: Loss of normal lordosis, no fracture. Left knee X-ray: No fracture, mild soft tissue swelling.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $4,280</span>
+          <span class="entry-meta-item">Pages: 24</span>
+          <span class="entry-meta-item">Source: Metro Health Records</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Cervical</span>
+          <span class="entry-tag">Left Shoulder</span>
+          <span class="entry-tag">Left Knee</span>
+          <span class="entry-tag">Imaging</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">18</div>
+        <div class="timeline-date-label">Jan</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot visit"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Initial Orthopedic Consultation</div>
+          <span class="entry-type visit">Office Visit</span>
+        </div>
+        <div class="entry-provider"><strong>Houston Spine Center</strong> &mdash; Dr. James Pham, MD (Orthopedic Surgery)</div>
+        <div class="entry-details">
+          Follow-up 4 days post-accident. Persistent lower back pain radiating to left leg (L5 distribution). Neck pain with decreased ROM. Left shoulder pain with limited abduction. Physical exam notable for positive straight leg raise on left, decreased lumbar ROM, and tenderness over L4-L5.
+        </div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Assessment</div>
+          Lumbar disc herniation suspected at L4-L5, cervical strain, rule out left rotator cuff tear. Ordered MRI lumbar spine, MRI left shoulder.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $350</span>
+          <span class="entry-meta-item">Pages: 8</span>
+          <span class="entry-meta-item">Source: Houston Spine Center</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Cervical</span>
+          <span class="entry-tag">Left Shoulder</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">22</div>
+        <div class="timeline-date-label">Jan</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot imaging"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">MRI Lumbar Spine</div>
+          <span class="entry-type imaging">Imaging</span>
+        </div>
+        <div class="entry-provider"><strong>Houston Diagnostic Imaging</strong> &mdash; Dr. L. Whitfield, MD (Radiology)</div>
+        <div class="entry-details">
+          MRI lumbar spine without contrast performed.
+        </div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Findings</div>
+          L4-L5: Left paracentral disc herniation measuring approximately 6mm, causing moderate left lateral recess stenosis and impingement on the traversing left L5 nerve root. L3-L4: Small broad-based disc bulge without significant stenosis. All other levels unremarkable.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $2,800</span>
+          <span class="entry-meta-item">Pages: 6</span>
+          <span class="entry-meta-item">Source: Houston Diagnostic</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Key Finding</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-month">February 2025</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">03</div>
+        <div class="timeline-date-label">Feb</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot therapy"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Physical Therapy — Initial Evaluation</div>
+          <span class="entry-type therapy">Therapy</span>
+        </div>
+        <div class="entry-provider"><strong>ProRehab Physical Therapy</strong> &mdash; Amanda Torres, DPT</div>
+        <div class="entry-details">
+          Initial PT evaluation. Patient reports pain level 7/10 in lower back, 5/10 in neck, 6/10 in left shoulder. Significant difficulty with ADLs including dressing, driving, and prolonged sitting. Treatment plan: 3x/week for 8 weeks focusing on lumbar stabilization, cervical ROM, and shoulder strengthening.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $275</span>
+          <span class="entry-meta-item">Pages: 4</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Cervical</span>
+          <span class="entry-tag">Left Shoulder</span>
+          <span class="entry-tag">Treatment Plan</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">10</div>
+        <div class="timeline-date-label">Feb</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot imaging"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">MRI Left Shoulder</div>
+          <span class="entry-type imaging">Imaging</span>
+        </div>
+        <div class="entry-provider"><strong>Houston Diagnostic Imaging</strong> &mdash; Dr. L. Whitfield, MD</div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Findings</div>
+          Partial thickness tear of the supraspinatus tendon (articular surface, approximately 50% thickness). Mild subacromial bursitis. Intact labrum. No fracture.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $2,600</span>
+          <span class="entry-meta-item">Pages: 5</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Left Shoulder</span>
+          <span class="entry-tag">Key Finding</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">24</div>
+        <div class="timeline-date-label">Feb</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot medication"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Pain Management Consultation</div>
+          <span class="entry-type medication">Medication</span>
+        </div>
+        <div class="entry-provider"><strong>Southwest Pain Associates</strong> &mdash; Dr. Sarah Chen, MD (Pain Medicine)</div>
+        <div class="entry-details">
+          Patient referred for pain management. Current pain levels interfering with sleep and daily activities. Started on Gabapentin 300mg TID and Meloxicam 15mg daily. Discussed epidural steroid injection as next step if conservative measures fail.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $425</span>
+          <span class="entry-meta-item">Pages: 6</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Pain Management</span>
+          <span class="entry-tag">Rx Change</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-month">April 2025</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">07</div>
+        <div class="timeline-date-label">Apr</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot consult"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">L4-L5 Epidural Steroid Injection</div>
+          <span class="entry-type consult">Procedure</span>
+        </div>
+        <div class="entry-provider"><strong>Southwest Pain Associates</strong> &mdash; Dr. Sarah Chen, MD</div>
+        <div class="entry-details">
+          Fluoroscopy-guided left L4-L5 transforaminal epidural steroid injection performed. Patient tolerated procedure well. Instructed to rest 48 hours and follow up in 2 weeks. Expected 4-6 weeks for full effect.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $3,200</span>
+          <span class="entry-meta-item">Pages: 4</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Injection</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-month">August 2025</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">15</div>
+        <div class="timeline-date-label">Aug</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot surgery"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">L4-L5 Microdiscectomy</div>
+          <span class="entry-type surgery">Surgery</span>
+        </div>
+        <div class="entry-provider"><strong>Houston Spine Center</strong> &mdash; Dr. James Pham, MD</div>
+        <div class="entry-details">
+          Left L4-L5 microdiscectomy performed under general anesthesia. Herniated disc fragment removed. Nerve root decompressed. Patient tolerated procedure well, discharged same day with post-op instructions. Follow-up in 2 weeks.
+        </div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Operative Findings</div>
+          Large left paracentral disc fragment compressing L5 nerve root, consistent with MRI. Fragment removed en bloc. Nerve root fully decompressed with good mobility post-decompression.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $18,400</span>
+          <span class="entry-meta-item">Pages: 14</span>
+          <span class="entry-meta-item">Source: Houston Spine Center</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Key Event</span>
+          <span class="entry-tag">Surgery</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2026 -->
+    <div class="timeline-year">2026 <span class="year-count">15 entries</span></div>
+
+    <div class="timeline-month">January 2026</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">12</div>
+        <div class="timeline-date-label">Jan</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot visit"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Post-Surgical Follow-Up (5 months)</div>
+          <span class="entry-type visit">Office Visit</span>
+        </div>
+        <div class="entry-provider"><strong>Houston Spine Center</strong> &mdash; Dr. James Pham, MD</div>
+        <div class="entry-details">
+          5-month post-op follow-up. Patient reports significant improvement in leg pain (resolved). Residual lower back pain 3/10, improved from pre-surgical 7/10. Returned to desk work. Still attending PT 1x/week for maintenance. Left shoulder pain persistent — referred to Dr. Martinez for surgical consult.
+        </div>
+        <div class="entry-findings">
+          <div class="entry-findings-label">Assessment</div>
+          Good surgical outcome. Lumbar spine at MMI pending final evaluation. Left shoulder may require surgical intervention.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $275</span>
+          <span class="entry-meta-item">Pages: 5</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Lumbar</span>
+          <span class="entry-tag">Left Shoulder</span>
+          <span class="entry-tag">Post-Op</span>
+          <span class="entry-tag">MMI Discussion</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-month">March 2026</div>
+
+    <div class="timeline-entry">
+      <div class="timeline-date">
+        <div class="timeline-date-day">10</div>
+        <div class="timeline-date-label">Mar</div>
+      </div>
+      <div class="timeline-line">
+        <div class="timeline-dot visit"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="entry-header">
+          <div class="entry-title">Shoulder Surgical Consultation</div>
+          <span class="entry-type visit">Office Visit</span>
+        </div>
+        <div class="entry-provider"><strong>Gulf Coast Orthopedics</strong> &mdash; Dr. R. Martinez, MD (Shoulder Specialist)</div>
+        <div class="entry-details">
+          Evaluation for persistent left shoulder pain. ROM limited: forward flexion 140 (normal 180), abduction 120 (normal 180). Positive Neer and Hawkins signs. Reviewed MRI from Feb 2025 — partial thickness tear may have progressed. Recommended repeat MRI and possible arthroscopic repair if tear has worsened.
+        </div>
+        <div class="entry-meta">
+          <span class="entry-meta-item">Billed: $400</span>
+          <span class="entry-meta-item">Pages: 6</span>
+        </div>
+        <div class="entry-tags">
+          <span class="entry-tag">Left Shoulder</span>
+          <span class="entry-tag">Surgical Consult</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end timeline-container -->
+
+  <!-- Design Tokens -->
+  <section class="tokens-section">
+    <h2>Design Tokens</h2>
+    <div class="token-group">
+      <h3>Colors</h3>
+      <div class="color-swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-label">BG<br>#111111</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-label">Card<br>#1A1A1A</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F0F0;"></div><div class="swatch-label">Primary<br>#F0F0F0</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF6B00;"></div><div class="swatch-label">Orange<br>#FF6B00</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5B21B6;"></div><div class="swatch-label">Purple<br>#5B21B6</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFD700;"></div><div class="swatch-label">Yellow<br>#FFD700</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#00CC88;"></div><div class="swatch-label">Green<br>#00CC88</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF3366;"></div><div class="swatch-label">Pink<br>#FF3366</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3B82F6;"></div><div class="swatch-label">Blue<br>#3B82F6</div></div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Timeline Event Types</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <span class="entry-type emergency">Emergency</span>
+        <span class="entry-type surgery">Surgery</span>
+        <span class="entry-type visit">Office Visit</span>
+        <span class="entry-type imaging">Imaging</span>
+        <span class="entry-type therapy">Therapy</span>
+        <span class="entry-type medication">Medication</span>
+        <span class="entry-type consult">Procedure</span>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Timeline Dots</h3>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--pink);"></div> Emergency
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--orange);"></div> Surgery
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--blue);"></div> Visit
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--purple);"></div> Imaging
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--green);"></div> Therapy
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:var(--yellow);"></div> Medication
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:16px;height:16px;border:3px solid #444;background:#0A0A0A;"></div> Procedure
+        </div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Typography in Timeline</h3>
+      <div style="border:var(--border);padding:var(--space-md);margin-bottom:8px;">
+        <span style="font-family:var(--font-heading);font-size:15px;font-weight:700;">Entry Title</span>
+        <span style="float:right;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">Space Grotesk 700 / 15px</span>
+      </div>
+      <div style="border:var(--border);padding:var(--space-md);margin-bottom:8px;">
+        <span style="font-family:var(--font-body);font-size:13px;">Entry detail body text for clinical descriptions and findings.</span>
+        <span style="float:right;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">DM Sans 400 / 13px</span>
+      </div>
+      <div style="border:var(--border);padding:var(--space-md);">
+        <span style="font-family:var(--font-mono);font-size:11px;">BILLED: $4,280 &middot; PAGES: 24</span>
+        <span style="float:right;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">Space Mono 400 / 11px</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

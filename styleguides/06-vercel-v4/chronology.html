@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-root:#0A0A08;--bg-card:#141412;--bg-card-alt:#0E0E0C;--bg-hover:#1C1C18;--bg-input:#0E0E0C;
+    --border:#222220;--border-hover:#3A3A36;--border-focus:#555550;
+    --text-primary:#E8E6E2;--text-secondary:#78756E;--text-tertiary:#4A4843;
+    --accent-amber:#D97706;--accent-amber-hover:#B45309;
+    --accent-blue:#1D4ED8;--accent-green:#059669;--accent-red:#DC2626;--accent-purple:#7C3AED;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .app{display:flex;height:100vh}
+
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-amber);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer;border-left:2px solid transparent}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card);border-left-color:var(--accent-amber)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px}
+  .sidebar-link.active .icon{opacity:1}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-primary)}
+
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+  .breadcrumb{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .breadcrumb a:hover{color:var(--text-primary)}
+  .breadcrumb .sep{color:var(--text-tertiary)}
+  .main-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-6)}
+  .main-header h1{font-size:22px;font-weight:600;letter-spacing:-0.5px}
+  .main-header-sub{font-size:13px;color:var(--text-secondary);margin-top:var(--sp-1)}
+
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-amber);color:#0A0A08;border-color:var(--accent-amber)}
+  .btn-primary:hover{background:var(--accent-amber-hover);border-color:var(--accent-amber-hover)}
+  .btn-secondary{background:transparent;color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-4);margin-bottom:var(--sp-6)}
+  .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-4);transition:border-color var(--transition)}
+  .stat-card:hover{border-color:var(--border-hover)}
+  .stat-label{font-size:11px;color:var(--text-secondary);margin-bottom:var(--sp-1)}
+  .stat-value{font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1.1;font-feature-settings:"tnum"}
+  .stat-meta{margin-top:var(--sp-1);font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary)}
+
+  .toolbar{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap}
+  .search-input{flex:1;max-width:280px;padding:7px 12px 7px 32px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;transition:border-color var(--transition);outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24' stroke='%2378756E'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+  .search-input::placeholder{color:var(--text-tertiary)}
+  .search-input:focus{border-color:var(--border-focus)}
+  .select-input{padding:6px 28px 6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='%2378756E'%3E%3Cpath d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color var(--transition);outline:none}
+  .select-input:focus{border-color:var(--border-focus)}
+  .filter-group{display:flex;gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden}
+  .filter-btn{padding:6px 12px;font-family:var(--font-sans);font-size:12px;font-weight:500;background:var(--bg-card);color:var(--text-secondary);border:none;cursor:pointer;transition:all var(--transition)}
+  .filter-btn:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .filter-btn.active{color:var(--text-primary);background:var(--bg-hover)}
+
+  .tag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;border:1px solid}
+  .tag-diagnosis{color:var(--accent-blue);border-color:rgba(29,78,216,0.3);background:rgba(29,78,216,0.06)}
+  .tag-treatment{color:var(--accent-green);border-color:rgba(5,150,105,0.3);background:rgba(5,150,105,0.06)}
+  .tag-imaging{color:var(--accent-purple);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.06)}
+  .tag-rx{color:var(--accent-amber);border-color:rgba(217,119,6,0.3);background:rgba(217,119,6,0.06)}
+  .tag-visit{color:#78756E;border-color:#3A3A36;background:rgba(120,117,110,0.06)}
+  .tag-er{color:var(--accent-red);border-color:rgba(220,38,38,0.3);background:rgba(220,38,38,0.06)}
+  .tag-psych{color:var(--accent-purple);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.06)}
+  .tag-hospitalization{color:var(--accent-red);border-color:rgba(220,38,38,0.3);background:rgba(220,38,38,0.06)}
+
+  .timeline{position:relative}
+  .timeline-month{margin-bottom:var(--sp-6)}
+  .timeline-month-header{font-size:12px;font-weight:600;color:var(--text-secondary);padding:var(--sp-2) 0;margin-bottom:var(--sp-3);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-root);z-index:1}
+  .timeline-entry{display:grid;grid-template-columns:90px 1fr;gap:0;margin-bottom:1px;transition:background var(--transition)}
+  .timeline-entry:hover{background:var(--bg-hover)}
+  .timeline-date-col{padding:var(--sp-3) var(--sp-4) var(--sp-3) 0;text-align:right;border-right:2px solid var(--border);position:relative}
+  .timeline-date{font-size:12px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .timeline-dot{position:absolute;right:-5px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--border);border:2px solid var(--bg-root)}
+  .timeline-dot.blue{background:var(--accent-blue)}
+  .timeline-dot.green{background:var(--accent-green)}
+  .timeline-dot.amber{background:var(--accent-amber)}
+  .timeline-dot.red{background:var(--accent-red)}
+  .timeline-dot.purple{background:var(--accent-purple)}
+  .timeline-content{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);min-height:48px}
+  .timeline-row-header{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:2px}
+  .timeline-provider{font-size:12px;font-weight:500;color:var(--text-primary)}
+  .timeline-summary{font-size:13px;color:var(--text-secondary);line-height:1.5}
+  .timeline-source{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);margin-top:var(--sp-1)}
+  .timeline-source a{color:var(--accent-blue)}
+  .timeline-source a:hover{text-decoration:underline}
+
+  .timeline-detail{margin-top:var(--sp-2);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text-secondary);line-height:1.6}
+  .timeline-detail dt{color:var(--text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:0.04em;margin-top:var(--sp-2)}
+  .timeline-detail dt:first-child{margin-top:0}
+  .timeline-detail dd{color:var(--text-primary);margin-bottom:var(--sp-1)}
+
+  .load-more{text-align:center;padding:var(--sp-6) 0}
+
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}
+  .token-name{font-weight:500;margin-bottom:1px}
+  .token-val{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+      <a class="sidebar-link" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">63</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">29</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <a class="sidebar-link active" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Briefs</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="avatar">RM</div><div><div style="font-size:13px;color:var(--text-primary)">Rachel Morrison</div><div style="font-size:11px;color:var(--text-tertiary)">Managing Attorney</div></div></div>
+  </nav>
+
+  <main class="main">
+    <div class="breadcrumb">
+      <a href="cases-list.html">Cases</a><span class="sep">/</span><a href="case-detail.html">SSA-2167</a><span class="sep">/</span><span>Chronology</span>
+    </div>
+
+    <div class="main-header">
+      <div>
+        <h1>Medical Chronology</h1>
+        <div class="main-header-sub">Okonkwo, Samuel &mdash; SSA-2167 &mdash; 94 entries from 9 source documents</div>
+      </div>
+      <div style="display:flex;gap:var(--sp-3)">
+        <button class="btn btn-secondary btn-sm">Export PDF</button>
+        <button class="btn btn-secondary btn-sm">Export CSV</button>
+        <button class="btn btn-primary btn-sm">Regenerate</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Entries</div><div class="stat-value">94</div><div class="stat-meta">9 source docs</div></div>
+      <div class="stat-card"><div class="stat-label">Providers</div><div class="stat-value">5</div><div class="stat-meta">3 facilities</div></div>
+      <div class="stat-card"><div class="stat-label">Date Range</div><div class="stat-value" style="font-size:18px">18mo</div><div class="stat-meta">Sep 2024 - Mar 2026</div></div>
+      <div class="stat-card"><div class="stat-label">Hospitalizations</div><div class="stat-value">2</div><div class="stat-meta">psych inpatient</div></div>
+      <div class="stat-card"><div class="stat-label">AI Confidence</div><div class="stat-value">94%</div><div class="stat-meta">6 entries flagged</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" type="text" placeholder="Search entries...">
+      <div class="filter-group">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Psych</button>
+        <button class="filter-btn">Visits</button>
+        <button class="filter-btn">Rx</button>
+        <button class="filter-btn">Hospital</button>
+      </div>
+      <select class="select-input"><option>All Providers</option><option>Dr. Olumide Adebayo</option><option>Dr. Patricia Wallace</option><option>Harris County Psych Center</option><option>Memorial Hermann ER</option><option>CVS Pharmacy</option></select>
+      <select class="select-input"><option>All Sources</option><option>Psych Notes</option><option>CE Report</option><option>Hospital Records</option><option>Pharmacy Records</option><option>Function Report</option></select>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-month">
+        <div class="timeline-month-header">September 2024</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Sep 3</div><div class="timeline-dot red"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Memorial Hermann ER</span><span class="tag tag-er">ER Visit</span></div>
+            <div class="timeline-summary">Patient brought to ER by family member after acute manic episode with psychotic features. Pressured speech, grandiose delusions, had not slept in 4 days. Reported quitting warehouse job 2 weeks prior due to conflict with supervisor.</div>
+            <div class="timeline-detail">
+              <dl>
+                <dt>Attending</dt><dd>Dr. Maria Santos, MD</dd>
+                <dt>Presentation</dt><dd>Agitated, tangential thought process, grandiose ideation, flight of ideas. Denied SI/HI.</dd>
+                <dt>Diagnosis</dt><dd>Bipolar I Disorder, current episode manic with psychotic features (F31.2)</dd>
+                <dt>Disposition</dt><dd>Voluntary admission to Harris County Psychiatric Center for stabilization.</dd>
+              </dl>
+            </div>
+            <div class="timeline-source">Source: <a href="#">ER_Records_MemorialHermann.pdf</a> pp. 1-6</div>
+          </div>
+        </div>
+
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Sep 3-10</div><div class="timeline-dot red"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Harris County Psych Center</span><span class="tag tag-hospitalization">Inpatient</span></div>
+            <div class="timeline-summary">7-day inpatient psychiatric hospitalization. Started on lithium 600mg BID and olanzapine 10mg QHS. Manic symptoms gradually resolved. Discharged with GAF 42, outpatient follow-up with Dr. Adebayo scheduled.</div>
+            <div class="timeline-source">Source: <a href="#">HCPC_Discharge_Summary.pdf</a> pp. 1-12</div>
+          </div>
+        </div>
+
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Sep 18</div><div class="timeline-dot purple"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Olumide Adebayo</span><span class="tag tag-psych">Psych Visit</span></div>
+            <div class="timeline-summary">Initial outpatient visit post-hospitalization. Patient reports feeling "flat" on medication. Lithium tremor noted. GAF 45. Continued current medications with plan to titrate lithium based on serum levels.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Adebayo_PsychNotes.pdf</a> pp. 1-3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-month">
+        <div class="timeline-month-header">November 2024</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Nov 5</div><div class="timeline-dot purple"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Olumide Adebayo</span><span class="tag tag-psych">Psych Visit</span></div>
+            <div class="timeline-summary">Follow-up. Patient reports severe hand tremors from lithium affecting daily activities. Cannot hold a cup without spilling. Depressive symptoms emerging -- low motivation, hypersomnia, anhedonia. GAF 44. Reduced lithium to 450mg BID, added lamotrigine 25mg with slow titration.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Adebayo_PsychNotes.pdf</a> pp. 4-6</div>
+          </div>
+        </div>
+
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Nov 20</div><div class="timeline-dot amber"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Olumide Adebayo</span><span class="tag tag-rx">Rx Change</span></div>
+            <div class="timeline-summary">Phone consultation. Patient stopped lithium on own due to tremors and GI distress. Experiencing early signs of hypomania -- decreased sleep, increased energy, impulsive spending. Instructed to resume lamotrigine and come in for urgent appointment.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Adebayo_PsychNotes.pdf</a> p. 7</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-month">
+        <div class="timeline-month-header">January 2026</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Jan 8</div><div class="timeline-dot red"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Harris County Psych Center</span><span class="tag tag-hospitalization">Inpatient</span></div>
+            <div class="timeline-summary">Second psychiatric hospitalization. Brought by police after erratic behavior at grocery store. Manic episode with paranoid features. Non-compliant with medications for 3 weeks. 5-day admission, restarted on valproate 500mg BID and olanzapine 15mg QHS. Discharged GAF 40.</div>
+            <div class="timeline-source">Source: <a href="#">HCPC_Discharge_Summary_2.pdf</a> pp. 1-8</div>
+          </div>
+        </div>
+
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Jan 22</div><div class="timeline-dot purple"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Olumide Adebayo</span><span class="tag tag-psych">Psych Visit</span></div>
+            <div class="timeline-summary">Post-discharge follow-up. Patient reports medication compliance but significant cognitive dulling. Difficulty concentrating for more than 10-15 minutes. Cannot follow multi-step instructions. GAF 43. Documented inability to maintain consistent employment due to cycling episodes.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Adebayo_PsychNotes.pdf</a> pp. 14-16</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-month">
+        <div class="timeline-month-header">March 2026</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Mar 10</div><div class="timeline-dot blue"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Patricia Wallace</span><span class="tag tag-diagnosis">CE Evaluation</span></div>
+            <div class="timeline-summary">Consultative psychological examination. Administered WAIS-IV, MMPI-2, and clinical interview. Found marked limitations in concentration, persistence, and pace. Moderate limitations in social functioning. Opined claimant unable to sustain competitive employment due to episodic decompensation.</div>
+            <div class="timeline-detail">
+              <dl>
+                <dt>WAIS-IV Full Scale IQ</dt><dd>88 (Low Average)</dd>
+                <dt>Processing Speed Index</dt><dd>76 (Borderline)</dd>
+                <dt>MMPI-2</dt><dd>Elevated scales 2 (Depression), 6 (Paranoia), 8 (Schizophrenia). Valid profile.</dd>
+                <dt>Diagnosis</dt><dd>Bipolar I Disorder (F31.9), Generalized Anxiety Disorder (F41.1)</dd>
+                <dt>GAF</dt><dd>48</dd>
+              </dl>
+            </div>
+            <div class="timeline-source">Source: <a href="#">CE_Psych_Eval_Wallace.pdf</a> pp. 1-14</div>
+          </div>
+        </div>
+
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Mar 25</div><div class="timeline-dot purple"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Olumide Adebayo</span><span class="tag tag-psych">Psych Visit</span></div>
+            <div class="timeline-summary">Monthly follow-up. Currently stable on valproate/olanzapine but reports persistent cognitive difficulties and daytime sedation. Unable to drive due to medication side effects. Social isolation worsening. GAF 46. Dr. Adebayo to complete treating source statement for attorney.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Adebayo_PsychNotes.pdf</a> pp. 20-22</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="load-more">
+      <button class="btn btn-secondary">Load More Entries</button>
+      <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:var(--sp-2)">Showing 10 of 94 entries</div>
+    </div>
+
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#0A0A08"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-val">#0A0A08</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#141412"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-val">#141412</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#222220"></div><div class="token-info"><div class="token-name">border</div><div class="token-val">#222220</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#E8E6E2"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-val">#E8E6E2</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#78756E"></div><div class="token-info"><div class="token-name">text-secondary</div><div class="token-val">#78756E</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#D97706"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-val">#D97706</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#1D4ED8"></div><div class="token-info"><div class="token-name">accent-blue</div><div class="token-val">#1D4ED8</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#059669"></div><div class="token-info"><div class="token-name">accent-green</div><div class="token-val">#059669</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#7C3AED"></div><div class="token-info"><div class="token-name">accent-purple</div><div class="token-val">#7C3AED</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#DC2626"></div><div class="token-info"><div class="token-name">accent-red</div><div class="token-val">#DC2626</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

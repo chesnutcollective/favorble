@@ -28,11 +28,11 @@ import {
 import type { ExhibitPacketItem } from "@/app/(app)/cases/[id]/chronology/client";
 
 const PACKET_STATUS_STYLES: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  building: "bg-blue-100 text-blue-700",
-  ready: "bg-green-100 text-green-700",
-  submitted: "bg-purple-100 text-purple-700",
-  failed: "bg-red-100 text-red-700",
+  draft: "border border-[#eaeaea] bg-white text-[#666]",
+  building: "border border-[#eaeaea] bg-white text-[#171717]",
+  ready: "border border-[#eaeaea] bg-white text-[#171717]",
+  submitted: "border border-[#eaeaea] bg-white text-[#171717]",
+  failed: "border border-[#eaeaea] bg-white text-[#666]",
 };
 
 const PACKET_STATUS_LABELS: Record<string, string> = {
@@ -82,8 +82,6 @@ export function ExhibitList({ caseId, packets }: ExhibitListProps) {
         icon={File01Icon}
         title="No exhibit packets yet"
         description="Build an exhibit packet from your case documents."
-        accent="blue"
-        bordered
       />
     );
   }
@@ -119,7 +117,7 @@ export function ExhibitList({ caseId, packets }: ExhibitListProps) {
                 <Badge
                   className={
                     PACKET_STATUS_STYLES[packet.status] ??
-                    "bg-gray-100 text-gray-700"
+                    "border border-[#eaeaea] bg-white text-[#666]"
                   }
                 >
                   {PACKET_STATUS_LABELS[packet.status] ?? packet.status}

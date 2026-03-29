@@ -143,8 +143,6 @@ export function UsersClient({ users: userRows }: { users: UserRow[] }) {
           icon={UserGroupIcon}
           title="No users found"
           description="No user accounts have been created for this organization."
-          accent="gray"
-          bordered
         />
       ) : (
         <Card>

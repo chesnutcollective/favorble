@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble Dark — Integrations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-sidebar: #080A10;
+    --color-sidebar-hover: #111520;
+    --color-sidebar-active: #162032;
+    --color-sidebar-text: #6B7280;
+    --color-sidebar-text-active: #FFFFFF;
+    --color-sidebar-divider: #111827;
+    --color-bg: #0B0E14;
+    --color-surface: #12161E;
+    --color-border: #1E2430;
+    --color-border-strong: #2A3242;
+    --color-text-primary: #D1D5DB;
+    --color-text-secondary: #6B7280;
+    --color-text-tertiary: #4B5563;
+    --color-text-inverse: #FFFFFF;
+    --color-primary: #3B82F6;
+    --color-primary-hover: #2563EB;
+    --color-primary-light: #1E2A3F;
+    --color-secondary: #F59E0B;
+    --color-secondary-light: #2A2210;
+    --color-secondary-hover: #D97706;
+    --color-success: #10B981;
+    --color-success-light: #0F2A1D;
+    --color-warning: #F59E0B;
+    --color-warning-light: #2A2210;
+    --color-danger: #EF4444;
+    --color-danger-light: #2A1515;
+    --color-info: #3B82F6;
+    --color-info-light: #1E2A3F;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-lg: 0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --sidebar-width: 240px;
+    --header-height: 56px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); }
+  body { font-family: var(--font-family); background: var(--color-bg); color: var(--color-text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: var(--sidebar-width); background: var(--color-sidebar); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; }
+  .sidebar-brand { padding: var(--space-5); border-bottom: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-brand-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: var(--font-size-lg); color: white; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; color: white; letter-spacing: -0.3px; }
+  .sidebar-section { padding: var(--space-4) 0 var(--space-2); }
+  .sidebar-section-label { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-sidebar-text); text-transform: uppercase; letter-spacing: 0.8px; padding: 0 var(--space-5) var(--space-2); }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-5); color: var(--color-sidebar-text); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s; position: relative; }
+  .sidebar-nav-item:hover { background: var(--color-sidebar-hover); color: white; }
+  .sidebar-nav-item.active { background: var(--color-sidebar-active); color: white; }
+  .sidebar-nav-item.active::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--color-secondary); border-radius: 0 2px 2px 0; }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-nav-item.active svg { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-primary); color: white; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-badge.gold { background: var(--color-secondary); }
+  .sidebar-divider { border-top: 1px solid var(--color-sidebar-divider); margin: var(--space-3) var(--space-5); }
+  .sidebar-user { margin-top: auto; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-user-avatar { width: 32px; height: 32px; background: var(--color-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-sm); font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-base); font-weight: 600; color: white; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-sidebar-text); }
+
+  /* Main */
+  .main-content { margin-left: var(--sidebar-width); flex: 1; min-width: 0; }
+  .top-bar { height: var(--header-height); background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: sticky; top: 0; z-index: 50; }
+  .top-bar-title { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .top-bar-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .top-bar-right { display: flex; align-items: center; gap: var(--space-3); }
+  .page-content { padding: var(--space-6); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; padding: var(--space-2) var(--space-3); border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; text-decoration: none; white-space: nowrap; }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-gold { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+  .btn-ghost { background: transparent; color: var(--color-text-secondary); }
+  .btn-ghost:hover { color: var(--color-text-primary); background: var(--color-bg); }
+  .btn-sm { font-size: var(--font-size-xs); padding: 2px var(--space-2); }
+  .btn-danger { background: var(--color-danger); color: white; border-color: var(--color-danger); }
+  .btn-danger-outline { background: transparent; color: var(--color-danger); border-color: var(--color-danger); }
+  .btn-success { background: var(--color-success); color: white; border-color: var(--color-success); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .badge-gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-green { background: var(--color-success-light); color: var(--color-success); }
+  .badge-red { background: var(--color-danger-light); color: var(--color-danger); }
+  .badge-gray { background: #161B25; color: var(--color-text-secondary); }
+
+  /* Section Label */
+  .section-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+
+  /* Card */
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); }
+  .card-title { font-size: var(--font-size-md); font-weight: 700; letter-spacing: -0.2px; }
+  .card-body { padding: var(--space-5); }
+
+  /* Settings Tabs */
+  .settings-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-6);
+  }
+  .settings-tab {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s;
+  }
+  .settings-tab:hover { color: var(--color-text-primary); }
+  .settings-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+  /* Integration Cards */
+  .integrations-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .integration-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .integration-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-border-strong);
+  }
+  .integration-card.connected {
+    border-left: 3px solid var(--color-success);
+  }
+  .integration-card.premium {
+    border-left: 3px solid var(--color-secondary);
+  }
+  .integration-card.disconnected {
+    opacity: 0.85;
+  }
+  .integration-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+  }
+  .integration-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .integration-icon.blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .integration-icon.gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .integration-icon.green { background: var(--color-success-light); color: var(--color-success); }
+  .integration-icon.red { background: var(--color-danger-light); color: var(--color-danger); }
+  .integration-icon.purple { background: #1F1A30; color: #A78BFA; }
+  .integration-icon.slate { background: #161B25; color: var(--color-text-secondary); }
+  .integration-icon.dark { background: #2A3242; color: #F59E0B; }
+  .integration-icon svg { width: 22px; height: 22px; }
+  .integration-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+  }
+  .integration-status .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .integration-status.connected .status-dot { background: var(--color-success); }
+  .integration-status.connected { color: var(--color-success); }
+  .integration-status.disconnected .status-dot { background: var(--color-text-tertiary); }
+  .integration-status.disconnected { color: var(--color-text-tertiary); }
+  .integration-status.error .status-dot { background: var(--color-danger); }
+  .integration-status.error { color: var(--color-danger); }
+  .integration-name {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-1);
+    letter-spacing: -0.2px;
+  }
+  .integration-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--space-4);
+    flex: 1;
+  }
+  .integration-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    margin-bottom: var(--space-3);
+  }
+  .integration-meta-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+  }
+  .integration-meta-label { color: var(--color-text-tertiary); }
+  .integration-meta-value { font-weight: 600; color: var(--color-text-primary); }
+  .integration-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .integration-actions .btn { flex: 1; justify-content: center; }
+
+  /* Toggle Switch */
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--color-border-strong);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.active { background: var(--color-success); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .toggle.active::after { transform: translateX(16px); }
+
+  /* API Key Display */
+  .api-key-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+  }
+  .api-key-display .key-masked { flex: 1; letter-spacing: 1px; }
+  .api-key-display .btn-copy {
+    font-size: 10px;
+    padding: 1px 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  /* Webhook Log */
+  .webhook-log {
+    font-size: var(--font-size-xs);
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .webhook-log th {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .webhook-log td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+  }
+  .webhook-log .status-code {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-weight: 600;
+  }
+  .webhook-log .status-code.success { color: var(--color-success); }
+  .webhook-log .status-code.error { color: var(--color-danger); }
+
+  /* Design Tokens */
+  .tokens-section { margin-top: var(--space-8); border: 2px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+  .tokens-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); background: var(--color-bg); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .tokens-title { font-size: var(--font-size-md); font-weight: 700; display: flex; align-items: center; gap: var(--space-2); }
+  .tokens-body { padding: var(--space-5); display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+  .token-group-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a></li>
+        <li><a class="sidebar-nav-item" href="cases-list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases<span class="sidebar-badge">47</span></a></li>
+        <li><a class="sidebar-nav-item" href="case-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Documents</a></li>
+        <li><a class="sidebar-nav-item" href="chronology.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Chronology<span class="sidebar-badge gold">3</span></a></li>
+      </ul>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Billing<span class="sidebar-badge">5</span></a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a></li>
+        <li><a class="sidebar-nav-item active" href="admin-integrations.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">SM</div>
+      <div><div class="sidebar-user-name">Sarah Mitchell</div><div class="sidebar-user-role">Managing Partner</div></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Settings</div>
+        <div class="top-bar-subtitle">Manage integrations, API keys, and webhooks</div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+          API Docs
+        </button>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Integration
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Settings Tabs -->
+      <div class="settings-tabs">
+        <div class="settings-tab">General</div>
+        <div class="settings-tab">Team</div>
+        <div class="settings-tab">Billing</div>
+        <div class="settings-tab active">Integrations</div>
+        <div class="settings-tab">API Keys</div>
+        <div class="settings-tab">Webhooks</div>
+        <div class="settings-tab">Security</div>
+      </div>
+
+      <!-- Connected Integrations -->
+      <div class="section-label">Connected Integrations</div>
+      <div class="integrations-grid">
+        <!-- Salesforce -->
+        <div class="integration-card connected">
+          <div class="integration-header">
+            <div class="integration-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="integration-status connected">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+          <div class="integration-name">Salesforce</div>
+          <div class="integration-desc">Sync client records, contacts, and case data with your Salesforce CRM instance.</div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Last Sync</span>
+              <span class="integration-meta-value">2 min ago</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Records Synced</span>
+              <span class="integration-meta-value">2,847</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Auto-sync</span>
+              <div class="toggle active"></div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-secondary">Configure</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- DocuSign -->
+        <div class="integration-card connected">
+          <div class="integration-header">
+            <div class="integration-icon gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>
+            </div>
+            <div class="integration-status connected">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+          <div class="integration-name">DocuSign</div>
+          <div class="integration-desc">Send, sign, and manage legal documents electronically. Automated signature workflows.</div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Last Activity</span>
+              <span class="integration-meta-value">1 hour ago</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Envelopes Sent</span>
+              <span class="integration-meta-value">156</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Auto-send</span>
+              <div class="toggle active"></div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-secondary">Configure</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Microsoft 365 -->
+        <div class="integration-card connected">
+          <div class="integration-header">
+            <div class="integration-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+            </div>
+            <div class="integration-status connected">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+          <div class="integration-name">Microsoft 365</div>
+          <div class="integration-desc">Calendar sync, email integration, Teams notifications, and SharePoint document management.</div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Email Sync</span>
+              <span class="integration-meta-value">Active</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Calendar Events</span>
+              <span class="integration-meta-value">34 upcoming</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Auto-sync</span>
+              <div class="toggle active"></div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-secondary">Configure</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Westlaw -->
+        <div class="integration-card connected">
+          <div class="integration-header">
+            <div class="integration-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
+            <div class="integration-status connected">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+          <div class="integration-name">Westlaw Edge</div>
+          <div class="integration-desc">Legal research integration with case law citations, statutes, and litigation analytics.</div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Searches This Month</span>
+              <span class="integration-meta-value">247</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Saved Research</span>
+              <span class="integration-meta-value">89 items</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Auto-cite</span>
+              <div class="toggle active"></div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-secondary">Configure</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Clio (Error State) -->
+        <div class="integration-card connected" style="border-left-color: var(--color-danger);">
+          <div class="integration-header">
+            <div class="integration-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="integration-status error">
+              <span class="status-dot"></span>
+              Auth Error
+            </div>
+          </div>
+          <div class="integration-name">Clio Manage</div>
+          <div class="integration-desc">Practice management sync for time tracking, billing, and matter management. <strong style="color:var(--color-danger);">Token expired — re-authentication required.</strong></div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Last Successful Sync</span>
+              <span class="integration-meta-value" style="color:var(--color-danger);">3 days ago</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Matters Linked</span>
+              <span class="integration-meta-value">42</span>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-danger">Re-authenticate</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- QuickBooks -->
+        <div class="integration-card connected">
+          <div class="integration-header">
+            <div class="integration-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="integration-status connected">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+          <div class="integration-name">QuickBooks</div>
+          <div class="integration-desc">Financial data sync for trust accounting, client billing, and expense tracking.</div>
+          <div class="integration-meta">
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Last Sync</span>
+              <span class="integration-meta-value">15 min ago</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Transactions</span>
+              <span class="integration-meta-value">1,204</span>
+            </div>
+            <div class="integration-meta-item">
+              <span class="integration-meta-label">Auto-sync</span>
+              <div class="toggle active"></div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn btn-secondary">Configure</button>
+            <button class="btn btn-ghost">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Integrations -->
+      <div class="section-label">Available Integrations</div>
+      <div class="integrations-grid">
+        <div class="integration-card disconnected">
+          <div class="integration-header">
+            <div class="integration-icon slate">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            </div>
+            <div class="integration-status disconnected">
+              <span class="status-dot"></span>
+              Not Connected
+            </div>
+          </div>
+          <div class="integration-name">Slack</div>
+          <div class="integration-desc">Real-time notifications for case updates, task assignments, and deadline reminders in your Slack workspace.</div>
+          <div class="integration-actions" style="margin-top:auto; padding-top:var(--space-3); border-top:1px solid var(--color-border);">
+            <button class="btn btn-primary">Connect</button>
+            <button class="btn btn-ghost">Learn More</button>
+          </div>
+        </div>
+
+        <div class="integration-card disconnected">
+          <div class="integration-header">
+            <div class="integration-icon slate">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="integration-status disconnected">
+              <span class="status-dot"></span>
+              Not Connected
+            </div>
+          </div>
+          <div class="integration-name">Zoom</div>
+          <div class="integration-desc">Schedule and launch video conferences for depositions, client meetings, and mediations directly from cases.</div>
+          <div class="integration-actions" style="margin-top:auto; padding-top:var(--space-3); border-top:1px solid var(--color-border);">
+            <button class="btn btn-primary">Connect</button>
+            <button class="btn btn-ghost">Learn More</button>
+          </div>
+        </div>
+
+        <div class="integration-card premium disconnected">
+          <div class="integration-header">
+            <div class="integration-icon dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="badge badge-gold">Premium</span>
+          </div>
+          <div class="integration-name">AI Legal Research</div>
+          <div class="integration-desc">AI-powered legal research assistant with natural language queries, automatic brief drafting, and case prediction.</div>
+          <div class="integration-actions" style="margin-top:auto; padding-top:var(--space-3); border-top:1px solid var(--color-border);">
+            <button class="btn btn-gold">Upgrade to Connect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Keys Section -->
+      <div class="section-label" style="margin-top:var(--space-6);">API Keys</div>
+      <div class="card" style="margin-bottom:var(--space-6);">
+        <div class="card-header">
+          <div class="card-title">Active API Keys</div>
+          <button class="btn btn-sm btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Generate New Key
+          </button>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="webhook-log">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Key</th>
+                <th>Permissions</th>
+                <th>Created</th>
+                <th>Last Used</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600; color:var(--color-text-primary);">Production API</td>
+                <td>
+                  <div class="api-key-display">
+                    <span class="key-masked">fvrbl_prod_****...7x9k</span>
+                    <button class="btn-copy">Copy</button>
+                  </div>
+                </td>
+                <td><span class="badge badge-blue">Full Access</span></td>
+                <td>Jan 10, 2026</td>
+                <td>2 min ago</td>
+                <td><button class="btn btn-sm btn-danger-outline" style="font-size:10px; padding:1px 6px;">Revoke</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600; color:var(--color-text-primary);">Staging API</td>
+                <td>
+                  <div class="api-key-display">
+                    <span class="key-masked">fvrbl_stg_****...m3p2</span>
+                    <button class="btn-copy">Copy</button>
+                  </div>
+                </td>
+                <td><span class="badge badge-gold">Read/Write</span></td>
+                <td>Feb 22, 2026</td>
+                <td>1 hour ago</td>
+                <td><button class="btn btn-sm btn-danger-outline" style="font-size:10px; padding:1px 6px;">Revoke</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600; color:var(--color-text-primary);">Webhook Relay</td>
+                <td>
+                  <div class="api-key-display">
+                    <span class="key-masked">fvrbl_wh_****...q8n1</span>
+                    <button class="btn-copy">Copy</button>
+                  </div>
+                </td>
+                <td><span class="badge badge-gray">Read Only</span></td>
+                <td>Mar 5, 2026</td>
+                <td>30 min ago</td>
+                <td><button class="btn btn-sm btn-danger-outline" style="font-size:10px; padding:1px 6px;">Revoke</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Webhook Logs -->
+      <div class="section-label">Recent Webhook Activity</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Webhook Delivery Log</div>
+          <div style="display:flex; gap:var(--space-2); align-items:center;">
+            <span class="badge badge-green">98.7% success rate</span>
+            <button class="btn btn-sm btn-ghost">View All</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="webhook-log">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Event</th>
+                <th>Endpoint</th>
+                <th>Status</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-family:'SF Mono','Consolas',monospace;">2026-03-28 14:32:01</td>
+                <td><span class="badge badge-blue">case.updated</span></td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:11px;">https://api.salesforce.com/webhook/fvrbl</td>
+                <td><span class="status-code success">200 OK</span></td>
+                <td>142ms</td>
+              </tr>
+              <tr>
+                <td style="font-family:'SF Mono','Consolas',monospace;">2026-03-28 14:28:45</td>
+                <td><span class="badge badge-gold">document.uploaded</span></td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:11px;">https://api.salesforce.com/webhook/fvrbl</td>
+                <td><span class="status-code success">200 OK</span></td>
+                <td>98ms</td>
+              </tr>
+              <tr>
+                <td style="font-family:'SF Mono','Consolas',monospace;">2026-03-28 14:15:22</td>
+                <td><span class="badge badge-green">task.completed</span></td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:11px;">https://hooks.slack.com/services/fvrbl</td>
+                <td><span class="status-code success">200 OK</span></td>
+                <td>67ms</td>
+              </tr>
+              <tr>
+                <td style="font-family:'SF Mono','Consolas',monospace;">2026-03-28 13:58:11</td>
+                <td><span class="badge badge-red">case.deadline_alert</span></td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:11px;">https://api.clio.com/webhook/intake</td>
+                <td><span class="status-code error">401 Unauthorized</span></td>
+                <td>2,340ms</td>
+              </tr>
+              <tr>
+                <td style="font-family:'SF Mono','Consolas',monospace;">2026-03-28 13:45:09</td>
+                <td><span class="badge badge-blue">client.created</span></td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:11px;">https://api.salesforce.com/webhook/fvrbl</td>
+                <td><span class="status-code success">200 OK</span></td>
+                <td>156ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="tokens-section">
+        <div class="tokens-header">
+          <div class="tokens-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-secondary);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Design Tokens — Integration Components (Dark)
+          </div>
+          <span class="badge badge-gold">Reference</span>
+        </div>
+        <div class="tokens-body">
+          <div>
+            <div class="token-group-label">Integration Cards</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Card padding:</strong> 20px</div>
+              <div><strong>Hover:</strong> shadow-lg + stronger border</div>
+              <div><strong>Connected:</strong> 3px left border (success green)</div>
+              <div><strong>Premium:</strong> 3px left border (gold)</div>
+              <div><strong>Error:</strong> 3px left border (danger red)</div>
+              <div><strong>Icon:</strong> 44px square, colored bg, radius-md</div>
+              <div><strong>Status dot:</strong> 6px circle + label text</div>
+              <div><strong>Toggle:</strong> 36x20px, success-green when active</div>
+              <div><strong>Meta section:</strong> top border divider, xs font, flex space-between</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">API & Webhooks</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>API key display:</strong> bg #0B0E14, monospace, masked with ****</div>
+              <div><strong>Copy button:</strong> 10px, surface bg, subtle border</div>
+              <div><strong>Status codes:</strong> monospace, 600 weight, green=success / red=error</div>
+              <div><strong>Event badges:</strong> colored by type (blue=update, gold=doc, green=task, red=alert)</div>
+              <div><strong>Endpoint URLs:</strong> monospace, 11px, truncated if needed</div>
+              <div><strong>Timestamps:</strong> monospace, ISO-like format</div>
+              <div style="margin-top:var(--space-2);"><strong>Card States:</strong></div>
+              <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-success);"></span> Connected</span>
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-danger);"></span> Error</span>
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-text-tertiary);"></span> Not Connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

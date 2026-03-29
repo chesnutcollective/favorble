@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-root:#0A0A08;--bg-card:#141412;--bg-card-alt:#0E0E0C;--bg-hover:#1C1C18;--bg-input:#0E0E0C;
+    --border:#222220;--border-hover:#3A3A36;--border-focus:#555550;
+    --text-primary:#E8E6E2;--text-secondary:#78756E;--text-tertiary:#4A4843;
+    --accent-amber:#D97706;--accent-amber-hover:#B45309;
+    --accent-blue:#1D4ED8;--accent-green:#059669;--accent-red:#DC2626;--accent-purple:#7C3AED;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .app{display:flex;height:100vh}
+
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-amber);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer;border-left:2px solid transparent}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card);border-left-color:var(--accent-amber)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px}
+  .sidebar-link.active .icon{opacity:1}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-primary)}
+
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+
+  .breadcrumb{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .breadcrumb a:hover{color:var(--text-primary)}
+  .breadcrumb .sep{color:var(--text-tertiary)}
+
+  .case-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-6)}
+  .case-header-left h1{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:var(--sp-2)}
+  .case-meta{display:flex;align-items:center;gap:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .case-meta .mono{font-family:var(--font-mono);font-size:12px}
+  .header-actions{display:flex;gap:var(--sp-3)}
+
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-amber);color:#0A0A08;border-color:var(--accent-amber)}
+  .btn-primary:hover{background:var(--accent-amber-hover);border-color:var(--accent-amber-hover)}
+  .btn-secondary{background:transparent;color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}
+  .btn-ghost:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+  .btn-danger{background:transparent;color:var(--accent-red);border-color:rgba(220,38,38,0.3)}
+  .btn-danger:hover{border-color:var(--accent-red)}
+
+  .badge-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;border:1px solid}
+  .badge-status.hearing{color:var(--accent-amber);border-color:rgba(217,119,6,0.3);background:rgba(217,119,6,0.08)}
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+  .stage-progress{margin-bottom:var(--sp-6)}
+  .stage-bar{display:flex;gap:2px;margin-bottom:var(--sp-2)}
+  .stage-step{flex:1;height:4px;border-radius:2px;background:var(--border)}
+  .stage-step.complete{background:var(--accent-amber)}
+  .stage-step.current{background:var(--accent-amber);opacity:0.5}
+  .stage-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary)}
+  .stage-labels span.active{color:var(--accent-amber);font-weight:500}
+  .stage-labels span.done{color:var(--text-secondary)}
+
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:var(--sp-6)}
+  .tab{padding:var(--sp-3) var(--sp-4);font-size:13px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;transition:all var(--transition);margin-bottom:-1px}
+  .tab:hover{color:var(--text-primary)}
+  .tab.active{color:var(--text-primary);border-bottom-color:var(--accent-amber)}
+  .tab .tab-count{margin-left:var(--sp-2);font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)}
+
+  .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--sp-4)}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5);transition:border-color var(--transition)}
+  .card:hover{border-color:var(--border-hover)}
+  .card-title{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:var(--sp-4)}
+
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4) var(--sp-6)}
+  .kv-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px}
+  .kv-value{font-size:13px;font-weight:500}
+  .kv-value.mono{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)}
+
+  .task-list{list-style:none}
+  .task-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .task-item:last-child{border-bottom:none}
+  .task-checkbox{width:16px;height:16px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;cursor:pointer;transition:border-color var(--transition)}
+  .task-checkbox:hover{border-color:var(--border-hover)}
+  .task-checkbox.checked{background:var(--accent-amber);border-color:var(--accent-amber);position:relative}
+  .task-checkbox.checked::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:5px;border-left:2px solid #0A0A08;border-bottom:2px solid #0A0A08;transform:rotate(-45deg)}
+  .task-text{flex:1}
+  .task-text.done{text-decoration:line-through;color:var(--text-tertiary)}
+  .task-due{font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .task-due.overdue{color:var(--accent-red)}
+  .task-assignee{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+
+  .doc-list{list-style:none}
+  .doc-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;transition:color var(--transition)}
+  .doc-item:last-child{border-bottom:none}
+  .doc-item:hover{color:var(--accent-amber)}
+  .doc-icon{width:28px;height:28px;background:var(--bg-root);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-tertiary);flex-shrink:0}
+  .doc-info{flex:1}
+  .doc-name{font-weight:500;font-size:13px}
+  .doc-meta{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}
+  .doc-size{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}
+
+  .detail-sidebar{display:flex;flex-direction:column;gap:var(--sp-4)}
+  .mini-stat{text-align:center;padding:var(--sp-4)}
+  .mini-stat .value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+  .mini-stat .label{font-size:11px;color:var(--text-secondary);margin-top:var(--sp-1)}
+
+  .contact-list{list-style:none}
+  .contact-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .contact-item:last-child{border-bottom:none}
+  .contact-avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-primary);flex-shrink:0}
+  .contact-info{flex:1}
+  .contact-name{font-weight:500}
+  .contact-role{font-size:11px;color:var(--text-tertiary)}
+
+  .note{padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .note:last-child{border-bottom:none}
+  .note-header{display:flex;justify-content:space-between;margin-bottom:var(--sp-1)}
+  .note-author{font-weight:500;font-size:12px}
+  .note-time{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary)}
+  .note-body{color:var(--text-secondary);font-size:13px;line-height:1.6}
+
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}
+  .token-name{font-weight:500;margin-bottom:1px}
+  .token-value{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+      <a class="sidebar-link active" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">63</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">29</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <a class="sidebar-link" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Briefs</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="avatar">RM</div><div><div style="font-size:13px;color:var(--text-primary)">Rachel Morrison</div><div style="font-size:11px;color:var(--text-tertiary)">Managing Attorney</div></div></div>
+  </nav>
+
+  <main class="main">
+    <div class="breadcrumb">
+      <a href="cases-list.html">Cases</a><span class="sep">/</span><span>SSA-2167</span>
+    </div>
+
+    <div class="case-header">
+      <div class="case-header-left">
+        <h1>Okonkwo, Samuel</h1>
+        <div class="case-meta">
+          <span class="mono">SSA-2167</span>
+          <span class="badge-status hearing"><span class="badge-dot"></span>ALJ Hearing</span>
+          <span>SSI/SSDI Concurrent</span>
+          <span class="mono">Filed Feb 20, 2026</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm">Edit</button>
+        <button class="btn btn-secondary btn-sm">Generate Brief</button>
+        <button class="btn btn-primary btn-sm">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="stage-progress">
+      <div class="stage-bar">
+        <div class="stage-step complete"></div>
+        <div class="stage-step complete"></div>
+        <div class="stage-step current"></div>
+        <div class="stage-step"></div>
+        <div class="stage-step"></div>
+      </div>
+      <div class="stage-labels">
+        <span class="done">Initial App</span>
+        <span class="done">Reconsideration</span>
+        <span class="active">ALJ Hearing</span>
+        <span>Appeals Council</span>
+        <span>Federal Court</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">Overview</div>
+      <div class="tab">Tasks <span class="tab-count">6</span></div>
+      <div class="tab">Documents <span class="tab-count">31</span></div>
+      <div class="tab">Chronology <span class="tab-count">94</span></div>
+      <div class="tab">Notes <span class="tab-count">8</span></div>
+      <div class="tab">RFC / Listings</div>
+    </div>
+
+    <div class="overview-grid">
+      <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+        <div class="card">
+          <div class="card-title">Claimant Details</div>
+          <div class="kv-grid">
+            <div class="kv-item"><div class="kv-label">Claimant</div><div class="kv-value">Samuel Okonkwo</div></div>
+            <div class="kv-item"><div class="kv-label">Date of Birth</div><div class="kv-value mono">April 12, 1978</div></div>
+            <div class="kv-item"><div class="kv-label">Alleged Onset Date</div><div class="kv-value mono">September 3, 2024</div></div>
+            <div class="kv-item"><div class="kv-label">Date Last Insured</div><div class="kv-value mono">December 31, 2029</div></div>
+            <div class="kv-item"><div class="kv-label">Primary Impairment</div><div class="kv-value">Bipolar I Disorder</div></div>
+            <div class="kv-item"><div class="kv-label">Secondary Impairments</div><div class="kv-value">GAD, Insomnia, Obesity</div></div>
+            <div class="kv-item"><div class="kv-label">Past Relevant Work</div><div class="kv-value">Warehouse supervisor, forklift operator</div></div>
+            <div class="kv-item"><div class="kv-label">Education</div><div class="kv-value">High school diploma</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)">
+            <div class="card-title" style="margin-bottom:0">Tasks</div>
+            <button class="btn btn-ghost btn-sm">View All</button>
+          </div>
+          <ul class="task-list">
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Request treating source statement from Dr. Adebayo</span><span class="task-due">Apr 2</span><div class="task-assignee">KT</div></li>
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Prepare pre-hearing brief for ALJ Patel</span><span class="task-due">Apr 10</span><div class="task-assignee">RM</div></li>
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Subpoena pharmacy records from CVS</span><span class="task-due overdue">Mar 24</span><div class="task-assignee">AP</div></li>
+            <li class="task-item"><div class="task-checkbox checked"></div><span class="task-text done">Obtain CE psych report from Dr. Wallace</span><span class="task-due">Mar 20</span><div class="task-assignee">KT</div></li>
+            <li class="task-item"><div class="task-checkbox checked"></div><span class="task-text done">File request for hearing (Form HA-501)</span><span class="task-due">Feb 28</span><div class="task-assignee">AP</div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)">
+            <div class="card-title" style="margin-bottom:0">Recent Documents</div>
+            <button class="btn btn-ghost btn-sm">View All (31)</button>
+          </div>
+          <ul class="doc-list">
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">CE Psychological Evaluation -- Dr. Wallace</div><div class="doc-meta">Uploaded Mar 20 by K. Torres</div></div><div class="doc-size">3.2 MB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">Psychiatric Treatment Notes -- Dr. Adebayo (6 mo)</div><div class="doc-meta">Uploaded Mar 15 by K. Torres</div></div><div class="doc-size">12.4 MB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">Function Report (Form SSA-3373)</div><div class="doc-meta">Uploaded Feb 22 by A. Park</div></div><div class="doc-size">420 KB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">Work History Report (Form SSA-3369)</div><div class="doc-meta">Uploaded Feb 22 by A. Park</div></div><div class="doc-size">280 KB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">Disability Determination -- Reconsideration Denial</div><div class="doc-meta">Received Feb 10</div></div><div class="doc-size">1.8 MB</div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Notes</div>
+          <div class="note">
+            <div class="note-header"><span class="note-author">Karen Torres</span><span class="note-time">18m ago</span></div>
+            <div class="note-body">Uploaded 22 pages of psychiatric notes from Dr. Adebayo covering Oct 2024 through Mar 2026. Notes document consistent GAF scores of 45-50, medication non-compliance due to side effects (lithium tremors), and two psychiatric hospitalizations.</div>
+          </div>
+          <div class="note">
+            <div class="note-header"><span class="note-author">Rachel Morrison</span><span class="note-time">Mar 22</span></div>
+            <div class="note-body">CE report from Dr. Wallace supports Listing 12.04 (Bipolar). Marked limitations in concentration, persistence, and pace. Moderate limitations in social interaction. Need to get treating source statement from Dr. Adebayo to corroborate.</div>
+          </div>
+          <div class="note">
+            <div class="note-header"><span class="note-author">Alex Park</span><span class="note-time">Feb 28</span></div>
+            <div class="note-body">Filed HA-501 requesting ALJ hearing. Reconsideration denial was based on state agency finding that claimant could perform light work with simple tasks. We need to show the episodic nature of bipolar episodes makes even simple work unreliable.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-sidebar">
+        <div class="card mini-stat">
+          <div class="value" style="color:var(--accent-amber)">Hearing</div>
+          <div class="label">Awaiting ALJ scheduling</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Listings Analysis</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">12.04 Bipolar</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-green)">Strong</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">12.06 Anxiety</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-amber)">Moderate</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">Paragraph B</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-green)">2 Marked</span></div>
+            <div style="border-top:1px solid var(--border);padding-top:var(--sp-3);display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>RFC Assessment</span><span style="font-family:var(--font-mono);font-size:12px">Sedentary, limited</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Team</div>
+          <ul class="contact-list">
+            <li class="contact-item"><div class="contact-avatar">RM</div><div class="contact-info"><div class="contact-name">Rachel Morrison</div><div class="contact-role">Lead Attorney</div></div></li>
+            <li class="contact-item"><div class="contact-avatar">KT</div><div class="contact-info"><div class="contact-name">Karen Torres</div><div class="contact-role">Paralegal</div></div></li>
+            <li class="contact-item"><div class="contact-avatar">AP</div><div class="contact-info"><div class="contact-name">Alex Park</div><div class="contact-role">Legal Assistant</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Key Contacts</div>
+          <ul class="contact-list">
+            <li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">SO</div><div class="contact-info"><div class="contact-name">Samuel Okonkwo</div><div class="contact-role">Claimant</div></div></li>
+            <li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">OA</div><div class="contact-info"><div class="contact-name">Dr. Olumide Adebayo</div><div class="contact-role">Treating Psychiatrist</div></div></li>
+            <li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">DW</div><div class="contact-info"><div class="contact-name">Dr. Patricia Wallace</div><div class="contact-role">CE Psychologist</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Key Dates</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div><div style="font-size:11px;color:var(--text-tertiary)">Alleged Onset</div><div style="font-size:12px;font-family:var(--font-mono)">Sep 3, 2024</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">Initial Denial</div><div style="font-size:12px;font-family:var(--font-mono)">Nov 18, 2025</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">Recon Denial</div><div style="font-size:12px;font-family:var(--font-mono)">Feb 10, 2026</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">Hearing Requested</div><div style="font-size:12px;font-family:var(--font-mono)">Feb 28, 2026</div></div>
+            <div><div style="font-size:11px;color:var(--accent-amber)">Date Last Insured</div><div style="font-size:12px;font-family:var(--font-mono)">Dec 31, 2029</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#0A0A08"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-value">#0A0A08</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#141412"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-value">#141412</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#222220"></div><div class="token-info"><div class="token-name">border</div><div class="token-value">#222220</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#E8E6E2"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-value">#E8E6E2</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#78756E"></div><div class="token-info"><div class="token-name">text-secondary</div><div class="token-value">#78756E</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#D97706"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-value">#D97706</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#059669"></div><div class="token-info"><div class="token-name">accent-green</div><div class="token-value">#059669</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#1D4ED8"></div><div class="token-info"><div class="token-name">accent-blue</div><div class="token-value">#1D4ED8</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

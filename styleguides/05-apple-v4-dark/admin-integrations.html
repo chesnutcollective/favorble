@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Integrations (Apple HIG v4 Purple Dark)</title>
+<style>
+  :root {
+    --color-accent:#BF5AF2;--color-accent-hover:#D17BF5;--color-link:#0A84FF;--color-destructive:#FF453A;--color-success:#30D158;--color-warning:#FF9F0A;
+    --color-lavender:#3D2F4A;--color-violet:#C77DFF;--color-plum:#9B59B6;--color-grape:#7B2D8E;--color-deep-purple:#5B2C6F;
+    --color-bg:#1E1C21;--color-surface:#2C2A30;--color-sidebar:rgba(38,35,42,0.72);--color-toolbar:rgba(38,35,42,0.82);
+    --color-text-primary:#F5F5F7;--color-text-secondary:#98989D;--color-text-tertiary:#636366;
+    --color-separator:rgba(255,255,255,0.08);--color-hover:rgba(191,90,242,0.08);--color-selected:rgba(191,90,242,0.18);
+    --shadow-card:0 1px 3px rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.2);--shadow-toolbar:0 0.5px 0 rgba(0,0,0,0.4);
+    --radius-sm:6px;--radius-md:10px;--radius-lg:12px;--radius-xl:16px;
+    --font-family:-apple-system,"SF Pro Display","SF Pro Text",system-ui,BlinkMacSystemFont,sans-serif;
+    --font-size-xs:11px;--font-size-sm:12px;--font-size-base:13px;--font-size-md:15px;--font-size-lg:17px;--font-size-xl:20px;--font-size-2xl:24px;
+    --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:24px;--space-3xl:32px;
+    --sidebar-width:240px;--toolbar-height:52px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font-family);font-size:var(--font-size-base);color:var(--color-text-primary);background:var(--color-bg);-webkit-font-smoothing:antialiased}
+  .app-shell{display:flex;height:100vh;overflow:hidden}
+
+  .sidebar{width:var(--sidebar-width);min-width:var(--sidebar-width);background:var(--color-sidebar);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-right:0.5px solid var(--color-separator);display:flex;flex-direction:column;padding:var(--space-lg) 0;user-select:none;overflow-y:auto}
+  .sidebar-brand{padding:0 var(--space-xl);margin-bottom:var(--space-2xl);display:flex;align-items:center;gap:var(--space-sm)}
+  .sidebar-brand-icon{width:28px;height:28px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--color-accent),var(--color-violet));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .sidebar-brand-name{font-size:var(--font-size-lg);font-weight:700;letter-spacing:-0.3px}
+  .sidebar-section-label{padding:var(--space-lg) var(--space-xl) var(--space-xs);font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+  .sidebar-item{display:flex;align-items:center;gap:var(--space-sm);padding:6px var(--space-xl);margin:1px var(--space-sm);border-radius:var(--radius-sm);font-size:var(--font-size-base);color:var(--color-text-primary);cursor:pointer;transition:background 0.15s;text-decoration:none;position:relative}
+  .sidebar-item:hover{background:var(--color-hover)}
+  .sidebar-item.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .sidebar-item.active::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:0 2px 2px 0;background:var(--color-accent)}
+  .sidebar-item .icon{width:20px;text-align:center;font-size:15px;opacity:0.6}.sidebar-item.active .icon{opacity:1}
+  .sidebar-badge{margin-left:auto;background:var(--color-destructive);color:#fff;font-size:var(--font-size-xs);font-weight:600;padding:1px 6px;border-radius:10px}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--space-md) var(--space-xl);border-top:0.5px solid var(--color-separator);display:flex;align-items:center;gap:var(--space-sm);margin-top:var(--space-sm)}
+  .sidebar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent),var(--color-grape));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .sidebar-user-name{font-size:var(--font-size-sm);font-weight:500}.sidebar-user-role{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .toolbar{height:var(--toolbar-height);min-height:var(--toolbar-height);background:var(--color-toolbar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:0.5px solid var(--color-separator);box-shadow:var(--shadow-toolbar);display:flex;align-items:center;padding:0 var(--space-2xl);gap:var(--space-lg);user-select:none;z-index:10}
+  .toolbar-title{font-size:var(--font-size-lg);font-weight:600;letter-spacing:-0.2px}
+  .toolbar-spacer{flex:1}
+  .toolbar-search{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:0.5px solid var(--color-separator);border-radius:var(--radius-sm);padding:5px 10px;font-size:var(--font-size-sm);color:var(--color-text-secondary);width:220px}
+  .toolbar-search input{border:none;background:none;outline:none;font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);width:100%}
+  .content{flex:1;overflow-y:auto;padding:var(--space-2xl);display:flex;flex-direction:column;gap:var(--space-2xl)}
+
+  .segmented-control{display:inline-flex;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:2px;gap:1px}
+  .segmented-option{padding:5px 16px;border-radius:5px;font-size:var(--font-size-sm);font-weight:500;color:var(--color-text-secondary);cursor:pointer;transition:all 0.2s;user-select:none}
+  .segmented-option.active{background:var(--color-surface);color:var(--color-accent);box-shadow:0 1px 3px rgba(0,0,0,0.3);font-weight:600}
+
+  .section-header{display:flex;align-items:baseline;gap:var(--space-md);margin-bottom:var(--space-lg)}
+  .section-title{font-size:var(--font-size-xl);font-weight:700;letter-spacing:-0.3px}
+  .section-count{font-size:var(--font-size-sm);color:var(--color-text-secondary)}
+
+  .integration-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-lg)}
+  .integration-card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-xl);display:flex;flex-direction:column;gap:var(--space-lg);transition:box-shadow 0.2s,transform 0.2s;cursor:pointer}
+  .integration-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.3),0 12px 32px rgba(0,0,0,0.25);transform:translateY(-1px)}
+  .integration-top{display:flex;align-items:flex-start;gap:var(--space-md)}
+  .integration-icon{width:44px;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .integration-icon.ssa{background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff}
+  .integration-icon.docusign{background:linear-gradient(135deg,#FFD100,#FF8C00)}
+  .integration-icon.google{background:linear-gradient(135deg,#EA4335,#FBBC04)}
+  .integration-icon.outlook{background:linear-gradient(135deg,#0078D4,#00BCF2);color:#fff}
+  .integration-icon.clio{background:linear-gradient(135deg,#1B2B5B,#2C4A8E);color:#fff}
+  .integration-icon.abbyy{background:linear-gradient(135deg,#FF6F00,#FF9800);color:#fff}
+  .integration-icon.dropbox{background:linear-gradient(135deg,#0061FF,#0041B0);color:#fff}
+  .integration-icon.quickbooks{background:linear-gradient(135deg,#2CA01C,#108A00);color:#fff}
+  .integration-icon.twilio{background:linear-gradient(135deg,#F22F46,#D41836);color:#fff}
+  .integration-icon.zapier{background:linear-gradient(135deg,#FF4A00,#FF7A00);color:#fff}
+  .integration-info{flex:1}
+  .integration-name{font-size:var(--font-size-md);font-weight:600;letter-spacing:-0.2px;margin-bottom:2px}
+  .integration-category{font-size:var(--font-size-xs);color:var(--color-text-tertiary);font-weight:500}
+  .integration-status{margin-left:auto;align-self:flex-start}
+  .status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:var(--font-size-xs);font-weight:500}
+  .status-badge.connected{background:rgba(48,209,88,0.15);color:var(--color-success)}
+  .status-badge.available{background:rgba(255,255,255,0.06);color:var(--color-text-secondary)}
+  .status-badge.error{background:rgba(255,69,58,0.15);color:var(--color-destructive)}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .integration-desc{font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.5}
+  .integration-footer{display:flex;align-items:center;justify-content:space-between;padding-top:var(--space-md);border-top:0.5px solid var(--color-separator)}
+  .integration-meta{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+  .integration-btn{padding:5px 14px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-surface);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);cursor:pointer;transition:all 0.15s;font-weight:500}
+  .integration-btn:hover{background:var(--color-hover)}
+  .integration-btn.connect{background:var(--color-accent);color:#fff;border-color:transparent}
+
+  .design-tokens{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-2xl)}
+  .design-tokens h2{font-size:var(--font-size-xl);font-weight:700;margin-bottom:var(--space-xl);letter-spacing:-0.3px}
+  .token-group{margin-bottom:var(--space-2xl)}.token-group:last-child{margin-bottom:0}
+  .token-group-title{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:var(--space-md)}
+  .token-row{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;font-size:var(--font-size-sm)}
+  .token-swatch{width:24px;height:24px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.1);flex-shrink:0}
+  .token-name{font-weight:500;width:200px}
+  .token-value{font-family:"SF Mono",SFMono-Regular,Menlo,monospace;color:var(--color-text-secondary);font-size:var(--font-size-xs)}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="sidebar-brand-icon">F</div><div class="sidebar-brand-name">Favorble</div></div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Contacts</a><a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a><a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a><a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item active" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a><a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="sidebar-avatar">SM</div><div><div class="sidebar-user-name">Sarah Mitchell</div><div class="sidebar-user-role">Managing Attorney</div></div></div>
+  </nav>
+
+  <div class="main">
+    <header class="toolbar"><h1 class="toolbar-title">Integrations</h1><div class="toolbar-spacer"></div><div class="toolbar-search"><span>&#128269;</span><input type="text" placeholder="Search integrations..."></div></header>
+
+    <div class="content">
+      <div class="segmented-control" style="align-self:flex-start;"><div class="segmented-option active">All</div><div class="segmented-option">Connected</div><div class="segmented-option">Available</div></div>
+
+      <div>
+        <div class="section-header"><h2 class="section-title">Connected</h2><span class="section-count">4 integrations</span></div>
+        <div class="integration-grid">
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon ssa">&#9881;</div><div class="integration-info"><div class="integration-name">SSA ERE</div><div class="integration-category">Government Portal</div></div><div class="integration-status"><span class="status-badge connected"><span class="status-dot"></span> Connected</span></div></div><div class="integration-desc">Access Electronic Records Express for case file downloads, hearing notifications, and decision tracking.</div><div class="integration-footer"><span class="integration-meta">Last sync: 2 min ago</span><button class="integration-btn">Settings</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon docusign">&#9998;</div><div class="integration-info"><div class="integration-name">DocuSign</div><div class="integration-category">E-Signature</div></div><div class="integration-status"><span class="status-badge connected"><span class="status-dot"></span> Connected</span></div></div><div class="integration-desc">Send fee agreements and SSA-1696 forms for electronic signature. Auto-file completed documents.</div><div class="integration-footer"><span class="integration-meta">Last sync: 5 min ago</span><button class="integration-btn">Settings</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon google">&#128197;</div><div class="integration-info"><div class="integration-name">Google Calendar</div><div class="integration-category">Calendar</div></div><div class="integration-status"><span class="status-badge connected"><span class="status-dot"></span> Connected</span></div></div><div class="integration-desc">Sync hearing dates, filing deadlines, and SOL alerts with Google Calendar.</div><div class="integration-footer"><span class="integration-meta">Last sync: 1 min ago</span><button class="integration-btn">Settings</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon outlook">&#9993;</div><div class="integration-info"><div class="integration-name">Microsoft Outlook</div><div class="integration-category">Email</div></div><div class="integration-status"><span class="status-badge error"><span class="status-dot"></span> Error</span></div></div><div class="integration-desc">Link emails to cases automatically. Track ALJ correspondence and client communications.</div><div class="integration-footer"><span class="integration-meta" style="color:var(--color-destructive);">Auth token expired</span><button class="integration-btn connect">Reconnect</button></div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-header"><h2 class="section-title">Available</h2><span class="section-count">6 integrations</span></div>
+        <div class="integration-grid">
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon clio">&#9878;</div><div class="integration-info"><div class="integration-name">Clio</div><div class="integration-category">Practice Management</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Sync case data, contacts, and billing between Favorble and Clio.</div><div class="integration-footer"><span class="integration-meta">Enterprise plan</span><button class="integration-btn connect">Connect</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon abbyy">&#128196;</div><div class="integration-info"><div class="integration-name">ABBYY FineReader</div><div class="integration-category">OCR / Document AI</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Auto-OCR medical records and SSA documents. Extract key data for chronology building.</div><div class="integration-footer"><span class="integration-meta">Per-page pricing</span><button class="integration-btn connect">Connect</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon dropbox">&#128194;</div><div class="integration-info"><div class="integration-name">Dropbox</div><div class="integration-category">Cloud Storage</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Sync case documents with Dropbox for secure cloud backup.</div><div class="integration-footer"><span class="integration-meta">Free plan available</span><button class="integration-btn connect">Connect</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon quickbooks">&#36;</div><div class="integration-info"><div class="integration-name">QuickBooks</div><div class="integration-category">Accounting</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Sync fee invoices, expenses, and trust account transactions.</div><div class="integration-footer"><span class="integration-meta">Requires QB Online</span><button class="integration-btn connect">Connect</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon twilio">&#128222;</div><div class="integration-info"><div class="integration-name">Twilio</div><div class="integration-category">SMS / Voice</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Send automated SMS reminders for hearing dates and CE appointments.</div><div class="integration-footer"><span class="integration-meta">Pay per message</span><button class="integration-btn connect">Connect</button></div></div>
+          <div class="integration-card"><div class="integration-top"><div class="integration-icon zapier">&#9889;</div><div class="integration-info"><div class="integration-name">Zapier</div><div class="integration-category">Automation</div></div><div class="integration-status"><span class="status-badge available">Available</span></div></div><div class="integration-desc">Connect Favorble to 5,000+ apps. Automate intake workflows and notifications.</div><div class="integration-footer"><span class="integration-meta">Free tier: 100 tasks/mo</span><button class="integration-btn connect">Connect</button></div></div>
+        </div>
+      </div>
+
+      <div class="design-tokens">
+        <h2>Design Tokens - Apple HIG v4 Purple (Dark)</h2>
+        <div class="token-group">
+          <div class="token-group-title">Dark Integration Card</div>
+          <div class="token-row"><div class="token-swatch" style="background:#2C2A30;"></div><div class="token-name">Card background</div><div class="token-value">#2C2A30</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:rgba(255,255,255,0.06);"></div><div class="token-name">Available badge bg</div><div class="token-value">rgba(255,255,255,0.06)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

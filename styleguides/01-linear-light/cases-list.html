@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440, initial-scale=1">
+<title>Favorble - Cases | Linear-Light</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-base); color: var(--text-primary); line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; }
+
+:root {
+  --bg-base: #F8F8FC;
+  --bg-surface: #F4F4F8;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F5F5FA;
+  --bg-elevated: #F0F0F5;
+  --bg-input: #FFFFFF;
+  --border-subtle: #E8E8EC;
+  --border-default: #DCDCE0;
+  --border-strong: #C8C8CC;
+  --text-primary: #1A1A2E;
+  --text-secondary: #71717A;
+  --text-tertiary: #A1A1AA;
+  --accent: #8B5CF6;
+  --accent-hover: #7C3AED;
+  --accent-muted: rgba(139,92,246,0.10);
+  --accent-text: #7C3AED;
+  --blue: #3B82F6;
+  --blue-muted: rgba(59,130,246,0.10);
+  --green: #10B981;
+  --green-muted: rgba(16,185,129,0.10);
+  --amber: #F59E0B;
+  --amber-muted: rgba(245,158,11,0.10);
+  --red: #EF4444;
+  --red-muted: rgba(239,68,68,0.10);
+  --purple: #8B5CF6;
+  --purple-muted: rgba(139,92,246,0.10);
+  --font-xs: 0.6875rem; --font-sm: 0.8125rem; --font-base: 0.875rem;
+  --font-md: 1rem; --font-lg: 1.125rem; --font-xl: 1.5rem; --font-2xl: 1.875rem;
+  --tracking-tight: -0.02em; --tracking-normal: -0.01em;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px; --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --sidebar-width: 240px;
+}
+
+.app-layout { display: flex; min-height: 100vh; }
+
+/* ── Sidebar (shared) ─────────────────────────────────── */
+.sidebar { width: var(--sidebar-width); background: var(--bg-surface); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; overflow-y: auto; }
+.sidebar-header { padding: var(--space-5) var(--space-4); display: flex; align-items: center; gap: var(--space-3); }
+.sidebar-logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), #6D28D9); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--font-sm); color: white; flex-shrink: 0; }
+.sidebar-brand { display: flex; flex-direction: column; }
+.sidebar-brand-name { font-weight: 600; font-size: var(--font-base); letter-spacing: var(--tracking-tight); }
+.sidebar-brand-sub { font-size: var(--font-xs); color: var(--text-tertiary); }
+.sidebar-section { padding: var(--space-2) var(--space-3); }
+.sidebar-section-label { font-size: var(--font-xs); font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding: var(--space-2) var(--space-2) var(--space-1); }
+.sidebar-divider { height: 1px; background: var(--border-subtle); margin: var(--space-2) var(--space-4); }
+.sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-md); font-size: var(--font-sm); color: var(--text-secondary); transition: all 150ms ease; margin: 1px 0; }
+.sidebar-nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+.sidebar-nav-item.active { background: var(--accent-muted); color: var(--accent-text); border-left: 3px solid var(--accent); padding-left: 5px; }
+.sidebar-nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+.sidebar-nav-item.active .sidebar-nav-icon { opacity: 1; }
+.sidebar-footer { margin-top: auto; padding: var(--space-4); border-top: 1px solid var(--border-subtle); }
+.sidebar-user { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-md); }
+.sidebar-avatar { width: 28px; height: 28px; background: var(--accent-muted); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: var(--font-xs); font-weight: 600; color: var(--accent-text); }
+.sidebar-user-info { display: flex; flex-direction: column; }
+.sidebar-user-name { font-size: var(--font-sm); font-weight: 500; }
+.sidebar-user-role { font-size: var(--font-xs); color: var(--text-tertiary); }
+
+/* ── Main Content ─────────────────────────────────────── */
+.main-content { margin-left: var(--sidebar-width); flex: 1; padding: var(--space-8); max-width: 1200px; }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-6); }
+.page-header-text h1 { font-size: var(--font-2xl); font-weight: 700; letter-spacing: var(--tracking-tight); }
+.page-header-text p { font-size: var(--font-base); color: var(--text-secondary); margin-top: var(--space-1); }
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); font-size: var(--font-sm); font-weight: 500; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); transition: all 150ms ease; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--bg-elevated); border: 1px solid var(--border-default); color: var(--text-primary); }
+.btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+.btn-ghost { color: var(--text-secondary); }
+.btn-ghost:hover { background: rgba(0,0,0,0.04); color: var(--text-primary); }
+.btn-destructive { background: var(--red-muted); color: var(--red); }
+.btn-destructive:hover { background: rgba(239,68,68,0.15); }
+.btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--font-xs); }
+
+/* ── Inputs ───────────────────────────────────────────── */
+.input { width: 100%; padding: var(--space-2) var(--space-3); background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: var(--font-sm); transition: all 150ms ease; outline: none; }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-muted); }
+.input::placeholder { color: var(--text-tertiary); }
+.select { appearance: none; padding-right: var(--space-8); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.35)' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: 36px; }
+.input-with-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
+
+/* ── Badges ───────────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-xs); font-weight: 500; line-height: 1.4; }
+.badge-outline { border: 1px solid var(--border-default); color: var(--text-secondary); }
+.badge-accent { background: var(--accent-muted); color: var(--accent-text); }
+.badge-blue { background: var(--blue-muted); color: var(--blue); }
+.badge-green { background: var(--green-muted); color: var(--green); }
+.badge-amber { background: var(--amber-muted); color: var(--amber); }
+.badge-red { background: var(--red-muted); color: var(--red); }
+.badge-destructive { background: var(--red-muted); color: var(--red); font-weight: 600; }
+
+/* ── Summary Stats ────────────────────────────────────── */
+.summary-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-4);
+}
+
+.summary-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.summary-divider {
+  color: var(--text-tertiary);
+}
+
+/* ── Filters ──────────────────────────────────────────── */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.filters-bar .input-with-icon {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+}
+
+.filters-bar .select {
+  width: 180px;
+}
+
+/* ── Bulk Actions ─────────────────────────────────────── */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.bulk-bar-label {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.bulk-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--border-default);
+}
+
+/* ── Table ────────────────────────────────────────────── */
+.table-container {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+th:hover {
+  color: var(--text-secondary);
+}
+
+th.sortable::after {
+  content: '';
+  display: inline-block;
+  margin-left: 4px;
+}
+
+td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--font-sm);
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(0,0,0,0.02);
+}
+
+tr {
+  transition: background 150ms ease;
+  cursor: pointer;
+}
+
+.checkbox-cell {
+  width: 40px;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 3px;
+  background: transparent;
+  transition: all 150ms ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox:hover {
+  border-color: var(--accent);
+}
+
+.checkbox.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkbox.checked::after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 5px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.claimant-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.claimant-case {
+  font-size: var(--font-xs);
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+.staff-name {
+  color: var(--text-primary);
+}
+
+.staff-unassigned {
+  color: var(--text-tertiary);
+}
+
+.time-cell {
+  color: var(--text-tertiary);
+}
+
+/* ── Pagination ───────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+}
+
+.pagination-info {
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: all 150ms ease;
+  background: transparent;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-text {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  padding: 0 var(--space-2);
+}
+
+/* ── Modal ────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-title {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-1);
+}
+
+.modal-desc {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-5);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .filters-bar .input-with-icon { max-width: none; }
+  .filters-bar .select { width: 160px; }
+}
+
+/* ── Design Tokens Section ────────────────────────────── */
+.tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 1px solid var(--border-subtle); }
+.tokens-section h2 { font-size: var(--font-xl); font-weight: 700; letter-spacing: var(--tracking-tight); margin-bottom: var(--space-6); }
+.tokens-section h3 { font-size: var(--font-md); font-weight: 600; margin-bottom: var(--space-4); margin-top: var(--space-8); }
+.color-swatches { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.color-swatch { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+.color-swatch-box { width: 56px; height: 56px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); }
+.color-swatch-label { font-size: var(--font-xs); color: var(--text-secondary); }
+.color-swatch-value { font-size: 10px; color: var(--text-tertiary); font-family: 'SF Mono', monospace; }
+.type-scale-row { display: flex; align-items: baseline; gap: var(--space-6); padding: var(--space-3) 0; border-bottom: 1px solid var(--border-subtle); }
+.type-scale-label { width: 80px; font-size: var(--font-xs); color: var(--text-tertiary); flex-shrink: 0; font-family: 'SF Mono', monospace; }
+.spacing-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) 0; }
+.spacing-box { height: 24px; background: var(--accent-muted); border-radius: var(--radius-sm); border: 1px solid var(--accent); }
+.spacing-label { font-size: var(--font-xs); color: var(--text-tertiary); width: 60px; flex-shrink: 0; font-family: 'SF Mono', monospace; }
+.shadow-row { display: flex; gap: var(--space-4); margin-bottom: var(--space-4); }
+.shadow-box { width: 120px; height: 64px; background: var(--bg-card); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: var(--font-xs); color: var(--text-secondary); }
+.radius-row { display: flex; gap: var(--space-4); }
+.radius-box { width: 56px; height: 56px; background: var(--accent-muted); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-secondary); font-family: 'SF Mono', monospace; }
+.component-showcase { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.tooltip-wrapper { position: relative; display: inline-block; }
+.tooltip-wrapper .tooltip-text { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: var(--space-1) var(--space-2); background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-sm); font-size: var(--font-xs); color: var(--text-primary); white-space: nowrap; transition: all 150ms ease; z-index: 50; }
+.tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">F</div>
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-name">Favorble</span>
+        <span class="sidebar-brand-sub">by Hogan Smith</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>My Queue</a>
+      <a href="cases-list.html" class="sidebar-nav-item active"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>Leads</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Contacts</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>Workflows</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="6" rx="1"/><rect x="3" y="15" width="18" height="6" rx="1"/></svg>Stages</a>
+      <a href="admin-integrations.html" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>Integrations</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.2.65.78 1.1 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JK</div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">Jake Klinvex</span>
+          <span class="sidebar-user-role">Admin</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1>Cases</h1>
+        <p>Browse and manage all cases.</p>
+      </div>
+      <button class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Case
+      </button>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="summary-stats">
+      <span style="font-weight: 600;">147 cases</span>
+      <span class="summary-divider">&middot;</span>
+      <span style="display:inline-flex; align-items:center; gap:6px;">
+        <span class="summary-dot" style="background: var(--blue);"></span>
+        <span style="color: var(--blue); font-weight: 500;">42</span>
+        <span style="color: var(--text-secondary);">Intake</span>
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px;">
+        <span class="summary-dot" style="background: var(--accent);"></span>
+        <span style="color: var(--accent-text); font-weight: 500;">32</span>
+        <span style="color: var(--text-secondary);">Application</span>
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px;">
+        <span class="summary-dot" style="background: var(--amber);"></span>
+        <span style="color: var(--amber); font-weight: 500;">24</span>
+        <span style="color: var(--text-secondary);">Reconsideration</span>
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px;">
+        <span class="summary-dot" style="background: var(--green);"></span>
+        <span style="color: var(--green); font-weight: 500;">19</span>
+        <span style="color: var(--text-secondary);">Hearing</span>
+      </span>
+      <span class="summary-divider">&middot;</span>
+      <span style="color: var(--green); font-weight: 500;">18 won</span>
+      <span style="color: var(--red); font-weight: 500;">6 lost</span>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="input-with-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="input" placeholder="Search cases...">
+      </div>
+      <select class="input select" style="width: 200px;">
+        <option>All Stages</option>
+        <option>INT-01 - New Lead</option>
+        <option>INT-02 - Screening</option>
+        <option>APP-01 - Initial Filing</option>
+        <option>APP-02 - Evidence Gathering</option>
+        <option>REC-01 - Request Filed</option>
+        <option>HRG-01 - Pre-Hearing</option>
+        <option>HRG-02 - Hearing Scheduled</option>
+        <option>RES-01 - Decision Received</option>
+      </select>
+      <select class="input select" style="width: 180px;">
+        <option>All Teams</option>
+        <option>Intake</option>
+        <option>Filing</option>
+        <option>Medical Records</option>
+        <option>Mail Sorting</option>
+        <option>Case Mgmt</option>
+        <option>Hearings</option>
+        <option>Admin</option>
+      </select>
+      <select class="input select" style="width: 200px;">
+        <option>All Assigned</option>
+        <option>Jake Klinvex</option>
+        <option>Sarah Chen</option>
+        <option>Maria Rodriguez</option>
+        <option>David Park</option>
+      </select>
+      <button class="btn btn-ghost btn-sm">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Clear
+      </button>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-bar">
+      <span class="bulk-bar-label">3 selected</span>
+      <div class="bulk-separator"></div>
+      <button class="btn btn-primary btn-sm">Change Stage</button>
+      <button class="btn btn-secondary btn-sm">Export CSV</button>
+      <button class="btn btn-ghost btn-sm">Clear</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th class="checkbox-cell"><div class="checkbox"></div></th>
+            <th>Claimant <span class="sort-icon">&darr;</span></th>
+            <th>Stage</th>
+            <th>Assigned To</th>
+            <th>Last Activity <span class="sort-icon">&darr;</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox checked"></div></td>
+            <td>
+              <div class="claimant-name">Williams, Denise</div>
+              <div class="claimant-case">HS-2024-0892</div>
+            </td>
+            <td><span class="badge" style="background: var(--amber-muted); color: var(--amber); border: 1px solid rgba(245,158,11,0.25);">Reconsideration</span></td>
+            <td class="staff-name">Jake K.</td>
+            <td class="time-cell">2h</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox checked"></div></td>
+            <td>
+              <div class="claimant-name">Thompson, Michael</div>
+              <div class="claimant-case">HS-2024-0756</div>
+            </td>
+            <td><span class="badge" style="background: var(--green-muted); color: var(--green); border: 1px solid rgba(16,185,129,0.25);">Hearing</span></td>
+            <td class="staff-name">Sarah C.</td>
+            <td class="time-cell">3h</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox checked"></div></td>
+            <td>
+              <div class="claimant-name">Garcia, Robert</div>
+              <div class="claimant-case">HS-2024-1034</div>
+            </td>
+            <td><span class="badge" style="background: var(--accent-muted); color: var(--accent-text); border: 1px solid rgba(139,92,246,0.25);">Application</span></td>
+            <td class="staff-name">Maria R.</td>
+            <td class="time-cell">5h</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Martinez, Ana</div>
+              <div class="claimant-case">HS-2024-0801</div>
+            </td>
+            <td><span class="badge" style="background: var(--green-muted); color: var(--green); border: 1px solid rgba(16,185,129,0.25);">Hearing</span></td>
+            <td class="staff-name">David P.</td>
+            <td class="time-cell">1d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Johnson, Terri</div>
+              <div class="claimant-case">HS-2024-1102</div>
+            </td>
+            <td><span class="badge" style="background: var(--blue-muted); color: var(--blue); border: 1px solid rgba(59,130,246,0.25);">Intake</span></td>
+            <td class="staff-name">Jake K.</td>
+            <td class="time-cell">1d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Anderson, Patricia</div>
+              <div class="claimant-case">HS-2024-0981</div>
+            </td>
+            <td><span class="badge" style="background: var(--accent-muted); color: var(--accent-text); border: 1px solid rgba(139,92,246,0.25);">Application</span></td>
+            <td class="staff-name">Sarah C.</td>
+            <td class="time-cell">2d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Davis, Marcus</div>
+              <div class="claimant-case">HS-2024-0645</div>
+            </td>
+            <td><span class="badge" style="background: var(--green-muted); color: #10B981; border: 1px solid rgba(16,185,129,0.25);">Resolution</span></td>
+            <td class="staff-name">Maria R.</td>
+            <td class="time-cell">3d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Brown, Lisa</div>
+              <div class="claimant-case">HS-2024-0923</div>
+            </td>
+            <td><span class="badge" style="background: var(--blue-muted); color: var(--blue); border: 1px solid rgba(59,130,246,0.25);">Intake</span></td>
+            <td class="staff-unassigned">Unassigned</td>
+            <td class="time-cell">5d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Wilson, James</div>
+              <div class="claimant-case">HS-2024-0710</div>
+            </td>
+            <td><span class="badge" style="background: var(--amber-muted); color: var(--amber); border: 1px solid rgba(245,158,11,0.25);">Reconsideration</span></td>
+            <td class="staff-name">David P.</td>
+            <td class="time-cell">7d</td>
+          </tr>
+          <tr>
+            <td class="checkbox-cell"><div class="checkbox"></div></td>
+            <td>
+              <div class="claimant-name">Taylor, Sandra</div>
+              <div class="claimant-case">HS-2024-0558</div>
+            </td>
+            <td><span class="badge" style="background: var(--green-muted); color: #10B981; border: 1px solid rgba(16,185,129,0.25);">Resolution</span></td>
+            <td class="staff-name">Jake K.</td>
+            <td class="time-cell">12d</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="pagination-info">147 total cases</span>
+      <div class="pagination-controls">
+        <button class="pagination-btn" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="pagination-text">Page 1 of 15</span>
+        <button class="pagination-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- New Case Modal (shown as static for demo) -->
+    <div style="margin-top: var(--space-8);">
+      <h3 style="font-size: var(--font-md); font-weight: 600; margin-bottom: var(--space-4); color: var(--text-primary);">Dialog Preview: Create New Case</h3>
+      <div class="modal" style="position: relative;">
+        <div class="modal-title">Create New Case</div>
+        <div class="modal-desc">Enter the claimant details and initial case settings.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="input" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="input" placeholder="Last name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Stage</label>
+          <select class="input select">
+            <option>Select stage</option>
+            <option>INT-01 - New Lead</option>
+            <option>INT-02 - Screening</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned Attorney</label>
+          <select class="input select">
+            <option>Select attorney (optional)</option>
+            <option>Jake Klinvex</option>
+            <option>Sarah Chen</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary">Cancel</button>
+          <button class="btn btn-primary">Create Case</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Tokens -->
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <h3>Color Palette</h3>
+      <div class="color-swatches">
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#F8F8FC;"></div><span class="color-swatch-label">Base</span><span class="color-swatch-value">#F8F8FC</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#F4F4F8;"></div><span class="color-swatch-label">Surface</span><span class="color-swatch-value">#F4F4F8</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#FFFFFF; border: 1px solid #E8E8EC;"></div><span class="color-swatch-label">Card</span><span class="color-swatch-value">#1A1A2E</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#F0F0F5;"></div><span class="color-swatch-label">Elevated</span><span class="color-swatch-value">#F0F0F5</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#8B5CF6;"></div><span class="color-swatch-label">Accent</span><span class="color-swatch-value">#8B5CF6</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#3B82F6;"></div><span class="color-swatch-label">Blue</span><span class="color-swatch-value">#3B82F6</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#10B981;"></div><span class="color-swatch-label">Green</span><span class="color-swatch-value">#10B981</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#F59E0B;"></div><span class="color-swatch-label">Amber</span><span class="color-swatch-value">#F59E0B</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#EF4444;"></div><span class="color-swatch-label">Red</span><span class="color-swatch-value">#EF4444</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#1A1A2E;"></div><span class="color-swatch-label">Text</span><span class="color-swatch-value">#1A1A2E</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#71717A;"></div><span class="color-swatch-label">Secondary</span><span class="color-swatch-value">#71717A</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#A1A1AA;"></div><span class="color-swatch-label">Tertiary</span><span class="color-swatch-value">#A1A1AA</span></div>
+      </div>
+      <h3>Typography Scale</h3>
+      <div class="type-scale-row"><span class="type-scale-label">2xl / 30px</span><span style="font-size:1.875rem; font-weight:700; letter-spacing:-0.02em;">Page Heading</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">xl / 24px</span><span style="font-size:1.5rem; font-weight:700; letter-spacing:-0.02em;">Section Title</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">lg / 18px</span><span style="font-size:1.125rem; font-weight:600;">Card Title</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">md / 16px</span><span style="font-size:1rem; font-weight:500;">Body Large</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">base / 14px</span><span style="font-size:0.875rem;">Body text</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">sm / 13px</span><span style="font-size:0.8125rem; color:var(--text-secondary);">Secondary text</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">xs / 11px</span><span style="font-size:0.6875rem; color:var(--text-tertiary);">Captions, meta</span></div>
+      <h3>Spacing Scale</h3>
+      <div class="spacing-row"><span class="spacing-label">4px</span><div class="spacing-box" style="width:16px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">8px</span><div class="spacing-box" style="width:32px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">12px</span><div class="spacing-box" style="width:48px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">16px</span><div class="spacing-box" style="width:64px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">24px</span><div class="spacing-box" style="width:96px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">32px</span><div class="spacing-box" style="width:128px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">48px</span><div class="spacing-box" style="width:192px;"></div></div>
+      <h3>Shadows</h3>
+      <div class="shadow-row">
+        <div class="shadow-box" style="box-shadow: 0 1px 2px rgba(0,0,0,0.04);">sm</div>
+        <div class="shadow-box" style="box-shadow: 0 2px 8px rgba(0,0,0,0.06);">md</div>
+        <div class="shadow-box" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08);">lg</div>
+      </div>
+      <h3>Border Radius</h3>
+      <div class="radius-row">
+        <div class="radius-box" style="border-radius:4px;">4px</div>
+        <div class="radius-box" style="border-radius:6px;">6px</div>
+        <div class="radius-box" style="border-radius:8px;">8px</div>
+        <div class="radius-box" style="border-radius:12px;">12px</div>
+        <div class="radius-box" style="border-radius:9999px; width:56px;">full</div>
+      </div>
+      <h3>Buttons</h3>
+      <div class="component-showcase" style="margin-bottom:var(--space-4);">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-destructive">Destructive</button>
+        <button class="btn btn-primary btn-sm">Small</button>
+      </div>
+      <h3>Badges</h3>
+      <div class="component-showcase" style="margin-bottom:var(--space-4);">
+        <span class="badge badge-outline">Outline</span>
+        <span class="badge badge-accent">Accent</span>
+        <span class="badge badge-blue">Blue</span>
+        <span class="badge badge-green">Green</span>
+        <span class="badge badge-amber">Amber</span>
+        <span class="badge badge-red">Red</span>
+      </div>
+      <h3>Inputs</h3>
+      <div style="display:flex; gap:var(--space-4); max-width:600px; margin-bottom:var(--space-4);">
+        <input type="text" class="input" placeholder="Text input...">
+        <select class="input select"><option>Select option</option></select>
+      </div>
+      <h3>Tooltips</h3>
+      <div class="component-showcase">
+        <div class="tooltip-wrapper">
+          <button class="btn btn-secondary">Hover me</button>
+          <span class="tooltip-text">Tooltip content</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Timeline, type TimelineEvent } from "@/components/shared/timeline";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Task01Icon, Folder01Icon } from "@hugeicons/core-free-icons";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -53,17 +51,10 @@ export default async function CaseOverviewPage({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Open Tasks */}
-      <Card className="border-l-4 border-l-blue-500">
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-950/40">
-                <HugeiconsIcon
-                  icon={Task01Icon}
-                  size={16}
-                  color="rgb(59 130 246)"
-                />
-              </div>
+            <CardTitle className="text-base">
               Open Tasks ({openTasks.length})
             </CardTitle>
             <Link
@@ -115,17 +106,10 @@ export default async function CaseOverviewPage({
       </Card>
 
       {/* Recent Documents */}
-      <Card className="border-l-4 border-l-purple-500">
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-100 dark:bg-purple-950/40">
-                <HugeiconsIcon
-                  icon={Folder01Icon}
-                  size={16}
-                  color="rgb(147 51 234)"
-                />
-              </div>
+            <CardTitle className="text-base">
               Recent Documents ({docs.length})
             </CardTitle>
             <Link

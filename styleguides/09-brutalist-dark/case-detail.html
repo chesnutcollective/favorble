@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail (Neo-Brutalist Dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#111111;--card-bg:#1A1A1A;--sidebar-bg:#0A0A0A;
+    --text-primary:#F0F0F0;--text-secondary:#999;--text-inverse:#F0F0F0;
+    --orange:#FF6B00;--purple:#5B21B6;--yellow:#FFD700;
+    --green:#00CC88;--pink:#FF3366;--blue:#3B82F6;
+    --border:2px solid #444;--shadow:4px 4px 0 rgba(255,255,255,0.15);--shadow-sm:3px 3px 0 rgba(255,255,255,0.1);
+    --radius-none:0px;--radius-pill:999px;
+    --font-heading:'Space Grotesk',sans-serif;
+    --font-body:'DM Sans',sans-serif;
+    --font-mono:'Space Mono',monospace;
+    --space-xs:4px;--space-sm:8px;--space-md:16px;
+    --space-lg:24px;--space-xl:32px;--space-2xl:48px;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary);line-height:1.5;display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:260px;background:var(--sidebar-bg);color:var(--text-inverse);padding:var(--space-lg);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+  .sidebar-logo{font-family:var(--font-heading);font-size:28px;font-weight:700;margin-bottom:var(--space-2xl);letter-spacing:-1px;}
+  .sidebar-logo span{color:var(--orange);}
+  .sidebar nav{flex:1;}
+  .sidebar nav a{display:flex;align-items:center;gap:var(--space-sm);color:#777;text-decoration:none;padding:10px 14px;font-size:15px;font-weight:500;border:2px solid transparent;margin-bottom:4px;transition:all .1s;}
+  .sidebar nav a:hover{color:#F0F0F0;background:rgba(255,255,255,.06);}
+  .sidebar nav a.active{color:#F0F0F0;background:var(--orange);border:2px solid var(--orange);font-weight:700;}
+  .sidebar nav a .icon{width:20px;text-align:center;font-size:16px;}
+  .sidebar-section-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#777;margin:var(--space-lg) 0 var(--space-sm) var(--space-md);}
+  .sidebar-user{border-top:1px solid #333;padding-top:var(--space-md);display:flex;align-items:center;gap:var(--space-sm);}
+  .sidebar-user-avatar{width:36px;height:36px;background:var(--purple);border:2px solid #444;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .sidebar-user-info{font-size:13px;}
+  .sidebar-user-info .name{font-weight:600;}
+  .sidebar-user-info .role{color:#777;font-size:11px;}
+
+  /* Main */
+  .main{flex:1;margin-left:260px;padding:var(--space-xl) var(--space-2xl);max-width:1200px;}
+
+  /* Buttons */
+  .btn{font-family:var(--font-heading);font-size:14px;font-weight:600;padding:10px 20px;border:var(--border);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-sm);transition:transform .1s,box-shadow .1s;box-shadow:var(--shadow-sm);}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(255,255,255,0.2);}
+  .btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent;}
+  .btn-primary{background:var(--orange);color:#F0F0F0;}
+  .btn-secondary{background:var(--card-bg);color:var(--text-primary);}
+  .btn-dark{background:#0A0A0A;color:#F0F0F0;}
+  .btn-sm{font-size:12px;padding:6px 14px;box-shadow:2px 2px 0 rgba(255,255,255,0.1);}
+  .btn-pill{border-radius:var(--radius-pill);}
+  .btn-ghost{background:transparent;border:2px solid transparent;box-shadow:none;padding:6px 12px;}
+  .btn-ghost:hover{background:var(--bg);border-color:#444;box-shadow:none;transform:none;}
+
+  /* Badge */
+  .badge{display:inline-block;font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border:var(--border);}
+  .badge-orange{background:var(--orange);color:#F0F0F0;}
+  .badge-purple{background:var(--purple);color:#F0F0F0;}
+  .badge-green{background:var(--green);}
+  .badge-pink{background:var(--pink);color:#F0F0F0;}
+  .badge-yellow{background:var(--yellow);}
+  .badge-blue{background:var(--blue);color:#F0F0F0;}
+
+  /* Card */
+  .card{background:var(--card-bg);border:var(--border);box-shadow:var(--shadow);padding:var(--space-lg);margin-bottom:var(--space-lg);}
+  .card-title{font-family:var(--font-heading);font-size:18px;font-weight:700;margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;}
+
+  /* Breadcrumb */
+  .breadcrumb{display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-md);font-size:13px;}
+  .breadcrumb a{color:var(--text-secondary);text-decoration:none;}
+  .breadcrumb a:hover{color:var(--orange);}
+  .breadcrumb .sep{color:#555;}
+  .breadcrumb .current{font-weight:700;color:var(--text-primary);}
+
+  /* Case Header */
+  .case-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-xl);gap:var(--space-lg);}
+  .case-header-left h1{font-family:var(--font-heading);font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:var(--space-sm);}
+  .case-meta{display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-sm);}
+  .case-number{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);}
+  .case-header-actions{display:flex;gap:var(--space-sm);flex-shrink:0;}
+
+  /* Stage Progress Bar */
+  .stage-progress{margin-bottom:var(--space-xl);}
+  .stage-progress-bar{display:flex;gap:0;border:var(--border);overflow:hidden;}
+  .stage-step{flex:1;text-align:center;padding:12px 8px;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;border-right:2px solid #444;position:relative;background:var(--bg);color:var(--text-secondary);transition:all .15s;}
+  .stage-step:last-child{border-right:none;}
+  .stage-step.completed{background:var(--green);color:#F0F0F0;}
+  .stage-step.current{background:var(--orange);color:#F0F0F0;}
+  .stage-step.upcoming{background:var(--bg);color:#555;}
+  .stage-step .step-label{display:block;font-size:9px;font-weight:400;margin-top:2px;letter-spacing:0.5px;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:0;border-bottom:3px solid #444;margin-bottom:var(--space-lg);}
+  .tab{font-family:var(--font-heading);font-size:14px;font-weight:600;padding:12px 24px;cursor:pointer;border:var(--border);border-bottom:none;margin-bottom:-3px;background:var(--bg);color:var(--text-secondary);transition:all .1s;}
+  .tab:hover{background:#1A1A1A;color:var(--text-primary);}
+  .tab.active{background:var(--card-bg);color:var(--text-primary);border-bottom:3px solid var(--card-bg);}
+
+  /* Overview Grid */
+  .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--space-lg);}
+
+  /* Info Grid */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);}
+  .info-item{}
+  .info-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-secondary);margin-bottom:2px;}
+  .info-value{font-size:15px;font-weight:600;}
+
+  /* Team */
+  .team-list{list-style:none;}
+  .team-member{display:flex;align-items:center;gap:var(--space-sm);padding:8px 0;border-bottom:2px solid #333;font-size:14px;}
+  .team-member:last-child{border-bottom:none;}
+  .team-avatar{width:32px;height:32px;border:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .team-role{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-left:auto;}
+
+  /* Tasks */
+  .task-list{list-style:none;}
+  .task-item{display:flex;align-items:center;gap:var(--space-sm);padding:10px 0;border-bottom:2px solid #333;font-size:14px;}
+  .task-item:last-child{border-bottom:none;}
+  .task-checkbox{width:22px;height:22px;border:var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700;font-size:14px;transition:all .1s;}
+  .task-checkbox:hover{background:var(--yellow);}
+  .task-checkbox.done{background:var(--green);color:#F0F0F0;}
+  .task-text{flex:1;}
+  .task-text.done{text-decoration:line-through;color:#777;}
+  .task-due{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border:var(--border);white-space:nowrap;}
+  .task-due.overdue{background:var(--pink);color:#F0F0F0;}
+  .task-due.today{background:var(--orange);color:#F0F0F0;}
+  .task-due.upcoming{background:var(--bg);}
+  .task-assignee{font-size:12px;color:var(--text-secondary);}
+
+  /* Documents */
+  .doc-list{list-style:none;}
+  .doc-item{display:flex;align-items:center;gap:var(--space-md);padding:10px 0;border-bottom:2px solid #333;font-size:14px;}
+  .doc-item:last-child{border-bottom:none;}
+  .doc-icon{width:40px;height:48px;border:var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;font-weight:700;flex-shrink:0;}
+  .doc-icon.pdf{background:var(--pink);color:#F0F0F0;}
+  .doc-icon.doc{background:var(--blue);color:#F0F0F0;}
+  .doc-icon.xls{background:var(--green);}
+  .doc-icon.img{background:var(--purple);color:#F0F0F0;}
+  .doc-info{flex:1;}
+  .doc-name{font-weight:600;}
+  .doc-meta{font-size:12px;color:var(--text-secondary);}
+  .doc-size{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);}
+
+  /* Notes */
+  .note{padding:var(--space-md);border:var(--border);background:var(--bg);margin-bottom:var(--space-sm);}
+  .note-header{display:flex;justify-content:space-between;margin-bottom:var(--space-sm);}
+  .note-author{font-weight:700;font-size:13px;}
+  .note-time{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);}
+  .note-body{font-size:14px;line-height:1.6;}
+
+  /* Financials */
+  .financial-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:2px solid #333;font-size:14px;}
+  .financial-row:last-child{border-bottom:none;}
+  .financial-label{color:var(--text-secondary);}
+  .financial-value{font-family:var(--font-heading);font-weight:700;font-size:16px;}
+  .financial-total{border-top:3px solid #444;padding-top:12px;margin-top:4px;}
+  .financial-total .financial-value{font-size:22px;color:var(--orange);}
+
+  /* Activity Timeline */
+  .timeline{list-style:none;position:relative;padding-left:24px;}
+  .timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:3px;background:#444;}
+  .timeline-item{position:relative;padding-bottom:var(--space-md);}
+  .timeline-item:last-child{padding-bottom:0;}
+  .timeline-dot{position:absolute;left:-24px;top:4px;width:14px;height:14px;border:3px solid #444;background:#1A1A1A;z-index:1;}
+  .timeline-dot.orange{background:var(--orange);}
+  .timeline-dot.green{background:var(--green);}
+  .timeline-dot.purple{background:var(--purple);}
+  .timeline-dot.pink{background:var(--pink);}
+  .timeline-content{font-size:13px;}
+  .timeline-content strong{font-weight:700;}
+  .timeline-time{font-family:var(--font-mono);font-size:10px;color:#777;margin-top:2px;}
+
+  /* Design Tokens */
+  .tokens-section{border-top:4px solid #444;padding-top:var(--space-xl);margin-top:var(--space-2xl);}
+  .tokens-section h2{font-family:var(--font-heading);font-size:24px;font-weight:700;margin-bottom:var(--space-lg);}
+  .token-group{margin-bottom:var(--space-xl);}
+  .token-group h3{font-family:var(--font-mono);font-size:13px;text-transform:uppercase;letter-spacing:2px;margin-bottom:var(--space-md);color:var(--text-secondary);}
+  .color-swatches{display:flex;gap:var(--space-sm);flex-wrap:wrap;}
+  .swatch{width:80px;text-align:center;}
+  .swatch-color{width:80px;height:60px;border:var(--border);box-shadow:var(--shadow-sm);margin-bottom:var(--space-xs);}
+  .swatch-label{font-family:var(--font-mono);font-size:10px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Favor<span>ble</span></div>
+  <nav>
+    <div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+    <a href="cases-list.html" class="active"><span class="icon">&#9830;</span> Cases</a>
+    <a href="chronology.html"><span class="icon">&#9672;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a href="#"><span class="icon">&#9734;</span> Contacts</a>
+    <a href="#"><span class="icon">&#9998;</span> Documents</a>
+    <a href="#"><span class="icon">&#8853;</span> Calendar</a>
+    <div class="sidebar-section-label">Admin</div>
+    <a href="admin-integrations.html"><span class="icon">&#8644;</span> Integrations</a>
+    <a href="#"><span class="icon">&#9881;</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">JR</div>
+    <div class="sidebar-user-info">
+      <div class="name">Jessica Reyes</div>
+      <div class="role">Senior Paralegal</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="cases-list.html">Cases</a>
+    <span class="sep">/</span>
+    <span class="current">Garcia v. Metro Health</span>
+  </div>
+
+  <!-- Case Header -->
+  <div class="case-header">
+    <div class="case-header-left">
+      <h1>Garcia v. Metro Health</h1>
+      <div class="case-meta">
+        <span class="case-number">CS-2026-0284</span>
+        <span class="badge badge-orange">Med Mal</span>
+        <span class="badge badge-pink">High Priority</span>
+      </div>
+    </div>
+    <div class="case-header-actions">
+      <button class="btn btn-secondary btn-sm">Edit Case</button>
+      <button class="btn btn-dark btn-sm">Generate Report</button>
+      <button class="btn btn-primary">+ Add Task</button>
+    </div>
+  </div>
+
+  <!-- Stage Progress -->
+  <div class="stage-progress">
+    <div class="stage-progress-bar">
+      <div class="stage-step completed">
+        Intake
+        <span class="step-label">Mar 25</span>
+      </div>
+      <div class="stage-step completed">
+        Review
+        <span class="step-label">Mar 27</span>
+      </div>
+      <div class="stage-step current">
+        Discovery
+        <span class="step-label">In Progress</span>
+      </div>
+      <div class="stage-step upcoming">
+        Negotiation
+        <span class="step-label">Pending</span>
+      </div>
+      <div class="stage-step upcoming">
+        Settlement
+        <span class="step-label">Pending</span>
+      </div>
+      <div class="stage-step upcoming">
+        Closed
+        <span class="step-label">Pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active">Overview</div>
+    <div class="tab">Tasks (8)</div>
+    <div class="tab">Documents (14)</div>
+    <div class="tab">Notes (6)</div>
+    <div class="tab">Financials</div>
+    <div class="tab">Activity</div>
+  </div>
+
+  <!-- Overview Grid -->
+  <div class="overview-grid">
+    <div>
+      <!-- Case Details Card -->
+      <div class="card">
+        <div class="card-title">Case Details</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Client</div>
+            <div class="info-value">Maria Garcia</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Date of Incident</div>
+            <div class="info-value">Jan 14, 2026</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Filed Date</div>
+            <div class="info-value">Mar 25, 2026</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Statute of Limitations</div>
+            <div class="info-value" style="color:var(--pink);">Jan 14, 2028</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Jurisdiction</div>
+            <div class="info-value">Harris County, TX</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Opposing Counsel</div>
+            <div class="info-value">Richards & Kline LLP</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Defendant</div>
+            <div class="info-value">Metro Health Systems</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Estimated Value</div>
+            <div class="info-value" style="color:var(--orange);">$350,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Card -->
+      <div class="card">
+        <div class="card-title">Tasks <span style="font-family:var(--font-mono);font-size:12px;background:var(--bg);padding:2px 10px;border:var(--border);">3 of 8 done</span></div>
+        <ul class="task-list">
+          <li class="task-item">
+            <div class="task-checkbox done">&#10003;</div>
+            <span class="task-text done">Complete client intake interview</span>
+            <span class="task-assignee">J. Reyes</span>
+            <span class="task-due upcoming">Mar 25</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox done">&#10003;</div>
+            <span class="task-text done">Request medical records from Metro Health</span>
+            <span class="task-assignee">J. Reyes</span>
+            <span class="task-due upcoming">Mar 26</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox done">&#10003;</div>
+            <span class="task-text done">File initial complaint</span>
+            <span class="task-assignee">M. Torres</span>
+            <span class="task-due upcoming">Mar 27</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <span class="task-text">Draft interrogatories</span>
+            <span class="task-assignee">S. Kim</span>
+            <span class="task-due today">Today</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <span class="task-text">Schedule expert witness consultation</span>
+            <span class="task-assignee">M. Torres</span>
+            <span class="task-due upcoming">Apr 2</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <span class="task-text">Review opposing counsel's discovery responses</span>
+            <span class="task-assignee">J. Reyes</span>
+            <span class="task-due upcoming">Apr 8</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <span class="task-text">Prepare deposition outline for Dr. Pham</span>
+            <span class="task-assignee">M. Torres</span>
+            <span class="task-due upcoming">Apr 14</span>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <span class="task-text">Order medical chronology report</span>
+            <span class="task-assignee">J. Reyes</span>
+            <span class="task-due overdue">Mar 24</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Documents Card -->
+      <div class="card">
+        <div class="card-title">Recent Documents <button class="btn btn-sm btn-secondary" style="margin-left:auto;">Upload</button></div>
+        <ul class="doc-list">
+          <li class="doc-item">
+            <div class="doc-icon pdf">PDF</div>
+            <div class="doc-info">
+              <div class="doc-name">Initial Complaint — Garcia v. Metro Health</div>
+              <div class="doc-meta">Uploaded by M. Torres &middot; Mar 27, 2026</div>
+            </div>
+            <div class="doc-size">2.4 MB</div>
+          </li>
+          <li class="doc-item">
+            <div class="doc-icon pdf">PDF</div>
+            <div class="doc-info">
+              <div class="doc-name">Client Intake Form — Signed</div>
+              <div class="doc-meta">Uploaded by J. Reyes &middot; Mar 25, 2026</div>
+            </div>
+            <div class="doc-size">1.1 MB</div>
+          </li>
+          <li class="doc-item">
+            <div class="doc-icon doc">DOC</div>
+            <div class="doc-info">
+              <div class="doc-name">Medical Records Request Letter</div>
+              <div class="doc-meta">Uploaded by J. Reyes &middot; Mar 26, 2026</div>
+            </div>
+            <div class="doc-size">340 KB</div>
+          </li>
+          <li class="doc-item">
+            <div class="doc-icon img">IMG</div>
+            <div class="doc-info">
+              <div class="doc-name">Injury Photos (Set A — 12 images)</div>
+              <div class="doc-meta">Uploaded by M. Garcia &middot; Mar 25, 2026</div>
+            </div>
+            <div class="doc-size">18.3 MB</div>
+          </li>
+          <li class="doc-item">
+            <div class="doc-icon xls">XLS</div>
+            <div class="doc-info">
+              <div class="doc-name">Damages Calculation Worksheet</div>
+              <div class="doc-meta">Uploaded by S. Kim &middot; Mar 28, 2026</div>
+            </div>
+            <div class="doc-size">890 KB</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div>
+      <!-- Team -->
+      <div class="card">
+        <div class="card-title">Case Team</div>
+        <ul class="team-list">
+          <li class="team-member">
+            <div class="team-avatar" style="background:var(--purple);color:#F0F0F0;">MT</div>
+            <div>
+              <div style="font-weight:600;">Mike Torres</div>
+              <div style="font-size:11px;color:var(--text-secondary);">mike@favorble.com</div>
+            </div>
+            <span class="team-role">Lead Atty</span>
+          </li>
+          <li class="team-member">
+            <div class="team-avatar" style="background:var(--orange);color:#F0F0F0;">SK</div>
+            <div>
+              <div style="font-weight:600;">Sarah Kim</div>
+              <div style="font-size:11px;color:var(--text-secondary);">sarah@favorble.com</div>
+            </div>
+            <span class="team-role">Associate</span>
+          </li>
+          <li class="team-member">
+            <div class="team-avatar" style="background:var(--green);">JR</div>
+            <div>
+              <div style="font-weight:600;">Jessica Reyes</div>
+              <div style="font-size:11px;color:var(--text-secondary);">jessica@favorble.com</div>
+            </div>
+            <span class="team-role">Paralegal</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Financials -->
+      <div class="card">
+        <div class="card-title">Financials</div>
+        <div class="financial-row">
+          <span class="financial-label">Estimated Value</span>
+          <span class="financial-value">$350,000</span>
+        </div>
+        <div class="financial-row">
+          <span class="financial-label">Medical Expenses</span>
+          <span class="financial-value">$42,500</span>
+        </div>
+        <div class="financial-row">
+          <span class="financial-label">Lost Wages</span>
+          <span class="financial-value">$28,000</span>
+        </div>
+        <div class="financial-row">
+          <span class="financial-label">Case Costs</span>
+          <span class="financial-value">$3,200</span>
+        </div>
+        <div class="financial-row financial-total">
+          <span class="financial-label" style="font-weight:700;color:var(--text-primary);">Total Damages</span>
+          <span class="financial-value">$73,700</span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card">
+        <div class="card-title">Notes <button class="btn btn-sm btn-secondary" style="margin-left:auto;">+ Add</button></div>
+        <div class="note">
+          <div class="note-header">
+            <span class="note-author">M. Torres</span>
+            <span class="note-time">Mar 28, 2026</span>
+          </div>
+          <div class="note-body">Spoke with opposing counsel. They're open to early mediation but want to complete initial discovery first. Target May timeframe.</div>
+        </div>
+        <div class="note">
+          <div class="note-header">
+            <span class="note-author">J. Reyes</span>
+            <span class="note-time">Mar 26, 2026</span>
+          </div>
+          <div class="note-body">Medical records request sent to Metro Health records dept. Expected 2-3 week turnaround. Follow up by Apr 10 if no response.</div>
+        </div>
+        <div class="note">
+          <div class="note-header">
+            <span class="note-author">S. Kim</span>
+            <span class="note-time">Mar 25, 2026</span>
+          </div>
+          <div class="note-body">Initial damages worksheet drafted. Still need final medical bills and wage verification from employer.</div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="card">
+        <div class="card-title">Activity</div>
+        <ul class="timeline">
+          <li class="timeline-item">
+            <div class="timeline-dot orange"></div>
+            <div class="timeline-content">
+              <strong>S. Kim</strong> uploaded damages worksheet
+              <div class="timeline-time">Today, 2:15 PM</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot green"></div>
+            <div class="timeline-content">
+              Case moved to <strong>Discovery</strong> stage
+              <div class="timeline-time">Yesterday, 4:30 PM</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot purple"></div>
+            <div class="timeline-content">
+              <strong>M. Torres</strong> filed initial complaint
+              <div class="timeline-time">Mar 27, 10:00 AM</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot orange"></div>
+            <div class="timeline-content">
+              <strong>J. Reyes</strong> completed intake interview
+              <div class="timeline-time">Mar 25, 3:00 PM</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot green"></div>
+            <div class="timeline-content">
+              Case <strong>created</strong>
+              <div class="timeline-time">Mar 25, 9:15 AM</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Tokens -->
+  <section class="tokens-section">
+    <h2>Design Tokens</h2>
+    <div class="token-group">
+      <h3>Colors</h3>
+      <div class="color-swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-label">BG<br>#111111</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-label">Card<br>#1A1A1A</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F0F0;"></div><div class="swatch-label">Primary<br>#F0F0F0</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF6B00;"></div><div class="swatch-label">Orange<br>#FF6B00</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5B21B6;"></div><div class="swatch-label">Purple<br>#5B21B6</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFD700;"></div><div class="swatch-label">Yellow<br>#FFD700</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#00CC88;"></div><div class="swatch-label">Green<br>#00CC88</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF3366;"></div><div class="swatch-label">Pink<br>#FF3366</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3B82F6;"></div><div class="swatch-label">Blue<br>#3B82F6</div></div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Stage Progress Variants</h3>
+      <div style="display:flex;gap:0;border:var(--border);overflow:hidden;max-width:600px;">
+        <div style="flex:1;text-align:center;padding:10px;font-family:var(--font-mono);font-size:11px;font-weight:700;background:var(--green);border-right:2px solid #444;">COMPLETED</div>
+        <div style="flex:1;text-align:center;padding:10px;font-family:var(--font-mono);font-size:11px;font-weight:700;background:var(--orange);color:#F0F0F0;border-right:2px solid #444;">CURRENT</div>
+        <div style="flex:1;text-align:center;padding:10px;font-family:var(--font-mono);font-size:11px;font-weight:700;background:var(--bg);color:#555;">UPCOMING</div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Document Icons</h3>
+      <div style="display:flex;gap:12px;">
+        <div class="doc-icon pdf">PDF</div>
+        <div class="doc-icon doc">DOC</div>
+        <div class="doc-icon xls">XLS</div>
+        <div class="doc-icon img">IMG</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

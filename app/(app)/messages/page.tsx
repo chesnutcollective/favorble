@@ -56,19 +56,19 @@ export default async function MessagesPage() {
       />
 
       {!isConfigured && (
-        <Card>
+        <Card className="border-[#eaeaea]">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <HugeiconsIcon
                 icon={Message01Icon}
                 size={20}
-                color="rgb(245 158 11)"
+                className="text-[#666]"
               />
               <div>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-sm font-medium text-[#171717]">
                   Case Status not configured
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[#666]">
                   Set CASE_STATUS_API_KEY in your environment to enable
                   bidirectional messaging.
                 </p>
@@ -83,8 +83,6 @@ export default async function MessagesPage() {
           icon={Message01Icon}
           title="No messages yet"
           description="Messages from clients via Case Status will appear here."
-          accent="blue"
-          bordered
         />
       ) : (
         <MessageFeed

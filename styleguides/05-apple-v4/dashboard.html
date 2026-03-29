@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard (Apple HIG v4 Purple)</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Apple HIG v4 (Purple Accent, Light)
+     ============================================================ */
+  :root {
+    /* Core Purple Palette */
+    --color-accent:          #AF52DE;
+    --color-accent-hover:    #9A3FCB;
+    --color-accent-light:    rgba(175,82,222,0.12);
+    --color-link:            #007AFF;
+    --color-destructive:     #FF3B30;
+    --color-success:         #34C759;
+    --color-warning:         #FF9500;
+
+    /* Purple Spectrum (for pipeline/stats) */
+    --color-lavender:        #E8D5F5;
+    --color-violet:          #C77DFF;
+    --color-plum:            #9B59B6;
+    --color-grape:           #7B2D8E;
+    --color-deep-purple:     #5B2C6F;
+
+    /* Backgrounds */
+    --color-bg:              #F7F5F9;
+    --color-surface:         #FFFFFF;
+    --color-sidebar:         rgba(248,245,252,0.72);
+    --color-toolbar:         rgba(248,245,252,0.82);
+
+    /* Text */
+    --color-text-primary:    #1D1D1F;
+    --color-text-secondary:  #86868B;
+    --color-text-tertiary:   #AEAEB2;
+
+    /* Borders & Interaction */
+    --color-separator:       rgba(0,0,0,0.06);
+    --color-hover:           rgba(175,82,222,0.04);
+    --color-selected:        rgba(175,82,222,0.12);
+
+    /* Shadows — purple-tinted */
+    --shadow-card:  0 1px 3px rgba(175,82,222,0.06), 0 8px 24px rgba(175,82,222,0.04);
+    --shadow-popup: 0 4px 16px rgba(175,82,222,0.10), 0 16px 48px rgba(175,82,222,0.06);
+    --shadow-toolbar: 0 0.5px 0 rgba(0,0,0,0.10);
+
+    /* Radii */
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
+
+    /* Typography */
+    --font-family: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, sans-serif;
+    --font-size-xs:    11px;
+    --font-size-sm:    12px;
+    --font-size-base:  13px;
+    --font-size-md:    15px;
+    --font-size-lg:    17px;
+    --font-size-xl:    20px;
+    --font-size-2xl:   24px;
+    --font-size-3xl:   28px;
+    --font-size-hero:  34px;
+
+    /* Spacing */
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+    --space-4xl: 40px;
+
+    /* Layout */
+    --sidebar-width: 240px;
+    --toolbar-height: 52px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ============================================================
+     LAYOUT SHELL
+     ============================================================ */
+  .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ============================================================
+     SIDEBAR — vibrancy with purple tint
+     ============================================================ */
+  .sidebar {
+    width: var(--sidebar-width); min-width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-right: 0.5px solid var(--color-separator);
+    display: flex; flex-direction: column;
+    padding: var(--space-lg) 0;
+    user-select: none; overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--space-xl); margin-bottom: var(--space-2xl);
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+
+  .sidebar-brand-icon {
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--color-accent), var(--color-violet));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 14px;
+  }
+
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+
+  .sidebar-section-label {
+    padding: var(--space-lg) var(--space-xl) var(--space-xs);
+    font-size: var(--font-size-xs); font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .sidebar-item {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: 6px var(--space-xl); margin: 1px var(--space-sm);
+    border-radius: var(--radius-sm); font-size: var(--font-size-base);
+    color: var(--color-text-primary); cursor: pointer;
+    transition: background 0.15s; text-decoration: none; position: relative;
+  }
+
+  .sidebar-item:hover { background: var(--color-hover); }
+
+  .sidebar-item.active {
+    background: var(--color-selected); color: var(--color-accent); font-weight: 500;
+  }
+
+  .sidebar-item.active::before {
+    content: ""; position: absolute; left: 0; top: 4px; bottom: 4px;
+    width: 3px; border-radius: 0 2px 2px 0; background: var(--color-accent);
+  }
+
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 15px; opacity: 0.75; }
+  .sidebar-item.active .icon { opacity: 1; }
+
+  .sidebar-badge {
+    margin-left: auto; background: var(--color-destructive);
+    color: #fff; font-size: var(--font-size-xs); font-weight: 600;
+    padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--space-md) var(--space-xl);
+    border-top: 0.5px solid var(--color-separator);
+    display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm);
+  }
+
+  .sidebar-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-grape));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 600;
+  }
+
+  .sidebar-user-info { display: flex; flex-direction: column; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 500; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ============================================================
+     TOOLBAR
+     ============================================================ */
+  .toolbar {
+    height: var(--toolbar-height); min-height: var(--toolbar-height);
+    background: var(--color-toolbar);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 0.5px solid var(--color-separator);
+    box-shadow: var(--shadow-toolbar);
+    display: flex; align-items: center;
+    padding: 0 var(--space-2xl); gap: var(--space-lg);
+    user-select: none; z-index: 10;
+  }
+
+  .toolbar-title { font-size: var(--font-size-lg); font-weight: 600; letter-spacing: -0.2px; }
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-search {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(175,82,222,0.04);
+    border: 0.5px solid var(--color-separator);
+    border-radius: var(--radius-sm); padding: 5px 10px;
+    font-size: var(--font-size-sm); color: var(--color-text-secondary); width: 200px;
+  }
+
+  .toolbar-search input {
+    border: none; background: none; outline: none;
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); width: 100%;
+  }
+
+  .toolbar-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-separator); background: var(--color-surface);
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); cursor: pointer; transition: all 0.15s;
+  }
+
+  .toolbar-btn:hover { background: var(--color-hover); }
+
+  .toolbar-btn.primary {
+    background: var(--color-accent); color: #fff; border-color: transparent;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0) 100%);
+  }
+
+  .toolbar-btn.primary:hover { background-color: var(--color-accent-hover); }
+
+  /* ============================================================
+     CONTENT AREA
+     ============================================================ */
+  .content {
+    flex: 1; overflow-y: auto; padding: var(--space-2xl);
+    display: flex; flex-direction: column; gap: var(--space-2xl);
+  }
+
+  /* ============================================================
+     STAT CARDS — purple family accents
+     ============================================================ */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-lg); }
+
+  .stat-card {
+    background: var(--color-surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); padding: var(--space-xl);
+    display: flex; flex-direction: column; gap: var(--space-sm);
+  }
+
+  .stat-card-header { display: flex; align-items: center; justify-content: space-between; }
+
+  .stat-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); font-weight: 500; }
+
+  .stat-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+
+  .stat-icon.lavender { background: rgba(232,213,245,0.5);  color: var(--color-plum); }
+  .stat-icon.violet   { background: rgba(199,125,255,0.12); color: var(--color-violet); }
+  .stat-icon.plum     { background: rgba(155,89,182,0.12);  color: var(--color-plum); }
+  .stat-icon.grape    { background: rgba(123,45,142,0.12);  color: var(--color-grape); }
+
+  .stat-value { font-size: var(--font-size-3xl); font-weight: 700; letter-spacing: -1px; line-height: 1; }
+
+  .stat-change { font-size: var(--font-size-xs); font-weight: 500; display: flex; align-items: center; gap: 3px; }
+  .stat-change.up   { color: var(--color-success); }
+  .stat-change.down { color: var(--color-destructive); }
+
+  /* ============================================================
+     CARD
+     ============================================================ */
+  .card {
+    background: var(--color-surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); overflow: hidden;
+  }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 0.5px solid var(--color-separator);
+  }
+
+  .card-title { font-size: var(--font-size-md); font-weight: 600; letter-spacing: -0.2px; }
+  .card-action { font-size: var(--font-size-sm); color: var(--color-accent); cursor: pointer; font-weight: 500; text-decoration: none; }
+  .card-action:hover { text-decoration: underline; }
+  .card-body { padding: var(--space-lg) var(--space-xl); }
+
+  /* ============================================================
+     PIPELINE — Purple spectrum stages
+     ============================================================ */
+  .pipeline-stages { display: flex; gap: var(--space-md); padding: var(--space-lg) var(--space-xl); overflow-x: auto; }
+  .pipeline-stage { flex: 1; min-width: 140px; }
+  .pipeline-stage-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: var(--space-sm); }
+  .pipeline-stage-name { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-secondary); }
+  .pipeline-stage-count { font-size: var(--font-size-xs); background: rgba(175,82,222,0.08); padding: 1px 6px; border-radius: 8px; color: var(--color-accent); font-weight: 500; }
+
+  .pipeline-bar { height: 4px; border-radius: 2px; margin-bottom: var(--space-md); }
+  .pipeline-bar.intake      { background: var(--color-lavender); }
+  .pipeline-bar.development { background: var(--color-violet); }
+  .pipeline-bar.hearing     { background: var(--color-accent); }
+  .pipeline-bar.appeals     { background: var(--color-plum); }
+  .pipeline-bar.favorable   { background: var(--color-grape); }
+
+  .pipeline-case {
+    background: var(--color-bg); border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-sm);
+    font-size: var(--font-size-sm); cursor: pointer; transition: background 0.15s;
+  }
+  .pipeline-case:hover { background: rgba(175,82,222,0.06); }
+  .pipeline-case-name { font-weight: 500; margin-bottom: 2px; }
+  .pipeline-case-type { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* ============================================================
+     TASKS LIST
+     ============================================================ */
+  .task-item { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md) 0; border-bottom: 0.5px solid var(--color-separator); }
+  .task-item:last-child { border-bottom: none; }
+  .task-checkbox { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--color-text-tertiary); flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
+  .task-checkbox:hover { border-color: var(--color-accent); }
+  .task-checkbox.done { background: var(--color-accent); border-color: var(--color-accent); position: relative; }
+  .task-checkbox.done::after { content: "\2713"; color: #fff; font-size: 10px; font-weight: 700; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .task-info { flex: 1; }
+  .task-name { font-size: var(--font-size-base); font-weight: 500; }
+  .task-name.done { text-decoration: line-through; color: var(--color-text-tertiary); }
+  .task-meta { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+  .task-due { font-size: var(--font-size-xs); padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .task-due.overdue  { background: rgba(255,59,48,0.1);  color: var(--color-destructive); }
+  .task-due.today    { background: rgba(255,149,0,0.1);   color: var(--color-warning); }
+  .task-due.upcoming { background: rgba(175,82,222,0.1);  color: var(--color-accent); }
+
+  /* ============================================================
+     ACTIVITY
+     ============================================================ */
+  .activity-item { display: flex; gap: var(--space-md); padding: var(--space-md) 0; position: relative; }
+  .activity-item:not(:last-child)::before { content: ""; position: absolute; left: 13px; top: 36px; bottom: -4px; width: 1.5px; background: var(--color-separator); }
+  .activity-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; position: relative; z-index: 1; }
+  .activity-dot.purple  { background: rgba(175,82,222,0.12); color: var(--color-accent); }
+  .activity-dot.green   { background: rgba(52,199,89,0.12);  color: var(--color-success); }
+  .activity-dot.orange  { background: rgba(255,149,0,0.12);  color: var(--color-warning); }
+  .activity-dot.violet  { background: rgba(199,125,255,0.12); color: var(--color-violet); }
+  .activity-text { font-size: var(--font-size-sm); color: var(--color-text-primary); line-height: 1.5; }
+  .activity-text strong { font-weight: 600; }
+  .activity-time { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+
+  /* ============================================================
+     SEGMENTED CONTROL — purple selected state
+     ============================================================ */
+  .segmented-control { display: inline-flex; background: rgba(175,82,222,0.08); border-radius: var(--radius-sm); padding: 2px; gap: 1px; }
+  .segmented-option { padding: 4px 14px; border-radius: 5px; font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; user-select: none; }
+  .segmented-option.active { background: var(--color-surface); color: var(--color-accent); box-shadow: 0 1px 3px rgba(175,82,222,0.12); font-weight: 600; }
+  .segmented-option:not(.active):hover { color: var(--color-text-primary); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); }
+
+  /* ============================================================
+     DESIGN TOKENS SECTION
+     ============================================================ */
+  .design-tokens { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-2xl); }
+  .design-tokens h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-xl); letter-spacing: -0.3px; }
+  .token-group { margin-bottom: var(--space-2xl); }
+  .token-group:last-child { margin-bottom: 0; }
+  .token-group-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 0.5px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .token-name { font-weight: 500; width: 200px; }
+  .token-value { font-family: "SF Mono", SFMono-Regular, Menlo, monospace; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- ========== SIDEBAR ========== -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Favorble</div>
+    </div>
+
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item active" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Contacts</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">SM</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">Sarah Mitchell</div>
+        <div class="sidebar-user-role">Managing Attorney</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Dashboard</h1>
+      <div class="segmented-control">
+        <div class="segmented-option active">Today</div>
+        <div class="segmented-option">Week</div>
+        <div class="segmented-option">Month</div>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search">
+        <span>&#128269;</span>
+        <input type="text" placeholder="Search anything...">
+      </div>
+      <button class="toolbar-btn primary">+ New Case</button>
+    </header>
+
+    <div class="content">
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Active Claims</span>
+            <div class="stat-icon lavender">&#128188;</div>
+          </div>
+          <div class="stat-value">187</div>
+          <div class="stat-change up">&#9650; 12% from last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Pending Hearings</span>
+            <div class="stat-icon violet">&#9888;</div>
+          </div>
+          <div class="stat-value">23</div>
+          <div class="stat-change down">&#9660; 4 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Favorable Decisions</span>
+            <div class="stat-icon plum">&#10003;</div>
+          </div>
+          <div class="stat-value">31</div>
+          <div class="stat-change up">&#9650; 68% win rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Past-Due Benefits</span>
+            <div class="stat-icon grape">&#36;</div>
+          </div>
+          <div class="stat-value">$1.8M</div>
+          <div class="stat-change up">&#9650; $142K this month</div>
+        </div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Case Pipeline</span>
+          <a class="card-action" href="cases-list.html">View All</a>
+        </div>
+        <div class="pipeline-stages">
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-header">
+              <span class="pipeline-stage-name">Initial App</span>
+              <span class="pipeline-stage-count">14</span>
+            </div>
+            <div class="pipeline-bar intake"></div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Thompson, R.</div>
+              <div class="pipeline-case-type">SSDI - Lumbar</div>
+            </div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Martinez, L.</div>
+              <div class="pipeline-case-type">SSI - Bipolar</div>
+            </div>
+          </div>
+
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-header">
+              <span class="pipeline-stage-name">Reconsider</span>
+              <span class="pipeline-stage-count">28</span>
+            </div>
+            <div class="pipeline-bar development"></div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Williams, D.</div>
+              <div class="pipeline-case-type">SSDI - COPD</div>
+            </div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Jackson, P.</div>
+              <div class="pipeline-case-type">SSI - Fibromyalgia</div>
+            </div>
+          </div>
+
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-header">
+              <span class="pipeline-stage-name">ALJ Hearing</span>
+              <span class="pipeline-stage-count">42</span>
+            </div>
+            <div class="pipeline-bar hearing"></div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Chen, M.</div>
+              <div class="pipeline-case-type">SSDI - Cardiac</div>
+            </div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Davis, K.</div>
+              <div class="pipeline-case-type">SSI - PTSD</div>
+            </div>
+          </div>
+
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-header">
+              <span class="pipeline-stage-name">Appeals Council</span>
+              <span class="pipeline-stage-count">18</span>
+            </div>
+            <div class="pipeline-bar appeals"></div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Brown, A.</div>
+              <div class="pipeline-case-type">SSDI - MS</div>
+            </div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Garcia, T.</div>
+              <div class="pipeline-case-type">SSI - Schizophrenia</div>
+            </div>
+          </div>
+
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-header">
+              <span class="pipeline-stage-name">Favorable</span>
+              <span class="pipeline-stage-count">9</span>
+            </div>
+            <div class="pipeline-bar favorable"></div>
+            <div class="pipeline-case">
+              <div class="pipeline-case-name">Patel, S.</div>
+              <div class="pipeline-case-type">SSDI - Back Injury</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column: Tasks + Activity -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Upcoming Tasks</span>
+            <div class="segmented-control">
+              <div class="segmented-option active">Mine</div>
+              <div class="segmented-option">Team</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              <div class="task-info">
+                <div class="task-name">Submit RFC to Dr. Okonkwo - Thompson, R.</div>
+                <div class="task-meta">Assigned to you</div>
+              </div>
+              <span class="task-due overdue">Overdue</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              <div class="task-info">
+                <div class="task-name">Prepare pre-hearing brief - Chen, M.</div>
+                <div class="task-meta">Assigned to you</div>
+              </div>
+              <span class="task-due today">Today</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              <div class="task-info">
+                <div class="task-name">Request CE for psych eval - Davis, K.</div>
+                <div class="task-meta">Assigned to Maria R.</div>
+              </div>
+              <span class="task-due upcoming">Apr 2</span>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox done"></div>
+              <div class="task-info">
+                <div class="task-name done">File Form SSA-561 - Williams, D.</div>
+                <div class="task-meta">Completed yesterday</div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-checkbox"></div>
+              <div class="task-info">
+                <div class="task-name">Order MER from VA Medical Center - Brown, A.</div>
+                <div class="task-meta">Assigned to you</div>
+              </div>
+              <span class="task-due upcoming">Apr 5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Activity</span>
+            <a class="card-action">View All</a>
+          </div>
+          <div class="card-body">
+            <div class="activity-item">
+              <div class="activity-dot purple">&#128196;</div>
+              <div>
+                <div class="activity-text"><strong>Maria Rodriguez</strong> uploaded CE report for Davis, K.</div>
+                <div class="activity-time">12 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot green">&#10003;</div>
+              <div>
+                <div class="activity-text"><strong>You</strong> filed Request for Reconsideration for Williams, D.</div>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot violet">&#128197;</div>
+              <div>
+                <div class="activity-text"><strong>ODAR</strong> scheduled ALJ hearing for Chen, M. on Apr 18</div>
+                <div class="activity-time">3 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot orange">&#9888;</div>
+              <div>
+                <div class="activity-text"><strong>System</strong> deadline alert: Thompson, R. RFC due in 2 days</div>
+                <div class="activity-time">5 hours ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="design-tokens">
+        <h2>Design Tokens - Apple HIG v4 (Purple)</h2>
+        <div class="token-group">
+          <div class="token-group-title">Purple Accent Palette</div>
+          <div class="token-row"><div class="token-swatch" style="background:#AF52DE;"></div><div class="token-name">--color-accent</div><div class="token-value">#AF52DE (Apple Purple)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#9A3FCB;"></div><div class="token-name">--color-accent-hover</div><div class="token-value">#9A3FCB</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#007AFF;"></div><div class="token-name">--color-link</div><div class="token-value">#007AFF (Info/Links)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#FF3B30;"></div><div class="token-name">--color-destructive</div><div class="token-value">#FF3B30</div></div>
+        </div>
+        <div class="token-group">
+          <div class="token-group-title">Purple Spectrum (Pipeline)</div>
+          <div class="token-row"><div class="token-swatch" style="background:#E8D5F5;"></div><div class="token-name">--color-lavender</div><div class="token-value">#E8D5F5</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#C77DFF;"></div><div class="token-name">--color-violet</div><div class="token-value">#C77DFF</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#9B59B6;"></div><div class="token-name">--color-plum</div><div class="token-value">#9B59B6</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#7B2D8E;"></div><div class="token-name">--color-grape</div><div class="token-value">#7B2D8E</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#5B2C6F;"></div><div class="token-name">--color-deep-purple</div><div class="token-value">#5B2C6F</div></div>
+        </div>
+        <div class="token-group">
+          <div class="token-group-title">Backgrounds</div>
+          <div class="token-row"><div class="token-swatch" style="background:#F7F5F9;"></div><div class="token-name">--color-bg</div><div class="token-value">#F7F5F9 (faint purple tint)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#FFFFFF; border: 1px solid #eee;"></div><div class="token-name">--color-surface</div><div class="token-value">#FFFFFF</div></div>
+        </div>
+        <div class="token-group">
+          <div class="token-group-title">Semantic Colors</div>
+          <div class="token-row"><div class="token-swatch" style="background:#34C759;"></div><div class="token-name">--color-success</div><div class="token-value">#34C759</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#FF9500;"></div><div class="token-name">--color-warning</div><div class="token-value">#FF9500</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

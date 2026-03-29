@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ========================================
+     DESIGN TOKENS
+     ======================================== */
+  :root {
+    /* Colors — Primary */
+    --color-primary: #635BFF;
+    --color-primary-dark: #5046E5;
+    --color-primary-light: #A259FF;
+    --color-gradient: linear-gradient(135deg, #635BFF, #A259FF);
+    --color-gradient-hover: linear-gradient(135deg, #5046E5, #8B3FE6);
+
+    /* Colors — Semantic */
+    --color-success: #00D4AA;
+    --color-success-bg: #E6FAF5;
+    --color-warning: #F5A623;
+    --color-warning-bg: #FFF8EC;
+    --color-danger: #E25950;
+    --color-danger-bg: #FDF0EF;
+    --color-info: #3B82F6;
+    --color-info-bg: #EFF6FF;
+
+    /* Colors — Neutral */
+    --color-bg: #F6F9FC;
+    --color-surface: #FFFFFF;
+    --color-border: #E3E8EE;
+    --color-border-light: #F0F2F5;
+    --color-text-primary: #1A1F36;
+    --color-text-secondary: #697386;
+    --color-text-tertiary: #A3ACB9;
+    --color-text-inverse: #FFFFFF;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-base: 15px;
+    --font-size-lg: 17px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 30px;
+    --font-size-4xl: 36px;
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: -0.01em;
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(99,91,255,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(99,91,255,0.05), 0 0 0 1px rgba(0,0,0,0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(99,91,255,0.06), 0 0 0 1px rgba(0,0,0,0.02);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(99,91,255,0.08);
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+  }
+
+  /* ========================================
+     RESET & BASE
+     ======================================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  /* ========================================
+     LAYOUT
+     ======================================== */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ========================================
+     SIDEBAR
+     ======================================== */
+  .sidebar {
+    width: 260px;
+    background: var(--color-text-primary);
+    color: var(--color-text-inverse);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+  }
+  .sidebar-header {
+    padding: var(--space-6);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-logo {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    background: var(--color-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .sidebar-logo-sub {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .sidebar-nav {
+    flex: 1;
+    padding: var(--space-4) 0;
+    overflow-y: auto;
+  }
+  .nav-section-label {
+    padding: var(--space-3) var(--space-6) var(--space-2);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-6);
+    margin: 1px var(--space-2);
+    border-radius: var(--radius-md);
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+  .nav-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.9);
+  }
+  .nav-item.active {
+    background: rgba(99,91,255,0.2);
+    color: #fff;
+  }
+  .nav-item svg { width: 18px; height: 18px; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+  }
+  .sidebar-footer {
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--color-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+  }
+  .sidebar-user-name {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+  .sidebar-user-role {
+    font-size: var(--font-size-xs);
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ========================================
+     MAIN CONTENT
+     ======================================== */
+  .main-content {
+    flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* Top Header / Gradient Banner */
+  .page-header {
+    background: var(--color-gradient);
+    padding: var(--space-8) var(--space-10) var(--space-12);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .page-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+  .page-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  .page-subtitle {
+    font-size: var(--font-size-base);
+    opacity: 0.8;
+    font-weight: 400;
+  }
+  .header-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  /* Content Area */
+  .content-area {
+    padding: var(--space-8) var(--space-10);
+    margin-top: -32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ========================================
+     STAT CARDS
+     ======================================== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+  .stat-card-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+  }
+  .stat-card-value {
+    font-size: var(--font-size-4xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+  }
+  .stat-card-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    margin-top: var(--space-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+  }
+  .stat-card-trend.up {
+    color: #0E9F6E;
+    background: var(--color-success-bg);
+  }
+  .stat-card-trend.down {
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+  }
+  .stat-card-trend.neutral {
+    color: var(--color-text-secondary);
+    background: var(--color-border-light);
+  }
+  .stat-card-icon {
+    position: absolute;
+    top: var(--space-5);
+    right: var(--space-5);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-card-icon.purple { background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .stat-card-icon.teal { background: rgba(0,212,170,0.1); color: #0E9F6E; }
+  .stat-card-icon.orange { background: rgba(245,166,35,0.12); color: var(--color-warning); }
+  .stat-card-icon.blue { background: rgba(59,130,246,0.1); color: var(--color-info); }
+
+  /* ========================================
+     TWO-COLUMN LAYOUT
+     ======================================== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  /* ========================================
+     CARDS
+     ======================================== */
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .card-title {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--color-text-primary);
+  }
+  .card-body {
+    padding: var(--space-6);
+  }
+  .card-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .card-link:hover { text-decoration: underline; }
+
+  /* ========================================
+     PIPELINE CHART (visual placeholder)
+     ======================================== */
+  .pipeline-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+    height: 200px;
+    padding: var(--space-4) 0;
+  }
+  .pipeline-bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .pipeline-bar {
+    width: 100%;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--color-gradient);
+    transition: all var(--transition-normal);
+    min-height: 8px;
+    position: relative;
+  }
+  .pipeline-bar:hover { opacity: 0.85; }
+  .pipeline-bar.secondary {
+    background: rgba(99,91,255,0.15);
+  }
+  .pipeline-bar-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    text-align: center;
+  }
+  .pipeline-bar-value {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-primary);
+    font-weight: 700;
+  }
+
+  /* ========================================
+     TASK LIST
+     ======================================== */
+  .task-list { list-style: none; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid var(--color-border-light);
+    transition: background var(--transition-fast);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--color-bg); }
+  .task-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .task-check:hover { border-color: var(--color-primary); }
+  .task-check.done {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    position: relative;
+  }
+  .task-check.done::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 5px;
+    width: 5px; height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .task-text {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+  .task-text.done {
+    text-decoration: line-through;
+    color: var(--color-text-tertiary);
+  }
+  .task-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* ========================================
+     ACTIVITY FEED
+     ======================================== */
+  .activity-feed { list-style: none; }
+  .activity-item {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .activity-dot.purple { background: var(--color-primary); }
+  .activity-dot.green { background: var(--color-success); }
+  .activity-dot.orange { background: var(--color-warning); }
+  .activity-dot.blue { background: var(--color-info); }
+  .activity-dot.red { background: var(--color-danger); }
+  .activity-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.45;
+  }
+  .activity-text strong { font-weight: 600; }
+  .activity-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* ========================================
+     BUTTONS
+     ======================================== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .btn-primary {
+    background: var(--color-gradient);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(99,91,255,0.3);
+  }
+  .btn-primary:hover {
+    background: var(--color-gradient-hover);
+    box-shadow: 0 2px 6px rgba(99,91,255,0.4);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-secondary:hover {
+    background: var(--color-bg);
+    border-color: #cdd4dc;
+  }
+  .btn-ghost {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.25);
+  }
+  .btn-sm {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+  .btn-lg {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-base);
+  }
+  .btn-danger {
+    background: var(--color-danger);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(226,89,80,0.3);
+  }
+  .btn-danger:hover { background: #d04a42; }
+  .btn-success {
+    background: #0E9F6E;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(14,159,110,0.3);
+  }
+  .btn-success:hover { background: #0B8A5E; }
+
+  /* ========================================
+     BADGES
+     ======================================== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+  .badge-purple { background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .badge-green { background: var(--color-success-bg); color: #0E9F6E; }
+  .badge-orange { background: var(--color-warning-bg); color: #B07918; }
+  .badge-red { background: var(--color-danger-bg); color: var(--color-danger); }
+  .badge-blue { background: var(--color-info-bg); color: #2563EB; }
+  .badge-gray { background: var(--color-border-light); color: var(--color-text-secondary); }
+  .badge-dot::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ========================================
+     RECENT CASES TABLE (mini)
+     ======================================== */
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .mini-table th {
+    text-align: left;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .mini-table td {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
+  }
+  .mini-table tr:last-child td { border-bottom: none; }
+  .mini-table tr:hover td { background: var(--color-bg); }
+
+  /* ========================================
+     DESIGN TOKEN SECTION
+     ======================================== */
+  .token-section {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 2px solid var(--color-border);
+  }
+  .token-section-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    margin-bottom: var(--space-6);
+    color: var(--color-text-primary);
+  }
+  .token-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .token-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+  }
+  .token-card-title {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--space-3);
+  }
+  .color-swatch-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+  .color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.06);
+    flex-shrink: 0;
+  }
+  .color-swatch.gradient { background: var(--color-gradient); }
+  .swatch-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+  .swatch-value {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  }
+  .token-type-row {
+    margin-bottom: var(--space-3);
+  }
+  .token-type-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-bottom: 2px;
+  }
+  .component-showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+  .shadow-demo {
+    width: 100%;
+    height: 48px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+  }
+  .radius-demo {
+    width: 48px;
+    height: 48px;
+    background: rgba(99,91,255,0.1);
+    border: 2px solid var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    margin-right: var(--space-2);
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Favorble</div>
+      <div class="sidebar-logo-sub">Case Management</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item active" href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="cases-list.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Cases
+        <span class="nav-badge">247</span>
+      </a>
+      <a class="nav-item" href="case-detail.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        Case Detail
+      </a>
+      <a class="nav-item" href="chronology.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Chronology
+      </a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-item" href="admin-integrations.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Integrations
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">SK</div>
+        <div>
+          <div class="sidebar-user-name">Sarah Kim</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+    <!-- Gradient Header -->
+    <div class="page-header">
+      <div class="page-header-top">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back, Sarah. Here's your firm at a glance.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+          <button class="btn btn-ghost">+ New Case</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="stat-card-label">Active Cases</div>
+          <div class="stat-card-value">247</div>
+          <div class="stat-card-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +12% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon teal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="stat-card-label">Cases Won (YTD)</div>
+          <div class="stat-card-value">83</div>
+          <div class="stat-card-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            78% win rate
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon orange">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="stat-card-label">Pending Hearings</div>
+          <div class="stat-card-value">34</div>
+          <div class="stat-card-trend neutral">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Next: Apr 2
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="stat-card-label">Avg. Days to Resolution</div>
+          <div class="stat-card-value">142</div>
+          <div class="stat-card-trend down">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>
+            -8 days vs. last quarter
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column: Pipeline + Activity -->
+      <div class="two-col">
+        <!-- Pipeline Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Case Pipeline</h3>
+            <a class="card-link">View all stages &rarr;</a>
+          </div>
+          <div class="card-body">
+            <div class="pipeline-chart">
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">42</div>
+                <div class="pipeline-bar" style="height:120px"></div>
+                <div class="pipeline-bar-label">Initial<br>Review</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">38</div>
+                <div class="pipeline-bar" style="height:108px"></div>
+                <div class="pipeline-bar-label">Medical<br>Records</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">56</div>
+                <div class="pipeline-bar" style="height:160px"></div>
+                <div class="pipeline-bar-label">Application<br>Filed</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">34</div>
+                <div class="pipeline-bar" style="height:97px"></div>
+                <div class="pipeline-bar-label">Recon-<br>sideration</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">28</div>
+                <div class="pipeline-bar" style="height:80px"></div>
+                <div class="pipeline-bar-label">Hearing<br>Prep</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">21</div>
+                <div class="pipeline-bar" style="height:60px"></div>
+                <div class="pipeline-bar-label">ALJ<br>Hearing</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">16</div>
+                <div class="pipeline-bar secondary" style="height:45px"></div>
+                <div class="pipeline-bar-label">Appeals<br>Council</div>
+              </div>
+              <div class="pipeline-bar-group">
+                <div class="pipeline-bar-value">12</div>
+                <div class="pipeline-bar secondary" style="height:34px"></div>
+                <div class="pipeline-bar-label">Federal<br>Court</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Activity</h3>
+            <a class="card-link">View all &rarr;</a>
+          </div>
+          <ul class="activity-feed">
+            <li class="activity-item">
+              <div class="activity-dot green"></div>
+              <div>
+                <div class="activity-text"><strong>Case #2026-1847</strong> — Hearing decision: Fully Favorable</div>
+                <div class="activity-time">12 minutes ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot purple"></div>
+              <div>
+                <div class="activity-text"><strong>Maria Santos</strong> uploaded 24 pages of medical records</div>
+                <div class="activity-time">43 minutes ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot orange"></div>
+              <div>
+                <div class="activity-text"><strong>Case #2025-0923</strong> — Reconsideration denial received</div>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot blue"></div>
+              <div>
+                <div class="activity-text"><strong>James Park</strong> scheduled hearing for <strong>Apr 14, 2026</strong></div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot red"></div>
+              <div>
+                <div class="activity-text"><strong>Case #2025-1102</strong> — Deadline approaching: Brief due in 3 days</div>
+                <div class="activity-time">3 hours ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot green"></div>
+              <div>
+                <div class="activity-text"><strong>Case #2026-1790</strong> — Initial application submitted to SSA</div>
+                <div class="activity-time">4 hours ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot purple"></div>
+              <div>
+                <div class="activity-text"><strong>Dr. Rebecca Chen</strong> — Medical source statement received</div>
+                <div class="activity-time">5 hours ago</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Two Column: Tasks + Recent Cases -->
+      <div class="two-col">
+        <!-- Tasks -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">My Tasks</h3>
+            <span class="badge badge-purple">8 pending</span>
+          </div>
+          <ul class="task-list">
+            <li class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Review RFC for Williams v. SSA (Case #2026-1803)</span>
+              <span class="badge badge-red badge-dot">Urgent</span>
+              <span class="task-meta">Due today</span>
+            </li>
+            <li class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Prepare pre-hearing brief — Thompson (Case #2025-0891)</span>
+              <span class="badge badge-orange badge-dot">High</span>
+              <span class="task-meta">Due Mar 30</span>
+            </li>
+            <li class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Request updated treatment notes from Dr. Patel</span>
+              <span class="badge badge-blue badge-dot">Normal</span>
+              <span class="task-meta">Due Apr 1</span>
+            </li>
+            <li class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">File Request for Hearing — Jackson (Case #2026-1712)</span>
+              <span class="badge badge-blue badge-dot">Normal</span>
+              <span class="task-meta">Due Apr 3</span>
+            </li>
+            <li class="task-item">
+              <div class="task-check done"></div>
+              <span class="task-text done">Upload consultative exam report — Davis (Case #2026-1655)</span>
+              <span class="badge badge-gray">Done</span>
+              <span class="task-meta">Completed</span>
+            </li>
+            <li class="task-item">
+              <div class="task-check done"></div>
+              <span class="task-text done">Send fee agreement to new client — Rogers</span>
+              <span class="badge badge-gray">Done</span>
+              <span class="task-meta">Completed</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Recent Cases Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Cases</h3>
+            <a class="card-link">View all &rarr;</a>
+          </div>
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>Case</th>
+                <th>Stage</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Williams, Patricia</strong><br><span style="color:var(--color-text-tertiary);font-size:var(--font-size-xs)">#2026-1803</span></td>
+                <td><span class="badge badge-orange badge-dot">Hearing Prep</span></td>
+                <td style="color:var(--color-text-secondary)">2h ago</td>
+              </tr>
+              <tr>
+                <td><strong>Thompson, Robert</strong><br><span style="color:var(--color-text-tertiary);font-size:var(--font-size-xs)">#2025-0891</span></td>
+                <td><span class="badge badge-purple badge-dot">ALJ Hearing</span></td>
+                <td style="color:var(--color-text-secondary)">3h ago</td>
+              </tr>
+              <tr>
+                <td><strong>Santos, Maria</strong><br><span style="color:var(--color-text-tertiary);font-size:var(--font-size-xs)">#2026-1847</span></td>
+                <td><span class="badge badge-green badge-dot">Favorable</span></td>
+                <td style="color:var(--color-text-secondary)">12m ago</td>
+              </tr>
+              <tr>
+                <td><strong>Jackson, Dwayne</strong><br><span style="color:var(--color-text-tertiary);font-size:var(--font-size-xs)">#2026-1712</span></td>
+                <td><span class="badge badge-blue badge-dot">Reconsideration</span></td>
+                <td style="color:var(--color-text-secondary)">5h ago</td>
+              </tr>
+              <tr>
+                <td><strong>Chen, Linda</strong><br><span style="color:var(--color-text-tertiary);font-size:var(--font-size-xs)">#2026-1901</span></td>
+                <td><span class="badge badge-gray badge-dot">Initial Review</span></td>
+                <td style="color:var(--color-text-secondary)">1d ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== DESIGN TOKENS SECTION ========== -->
+      <div class="token-section">
+        <h2 class="token-section-title">Design Tokens</h2>
+
+        <div class="token-grid">
+          <!-- Colors -->
+          <div class="token-card">
+            <div class="token-card-title">Primary Palette</div>
+            <div class="color-swatch-row">
+              <div class="color-swatch gradient"></div>
+              <div><div class="swatch-label">Accent Gradient</div><div class="swatch-value">135deg, #635BFF &rarr; #A259FF</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#635BFF"></div>
+              <div><div class="swatch-label">Primary</div><div class="swatch-value">#635BFF</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#A259FF"></div>
+              <div><div class="swatch-label">Primary Light</div><div class="swatch-value">#A259FF</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#5046E5"></div>
+              <div><div class="swatch-label">Primary Dark</div><div class="swatch-value">#5046E5</div></div>
+            </div>
+          </div>
+
+          <!-- Semantic Colors -->
+          <div class="token-card">
+            <div class="token-card-title">Semantic Colors</div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#00D4AA"></div>
+              <div><div class="swatch-label">Success</div><div class="swatch-value">#00D4AA</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#F5A623"></div>
+              <div><div class="swatch-label">Warning</div><div class="swatch-value">#F5A623</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#E25950"></div>
+              <div><div class="swatch-label">Danger</div><div class="swatch-value">#E25950</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#3B82F6"></div>
+              <div><div class="swatch-label">Info</div><div class="swatch-value">#3B82F6</div></div>
+            </div>
+          </div>
+
+          <!-- Neutrals -->
+          <div class="token-card">
+            <div class="token-card-title">Neutrals</div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#1A1F36"></div>
+              <div><div class="swatch-label">Text Primary</div><div class="swatch-value">#1A1F36</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#697386"></div>
+              <div><div class="swatch-label">Text Secondary</div><div class="swatch-value">#697386</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#F6F9FC;border:1px solid #E3E8EE"></div>
+              <div><div class="swatch-label">Background</div><div class="swatch-value">#F6F9FC</div></div>
+            </div>
+            <div class="color-swatch-row">
+              <div class="color-swatch" style="background:#E3E8EE"></div>
+              <div><div class="swatch-label">Border</div><div class="swatch-value">#E3E8EE</div></div>
+            </div>
+          </div>
+
+          <!-- Typography -->
+          <div class="token-card">
+            <div class="token-card-title">Typography</div>
+            <div class="token-type-row">
+              <div class="token-type-label">Font Family</div>
+              <div style="font-size:var(--font-size-sm);font-weight:600">Inter, system-ui, sans-serif</div>
+            </div>
+            <div class="token-type-row">
+              <div class="token-type-label">Base Size / Line Height</div>
+              <div style="font-size:var(--font-size-sm);font-weight:600">15px / 1.5</div>
+            </div>
+            <div class="token-type-row">
+              <div class="token-type-label">Scale</div>
+              <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary)">11 &middot; 13 &middot; 15 &middot; 17 &middot; 20 &middot; 24 &middot; 30 &middot; 36px</div>
+            </div>
+            <div class="token-type-row">
+              <div class="token-type-label">Heading Letter-Spacing</div>
+              <div style="font-size:var(--font-size-sm);font-weight:600">-0.02em (tight)</div>
+            </div>
+          </div>
+
+          <!-- Shadows -->
+          <div class="token-card">
+            <div class="token-card-title">Shadows</div>
+            <div class="shadow-demo" style="box-shadow: var(--shadow-sm)"></div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);margin-bottom:var(--space-3)">shadow-sm</div>
+            <div class="shadow-demo" style="box-shadow: var(--shadow-md)"></div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);margin-bottom:var(--space-3)">shadow-md (default card)</div>
+            <div class="shadow-demo" style="box-shadow: var(--shadow-lg)"></div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">shadow-lg (hover / elevated)</div>
+          </div>
+
+          <!-- Radius -->
+          <div class="token-card">
+            <div class="token-card-title">Border Radius</div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3)">
+              <div class="radius-demo" style="border-radius:var(--radius-sm)">6</div>
+              <div class="radius-demo" style="border-radius:var(--radius-md)">8</div>
+              <div class="radius-demo" style="border-radius:var(--radius-lg)">12</div>
+              <div class="radius-demo" style="border-radius:var(--radius-xl)">16</div>
+              <div class="radius-demo" style="border-radius:var(--radius-full)">pill</div>
+            </div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">sm: 6px &middot; md: 8px &middot; lg: 12px &middot; xl: 16px &middot; full: 9999px</div>
+          </div>
+        </div>
+
+        <!-- Component Variants -->
+        <h3 style="font-size:var(--font-size-lg);font-weight:700;letter-spacing:var(--letter-spacing-tight);margin-bottom:var(--space-4)">Component Variants</h3>
+
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="token-card-title">Buttons</div>
+            <div class="component-showcase">
+              <button class="btn btn-primary">Primary</button>
+              <button class="btn btn-secondary">Secondary</button>
+              <button class="btn btn-success">Success</button>
+              <button class="btn btn-danger">Danger</button>
+            </div>
+            <div class="component-showcase">
+              <button class="btn btn-primary btn-sm">Small</button>
+              <button class="btn btn-primary">Default</button>
+              <button class="btn btn-primary btn-lg">Large</button>
+            </div>
+          </div>
+
+          <div class="token-card">
+            <div class="token-card-title">Badges</div>
+            <div class="component-showcase">
+              <span class="badge badge-purple">Purple</span>
+              <span class="badge badge-green">Green</span>
+              <span class="badge badge-orange">Orange</span>
+              <span class="badge badge-red">Red</span>
+              <span class="badge badge-blue">Blue</span>
+              <span class="badge badge-gray">Gray</span>
+            </div>
+            <div class="component-showcase">
+              <span class="badge badge-purple badge-dot">With Dot</span>
+              <span class="badge badge-green badge-dot">With Dot</span>
+              <span class="badge badge-red badge-dot">With Dot</span>
+            </div>
+          </div>
+
+          <div class="token-card">
+            <div class="token-card-title">Inputs</div>
+            <div style="margin-bottom:var(--space-3)">
+              <input type="text" placeholder="Search cases..." style="width:100%;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);background:var(--color-surface);outline:none;transition:border var(--transition-fast)">
+            </div>
+            <div>
+              <select style="width:100%;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);background:var(--color-surface);outline:none">
+                <option>All Stages</option>
+                <option>Initial Review</option>
+                <option>Hearing Prep</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

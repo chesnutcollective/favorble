@@ -5,12 +5,10 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatsCard } from "@/components/shared/stats-card";
 import { ChronologyTimeline } from "@/components/chronology/chronology-timeline";
-import { ProcessingStatus } from "@/components/chronology/processing-status";
 import { ExhibitBuilder } from "@/components/exhibits/exhibit-builder";
 import { ExhibitList } from "@/components/exhibits/exhibit-list";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,10 +50,6 @@ import {
   MoreHorizontalIcon,
   Search01Icon,
   NoteIcon,
-  LeftToRightListBulletIcon,
-  CheckmarkCircle02Icon,
-  Stethoscope02Icon,
-  Calendar03Icon,
 } from "@hugeicons/core-free-icons";
 
 import {
@@ -456,38 +450,10 @@ export function ChronologyClient({
 
       {/* Stats Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Entries"
-          value={stats.total}
-          icon={LeftToRightListBulletIcon}
-          iconBgClass="bg-blue-100 dark:bg-blue-950/40"
-          iconColor="rgb(59 130 246)"
-          accentClass="border-l-blue-500"
-        />
-        <StatsCard
-          title="Verified"
-          value={stats.verified}
-          icon={CheckmarkCircle02Icon}
-          iconBgClass="bg-green-100 dark:bg-green-950/40"
-          iconColor="rgb(34 197 94)"
-          accentClass="border-l-green-500"
-        />
-        <StatsCard
-          title="Providers"
-          value={stats.providers}
-          icon={Stethoscope02Icon}
-          iconBgClass="bg-purple-100 dark:bg-purple-950/40"
-          iconColor="rgb(147 51 234)"
-          accentClass="border-l-purple-500"
-        />
-        <StatsCard
-          title="Date Range"
-          value={stats.dateRange}
-          icon={Calendar03Icon}
-          iconBgClass="bg-amber-100 dark:bg-amber-950/40"
-          iconColor="rgb(245 158 11)"
-          accentClass="border-l-amber-500"
-        />
+        <StatsCard title="Total Entries" value={stats.total} />
+        <StatsCard title="Verified" value={stats.verified} />
+        <StatsCard title="Providers" value={stats.providers} />
+        <StatsCard title="Date Range" value={stats.dateRange} />
       </div>
 
       {/* Filter Bar */}
@@ -531,14 +497,14 @@ export function ChronologyClient({
           </SelectContent>
         </Select>
 
-        <div className="ml-auto flex items-center rounded-lg border bg-muted/50 p-0.5">
+        <div className="ml-auto flex items-center rounded-md border border-[#EAEAEA] p-0.5">
           <Button
             size="sm"
-            variant={viewMode === "table" ? "default" : "ghost"}
+            variant="ghost"
             className={
               viewMode === "table"
-                ? "h-7 rounded-md text-xs font-medium shadow-sm"
-                : "h-7 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground"
+                ? "h-7 rounded-[4px] text-xs font-medium border border-black bg-white text-foreground"
+                : "h-7 rounded-[4px] text-xs font-medium text-[#666] hover:text-foreground border border-transparent"
             }
             onClick={() => setViewMode("table")}
           >
@@ -546,11 +512,11 @@ export function ChronologyClient({
           </Button>
           <Button
             size="sm"
-            variant={viewMode === "timeline" ? "default" : "ghost"}
+            variant="ghost"
             className={
               viewMode === "timeline"
-                ? "h-7 rounded-md text-xs font-medium shadow-sm"
-                : "h-7 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground"
+                ? "h-7 rounded-[4px] text-xs font-medium border border-black bg-white text-foreground"
+                : "h-7 rounded-[4px] text-xs font-medium text-[#666] hover:text-foreground border border-transparent"
             }
             onClick={() => setViewMode("timeline")}
           >
@@ -565,8 +531,6 @@ export function ChronologyClient({
           icon={NoteIcon}
           title="No chronology entries yet"
           description="Generate a chronology from your case documents or add entries manually."
-          accent="blue"
-          bordered
         />
       ) : viewMode === "table" ? (
         <div className="rounded-md border">

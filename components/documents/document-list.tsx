@@ -54,16 +54,6 @@ const SOURCE_LABELS: Record<string, { label: string; icon: IconSvgElement }> = {
   ere: { label: "ERE", icon: GlobeIcon },
 };
 
-const SOURCE_COLORS: Record<string, string> = {
-  upload: "bg-muted text-foreground",
-  template: "bg-blue-100 text-blue-700",
-  chronicle: "bg-purple-100 text-purple-700",
-  case_status: "bg-green-100 text-green-700",
-  email: "bg-amber-100 text-amber-700",
-  esignature: "bg-indigo-100 text-indigo-700",
-  ere: "bg-blue-100 text-blue-700",
-};
-
 export function DocumentList({
   documents,
   onPreview,
@@ -95,10 +85,10 @@ export function DocumentList({
             type="button"
             onClick={() => onSourceFilterChange(null)}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors duration-200",
               sourceFilter === null
-                ? "bg-gray-900 text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted",
+                ? "bg-black text-white"
+                : "border border-[#EAEAEA] text-[#666] hover:border-[#CCC]",
             )}
           >
             All ({documents.length})
@@ -111,10 +101,10 @@ export function DocumentList({
                 onSourceFilterChange(source === sourceFilter ? null : source)
               }
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                "rounded-full px-3 py-1 text-xs font-medium transition-colors duration-200",
                 sourceFilter === source
-                  ? "bg-gray-900 text-white"
-                  : `${SOURCE_COLORS[source]} hover:opacity-80`,
+                  ? "bg-black text-white"
+                  : "border border-[#EAEAEA] text-[#666] hover:border-[#CCC]",
               )}
             >
               {SOURCE_LABELS[source]?.label ?? source} ({count})
@@ -128,46 +118,46 @@ export function DocumentList({
         <div className="py-12 text-center">
           <HugeiconsIcon
             icon={File01Icon}
-            size={32}
-            color="rgb(209 213 219)"
+            size={24}
+            color="#999"
             className="mx-auto"
           />
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-[13px] text-[#666]">
             No documents found
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-hidden rounded-md border border-[#EAEAEA]">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-accent">
+            <thead className="border-b border-[#EAEAEA]">
               <tr>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground">
+                <th className="px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Name
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground sm:table-cell">
+                <th className="hidden px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider sm:table-cell">
                   Source
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground md:table-cell">
+                <th className="hidden px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider md:table-cell">
                   Category
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground lg:table-cell">
+                <th className="hidden px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider lg:table-cell">
                   Size
                 </th>
-                <th className="hidden px-4 py-2.5 font-medium text-muted-foreground lg:table-cell">
+                <th className="hidden px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider lg:table-cell">
                   Date
                 </th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground">
+                <th className="px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {filteredDocs.map((doc) => {
                 const iconType = getFileIconType(doc.fileType);
                 return (
                   <tr
                     key={doc.id}
-                    className="hover:bg-accent transition-colors"
+                    className="border-b border-[#EAEAEA] last:border-b-0 hover:bg-[#F0F0F0] transition-colors duration-200"
                   >
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
@@ -178,24 +168,19 @@ export function DocumentList({
                       </div>
                     </td>
                     <td className="hidden px-4 py-2.5 sm:table-cell">
-                      <span
-                        className={cn(
-                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                          SOURCE_COLORS[doc.source],
-                        )}
-                      >
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border border-[#EAEAEA] text-[#666]">
                         {SOURCE_LABELS[doc.source]?.label ?? doc.source}
                       </span>
                     </td>
-                    <td className="hidden px-4 py-2.5 text-muted-foreground md:table-cell">
-                      {doc.category ?? "—"}
+                    <td className="hidden px-4 py-2.5 text-[#666] md:table-cell">
+                      {doc.category ?? "\u2014"}
                     </td>
-                    <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
+                    <td className="hidden px-4 py-2.5 font-mono text-[#666] lg:table-cell">
                       {doc.fileSizeBytes
                         ? formatFileSize(doc.fileSizeBytes)
-                        : "—"}
+                        : "\u2014"}
                     </td>
-                    <td className="hidden px-4 py-2.5 text-muted-foreground lg:table-cell">
+                    <td className="hidden px-4 py-2.5 font-mono text-[#666] lg:table-cell">
                       {new Date(doc.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-2.5">
@@ -236,14 +221,14 @@ export function DocumentList({
                                   className="fixed inset-0 z-10"
                                   onClick={() => setMenuOpen(null)}
                                 />
-                                <div className="absolute right-0 z-20 mt-1 w-36 rounded-md border border-border bg-white py-1 shadow-lg">
+                                <div className="absolute right-0 z-20 mt-1 w-36 rounded-md border border-[#EAEAEA] bg-white py-1">
                                   <button
                                     type="button"
                                     onClick={() => {
                                       onDelete(doc);
                                       setMenuOpen(null);
                                     }}
-                                    className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                                    className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-[#EE0000] hover:bg-[#F0F0F0] transition-colors duration-200"
                                   >
                                     <HugeiconsIcon
                                       icon={Delete01Icon}
@@ -270,20 +255,11 @@ export function DocumentList({
 }
 
 function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
-  const colors: Record<string, string> = {
-    pdf: "text-red-500",
-    image: "text-green-500",
-    doc: "text-primary",
-    spreadsheet: "text-emerald-600",
-    text: "text-muted-foreground",
-    unknown: "text-muted-foreground",
-  };
-
   return (
     <HugeiconsIcon
       icon={File01Icon}
       size={16}
-      className={cn("shrink-0", colors[type])}
+      className="shrink-0 text-[#666]"
     />
   );
 }

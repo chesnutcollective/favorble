@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble v2 — Integrations</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Apple HIG v2 (Warm Indigo)
+     ============================================================ */
+  :root {
+    --color-bg:              #F5F5F2;
+    --color-surface:         #FFFFFE;
+    --color-sidebar:         rgba(248,246,242,0.72);
+    --color-toolbar:         rgba(248,246,242,0.82);
+    --color-text-primary:    #1D1D1F;
+    --color-text-secondary:  #86868B;
+    --color-text-tertiary:   #AEAEB2;
+    --color-accent:          #5856D6;
+    --color-accent-hover:    #4644B0;
+    --color-destructive:     #FF3B30;
+    --color-success:         #34C759;
+    --color-warning:         #FF9F0A;
+    --color-orange:          #FF9500;
+    --color-amber:           #FF9500;
+    --color-purple:          #AF52DE;
+    --color-indigo:          #5856D6;
+    --color-teal:            #5AC8FA;
+    --color-separator:       rgba(0,0,0,0.06);
+    --color-hover:           rgba(0,0,0,0.04);
+    --color-selected:        rgba(88,86,214,0.12);
+
+    --shadow-card:  0 1px 3px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.04);
+    --shadow-popup: 0 4px 16px rgba(0,0,0,0.12), 0 16px 48px rgba(0,0,0,0.08);
+    --shadow-toolbar: 0 0.5px 0 rgba(0,0,0,0.1);
+
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
+
+    --font-family: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, sans-serif;
+    --font-size-xs:    11px;
+    --font-size-sm:    12px;
+    --font-size-base:  14px;
+    --font-size-md:    15px;
+    --font-size-lg:    17px;
+    --font-size-xl:    20px;
+    --font-size-2xl:   24px;
+
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+
+    --sidebar-width: 240px;
+    --toolbar-height: 52px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text-primary); background: var(--color-bg); -webkit-font-smoothing: antialiased; }
+  .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); background: var(--color-sidebar); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-right: 0.5px solid var(--color-separator); display: flex; flex-direction: column; padding: var(--space-lg) 0; user-select: none; overflow-y: auto; }
+  .sidebar-brand { padding: 0 var(--space-xl); margin-bottom: var(--space-2xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--color-accent), #7B79E8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .sidebar-section-label { padding: var(--space-lg) var(--space-xl) var(--space-xs); font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar-item { display: flex; align-items: center; gap: var(--space-sm); padding: 6px var(--space-xl); margin: 1px var(--space-sm); border-radius: var(--radius-sm); font-size: var(--font-size-base); color: var(--color-text-primary); cursor: pointer; transition: background 0.15s; text-decoration: none; }
+  .sidebar-item:hover { background: var(--color-hover); }
+  .sidebar-item.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 15px; opacity: 0.75; }
+  .sidebar-item.active .icon { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-destructive); color: #fff; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-user { padding: var(--space-md) var(--space-xl); border-top: 0.5px solid var(--color-separator); display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm); }
+  .sidebar-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FF6B6B, var(--color-orange)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 500; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* ---- MAIN ---- */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .toolbar { height: var(--toolbar-height); min-height: var(--toolbar-height); background: var(--color-toolbar); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 0.5px solid var(--color-separator); box-shadow: var(--shadow-toolbar); display: flex; align-items: center; padding: 0 var(--space-2xl); gap: var(--space-lg); user-select: none; z-index: 10; }
+  .toolbar-title { font-size: var(--font-size-lg); font-weight: 600; letter-spacing: -0.2px; }
+  .toolbar-spacer { flex: 1; }
+  .toolbar-search { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.04); border: 0.5px solid var(--color-separator); border-radius: var(--radius-sm); padding: 5px 10px; font-size: var(--font-size-sm); color: var(--color-text-secondary); width: 220px; }
+  .toolbar-search input { border: none; background: none; outline: none; font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--color-text-primary); width: 100%; }
+
+  .content { flex: 1; overflow-y: auto; padding: var(--space-2xl); display: flex; flex-direction: column; gap: var(--space-2xl); }
+
+  .segmented-control { display: inline-flex; background: rgba(0,0,0,0.06); border-radius: var(--radius-sm); padding: 2px; gap: 1px; }
+  .segmented-option { padding: 5px 16px; border-radius: 5px; font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; user-select: none; }
+  .segmented-option.active { background: var(--color-surface); color: var(--color-text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .section-header { display: flex; align-items: baseline; gap: var(--space-md); margin-bottom: var(--space-lg); }
+  .section-title { font-size: var(--font-size-xl); font-weight: 700; letter-spacing: -0.3px; }
+  .section-count { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+  .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+  .integration-card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-lg); transition: box-shadow 0.2s, transform 0.2s; cursor: pointer; }
+  .integration-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.06); transform: translateY(-1px); }
+  .integration-top { display: flex; align-items: flex-start; gap: var(--space-md); }
+  .integration-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .integration-icon.ssa       { background: linear-gradient(135deg, #1B3A6B, #2A5FAD); color: #fff; }
+  .integration-icon.erecords  { background: linear-gradient(135deg, #5856D6, #7B79E8); color: #fff; }
+  .integration-icon.dropbox   { background: linear-gradient(135deg, #0061FF, #0041B0); color: #fff; }
+  .integration-icon.google    { background: linear-gradient(135deg, #EA4335, #FBBC04); }
+  .integration-icon.outlook   { background: linear-gradient(135deg, #0078D4, #00BCF2); color: #fff; }
+  .integration-icon.docusign  { background: linear-gradient(135deg, #FFD100, #FF8C00); }
+  .integration-icon.slack     { background: linear-gradient(135deg, #4A154B, #E01E5A); color: #fff; }
+  .integration-icon.quickbooks { background: linear-gradient(135deg, #2CA01C, #108A00); color: #fff; }
+  .integration-icon.clio      { background: linear-gradient(135deg, #1B2B5B, #2C4A8E); color: #fff; }
+  .integration-icon.zapier    { background: linear-gradient(135deg, #FF4A00, #FF7A00); color: #fff; }
+  .integration-icon.twilio    { background: linear-gradient(135deg, #F22F46, #D41836); color: #fff; }
+  .integration-icon.box       { background: linear-gradient(135deg, #0061D5, #0044A0); color: #fff; }
+
+  .integration-info { flex: 1; }
+  .integration-name { font-size: var(--font-size-md); font-weight: 600; letter-spacing: -0.2px; margin-bottom: 2px; }
+  .integration-category { font-size: var(--font-size-xs); color: var(--color-text-tertiary); font-weight: 500; }
+  .integration-status { margin-left: auto; align-self: flex-start; }
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: var(--font-size-xs); font-weight: 500; }
+  .status-badge.connected { background: rgba(52,199,89,0.1); color: var(--color-success); }
+  .status-badge.available { background: rgba(0,0,0,0.04); color: var(--color-text-secondary); }
+  .status-badge.error { background: rgba(255,59,48,0.1); color: var(--color-destructive); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .integration-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5; }
+  .integration-footer { display: flex; align-items: center; justify-content: space-between; padding-top: var(--space-md); border-top: 0.5px solid var(--color-separator); }
+  .integration-meta { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .integration-btn { padding: 5px 14px; border-radius: var(--radius-sm); border: 0.5px solid var(--color-separator); background: var(--color-surface); font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--color-text-primary); cursor: pointer; transition: all 0.15s; font-weight: 500; }
+  .integration-btn:hover { background: var(--color-hover); }
+  .integration-btn.connect { background: var(--color-accent); color: #fff; border-color: transparent; background-image: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0) 100%); }
+  .integration-btn.connect:hover { background-color: var(--color-accent-hover); }
+  .integration-btn.disconnect { color: var(--color-destructive); }
+
+  .toggle { position: relative; width: 42px; height: 24px; cursor: pointer; flex-shrink: 0; }
+  .toggle-track { width: 100%; height: 100%; border-radius: 12px; background: rgba(0,0,0,0.12); transition: background 0.2s; }
+  .toggle.on .toggle-track { background: var(--color-success); }
+  .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+  .toggle.on .toggle-thumb { transform: translateX(18px); }
+
+  .grouped-list { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+  .grouped-list-header { padding: var(--space-lg) var(--space-xl) var(--space-sm); font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .grouped-item { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md) var(--space-xl); border-bottom: 0.5px solid var(--color-separator); cursor: pointer; transition: background 0.1s; }
+  .grouped-item:last-child { border-bottom: none; }
+  .grouped-item:hover { background: var(--color-hover); }
+  .grouped-item-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0; }
+  .grouped-item-content { flex: 1; }
+  .grouped-item-title { font-size: var(--font-size-base); font-weight: 500; }
+  .grouped-item-subtitle { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+  .grouped-item-accessory { font-size: var(--font-size-sm); color: var(--color-text-tertiary); display: flex; align-items: center; gap: 4px; }
+  .grouped-item-chevron { font-size: 14px; color: var(--color-text-tertiary); opacity: 0.5; }
+
+  .design-tokens { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-2xl); }
+  .design-tokens h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-xl); letter-spacing: -0.3px; }
+  .token-group { margin-bottom: var(--space-2xl); }
+  .token-group:last-child { margin-bottom: 0; }
+  .token-group-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-name { font-weight: 500; width: 200px; }
+  .token-value { font-family: "SF Mono", SFMono-Regular, Menlo, monospace; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+  .component-preview { display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-md) 0; align-items: center; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Favorble</div>
+    </div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Claimants</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item active" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">JK</div>
+      <div>
+        <div class="sidebar-user-name">Jake Klinvex</div>
+        <div class="sidebar-user-role">Admin</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Integrations</h1>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search">
+        <span>&#128269;</span>
+        <input type="text" placeholder="Search integrations...">
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="segmented-control" style="align-self:flex-start;">
+        <div class="segmented-option active">All</div>
+        <div class="segmented-option">Connected</div>
+        <div class="segmented-option">Available</div>
+      </div>
+
+      <!-- Connected -->
+      <div>
+        <div class="section-header">
+          <h2 class="section-title">Connected</h2>
+          <span class="section-count">5 integrations</span>
+        </div>
+        <div class="integration-grid">
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon ssa">&#127963;</div>
+              <div class="integration-info">
+                <div class="integration-name">SSA ERE</div>
+                <div class="integration-category">Electronic Records Express</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge connected"><span class="status-dot"></span> Connected</span>
+              </div>
+            </div>
+            <div class="integration-desc">Submit evidence electronically to SSA via Electronic Records Express. Track submission status and confirmation receipts.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Last sync: 3 min ago</span>
+              <button class="integration-btn">Settings</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon erecords">&#128196;</div>
+              <div class="integration-info">
+                <div class="integration-name">EDCS Viewer</div>
+                <div class="integration-category">Disability Case File</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge connected"><span class="status-dot"></span> Connected</span>
+              </div>
+            </div>
+            <div class="integration-desc">Access the Electronic Disability Collect System case files. Pull CE reports, DDS decisions, and medical evidence of record.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Last sync: 10 min ago</span>
+              <button class="integration-btn">Settings</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon google">&#128197;</div>
+              <div class="integration-info">
+                <div class="integration-name">Google Calendar</div>
+                <div class="integration-category">Calendar</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge connected"><span class="status-dot"></span> Connected</span>
+              </div>
+            </div>
+            <div class="integration-desc">Sync hearing dates, deadline reminders, and CE appointments. Two-way sync with ALJ hearing schedule notifications.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Last sync: 1 min ago</span>
+              <button class="integration-btn">Settings</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon dropbox">&#128194;</div>
+              <div class="integration-info">
+                <div class="integration-name">Dropbox</div>
+                <div class="integration-category">Cloud Storage</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge connected"><span class="status-dot"></span> Connected</span>
+              </div>
+            </div>
+            <div class="integration-desc">Sync medical records, RFC forms, and pre-hearing briefs. Automatic folder structure mirrors claimant file organization.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Last sync: 8 min ago</span>
+              <button class="integration-btn">Settings</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon outlook">&#9993;</div>
+              <div class="integration-info">
+                <div class="integration-name">Microsoft Outlook</div>
+                <div class="integration-category">Email</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge error"><span class="status-dot"></span> Error</span>
+              </div>
+            </div>
+            <div class="integration-desc">Link OHO correspondence and SSA notices to cases. Auto-file hearing notices, decision letters, and appointment reminders.</div>
+            <div class="integration-footer">
+              <span class="integration-meta" style="color:var(--color-destructive);">Auth token expired</span>
+              <button class="integration-btn connect">Reconnect</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available -->
+      <div>
+        <div class="section-header">
+          <h2 class="section-title">Available</h2>
+          <span class="section-count">7 integrations</span>
+        </div>
+        <div class="integration-grid">
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon docusign">&#9998;</div>
+              <div class="integration-info">
+                <div class="integration-name">DocuSign</div>
+                <div class="integration-category">E-Signature</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Send fee agreements and SSA-1696 forms for electronic signature. Track signing status for representative appointments.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Free plan available</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon slack">&#128172;</div>
+              <div class="integration-info">
+                <div class="integration-name">Slack</div>
+                <div class="integration-category">Communication</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Get hearing date alerts, deadline reminders, and decision notifications delivered to your Slack channels in real time.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Free plan available</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon quickbooks">&#36;</div>
+              <div class="integration-info">
+                <div class="integration-name">QuickBooks</div>
+                <div class="integration-category">Accounting</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Track attorney fee awards, cost advances, and case expenses. Auto-generate fee petitions from billing data.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Requires QB account</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon clio">&#9878;</div>
+              <div class="integration-info">
+                <div class="integration-name">Clio</div>
+                <div class="integration-category">Practice Management</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Import existing claimant data and case files from Clio. Bi-directional sync keeps both systems current.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Requires Clio API key</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon twilio">&#128222;</div>
+              <div class="integration-info">
+                <div class="integration-name">Twilio</div>
+                <div class="integration-category">SMS / Voice</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Send automated SMS reminders for hearing dates, CE appointments, and document requests to claimants.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Requires Twilio account</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon box">&#128230;</div>
+              <div class="integration-info">
+                <div class="integration-name">Box</div>
+                <div class="integration-category">Cloud Storage</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Enterprise-grade medical record storage with HIPAA compliance, audit trails, and granular access controls.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Enterprise plan</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-card">
+            <div class="integration-top">
+              <div class="integration-icon zapier">&#9889;</div>
+              <div class="integration-info">
+                <div class="integration-name">Zapier</div>
+                <div class="integration-category">Automation</div>
+              </div>
+              <div class="integration-status">
+                <span class="status-badge available">Available</span>
+              </div>
+            </div>
+            <div class="integration-desc">Connect Favorble to 5,000+ apps. Build automations for intake forms, medical record requests, and status updates.</div>
+            <div class="integration-footer">
+              <span class="integration-meta">Requires Zapier account</span>
+              <button class="integration-btn connect">Connect</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div>
+        <div class="section-header">
+          <h2 class="section-title">Integration Settings</h2>
+        </div>
+        <div class="grouped-list">
+          <div class="grouped-list-header">Sync Preferences</div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-accent);">&#8635;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">Auto-Sync Frequency</div>
+              <div class="grouped-item-subtitle">How often integrations sync data</div>
+            </div>
+            <div class="grouped-item-accessory">Every 15 min <span class="grouped-item-chevron">&#8250;</span></div>
+          </div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-amber);">&#128276;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">Deadline Alerts</div>
+              <div class="grouped-item-subtitle">Push notifications for SSA filing deadlines</div>
+            </div>
+            <div class="toggle on"><div class="toggle-track"></div><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-purple);">&#128274;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">HIPAA Encryption</div>
+              <div class="grouped-item-subtitle">Encrypt all medical data in transit and at rest</div>
+            </div>
+            <div class="toggle on"><div class="toggle-track"></div><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+
+        <div class="grouped-list" style="margin-top: var(--space-lg);">
+          <div class="grouped-list-header">API Access</div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-indigo);">&#128273;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">API Keys</div>
+              <div class="grouped-item-subtitle">Manage API keys and ERE access tokens</div>
+            </div>
+            <div class="grouped-item-accessory">3 active <span class="grouped-item-chevron">&#8250;</span></div>
+          </div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-success);">&#128466;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">Webhooks</div>
+              <div class="grouped-item-subtitle">Configure webhook endpoints for hearing/decision events</div>
+            </div>
+            <div class="grouped-item-accessory">2 configured <span class="grouped-item-chevron">&#8250;</span></div>
+          </div>
+          <div class="grouped-item">
+            <div class="grouped-item-icon" style="background:var(--color-text-tertiary);">&#128203;</div>
+            <div class="grouped-item-content">
+              <div class="grouped-item-title">Audit Log</div>
+              <div class="grouped-item-subtitle">View all integration activity and API calls</div>
+            </div>
+            <div class="grouped-item-accessory"><span class="grouped-item-chevron">&#8250;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="design-tokens">
+        <h2>Design Tokens</h2>
+        <div class="token-group">
+          <div class="token-group-title">Status Badges</div>
+          <div class="component-preview">
+            <span class="status-badge connected"><span class="status-dot"></span> Connected</span>
+            <span class="status-badge available">Available</span>
+            <span class="status-badge error"><span class="status-dot"></span> Error</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <div class="token-group-title">Toggle Switch</div>
+          <div class="component-preview">
+            <div class="toggle on" style="position:relative;"><div class="toggle-track"></div><div class="toggle-thumb"></div></div>
+            <div class="toggle" style="position:relative;"><div class="toggle-track"></div><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Track (on)</div>
+            <div class="token-value">#34C759 (Apple Green)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Connect button</div>
+            <div class="token-value">#5856D6 indigo (was #007AFF blue)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard (Apple HIG v3 Teal Dark)</title>
+<style>
+  :root {
+    --color-bg:#1A1E1E;--color-surface:#2A2E2E;--color-sidebar:rgba(30,34,34,0.82);--color-toolbar:rgba(30,34,34,0.85);
+    --color-text-primary:#F5F5F7;--color-text-secondary:#98A2A2;--color-text-tertiary:#5C6666;
+    --color-accent:#3CC8E0;--color-accent-hover:#30B0C7;--color-accent-subtle:rgba(60,200,224,0.15);
+    --color-secondary:#7D7AFF;--color-destructive:#FF453A;--color-success:#30D158;--color-warning:#FFD60A;
+    --color-orange:#FF9F0A;--color-purple:#BF5AF2;--color-indigo:#7D7AFF;--color-teal:#3CC8E0;
+    --color-separator:rgba(255,255,255,0.08);--color-hover:rgba(60,200,224,0.06);--color-selected:rgba(60,200,224,0.15);
+    --shadow-card:0 1px 3px rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.2);--shadow-popup:0 4px 16px rgba(0,0,0,0.4),0 16px 48px rgba(0,0,0,0.3);--shadow-toolbar:0 0.5px 0 rgba(0,0,0,0.4);
+    --radius-sm:6px;--radius-md:10px;--radius-lg:12px;--radius-xl:16px;
+    --font-family:-apple-system,"SF Pro Display","SF Pro Text",system-ui,BlinkMacSystemFont,sans-serif;
+    --font-size-xs:11px;--font-size-sm:12px;--font-size-base:13px;--font-size-md:15px;--font-size-lg:17px;--font-size-xl:20px;--font-size-2xl:24px;--font-size-3xl:28px;--font-size-hero:34px;
+    --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:24px;--space-3xl:32px;--space-4xl:40px;
+    --sidebar-width:240px;--toolbar-height:52px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font-family);font-size:var(--font-size-base);color:var(--color-text-primary);background:var(--color-bg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-0.01em}
+  .app-shell{display:flex;height:100vh;overflow:hidden}
+
+  .sidebar{width:var(--sidebar-width);min-width:var(--sidebar-width);background:var(--color-sidebar);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-right:0.5px solid var(--color-separator);display:flex;flex-direction:column;padding:var(--space-lg) 0;user-select:none;overflow-y:auto}
+  .sidebar-brand{padding:0 var(--space-xl);margin-bottom:var(--space-2xl);display:flex;align-items:center;gap:var(--space-sm)}
+  .sidebar-brand-icon{width:28px;height:28px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--color-accent),#5AC8FA);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .sidebar-brand-name{font-size:var(--font-size-lg);font-weight:700;letter-spacing:-0.3px}
+  .sidebar-section-label{padding:var(--space-lg) var(--space-xl) var(--space-xs);font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+  .sidebar-item{display:flex;align-items:center;gap:var(--space-sm);padding:6px var(--space-xl);margin:1px var(--space-sm);border-radius:var(--radius-sm);font-size:var(--font-size-base);color:var(--color-text-primary);cursor:pointer;transition:background 0.15s;text-decoration:none;position:relative}
+  .sidebar-item:hover{background:var(--color-hover)}.sidebar-item.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .sidebar-item.active::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--color-accent);border-radius:0 2px 2px 0}
+  .sidebar-item .icon{width:20px;text-align:center;font-size:15px;opacity:0.6}.sidebar-item.active .icon{opacity:1}
+  .sidebar-badge{margin-left:auto;background:var(--color-destructive);color:#fff;font-size:var(--font-size-xs);font-weight:600;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--space-md) var(--space-xl);border-top:0.5px solid var(--color-separator);display:flex;align-items:center;gap:var(--space-sm);margin-top:var(--space-sm)}
+  .sidebar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent),var(--color-secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .sidebar-user-name{font-size:var(--font-size-sm);font-weight:500}.sidebar-user-role{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .toolbar{height:var(--toolbar-height);min-height:var(--toolbar-height);background:var(--color-toolbar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:0.5px solid var(--color-separator);box-shadow:var(--shadow-toolbar);display:flex;align-items:center;padding:0 var(--space-2xl);gap:var(--space-lg);user-select:none;z-index:10}
+  .toolbar-title{font-size:var(--font-size-lg);font-weight:600;letter-spacing:-0.2px}
+  .toolbar-spacer{flex:1}
+  .toolbar-search{display:flex;align-items:center;gap:6px;background:rgba(60,200,224,0.08);border:0.5px solid var(--color-separator);border-radius:var(--radius-sm);padding:5px 10px;font-size:var(--font-size-sm);color:var(--color-text-secondary);width:200px}
+  .toolbar-search input{border:none;background:none;outline:none;font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);width:100%}
+  .toolbar-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-surface);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);cursor:pointer;transition:all 0.15s}
+  .toolbar-btn:hover{background:rgba(60,200,224,0.08)}
+  .toolbar-btn.primary{background:var(--color-accent);color:#1A1E1E;border-color:transparent;font-weight:600}
+  .toolbar-btn.primary:hover{background:var(--color-accent-hover)}
+  .toolbar-btn.secondary{background:var(--color-secondary);color:#fff;border-color:transparent}
+
+  .content{flex:1;overflow-y:auto;padding:var(--space-2xl);display:flex;flex-direction:column;gap:var(--space-2xl)}
+
+  .segmented-control{display:inline-flex;background:rgba(60,200,224,0.10);border-radius:var(--radius-sm);padding:2px;gap:1px}
+  .segmented-option{padding:4px 14px;border-radius:5px;font-size:var(--font-size-sm);font-weight:500;color:var(--color-text-secondary);cursor:pointer;transition:all 0.2s;user-select:none}
+  .segmented-option.active{background:var(--color-surface);color:var(--color-accent);box-shadow:0 1px 4px rgba(0,0,0,0.3);font-weight:600}
+  .segmented-option:not(.active):hover{color:var(--color-text-primary)}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-lg)}
+  .stat-card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-xl);display:flex;flex-direction:column;gap:var(--space-sm)}
+  .stat-card-header{display:flex;align-items:center;justify-content:space-between}
+  .stat-label{font-size:var(--font-size-sm);color:var(--color-text-secondary);font-weight:500}
+  .stat-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .stat-icon.teal{background:rgba(60,200,224,0.15);color:var(--color-accent)}
+  .stat-icon.green{background:rgba(48,209,88,0.15);color:var(--color-success)}
+  .stat-icon.orange{background:rgba(255,159,10,0.15);color:var(--color-orange)}
+  .stat-icon.indigo{background:rgba(125,122,255,0.15);color:var(--color-indigo)}
+  .stat-value{font-size:var(--font-size-3xl);font-weight:700;letter-spacing:-1px;line-height:1}
+  .stat-change{font-size:var(--font-size-xs);font-weight:500;display:flex;align-items:center;gap:3px}
+  .stat-change.up{color:var(--color-success)}.stat-change.down{color:var(--color-destructive)}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2xl)}
+
+  .card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden}
+  .card-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-lg) var(--space-xl);border-bottom:0.5px solid var(--color-separator)}
+  .card-title{font-size:var(--font-size-md);font-weight:600;letter-spacing:-0.2px}
+  .card-action{font-size:var(--font-size-sm);color:var(--color-accent);cursor:pointer;font-weight:500;text-decoration:none}
+  .card-action:hover{text-decoration:underline}
+  .card-body{padding:var(--space-lg) var(--space-xl)}
+
+  .pipeline-stages{display:flex;gap:var(--space-md);padding:var(--space-lg) var(--space-xl);overflow-x:auto}
+  .pipeline-stage{flex:1;min-width:140px}
+  .pipeline-stage-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);padding-bottom:var(--space-sm)}
+  .pipeline-stage-name{font-size:var(--font-size-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-secondary)}
+  .pipeline-stage-count{font-size:var(--font-size-xs);background:rgba(60,200,224,0.10);padding:1px 6px;border-radius:8px;color:var(--color-text-secondary);font-weight:500}
+  .pipeline-bar{height:4px;border-radius:2px;margin-bottom:var(--space-md)}
+  .pipeline-bar.intake{background:#5AC8FA}.pipeline-bar.evidence{background:var(--color-accent)}.pipeline-bar.hearing{background:#2899AD}.pipeline-bar.decision{background:var(--color-indigo)}.pipeline-bar.appeals{background:var(--color-success)}
+  .pipeline-case{background:rgba(255,255,255,0.04);border-radius:var(--radius-sm);padding:var(--space-sm) var(--space-md);margin-bottom:var(--space-sm);font-size:var(--font-size-sm);cursor:pointer;transition:background 0.15s}
+  .pipeline-case:hover{background:rgba(60,200,224,0.08)}
+  .pipeline-case-name{font-weight:500;margin-bottom:2px}.pipeline-case-type{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+
+  .task-item{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-md) 0;border-bottom:0.5px solid var(--color-separator)}.task-item:last-child{border-bottom:none}
+  .task-checkbox{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--color-text-tertiary);flex-shrink:0;cursor:pointer;transition:all 0.15s}
+  .task-checkbox:hover{border-color:var(--color-accent)}
+  .task-checkbox.done{background:var(--color-accent);border-color:var(--color-accent);position:relative}
+  .task-checkbox.done::after{content:"\2713";color:#1A1E1E;font-size:10px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+  .task-info{flex:1}.task-name{font-size:var(--font-size-base);font-weight:500}.task-name.done{text-decoration:line-through;color:var(--color-text-tertiary)}
+  .task-meta{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+  .task-due{font-size:var(--font-size-xs);padding:2px 8px;border-radius:4px;font-weight:500}
+  .task-due.overdue{background:rgba(255,69,58,0.15);color:var(--color-destructive)}
+  .task-due.today{background:rgba(255,214,10,0.12);color:var(--color-warning)}
+  .task-due.upcoming{background:rgba(60,200,224,0.12);color:var(--color-accent)}
+
+  .activity-item{display:flex;gap:var(--space-md);padding:var(--space-md) 0;position:relative}
+  .activity-item:not(:last-child)::before{content:"";position:absolute;left:13px;top:36px;bottom:-4px;width:1.5px;background:var(--color-separator)}
+  .activity-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;position:relative;z-index:1}
+  .activity-dot.teal{background:rgba(60,200,224,0.15);color:var(--color-accent)}
+  .activity-dot.green{background:rgba(48,209,88,0.15);color:var(--color-success)}
+  .activity-dot.orange{background:rgba(255,159,10,0.15);color:var(--color-orange)}
+  .activity-dot.indigo{background:rgba(125,122,255,0.15);color:var(--color-indigo)}
+  .activity-text{font-size:var(--font-size-sm);color:var(--color-text-primary);line-height:1.5}.activity-text strong{font-weight:600}
+  .activity-time{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+
+  .design-tokens{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-2xl)}
+  .design-tokens h2{font-size:var(--font-size-xl);font-weight:700;margin-bottom:var(--space-xl);letter-spacing:-0.3px}
+  .token-group{margin-bottom:var(--space-2xl)}.token-group:last-child{margin-bottom:0}
+  .token-group-title{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:var(--space-md)}
+  .token-row{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;font-size:var(--font-size-sm)}
+  .token-swatch{width:24px;height:24px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.12);flex-shrink:0}
+  .token-name{font-weight:500;width:200px}
+  .token-value{font-family:"SF Mono",SFMono-Regular,Menlo,monospace;color:var(--color-text-secondary);font-size:var(--font-size-xs)}
+  .component-preview{display:flex;flex-wrap:wrap;gap:var(--space-md);padding:var(--space-md) 0;align-items:center}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="sidebar-brand-icon">F</div><div class="sidebar-brand-name">Favorble</div></div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item active" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Claimants</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="sidebar-avatar">JK</div><div><div class="sidebar-user-name">Jake Klinvex</div><div class="sidebar-user-role">Admin</div></div></div>
+  </nav>
+
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Dashboard</h1>
+      <div class="segmented-control"><div class="segmented-option active">Today</div><div class="segmented-option">Week</div><div class="segmented-option">Month</div></div>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search"><span>&#128269;</span><input type="text" placeholder="Search claims..."></div>
+      <button class="toolbar-btn primary">+ New Claim</button>
+    </header>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-header"><span class="stat-label">Active Claims</span><div class="stat-icon teal">&#128203;</div></div><div class="stat-value">187</div><div class="stat-change up">&#9650; 12% from last month</div></div>
+        <div class="stat-card"><div class="stat-card-header"><span class="stat-label">Pending Hearings</span><div class="stat-icon orange">&#9888;</div></div><div class="stat-value">23</div><div class="stat-change down">&#9660; 5 within 30 days</div></div>
+        <div class="stat-card"><div class="stat-card-header"><span class="stat-label">Approved This Month</span><div class="stat-icon green">&#10003;</div></div><div class="stat-value">14</div><div class="stat-change up">&#9650; 18% approval rate</div></div>
+        <div class="stat-card"><div class="stat-card-header"><span class="stat-label">Past-Due Benefits</span><div class="stat-icon indigo">&#36;</div></div><div class="stat-value">$1.8M</div><div class="stat-change up">&#9650; $210K awarded this week</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Claim Pipeline</span><a class="card-action" href="cases-list.html">View All</a></div>
+        <div class="pipeline-stages">
+          <div class="pipeline-stage"><div class="pipeline-stage-header"><span class="pipeline-stage-name">Initial App</span><span class="pipeline-stage-count">14</span></div><div class="pipeline-bar intake"></div><div class="pipeline-case"><div class="pipeline-case-name">Thompson, Maria</div><div class="pipeline-case-type">SSDI &mdash; Lumbar Radiculopathy</div></div><div class="pipeline-case"><div class="pipeline-case-name">Davis, Robert</div><div class="pipeline-case-type">SSI &mdash; Bipolar I Disorder</div></div></div>
+          <div class="pipeline-stage"><div class="pipeline-stage-header"><span class="pipeline-stage-name">Reconsideration</span><span class="pipeline-stage-count">19</span></div><div class="pipeline-bar evidence"></div><div class="pipeline-case"><div class="pipeline-case-name">Johnson, Patricia</div><div class="pipeline-case-type">SSDI &mdash; Chronic Heart Failure</div></div><div class="pipeline-case"><div class="pipeline-case-name">Garcia, Luis</div><div class="pipeline-case-type">SSI &mdash; Schizoaffective Disorder</div></div></div>
+          <div class="pipeline-stage"><div class="pipeline-stage-header"><span class="pipeline-stage-name">ALJ Hearing</span><span class="pipeline-stage-count">23</span></div><div class="pipeline-bar hearing"></div><div class="pipeline-case"><div class="pipeline-case-name">Williams, Sandra</div><div class="pipeline-case-type">SSDI &mdash; Fibromyalgia / CFS</div></div><div class="pipeline-case"><div class="pipeline-case-name">Brown, James</div><div class="pipeline-case-type">SSI &mdash; PTSD / TBI</div></div></div>
+          <div class="pipeline-stage"><div class="pipeline-stage-header"><span class="pipeline-stage-name">Appeals Council</span><span class="pipeline-stage-count">8</span></div><div class="pipeline-bar decision"></div><div class="pipeline-case"><div class="pipeline-case-name">Martinez, Ana</div><div class="pipeline-case-type">SSDI &mdash; Multiple Sclerosis</div></div></div>
+          <div class="pipeline-stage"><div class="pipeline-stage-header"><span class="pipeline-stage-name">Federal Court</span><span class="pipeline-stage-count">3</span></div><div class="pipeline-bar appeals"></div><div class="pipeline-case"><div class="pipeline-case-name">Wilson, Thomas</div><div class="pipeline-case-type">SSDI &mdash; Degenerative Disc Disease</div></div></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Upcoming Tasks</span><div class="segmented-control"><div class="segmented-option active">Mine</div><div class="segmented-option">Team</div></div></div>
+          <div class="card-body">
+            <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-name">Submit RFC form to SSA &mdash; Williams, Sandra</div><div class="task-meta">ALJ Hearing Prep &bull; Assigned to you</div></div><span class="task-due overdue">Overdue</span></div>
+            <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-name">Order updated MRI records &mdash; Brown, James</div><div class="task-meta">Medical Evidence &bull; Assigned to you</div></div><span class="task-due today">Today</span></div>
+            <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-name">Prep claimant for ALJ hearing &mdash; Johnson, Patricia</div><div class="task-meta">Hearing Prep &bull; Assigned to Sarah M.</div></div><span class="task-due upcoming">Apr 2</span></div>
+            <div class="task-item"><div class="task-checkbox done"></div><div class="task-info"><div class="task-name done">File Reconsideration appeal &mdash; Garcia, Luis</div><div class="task-meta">Completed yesterday</div></div></div>
+            <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-name">Request treating physician letter &mdash; Martinez, Ana</div><div class="task-meta">Appeals Council &bull; Assigned to you</div></div><span class="task-due upcoming">Apr 5</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Activity</span><a class="card-action">View All</a></div>
+          <div class="card-body">
+            <div class="activity-item"><div class="activity-dot teal">&#128196;</div><div><div class="activity-text"><strong>Sarah Mitchell</strong> uploaded medical records for Williams, Sandra</div><div class="activity-time">12 minutes ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot green">&#10003;</div><div><div class="activity-text"><strong>You</strong> completed RFC assessment for Thompson, Maria</div><div class="activity-time">1 hour ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot orange">&#9888;</div><div><div class="activity-text"><strong>System</strong> ALJ hearing date approaching for Brown, James (Apr 10)</div><div class="activity-time">2 hours ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot indigo">&#128172;</div><div><div class="activity-text"><strong>David Chen</strong> added vocational expert notes for Johnson, Patricia</div><div class="activity-time">3 hours ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot teal">&#128197;</div><div><div class="activity-text"><strong>You</strong> scheduled consultative exam for Davis, Robert &mdash; Apr 8</div><div class="activity-time">Yesterday</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-tokens">
+        <h2>Design Tokens &mdash; Apple HIG v3 (Teal Dark)</h2>
+        <div class="token-group"><div class="token-group-title">Colors (Dark Mode)</div>
+          <div class="token-row"><div class="token-swatch" style="background:#1A1E1E"></div><div class="token-name">Background</div><div class="token-value">#1A1E1E (cool dark, teal undertone)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#2A2E2E"></div><div class="token-name">Surface / Cards</div><div class="token-value">#2A2E2E (cooler than v1)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#F5F5F7"></div><div class="token-name">Text Primary</div><div class="token-value">#F5F5F7</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#98A2A2"></div><div class="token-name">Text Secondary</div><div class="token-value">#98A2A2</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#3CC8E0"></div><div class="token-name">Accent (Teal, vibrant)</div><div class="token-value">#3CC8E0</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#7D7AFF"></div><div class="token-name">Secondary (Indigo, vibrant)</div><div class="token-value">#7D7AFF</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#FF453A"></div><div class="token-name">Destructive</div><div class="token-value">#FF453A (Apple dark red)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#30D158"></div><div class="token-name">Success</div><div class="token-value">#30D158 (Apple dark green)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#FFD60A"></div><div class="token-name">Warning</div><div class="token-value">#FFD60A (Apple dark yellow)</div></div>
+        </div>
+        <div class="token-group"><div class="token-group-title">Typography</div>
+          <div class="token-row"><div class="token-name">Font</div><div class="token-value">-apple-system | 13px base | -0.01em tracking</div></div>
+        </div>
+        <div class="token-group"><div class="token-group-title">Shadows (Dark Mode)</div>
+          <div class="token-row"><div class="token-name">Card</div><div class="token-value">0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2)</div></div>
+          <div class="token-row"><div class="token-name">Separator</div><div class="token-value">rgba(255,255,255,0.08)</div></div>
+        </div>
+        <div class="token-group"><div class="token-group-title">Component Variants</div>
+          <div class="component-preview">
+            <button class="toolbar-btn primary">Primary (Teal)</button>
+            <button class="toolbar-btn secondary">Secondary (Indigo)</button>
+            <button class="toolbar-btn">Default</button>
+          </div>
+          <div class="component-preview">
+            <div class="segmented-control"><div class="segmented-option active">Active</div><div class="segmented-option">Inactive</div></div>
+          </div>
+          <div class="component-preview">
+            <span class="task-due overdue">Overdue</span>
+            <span class="task-due today">Today</span>
+            <span class="task-due upcoming">Upcoming</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

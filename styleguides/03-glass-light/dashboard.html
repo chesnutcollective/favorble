@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard (Light Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ========== RESET ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ========== DESIGN TOKENS ========== */
+  :root {
+    /* Background */
+    --bg-deep: #EEE5FF;
+    --bg-purple: #E0F7FF;
+    --bg-mesh-1: #EEE5FF;
+    --bg-mesh-2: #E0F7FF;
+    --bg-mesh-3: #F0EAFF;
+
+    /* Glass surfaces */
+    --glass-bg: rgba(255,255,255,0.60);
+    --glass-bg-hover: rgba(255,255,255,0.75);
+    --glass-bg-active: rgba(255,255,255,0.85);
+    --glass-border: rgba(255,255,255,0.80);
+    --glass-border-hover: rgba(255,255,255,0.95);
+    --glass-blur: blur(20px);
+    --glass-blur-heavy: blur(40px);
+
+    /* Text */
+    --text-primary: #1E1B4B;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --text-inverse: #FFFFFF;
+
+    /* Accent */
+    --accent-cyan: #0891B2;
+    --accent-magenta: #DB2777;
+    --accent-gradient: linear-gradient(135deg, #0891B2, #DB2777);
+    --accent-cyan-glow: rgba(8,145,178,0.20);
+    --accent-magenta-glow: rgba(219,39,119,0.20);
+
+    /* Status */
+    --status-success: #059669;
+    --status-warning: #D97706;
+    --status-danger: #DC2626;
+    --status-info: #2563EB;
+
+    /* Shadows */
+    --shadow-glass: 0 8px 32px rgba(100,100,200,0.10);
+    --shadow-glow-cyan: 0 0 20px rgba(8,145,178,0.15);
+    --shadow-glow-magenta: 0 0 20px rgba(219,39,119,0.15);
+    --shadow-elevated: 0 16px 48px rgba(100,100,200,0.15);
+
+    /* Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-pill: 9999px;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    --font-size-3xl: 40px;
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+
+    /* Sidebar */
+    --sidebar-width: 260px;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+  }
+
+  /* ========== BASE ========== */
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    line-height: var(--line-height-normal);
+    min-height: 100vh;
+    background: var(--bg-deep);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(219,39,119,0.06) 0%, transparent 60%),
+      linear-gradient(160deg, var(--bg-mesh-1) 0%, var(--bg-mesh-2) 50%, var(--bg-mesh-3) 100%);
+    background-attachment: fixed;
+  }
+
+  /* ========== LAYOUT ========== */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ========== SIDEBAR ========== */
+  .sidebar {
+    width: var(--sidebar-width);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    background: rgba(255,255,255,0.50);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: var(--space-lg) 0;
+  }
+  .sidebar-brand {
+    padding: 0 var(--space-lg);
+    margin-bottom: var(--space-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .sidebar-brand-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--accent-gradient);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: var(--font-weight-extrabold);
+    font-size: var(--font-size-lg);
+    color: white;
+    box-shadow: var(--shadow-glow-cyan);
+  }
+  .sidebar-brand-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .sidebar-section { margin-bottom: var(--space-lg); }
+  .sidebar-section-title {
+    padding: 0 var(--space-lg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-sm);
+  }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item a {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: 10px var(--space-lg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+  }
+  .sidebar-nav-item a:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.50);
+  }
+  .sidebar-nav-item.active a {
+    color: var(--accent-cyan);
+    background: rgba(8,145,178,0.10);
+    border-left-color: var(--accent-cyan);
+  }
+  .sidebar-nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--accent-gradient);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--glass-border);
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+  .sidebar-avatar {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-gradient);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+  }
+  .sidebar-user-name { font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* ========== MAIN ========== */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: var(--space-xl);
+    max-width: 1400px;
+  }
+
+  /* ========== PAGE HEADER ========== */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+  }
+  .page-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+  }
+  .page-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    margin-top: var(--space-xs);
+  }
+
+  /* ========== GLASS CARD ========== */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    padding: var(--space-lg);
+    transition: all var(--transition-base);
+  }
+  .glass-card:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+  }
+
+  /* ========== BUTTONS ========== */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--space-sm);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-glow-cyan);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(8,145,178,0.25);
+    transform: translateY(-1px);
+  }
+  .btn-glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+  }
+  .btn-glass:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+  }
+  .btn-sm { padding: 6px 14px; font-size: var(--font-size-sm); }
+  .btn-icon {
+    width: 36px; height: 36px;
+    padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .btn-icon:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+
+  /* ========== STAT CARDS ========== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+  .stat-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-card:hover {
+    background: var(--glass-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+  }
+  .stat-card.glow-cyan { box-shadow: var(--shadow-glass), var(--shadow-glow-cyan); }
+  .stat-card.glow-magenta { box-shadow: var(--shadow-glass), var(--shadow-glow-magenta); }
+  .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-sm);
+  }
+  .stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+  }
+  .stat-change {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--space-sm);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+  }
+  .stat-change.up { background: rgba(5,150,105,0.12); color: var(--status-success); }
+  .stat-change.down { background: rgba(220,38,38,0.10); color: var(--status-danger); }
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: var(--space-md);
+  }
+  .stat-icon.cyan { background: rgba(8,145,178,0.12); color: var(--accent-cyan); }
+  .stat-icon.magenta { background: rgba(219,39,119,0.10); color: var(--accent-magenta); }
+  .stat-icon.success { background: rgba(5,150,105,0.12); color: var(--status-success); }
+  .stat-icon.warning { background: rgba(217,119,6,0.12); color: var(--status-warning); }
+
+  /* ========== CONTENT GRID ========== */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  /* ========== CARD HEADERS ========== */
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+  .card-title {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* ========== PIPELINE ========== */
+  .pipeline {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+  .pipeline-stage {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-md);
+    background: rgba(100,100,200,0.04);
+    border: 1px solid rgba(100,100,200,0.10);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+  .pipeline-stage:hover {
+    background: rgba(100,100,200,0.06);
+    border-color: var(--glass-border);
+  }
+  .pipeline-stage-count {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .pipeline-stage-name {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .pipeline-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(100,100,200,0.08);
+    margin-top: var(--space-sm);
+    overflow: hidden;
+  }
+  .pipeline-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent-gradient);
+  }
+
+  /* ========== TASK LIST ========== */
+  .task-list { list-style: none; }
+  .task-item {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid rgba(100,100,200,0.10);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-checkbox {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid rgba(100,100,200,0.25);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+  }
+  .task-checkbox:hover { border-color: var(--accent-cyan); }
+  .task-checkbox.checked {
+    background: var(--accent-gradient);
+    border-color: transparent;
+  }
+  .task-checkbox.checked::after { content: '✓'; font-size: 12px; color: white; }
+  .task-content { flex: 1; min-width: 0; }
+  .task-title { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); }
+  .task-title.completed { text-decoration: line-through; color: var(--text-tertiary); }
+  .task-meta {
+    display: flex; gap: var(--space-sm); align-items: center;
+    margin-top: 4px;
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+  }
+  .task-due {
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+  }
+  .task-due.overdue { background: rgba(220,38,38,0.10); color: var(--status-danger); }
+  .task-due.soon { background: rgba(217,119,6,0.12); color: var(--status-warning); }
+  .task-due.normal { background: rgba(100,100,200,0.06); color: var(--text-secondary); }
+
+  /* ========== ACTIVITY FEED ========== */
+  .activity-feed { list-style: none; }
+  .activity-item {
+    display: flex; gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid rgba(100,100,200,0.10);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .activity-dot.cyan { background: var(--accent-cyan); box-shadow: 0 0 8px rgba(8,145,178,0.30); }
+  .activity-dot.magenta { background: var(--accent-magenta); box-shadow: 0 0 8px rgba(219,39,119,0.30); }
+  .activity-dot.success { background: var(--status-success); box-shadow: 0 0 8px rgba(5,150,105,0.30); }
+  .activity-dot.warning { background: var(--status-warning); box-shadow: 0 0 8px rgba(217,119,6,0.30); }
+  .activity-text { font-size: var(--font-size-sm); color: var(--text-secondary); }
+  .activity-text strong { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  .activity-time { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
+
+  /* ========== BADGE ========== */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100,100,200,0.08);
+  }
+  .badge-cyan { background: rgba(8,145,178,0.12); color: var(--accent-cyan); border-color: rgba(8,145,178,0.18); }
+  .badge-magenta { background: rgba(219,39,119,0.10); color: var(--accent-magenta); border-color: rgba(219,39,119,0.15); }
+  .badge-success { background: rgba(5,150,105,0.12); color: var(--status-success); border-color: rgba(5,150,105,0.18); }
+  .badge-warning { background: rgba(217,119,6,0.12); color: var(--status-warning); border-color: rgba(217,119,6,0.18); }
+  .badge-danger { background: rgba(220,38,38,0.10); color: var(--status-danger); border-color: rgba(220,38,38,0.15); }
+
+  /* ========== BOTTOM SECTION ========== */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  /* ========== QUICK ACTIONS ========== */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+  .quick-action {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: var(--space-md);
+    background: rgba(100,100,200,0.04);
+    border: 1px solid rgba(100,100,200,0.10);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+  .quick-action:hover {
+    background: rgba(100,100,200,0.06);
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+  }
+  .quick-action-icon { font-size: 18px; }
+
+  /* ========== HEADER BAR ========== */
+  .header-actions { display: flex; gap: var(--space-sm); align-items: center; }
+  .search-input {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 8px 16px 8px 36px;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    outline: none;
+    width: 240px;
+    transition: all var(--transition-fast);
+  }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.08);
+  }
+  .search-wrapper { position: relative; }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-tertiary); font-size: 14px;
+  }
+
+  /* ========== DESIGN TOKENS SECTION ========== */
+  .tokens-section {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--glass-border);
+  }
+  .tokens-section h2 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-lg);
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .tokens-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+  .token-group h3 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-md);
+  }
+  .token-row {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    font-size: var(--font-size-sm);
+  }
+  .token-swatch {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    border: 1px solid rgba(100,100,200,0.15);
+    flex-shrink: 0;
+  }
+  .token-name { color: var(--text-secondary); flex: 1; }
+  .token-value { font-family: 'SF Mono', monospace; font-size: var(--font-size-xs); color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Main</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item active">
+          <a href="dashboard.html"><span class="sidebar-nav-icon">&#9638;</span> Dashboard</a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="cases-list.html"><span class="sidebar-nav-icon">&#128194;</span> Cases <span class="sidebar-badge">142</span></a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="case-detail.html"><span class="sidebar-nav-icon">&#128196;</span> Case Detail</a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="chronology.html"><span class="sidebar-nav-icon">&#128338;</span> Chronology</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Administration</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="admin-integrations.html"><span class="sidebar-nav-icon">&#9881;</span> Integrations</a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#"><span class="sidebar-nav-icon">&#128101;</span> Team</a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#"><span class="sidebar-nav-icon">&#128202;</span> Reports</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">MJ</div>
+        <div>
+          <div class="sidebar-user-name">Maria Johnson</div>
+          <div class="sidebar-user-role">Case Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Friday, March 28, 2026 &mdash; Welcome back, Maria</p>
+      </div>
+      <div class="header-actions">
+        <div class="search-wrapper">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" class="search-input" placeholder="Search cases, tasks...">
+        </div>
+        <button class="btn-icon" title="Notifications">&#128276;</button>
+        <button class="btn btn-primary btn-sm">+ New Case</button>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="stat-card glow-cyan">
+        <div class="stat-icon cyan">&#128194;</div>
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value">142</div>
+        <span class="stat-change up">&#8593; 12 this month</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon magenta">&#128338;</div>
+        <div class="stat-label">Pending Hearings</div>
+        <div class="stat-value">23</div>
+        <span class="stat-change up">&#8593; 3 this week</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon success">&#9989;</div>
+        <div class="stat-label">Cases Won (YTD)</div>
+        <div class="stat-value">67</div>
+        <span class="stat-change up">&#8593; 78% win rate</span>
+      </div>
+      <div class="stat-card glow-magenta">
+        <div class="stat-icon warning">&#9888;</div>
+        <div class="stat-label">Overdue Tasks</div>
+        <div class="stat-value">8</div>
+        <span class="stat-change down">&#8595; Needs attention</span>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="glass-card" style="margin-bottom: var(--space-xl);">
+      <div class="card-header">
+        <h2 class="card-title">Case Pipeline</h2>
+        <button class="btn btn-glass btn-sm">View All</button>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">18</div>
+          <div class="pipeline-stage-name">Application Filed</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:60%"></div></div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">31</div>
+          <div class="pipeline-stage-name">Initial Review</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:85%"></div></div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">27</div>
+          <div class="pipeline-stage-name">Reconsideration</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:70%"></div></div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">42</div>
+          <div class="pipeline-stage-name">Hearing Requested</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:95%"></div></div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">15</div>
+          <div class="pipeline-stage-name">Hearing Scheduled</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:45%"></div></div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-count">9</div>
+          <div class="pipeline-stage-name">Appeals Council</div>
+          <div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:30%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid: Tasks + Activity -->
+    <div class="content-grid">
+
+      <!-- Tasks -->
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">My Tasks</h2>
+          <div style="display:flex;gap:8px;">
+            <span class="badge badge-danger">3 overdue</span>
+            <button class="btn btn-glass btn-sm">View All</button>
+          </div>
+        </div>
+        <ul class="task-list">
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Request medical records from Dr. Patel</div>
+              <div class="task-meta">
+                <span>Johnson v. SSA</span>
+                <span class="task-due overdue">Due Mar 25</span>
+              </div>
+            </div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Prepare pre-hearing brief</div>
+              <div class="task-meta">
+                <span>Williams v. SSA</span>
+                <span class="task-due overdue">Due Mar 26</span>
+              </div>
+            </div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">File reconsideration appeal</div>
+              <div class="task-meta">
+                <span>Garcia v. SSA</span>
+                <span class="task-due soon">Due Mar 30</span>
+              </div>
+            </div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Review vocational expert report</div>
+              <div class="task-meta">
+                <span>Thompson v. SSA</span>
+                <span class="task-due normal">Due Apr 4</span>
+              </div>
+            </div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox checked"></div>
+            <div class="task-content">
+              <div class="task-title completed">Submit RFC form for Davis case</div>
+              <div class="task-meta">
+                <span>Davis v. SSA</span>
+                <span class="task-due normal">Completed</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Recent Activity</h2>
+          <button class="btn btn-glass btn-sm">All Activity</button>
+        </div>
+        <ul class="activity-feed">
+          <li class="activity-item">
+            <div class="activity-dot success"></div>
+            <div>
+              <div class="activity-text"><strong>Favorable Decision</strong> received for Martinez v. SSA</div>
+              <div class="activity-time">15 minutes ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot cyan"></div>
+            <div>
+              <div class="activity-text"><strong>Hearing scheduled</strong> for Williams v. SSA on April 12</div>
+              <div class="activity-time">1 hour ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot magenta"></div>
+            <div>
+              <div class="activity-text"><strong>New medical records</strong> uploaded for Thompson v. SSA</div>
+              <div class="activity-time">2 hours ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot warning"></div>
+            <div>
+              <div class="activity-text"><strong>Deadline approaching</strong> for Garcia v. SSA reconsideration</div>
+              <div class="activity-time">3 hours ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot cyan"></div>
+            <div>
+              <div class="activity-text"><strong>Client call completed</strong> with Robert Chen</div>
+              <div class="activity-time">4 hours ago</div>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot success"></div>
+            <div>
+              <div class="activity-text"><strong>RFC form submitted</strong> for Davis v. SSA</div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-grid">
+
+      <!-- Upcoming Hearings -->
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Upcoming Hearings</h2>
+          <button class="btn btn-glass btn-sm">Calendar</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:16px;padding:12px;background:rgba(100,100,200,0.04);border-radius:12px;">
+            <div style="text-align:center;min-width:50px;">
+              <div style="font-size:24px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">02</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">APR</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;">Williams v. SSA</div>
+              <div style="font-size:12px;color:var(--text-secondary);">ALJ Davidson &middot; Video Hearing &middot; 10:00 AM</div>
+            </div>
+            <span class="badge badge-cyan">5 days</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:12px;background:rgba(100,100,200,0.04);border-radius:12px;">
+            <div style="text-align:center;min-width:50px;">
+              <div style="font-size:24px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">12</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">APR</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;">Thompson v. SSA</div>
+              <div style="font-size:12px;color:var(--text-secondary);">ALJ Ramirez &middot; In-Person &middot; 2:00 PM</div>
+            </div>
+            <span class="badge badge-cyan">15 days</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:12px;background:rgba(100,100,200,0.04);border-radius:12px;">
+            <div style="text-align:center;min-width:50px;">
+              <div style="font-size:24px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">21</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">APR</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;">Chen v. SSA</div>
+              <div style="font-size:12px;color:var(--text-secondary);">ALJ Barnes &middot; Telephone &middot; 11:30 AM</div>
+            </div>
+            <span class="badge badge-magenta">24 days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Quick Actions</h2>
+        </div>
+        <div class="quick-actions">
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128221;</span> New Case Intake
+          </div>
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128197;</span> Schedule Hearing
+          </div>
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128196;</span> Generate Brief
+          </div>
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128231;</span> Send Client Letter
+          </div>
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128200;</span> Run Report
+          </div>
+          <div class="quick-action">
+            <span class="quick-action-icon">&#128269;</span> Medical Search
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DESIGN TOKENS ===== -->
+    <div class="tokens-section">
+      <h2>Design Tokens &mdash; Glassmorphism</h2>
+      <div class="tokens-grid">
+        <div class="token-group">
+          <h3>Background &amp; Surface</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#EEE5FF;"></div>
+            <span class="token-name">bg-deep</span>
+            <span class="token-value">#EEE5FF</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#E0F7FF;"></div>
+            <span class="token-name">bg-purple</span>
+            <span class="token-value">#E0F7FF</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.60);border:1px solid rgba(100,100,200,0.15);"></div>
+            <span class="token-name">glass-bg</span>
+            <span class="token-value">rgba(255,255,255,0.60)</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.75);border:1px solid rgba(100,100,200,0.15);"></div>
+            <span class="token-name">glass-bg-hover</span>
+            <span class="token-value">rgba(255,255,255,0.80)</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.80);border:1px solid rgba(100,100,200,0.15);"></div>
+            <span class="token-name">glass-border</span>
+            <span class="token-value">rgba(255,255,255,0.80)</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <h3>Accent &amp; Status</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#0891B2;"></div>
+            <span class="token-name">accent-cyan</span>
+            <span class="token-value">#0891B2</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#DB2777;"></div>
+            <span class="token-name">accent-magenta</span>
+            <span class="token-value">#DB2777</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:linear-gradient(135deg,#06B6D4,#EC4899);"></div>
+            <span class="token-name">accent-gradient</span>
+            <span class="token-value">135deg, cyan&rarr;magenta</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#059669;"></div>
+            <span class="token-name">status-success</span>
+            <span class="token-value">#059669</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#D97706;"></div>
+            <span class="token-name">status-warning</span>
+            <span class="token-value">#D97706</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#DC2626;"></div>
+            <span class="token-name">status-danger</span>
+            <span class="token-value">#DC2626</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#2563EB;"></div>
+            <span class="token-name">status-info</span>
+            <span class="token-value">#2563EB</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <h3>Typography &amp; Spacing</h3>
+          <div class="token-row">
+            <span class="token-name">font-family</span>
+            <span class="token-value">Inter, system</span>
+          </div>
+          <div class="token-row">
+            <span class="token-name">font-size-base</span>
+            <span class="token-value">14px</span>
+          </div>
+          <div class="token-row">
+            <span class="token-name">radius-md / lg</span>
+            <span class="token-value">12px / 16px</span>
+          </div>
+          <div class="token-row">
+            <span class="token-name">blur</span>
+            <span class="token-value">blur(20px)</span>
+          </div>
+          <div class="token-row">
+            <span class="token-name">shadow-glass</span>
+            <span class="token-value">0 8px 32px rgba(100,100,200,0.10)</span>
+          </div>
+          <div class="token-row">
+            <span class="token-name">shadow-elevated</span>
+            <span class="token-value">0 16px 48px rgba(100,100,200,0.12)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

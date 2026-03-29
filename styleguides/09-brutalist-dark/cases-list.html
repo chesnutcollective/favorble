@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Cases List (Neo-Brutalist Dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #111111;
+    --card-bg:      #1A1A1A;
+    --sidebar-bg:   #0A0A0A;
+    --text-primary:   #F0F0F0;
+    --text-secondary: #999999;
+    --text-inverse:   #F0F0F0;
+    --orange:  #FF6B00;
+    --purple:  #5B21B6;
+    --yellow:  #FFD700;
+    --green:   #00CC88;
+    --pink:    #FF3366;
+    --blue:    #3B82F6;
+    --border:        2px solid #444;
+    --shadow:        4px 4px 0 rgba(255,255,255,0.15);
+    --shadow-sm:     3px 3px 0 rgba(255,255,255,0.1);
+    --radius-none: 0px;
+    --radius-pill: 999px;
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    color: var(--text-inverse);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: var(--space-2xl);
+    letter-spacing: -1px;
+  }
+  .sidebar-logo span { color: var(--orange); }
+  .sidebar nav { flex: 1; }
+  .sidebar nav a {
+    display: flex; align-items: center; gap: var(--space-sm);
+    color: #777; text-decoration: none;
+    padding: 10px 14px; font-size: 15px; font-weight: 500;
+    border: 2px solid transparent; margin-bottom: 4px;
+    transition: all 0.1s;
+  }
+  .sidebar nav a:hover { color: #F0F0F0; background: rgba(255,255,255,0.06); }
+  .sidebar nav a.active {
+    color: #F0F0F0; background: var(--orange);
+    border: 2px solid var(--orange); font-weight: 700;
+  }
+  .sidebar nav a .icon { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-section-label {
+    font-family: var(--font-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: #777; margin: var(--space-lg) 0 var(--space-sm) var(--space-md);
+  }
+  .sidebar-user {
+    border-top: 1px solid #333;
+    padding-top: var(--space-md);
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+  .sidebar-user-avatar {
+    width: 36px; height: 36px; background: var(--purple);
+    border: 2px solid #444;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .sidebar-user-info { font-size: 13px; }
+  .sidebar-user-info .name { font-weight: 600; }
+  .sidebar-user-info .role { color: #777; font-size: 11px; }
+
+  /* Main */
+  .main {
+    flex: 1; margin-left: 260px;
+    padding: var(--space-xl) var(--space-2xl);
+    max-width: 1200px;
+  }
+
+  /* Page Header */
+  .page-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: var(--space-xl);
+  }
+  .page-header h1 {
+    font-family: var(--font-heading); font-size: 32px;
+    font-weight: 700; letter-spacing: -1px;
+  }
+  .page-header .subtitle {
+    color: var(--text-secondary); font-size: 15px; margin-top: 2px;
+  }
+
+  /* Buttons */
+  .btn {
+    font-family: var(--font-heading); font-size: 14px; font-weight: 600;
+    padding: 10px 20px; border: var(--border); cursor: pointer;
+    text-decoration: none; display: inline-flex;
+    align-items: center; gap: var(--space-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 rgba(255,255,255,0.2); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 transparent; }
+  .btn-primary { background: var(--orange); color: #F0F0F0; }
+  .btn-secondary { background: var(--card-bg); color: var(--text-primary); }
+  .btn-dark { background: #0A0A0A; color: #F0F0F0; }
+  .btn-sm { font-size: 12px; padding: 6px 14px; box-shadow: 2px 2px 0 rgba(255,255,255,0.1); }
+  .btn-pill { border-radius: var(--radius-pill); }
+
+  /* Badge */
+  .badge {
+    display: inline-block; font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border: var(--border);
+  }
+  .badge-orange { background: var(--orange); color: #F0F0F0; }
+  .badge-purple { background: var(--purple); color: #F0F0F0; }
+  .badge-green  { background: var(--green); }
+  .badge-pink   { background: var(--pink); color: #F0F0F0; }
+  .badge-yellow { background: var(--yellow); }
+  .badge-blue   { background: var(--blue); color: #F0F0F0; }
+
+  /* Card */
+  .card {
+    background: var(--card-bg); border: var(--border);
+    box-shadow: var(--shadow); padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Search & Filters Bar */
+  .filters-bar {
+    display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg);
+    flex-wrap: wrap; align-items: center;
+  }
+
+  .search-input {
+    font-family: var(--font-body); font-size: 14px;
+    padding: 10px 16px; border: var(--border);
+    background: var(--card-bg); color: var(--text-primary); box-shadow: var(--shadow-sm);
+    flex: 1; min-width: 240px;
+    outline: none;
+  }
+  .search-input:focus { box-shadow: 4px 4px 0 var(--orange); }
+  .search-input::placeholder { color: #777; }
+
+  .filter-select {
+    font-family: var(--font-heading); font-size: 13px; font-weight: 600;
+    padding: 10px 16px; border: var(--border);
+    background: var(--card-bg); color: var(--text-primary); box-shadow: var(--shadow-sm);
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F0F0F0' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 36px;
+  }
+  .filter-select:focus { box-shadow: 4px 4px 0 var(--orange); outline: none; }
+
+  /* Filter pills */
+  .filter-pills {
+    display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); flex-wrap: wrap;
+  }
+  .filter-pill {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border: var(--border); cursor: pointer;
+    background: var(--bg); transition: all 0.1s;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .filter-pill:hover { background: var(--yellow); }
+  .filter-pill.active { background: var(--orange); color: #F0F0F0; }
+  .filter-pill .close { margin-left: 6px; font-weight: 400; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex; gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+  }
+  .stats-bar-item {
+    font-family: var(--font-mono); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-secondary);
+  }
+  .stats-bar-item strong {
+    font-family: var(--font-heading); font-size: 20px;
+    display: block; color: var(--text-primary);
+    letter-spacing: -1px;
+  }
+
+  /* Table */
+  .cases-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px;
+  }
+  .cases-table th {
+    font-family: var(--font-mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    text-align: left; padding: 12px 14px;
+    border-bottom: 3px solid #444;
+    background: var(--bg); color: var(--text-secondary);
+    font-weight: 700; white-space: nowrap;
+    cursor: pointer; user-select: none;
+  }
+  .cases-table th:hover { color: var(--text-primary); }
+  .cases-table th .sort { font-size: 10px; margin-left: 4px; }
+
+  .cases-table td {
+    padding: 12px 14px;
+    border-bottom: 2px solid #333;
+    vertical-align: middle;
+  }
+
+  .cases-table tbody tr {
+    transition: background 0.1s;
+  }
+  .cases-table tbody tr:hover {
+    background: #252525;
+  }
+
+  .case-name-cell {
+    font-weight: 700;
+  }
+  .case-name-cell a {
+    color: var(--text-primary);
+    text-decoration: none;
+    border-bottom: 2px solid var(--orange);
+  }
+  .case-name-cell a:hover {
+    background: var(--yellow);
+  }
+  .case-name-cell .case-number {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .attorney-cell {
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+  .attorney-avatar {
+    width: 28px; height: 28px; border: 2px solid #444;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+
+  .value-cell {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .date-cell {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .stage-badge {
+    display: inline-block; font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 4px 12px; border: var(--border);
+  }
+  .stage-intake    { background: var(--yellow); }
+  .stage-review    { background: var(--orange); color: #F0F0F0; }
+  .stage-discovery { background: var(--purple); color: #F0F0F0; }
+  .stage-negotiate { background: var(--blue); color: #F0F0F0; }
+  .stage-closed    { background: var(--green); }
+  .stage-trial     { background: var(--pink); color: #F0F0F0; }
+
+  .priority-dot {
+    width: 12px; height: 12px; border: 2px solid #444; display: inline-block;
+  }
+  .priority-high   { background: var(--pink); }
+  .priority-medium { background: var(--orange); }
+  .priority-low    { background: var(--green); }
+
+  /* Pagination */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: var(--space-lg); font-size: 13px;
+  }
+  .pagination-info {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .pagination-buttons {
+    display: flex; gap: var(--space-xs);
+  }
+  .page-btn {
+    width: 36px; height: 36px; border: var(--border);
+    background: var(--card-bg); cursor: pointer;
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: 13px; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.1s;
+  }
+  .page-btn:hover { background: var(--yellow); }
+  .page-btn.active { background: var(--orange); color: #F0F0F0; }
+
+  /* Bulk actions */
+  .bulk-bar {
+    background: #0A0A0A; color: #F0F0F0;
+    padding: 10px var(--space-lg);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    border: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .bulk-bar-left {
+    display: flex; align-items: center; gap: var(--space-md);
+    font-family: var(--font-heading); font-weight: 600; font-size: 14px;
+  }
+  .bulk-bar-right {
+    display: flex; gap: var(--space-sm);
+  }
+  .bulk-btn {
+    font-family: var(--font-heading); font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border: 2px solid #444; background: transparent;
+    color: #F0F0F0; cursor: pointer; transition: all 0.1s;
+  }
+  .bulk-btn:hover { background: #1A1A1A; color: #F0F0F0; }
+
+  /* Checkbox */
+  .row-check {
+    width: 20px; height: 20px; border: var(--border);
+    background: var(--card-bg); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .row-check.checked { background: var(--orange); color: #F0F0F0; }
+
+  /* Design Tokens */
+  .tokens-section {
+    border-top: 4px solid #444; padding-top: var(--space-xl);
+    margin-top: var(--space-2xl);
+  }
+  .tokens-section h2 {
+    font-family: var(--font-heading); font-size: 24px;
+    font-weight: 700; margin-bottom: var(--space-lg);
+  }
+  .token-group { margin-bottom: var(--space-xl); }
+  .token-group h3 {
+    font-family: var(--font-mono); font-size: 13px;
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: var(--space-md); color: var(--text-secondary);
+  }
+  .color-swatches { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+  .swatch { width: 80px; text-align: center; }
+  .swatch-color {
+    width: 80px; height: 60px; border: var(--border);
+    box-shadow: var(--shadow-sm); margin-bottom: var(--space-xs);
+  }
+  .swatch-label { font-family: var(--font-mono); font-size: 10px; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Favor<span>ble</span></div>
+  <nav>
+    <div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+    <a href="cases-list.html" class="active"><span class="icon">&#9830;</span> Cases</a>
+    <a href="chronology.html"><span class="icon">&#9672;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a href="#"><span class="icon">&#9734;</span> Contacts</a>
+    <a href="#"><span class="icon">&#9998;</span> Documents</a>
+    <a href="#"><span class="icon">&#8853;</span> Calendar</a>
+    <div class="sidebar-section-label">Admin</div>
+    <a href="admin-integrations.html"><span class="icon">&#8644;</span> Integrations</a>
+    <a href="#"><span class="icon">&#9881;</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">JR</div>
+    <div class="sidebar-user-info">
+      <div class="name">Jessica Reyes</div>
+      <div class="role">Senior Paralegal</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="page-header">
+    <div>
+      <h1>Cases</h1>
+      <p class="subtitle">All active and archived cases across the firm.</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">Export CSV</button>
+      <button class="btn btn-primary">+ New Case</button>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stats-bar-item"><strong>147</strong> Active</div>
+    <div class="stats-bar-item"><strong>38</strong> Settled (QTR)</div>
+    <div class="stats-bar-item"><strong>12</strong> New This Month</div>
+    <div class="stats-bar-item"><strong>$4.2M</strong> Total Value</div>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="filters-bar">
+    <input type="text" class="search-input" placeholder="Search cases by name, number, or client...">
+    <select class="filter-select">
+      <option>All Stages</option>
+      <option>Intake</option>
+      <option>Review</option>
+      <option>Discovery</option>
+      <option>Negotiation</option>
+      <option>Trial</option>
+      <option>Closed</option>
+    </select>
+    <select class="filter-select">
+      <option>All Types</option>
+      <option>Medical Malpractice</option>
+      <option>Auto Accident</option>
+      <option>Premises Liability</option>
+      <option>Workers' Comp</option>
+      <option>Product Liability</option>
+    </select>
+    <select class="filter-select">
+      <option>All Attorneys</option>
+      <option>M. Torres</option>
+      <option>S. Kim</option>
+      <option>R. Jackson</option>
+      <option>A. Patel</option>
+    </select>
+    <button class="btn btn-dark btn-sm">Filter</button>
+  </div>
+
+  <!-- Active filter pills -->
+  <div class="filter-pills">
+    <div class="filter-pill active">All Cases <span class="close">&times;</span></div>
+    <div class="filter-pill">My Cases</div>
+    <div class="filter-pill">High Priority</div>
+    <div class="filter-pill">Overdue Tasks</div>
+    <div class="filter-pill">Recent</div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  <div class="bulk-bar">
+    <div class="bulk-bar-left">
+      <div class="row-check checked" style="border-color:#F0F0F0;">&#10003;</div>
+      3 cases selected
+    </div>
+    <div class="bulk-bar-right">
+      <button class="bulk-btn">Assign Attorney</button>
+      <button class="bulk-btn">Change Stage</button>
+      <button class="bulk-btn">Export</button>
+      <button class="bulk-btn">Archive</button>
+    </div>
+  </div>
+
+  <!-- Cases Table -->
+  <div class="card" style="padding:0; overflow-x:auto;">
+    <table class="cases-table">
+      <thead>
+        <tr>
+          <th style="width:40px;"></th>
+          <th>Case Name <span class="sort">&#9660;</span></th>
+          <th>Type</th>
+          <th>Stage</th>
+          <th>Priority</th>
+          <th>Attorney</th>
+          <th>Value</th>
+          <th>Filed</th>
+          <th>Next Deadline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="row-check checked">&#10003;</div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Garcia v. Metro Health</a>
+            <span class="case-number">CS-2026-0284</span>
+          </td>
+          <td><span class="badge badge-orange">Med Mal</span></td>
+          <td><span class="stage-badge stage-intake">Intake</span></td>
+          <td><span class="priority-dot priority-high"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--purple);color:#F0F0F0;">MT</div>
+              <span>M. Torres</span>
+            </div>
+          </td>
+          <td class="value-cell">$350K</td>
+          <td class="date-cell">Mar 25</td>
+          <td class="date-cell">Apr 8</td>
+        </tr>
+        <tr>
+          <td><div class="row-check checked">&#10003;</div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Barnes v. Meridian Corp</a>
+            <span class="case-number">CS-2026-0241</span>
+          </td>
+          <td><span class="badge badge-blue">Workers' Comp</span></td>
+          <td><span class="stage-badge stage-discovery">Discovery</span></td>
+          <td><span class="priority-dot priority-high"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--orange);color:#F0F0F0;">SK</div>
+              <span>S. Kim</span>
+            </div>
+          </td>
+          <td class="value-cell">$520K</td>
+          <td class="date-cell">Feb 12</td>
+          <td class="date-cell">Mar 30</td>
+        </tr>
+        <tr>
+          <td><div class="row-check checked">&#10003;</div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Nguyen v. PrimeCare</a>
+            <span class="case-number">CS-2026-0219</span>
+          </td>
+          <td><span class="badge badge-orange">Med Mal</span></td>
+          <td><span class="stage-badge stage-discovery">Discovery</span></td>
+          <td><span class="priority-dot priority-medium"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--green);">RJ</div>
+              <span>R. Jackson</span>
+            </div>
+          </td>
+          <td class="value-cell">$275K</td>
+          <td class="date-cell">Jan 30</td>
+          <td class="date-cell">Apr 5</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Kim v. Apex Roofing</a>
+            <span class="case-number">CS-2025-0892</span>
+          </td>
+          <td><span class="badge badge-green">Premises</span></td>
+          <td><span class="stage-badge stage-negotiate">Negotiate</span></td>
+          <td><span class="priority-dot priority-medium"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--yellow);">AP</div>
+              <span>A. Patel</span>
+            </div>
+          </td>
+          <td class="value-cell">$180K</td>
+          <td class="date-cell">Nov 8</td>
+          <td class="date-cell">Apr 12</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Okonkwo v. TrustCare</a>
+            <span class="case-number">CS-2026-0267</span>
+          </td>
+          <td><span class="badge badge-orange">Med Mal</span></td>
+          <td><span class="stage-badge stage-review">Review</span></td>
+          <td><span class="priority-dot priority-low"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--purple);color:#F0F0F0;">MT</div>
+              <span>M. Torres</span>
+            </div>
+          </td>
+          <td class="value-cell">$200K</td>
+          <td class="date-cell">Mar 10</td>
+          <td class="date-cell">Apr 15</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Foster v. Greenway Mfg</a>
+            <span class="case-number">CS-2025-0755</span>
+          </td>
+          <td><span class="badge badge-pink">Product</span></td>
+          <td><span class="stage-badge stage-negotiate">Negotiate</span></td>
+          <td><span class="priority-dot priority-high"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--orange);color:#F0F0F0;">SK</div>
+              <span>S. Kim</span>
+            </div>
+          </td>
+          <td class="value-cell">$890K</td>
+          <td class="date-cell">Sep 22</td>
+          <td class="date-cell">Apr 18</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Chen v. Allied Transport</a>
+            <span class="case-number">CS-2026-0280</span>
+          </td>
+          <td><span class="badge badge-purple">Auto</span></td>
+          <td><span class="stage-badge stage-intake">Intake</span></td>
+          <td><span class="priority-dot priority-medium"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--green);">RJ</div>
+              <span>R. Jackson</span>
+            </div>
+          </td>
+          <td class="value-cell">$125K</td>
+          <td class="date-cell">Mar 27</td>
+          <td class="date-cell">Apr 20</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Robinson v. CityBus Auth</a>
+            <span class="case-number">CS-2026-0198</span>
+          </td>
+          <td><span class="badge badge-purple">Auto</span></td>
+          <td><span class="stage-badge stage-discovery">Discovery</span></td>
+          <td><span class="priority-dot priority-medium"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--yellow);">AP</div>
+              <span>A. Patel</span>
+            </div>
+          </td>
+          <td class="value-cell">$310K</td>
+          <td class="date-cell">Jan 15</td>
+          <td class="date-cell">Mar 30</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Williams v. SafeGuard</a>
+            <span class="case-number">CS-2026-0271</span>
+          </td>
+          <td><span class="badge badge-green">Premises</span></td>
+          <td><span class="stage-badge stage-intake">Intake</span></td>
+          <td><span class="priority-dot priority-high"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--purple);color:#F0F0F0;">MT</div>
+              <span>M. Torres</span>
+            </div>
+          </td>
+          <td class="value-cell">$240K</td>
+          <td class="date-cell">Mar 28</td>
+          <td class="date-cell">Apr 11</td>
+        </tr>
+        <tr>
+          <td><div class="row-check"></div></td>
+          <td class="case-name-cell">
+            <a href="case-detail.html">Davis v. UnitedHealth</a>
+            <span class="case-number">CS-2025-0644</span>
+          </td>
+          <td><span class="badge badge-orange">Med Mal</span></td>
+          <td><span class="stage-badge stage-closed">Closed</span></td>
+          <td><span class="priority-dot priority-low"></span></td>
+          <td>
+            <div class="attorney-cell">
+              <div class="attorney-avatar" style="background:var(--orange);color:#F0F0F0;">SK</div>
+              <span>S. Kim</span>
+            </div>
+          </td>
+          <td class="value-cell">$410K</td>
+          <td class="date-cell">Aug 5</td>
+          <td class="date-cell">&mdash;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <div class="pagination-info">Showing 1-10 of 147 cases</div>
+    <div class="pagination-buttons">
+      <div class="page-btn">&laquo;</div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">2</div>
+      <div class="page-btn">3</div>
+      <div class="page-btn">4</div>
+      <div class="page-btn">...</div>
+      <div class="page-btn">15</div>
+      <div class="page-btn">&raquo;</div>
+    </div>
+  </div>
+
+  <!-- Design Tokens -->
+  <section class="tokens-section">
+    <h2>Design Tokens</h2>
+
+    <div class="token-group">
+      <h3>Colors</h3>
+      <div class="color-swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-label">BG<br>#111111</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-label">Card<br>#1A1A1A</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F0F0;"></div><div class="swatch-label">Primary<br>#F0F0F0</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#999999;"></div><div class="swatch-label">Secondary<br>#999999</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF6B00;"></div><div class="swatch-label">Orange<br>#FF6B00</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5B21B6;"></div><div class="swatch-label">Purple<br>#5B21B6</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFD700;"></div><div class="swatch-label">Yellow<br>#FFD700</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#00CC88;"></div><div class="swatch-label">Green<br>#00CC88</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF3366;"></div><div class="swatch-label">Pink<br>#FF3366</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3B82F6;"></div><div class="swatch-label">Blue<br>#3B82F6</div></div>
+      </div>
+    </div>
+
+    <div class="token-group">
+      <h3>Table Components</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <span class="stage-badge stage-intake">Intake</span>
+        <span class="stage-badge stage-review">Review</span>
+        <span class="stage-badge stage-discovery">Discovery</span>
+        <span class="stage-badge stage-negotiate">Negotiate</span>
+        <span class="stage-badge stage-trial">Trial</span>
+        <span class="stage-badge stage-closed">Closed</span>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:16px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:6px;"><span class="priority-dot priority-high"></span> High</div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="priority-dot priority-medium"></span> Medium</div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="priority-dot priority-low"></span> Low</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+        <span class="badge badge-orange">Med Mal</span>
+        <span class="badge badge-purple">Auto</span>
+        <span class="badge badge-green">Premises</span>
+        <span class="badge badge-blue">Workers' Comp</span>
+        <span class="badge badge-pink">Product</span>
+      </div>
+    </div>
+
+    <div class="token-group">
+      <h3>Interactive States</h3>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+        <div class="row-check" style="display:inline-flex;">Unchecked</div>
+        <div class="row-check checked" style="display:inline-flex;">&#10003; Checked</div>
+        <div class="filter-pill">Inactive Pill</div>
+        <div class="filter-pill active">Active Pill</div>
+        <div class="page-btn" style="display:inline-flex;">2</div>
+        <div class="page-btn active" style="display:inline-flex;">1</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

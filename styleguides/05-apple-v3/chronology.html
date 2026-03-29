@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology (Apple HIG v3 Teal)</title>
+<style>
+  :root {
+    --color-bg:#F2F7F7;--color-surface:#FFFFFF;--color-sidebar:rgba(242,247,247,0.72);--color-toolbar:rgba(242,247,247,0.82);
+    --color-text-primary:#1D1D1F;--color-text-secondary:#6E7A7A;--color-text-tertiary:#A0ABAB;
+    --color-accent:#30B0C7;--color-accent-hover:#2899AD;--color-accent-subtle:rgba(48,176,199,0.12);
+    --color-secondary:#5856D6;--color-destructive:#FF3B30;--color-success:#34C759;--color-warning:#FF9F0A;
+    --color-orange:#FF9500;--color-purple:#AF52DE;--color-indigo:#5856D6;--color-teal:#30B0C7;--color-pink:#FF2D55;
+    --color-separator:rgba(0,0,0,0.06);--color-hover:rgba(48,176,199,0.05);--color-selected:rgba(48,176,199,0.12);
+    --shadow-card:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.03);--shadow-popup:0 4px 16px rgba(0,0,0,0.10),0 16px 48px rgba(0,0,0,0.06);--shadow-toolbar:0 0.5px 0 rgba(0,0,0,0.10);
+    --radius-sm:6px;--radius-md:10px;--radius-lg:12px;--radius-xl:16px;
+    --font-family:-apple-system,"SF Pro Display","SF Pro Text",system-ui,BlinkMacSystemFont,sans-serif;
+    --font-size-xs:11px;--font-size-sm:12px;--font-size-base:13px;--font-size-md:15px;--font-size-lg:17px;--font-size-xl:20px;--font-size-2xl:24px;--font-size-3xl:28px;
+    --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:24px;--space-3xl:32px;
+    --sidebar-width:240px;--toolbar-height:52px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font-family);font-size:var(--font-size-base);color:var(--color-text-primary);background:var(--color-bg);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
+  .app-shell{display:flex;height:100vh;overflow:hidden}
+
+  .sidebar{width:var(--sidebar-width);min-width:var(--sidebar-width);background:var(--color-sidebar);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-right:0.5px solid var(--color-separator);display:flex;flex-direction:column;padding:var(--space-lg) 0;user-select:none;overflow-y:auto}
+  .sidebar-brand{padding:0 var(--space-xl);margin-bottom:var(--space-2xl);display:flex;align-items:center;gap:var(--space-sm)}
+  .sidebar-brand-icon{width:28px;height:28px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--color-accent),#5AC8FA);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .sidebar-brand-name{font-size:var(--font-size-lg);font-weight:700;letter-spacing:-0.3px}
+  .sidebar-section-label{padding:var(--space-lg) var(--space-xl) var(--space-xs);font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+  .sidebar-item{display:flex;align-items:center;gap:var(--space-sm);padding:6px var(--space-xl);margin:1px var(--space-sm);border-radius:var(--radius-sm);font-size:var(--font-size-base);color:var(--color-text-primary);cursor:pointer;transition:background 0.15s;text-decoration:none;position:relative}
+  .sidebar-item:hover{background:var(--color-hover)}.sidebar-item.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .sidebar-item.active::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--color-accent);border-radius:0 2px 2px 0}
+  .sidebar-item .icon{width:20px;text-align:center;font-size:15px;opacity:0.75}.sidebar-item.active .icon{opacity:1}
+  .sidebar-badge{margin-left:auto;background:var(--color-destructive);color:#fff;font-size:var(--font-size-xs);font-weight:600;padding:1px 6px;border-radius:10px}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--space-md) var(--space-xl);border-top:0.5px solid var(--color-separator);display:flex;align-items:center;gap:var(--space-sm);margin-top:var(--space-sm)}
+  .sidebar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent),var(--color-secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .sidebar-user-name{font-size:var(--font-size-sm);font-weight:500}.sidebar-user-role{font-size:var(--font-size-xs);color:var(--color-text-secondary)}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .toolbar{height:var(--toolbar-height);min-height:var(--toolbar-height);background:var(--color-toolbar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:0.5px solid var(--color-separator);box-shadow:var(--shadow-toolbar);display:flex;align-items:center;padding:0 var(--space-2xl);gap:var(--space-lg);user-select:none;z-index:10}
+  .toolbar-title{font-size:var(--font-size-lg);font-weight:600;letter-spacing:-0.2px}
+  .toolbar-spacer{flex:1}
+  .toolbar-search{display:flex;align-items:center;gap:6px;background:rgba(48,176,199,0.06);border:0.5px solid var(--color-separator);border-radius:var(--radius-sm);padding:5px 10px;font-size:var(--font-size-sm);color:var(--color-text-secondary);width:220px}
+  .toolbar-search input{border:none;background:none;outline:none;font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);width:100%}
+  .toolbar-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-surface);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--color-text-primary);cursor:pointer;transition:all 0.15s}
+  .toolbar-btn:hover{background:var(--color-hover)}
+  .toolbar-btn.primary{background:var(--color-accent);color:#fff;border-color:transparent}
+
+  .content{flex:1;overflow-y:auto;padding:var(--space-2xl);display:flex;flex-direction:column;gap:var(--space-2xl)}
+
+  .segmented-control{display:inline-flex;background:rgba(48,176,199,0.08);border-radius:var(--radius-sm);padding:2px;gap:1px}
+  .segmented-option{padding:5px 16px;border-radius:5px;font-size:var(--font-size-sm);font-weight:500;color:var(--color-text-secondary);cursor:pointer;transition:all 0.2s;user-select:none}
+  .segmented-option.active{background:var(--color-surface);color:var(--color-accent);box-shadow:0 1px 3px rgba(0,0,0,0.08);font-weight:600}
+
+  .filter-bar{display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap}
+  .filter-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:rgba(48,176,199,0.06);font-size:var(--font-size-sm);color:var(--color-text-secondary);cursor:pointer;transition:all 0.15s;border:none;font-family:var(--font-family)}
+  .filter-chip:hover{background:rgba(48,176,199,0.12)}
+  .filter-chip.active{background:var(--color-selected);color:var(--color-accent);font-weight:500}
+  .filter-divider{width:1px;height:20px;background:var(--color-separator)}
+
+  .case-selector{display:flex;align-items:center;gap:var(--space-md);background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-lg) var(--space-xl)}
+  .case-selector-label{font-size:var(--font-size-sm);color:var(--color-text-secondary);font-weight:500}
+  .case-selector-dropdown{display:flex;align-items:center;gap:var(--space-sm);padding:6px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--color-separator);background:var(--color-bg);font-family:var(--font-family);font-size:var(--font-size-base);font-weight:500;cursor:pointer}
+  .case-selector-dropdown .chevron{font-size:10px;color:var(--color-text-tertiary);margin-left:4px}
+  .case-selector-spacer{flex:1}
+  .case-selector-meta{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+
+  .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-lg)}
+  .stat-card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-lg) var(--space-xl);display:flex;flex-direction:column;gap:var(--space-xs)}
+  .stat-label{font-size:var(--font-size-xs);color:var(--color-text-secondary);font-weight:500}
+  .stat-value{font-size:var(--font-size-2xl);font-weight:700;letter-spacing:-0.5px;line-height:1}
+  .stat-sub{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+
+  .card{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden}
+  .card-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-lg) var(--space-xl);border-bottom:0.5px solid var(--color-separator)}
+  .card-title{font-size:var(--font-size-md);font-weight:600;letter-spacing:-0.2px}
+  .card-action{font-size:var(--font-size-sm);color:var(--color-accent);cursor:pointer;font-weight:500;text-decoration:none}
+  .card-body{padding:var(--space-lg) var(--space-xl)}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2xl)}
+
+  /* TIMELINE */
+  .timeline{position:relative}
+  .timeline-year{font-size:var(--font-size-lg);font-weight:700;letter-spacing:-0.2px;padding:var(--space-lg) var(--space-xl);background:rgba(48,176,199,0.02);border-bottom:0.5px solid var(--color-separator);position:sticky;top:0;z-index:2}
+  .timeline-month{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-secondary);padding:var(--space-md) var(--space-xl);background:var(--color-surface);border-bottom:0.5px solid var(--color-separator);position:sticky;top:44px;z-index:1}
+  .timeline-entry{display:flex;padding:var(--space-lg) var(--space-xl);border-bottom:0.5px solid var(--color-separator);gap:var(--space-lg);transition:background 0.1s;cursor:pointer}
+  .timeline-entry:hover{background:var(--color-hover)}
+  .timeline-entry:last-child{border-bottom:none}
+  .timeline-date-col{width:80px;flex-shrink:0}
+  .timeline-date{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-primary)}
+  .timeline-day{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+  .timeline-marker-col{width:28px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;position:relative}
+  .timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;z-index:1;margin-top:4px}
+  .timeline-dot.emergency{background:var(--color-destructive)}.timeline-dot.rheumatology{background:var(--color-accent)}
+  .timeline-dot.imaging{background:var(--color-indigo)}.timeline-dot.office{background:#5AC8FA}
+  .timeline-dot.therapy{background:var(--color-teal)}.timeline-dot.medication{background:var(--color-success)}
+  .timeline-dot.lab{background:var(--color-orange)}.timeline-dot.psychiatry{background:var(--color-purple)}
+  .timeline-dot.pain{background:var(--color-pink)}.timeline-dot.cardiology{background:var(--color-destructive)}
+  .timeline-line{width:1.5px;flex:1;background:var(--color-separator);margin-top:4px}
+  .timeline-content{flex:1;min-width:0}
+  .timeline-title{font-size:var(--font-size-base);font-weight:600;margin-bottom:2px}
+  .timeline-provider{font-size:var(--font-size-sm);color:var(--color-text-secondary);margin-bottom:var(--space-xs)}
+  .timeline-desc{font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.5}
+  .timeline-tags{display:flex;gap:var(--space-xs);margin-top:var(--space-sm);flex-wrap:wrap}
+  .timeline-tag{font-size:var(--font-size-xs);padding:1px 7px;border-radius:4px;font-weight:500}
+  .timeline-tag.rheumatology{background:rgba(48,176,199,0.1);color:var(--color-accent)}
+  .timeline-tag.imaging{background:rgba(88,86,214,0.1);color:var(--color-indigo)}
+  .timeline-tag.therapy{background:rgba(48,176,199,0.08);color:#2899AD}
+  .timeline-tag.medication{background:rgba(52,199,89,0.1);color:var(--color-success)}
+  .timeline-tag.psychiatry{background:rgba(175,82,222,0.1);color:var(--color-purple)}
+  .timeline-tag.pain{background:rgba(255,45,85,0.1);color:var(--color-pink)}
+  .timeline-tag.lab{background:rgba(255,149,0,0.1);color:var(--color-orange)}
+  .timeline-tag.emergency{background:rgba(255,59,48,0.1);color:var(--color-destructive)}
+  .timeline-tag.rfc{background:rgba(48,176,199,0.12);color:var(--color-accent);font-weight:600}
+
+  .timeline-cost{flex-shrink:0;text-align:right;min-width:80px}
+  .timeline-cost-value{font-size:var(--font-size-base);font-weight:600;font-variant-numeric:tabular-nums}
+  .timeline-cost-label{font-size:var(--font-size-xs);color:var(--color-text-tertiary)}
+  .timeline-source{flex-shrink:0;width:60px;text-align:right}
+  .timeline-page{font-size:var(--font-size-xs);color:var(--color-accent);font-weight:500;cursor:pointer}
+
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-lg)}
+  .summary-item{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-md) 0;border-bottom:0.5px solid var(--color-separator)}
+  .summary-item:last-child{border-bottom:none}
+  .summary-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .summary-label{font-size:var(--font-size-sm);flex:1}
+  .summary-count{font-size:var(--font-size-sm);font-weight:600;font-variant-numeric:tabular-nums}
+
+  .bar-chart{display:flex;flex-direction:column;gap:var(--space-sm)}
+  .bar-row{display:flex;align-items:center;gap:var(--space-md)}
+  .bar-label{width:100px;font-size:var(--font-size-xs);color:var(--color-text-secondary);text-align:right;flex-shrink:0}
+  .bar-track{flex:1;height:8px;background:rgba(48,176,199,0.06);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+  .bar-value{width:50px;font-size:var(--font-size-xs);font-weight:600;font-variant-numeric:tabular-nums}
+
+  .design-tokens{background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:var(--space-2xl)}
+  .design-tokens h2{font-size:var(--font-size-xl);font-weight:700;margin-bottom:var(--space-xl);letter-spacing:-0.3px}
+  .token-group{margin-bottom:var(--space-2xl)}.token-group:last-child{margin-bottom:0}
+  .token-group-title{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:var(--space-md)}
+  .token-row{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;font-size:var(--font-size-sm)}
+  .token-swatch{width:24px;height:24px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.08);flex-shrink:0}
+  .token-name{font-weight:500;width:200px}
+  .token-value{font-family:"SF Mono",SFMono-Regular,Menlo,monospace;color:var(--color-text-secondary);font-size:var(--font-size-xs)}
+  .component-preview{display:flex;flex-wrap:wrap;gap:var(--space-md);padding:var(--space-md) 0;align-items:center}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="sidebar-brand-icon">F</div><div class="sidebar-brand-name">Favorble</div></div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item active" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Claimants</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="sidebar-avatar">JK</div><div><div class="sidebar-user-name">Jake Klinvex</div><div class="sidebar-user-role">Admin</div></div></div>
+  </nav>
+
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Medical Chronology</h1>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search"><span>&#128269;</span><input type="text" placeholder="Search records..."></div>
+      <button class="toolbar-btn">&#8595; Export PDF</button>
+      <button class="toolbar-btn primary">+ Add Entry</button>
+    </header>
+
+    <div class="content">
+      <div class="case-selector">
+        <span class="case-selector-label">Claimant:</span>
+        <div class="case-selector-dropdown">Williams, Sandra K. <span class="chevron">&#9660;</span></div>
+        <div class="case-selector-spacer"></div>
+        <span class="case-selector-meta">SSA-2026-00847 &bull; Fibromyalgia / CFS &bull; 42 records</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="segmented-control"><div class="segmented-option active">All</div><div class="segmented-option">RFC Relevant</div><div class="segmented-option">By Provider</div></div>
+        <div class="filter-divider"></div>
+        <button class="filter-chip active">Rheumatology <span class="remove">&times;</span></button>
+        <button class="filter-chip">Psychiatry</button>
+        <button class="filter-chip">Imaging</button>
+        <button class="filter-chip">Pain Management</button>
+        <button class="filter-chip">Lab Work</button>
+        <button class="filter-chip">Emergency</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Records</div><div class="stat-value">42</div><div class="stat-sub">18 months of treatment</div></div>
+        <div class="stat-card"><div class="stat-label">Providers</div><div class="stat-value">7</div><div class="stat-sub">3 treating sources</div></div>
+        <div class="stat-card"><div class="stat-label">RFC-Relevant</div><div class="stat-value" style="color:var(--color-accent)">28</div><div class="stat-sub">67% of records</div></div>
+        <div class="stat-card"><div class="stat-label">Total Pages</div><div class="stat-value">847</div><div class="stat-sub">Exhibits A-G</div></div>
+        <div class="stat-card"><div class="stat-label">Medical Costs</div><div class="stat-value">$34.2K</div><div class="stat-sub">Out-of-pocket: $8.1K</div></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Treatment Timeline</span><a class="card-action">Collapse All</a></div>
+        <div class="timeline">
+          <div class="timeline-year">2026</div>
+          <div class="timeline-month">March 2026</div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Mar 22</div><div class="timeline-day">Friday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot rheumatology"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">Rheumatology Follow-Up</div><div class="timeline-provider">Dr. Anita Patel, MD &mdash; Dallas Rheumatology Associates</div><div class="timeline-desc">Tender point exam: 16/18 positive. Increased fatigue severity. Continued Lyrica 150mg BID, added Cymbalta 30mg. Documented inability to sustain repetitive hand movements. Opined patient cannot work full-time.</div><div class="timeline-tags"><span class="timeline-tag rheumatology">Rheumatology</span><span class="timeline-tag rfc">RFC Relevant</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$425</div><div class="timeline-cost-label">Office visit</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. A, p.12</div></div>
+          </div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Mar 14</div><div class="timeline-day">Thursday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot imaging"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">MRI &mdash; Cervical Spine</div><div class="timeline-provider">Southwest Imaging Center</div><div class="timeline-desc">C4-C5 disc bulge with mild neural foraminal narrowing. C5-C6 mild disc degeneration. No cord compression. Findings consistent with chronic pain complaints.</div><div class="timeline-tags"><span class="timeline-tag imaging">Imaging</span><span class="timeline-tag rfc">RFC Relevant</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$1,850</div><div class="timeline-cost-label">MRI</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. C, p.3</div></div>
+          </div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Mar 5</div><div class="timeline-day">Wednesday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot psychiatry"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">Psychiatric Evaluation</div><div class="timeline-provider">Dr. Michael Torres, MD &mdash; Behavioral Health Partners</div><div class="timeline-desc">PHQ-9 score: 18 (moderate-severe depression). GAF: 48. Diagnosis: MDD, recurrent, moderate. Concentration deficits noted on MSE. Started Zoloft 50mg. Opined marked limitations in concentration, persistence, pace.</div><div class="timeline-tags"><span class="timeline-tag psychiatry">Psychiatry</span><span class="timeline-tag rfc">RFC Relevant</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$350</div><div class="timeline-cost-label">Evaluation</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. D, p.1</div></div>
+          </div>
+
+          <div class="timeline-month">February 2026</div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Feb 18</div><div class="timeline-day">Tuesday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot rheumatology"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">Rheumatology Follow-Up</div><div class="timeline-provider">Dr. Anita Patel, MD &mdash; Dallas Rheumatology Associates</div><div class="timeline-desc">Continued widespread pain. Sleep disturbance 4-5 nights/week. Fatigue limiting daily activities to 2-3 hours. Adjusted Lyrica to 150mg from 75mg. Documented limitations in standing (20 min), walking (1 block), sitting (30 min).</div><div class="timeline-tags"><span class="timeline-tag rheumatology">Rheumatology</span><span class="timeline-tag rfc">RFC Relevant</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$425</div><div class="timeline-cost-label">Office visit</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. A, p.8</div></div>
+          </div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Feb 10</div><div class="timeline-day">Monday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot lab"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">Laboratory Work</div><div class="timeline-provider">Quest Diagnostics</div><div class="timeline-desc">CBC, CMP, ANA, ESR, CRP, thyroid panel. ANA positive (1:160 speckled). ESR elevated at 28. CRP slightly elevated. Thyroid normal. Results support inflammatory component.</div><div class="timeline-tags"><span class="timeline-tag lab">Lab Work</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$680</div><div class="timeline-cost-label">Lab panel</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. E, p.2</div></div>
+          </div>
+
+          <div class="timeline-month">January 2026</div>
+          <div class="timeline-entry">
+            <div class="timeline-date-col"><div class="timeline-date">Jan 15</div><div class="timeline-day">Wednesday</div></div>
+            <div class="timeline-marker-col"><div class="timeline-dot pain"></div><div class="timeline-line"></div></div>
+            <div class="timeline-content"><div class="timeline-title">Pain Management Consultation</div><div class="timeline-provider">Dr. James Wright, MD &mdash; North Texas Pain Center</div><div class="timeline-desc">Chronic widespread pain, VAS 7/10. Trigger point injections performed at bilateral trapezius and paraspinal muscles. Recommended physical therapy 2x/week. Documented 50% reduction in daily functioning.</div><div class="timeline-tags"><span class="timeline-tag pain">Pain Mgmt</span><span class="timeline-tag rfc">RFC Relevant</span></div></div>
+            <div class="timeline-cost"><div class="timeline-cost-value">$1,200</div><div class="timeline-cost-label">Injections</div></div>
+            <div class="timeline-source"><div class="timeline-page">Ex. B, p.5</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Records by Type</span></div>
+          <div class="card-body">
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-label">Rheumatology</div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--color-accent)"></div></div><div class="bar-value">14</div></div>
+              <div class="bar-row"><div class="bar-label">Psychiatry</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--color-purple)"></div></div><div class="bar-value">8</div></div>
+              <div class="bar-row"><div class="bar-label">Pain Mgmt</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--color-pink)"></div></div><div class="bar-value">6</div></div>
+              <div class="bar-row"><div class="bar-label">Imaging</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--color-indigo)"></div></div><div class="bar-value">5</div></div>
+              <div class="bar-row"><div class="bar-label">Lab Work</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--color-orange)"></div></div><div class="bar-value">5</div></div>
+              <div class="bar-row"><div class="bar-label">Emergency</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--color-destructive)"></div></div><div class="bar-value">3</div></div>
+              <div class="bar-row"><div class="bar-label">Physical Therapy</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:#5AC8FA"></div></div><div class="bar-value">1</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">RFC-Relevant Findings</span></div>
+          <div class="card-body">
+            <div class="summary-grid">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-accent)"></div><span class="summary-label">Standing/Walking Limits</span><span class="summary-count">8</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-indigo)"></div><span class="summary-label">Sitting Limits</span><span class="summary-count">6</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-purple)"></div><span class="summary-label">Concentration Deficits</span><span class="summary-count">5</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-orange)"></div><span class="summary-label">Fatigue Documentation</span><span class="summary-count">12</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-pink)"></div><span class="summary-label">Pain Severity (VAS 7+)</span><span class="summary-count">9</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-success)"></div><span class="summary-label">Medication Side Effects</span><span class="summary-count">4</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:var(--color-destructive)"></div><span class="summary-label">ER Visits (Pain Flares)</span><span class="summary-count">3</span></div>
+                <div class="summary-item"><div class="summary-dot" style="background:#5AC8FA"></div><span class="summary-label">Provider Opinions (RFC)</span><span class="summary-count">3</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-tokens">
+        <h2>Design Tokens &mdash; Apple HIG v3 (Teal)</h2>
+        <div class="token-group"><div class="token-group-title">Timeline Dot Colors</div>
+          <div class="component-preview">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot rheumatology" style="display:inline-block"></span> <span style="font-size:12px">Rheumatology</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot psychiatry" style="display:inline-block"></span> <span style="font-size:12px">Psychiatry</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot imaging" style="display:inline-block"></span> <span style="font-size:12px">Imaging</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot pain" style="display:inline-block"></span> <span style="font-size:12px">Pain Mgmt</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot lab" style="display:inline-block"></span> <span style="font-size:12px">Lab</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span class="timeline-dot emergency" style="display:inline-block"></span> <span style="font-size:12px">Emergency</span></span>
+          </div>
+        </div>
+        <div class="token-group"><div class="token-group-title">Colors</div>
+          <div class="token-row"><div class="token-swatch" style="background:#30B0C7"></div><div class="token-name">Accent (Teal)</div><div class="token-value">#30B0C7</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#5856D6"></div><div class="token-name">Secondary (Indigo)</div><div class="token-value">#5856D6</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#F2F7F7"></div><div class="token-name">Background</div><div class="token-value">#F2F7F7</div></div>
+        </div>
+        <div class="token-group"><div class="token-group-title">Typography &amp; Spacing</div>
+          <div class="token-row"><div class="token-name">Font</div><div class="token-value">-apple-system | 13px base | -0.01em tracking</div></div>
+          <div class="token-row"><div class="token-name">Radius</div><div class="token-value">6 / 10 / 12 / 16 px</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

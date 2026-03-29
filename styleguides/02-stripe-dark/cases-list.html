@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble (Dark) — Cases</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --color-primary: #635BFF;
+    --color-primary-dark: #5046E5;
+    --color-primary-light: #A259FF;
+    --color-gradient: linear-gradient(135deg, #635BFF, #A259FF);
+    --color-gradient-hover: linear-gradient(135deg, #5046E5, #8B3FE6);
+    --color-success: #00D4AA;
+    --color-success-bg: rgba(0,212,170,0.1);
+    --color-warning: #F5A623;
+    --color-warning-bg: rgba(245,166,35,0.1);
+    --color-danger: #E25950;
+    --color-danger-bg: rgba(226,89,80,0.1);
+    --color-info: #3B82F6;
+    --color-info-bg: rgba(59,130,246,0.1);
+    --color-bg: #0A0D14;
+    --color-surface: #141820;
+    --color-border: rgba(255,255,255,0.08);
+    --color-border-light: rgba(255,255,255,0.04);
+    --color-text-primary: #E8ECF2;
+    --color-text-secondary: #697386;
+    --color-text-tertiary: #4A5568;
+    --color-text-inverse: #0A0D14;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-base: 15px;
+    --font-size-lg: 17px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 30px;
+    --font-size-4xl: 36px;
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: -0.01em;
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px rgba(99,91,255,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(99,91,255,0.08), 0 0 0 1px rgba(255,255,255,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(99,91,255,0.1), 0 0 0 1px rgba(255,255,255,0.06);
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 9999px;
+    --transition-fast: 150ms ease; --transition-normal: 200ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--font-family); background: var(--color-bg); color: var(--color-text-primary); line-height: var(--line-height-normal); letter-spacing: var(--letter-spacing-normal); }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar (shared) */
+  .sidebar { width: 260px; background: #080B11; color: #E8ECF2; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .sidebar-header { padding: var(--space-6); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-logo { font-size: var(--font-size-xl); font-weight: 800; letter-spacing: var(--letter-spacing-tight); background: var(--color-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .sidebar-logo-sub { font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+  .sidebar-nav { flex: 1; padding: var(--space-4) 0; overflow-y: auto; }
+  .nav-section-label { padding: var(--space-3) var(--space-6) var(--space-2); font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-6); margin: 1px var(--space-2); border-radius: var(--radius-md); color: rgba(255,255,255,0.65); text-decoration: none; font-size: var(--font-size-sm); font-weight: 500; transition: all var(--transition-fast); cursor: pointer; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+  .nav-item.active { background: rgba(99,91,255,0.2); color: #fff; }
+  .nav-item svg { width: 18px; height: 18px; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--color-primary); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: var(--radius-full); }
+  .sidebar-footer { padding: var(--space-4) var(--space-6); border-top: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-avatar { width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--color-gradient); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); font-weight: 700; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 600; color: rgba(255,255,255,0.9); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: rgba(255,255,255,0.4); }
+
+  .main-content { flex: 1; margin-left: 260px; min-height: 100vh; }
+
+  .page-header { background: var(--color-gradient); padding: var(--space-8) var(--space-10) var(--space-12); color: #fff; position: relative; overflow: hidden; }
+  .page-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+  .page-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+  .page-title { font-size: var(--font-size-3xl); font-weight: 800; letter-spacing: var(--letter-spacing-tight); }
+  .page-subtitle { font-size: var(--font-size-base); opacity: 0.8; }
+  .header-actions { display: flex; gap: var(--space-3); }
+
+  .content-area { padding: var(--space-8) var(--space-10); margin-top: -32px; position: relative; z-index: 1; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; line-height: 1.4; }
+  .btn-primary { background: var(--color-gradient); color: #fff; box-shadow: 0 1px 3px rgba(99,91,255,0.3); }
+  .btn-primary:hover { background: var(--color-gradient-hover); box-shadow: 0 2px 6px rgba(99,91,255,0.5), 0 0 12px rgba(99,91,255,0.15); transform: translateY(-1px); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); }
+  .btn-secondary:hover { background: var(--color-bg); border-color: rgba(255,255,255,0.12); }
+  .btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+  .btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--font-size-xs); }
+  .btn-lg { padding: var(--space-3) var(--space-6); font-size: var(--font-size-base); }
+  .btn-danger { background: var(--color-danger); color: #fff; }
+  .btn-success { background: #0E9F6E; color: #fff; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; font-size: var(--font-size-xs); font-weight: 600; border-radius: var(--radius-full); white-space: nowrap; }
+  .badge-purple { background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .badge-green { background: var(--color-success-bg); color: #00D4AA; }
+  .badge-orange { background: var(--color-warning-bg); color: #F5A623; }
+  .badge-red { background: var(--color-danger-bg); color: var(--color-danger); }
+  .badge-blue { background: var(--color-info-bg); color: #60A5FA; }
+  .badge-gray { background: rgba(255,255,255,0.06); color: var(--color-text-secondary); }
+  .badge-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Cards */
+  .card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--color-border-light); }
+  .card-title { font-size: var(--font-size-base); font-weight: 700; letter-spacing: var(--letter-spacing-tight); }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+  .filter-bar .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--space-2) var(--space-3) var(--space-2) 36px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: #0E1117;
+    outline: none;
+    transition: border var(--transition-fast);
+  }
+  .filter-bar .search-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(99,91,255,0.2); }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-tertiary);
+  }
+  .filter-select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: #0E1117;
+    outline: none;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  .filter-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(99,91,255,0.2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+  }
+  .stat-pill:hover { border-color: var(--color-border); }
+  .stat-pill.active { border-color: var(--color-primary); background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .stat-pill-count { font-weight: 800; color: var(--color-text-primary); }
+  .stat-pill.active .stat-pill-count { color: var(--color-primary); }
+
+  /* Data Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-table thead th {
+    text-align: left;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .data-table thead th:hover { color: var(--color-text-secondary); }
+  .data-table thead th .sort-icon { display: inline-block; margin-left: 4px; opacity: 0.4; }
+  .data-table tbody td {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
+    vertical-align: middle;
+  }
+  .data-table tbody tr { transition: background var(--transition-fast); }
+  .data-table tbody tr:hover td { background: rgba(99,91,255,0.1); }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+
+  .case-id-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .case-id-link:hover { text-decoration: underline; }
+  .claimant-name { font-weight: 600; color: var(--color-text-primary); }
+  .claimant-ssn { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .assigned-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    margin-right: var(--space-2);
+    vertical-align: middle;
+  }
+
+  /* Pagination */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--color-border-light);
+  }
+  .table-footer-info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .page-btn {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); box-shadow: 0 0 8px rgba(99,91,255,0.3); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Checkbox */
+  .table-check {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-border);
+    border-radius: 3px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+  }
+
+  /* Bulk Actions */
+  .bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
+    background: rgba(99,91,255,0.1);
+    border-bottom: 1px solid rgba(99,91,255,0.2);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+
+  /* Design Tokens */
+  .token-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid rgba(255,255,255,0.08); }
+  .token-section-title { font-size: var(--font-size-2xl); font-weight: 800; letter-spacing: var(--letter-spacing-tight); margin-bottom: var(--space-6); }
+  .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
+  .token-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.06); }
+  .token-card-title { font-size: var(--font-size-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin-bottom: var(--space-3); }
+  .color-swatch-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+  .color-swatch { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+  .swatch-label { font-size: var(--font-size-sm); font-weight: 500; }
+  .swatch-value { font-size: var(--font-size-xs); color: var(--color-text-tertiary); font-family: 'SF Mono', Monaco, monospace; }
+  .component-showcase { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .shadow-demo { width: 100%; height: 48px; background: var(--color-surface); border-radius: var(--radius-md); margin-bottom: var(--space-2); }
+  .radius-demo { width: 48px; height: 48px; background: rgba(99,91,255,0.15); border: 2px solid var(--color-primary); display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); color: var(--color-primary); font-weight: 600; margin-right: var(--space-2); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Favorble</div>
+      <div class="sidebar-logo-sub">Case Management</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item active" href="cases-list.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Cases
+        <span class="nav-badge">247</span>
+      </a>
+      <a class="nav-item" href="case-detail.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        Case Detail
+      </a>
+      <a class="nav-item" href="chronology.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Chronology
+      </a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-item" href="admin-integrations.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Integrations
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">SK</div>
+        <div>
+          <div class="sidebar-user-name">Sarah Kim</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-header-top">
+        <div>
+          <h1 class="page-title">Cases</h1>
+          <p class="page-subtitle">247 total cases across all stages</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn btn-ghost">+ New Case</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Quick Filters -->
+      <div class="stats-bar">
+        <div class="stat-pill active">
+          <span class="stat-pill-count">247</span> All Cases
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-count">42</span> Initial Review
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-count">56</span> Application Filed
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-count">28</span> Hearing Prep
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-count">83</span> Won
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-count">14</span> Denied
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" placeholder="Search by name, case number, SSN...">
+        </div>
+        <select class="filter-select">
+          <option>All Stages</option>
+          <option>Initial Review</option>
+          <option>Medical Records</option>
+          <option>Application Filed</option>
+          <option>Reconsideration</option>
+          <option>Hearing Prep</option>
+          <option>ALJ Hearing</option>
+          <option>Appeals Council</option>
+          <option>Federal Court</option>
+          <option>Won / Favorable</option>
+          <option>Denied / Closed</option>
+        </select>
+        <select class="filter-select">
+          <option>All Attorneys</option>
+          <option>Sarah Kim</option>
+          <option>James Park</option>
+          <option>Maria Santos</option>
+          <option>David Chen</option>
+        </select>
+        <select class="filter-select">
+          <option>Date: Newest First</option>
+          <option>Date: Oldest First</option>
+          <option>Name: A-Z</option>
+          <option>Name: Z-A</option>
+          <option>Next Deadline</option>
+        </select>
+        <button class="btn btn-secondary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          More Filters
+        </button>
+      </div>
+
+      <!-- Cases Table -->
+      <div class="card">
+        <!-- Bulk Actions Bar -->
+        <div class="bulk-bar">
+          <input type="checkbox" class="table-check" style="accent-color:var(--color-primary)">
+          <span>3 cases selected</span>
+          <button class="btn btn-sm btn-secondary">Assign</button>
+          <button class="btn btn-sm btn-secondary">Change Stage</button>
+          <button class="btn btn-sm btn-secondary">Export</button>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" class="table-check"></th>
+              <th>Case # <span class="sort-icon">&uarr;</span></th>
+              <th>Claimant</th>
+              <th>Stage</th>
+              <th>Assigned To</th>
+              <th>Filed Date</th>
+              <th>Next Deadline</th>
+              <th>Impairments</th>
+              <th style="width:60px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" class="table-check" checked></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1903</a></td>
+              <td>
+                <div class="claimant-name">Williams, Patricia A.</div>
+                <div class="claimant-ssn">***-**-4829</div>
+              </td>
+              <td><span class="badge badge-orange badge-dot">Hearing Prep</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#635BFF">SK</span>
+                Sarah Kim
+              </td>
+              <td style="color:var(--color-text-secondary)">Jan 15, 2026</td>
+              <td>
+                <span style="color:var(--color-danger);font-weight:600">Mar 30, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Brief due</div>
+              </td>
+              <td><span class="badge badge-gray">Lumbar DDD</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check" checked></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1847</a></td>
+              <td>
+                <div class="claimant-name">Santos, Maria G.</div>
+                <div class="claimant-ssn">***-**-7731</div>
+              </td>
+              <td><span class="badge badge-green badge-dot">Favorable</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#00D4AA">JP</span>
+                James Park
+              </td>
+              <td style="color:var(--color-text-secondary)">Nov 3, 2025</td>
+              <td style="color:var(--color-text-secondary)">-</td>
+              <td><span class="badge badge-gray">Bipolar II</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check" checked></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1803</a></td>
+              <td>
+                <div class="claimant-name">Thompson, Robert J.</div>
+                <div class="claimant-ssn">***-**-5512</div>
+              </td>
+              <td><span class="badge badge-purple badge-dot">ALJ Hearing</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#F5A623">MS</span>
+                Maria Santos
+              </td>
+              <td style="color:var(--color-text-secondary)">Sep 22, 2025</td>
+              <td>
+                <span style="color:var(--color-warning);font-weight:600">Apr 14, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Hearing</div>
+              </td>
+              <td><span class="badge badge-gray">PTSD</span> <span class="badge badge-gray">TBI</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1712</a></td>
+              <td>
+                <div class="claimant-name">Jackson, Dwayne L.</div>
+                <div class="claimant-ssn">***-**-3347</div>
+              </td>
+              <td><span class="badge badge-blue badge-dot">Reconsideration</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#635BFF">SK</span>
+                Sarah Kim
+              </td>
+              <td style="color:var(--color-text-secondary)">Aug 10, 2025</td>
+              <td>
+                <span style="font-weight:500">Apr 20, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Response due</div>
+              </td>
+              <td><span class="badge badge-gray">CHF</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1901</a></td>
+              <td>
+                <div class="claimant-name">Chen, Linda M.</div>
+                <div class="claimant-ssn">***-**-9904</div>
+              </td>
+              <td><span class="badge badge-gray badge-dot">Initial Review</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#3B82F6">DC</span>
+                David Chen
+              </td>
+              <td style="color:var(--color-text-secondary)">Mar 20, 2026</td>
+              <td>
+                <span style="font-weight:500">Apr 3, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Intake call</div>
+              </td>
+              <td><span class="badge badge-gray">Fibromyalgia</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2025-0923</a></td>
+              <td>
+                <div class="claimant-name">Davis, Marcus T.</div>
+                <div class="claimant-ssn">***-**-2218</div>
+              </td>
+              <td><span class="badge badge-orange badge-dot">Hearing Prep</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#F5A623">MS</span>
+                Maria Santos
+              </td>
+              <td style="color:var(--color-text-secondary)">Jun 5, 2025</td>
+              <td>
+                <span style="font-weight:500">Apr 8, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Records request</div>
+              </td>
+              <td><span class="badge badge-gray">Depression</span> <span class="badge badge-gray">Anxiety</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1655</a></td>
+              <td>
+                <div class="claimant-name">Rogers, Angela K.</div>
+                <div class="claimant-ssn">***-**-6652</div>
+              </td>
+              <td><span class="badge badge-blue badge-dot">Application Filed</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#00D4AA">JP</span>
+                James Park
+              </td>
+              <td style="color:var(--color-text-secondary)">Jul 18, 2025</td>
+              <td style="color:var(--color-text-secondary)">Pending SSA review</td>
+              <td><span class="badge badge-gray">Diabetes</span> <span class="badge badge-gray">Neuropathy</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1588</a></td>
+              <td>
+                <div class="claimant-name">Nguyen, Thi P.</div>
+                <div class="claimant-ssn">***-**-1187</div>
+              </td>
+              <td><span class="badge badge-red badge-dot">Denied</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#3B82F6">DC</span>
+                David Chen
+              </td>
+              <td style="color:var(--color-text-secondary)">May 2, 2025</td>
+              <td>
+                <span style="color:var(--color-danger);font-weight:600">Apr 1, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Appeal deadline</div>
+              </td>
+              <td><span class="badge badge-gray">RA</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2025-1102</a></td>
+              <td>
+                <div class="claimant-name">Martinez, Jose R.</div>
+                <div class="claimant-ssn">***-**-8841</div>
+              </td>
+              <td><span class="badge badge-purple badge-dot">Appeals Council</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#635BFF">SK</span>
+                Sarah Kim
+              </td>
+              <td style="color:var(--color-text-secondary)">Mar 15, 2025</td>
+              <td>
+                <span style="color:var(--color-danger);font-weight:600">Mar 31, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Brief due</div>
+              </td>
+              <td><span class="badge badge-gray">Schizoaffective</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="table-check"></td>
+              <td><a class="case-id-link" href="case-detail.html">#2026-1950</a></td>
+              <td>
+                <div class="claimant-name">Brown, Keisha D.</div>
+                <div class="claimant-ssn">***-**-5590</div>
+              </td>
+              <td><span class="badge badge-gray badge-dot">Initial Review</span></td>
+              <td>
+                <span class="assigned-avatar" style="background:#00D4AA">JP</span>
+                James Park
+              </td>
+              <td style="color:var(--color-text-secondary)">Mar 25, 2026</td>
+              <td>
+                <span style="font-weight:500">Apr 5, 2026</span>
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">Intake review</div>
+              </td>
+              <td><span class="badge badge-gray">CKD Stage 4</span></td>
+              <td><button class="btn btn-sm btn-secondary" style="padding:2px 8px">...</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <div class="table-footer-info">Showing 1-10 of 247 cases</div>
+          <div class="pagination">
+            <button class="page-btn" disabled>&laquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">25</button>
+            <button class="page-btn">&raquo;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="token-section">
+        <h2 class="token-section-title">Design Tokens</h2>
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="token-card-title">Table Design</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.6">
+              <strong>Header:</strong> sticky, uppercase, xs font, #4A5568<br>
+              <strong>Rows:</strong> sm font, 1px rgba(255,255,255,0.04) separator<br>
+              <strong>Hover:</strong> rgba(99,91,255,0.06) tint<br>
+              <strong>Cell padding:</strong> 12px 16px<br>
+              <strong>Checkbox:</strong> accent-color: #635BFF
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Filter Components</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.6">
+              <strong>Search:</strong> 36px left icon offset, #0A0D14 bg<br>
+              <strong>Select:</strong> 1px border, 8px radius<br>
+              <strong>Focus ring:</strong> 0 0 0 3px rgba(99,91,255,0.2)<br>
+              <strong>Stat pills:</strong> pill radius, active = primary border
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Status Badge Variants</div>
+            <div class="component-showcase">
+              <span class="badge badge-gray badge-dot">Initial Review</span>
+              <span class="badge badge-blue badge-dot">Application Filed</span>
+              <span class="badge badge-blue badge-dot">Reconsideration</span>
+              <span class="badge badge-orange badge-dot">Hearing Prep</span>
+              <span class="badge badge-purple badge-dot">ALJ Hearing</span>
+              <span class="badge badge-purple badge-dot">Appeals Council</span>
+              <span class="badge badge-green badge-dot">Favorable</span>
+              <span class="badge badge-red badge-dot">Denied</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Pagination</div>
+            <div class="component-showcase">
+              <button class="page-btn" disabled>&laquo;</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">&raquo;</button>
+            </div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);margin-top:var(--space-2)">
+              Active: primary bg, white text. Default: bordered, secondary text. Hover: primary border.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

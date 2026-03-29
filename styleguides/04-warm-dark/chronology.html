@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology (Dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-page:#1C1917; --bg-card:#292524; --bg-sidebar:#171412; --bg-hover:#352F2C; --bg-active:#3F3B37;
+    --bg-badge:#3D2E0A; --bg-badge-green:#0A3324; --bg-badge-red:#3B1111; --bg-badge-blue:#172554; --bg-badge-gray:#352F2C; --bg-badge-purple:#2E1065;
+    --text-primary:#E7E5E4; --text-secondary:#A8A29E; --text-tertiary:#78716C; --text-inverse:#FFFFFF; --text-accent:#D97706;
+    --accent:#B45309; --accent-hover:#D97706; --accent-light:#3D2E0A;
+    --success:#059669; --success-light:#0A3324; --warning:#D97706; --warning-light:#3D2E0A;
+    --danger:#DC2626; --danger-light:#3B1111; --info:#2563EB; --info-light:#172554; --purple:#7C3AED;
+    --border:#3F3B37; --border-strong:#57534E;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.2); --shadow-md:0 1px 3px rgba(0,0,0,0.3);
+    --shadow-lg:0 4px 12px rgba(0,0,0,0.4); --shadow-xl:0 8px 24px rgba(0,0,0,0.5);
+    --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
+    --font-heading:'DM Serif Display', Georgia, serif; --font-body:'DM Sans', -apple-system, sans-serif;
+    --text-xs:0.75rem; --text-sm:0.8125rem; --text-base:0.875rem; --text-md:1rem; --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
+    --sidebar-width:240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); font-size: var(--text-base); color: var(--text-primary); background: var(--bg-page); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  h1,h2,h3,h4 { font-family: var(--font-heading); font-weight: 400; line-height: 1.3; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+  .sidebar-header { padding: var(--space-5); border-bottom: 1px solid var(--border); }
+  .sidebar-logo { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-nav { flex: 1; padding: var(--space-3); overflow-y: auto; }
+  .nav-section { margin-bottom: var(--space-5); }
+  .nav-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: var(--space-2) var(--space-3); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+  .nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--accent-light); color: var(--accent); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 600; }
+  .user-name { font-size: var(--text-sm); font-weight: 500; }
+  .user-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  .main { flex: 1; margin-left: var(--sidebar-width); min-width: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-8); border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .topbar-left { display: flex; align-items: center; gap: var(--space-4); }
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-tertiary); }
+  .breadcrumb-current { color: var(--text-primary); font-weight: 500; }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .page-content { padding: var(--space-8); max-width: 1280px; }
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: var(--space-6); }
+  .page-title { font-size: var(--text-2xl); margin-bottom: var(--space-1); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); }
+
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; line-height: 1.5; }
+  .btn-primary { background: var(--accent); color: var(--text-inverse); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-amber  { background: var(--bg-badge); color: var(--accent); }
+  .badge-green  { background: var(--bg-badge-green); color: var(--success); }
+  .badge-red    { background: var(--bg-badge-red); color: var(--danger); }
+  .badge-blue   { background: var(--bg-badge-blue); color: var(--info); }
+  .badge-gray   { background: var(--bg-badge-gray); color: var(--text-secondary); }
+  .badge-purple { background: var(--bg-badge-purple); color: var(--purple); }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--border); }
+  .card-title { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: 400; }
+  .card-body { padding: var(--space-5) var(--space-6); }
+
+  .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-family: var(--font-body); color: var(--text-primary); outline: none; transition: border-color 0.15s; }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent); }
+
+  .filter-select { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); padding-right: var(--space-8); font-size: var(--text-sm); font-family: var(--font-body); color: var(--text-secondary); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; }
+
+  /* ============================================================
+     STAT CARDS ROW
+     ============================================================ */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-4) var(--space-5);
+    border-top: 3px solid var(--border);
+  }
+
+  .stat-card.accent-amber { border-top-color: var(--accent); }
+  .stat-card.accent-green { border-top-color: var(--success); }
+  .stat-card.accent-blue  { border-top-color: var(--info); }
+  .stat-card.accent-red   { border-top-color: var(--danger); }
+  .stat-card.accent-purple { border-top-color: var(--purple); }
+
+  .stat-label { font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-1); font-weight: 500; }
+  .stat-value { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--text-primary); line-height: 1.1; }
+  .stat-sub { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: var(--space-1); }
+
+  /* ============================================================
+     CASE INFO BAR
+     ============================================================ */
+  .case-info-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+  }
+
+  .case-info-item { display: flex; flex-direction: column; }
+  .case-info-label { font-size: var(--text-xs); color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .case-info-value { font-size: var(--text-sm); color: var(--text-primary); font-weight: 500; }
+
+  .case-info-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  /* ============================================================
+     FILTERS BAR
+     ============================================================ */
+  .filters-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  .filter-tag-remove { cursor: pointer; opacity: 0.6; font-size: 14px; }
+  .filter-tag-remove:hover { opacity: 1; }
+
+  /* ============================================================
+     TIMELINE
+     ============================================================ */
+  .timeline-container {
+    position: relative;
+  }
+
+  .timeline-year-header {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    padding: var(--space-4) 0 var(--space-3);
+    border-bottom: 2px solid var(--border);
+    margin-bottom: var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .timeline-year-count {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .timeline-month-group {
+    margin-bottom: var(--space-6);
+  }
+
+  .timeline-month-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+    padding-left: var(--space-10);
+  }
+
+  .timeline-entry {
+    display: flex;
+    gap: var(--space-5);
+    margin-bottom: var(--space-1);
+    position: relative;
+  }
+
+  .timeline-date {
+    width: 70px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: var(--space-4);
+  }
+
+  .timeline-date-day {
+    font-family: var(--font-heading);
+    font-size: var(--text-md);
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .timeline-date-weekday {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  .timeline-line {
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    background: var(--bg-card);
+    flex-shrink: 0;
+    margin-top: 18px;
+    z-index: 2;
+  }
+
+  .timeline-dot.type-visit      { border-color: var(--info); background: var(--info-light); }
+  .timeline-dot.type-procedure  { border-color: var(--danger); background: var(--danger-light); }
+  .timeline-dot.type-diagnosis  { border-color: var(--accent); background: var(--accent-light); }
+  .timeline-dot.type-therapy    { border-color: var(--success); background: var(--success-light); }
+  .timeline-dot.type-imaging    { border-color: var(--purple); background: #2E1065; }
+  .timeline-dot.type-rx         { border-color: var(--warning); background: var(--warning-light); }
+
+  .timeline-connector {
+    width: 2px;
+    flex: 1;
+    background: var(--border);
+    min-height: 8px;
+  }
+
+  .timeline-card {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4) var(--space-5);
+    margin-bottom: var(--space-3);
+    transition: box-shadow 0.2s;
+  }
+
+  .timeline-card:hover { box-shadow: var(--shadow-md); }
+
+  .timeline-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+
+  .timeline-card-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .timeline-card-type { flex-shrink: 0; }
+
+  .timeline-card-provider {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .timeline-card-body {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .timeline-card-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .timeline-card-meta {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .timeline-card-source {
+    font-size: var(--text-xs);
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .timeline-card-source:hover { text-decoration: underline; }
+
+  /* ICD / CPT codes */
+  .code-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--text-secondary);
+    margin-right: var(--space-1);
+    margin-bottom: var(--space-1);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-6);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  .tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid var(--border); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+  .token-swatch { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .token-color { height: 48px; }
+  .token-info { padding: var(--space-2) var(--space-3); background: var(--bg-card); }
+  .token-name { font-size: var(--text-xs); font-weight: 600; }
+  .token-value { font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace; }
+  .section-title { font-family: var(--font-heading); font-size: var(--text-xl); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-logo">Favor<span>ble</span></div></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Main</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Cases
+            <span class="nav-badge">47</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            Contacts
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Documents
+          </div>
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Chronologies
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Manage</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Reports
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">MR</div>
+          <div><div class="user-name">Maria Reynolds</div><div class="user-role">Senior Paralegal</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="breadcrumb">
+            <span>Cases</span>
+            <span style="color: var(--text-tertiary);">/</span>
+            <span>Williams v. City Transit</span>
+            <span style="color: var(--text-tertiary);">/</span>
+            <span class="breadcrumb-current">Medical Chronology</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Medical Chronology</h1>
+            <p class="page-subtitle">Williams v. City Transit Authority &mdash; Marcus Williams</p>
+          </div>
+          <div style="display: flex; gap: var(--space-3);">
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export PDF
+            </button>
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+              Regenerate
+            </button>
+            <button class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Entry
+            </button>
+          </div>
+        </div>
+
+        <!-- Case Info Bar -->
+        <div class="case-info-bar">
+          <div class="case-info-item">
+            <span class="case-info-label">Patient</span>
+            <span class="case-info-value">Marcus Williams, M, DOB 04/12/1987</span>
+          </div>
+          <div class="case-info-divider"></div>
+          <div class="case-info-item">
+            <span class="case-info-label">Date of Injury</span>
+            <span class="case-info-value">October 14, 2025</span>
+          </div>
+          <div class="case-info-divider"></div>
+          <div class="case-info-item">
+            <span class="case-info-label">Primary Diagnosis</span>
+            <span class="case-info-value">Fractured L. Femur, Herniated Disc (L4-L5)</span>
+          </div>
+          <div class="case-info-divider"></div>
+          <div class="case-info-item">
+            <span class="case-info-label">Generated</span>
+            <span class="case-info-value">Mar 28, 2026 (AI-assisted)</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card accent-amber">
+            <div class="stat-label">Total Entries</div>
+            <div class="stat-value">47</div>
+            <div class="stat-sub">Across 5 months</div>
+          </div>
+          <div class="stat-card accent-blue">
+            <div class="stat-label">Provider Visits</div>
+            <div class="stat-value">23</div>
+            <div class="stat-sub">8 unique providers</div>
+          </div>
+          <div class="stat-card accent-red">
+            <div class="stat-label">Procedures</div>
+            <div class="stat-value">4</div>
+            <div class="stat-sub">Including 1 surgery</div>
+          </div>
+          <div class="stat-card accent-green">
+            <div class="stat-label">PT Sessions</div>
+            <div class="stat-value">36</div>
+            <div class="stat-sub">3x weekly, ongoing</div>
+          </div>
+          <div class="stat-card accent-purple">
+            <div class="stat-label">Total Medical</div>
+            <div class="stat-value">$87.4K</div>
+            <div class="stat-sub">Billed to date</div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--info); background: var(--info-light);"></div>
+            Office Visit
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--danger); background: var(--danger-light);"></div>
+            Procedure / Surgery
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--accent); background: var(--accent-light);"></div>
+            Diagnosis
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--success); background: var(--success-light);"></div>
+            Physical Therapy
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--purple); background: #2E1065;"></div>
+            Imaging
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="border-color: var(--warning); background: var(--warning-light);"></div>
+            Medication / Rx
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <input type="text" class="search-input" placeholder="Search entries..." style="width: 220px;">
+          <select class="filter-select">
+            <option>All Types</option>
+            <option>Office Visit</option>
+            <option>Procedure</option>
+            <option>Physical Therapy</option>
+            <option>Imaging</option>
+            <option>Medication</option>
+          </select>
+          <select class="filter-select">
+            <option>All Providers</option>
+            <option>UCLA Medical Center</option>
+            <option>Dr. Raj Patel (Orthopedics)</option>
+            <option>Dr. Linda Cho (Neurology)</option>
+            <option>Pacific PT & Rehab</option>
+          </select>
+          <select class="filter-select">
+            <option>All Body Systems</option>
+            <option>Musculoskeletal</option>
+            <option>Neurological</option>
+            <option>General</option>
+          </select>
+          <div class="filter-tag">
+            Pre-accident excluded
+            <span class="filter-tag-remove">&times;</span>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-container">
+          <!-- 2025 -->
+          <div class="timeline-year-header">2025 <span class="timeline-year-count">(12 entries)</span></div>
+
+          <div class="timeline-month-group">
+            <div class="timeline-month-label">October</div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Oct 14</div>
+                <div class="timeline-date-weekday">Tue</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-visit"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Emergency Room Visit &mdash; UCLA Medical Center</div>
+                  <span class="badge badge-red">Emergency</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. James Nakamura, MD (Emergency Medicine)
+                </div>
+                <div class="timeline-card-body">
+                  Patient presented to ER via ambulance following pedestrian vs. bus collision at Wilshire &amp; Vermont. Chief complaints: severe left leg pain, lower back pain, headache, and abrasion to right forearm. GCS 15. Left femur fracture confirmed on X-ray. CT of lumbar spine ordered. Admitted to orthopedic unit.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">ICD-10: S72.001A</span>
+                  <span class="code-tag">ICD-10: M51.16</span>
+                  <span class="code-tag">CPT: 99285</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: UCLA ER Records (pp. 1-14)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Oct 15</div>
+                <div class="timeline-date-weekday">Wed</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-imaging"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">MRI Lumbar Spine</div>
+                  <span class="badge badge-purple">Imaging</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  UCLA Radiology &mdash; Dr. Susan Park, MD
+                </div>
+                <div class="timeline-card-body">
+                  MRI lumbar spine without contrast. Findings: Large central/left paracentral disc herniation at L4-L5 with significant compression of the traversing left L5 nerve root. Mild degenerative changes at L3-L4. No evidence of fracture at lumbar levels.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 72148</span>
+                  <span class="code-tag">ICD-10: M51.16</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: UCLA Radiology Report (pp. 15-17)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Oct 18</div>
+                <div class="timeline-date-weekday">Sat</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-procedure"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">ORIF Left Femur &mdash; Surgical Procedure</div>
+                  <span class="badge badge-red">Surgery</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Raj Patel, MD (Orthopedic Surgery) &mdash; UCLA Medical Center
+                </div>
+                <div class="timeline-card-body">
+                  Open reduction internal fixation (ORIF) of left femoral shaft fracture with intramedullary nail. Procedure duration: 2 hours 15 minutes. General anesthesia. No intraoperative complications. EBL: 250cc. Patient tolerated procedure well.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 27506</span>
+                  <span class="code-tag">ICD-10: S72.001A</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: UCLA Surgical Records (pp. 18-26)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Oct 22</div>
+                <div class="timeline-date-weekday">Wed</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-rx"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Discharge &amp; Medication Orders</div>
+                  <span class="badge badge-amber">Medication</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Raj Patel, MD
+                </div>
+                <div class="timeline-card-body">
+                  Hospital discharge after 8-day stay. Discharge medications: Oxycodone 5mg q6h PRN (30 tablets), Gabapentin 300mg TID, Naproxen 500mg BID, Lovenox 40mg SQ daily x 14 days. Instructions: non-weight-bearing left lower extremity, PT referral in 2 weeks, follow-up with Dr. Patel in 10 days.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">RX: Oxycodone 5mg</span>
+                  <span class="code-tag">RX: Gabapentin 300mg</span>
+                  <span class="code-tag">RX: Naproxen 500mg</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: UCLA Discharge Summary (pp. 27-31)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-month-group">
+            <div class="timeline-month-label">November</div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Nov 1</div>
+                <div class="timeline-date-weekday">Sat</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-visit"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Post-Operative Follow-Up</div>
+                  <span class="badge badge-blue">Office Visit</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Raj Patel, MD (Orthopedic Surgery)
+                </div>
+                <div class="timeline-card-body">
+                  Two-week post-op visit. Surgical wound healing well, no signs of infection. X-ray shows good alignment of hardware. Continued non-weight-bearing. Reduced oxycodone to PRN only. Cleared to begin PT. Follow-up in 4 weeks.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 99214</span>
+                  <span class="code-tag">CPT: 73552</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: Dr. Patel Office Notes (pp. 32-34)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Nov 5</div>
+                <div class="timeline-date-weekday">Wed</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-therapy"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Physical Therapy Evaluation</div>
+                  <span class="badge badge-green">Therapy</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Pacific Physical Therapy &amp; Rehabilitation &mdash; Karen Torres, DPT
+                </div>
+                <div class="timeline-card-body">
+                  Initial PT evaluation. Patient presents with significant L LE weakness, limited ROM, and ongoing LBP with left-sided radiculopathy. ROM: L knee flexion 85/130, L hip flexion 70/120. Strength: L quad 3/5, L hamstrings 3+/5. Pain: 7/10 at rest, 9/10 with movement. Plan: 3x/week for 12 weeks, focus on ROM, strengthening, gait training.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 97161</span>
+                  <span class="code-tag">CPT: 97110</span>
+                  <span class="code-tag">CPT: 97140</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: Pacific PT Records (pp. 35-40)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Nov 19</div>
+                <div class="timeline-date-weekday">Wed</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-diagnosis"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Neurology Consultation</div>
+                  <span class="badge badge-amber">Diagnosis</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Linda Cho, MD (Neurology)
+                </div>
+                <div class="timeline-card-body">
+                  Referred by Dr. Patel for persistent radiculopathy. EMG/NCS performed: findings consistent with left L5 radiculopathy with active denervation. Diagnosis: traumatic lumbar disc herniation L4-L5 with left L5 radiculopathy. Recommends: epidural steroid injection, continued PT, possible surgical consultation if no improvement in 6-8 weeks.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 95907</span>
+                  <span class="code-tag">CPT: 95886</span>
+                  <span class="code-tag">ICD-10: M54.17</span>
+                  <span class="code-tag">ICD-10: G54.4</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: Dr. Cho Consultation (pp. 41-46)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2026 -->
+          <div class="timeline-year-header">2026 <span class="timeline-year-count">(35 entries)</span></div>
+
+          <div class="timeline-month-group">
+            <div class="timeline-month-label">January</div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Jan 8</div>
+                <div class="timeline-date-weekday">Thu</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-procedure"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Arthroscopic Knee Surgery</div>
+                  <span class="badge badge-red">Surgery</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Raj Patel, MD &mdash; UCLA Outpatient Surgical Center
+                </div>
+                <div class="timeline-card-body">
+                  Left knee arthroscopy for internal derangement secondary to trauma. Findings: Grade III chondral defect medial femoral condyle, partial medial meniscus tear. Performed: chondroplasty and partial medial meniscectomy. Patient discharged same day with knee brace and crutches.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 29881</span>
+                  <span class="code-tag">CPT: 29877</span>
+                  <span class="code-tag">ICD-10: S83.211A</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: UCLA Surgical Records (pp. 62-68)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-month-group">
+            <div class="timeline-month-label">March</div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Mar 12</div>
+                <div class="timeline-date-weekday">Thu</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-visit"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Orthopedic Follow-Up &mdash; Progress Evaluation</div>
+                  <span class="badge badge-blue">Office Visit</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. Raj Patel, MD (Orthopedic Surgery)
+                </div>
+                <div class="timeline-card-body">
+                  Five-month post-ORIF, 2-month post-arthroscopy. X-rays show good healing of femur fracture. Patient now partial weight bearing with cane. Knee ROM improved to 120 degrees. Persistent LBP with radicular symptoms. Recommends continued PT 3x/week. Estimates 6-8 additional months for maximum medical improvement. May need hardware removal in future.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 99215</span>
+                  <span class="code-tag">CPT: 73552</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: Dr. Patel Office Notes (pp. 78-81)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-entry">
+              <div class="timeline-date">
+                <div class="timeline-date-day">Mar 25</div>
+                <div class="timeline-date-weekday">Wed</div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-dot type-therapy"></div>
+                <div class="timeline-connector"></div>
+              </div>
+              <div class="timeline-card">
+                <div class="timeline-card-header">
+                  <div class="timeline-card-title">Physical Therapy Progress Note (Session #34)</div>
+                  <span class="badge badge-green">Therapy</span>
+                </div>
+                <div class="timeline-card-provider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Pacific Physical Therapy &amp; Rehabilitation &mdash; Karen Torres, DPT
+                </div>
+                <div class="timeline-card-body">
+                  Significant improvement from baseline. ROM: L knee flexion 120/130, L hip flexion 110/120. Strength: L quad 4/5, L hamstrings 4/5. Pain: 4/10 at rest, 6/10 with strenuous activity. Patient ambulating with cane, able to perform ADLs independently. Ongoing deficits in endurance, stair climbing, and prolonged standing. Plan: continue 3x/week, progress strengthening and functional activities.
+                </div>
+                <div style="margin-top: var(--space-2);">
+                  <span class="code-tag">CPT: 97110</span>
+                  <span class="code-tag">CPT: 97140</span>
+                  <span class="code-tag">CPT: 97530</span>
+                </div>
+                <div class="timeline-card-footer">
+                  <div class="timeline-card-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Source: Pacific PT Records (pp. 82-84)
+                  </div>
+                  <span class="timeline-card-source">View document</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== DESIGN TOKENS ====== -->
+        <div class="tokens-section">
+          <div style="margin-bottom: var(--space-6);"><h2 class="section-title">Design Tokens</h2></div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Timeline Entry Types</h4>
+          <div style="display: flex; gap: var(--space-6); flex-wrap: wrap; margin-bottom: var(--space-8);">
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-visit" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Office Visit</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--info)</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-procedure" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Procedure</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--danger)</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-diagnosis" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Diagnosis</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--accent)</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-therapy" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Therapy</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--success)</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-imaging" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Imaging</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--purple)</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="timeline-dot type-rx" style="position: static; margin: 0;"></div>
+              <div>
+                <div style="font-size: var(--text-sm); font-weight: 500;">Medication</div>
+                <div style="font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace;">border: var(--warning)</div>
+              </div>
+            </div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Code Tags</h4>
+          <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-8);">
+            <span class="code-tag">ICD-10: S72.001A</span>
+            <span class="code-tag">CPT: 99285</span>
+            <span class="code-tag">RX: Oxycodone 5mg</span>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Timeline Layout Specs</h4>
+          <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8);">
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Date Column</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">70px, right-aligned</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Line Column</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">24px, centered dot + connector</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Dot Size</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">12px, 3px border</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Connector</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">2px width, var(--border)</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Card Padding</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">16px / 20px</div>
+            </div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Colors</h4>
+          <div class="tokens-grid">
+            <div class="token-swatch"><div class="token-color" style="background: #1C1917;"></div><div class="token-info"><div class="token-name">Page Background</div><div class="token-value">#1C1917</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #E7E5E4;"></div><div class="token-info"><div class="token-name">Primary Text</div><div class="token-value">#E7E5E4</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #B45309;"></div><div class="token-info"><div class="token-name">Accent</div><div class="token-value">#B45309</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #059669;"></div><div class="token-info"><div class="token-name">Success / Therapy</div><div class="token-value">#059669</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #2563EB;"></div><div class="token-info"><div class="token-name">Info / Visit</div><div class="token-value">#2563EB</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #DC2626;"></div><div class="token-info"><div class="token-name">Danger / Surgery</div><div class="token-value">#DC2626</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #7C3AED;"></div><div class="token-info"><div class="token-name">Purple / Imaging</div><div class="token-value">#7C3AED</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #D97706;"></div><div class="token-info"><div class="token-name">Warning / Rx</div><div class="token-value">#D97706</div></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

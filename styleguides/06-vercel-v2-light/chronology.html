@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-root:#FAFAFA;--bg-card:#FFFFFF;--bg-card-alt:#FAFAFA;--bg-hover:#F0F0F0;--bg-input:#FFFFFF;
+    --border:#EAEAEA;--border-hover:#CCCCCC;--border-focus:#0070F3;
+    --text-primary:#171717;--text-secondary:#666666;--text-tertiary:#999999;
+    --accent-blue:#0070F3;--accent-blue-hover:#005BC4;--accent-blue-muted:rgba(0,112,243,0.08);--accent-blue-subtle:rgba(0,112,243,0.04);
+    --accent-green:#00C853;--accent-amber:#F5A623;--accent-red:#EE0000;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .app{display:flex;height:100vh}
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-blue);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer;text-decoration:none;border-left:2px solid transparent}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover);text-decoration:none}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card);border-left-color:var(--accent-blue)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px}
+  .sidebar-link.active .icon{opacity:1;color:var(--accent-blue)}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-blue-muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent-blue)}
+
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+  .breadcrumb{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .breadcrumb a{color:var(--accent-blue)}
+  .breadcrumb .sep{color:var(--text-tertiary)}
+  .main-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-6)}
+  .main-header h1{font-size:22px;font-weight:600;letter-spacing:-0.5px}
+  .main-header-sub{font-size:13px;color:var(--text-secondary);margin-top:var(--sp-1)}
+
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-blue);color:#FFF;border-color:var(--accent-blue)}
+  .btn-primary:hover{background:var(--accent-blue-hover);border-color:var(--accent-blue-hover)}
+  .btn-secondary{background:var(--bg-card);color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-4);margin-bottom:var(--sp-6)}
+  .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-4);transition:border-color var(--transition);border-top:2px solid var(--accent-blue)}
+  .stat-card:hover{border-color:var(--border-hover);border-top-color:var(--accent-blue)}
+  .stat-label{font-size:11px;color:var(--text-secondary);margin-bottom:var(--sp-1)}
+  .stat-value{font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1.1;font-feature-settings:"tnum"}
+  .stat-meta{margin-top:var(--sp-1);font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary)}
+
+  .toolbar{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap}
+  .search-input{flex:1;max-width:280px;padding:7px 12px 7px 32px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;transition:border-color var(--transition);outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+  .search-input::placeholder{color:var(--text-tertiary)}
+  .search-input:focus{border-color:var(--accent-blue)}
+  .select-input{padding:6px 28px 6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='%23999'%3E%3Cpath d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color var(--transition);outline:none}
+  .select-input:focus{border-color:var(--accent-blue)}
+  .filter-group{display:flex;gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden}
+  .filter-btn{padding:6px 12px;font-family:var(--font-sans);font-size:12px;font-weight:500;background:var(--bg-card);color:var(--text-secondary);border:none;cursor:pointer;transition:all var(--transition)}
+  .filter-btn:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .filter-btn.active{color:var(--accent-blue);background:var(--accent-blue-subtle)}
+
+  .tag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;border:1px solid}
+  .tag-diagnosis{color:var(--accent-blue);border-color:rgba(0,112,243,0.25);background:rgba(0,112,243,0.05)}
+  .tag-treatment{color:#059669;border-color:rgba(5,150,105,0.25);background:rgba(5,150,105,0.05)}
+  .tag-imaging{color:#7C3AED;border-color:rgba(124,58,237,0.25);background:rgba(124,58,237,0.05)}
+  .tag-surgery{color:var(--accent-red);border-color:rgba(238,0,0,0.25);background:rgba(238,0,0,0.05)}
+  .tag-rx{color:#D97706;border-color:rgba(217,119,6,0.25);background:rgba(217,119,6,0.05)}
+  .tag-visit{color:#666;border-color:rgba(102,102,102,0.25);background:rgba(102,102,102,0.05)}
+  .tag-er{color:var(--accent-red);border-color:rgba(238,0,0,0.25);background:rgba(238,0,0,0.05)}
+  .tag-referral{color:var(--accent-blue);border-color:rgba(0,112,243,0.25);background:rgba(0,112,243,0.05)}
+  .tag-mental{color:#3B82F6;border-color:rgba(59,130,246,0.25);background:rgba(59,130,246,0.05)}
+
+  .timeline{position:relative}
+  .timeline-month{margin-bottom:var(--sp-6)}
+  .timeline-month-header{font-size:12px;font-weight:600;color:var(--text-secondary);padding:var(--sp-2) 0;margin-bottom:var(--sp-3);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-root);z-index:1}
+  .timeline-entry{display:grid;grid-template-columns:90px 1fr;gap:0;margin-bottom:1px;transition:background var(--transition)}
+  .timeline-entry:hover{background:var(--bg-hover)}
+  .timeline-date-col{padding:var(--sp-3) var(--sp-4) var(--sp-3) 0;text-align:right;border-right:2px solid var(--border);position:relative}
+  .timeline-date{font-size:12px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .timeline-dot{position:absolute;right:-5px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--border);border:2px solid var(--bg-root)}
+  .timeline-dot.blue{background:var(--accent-blue)}
+  .timeline-dot.green{background:var(--accent-green)}
+  .timeline-dot.amber{background:var(--accent-amber)}
+  .timeline-dot.red{background:var(--accent-red)}
+  .timeline-dot.purple{background:#7C3AED}
+  .timeline-content{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);min-height:48px}
+  .timeline-row-header{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:2px}
+  .timeline-provider{font-size:12px;font-weight:500;color:var(--text-primary)}
+  .timeline-summary{font-size:13px;color:var(--text-secondary);line-height:1.5}
+  .timeline-source{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);margin-top:var(--sp-1)}
+  .timeline-source a{color:var(--accent-blue)}
+  .timeline-amount{font-size:12px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:var(--sp-1)}
+  .timeline-detail{margin-top:var(--sp-2);padding:var(--sp-3);background:var(--bg-card-alt);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text-secondary);line-height:1.6}
+  .timeline-detail dt{color:var(--text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:0.04em;margin-top:var(--sp-2)}
+  .timeline-detail dt:first-child{margin-top:0}
+  .timeline-detail dd{color:var(--text-primary);margin-bottom:var(--sp-1)}
+
+  .load-more{text-align:center;padding:var(--sp-6) 0}
+
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}
+  .token-name{font-weight:500;margin-bottom:1px}
+  .token-val{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Overview</div><a class="sidebar-link" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a><a class="sidebar-link" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">83</span></a><a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">24</span></a><a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Tools</div><a class="sidebar-link active" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a><a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a><a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Briefs</a></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Settings</div><a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a><a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a></div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="avatar">RM</div><div><div style="font-size:13px;color:var(--text-primary)">Rachel Morrison</div><div style="font-size:11px;color:var(--text-tertiary)">Managing Attorney</div></div></div>
+  </nav>
+
+  <main class="main">
+    <div class="breadcrumb"><a href="cases-list.html">Cases</a><span class="sep">/</span><a href="case-detail.html">SSA-1845</a><span class="sep">/</span><span style="color:var(--text-primary)">Chronology</span></div>
+
+    <div class="main-header">
+      <div><h1>Medical Chronology</h1><div class="main-header-sub">Brown, Patricia A. &mdash; SSA-1845 &mdash; 318 entries from 22 source documents</div></div>
+      <div style="display:flex;gap:var(--sp-3)"><button class="btn btn-secondary btn-sm">Export PDF</button><button class="btn btn-secondary btn-sm">Export CSV</button><button class="btn btn-primary btn-sm">Regenerate</button></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Entries</div><div class="stat-value">318</div><div class="stat-meta">22 source docs</div></div>
+      <div class="stat-card"><div class="stat-label">Providers</div><div class="stat-value">11</div><div class="stat-meta">5 facilities</div></div>
+      <div class="stat-card"><div class="stat-label">Date Range</div><div class="stat-value" style="font-size:18px">26 mo</div><div class="stat-meta">Jan 2024 - Mar 2026</div></div>
+      <div class="stat-card"><div class="stat-label">Total Billed</div><div class="stat-value">$84.3K</div><div class="stat-meta">across 62 line items</div></div>
+      <div class="stat-card"><div class="stat-label">AI Confidence</div><div class="stat-value">94%</div><div class="stat-meta">18 entries flagged</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" type="text" placeholder="Search entries...">
+      <div class="filter-group"><button class="filter-btn active">All</button><button class="filter-btn">Diagnosis</button><button class="filter-btn">Treatment</button><button class="filter-btn">Imaging</button><button class="filter-btn">Rx</button><button class="filter-btn">Mental Health</button></div>
+      <select class="select-input"><option>All Providers</option><option>Dr. Rajesh Patel</option><option>Dr. Lisa Chen</option><option>Dr. Priya Singh</option><option>Dallas Spine Institute</option><option>Baylor Scott &amp; White ER</option><option>Serenity Mental Health</option></select>
+      <select class="select-input"><option>All Sources</option><option>ER Records</option><option>MRI Reports</option><option>Office Notes</option><option>Psych Eval</option><option>Billing Records</option></select>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-month">
+        <div class="timeline-month-header">January 2024</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Jan 15</div><div class="timeline-dot red"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Baylor Scott &amp; White ER</span><span class="tag tag-er">ER Visit</span></div>
+            <div class="timeline-summary">Patient presented with acute lower back pain and bilateral leg numbness after attempting to lift furniture. Onset of symptoms described as sudden, with pain rated 9/10.</div>
+            <div class="timeline-detail"><dl><dt>Attending</dt><dd>Dr. James Whitfield, MD</dd><dt>Vitals</dt><dd>BP 148/92, HR 88, Temp 98.4, SpO2 98%</dd><dt>Diagnosis</dt><dd>Acute exacerbation chronic low back pain, lumbar radiculopathy, DDD</dd><dt>Disposition</dt><dd>Discharged with prescriptions. Follow-up PCP in 5 days.</dd></dl></div>
+            <div class="timeline-amount">$5,240.00</div>
+            <div class="timeline-source">Source: <a href="#">ER_Records_BaylorSW.pdf</a> pp. 1-9</div>
+          </div>
+        </div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Jan 22</div><div class="timeline-dot blue"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Rajesh Patel</span><span class="tag tag-visit">Office Visit</span></div>
+            <div class="timeline-summary">Initial PCP consultation. Patient reports constant lower back pain 7/10, radiating to both legs. Unable to sit more than 20 minutes. Positive straight leg raise bilaterally. Referred to Dallas Spine Institute.</div>
+            <div class="timeline-amount">$285.00</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Patel_OfficeNotes.pdf</a> pp. 1-3</div>
+          </div>
+        </div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Jan 30</div><div class="timeline-dot purple"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dallas Spine Institute</span><span class="tag tag-imaging">MRI</span></div>
+            <div class="timeline-summary">MRI Lumbar Spine: L4-L5 broad-based disc herniation with moderate bilateral foraminal stenosis. L5-S1 disc protrusion with annular tear. Moderate facet arthropathy.</div>
+            <div class="timeline-amount">$2,800.00</div>
+            <div class="timeline-source">Source: <a href="#">MRI_Lumbar_DallasSpine.pdf</a> pp. 1-3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-month">
+        <div class="timeline-month-header">February 2024</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Feb 5</div><div class="timeline-dot blue"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Lisa Chen (Spine)</span><span class="tag tag-visit">Office Visit</span></div>
+            <div class="timeline-summary">Orthopedic spine evaluation. Confirms L4-L5 herniation and L5-S1 protrusion. Patient ambulates with antalgic gait. Recommends ESI series before considering surgical options.</div>
+            <div class="timeline-amount">$450.00</div>
+            <div class="timeline-source">Source: <a href="#">DallasSpine_Dr_Chen_Notes.pdf</a> pp. 1-4</div>
+          </div>
+        </div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Feb 14</div><div class="timeline-dot green"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dallas Spine Institute</span><span class="tag tag-treatment">ESI #1</span></div>
+            <div class="timeline-summary">L4-L5 transforaminal epidural steroid injection (bilateral). Fluoroscopic guidance. Patient tolerated well.</div>
+            <div class="timeline-amount">$3,400.00</div>
+            <div class="timeline-source">Source: <a href="#">DallasSpine_Procedures.pdf</a> pp. 1-2</div>
+          </div>
+        </div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Feb 20</div><div class="timeline-dot blue"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Serenity Mental Health</span><span class="tag tag-mental">Psych Eval</span></div>
+            <div class="timeline-summary">Initial psychiatric evaluation by Dr. Priya Singh. PHQ-9 score: 21 (severe). GAF: 48. Diagnosis: Major Depressive Disorder, recurrent, severe. Started sertraline 100mg. Marked limitations in concentration, persistence, and pace noted.</div>
+            <div class="timeline-amount">$380.00</div>
+            <div class="timeline-source">Source: <a href="#">Serenity_PsychEval.pdf</a> pp. 1-6</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-month">
+        <div class="timeline-month-header">March 2024 - Present (summary)</div>
+        <div class="timeline-entry">
+          <div class="timeline-date-col"><div class="timeline-date">Mar 15</div><div class="timeline-dot blue"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-row-header"><span class="timeline-provider">Dr. Rajesh Patel</span><span class="tag tag-diagnosis">RFC Assessment</span></div>
+            <div class="timeline-summary">Treating source RFC assessment. Dr. Patel opines: can sit 30 min at a time, 2 hours total in 8-hour day. Can stand/walk 15 min at a time, 1 hour total. Must lie down 2-3 hours during workday. Cannot lift more than 5 lbs. Would miss 4+ days/month.</div>
+            <div class="timeline-source">Source: <a href="#">Dr_Patel_RFC_Assessment.pdf</a> pp. 1-4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="load-more">
+      <button class="btn btn-secondary">Load More Entries</button>
+      <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:var(--sp-2)">Showing 7 of 318 entries</div>
+    </div>
+
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#FAFAFA"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-val">#FAFAFA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#FFFFFF"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-val">#FFFFFF</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EAEAEA"></div><div class="token-info"><div class="token-name">border</div><div class="token-val">#EAEAEA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#171717"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-val">#171717</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#0070F3"></div><div class="token-info"><div class="token-name">accent-blue (primary)</div><div class="token-val">#0070F3</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#00C853"></div><div class="token-info"><div class="token-name">accent-green</div><div class="token-val">#00C853</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#7C3AED"></div><div class="token-info"><div class="token-name">purple (imaging)</div><div class="token-val">#7C3AED</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#3B82F6"></div><div class="token-info"><div class="token-name">blue (mental health)</div><div class="token-val">#3B82F6</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#F5A623"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-val">#F5A623</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EE0000"></div><div class="token-info"><div class="token-name">accent-red</div><div class="token-val">#EE0000</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

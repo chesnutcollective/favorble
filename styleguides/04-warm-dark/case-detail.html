@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail (Dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-page:#1C1917; --bg-card:#292524; --bg-sidebar:#171412; --bg-hover:#352F2C; --bg-active:#3F3B37;
+    --bg-badge:#3D2E0A; --bg-badge-green:#0A3324; --bg-badge-red:#3B1111; --bg-badge-blue:#172554; --bg-badge-gray:#352F2C; --bg-badge-purple:#2E1065;
+    --text-primary:#E7E5E4; --text-secondary:#A8A29E; --text-tertiary:#78716C; --text-inverse:#FFFFFF; --text-accent:#D97706;
+    --accent:#B45309; --accent-hover:#D97706; --accent-light:#3D2E0A;
+    --success:#059669; --success-light:#0A3324; --warning:#D97706; --warning-light:#3D2E0A;
+    --danger:#DC2626; --danger-light:#3B1111; --info:#2563EB; --info-light:#172554; --purple:#7C3AED;
+    --border:#3F3B37; --border-strong:#57534E;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.2); --shadow-md:0 1px 3px rgba(0,0,0,0.3);
+    --shadow-lg:0 4px 12px rgba(0,0,0,0.4); --shadow-xl:0 8px 24px rgba(0,0,0,0.5);
+    --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
+    --font-heading:'DM Serif Display', Georgia, serif; --font-body:'DM Sans', -apple-system, sans-serif;
+    --text-xs:0.75rem; --text-sm:0.8125rem; --text-base:0.875rem; --text-md:1rem; --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
+    --sidebar-width:240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); font-size: var(--text-base); color: var(--text-primary); background: var(--bg-page); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  h1,h2,h3,h4 { font-family: var(--font-heading); font-weight: 400; line-height: 1.3; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+  .sidebar-header { padding: var(--space-5); border-bottom: 1px solid var(--border); }
+  .sidebar-logo { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-nav { flex: 1; padding: var(--space-3); overflow-y: auto; }
+  .nav-section { margin-bottom: var(--space-5); }
+  .nav-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: var(--space-2) var(--space-3); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+  .nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--accent-light); color: var(--accent); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 600; }
+  .user-name { font-size: var(--text-sm); font-weight: 500; }
+  .user-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  .main { flex: 1; margin-left: var(--sidebar-width); min-width: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-8); border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .topbar-left { display: flex; align-items: center; gap: var(--space-4); }
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-tertiary); }
+  .breadcrumb-current { color: var(--text-primary); font-weight: 500; }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .page-content { padding: var(--space-8); max-width: 1280px; }
+
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; line-height: 1.5; }
+  .btn-primary { background: var(--accent); color: var(--text-inverse); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .btn-danger { background: var(--bg-card); color: var(--danger); border-color: var(--border); }
+  .btn-danger:hover { background: var(--danger-light); }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-amber  { background: var(--bg-badge); color: var(--accent); }
+  .badge-green  { background: var(--bg-badge-green); color: var(--success); }
+  .badge-red    { background: var(--bg-badge-red); color: var(--danger); }
+  .badge-blue   { background: var(--bg-badge-blue); color: var(--info); }
+  .badge-gray   { background: var(--bg-badge-gray); color: var(--text-secondary); }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--border); }
+  .card-title { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: 400; }
+  .card-body { padding: var(--space-5) var(--space-6); }
+
+  /* ============================================================
+     CASE HEADER
+     ============================================================ */
+  .case-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .case-header-left { flex: 1; }
+
+  .case-header-title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .case-header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+
+  .case-header-meta .separator {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+
+  .case-header-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     STAGE PROGRESS
+     ============================================================ */
+  .stage-progress {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+
+  .stage-progress-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-5);
+  }
+
+  .stages-bar {
+    display: flex;
+    gap: 0;
+    position: relative;
+  }
+
+  .stage-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  .stage-step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-2);
+    position: relative;
+    z-index: 2;
+    transition: all 0.2s;
+  }
+
+  .stage-step.completed .stage-step-dot {
+    background: var(--success);
+    border-color: var(--success);
+  }
+
+  .stage-step.completed .stage-step-dot::after {
+    content: '';
+    width: 8px;
+    height: 4px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg);
+    margin-top: -2px;
+  }
+
+  .stage-step.active .stage-step-dot {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    box-shadow: 0 0 0 4px rgba(180,83,9,0.1);
+  }
+
+  .stage-step.active .stage-step-dot::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .stage-step-label {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  .stage-step.completed .stage-step-label { color: var(--success); }
+  .stage-step.active .stage-step-label { color: var(--accent); font-weight: 600; }
+
+  .stage-step-date {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .stage-connector {
+    position: absolute;
+    top: 16px;
+    left: calc(50% + 18px);
+    right: calc(-50% + 18px);
+    height: 3px;
+    background: var(--border);
+    z-index: 1;
+  }
+
+  .stage-step.completed .stage-connector { background: var(--success); }
+  .stage-step:last-child .stage-connector { display: none; }
+
+  /* ============================================================
+     DETAIL GRID
+     ============================================================ */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+  .tab { padding: var(--space-3) var(--space-5); font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab:hover { color: var(--text-primary); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 18px; padding: 0 5px; margin-left: var(--space-2); background: var(--bg-page); border-radius: 9px; font-size: 11px; font-weight: 600; color: var(--text-tertiary); }
+  .tab.active .tab-count { background: var(--accent-light); color: var(--accent); }
+
+  /* Info pairs */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4) var(--space-8);
+  }
+
+  .info-pair { }
+
+  .info-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-1);
+  }
+
+  .info-value {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Tasks */
+  .task-item { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom: none; }
+  .task-check { width: 18px; height: 18px; border: 2px solid var(--border-strong); border-radius: var(--radius-sm); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+  .task-check.done { background: var(--success); border-color: var(--success); position: relative; }
+  .task-check.done::after { content: ''; position: absolute; top: 2px; left: 5px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .task-content { flex: 1; min-width: 0; }
+  .task-title { font-size: var(--text-sm); font-weight: 500; }
+  .task-title.done { text-decoration: line-through; color: var(--text-tertiary); }
+  .task-meta { font-size: var(--text-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-3); }
+  .task-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .priority-high { background: var(--danger); }
+  .priority-medium { background: var(--warning); }
+  .priority-low { background: var(--success); }
+
+  /* Documents */
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .doc-item:last-child { border-bottom: none; }
+
+  .doc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+
+  .doc-icon-pdf { background: var(--danger-light); color: var(--danger); }
+  .doc-icon-doc { background: var(--info-light); color: var(--info); }
+  .doc-icon-img { background: var(--success-light); color: var(--success); }
+  .doc-icon-xls { background: var(--bg-badge); color: var(--accent); }
+
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+  .doc-meta { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  /* Notes */
+  .note-item {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .note-item:last-child { border-bottom: none; }
+
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .note-author { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+  .note-date { font-size: var(--text-xs); color: var(--text-tertiary); }
+  .note-body { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; }
+
+  /* Sidebar widget */
+  .sidebar-widget {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--space-5);
+  }
+
+  .sidebar-widget-header {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-heading);
+    font-size: var(--text-md);
+  }
+
+  .sidebar-widget-body { padding: var(--space-4) var(--space-5); }
+
+  .team-member {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+  }
+
+  .team-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--text-inverse); flex-shrink: 0;
+  }
+
+  .team-name { font-size: var(--text-sm); font-weight: 500; }
+  .team-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  /* Stat mini */
+  .stat-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-mini:last-child { border-bottom: none; }
+  .stat-mini-label { font-size: var(--text-sm); color: var(--text-secondary); }
+  .stat-mini-value { font-family: var(--font-heading); font-size: var(--text-md); color: var(--text-primary); }
+
+  /* Tokens */
+  .tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid var(--border); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+  .token-swatch { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .token-color { height: 48px; }
+  .token-info { padding: var(--space-2) var(--space-3); background: var(--bg-card); }
+  .token-name { font-size: var(--text-xs); font-weight: 600; }
+  .token-value { font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace; }
+  .section-title { font-family: var(--font-heading); font-size: var(--text-xl); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-logo">Favor<span>ble</span></div></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Main</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Cases
+            <span class="nav-badge">47</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            Contacts
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Documents
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Chronologies
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Manage</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Reports
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">MR</div>
+          <div><div class="user-name">Maria Reynolds</div><div class="user-role">Senior Paralegal</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="breadcrumb">
+            <span>Dashboard</span>
+            <span style="color: var(--text-tertiary);">/</span>
+            <span>Cases</span>
+            <span style="color: var(--text-tertiary);">/</span>
+            <span class="breadcrumb-current">Williams v. City Transit</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Case Header -->
+        <div class="case-header">
+          <div class="case-header-left">
+            <h1 class="case-header-title">Williams v. City Transit Authority</h1>
+            <div class="case-header-meta">
+              <span style="font-family: monospace; color: var(--text-tertiary);">CS-2026-0134</span>
+              <span class="separator"></span>
+              <span class="badge badge-blue">Personal Injury</span>
+              <span class="separator"></span>
+              <span class="badge badge-amber">Discovery</span>
+              <span class="separator"></span>
+              <span class="badge badge-red">High Priority</span>
+            </div>
+          </div>
+          <div class="case-header-actions">
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+            <button class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              Advance Stage
+            </button>
+          </div>
+        </div>
+
+        <!-- Stage Progress -->
+        <div class="stage-progress">
+          <div class="stage-progress-title">Case Progress</div>
+          <div class="stages-bar">
+            <div class="stage-step completed">
+              <div class="stage-connector"></div>
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Intake</div>
+              <div class="stage-step-date">Jan 15</div>
+            </div>
+            <div class="stage-step completed">
+              <div class="stage-connector"></div>
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Investigation</div>
+              <div class="stage-step-date">Feb 3</div>
+            </div>
+            <div class="stage-step active">
+              <div class="stage-connector"></div>
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Discovery</div>
+              <div class="stage-step-date">Current</div>
+            </div>
+            <div class="stage-step">
+              <div class="stage-connector"></div>
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Negotiation</div>
+              <div class="stage-step-date">&mdash;</div>
+            </div>
+            <div class="stage-step">
+              <div class="stage-connector"></div>
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Settlement</div>
+              <div class="stage-step-date">&mdash;</div>
+            </div>
+            <div class="stage-step">
+              <div class="stage-step-dot"></div>
+              <div class="stage-step-label">Closed</div>
+              <div class="stage-step-date">&mdash;</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Grid -->
+        <div class="detail-grid">
+          <!-- Left Column: Tabs Content -->
+          <div>
+            <div class="card">
+              <div class="tabs" style="padding: 0 var(--space-6);">
+                <div class="tab active">Overview</div>
+                <div class="tab">Tasks <span class="tab-count">6</span></div>
+                <div class="tab">Documents <span class="tab-count">14</span></div>
+                <div class="tab">Notes <span class="tab-count">8</span></div>
+                <div class="tab">Timeline</div>
+              </div>
+
+              <!-- Overview Tab Content -->
+              <div class="card-body">
+                <div class="info-grid" style="margin-bottom: var(--space-6);">
+                  <div class="info-pair">
+                    <div class="info-label">Client</div>
+                    <div class="info-value">Marcus Williams</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Lead Attorney</div>
+                    <div class="info-value">James Thornton</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Date of Incident</div>
+                    <div class="info-value">October 14, 2025</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Statute of Limitations</div>
+                    <div class="info-value" style="color: var(--danger);">October 14, 2027</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Jurisdiction</div>
+                    <div class="info-value">Superior Court, County of Los Angeles</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Case Number</div>
+                    <div class="info-value" style="font-family: monospace;">BC-2026-012847</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Opposing Counsel</div>
+                    <div class="info-value">Martinez & Associates LLP</div>
+                  </div>
+                  <div class="info-pair">
+                    <div class="info-label">Insurance Carrier</div>
+                    <div class="info-value">National Indemnity Corp</div>
+                  </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--border); padding-top: var(--space-5);">
+                  <div class="info-label" style="margin-bottom: var(--space-2);">Case Summary</div>
+                  <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">
+                    Client Marcus Williams sustained injuries when a City Transit Authority bus ran a red light at the intersection of Wilshire Blvd and Vermont Ave on October 14, 2025. Mr. Williams suffered a fractured left femur, herniated disc (L4-L5), and multiple soft tissue injuries requiring surgery and ongoing physical therapy. The bus driver, identified as Carlos Mendez (Employee #4782), was operating the vehicle during a double shift in violation of City Transit work-hour policies. Security camera footage from a nearby business corroborates the client's account.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tasks Card -->
+            <div class="card" style="margin-top: var(--space-5);">
+              <div class="card-header">
+                <h3 class="card-title">Tasks</h3>
+                <button class="btn btn-ghost" style="font-size: var(--text-xs);">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add Task
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="task-item">
+                  <div class="task-check"></div>
+                  <div class="task-content">
+                    <div class="task-title">File motion to compel production of bus maintenance records</div>
+                    <div class="task-meta"><span class="task-priority priority-high"></span><span>High &middot; Due today &middot; James Thornton</span></div>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-check"></div>
+                  <div class="task-content">
+                    <div class="task-title">Schedule deposition of bus driver Carlos Mendez</div>
+                    <div class="task-meta"><span class="task-priority priority-high"></span><span>High &middot; Due Mar 30 &middot; Maria Reynolds</span></div>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-check"></div>
+                  <div class="task-content">
+                    <div class="task-title">Obtain updated medical records from UCLA Medical Center</div>
+                    <div class="task-meta"><span class="task-priority priority-medium"></span><span>Medium &middot; Due Apr 2 &middot; Maria Reynolds</span></div>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-check done"></div>
+                  <div class="task-content">
+                    <div class="task-title done">Request security camera footage from adjacent businesses</div>
+                    <div class="task-meta"><span class="task-priority priority-high"></span><span>Completed Mar 20</span></div>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-check done"></div>
+                  <div class="task-content">
+                    <div class="task-title done">File initial complaint</div>
+                    <div class="task-meta"><span class="task-priority priority-high"></span><span>Completed Jan 22</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documents Card -->
+            <div class="card" style="margin-top: var(--space-5);">
+              <div class="card-header">
+                <h3 class="card-title">Documents</h3>
+                <button class="btn btn-ghost" style="font-size: var(--text-xs);">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="doc-item">
+                  <div class="doc-icon doc-icon-pdf">PDF</div>
+                  <div class="doc-info">
+                    <div class="doc-name">Initial Complaint - Williams v CTA.pdf</div>
+                    <div class="doc-meta">2.4 MB &middot; Uploaded Jan 22, 2026 &middot; James Thornton</div>
+                  </div>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-icon doc-icon-pdf">PDF</div>
+                  <div class="doc-info">
+                    <div class="doc-name">Medical Records - UCLA Orthopedics.pdf</div>
+                    <div class="doc-meta">8.1 MB &middot; Uploaded Feb 14, 2026 &middot; Maria Reynolds</div>
+                  </div>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-icon doc-icon-img">MP4</div>
+                  <div class="doc-info">
+                    <div class="doc-name">Security Camera Footage - Wilshire & Vermont.mp4</div>
+                    <div class="doc-meta">245 MB &middot; Uploaded Mar 20, 2026 &middot; Sarah Kim</div>
+                  </div>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-icon doc-icon-doc">DOC</div>
+                  <div class="doc-info">
+                    <div class="doc-name">Witness Statement - Angela Torres.docx</div>
+                    <div class="doc-meta">156 KB &middot; Uploaded Feb 28, 2026 &middot; Maria Reynolds</div>
+                  </div>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-icon doc-icon-xls">XLS</div>
+                  <div class="doc-info">
+                    <div class="doc-name">Damages Calculation Worksheet.xlsx</div>
+                    <div class="doc-meta">89 KB &middot; Uploaded Mar 15, 2026 &middot; James Thornton</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Sidebar Widgets -->
+          <div>
+            <!-- Financial Summary -->
+            <div class="sidebar-widget">
+              <div class="sidebar-widget-header">Financial Summary</div>
+              <div class="sidebar-widget-body">
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Estimated Value</span>
+                  <span class="stat-mini-value">$425,000</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Medical Bills</span>
+                  <span class="stat-mini-value">$87,400</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Lost Wages</span>
+                  <span class="stat-mini-value">$42,000</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Costs Incurred</span>
+                  <span class="stat-mini-value">$3,200</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team -->
+            <div class="sidebar-widget">
+              <div class="sidebar-widget-header">Case Team</div>
+              <div class="sidebar-widget-body">
+                <div class="team-member">
+                  <div class="team-avatar" style="background: #4F46E5;">JT</div>
+                  <div>
+                    <div class="team-name">James Thornton</div>
+                    <div class="team-role">Lead Attorney</div>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="team-avatar" style="background: var(--accent);">MR</div>
+                  <div>
+                    <div class="team-name">Maria Reynolds</div>
+                    <div class="team-role">Senior Paralegal</div>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="team-avatar" style="background: #059669;">SK</div>
+                  <div>
+                    <div class="team-name">Sarah Kim</div>
+                    <div class="team-role">Associate Attorney</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Dates -->
+            <div class="sidebar-widget">
+              <div class="sidebar-widget-header">Key Dates</div>
+              <div class="sidebar-widget-body">
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Incident Date</span>
+                  <span class="stat-mini-value" style="font-size: var(--text-sm);">Oct 14, 2025</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Filed</span>
+                  <span class="stat-mini-value" style="font-size: var(--text-sm);">Jan 15, 2026</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Statute of Limitations</span>
+                  <span class="stat-mini-value" style="font-size: var(--text-sm); color: var(--danger);">Oct 14, 2027</span>
+                </div>
+                <div class="stat-mini">
+                  <span class="stat-mini-label">Next Hearing</span>
+                  <span class="stat-mini-value" style="font-size: var(--text-sm); color: var(--accent);">Apr 15, 2026</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Notes -->
+            <div class="sidebar-widget">
+              <div class="sidebar-widget-header">Recent Notes</div>
+              <div class="sidebar-widget-body">
+                <div class="note-item">
+                  <div class="note-header">
+                    <span class="note-author">Sarah Kim</span>
+                    <span class="note-date">&middot; 1 hour ago</span>
+                  </div>
+                  <div class="note-body">Spoke with opposing counsel re: discovery schedule. They requested a 2-week extension on interrogatories. Agreed pending lead attorney approval.</div>
+                </div>
+                <div class="note-item">
+                  <div class="note-header">
+                    <span class="note-author">Maria Reynolds</span>
+                    <span class="note-date">&middot; Yesterday</span>
+                  </div>
+                  <div class="note-body">UCLA records received. Client underwent arthroscopic surgery on Jan 8. PT ongoing 3x/week. Dr. Patel projects 6-8 month recovery.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== DESIGN TOKENS ====== -->
+        <div class="tokens-section">
+          <div style="margin-bottom: var(--space-6);"><h2 class="section-title">Design Tokens</h2></div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Stage Progress Variants</h4>
+          <div style="display: flex; gap: var(--space-6); margin-bottom: var(--space-8); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center;">
+                <span style="color: white; font-size: 10px;">&#10003;</span>
+              </div>
+              <span style="font-size: var(--text-sm);">Completed</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <div style="width: 24px; height: 24px; border-radius: 50%; border: 3px solid var(--accent); background: var(--accent-light); display: flex; align-items: center; justify-content: center;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></span>
+              </div>
+              <span style="font-size: var(--text-sm);">Active</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <div style="width: 24px; height: 24px; border-radius: 50%; border: 3px solid var(--border); background: var(--bg-card);"></div>
+              <span style="font-size: var(--text-sm);">Pending</span>
+            </div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Document Icon Types</h4>
+          <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-8);">
+            <div class="doc-icon doc-icon-pdf" style="width: 40px; height: 40px; font-size: 11px;">PDF</div>
+            <div class="doc-icon doc-icon-doc" style="width: 40px; height: 40px; font-size: 11px;">DOC</div>
+            <div class="doc-icon doc-icon-img" style="width: 40px; height: 40px; font-size: 11px;">IMG</div>
+            <div class="doc-icon doc-icon-xls" style="width: 40px; height: 40px; font-size: 11px;">XLS</div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Info Pair Pattern</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-8); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5);">
+            <div class="info-pair"><div class="info-label">Label</div><div class="info-value">Value</div></div>
+            <div class="info-pair"><div class="info-label">Monospace</div><div class="info-value" style="font-family: monospace;">BC-2026-012847</div></div>
+            <div class="info-pair"><div class="info-label">Danger</div><div class="info-value" style="color: var(--danger);">Oct 14, 2027</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

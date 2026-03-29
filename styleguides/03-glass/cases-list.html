@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Cases List (Glassmorphism)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep: #0F172A;
+    --bg-purple: #1E1B4B;
+    --glass-bg: rgba(255,255,255,0.08);
+    --glass-bg-hover: rgba(255,255,255,0.12);
+    --glass-bg-active: rgba(255,255,255,0.16);
+    --glass-border: rgba(255,255,255,0.12);
+    --glass-border-hover: rgba(255,255,255,0.20);
+    --glass-blur: blur(20px);
+    --glass-blur-heavy: blur(40px);
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255,255,255,0.7);
+    --text-tertiary: rgba(255,255,255,0.45);
+    --accent-cyan: #06B6D4;
+    --accent-magenta: #EC4899;
+    --accent-gradient: linear-gradient(135deg, #06B6D4, #EC4899);
+    --status-success: #34D399;
+    --status-warning: #FBBF24;
+    --status-danger: #F87171;
+    --status-info: #60A5FA;
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-elevated: 0 16px 48px rgba(0,0,0,0.4);
+    --shadow-glow-cyan: 0 0 20px rgba(6,182,212,0.15);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 9999px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    --sidebar-width: 260px;
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+  }
+
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+    background: var(--bg-deep);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(6,182,212,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(236,72,153,0.10) 0%, transparent 60%),
+      linear-gradient(160deg, #0F172A 0%, #1E1B4B 50%, #0c1631 100%);
+    background-attachment: fixed;
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width); position: fixed; top: 0; left: 0; bottom: 0;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: var(--glass-blur-heavy); -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; z-index: 100; padding: var(--space-lg) 0;
+  }
+  .sidebar-brand { padding: 0 var(--space-lg); margin-bottom: var(--space-xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon {
+    width: 36px; height: 36px; border-radius: var(--radius-md);
+    background: var(--accent-gradient); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: var(--font-size-lg); color: white;
+  }
+  .sidebar-brand-name {
+    font-size: var(--font-size-lg); font-weight: 700;
+    background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sidebar-section { margin-bottom: var(--space-lg); }
+  .sidebar-section-title {
+    padding: 0 var(--space-lg); font-size: var(--font-size-xs); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-sm);
+  }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item a {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: 10px var(--space-lg); color: var(--text-secondary); text-decoration: none;
+    font-size: var(--font-size-base); font-weight: 500; transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+  }
+  .sidebar-nav-item a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .sidebar-nav-item.active a { color: var(--accent-cyan); background: rgba(6,182,212,0.08); border-left-color: var(--accent-cyan); }
+  .sidebar-nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-badge {
+    margin-left: auto; background: var(--accent-gradient); color: white;
+    font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-pill);
+  }
+  .sidebar-footer { margin-top: auto; padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--glass-border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-avatar {
+    width: 36px; height: 36px; border-radius: var(--radius-pill);
+    background: var(--accent-gradient); display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: var(--font-size-sm);
+  }
+  .sidebar-user-name { font-weight: 500; font-size: var(--font-size-sm); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* Main */
+  .main { margin-left: var(--sidebar-width); flex: 1; padding: var(--space-xl); }
+
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); }
+  .page-title { font-size: var(--font-size-2xl); font-weight: 700; }
+  .page-subtitle { color: var(--text-secondary); font-size: var(--font-size-base); margin-top: var(--space-xs); }
+  .header-actions { display: flex; gap: var(--space-sm); align-items: center; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--space-sm);
+    padding: 10px 20px; border-radius: var(--radius-md);
+    font-family: var(--font-family); font-size: var(--font-size-base); font-weight: 500;
+    cursor: pointer; transition: all var(--transition-fast); border: none; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent-gradient); color: white; box-shadow: var(--shadow-glow-cyan); }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(6,182,212,0.3); transform: translateY(-1px); }
+  .btn-glass {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); color: var(--text-primary);
+  }
+  .btn-glass:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-hover); }
+  .btn-sm { padding: 6px 14px; font-size: var(--font-size-sm); }
+
+  /* Search */
+  .search-wrapper { position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 14px; }
+  .search-input {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 10px 16px 10px 36px; font-family: var(--font-family); font-size: var(--font-size-base);
+    color: var(--text-primary); outline: none; width: 320px; transition: all var(--transition-fast);
+  }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6,182,212,0.1); }
+
+  /* Filters Bar */
+  .filters-bar {
+    display: flex; align-items: center; gap: var(--space-sm);
+    margin-bottom: var(--space-lg); flex-wrap: wrap;
+  }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: var(--radius-pill);
+    background: var(--glass-bg); backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    font-size: var(--font-size-sm); font-weight: 500;
+    color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
+  }
+  .filter-chip:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+  .filter-chip.active {
+    background: rgba(6,182,212,0.15); color: var(--accent-cyan);
+    border-color: rgba(6,182,212,0.3);
+  }
+  .filter-chip .count {
+    background: rgba(255,255,255,0.1); padding: 1px 6px;
+    border-radius: var(--radius-pill); font-size: var(--font-size-xs);
+  }
+  .filter-chip.active .count { background: rgba(6,182,212,0.2); }
+  .filter-divider { width: 1px; height: 24px; background: var(--glass-border); margin: 0 var(--space-sm); }
+
+  /* Select */
+  .glass-select {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 6px 14px; font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--text-primary); outline: none; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  /* Glass Card */
+  .glass-card {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass); overflow: hidden;
+  }
+
+  /* Table */
+  .cases-table { width: 100%; border-collapse: collapse; }
+  .cases-table th {
+    padding: 14px var(--space-lg); text-align: left;
+    font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-tertiary);
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.03);
+  }
+  .cases-table td {
+    padding: 14px var(--space-lg);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: var(--font-size-base); vertical-align: middle;
+  }
+  .cases-table tr { transition: all var(--transition-fast); }
+  .cases-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+  .cases-table tbody tr:last-child td { border-bottom: none; }
+
+  .case-name-link {
+    color: var(--text-primary); text-decoration: none; font-weight: 600;
+    transition: color var(--transition-fast);
+  }
+  .case-name-link:hover { color: var(--accent-cyan); }
+  .case-id { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 2px; }
+
+  .attorney-cell { display: flex; align-items: center; gap: var(--space-sm); }
+  .attorney-avatar {
+    width: 28px; height: 28px; border-radius: var(--radius-pill);
+    background: var(--accent-gradient); display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; flex-shrink: 0;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; padding: 3px 10px;
+    border-radius: var(--radius-pill); font-size: var(--font-size-xs); font-weight: 500;
+    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08);
+  }
+  .badge-cyan { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border-color: rgba(6,182,212,0.2); }
+  .badge-magenta { background: rgba(236,72,153,0.15); color: var(--accent-magenta); border-color: rgba(236,72,153,0.2); }
+  .badge-success { background: rgba(52,211,153,0.15); color: var(--status-success); border-color: rgba(52,211,153,0.2); }
+  .badge-warning { background: rgba(251,191,36,0.15); color: var(--status-warning); border-color: rgba(251,191,36,0.2); }
+  .badge-danger { background: rgba(248,113,113,0.15); color: var(--status-danger); border-color: rgba(248,113,113,0.2); }
+  .badge-info { background: rgba(96,165,250,0.15); color: var(--status-info); border-color: rgba(96,165,250,0.2); }
+
+  /* Stage badge mapping */
+  .stage-application { background: rgba(96,165,250,0.15); color: var(--status-info); border-color: rgba(96,165,250,0.2); }
+  .stage-initial { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border-color: rgba(6,182,212,0.2); }
+  .stage-recon { background: rgba(251,191,36,0.15); color: var(--status-warning); border-color: rgba(251,191,36,0.2); }
+  .stage-hearing-req { background: rgba(236,72,153,0.15); color: var(--accent-magenta); border-color: rgba(236,72,153,0.2); }
+  .stage-hearing-sched { background: rgba(236,72,153,0.2); color: #F472B6; border-color: rgba(236,72,153,0.3); }
+  .stage-favorable { background: rgba(52,211,153,0.15); color: var(--status-success); border-color: rgba(52,211,153,0.2); }
+  .stage-unfavorable { background: rgba(248,113,113,0.15); color: var(--status-danger); border-color: rgba(248,113,113,0.2); }
+  .stage-appeals { background: rgba(167,139,250,0.15); color: #A78BFA; border-color: rgba(167,139,250,0.2); }
+
+  /* Priority dot */
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .priority-high { background: var(--status-danger); box-shadow: 0 0 6px rgba(248,113,113,0.5); }
+  .priority-medium { background: var(--status-warning); box-shadow: 0 0 6px rgba(251,191,36,0.5); }
+  .priority-low { background: var(--status-success); box-shadow: 0 0 6px rgba(52,211,153,0.5); }
+
+  /* Pagination */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--glass-border);
+    font-size: var(--font-size-sm); color: var(--text-secondary);
+  }
+  .pagination-pages { display: flex; gap: 4px; }
+  .pagination-page {
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast);
+    background: transparent; border: 1px solid transparent;
+    font-size: var(--font-size-sm); color: var(--text-secondary);
+    font-family: var(--font-family);
+  }
+  .pagination-page:hover { background: var(--glass-bg); border-color: var(--glass-border); }
+  .pagination-page.active {
+    background: var(--accent-gradient); color: white; border-color: transparent;
+  }
+
+  /* Checkbox */
+  .table-checkbox {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 2px solid rgba(255,255,255,0.2);
+    cursor: pointer; transition: all var(--transition-fast);
+    appearance: none; -webkit-appearance: none; background: transparent;
+  }
+  .table-checkbox:checked {
+    background: var(--accent-gradient); border-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8l3 3 5-5' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+    background-size: 12px; background-position: center; background-repeat: no-repeat;
+  }
+  .table-checkbox:hover { border-color: var(--accent-cyan); }
+
+  /* Bulk actions bar */
+  .bulk-actions {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(6,182,212,0.08); border-bottom: 1px solid rgba(6,182,212,0.2);
+    font-size: var(--font-size-sm);
+  }
+  .bulk-count { color: var(--accent-cyan); font-weight: 600; }
+
+  /* Sort indicator */
+  .sortable { cursor: pointer; user-select: none; }
+  .sortable:hover { color: var(--text-secondary); }
+  .sort-arrow { font-size: 10px; margin-left: 4px; }
+
+  /* Summary stats */
+  .stats-row {
+    display: flex; gap: var(--space-lg); margin-bottom: var(--space-lg);
+  }
+  .mini-stat {
+    display: flex; align-items: center; gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    flex: 1;
+  }
+  .mini-stat-value { font-size: var(--font-size-lg); font-weight: 700; }
+  .mini-stat-label { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* Tokens Section */
+  .tokens-section {
+    margin-top: var(--space-2xl); padding-top: var(--space-xl);
+    border-top: 1px solid var(--glass-border);
+  }
+  .tokens-section h2 {
+    font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-lg);
+    background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .tokens-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+  .token-group h3 {
+    font-size: var(--font-size-sm); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-md);
+  }
+  .token-row { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+  .token-name { color: var(--text-secondary); flex: 1; }
+  .token-value { font-family: 'SF Mono', monospace; font-size: var(--font-size-xs); color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Main</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item"><a href="dashboard.html"><span class="sidebar-nav-icon">&#9638;</span> Dashboard</a></li>
+        <li class="sidebar-nav-item active"><a href="cases-list.html"><span class="sidebar-nav-icon">&#128194;</span> Cases <span class="sidebar-badge">142</span></a></li>
+        <li class="sidebar-nav-item"><a href="case-detail.html"><span class="sidebar-nav-icon">&#128196;</span> Case Detail</a></li>
+        <li class="sidebar-nav-item"><a href="chronology.html"><span class="sidebar-nav-icon">&#128338;</span> Chronology</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Administration</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item"><a href="admin-integrations.html"><span class="sidebar-nav-icon">&#9881;</span> Integrations</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128101;</span> Team</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128202;</span> Reports</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">MJ</div>
+        <div>
+          <div class="sidebar-user-name">Maria Johnson</div>
+          <div class="sidebar-user-role">Case Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Cases</h1>
+        <p class="page-subtitle">142 total cases &middot; 98 active</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-glass btn-sm">&#8595; Export</button>
+        <button class="btn btn-primary">+ New Case</button>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-row">
+      <div class="mini-stat">
+        <div>
+          <div class="mini-stat-value" style="color: var(--accent-cyan);">98</div>
+          <div class="mini-stat-label">Active</div>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <div>
+          <div class="mini-stat-value" style="color: var(--status-warning);">23</div>
+          <div class="mini-stat-label">Pending Hearing</div>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <div>
+          <div class="mini-stat-value" style="color: var(--status-success);">31</div>
+          <div class="mini-stat-label">Won This Year</div>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <div>
+          <div class="mini-stat-value" style="color: var(--status-danger);">8</div>
+          <div class="mini-stat-label">Need Attention</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search + Filters -->
+    <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md);align-items:center;">
+      <div class="search-wrapper" style="flex:1;">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" class="search-input" style="width:100%;" placeholder="Search by claimant name, case ID, SSN...">
+      </div>
+      <select class="glass-select">
+        <option>All Attorneys</option>
+        <option>Maria Johnson</option>
+        <option>David Kim</option>
+        <option>Sarah Chen</option>
+      </select>
+      <select class="glass-select">
+        <option>All Stages</option>
+        <option>Application Filed</option>
+        <option>Initial Review</option>
+        <option>Reconsideration</option>
+        <option>Hearing Requested</option>
+        <option>Hearing Scheduled</option>
+        <option>Appeals Council</option>
+      </select>
+      <select class="glass-select">
+        <option>Sort: Newest</option>
+        <option>Sort: Oldest</option>
+        <option>Sort: Name A-Z</option>
+        <option>Sort: Next Deadline</option>
+      </select>
+    </div>
+
+    <div class="filters-bar">
+      <span style="font-size:var(--font-size-sm);color:var(--text-tertiary);margin-right:8px;">Quick filters:</span>
+      <div class="filter-chip active">All <span class="count">142</span></div>
+      <div class="filter-chip">Active <span class="count">98</span></div>
+      <div class="filter-chip">Hearing Pending <span class="count">23</span></div>
+      <div class="filter-chip">Overdue Tasks <span class="count">8</span></div>
+      <div class="filter-divider"></div>
+      <div class="filter-chip">SSI <span class="count">64</span></div>
+      <div class="filter-chip">SSDI <span class="count">78</span></div>
+      <div class="filter-divider"></div>
+      <div class="filter-chip">&#9733; High Priority <span class="count">12</span></div>
+    </div>
+
+    <!-- Table -->
+    <div class="glass-card">
+
+      <!-- Bulk actions (shown when items selected) -->
+      <div class="bulk-actions">
+        <span class="bulk-count">2 cases selected</span>
+        <button class="btn btn-glass btn-sm">Assign</button>
+        <button class="btn btn-glass btn-sm">Change Stage</button>
+        <button class="btn btn-glass btn-sm">Export</button>
+        <button class="btn btn-glass btn-sm" style="color:var(--status-danger);">Archive</button>
+      </div>
+
+      <table class="cases-table">
+        <thead>
+          <tr>
+            <th style="width:40px;"><input type="checkbox" class="table-checkbox"></th>
+            <th class="sortable">Claimant <span class="sort-arrow">&#9660;</span></th>
+            <th>Type</th>
+            <th class="sortable">Stage</th>
+            <th>Priority</th>
+            <th class="sortable">Attorney</th>
+            <th class="sortable">Next Deadline</th>
+            <th>Filed</th>
+            <th style="width:50px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox" checked></td>
+            <td>
+              <a href="case-detail.html" class="case-name-link">Johnson, Patricia A.</a>
+              <div class="case-id">SSA-2025-00847</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-hearing-sched">Hearing Scheduled</span></td>
+            <td><span class="priority-dot priority-high"></span>High</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">MJ</div>
+                Maria Johnson
+              </div>
+            </td>
+            <td><span style="color:var(--status-danger);">Mar 30, 2026</span></td>
+            <td style="color:var(--text-tertiary);">Oct 12, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox" checked></td>
+            <td>
+              <a href="#" class="case-name-link">Williams, Robert T.</a>
+              <div class="case-id">SSA-2025-01203</div>
+            </td>
+            <td><span class="badge badge-cyan">SSI</span></td>
+            <td><span class="badge stage-hearing-req">Hearing Requested</span></td>
+            <td><span class="priority-dot priority-high"></span>High</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">DK</div>
+                David Kim
+              </div>
+            </td>
+            <td><span style="color:var(--status-danger);">Apr 2, 2026</span></td>
+            <td style="color:var(--text-tertiary);">Nov 5, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Garcia, Maria L.</a>
+              <div class="case-id">SSA-2025-01456</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-recon">Reconsideration</span></td>
+            <td><span class="priority-dot priority-medium"></span>Medium</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">MJ</div>
+                Maria Johnson
+              </div>
+            </td>
+            <td><span style="color:var(--status-warning);">Apr 10, 2026</span></td>
+            <td style="color:var(--text-tertiary);">Dec 1, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Thompson, James D.</a>
+              <div class="case-id">SSA-2026-00102</div>
+            </td>
+            <td><span class="badge badge-cyan">SSI</span></td>
+            <td><span class="badge stage-hearing-sched">Hearing Scheduled</span></td>
+            <td><span class="priority-dot priority-high"></span>High</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">SC</div>
+                Sarah Chen
+              </div>
+            </td>
+            <td>Apr 12, 2026</td>
+            <td style="color:var(--text-tertiary);">Jan 8, 2026</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Martinez, Ana R.</a>
+              <div class="case-id">SSA-2025-00612</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-favorable">Favorable Decision</span></td>
+            <td><span class="priority-dot priority-low"></span>Low</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">MJ</div>
+                Maria Johnson
+              </div>
+            </td>
+            <td style="color:var(--text-tertiary);">Closed</td>
+            <td style="color:var(--text-tertiary);">Aug 19, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Davis, Michelle K.</a>
+              <div class="case-id">SSA-2026-00287</div>
+            </td>
+            <td><span class="badge badge-cyan">SSI</span></td>
+            <td><span class="badge stage-initial">Initial Review</span></td>
+            <td><span class="priority-dot priority-medium"></span>Medium</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">DK</div>
+                David Kim
+              </div>
+            </td>
+            <td>Apr 22, 2026</td>
+            <td style="color:var(--text-tertiary);">Feb 14, 2026</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Chen, Robert W.</a>
+              <div class="case-id">SSA-2025-01789</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-hearing-req">Hearing Requested</span></td>
+            <td><span class="priority-dot priority-medium"></span>Medium</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">SC</div>
+                Sarah Chen
+              </div>
+            </td>
+            <td>Apr 28, 2026</td>
+            <td style="color:var(--text-tertiary);">Dec 20, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Nguyen, Lisa P.</a>
+              <div class="case-id">SSA-2026-00341</div>
+            </td>
+            <td><span class="badge badge-cyan">SSI</span></td>
+            <td><span class="badge stage-application">Application Filed</span></td>
+            <td><span class="priority-dot priority-low"></span>Low</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">MJ</div>
+                Maria Johnson
+              </div>
+            </td>
+            <td>May 5, 2026</td>
+            <td style="color:var(--text-tertiary);">Mar 1, 2026</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Brown, Anthony J.</a>
+              <div class="case-id">SSA-2025-00934</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-appeals">Appeals Council</span></td>
+            <td><span class="priority-dot priority-high"></span>High</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">DK</div>
+                David Kim
+              </div>
+            </td>
+            <td><span style="color:var(--status-danger);">Mar 29, 2026</span></td>
+            <td style="color:var(--text-tertiary);">Sep 15, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="table-checkbox"></td>
+            <td>
+              <a href="#" class="case-name-link">Wilson, Sandra E.</a>
+              <div class="case-id">SSA-2025-01567</div>
+            </td>
+            <td><span class="badge badge-info">SSDI</span></td>
+            <td><span class="badge stage-unfavorable">Unfavorable</span></td>
+            <td><span class="priority-dot priority-medium"></span>Medium</td>
+            <td>
+              <div class="attorney-cell">
+                <div class="attorney-avatar">SC</div>
+                Sarah Chen
+              </div>
+            </td>
+            <td style="color:var(--text-tertiary);">Under Review</td>
+            <td style="color:var(--text-tertiary);">Nov 22, 2025</td>
+            <td><button class="btn btn-glass btn-sm" style="padding:4px 8px;">&#8943;</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <span>Showing 1-10 of 142 cases</span>
+        <div class="pagination-pages">
+          <button class="pagination-page active">1</button>
+          <button class="pagination-page">2</button>
+          <button class="pagination-page">3</button>
+          <button class="pagination-page">4</button>
+          <button class="pagination-page">...</button>
+          <button class="pagination-page">15</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Tokens -->
+    <div class="tokens-section">
+      <h2>Design Tokens &mdash; Glassmorphism</h2>
+      <div class="tokens-grid">
+        <div class="token-group">
+          <h3>Glass Surfaces</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);"></div>
+            <span class="token-name">glass-bg</span>
+            <span class="token-value">rgba(255,255,255,0.08)</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);"></div>
+            <span class="token-name">glass-bg-hover</span>
+            <span class="token-value">rgba(255,255,255,0.12)</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.2);"></div>
+            <span class="token-name">glass-bg-active</span>
+            <span class="token-value">rgba(255,255,255,0.16)</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <h3>Stage Colors</h3>
+          <div class="token-row"><span class="badge stage-application">Application Filed</span></div>
+          <div class="token-row"><span class="badge stage-initial">Initial Review</span></div>
+          <div class="token-row"><span class="badge stage-recon">Reconsideration</span></div>
+          <div class="token-row"><span class="badge stage-hearing-req">Hearing Requested</span></div>
+          <div class="token-row"><span class="badge stage-hearing-sched">Hearing Scheduled</span></div>
+          <div class="token-row"><span class="badge stage-favorable">Favorable</span></div>
+          <div class="token-row"><span class="badge stage-unfavorable">Unfavorable</span></div>
+          <div class="token-row"><span class="badge stage-appeals">Appeals Council</span></div>
+        </div>
+        <div class="token-group">
+          <h3>Priority &amp; Badges</h3>
+          <div class="token-row"><span class="priority-dot priority-high"></span> <span class="token-name">High</span></div>
+          <div class="token-row"><span class="priority-dot priority-medium"></span> <span class="token-name">Medium</span></div>
+          <div class="token-row"><span class="priority-dot priority-low"></span> <span class="token-name">Low</span></div>
+          <div style="margin-top:12px;">
+            <div class="token-row"><span class="badge badge-cyan">Cyan Badge</span></div>
+            <div class="token-row"><span class="badge badge-magenta">Magenta Badge</span></div>
+            <div class="token-row"><span class="badge badge-success">Success Badge</span></div>
+            <div class="token-row"><span class="badge badge-warning">Warning Badge</span></div>
+            <div class="token-row"><span class="badge badge-danger">Danger Badge</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

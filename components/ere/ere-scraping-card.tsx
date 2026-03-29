@@ -37,20 +37,20 @@ type EreScrapingCardProps = {
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   completed: {
     label: "Completed",
-    className: "border-green-300 text-green-700",
+    className: "border-[#eaeaea] text-[#171717]",
   },
-  failed: { label: "Failed", className: "border-red-300 text-red-700" },
+  failed: { label: "Failed", className: "border-[#eaeaea] text-[#666]" },
   pending: {
     label: "Pending",
-    className: "border-yellow-300 text-yellow-700",
+    className: "border-[#eaeaea] text-[#666]",
   },
   running: {
     label: "Running",
-    className: "border-blue-300 text-blue-700",
+    className: "border-[#eaeaea] text-[#171717]",
   },
   cancelled: {
     label: "Cancelled",
-    className: "border-border text-muted-foreground",
+    className: "border-[#eaeaea] text-[#666]",
   },
 };
 
@@ -149,7 +149,7 @@ export function EreScrapingCard({
           </Button>
         </div>
 
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm text-[#666]">{error}</p>}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div>

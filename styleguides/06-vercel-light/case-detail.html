@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-root:#FAFAFA;--bg-card:#FFFFFF;--bg-card-alt:#FAFAFA;--bg-hover:#F0F0F0;--bg-input:#FFFFFF;
+    --border:#EAEAEA;--border-hover:#CCCCCC;--border-focus:#888888;
+    --text-primary:#171717;--text-secondary:#666666;--text-tertiary:#999999;
+    --accent-black:#000000;--accent-blue:#0070F3;--accent-green:#00C853;--accent-amber:#F5A623;--accent-red:#EE0000;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+
+  .app{display:flex;height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-black);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px}
+  .sidebar-link.active .icon{opacity:1}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-primary)}
+
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+
+  /* BREADCRUMB */
+  .breadcrumb{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .breadcrumb a:hover{color:var(--text-primary)}
+  .breadcrumb .sep{color:var(--text-tertiary)}
+
+  /* CASE HEADER */
+  .case-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-6)}
+  .case-header-left h1{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:var(--sp-2)}
+  .case-meta{display:flex;align-items:center;gap:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .case-meta .mono{font-family:var(--font-mono);font-size:12px}
+  .header-actions{display:flex;gap:var(--sp-3)}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-black);color:#FFF;border-color:var(--accent-black)}
+  .btn-primary:hover{background:#333;border-color:#333}
+  .btn-secondary{background:var(--bg-card);color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}
+  .btn-ghost:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+  .btn-danger{background:transparent;color:var(--accent-red);border-color:rgba(238,0,0,0.3)}
+  .btn-danger:hover{border-color:var(--accent-red)}
+
+  /* BADGES */
+  .badge-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;border:1px solid}
+  .badge-status.treatment{color:var(--accent-amber);border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.06)}
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+  /* STAGE PROGRESS */
+  .stage-progress{margin-bottom:var(--sp-6)}
+  .stage-bar{display:flex;gap:2px;margin-bottom:var(--sp-2)}
+  .stage-step{flex:1;height:4px;border-radius:2px;background:var(--border)}
+  .stage-step.complete{background:var(--accent-black)}
+  .stage-step.current{background:var(--accent-amber)}
+  .stage-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary)}
+  .stage-labels span.active{color:var(--text-primary);font-weight:500}
+  .stage-labels span.done{color:var(--text-secondary)}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:var(--sp-6)}
+  .tab{padding:var(--sp-3) var(--sp-4);font-size:13px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;transition:all var(--transition);margin-bottom:-1px}
+  .tab:hover{color:var(--text-primary)}
+  .tab.active{color:var(--text-primary);border-bottom-color:var(--accent-black)}
+  .tab .tab-count{margin-left:var(--sp-2);font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)}
+
+  /* OVERVIEW GRID */
+  .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--sp-4)}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5);transition:border-color var(--transition)}
+  .card:hover{border-color:var(--border-hover)}
+  .card-title{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:var(--sp-4)}
+
+  /* KEY-VALUE PAIRS */
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4) var(--sp-6)}
+  .kv-item{}
+  .kv-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px}
+  .kv-value{font-size:13px;font-weight:500}
+  .kv-value.mono{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)}
+
+  /* TASKS LIST */
+  .task-list{list-style:none}
+  .task-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .task-item:last-child{border-bottom:none}
+  .task-checkbox{width:16px;height:16px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;cursor:pointer;transition:border-color var(--transition)}
+  .task-checkbox:hover{border-color:var(--border-hover)}
+  .task-checkbox.checked{background:var(--accent-black);border-color:var(--accent-black);position:relative}
+  .task-checkbox.checked::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:5px;border-left:2px solid #FFF;border-bottom:2px solid #FFF;transform:rotate(-45deg)}
+  .task-text{flex:1}
+  .task-text.done{text-decoration:line-through;color:var(--text-tertiary)}
+  .task-due{font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .task-due.overdue{color:var(--accent-red)}
+  .task-assignee{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+
+  /* DOCUMENTS */
+  .doc-list{list-style:none}
+  .doc-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;transition:color var(--transition)}
+  .doc-item:last-child{border-bottom:none}
+  .doc-item:hover{color:var(--accent-blue)}
+  .doc-icon{width:28px;height:28px;background:var(--bg-root);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-tertiary);flex-shrink:0}
+  .doc-info{flex:1}
+  .doc-name{font-weight:500;font-size:13px}
+  .doc-meta{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}
+  .doc-size{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}
+
+  /* SIDEBAR DETAIL */
+  .detail-sidebar{display:flex;flex-direction:column;gap:var(--sp-4)}
+
+  /* MINI STAT */
+  .mini-stat{text-align:center;padding:var(--sp-4)}
+  .mini-stat .value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+  .mini-stat .label{font-size:11px;color:var(--text-secondary);margin-top:var(--sp-1)}
+
+  /* CONTACTS */
+  .contact-list{list-style:none}
+  .contact-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .contact-item:last-child{border-bottom:none}
+  .contact-avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-primary);flex-shrink:0}
+  .contact-info{flex:1}
+  .contact-name{font-weight:500}
+  .contact-role{font-size:11px;color:var(--text-tertiary)}
+
+  /* NOTES */
+  .note{padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .note:last-child{border-bottom:none}
+  .note-header{display:flex;justify-content:space-between;margin-bottom:var(--sp-1)}
+  .note-author{font-weight:500;font-size:12px}
+  .note-time{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary)}
+  .note-body{color:var(--text-secondary);font-size:13px;line-height:1.6}
+
+  /* DESIGN TOKENS */
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}
+  .token-name{font-weight:500;margin-bottom:1px}
+  .token-value{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+      <a class="sidebar-link active" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">47</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">12</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <a class="sidebar-link" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Demands</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="avatar">JK</div>
+      <div>
+        <div style="font-size:13px;color:var(--text-primary)">Jake Klinvex</div>
+        <div style="font-size:11px;color:var(--text-tertiary)">Partner</div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a href="cases-list.html">Cases</a>
+      <span class="sep">/</span>
+      <span>FAV-0987</span>
+    </div>
+
+    <!-- CASE HEADER -->
+    <div class="case-header">
+      <div class="case-header-left">
+        <h1>Patel v. FedEx Ground</h1>
+        <div class="case-meta">
+          <span class="mono">FAV-0987</span>
+          <span class="badge-status treatment"><span class="badge-dot"></span>Treatment</span>
+          <span>Auto Accident</span>
+          <span class="mono">Opened Feb 22, 2026</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm">Edit</button>
+        <button class="btn btn-secondary btn-sm">Generate Demand</button>
+        <button class="btn btn-primary btn-sm">+ Add Task</button>
+      </div>
+    </div>
+
+    <!-- STAGE PROGRESS -->
+    <div class="stage-progress">
+      <div class="stage-bar">
+        <div class="stage-step complete"></div>
+        <div class="stage-step complete"></div>
+        <div class="stage-step current"></div>
+        <div class="stage-step"></div>
+        <div class="stage-step"></div>
+        <div class="stage-step"></div>
+      </div>
+      <div class="stage-labels">
+        <span class="done">Intake</span>
+        <span class="done">Investigation</span>
+        <span class="active">Treatment</span>
+        <span>Demand</span>
+        <span>Negotiation</span>
+        <span>Resolution</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active">Overview</div>
+      <div class="tab">Tasks <span class="tab-count">8</span></div>
+      <div class="tab">Documents <span class="tab-count">23</span></div>
+      <div class="tab">Chronology <span class="tab-count">142</span></div>
+      <div class="tab">Notes <span class="tab-count">6</span></div>
+      <div class="tab">Financials</div>
+    </div>
+
+    <!-- OVERVIEW CONTENT -->
+    <div class="overview-grid">
+      <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+        <!-- CASE DETAILS -->
+        <div class="card">
+          <div class="card-title">Case Details</div>
+          <div class="kv-grid">
+            <div class="kv-item">
+              <div class="kv-label">Plaintiff</div>
+              <div class="kv-value">Ravi Patel</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Defendant</div>
+              <div class="kv-value">FedEx Ground Package System, Inc.</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Date of Incident</div>
+              <div class="kv-value mono">January 15, 2026</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Jurisdiction</div>
+              <div class="kv-value">Harris County, TX</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Case Type</div>
+              <div class="kv-value">Motor Vehicle Accident</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Statute of Limitations</div>
+              <div class="kv-value mono">January 15, 2028</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Insurance Carrier</div>
+              <div class="kv-value">Liberty Mutual</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Policy Limits</div>
+              <div class="kv-value mono">$500,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TASKS -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)">
+            <div class="card-title" style="margin-bottom:0">Tasks</div>
+            <button class="btn btn-ghost btn-sm">View All</button>
+          </div>
+          <ul class="task-list">
+            <li class="task-item">
+              <div class="task-checkbox"></div>
+              <span class="task-text">Obtain updated treatment records from Dr. Sharma</span>
+              <span class="task-due">Apr 2</span>
+              <div class="task-assignee">MR</div>
+            </li>
+            <li class="task-item">
+              <div class="task-checkbox"></div>
+              <span class="task-text">Schedule follow-up MRI — spine</span>
+              <span class="task-due">Apr 8</span>
+              <div class="task-assignee">SL</div>
+            </li>
+            <li class="task-item">
+              <div class="task-checkbox"></div>
+              <span class="task-text">Request police report amendment</span>
+              <span class="task-due overdue">Mar 25</span>
+              <div class="task-assignee">JK</div>
+            </li>
+            <li class="task-item">
+              <div class="task-checkbox checked"></div>
+              <span class="task-text done">Send demand letter to Liberty Mutual</span>
+              <span class="task-due">Mar 25</span>
+              <div class="task-assignee">MR</div>
+            </li>
+            <li class="task-item">
+              <div class="task-checkbox checked"></div>
+              <span class="task-text done">Collect witness statements (2 of 2)</span>
+              <span class="task-due">Mar 10</span>
+              <div class="task-assignee">SL</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)">
+            <div class="card-title" style="margin-bottom:0">Recent Documents</div>
+            <button class="btn btn-ghost btn-sm">View All (23)</button>
+          </div>
+          <ul class="doc-list">
+            <li class="doc-item">
+              <div class="doc-icon">PDF</div>
+              <div class="doc-info">
+                <div class="doc-name">Police Report — Harris County #2026-04821</div>
+                <div class="doc-meta">Uploaded Mar 1 by M. Reeves</div>
+              </div>
+              <div class="doc-size">2.4 MB</div>
+            </li>
+            <li class="doc-item">
+              <div class="doc-icon">PDF</div>
+              <div class="doc-info">
+                <div class="doc-name">MRI Report — Lumbar Spine (Dr. Sharma)</div>
+                <div class="doc-meta">Uploaded Mar 12 by S. Lin</div>
+              </div>
+              <div class="doc-size">8.1 MB</div>
+            </li>
+            <li class="doc-item">
+              <div class="doc-icon">DOC</div>
+              <div class="doc-info">
+                <div class="doc-name">Demand Letter — Liberty Mutual</div>
+                <div class="doc-meta">Generated Mar 25 by system</div>
+              </div>
+              <div class="doc-size">148 KB</div>
+            </li>
+            <li class="doc-item">
+              <div class="doc-icon">PDF</div>
+              <div class="doc-info">
+                <div class="doc-name">Medical Bills Summary — Q1 2026</div>
+                <div class="doc-meta">Uploaded Mar 20 by S. Lin</div>
+              </div>
+              <div class="doc-size">340 KB</div>
+            </li>
+            <li class="doc-item">
+              <div class="doc-icon">JPG</div>
+              <div class="doc-info">
+                <div class="doc-name">Scene Photos (8 images)</div>
+                <div class="doc-meta">Uploaded Feb 24 by M. Reeves</div>
+              </div>
+              <div class="doc-size">22 MB</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- NOTES -->
+        <div class="card">
+          <div class="card-title">Notes</div>
+          <div class="note">
+            <div class="note-header">
+              <span class="note-author">Mike Reeves</span>
+              <span class="note-time">3h ago</span>
+            </div>
+            <div class="note-body">Demand letter sent to Liberty Mutual adjuster Karen White. Policy limits confirmed at $500K. Awaiting 30-day response window.</div>
+          </div>
+          <div class="note">
+            <div class="note-header">
+              <span class="note-author">Sarah Lin</span>
+              <span class="note-time">Mar 20</span>
+            </div>
+            <div class="note-body">Updated medical bills total to $47,200. Still awaiting final billing from Houston Methodist for ER visit. Client reports ongoing neck pain and numbness in left arm.</div>
+          </div>
+          <div class="note">
+            <div class="note-header">
+              <span class="note-author">Jake Klinvex</span>
+              <span class="note-time">Mar 12</span>
+            </div>
+            <div class="note-body">MRI confirms L4-L5 disc herniation. Dr. Sharma recommends epidural injection series. This strengthens our demand significantly.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="detail-sidebar">
+        <!-- CASE VALUE -->
+        <div class="card mini-stat">
+          <div class="value">$175K</div>
+          <div class="label">Estimated Case Value</div>
+        </div>
+
+        <!-- FINANCIALS SUMMARY -->
+        <div class="card">
+          <div class="card-title">Financials</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-secondary)">Medical Bills</span>
+              <span style="font-family:var(--font-mono);font-size:12px">$47,200</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-secondary)">Lost Wages</span>
+              <span style="font-family:var(--font-mono);font-size:12px">$12,800</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-secondary)">Case Costs</span>
+              <span style="font-family:var(--font-mono);font-size:12px">$3,450</span>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:var(--sp-3);display:flex;justify-content:space-between;font-size:13px;font-weight:600">
+              <span>Total Damages</span>
+              <span style="font-family:var(--font-mono);font-size:12px">$63,450</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="card">
+          <div class="card-title">Team</div>
+          <ul class="contact-list">
+            <li class="contact-item">
+              <div class="contact-avatar">JK</div>
+              <div class="contact-info">
+                <div class="contact-name">Jake Klinvex</div>
+                <div class="contact-role">Lead Attorney</div>
+              </div>
+            </li>
+            <li class="contact-item">
+              <div class="contact-avatar">MR</div>
+              <div class="contact-info">
+                <div class="contact-name">Mike Reeves</div>
+                <div class="contact-role">Associate</div>
+              </div>
+            </li>
+            <li class="contact-item">
+              <div class="contact-avatar">SL</div>
+              <div class="contact-info">
+                <div class="contact-name">Sarah Lin</div>
+                <div class="contact-role">Paralegal</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- KEY CONTACTS -->
+        <div class="card">
+          <div class="card-title">Key Contacts</div>
+          <ul class="contact-list">
+            <li class="contact-item">
+              <div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">RP</div>
+              <div class="contact-info">
+                <div class="contact-name">Ravi Patel</div>
+                <div class="contact-role">Plaintiff</div>
+              </div>
+            </li>
+            <li class="contact-item">
+              <div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">KW</div>
+              <div class="contact-info">
+                <div class="contact-name">Karen White</div>
+                <div class="contact-role">Adjuster, Liberty Mutual</div>
+              </div>
+            </li>
+            <li class="contact-item">
+              <div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">DS</div>
+              <div class="contact-info">
+                <div class="contact-name">Dr. Anand Sharma</div>
+                <div class="contact-role">Treating Physician</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- KEY DATES -->
+        <div class="card">
+          <div class="card-title">Key Dates</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div>
+              <div style="font-size:11px;color:var(--text-tertiary)">Incident</div>
+              <div style="font-size:12px;font-family:var(--font-mono)">Jan 15, 2026</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-tertiary)">Signed</div>
+              <div style="font-size:12px;font-family:var(--font-mono)">Feb 22, 2026</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-tertiary)">Demand Sent</div>
+              <div style="font-size:12px;font-family:var(--font-mono)">Mar 25, 2026</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--accent-amber)">SOL Deadline</div>
+              <div style="font-size:12px;font-family:var(--font-mono)">Jan 15, 2028</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESIGN TOKENS -->
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#FAFAFA"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-value">#FAFAFA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#FFF"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-value">#FFFFFF</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EAEAEA"></div><div class="token-info"><div class="token-name">border</div><div class="token-value">#EAEAEA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#171717"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-value">#171717</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#666"></div><div class="token-info"><div class="token-name">text-secondary</div><div class="token-value">#666666</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#000"></div><div class="token-info"><div class="token-name">accent-black</div><div class="token-value">#000000</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#F5A623"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-value">#F5A623</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#0070F3"></div><div class="token-info"><div class="token-name">accent-blue</div><div class="token-value">#0070F3</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

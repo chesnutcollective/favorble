@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble Dark — Medical Chronology</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-sidebar: #080A10;
+    --color-sidebar-hover: #111520;
+    --color-sidebar-active: #162032;
+    --color-sidebar-text: #6B7280;
+    --color-sidebar-text-active: #FFFFFF;
+    --color-sidebar-divider: #111827;
+    --color-bg: #0B0E14;
+    --color-surface: #12161E;
+    --color-border: #1E2430;
+    --color-border-strong: #2A3242;
+    --color-text-primary: #D1D5DB;
+    --color-text-secondary: #6B7280;
+    --color-text-tertiary: #4B5563;
+    --color-text-inverse: #FFFFFF;
+    --color-primary: #3B82F6;
+    --color-primary-hover: #2563EB;
+    --color-primary-light: #1E2A3F;
+    --color-secondary: #F59E0B;
+    --color-secondary-light: #2A2210;
+    --color-secondary-hover: #D97706;
+    --color-success: #10B981;
+    --color-success-light: #0F2A1D;
+    --color-warning: #F59E0B;
+    --color-warning-light: #2A2210;
+    --color-danger: #EF4444;
+    --color-danger-light: #2A1515;
+    --color-info: #3B82F6;
+    --color-info-light: #1E2A3F;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --sidebar-width: 240px;
+    --header-height: 56px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); }
+  body { font-family: var(--font-family); background: var(--color-bg); color: var(--color-text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: var(--sidebar-width); background: var(--color-sidebar); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; }
+  .sidebar-brand { padding: var(--space-5); border-bottom: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-brand-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: var(--font-size-lg); color: white; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; color: white; letter-spacing: -0.3px; }
+  .sidebar-section { padding: var(--space-4) 0 var(--space-2); }
+  .sidebar-section-label { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-sidebar-text); text-transform: uppercase; letter-spacing: 0.8px; padding: 0 var(--space-5) var(--space-2); }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-5); color: var(--color-sidebar-text); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s; position: relative; }
+  .sidebar-nav-item:hover { background: var(--color-sidebar-hover); color: white; }
+  .sidebar-nav-item.active { background: var(--color-sidebar-active); color: white; }
+  .sidebar-nav-item.active::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--color-secondary); border-radius: 0 2px 2px 0; }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-nav-item.active svg { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-primary); color: white; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-badge.gold { background: var(--color-secondary); }
+  .sidebar-divider { border-top: 1px solid var(--color-sidebar-divider); margin: var(--space-3) var(--space-5); }
+  .sidebar-user { margin-top: auto; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-user-avatar { width: 32px; height: 32px; background: var(--color-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-sm); font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-base); font-weight: 600; color: white; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-sidebar-text); }
+
+  /* Main */
+  .main-content { margin-left: var(--sidebar-width); flex: 1; min-width: 0; }
+  .top-bar { height: var(--header-height); background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: sticky; top: 0; z-index: 50; }
+  .top-bar-title { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .top-bar-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .top-bar-right { display: flex; align-items: center; gap: var(--space-3); }
+  .page-content { padding: var(--space-6); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; padding: var(--space-2) var(--space-3); border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; text-decoration: none; white-space: nowrap; }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-gold { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+  .btn-ghost { background: transparent; color: var(--color-text-secondary); }
+  .btn-ghost:hover { color: var(--color-text-primary); background: var(--color-bg); }
+  .btn-sm { font-size: var(--font-size-xs); padding: 2px var(--space-2); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .badge-gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-green { background: var(--color-success-light); color: var(--color-success); }
+  .badge-red { background: var(--color-danger-light); color: var(--color-danger); }
+  .badge-gray { background: #161B25; color: var(--color-text-secondary); }
+  .badge-purple { background: #1F1A30; color: #A78BFA; }
+  .badge-teal { background: #0F2A25; color: #2DD4BF; }
+
+  /* Section Label */
+  .section-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+
+  /* Card */
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); }
+  .card-title { font-size: var(--font-size-md); font-weight: 700; letter-spacing: -0.2px; }
+  .card-body { padding: var(--space-5); }
+  .card-body.no-padding { padding: 0; }
+
+  /* Breadcrumb */
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-bottom: var(--space-4); }
+  .breadcrumb a { color: var(--color-text-secondary); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--color-primary); }
+
+  /* Stat Cards Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+  }
+  .stat-card-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .stat-card-value.gold { color: var(--color-secondary); }
+  .stat-card-value.blue { color: var(--color-primary); }
+  .stat-card-value.red { color: var(--color-danger); }
+  .stat-card-sub {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-1);
+  }
+
+  /* Filters */
+  .filters-bar {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-4);
+  }
+  .search-input {
+    display: flex; align-items: center; gap: var(--space-2);
+    background: var(--color-bg); border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3);
+    flex: 1; max-width: 280px;
+  }
+  .search-input svg { width: 14px; height: 14px; color: var(--color-text-tertiary); flex-shrink: 0; }
+  .search-input input {
+    border: none; background: transparent; outline: none;
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); width: 100%;
+  }
+  .search-input input::placeholder { color: var(--color-text-tertiary); }
+  .filter-select {
+    font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 500;
+    padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm); background: var(--color-surface);
+    color: var(--color-text-primary); cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+  }
+  .filter-divider { width: 1px; height: 24px; background: var(--color-border); }
+  .filter-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: var(--font-size-xs); font-weight: 500;
+    padding: 2px 8px; border-radius: 3px;
+    background: var(--color-primary-light); color: var(--color-primary); cursor: pointer;
+  }
+  .filter-tag svg { width: 10px; height: 10px; }
+
+  /* Content Layout */
+  .chrono-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-4);
+  }
+
+  /* Timeline */
+  .timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Year Divider */
+  .year-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+  .year-label {
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+    color: var(--color-primary);
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+  }
+  .year-line {
+    flex: 1;
+    height: 1px;
+    background: var(--color-primary);
+    opacity: 0.3;
+  }
+
+  /* Chronology Entry */
+  .chrono-entry {
+    display: grid;
+    grid-template-columns: 100px 28px 1fr;
+    gap: 0;
+    position: relative;
+  }
+  .chrono-date-col {
+    padding: var(--space-3) var(--space-2) var(--space-3) 0;
+    text-align: right;
+  }
+  .chrono-date {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+  .chrono-date-year {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+  .chrono-line-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .chrono-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #12161E;
+    flex-shrink: 0;
+    margin-top: 16px;
+    z-index: 1;
+  }
+  .chrono-dot.surgery { background: var(--color-danger); }
+  .chrono-dot.visit { background: var(--color-primary); }
+  .chrono-dot.diagnosis { background: var(--color-secondary); }
+  .chrono-dot.treatment { background: var(--color-success); }
+  .chrono-dot.imaging { background: #A78BFA; }
+  .chrono-dot.lab { background: #2DD4BF; }
+  .chrono-dot.incident { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.35); }
+  .chrono-line {
+    width: 2px;
+    flex: 1;
+    background: var(--color-border);
+  }
+  .chrono-content-col {
+    padding: var(--space-3) 0 var(--space-3) var(--space-3);
+  }
+  .chrono-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .chrono-card:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-md);
+  }
+  .chrono-card.flagged {
+    border-left: 3px solid var(--color-secondary);
+  }
+  .chrono-card.critical {
+    border-left: 3px solid var(--color-danger);
+  }
+  .chrono-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+  .chrono-card-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.1px;
+  }
+  .chrono-card-type {
+    font-size: var(--font-size-xs);
+  }
+  .chrono-card-body {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-2);
+  }
+  .chrono-card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+  .chrono-card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chrono-card-meta-item svg { width: 12px; height: 12px; }
+  .chrono-card-tags {
+    display: flex;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+  .chrono-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .chrono-tag.icd { background: #1E2A3F; color: #3B82F6; }
+  .chrono-tag.cpt { background: #2A2210; color: #F59E0B; }
+  .chrono-tag.flag { background: #2A1515; color: #EF4444; }
+  .chrono-tag.key { background: #0F2A1D; color: #10B981; }
+
+  /* Right Panel */
+  .panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* Category Legend */
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .legend-item:hover { background: var(--color-bg); }
+  .legend-item.active { background: var(--color-bg); font-weight: 600; }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-label { flex: 1; color: var(--color-text-primary); }
+  .legend-count {
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+
+  /* Provider Summary */
+  .provider-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-xs);
+  }
+  .provider-item:last-child { border-bottom: none; }
+  .provider-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .provider-info { flex: 1; }
+  .provider-name { font-weight: 600; color: var(--color-text-primary); }
+  .provider-specialty { color: var(--color-text-tertiary); }
+  .provider-count {
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+
+  /* ICD Codes */
+  .icd-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-xs);
+  }
+  .icd-item:last-child { border-bottom: none; }
+  .icd-code {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-weight: 700;
+    color: var(--color-primary);
+    white-space: nowrap;
+  }
+  .icd-desc { color: var(--color-text-secondary); flex: 1; }
+  .icd-count { font-weight: 700; color: var(--color-text-tertiary); }
+
+  /* Progress bar (treatment progress) */
+  .progress-bar { height: 6px; background: #1E2430; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+  .progress-fill.blue { background: var(--color-primary); }
+  .progress-fill.gold { background: var(--color-secondary); }
+  .progress-fill.green { background: var(--color-success); }
+
+  /* Design Tokens */
+  .tokens-section { margin-top: var(--space-8); border: 2px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+  .tokens-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); background: var(--color-bg); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .tokens-title { font-size: var(--font-size-md); font-weight: 700; display: flex; align-items: center; gap: var(--space-2); }
+  .tokens-body { padding: var(--space-5); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .token-group-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a></li>
+        <li><a class="sidebar-nav-item" href="cases-list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases<span class="sidebar-badge">47</span></a></li>
+        <li><a class="sidebar-nav-item" href="case-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Documents</a></li>
+        <li><a class="sidebar-nav-item active" href="chronology.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Chronology<span class="sidebar-badge gold">3</span></a></li>
+      </ul>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Billing<span class="sidebar-badge">5</span></a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a></li>
+        <li><a class="sidebar-nav-item" href="admin-integrations.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">SM</div>
+      <div><div class="sidebar-user-name">Sarah Mitchell</div><div class="sidebar-user-role">Managing Partner</div></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Medical Chronology</div>
+        <div class="top-bar-subtitle">Martinez v. Allied Health Systems &middot; CV-2025-04892</div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export PDF
+        </button>
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+        <button class="btn btn-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Entry
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="cases-list.html">Cases</a>
+        <span style="font-size:10px;">/</span>
+        <a href="case-detail.html">Martinez v. Allied Health</a>
+        <span style="font-size:10px;">/</span>
+        <span style="color:var(--color-text-primary); font-weight:500;">Medical Chronology</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-label">Total Entries</div>
+          <div class="stat-card-value blue">142</div>
+          <div class="stat-card-sub">Across 14 months</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Providers</div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-sub">3 facilities, 5 physicians</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Medical Costs</div>
+          <div class="stat-card-value gold">$287K</div>
+          <div class="stat-card-sub">Total billed to date</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Flagged Events</div>
+          <div class="stat-card-value red">7</div>
+          <div class="stat-card-sub">Requires review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Pages Reviewed</div>
+          <div class="stat-card-value">2,847</div>
+          <div class="stat-card-sub">98% complete</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search diagnoses, providers, notes..." />
+        </div>
+        <div class="filter-divider"></div>
+        <select class="filter-select">
+          <option>All Categories</option>
+          <option>Surgery</option>
+          <option>Office Visit</option>
+          <option>Imaging</option>
+          <option>Lab Work</option>
+          <option>Treatment</option>
+          <option>Diagnosis</option>
+        </select>
+        <select class="filter-select">
+          <option>All Providers</option>
+          <option>Dr. Robert Patel</option>
+          <option>Dr. Lisa Yamamoto</option>
+          <option>Dr. Michael Chen</option>
+          <option>Allied Health ER</option>
+        </select>
+        <select class="filter-select">
+          <option>All Time</option>
+          <option>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>Last 6 months</option>
+          <option>Last year</option>
+        </select>
+        <div class="filter-divider"></div>
+        <div style="display:flex; gap:var(--space-2);">
+          <span class="filter-tag">
+            Flagged Only
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Layout: Timeline + Right Panel -->
+      <div class="chrono-layout">
+        <!-- Timeline -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Chronological Timeline</div>
+            <div style="display:flex; gap:var(--space-2); align-items:center;">
+              <span class="badge badge-gold">7 flagged</span>
+              <button class="btn btn-sm btn-ghost">Collapse All</button>
+              <button class="btn btn-sm btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Sort
+              </button>
+            </div>
+          </div>
+          <div class="card-body" style="padding: var(--space-4) var(--space-5);">
+            <div class="timeline-container">
+
+              <!-- 2026 -->
+              <div class="year-divider">
+                <span class="year-label">2026</span>
+                <div class="year-line"></div>
+              </div>
+
+              <!-- March 2026 -->
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Mar 15</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot visit"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">Follow-up Office Visit</div>
+                      <span class="badge badge-blue">Office Visit</span>
+                    </div>
+                    <div class="chrono-card-body">Patient reports continued improvement in lumbar range of motion. Pain reduced to 3/10 from 7/10 at last visit. Physical therapy progressing well. Recommend continued PT 2x/week for 6 more weeks.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Robert Patel
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Patel Orthopedics
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 2401-2405</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M54.5</span>
+                      <span class="chrono-tag cpt">99214</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Feb 28</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot imaging"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card flagged">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">MRI Lumbar Spine — Follow-up</div>
+                      <span class="badge badge-purple">Imaging</span>
+                    </div>
+                    <div class="chrono-card-body"><strong style="color:var(--color-secondary);">FLAGGED:</strong> MRI reveals persistent L4-L5 disc herniation with mild interval increase in size compared to prior study. New finding of mild foraminal stenosis on the right at L5-S1. Recommend neurosurgical consultation.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Lisa Yamamoto
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Pacific Imaging Center
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 2312-2318</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M51.16</span>
+                      <span class="chrono-tag icd">M48.06</span>
+                      <span class="chrono-tag cpt">72148</span>
+                      <span class="chrono-tag flag">Flagged</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Feb 10</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot treatment"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">Physical Therapy — Session 12</div>
+                      <span class="badge badge-green">Treatment</span>
+                    </div>
+                    <div class="chrono-card-body">Lumbar stabilization exercises, manual therapy to L-spine. Patient achieving 80% of functional goals. Flexion improved to 60 degrees (from 35 at intake). Extension within normal limits.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Maria Santos, DPT
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        ProMotion Physical Therapy
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 2280-2284</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag cpt">97110</span>
+                      <span class="chrono-tag cpt">97140</span>
+                      <span class="chrono-tag key">Key Evidence</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Jan 18</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot lab"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">Laboratory — Blood Panel</div>
+                      <span class="badge badge-teal">Lab Work</span>
+                    </div>
+                    <div class="chrono-card-body">CBC, CMP, ESR, CRP all within normal limits. No evidence of infection or systemic inflammatory process. Vitamin D slightly low at 22 ng/mL (normal >30). Supplementation recommended.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Robert Patel
+                      </div>
+                      <div class="chrono-card-meta-item">Quest Diagnostics</div>
+                      <div class="chrono-card-meta-item">Pg 2201-2204</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag cpt">85025</span>
+                      <span class="chrono-tag cpt">80053</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2025 -->
+              <div class="year-divider">
+                <span class="year-label">2025</span>
+                <div class="year-line"></div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Dec 5</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot surgery"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card critical">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">Epidural Steroid Injection — L4-L5</div>
+                      <span class="badge badge-red">Surgery/Procedure</span>
+                    </div>
+                    <div class="chrono-card-body"><strong style="color:var(--color-danger);">CRITICAL:</strong> Fluoroscopically-guided transforaminal epidural steroid injection at L4-L5 level. Patient tolerated procedure well. 50% pain relief at 2-hour post-procedure assessment. Advised to limit activity for 48 hours. Follow-up in 2 weeks.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Michael Chen
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        LA Pain Management Center
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 1892-1901</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M51.16</span>
+                      <span class="chrono-tag cpt">64483</span>
+                      <span class="chrono-tag cpt">77003</span>
+                      <span class="chrono-tag flag">Critical</span>
+                      <span class="chrono-tag key">Key Evidence</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Nov 12</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot diagnosis"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card flagged">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">Orthopedic Consultation — Diagnosis</div>
+                      <span class="badge badge-gold">Diagnosis</span>
+                    </div>
+                    <div class="chrono-card-body"><strong style="color:var(--color-secondary);">FLAGGED:</strong> Formal diagnosis: L4-L5 posterolateral disc herniation with radiculopathy. Failed conservative management (6 weeks PT, NSAIDs). Recommending epidural steroid injection series. If no improvement, may require surgical intervention (microdiscectomy).</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Robert Patel
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Patel Orthopedics
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 1654-1662</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M51.16</span>
+                      <span class="chrono-tag icd">M54.41</span>
+                      <span class="chrono-tag cpt">99243</span>
+                      <span class="chrono-tag flag">Flagged</span>
+                      <span class="chrono-tag key">Key Evidence</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Oct 8</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot imaging"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">MRI Lumbar Spine — Initial</div>
+                      <span class="badge badge-purple">Imaging</span>
+                    </div>
+                    <div class="chrono-card-body">MRI demonstrates L4-L5 posterolateral disc herniation with moderate foraminal narrowing. L5-S1 mild disc bulge without significant stenosis. No fracture or alignment abnormality. Findings consistent with clinical presentation.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Lisa Yamamoto
+                      </div>
+                      <div class="chrono-card-meta-item">Pacific Imaging Center</div>
+                      <div class="chrono-card-meta-item">Pg 1280-1290</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M51.16</span>
+                      <span class="chrono-tag cpt">72148</span>
+                      <span class="chrono-tag key">Key Evidence</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chrono-entry">
+                <div class="chrono-date-col">
+                  <div class="chrono-date">Sep 20</div>
+                </div>
+                <div class="chrono-line-col">
+                  <div class="chrono-dot incident"></div>
+                  <div class="chrono-line"></div>
+                </div>
+                <div class="chrono-content-col">
+                  <div class="chrono-card critical">
+                    <div class="chrono-card-header">
+                      <div class="chrono-card-title">ER Visit — Date of Incident</div>
+                      <span class="badge badge-red">Emergency</span>
+                    </div>
+                    <div class="chrono-card-body"><strong style="color:var(--color-danger);">INCIDENT DATE:</strong> Patient presented to ER via ambulance following surgical procedure at Allied Health Systems. Chief complaint: severe lower back pain radiating to right lower extremity following improper patient positioning during laparoscopic cholecystectomy. Pain 9/10. Neurological exam shows decreased sensation in right L5 dermatome. CT lumbar spine ordered. Discharged with Norco and muscle relaxant. Follow up with orthopedics in 1 week.</div>
+                    <div class="chrono-card-meta">
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dr. Karen Walsh
+                      </div>
+                      <div class="chrono-card-meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Cedars-Sinai Emergency
+                      </div>
+                      <div class="chrono-card-meta-item">Pg 0001-0024</div>
+                    </div>
+                    <div class="chrono-card-tags">
+                      <span class="chrono-tag icd">M54.5</span>
+                      <span class="chrono-tag icd">M54.41</span>
+                      <span class="chrono-tag cpt">99285</span>
+                      <span class="chrono-tag cpt">72131</span>
+                      <span class="chrono-tag flag">Critical</span>
+                      <span class="chrono-tag key">Key Evidence</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="panel-stack">
+          <!-- Category Legend -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Categories</div>
+            </div>
+            <div class="card-body" style="padding:var(--space-3) var(--space-4);">
+              <div class="legend">
+                <div class="legend-item active">
+                  <div class="legend-dot" style="background:#EF4444;"></div>
+                  <span class="legend-label">Surgery/Procedure</span>
+                  <span class="legend-count">6</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#3B82F6;"></div>
+                  <span class="legend-label">Office Visit</span>
+                  <span class="legend-count">42</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#F59E0B;"></div>
+                  <span class="legend-label">Diagnosis</span>
+                  <span class="legend-count">8</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#10B981;"></div>
+                  <span class="legend-label">Treatment/PT</span>
+                  <span class="legend-count">48</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#7C3AED;"></div>
+                  <span class="legend-label">Imaging</span>
+                  <span class="legend-count">14</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#2DD4BF;"></div>
+                  <span class="legend-label">Lab Work</span>
+                  <span class="legend-count">18</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#EF4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.35);"></div>
+                  <span class="legend-label">Emergency/Incident</span>
+                  <span class="legend-count">6</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treating Providers -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Providers</div>
+            </div>
+            <div class="card-body" style="padding:var(--space-3) var(--space-4);">
+              <div class="provider-item">
+                <div class="provider-avatar" style="background:var(--color-primary);">RP</div>
+                <div class="provider-info">
+                  <div class="provider-name">Dr. Robert Patel</div>
+                  <div class="provider-specialty">Orthopedic Surgery</div>
+                </div>
+                <span class="provider-count">34</span>
+              </div>
+              <div class="provider-item">
+                <div class="provider-avatar" style="background:var(--color-success);">MS</div>
+                <div class="provider-info">
+                  <div class="provider-name">Maria Santos, DPT</div>
+                  <div class="provider-specialty">Physical Therapy</div>
+                </div>
+                <span class="provider-count">48</span>
+              </div>
+              <div class="provider-item">
+                <div class="provider-avatar" style="background:#7C3AED;">LY</div>
+                <div class="provider-info">
+                  <div class="provider-name">Dr. Lisa Yamamoto</div>
+                  <div class="provider-specialty">Radiology</div>
+                </div>
+                <span class="provider-count">14</span>
+              </div>
+              <div class="provider-item">
+                <div class="provider-avatar" style="background:var(--color-secondary);">MC</div>
+                <div class="provider-info">
+                  <div class="provider-name">Dr. Michael Chen</div>
+                  <div class="provider-specialty">Pain Management</div>
+                </div>
+                <span class="provider-count">12</span>
+              </div>
+              <div class="provider-item">
+                <div class="provider-avatar" style="background:var(--color-danger);">KW</div>
+                <div class="provider-info">
+                  <div class="provider-name">Dr. Karen Walsh</div>
+                  <div class="provider-specialty">Emergency Medicine</div>
+                </div>
+                <span class="provider-count">6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top ICD Codes -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Top ICD-10 Codes</div>
+            </div>
+            <div class="card-body" style="padding:var(--space-3) var(--space-4);">
+              <div class="icd-item">
+                <span class="icd-code">M51.16</span>
+                <span class="icd-desc">Lumbar disc herniation w/ radiculopathy</span>
+                <span class="icd-count">28</span>
+              </div>
+              <div class="icd-item">
+                <span class="icd-code">M54.5</span>
+                <span class="icd-desc">Low back pain</span>
+                <span class="icd-count">42</span>
+              </div>
+              <div class="icd-item">
+                <span class="icd-code">M54.41</span>
+                <span class="icd-desc">Lumbosacral radiculopathy</span>
+                <span class="icd-count">22</span>
+              </div>
+              <div class="icd-item">
+                <span class="icd-code">M48.06</span>
+                <span class="icd-desc">Spinal stenosis, lumbar</span>
+                <span class="icd-count">8</span>
+              </div>
+              <div class="icd-item">
+                <span class="icd-code">G89.29</span>
+                <span class="icd-desc">Chronic pain, other</span>
+                <span class="icd-count">15</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treatment Progress -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Treatment Progress</div>
+            </div>
+            <div class="card-body" style="padding:var(--space-3) var(--space-4);">
+              <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:var(--font-size-xs); font-weight:600;">Pain Level</span>
+                    <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">9/10 &rarr; 3/10</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill green" style="width:67%;"></div></div>
+                  <div style="font-size:10px; color:var(--color-success); margin-top:2px;">67% improvement</div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:var(--font-size-xs); font-weight:600;">Range of Motion</span>
+                    <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">35&deg; &rarr; 60&deg;</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill blue" style="width:71%;"></div></div>
+                  <div style="font-size:10px; color:var(--color-primary); margin-top:2px;">71% of normal</div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:var(--font-size-xs); font-weight:600;">Functional Goals</span>
+                    <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">8 of 10 met</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill gold" style="width:80%;"></div></div>
+                  <div style="font-size:10px; color:var(--color-secondary); margin-top:2px;">80% complete</div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:var(--font-size-xs); font-weight:600;">PT Sessions</span>
+                    <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">48 of 60 planned</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill blue" style="width:80%;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="tokens-section">
+        <div class="tokens-header">
+          <div class="tokens-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-secondary);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Design Tokens — Chronology Components (Dark)
+          </div>
+          <span class="badge badge-gold">Reference</span>
+        </div>
+        <div class="tokens-body">
+          <div>
+            <div class="token-group-label">Timeline Structure</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Grid:</strong> 100px date | 28px line | 1fr content</div>
+              <div><strong>Dot size:</strong> 12px, colored by category</div>
+              <div><strong>Line:</strong> 2px, border color</div>
+              <div><strong>Year divider:</strong> blue text + 0.3 opacity line</div>
+              <div><strong>Card padding:</strong> 12px 16px</div>
+              <div><strong>Flagged card:</strong> 3px gold left border</div>
+              <div><strong>Critical card:</strong> 3px red left border</div>
+              <div><strong>Incident dot:</strong> red with 3px glow ring</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">Category Colors</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#EF4444;"></div> Surgery/Procedure: #EF4444</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#3B82F6;"></div> Office Visit: #3B82F6</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;"></div> Diagnosis: #F59E0B</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#10B981;"></div> Treatment: #10B981</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#7C3AED;"></div> Imaging: #7C3AED</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;"><div style="width:8px;height:8px;border-radius:50%;background:#2DD4BF;"></div> Lab Work: #2DD4BF</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">Medical Tags</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                <span class="chrono-tag icd">ICD Code</span>
+                <span class="chrono-tag cpt">CPT Code</span>
+                <span class="chrono-tag flag">Flagged</span>
+                <span class="chrono-tag key">Key Evidence</span>
+              </div>
+              <div><strong>ICD tag:</strong> primary-light bg, primary text</div>
+              <div><strong>CPT tag:</strong> secondary-light bg, amber text</div>
+              <div><strong>Flag tag:</strong> danger-light bg, danger text</div>
+              <div><strong>Key tag:</strong> success-light bg, success text</div>
+              <div><strong>Tag size:</strong> 10px, 600 weight, uppercase, 0.3px tracking</div>
+              <div><strong>Page refs:</strong> "Pg XXXX-XXXX" format, tertiary gray</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

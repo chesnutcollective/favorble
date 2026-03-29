@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --color-primary: #635BFF;
+    --color-primary-dark: #5046E5;
+    --color-primary-light: #A259FF;
+    --color-gradient: linear-gradient(135deg, #635BFF, #A259FF);
+    --color-gradient-hover: linear-gradient(135deg, #5046E5, #8B3FE6);
+    --color-success: #00D4AA;
+    --color-success-bg: #E6FAF5;
+    --color-warning: #F5A623;
+    --color-warning-bg: #FFF8EC;
+    --color-danger: #E25950;
+    --color-danger-bg: #FDF0EF;
+    --color-info: #3B82F6;
+    --color-info-bg: #EFF6FF;
+    --color-bg: #F6F9FC;
+    --color-surface: #FFFFFF;
+    --color-border: #E3E8EE;
+    --color-border-light: #F0F2F5;
+    --color-text-primary: #1A1F36;
+    --color-text-secondary: #697386;
+    --color-text-tertiary: #A3ACB9;
+    --color-text-inverse: #FFFFFF;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 11px; --font-size-sm: 13px; --font-size-base: 15px; --font-size-lg: 17px;
+    --font-size-xl: 20px; --font-size-2xl: 24px; --font-size-3xl: 30px; --font-size-4xl: 36px;
+    --letter-spacing-tight: -0.02em; --letter-spacing-normal: -0.01em;
+    --line-height-tight: 1.2; --line-height-normal: 1.5;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(99,91,255,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(99,91,255,0.05), 0 0 0 1px rgba(0,0,0,0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(99,91,255,0.06), 0 0 0 1px rgba(0,0,0,0.02);
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 9999px;
+    --transition-fast: 150ms ease; --transition-normal: 200ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--font-family); background: var(--color-bg); color: var(--color-text-primary); line-height: var(--line-height-normal); letter-spacing: var(--letter-spacing-normal); }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 260px; background: var(--color-text-primary); color: var(--color-text-inverse); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .sidebar-header { padding: var(--space-6); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-logo { font-size: var(--font-size-xl); font-weight: 800; letter-spacing: var(--letter-spacing-tight); background: var(--color-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .sidebar-logo-sub { font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+  .sidebar-nav { flex: 1; padding: var(--space-4) 0; overflow-y: auto; }
+  .nav-section-label { padding: var(--space-3) var(--space-6) var(--space-2); font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-6); margin: 1px var(--space-2); border-radius: var(--radius-md); color: rgba(255,255,255,0.65); text-decoration: none; font-size: var(--font-size-sm); font-weight: 500; transition: all var(--transition-fast); cursor: pointer; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+  .nav-item.active { background: rgba(99,91,255,0.2); color: #fff; }
+  .nav-item svg { width: 18px; height: 18px; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--color-primary); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: var(--radius-full); }
+  .sidebar-footer { padding: var(--space-4) var(--space-6); border-top: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-avatar { width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--color-gradient); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); font-weight: 700; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 600; color: rgba(255,255,255,0.9); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: rgba(255,255,255,0.4); }
+
+  .main-content { flex: 1; margin-left: 260px; min-height: 100vh; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; line-height: 1.4; }
+  .btn-primary { background: var(--color-gradient); color: #fff; box-shadow: 0 1px 3px rgba(99,91,255,0.3); }
+  .btn-primary:hover { background: var(--color-gradient-hover); box-shadow: 0 2px 6px rgba(99,91,255,0.4); transform: translateY(-1px); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+  .btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--font-size-xs); }
+  .btn-lg { padding: var(--space-3) var(--space-6); font-size: var(--font-size-base); }
+  .btn-danger { background: var(--color-danger); color: #fff; }
+  .btn-success { background: #0E9F6E; color: #fff; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; font-size: var(--font-size-xs); font-weight: 600; border-radius: var(--radius-full); white-space: nowrap; }
+  .badge-purple { background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .badge-green { background: var(--color-success-bg); color: #0E9F6E; }
+  .badge-orange { background: var(--color-warning-bg); color: #B07918; }
+  .badge-red { background: var(--color-danger-bg); color: var(--color-danger); }
+  .badge-blue { background: var(--color-info-bg); color: #2563EB; }
+  .badge-gray { background: var(--color-border-light); color: var(--color-text-secondary); }
+  .badge-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Card */
+  .card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--color-border-light); }
+  .card-title { font-size: var(--font-size-base); font-weight: 700; letter-spacing: var(--letter-spacing-tight); }
+  .card-body { padding: var(--space-6); }
+
+  /* Page Header */
+  .case-header {
+    background: var(--color-gradient);
+    padding: var(--space-6) var(--space-10) var(--space-12);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .case-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+  .case-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    opacity: 0.7;
+    margin-bottom: var(--space-3);
+  }
+  .case-breadcrumb a { color: inherit; text-decoration: none; }
+  .case-breadcrumb a:hover { text-decoration: underline; }
+  .case-header-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .case-header-info h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    margin-bottom: var(--space-1);
+  }
+  .case-header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--font-size-sm);
+    opacity: 0.85;
+  }
+  .header-actions { display: flex; gap: var(--space-3); }
+
+  .content-area { padding: var(--space-8) var(--space-10); margin-top: -32px; position: relative; z-index: 1; }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    transition: all var(--transition-normal);
+  }
+  .stat-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+  .stat-card-value {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+  }
+  .stat-card-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    margin-top: var(--space-1);
+  }
+
+  /* Filters */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary); }
+  .search-input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3) var(--space-2) 36px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(99,91,255,0.1); }
+  .filter-select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    outline: none;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  .filter-chips {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    background: rgba(99,91,255,0.08);
+    color: var(--color-primary);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-family);
+    transition: all var(--transition-fast);
+  }
+  .filter-chip:hover { background: rgba(99,91,255,0.15); }
+  .filter-chip.active { background: var(--color-primary); color: #fff; }
+  .filter-chip-remove {
+    width: 14px; height: 14px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; line-height: 1;
+    background: rgba(255,255,255,0.3); cursor: pointer;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  .timeline-group {
+    margin-bottom: var(--space-6);
+    position: relative;
+  }
+  .timeline-date-marker {
+    position: relative;
+    margin-bottom: var(--space-4);
+    padding-left: 24px;
+  }
+  .timeline-date-marker::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-gradient);
+    border: 3px solid var(--color-bg);
+    z-index: 1;
+  }
+  .timeline-date-text {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  .timeline-date-sub {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  .timeline-entry {
+    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--space-3);
+    margin-left: 24px;
+    transition: all var(--transition-normal);
+    overflow: hidden;
+  }
+  .timeline-entry:hover {
+    box-shadow: var(--shadow-lg);
+  }
+  .timeline-entry::before {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: 20px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    z-index: 1;
+  }
+  .timeline-entry.highlight::before {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+  }
+  .timeline-entry-connector {
+    position: absolute;
+    left: -13px;
+    top: 24px;
+    width: 13px;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  .timeline-entry-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .timeline-entry-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .timeline-entry-icon.medical { background: rgba(99,91,255,0.1); color: var(--color-primary); }
+  .timeline-entry-icon.imaging { background: var(--color-info-bg); color: var(--color-info); }
+  .timeline-entry-icon.mental { background: rgba(162,89,255,0.1); color: var(--color-primary-light); }
+  .timeline-entry-icon.er { background: var(--color-danger-bg); color: var(--color-danger); }
+  .timeline-entry-icon.rx { background: var(--color-success-bg); color: #0E9F6E; }
+  .timeline-entry-icon.surgery { background: var(--color-warning-bg); color: var(--color-warning); }
+
+  .timeline-entry-title-area { flex: 1; }
+  .timeline-entry-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+  }
+  .timeline-entry-provider {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+  }
+  .timeline-entry-badges {
+    display: flex;
+    gap: var(--space-1);
+    flex-shrink: 0;
+  }
+  .timeline-entry-page {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .timeline-entry-body {
+    padding: var(--space-4) var(--space-5);
+  }
+  .timeline-entry-summary {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-3);
+  }
+  .timeline-entry-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2) var(--space-6);
+  }
+  .entry-detail-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .entry-detail-value {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .timeline-entry-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border-light);
+  }
+  .timeline-entry-footer .btn { font-size: var(--font-size-xs); }
+
+  /* Compact entry (no expanded body) */
+  .timeline-entry.compact .timeline-entry-header {
+    border-bottom: none;
+  }
+
+  /* Year divider */
+  .year-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-8) 0 var(--space-6) 24px;
+    position: relative;
+  }
+  .year-divider::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-gradient);
+    border: 3px solid var(--color-bg);
+    z-index: 1;
+  }
+  .year-divider-text {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    padding-right: var(--space-3);
+    position: relative;
+    z-index: 1;
+  }
+  .year-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* Design Tokens */
+  .token-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid var(--color-border); }
+  .token-section-title { font-size: var(--font-size-2xl); font-weight: 800; letter-spacing: var(--letter-spacing-tight); margin-bottom: var(--space-6); }
+  .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
+  .token-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border-light); }
+  .token-card-title { font-size: var(--font-size-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin-bottom: var(--space-3); }
+  .component-showcase { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .color-swatch-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+  .color-swatch { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .swatch-label { font-size: var(--font-size-sm); font-weight: 500; }
+  .swatch-value { font-size: var(--font-size-xs); color: var(--color-text-tertiary); font-family: 'SF Mono', Monaco, monospace; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Favorble</div>
+      <div class="sidebar-logo-sub">Case Management</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="cases-list.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Cases
+        <span class="nav-badge">247</span>
+      </a>
+      <a class="nav-item" href="case-detail.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        Case Detail
+      </a>
+      <a class="nav-item active" href="chronology.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Chronology
+      </a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-item" href="admin-integrations.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Integrations
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">SK</div>
+        <div>
+          <div class="sidebar-user-name">Sarah Kim</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <!-- Header -->
+    <div class="case-header">
+      <div class="case-breadcrumb">
+        <a href="cases-list.html">Cases</a>
+        <span>/</span>
+        <a href="case-detail.html">#2026-1903 Williams</a>
+        <span>/</span>
+        <span>Medical Chronology</span>
+      </div>
+      <div class="case-header-main">
+        <div class="case-header-info">
+          <h1>Medical Chronology</h1>
+          <div class="case-header-meta">
+            <span>Williams, Patricia A.</span>
+            <span>Case #2026-1903</span>
+            <span>842 pages of records</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export PDF
+          </button>
+          <button class="btn btn-ghost">+ Add Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-value">47</div>
+          <div class="stat-card-label">Total Entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value">6</div>
+          <div class="stat-card-label">Providers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value">842</div>
+          <div class="stat-card-label">Record Pages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value">19</div>
+          <div class="stat-card-label">Months Span</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" style="color:var(--color-primary)">8</div>
+          <div class="stat-card-label">Flagged for Brief</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" placeholder="Search diagnoses, providers, notes...">
+        </div>
+        <select class="filter-select">
+          <option>All Types</option>
+          <option>Office Visit</option>
+          <option>ER Visit</option>
+          <option>Imaging</option>
+          <option>Mental Health</option>
+          <option>Surgery / Procedure</option>
+          <option>Prescription</option>
+        </select>
+        <select class="filter-select">
+          <option>All Providers</option>
+          <option>Dr. Miguel Alvarez</option>
+          <option>Dr. Susan Okonkwo</option>
+          <option>Dr. James Liu</option>
+          <option>Memorial Hermann</option>
+        </select>
+        <select class="filter-select">
+          <option>All Impairments</option>
+          <option>Lumbar DDD</option>
+          <option>Cervical Radiculopathy</option>
+          <option>Depression</option>
+        </select>
+      </div>
+
+      <!-- Active Filters -->
+      <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-6)">
+        <span style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-tertiary)">Active filters:</span>
+        <div class="filter-chips">
+          <button class="filter-chip active">All Entries <span class="filter-chip-remove">&times;</span></button>
+          <button class="filter-chip">Lumbar Only</button>
+          <button class="filter-chip">Mental Health</button>
+          <button class="filter-chip">Flagged</button>
+          <button class="filter-chip">With Pain Scores</button>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+
+        <!-- 2026 -->
+        <div class="year-divider">
+          <div class="year-divider-text">2026</div>
+          <div class="year-divider-line"></div>
+        </div>
+
+        <!-- Jan 2026 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">January 22, 2026</div>
+            <div class="timeline-date-sub">3 entries</div>
+          </div>
+
+          <!-- Expanded entry -->
+          <div class="timeline-entry highlight">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon imaging">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="12" cy="12" r="4"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Lumbar MRI — L3-L5 Disc Herniation Confirmed</div>
+                <div class="timeline-entry-provider">Memorial Hermann Hospital &middot; Radiology Dept</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-purple">Flagged</span>
+                <span class="badge badge-blue">Imaging</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 142-148</div>
+            </div>
+            <div class="timeline-entry-body">
+              <div class="timeline-entry-summary">
+                MRI lumbar spine without contrast reveals <strong>broad-based disc herniation at L4-L5</strong> with moderate left foraminal stenosis and nerve root impingement. <strong>Disc desiccation at L3-L4 and L4-L5</strong> consistent with degenerative disc disease. Mild facet arthropathy at L5-S1. Impression: multilevel degenerative changes most pronounced at L4-L5 with left-sided radiculopathy correlation.
+              </div>
+              <div class="timeline-entry-details">
+                <div>
+                  <div class="entry-detail-label">Ordering Physician</div>
+                  <div class="entry-detail-value">Dr. Miguel Alvarez</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Interpreting Radiologist</div>
+                  <div class="entry-detail-value">Dr. Karen Wells, MD</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Key Finding</div>
+                  <div class="entry-detail-value" style="color:var(--color-primary);font-weight:600">L4-L5 herniation w/ nerve impingement</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Relevance</div>
+                  <div class="entry-detail-value">Listing 1.04 — Disorders of the Spine</div>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-entry-footer">
+              <button class="btn btn-sm btn-secondary">View PDF</button>
+              <button class="btn btn-sm btn-secondary">Copy to Brief</button>
+              <button class="btn btn-sm btn-secondary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <!-- Compact entry -->
+          <div class="timeline-entry compact">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon medical">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Follow-up Office Visit — Lumbar Pain Management</div>
+                <div class="timeline-entry-provider">Dr. Miguel Alvarez &middot; Orthopedic Surgery</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-gray">Office Visit</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 135-141</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry compact">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon rx">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Rx: Gabapentin 300mg TID, Cyclobenzaprine 10mg PRN</div>
+                <div class="timeline-entry-provider">Dr. Miguel Alvarez &middot; Orthopedic Surgery</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-green">Rx</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 141</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dec 2025 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">December 8, 2025</div>
+            <div class="timeline-date-sub">2 entries</div>
+          </div>
+
+          <div class="timeline-entry highlight">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon mental">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 110 20 10 10 0 010-20z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Psychiatric Evaluation — Major Depressive Disorder</div>
+                <div class="timeline-entry-provider">Dr. Susan Okonkwo &middot; Psychiatry</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-purple">Flagged</span>
+                <span class="badge badge-purple badge-dot">Mental Health</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 118-130</div>
+            </div>
+            <div class="timeline-entry-body">
+              <div class="timeline-entry-summary">
+                Initial psychiatric evaluation. Patient presents with persistent low mood, anhedonia, insomnia, and poor concentration since chronic pain onset. <strong>PHQ-9 score: 19 (moderately severe)</strong>. <strong>GAD-7 score: 15 (severe anxiety)</strong>. Reports difficulty with daily activities due to combined pain and mood symptoms. Diagnosis: Major Depressive Disorder, moderate-severe, secondary to chronic pain syndrome.
+              </div>
+              <div class="timeline-entry-details">
+                <div>
+                  <div class="entry-detail-label">PHQ-9</div>
+                  <div class="entry-detail-value" style="color:var(--color-danger);font-weight:700">19 / 27 (Moderately Severe)</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">GAD-7</div>
+                  <div class="entry-detail-value" style="color:var(--color-danger);font-weight:700">15 / 21 (Severe)</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Medications Started</div>
+                  <div class="entry-detail-value">Sertraline 50mg daily, Trazodone 50mg QHS</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Relevance</div>
+                  <div class="entry-detail-value">Listing 12.04 — Depressive Disorders</div>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-entry-footer">
+              <button class="btn btn-sm btn-secondary">View PDF</button>
+              <button class="btn btn-sm btn-secondary">Copy to Brief</button>
+              <button class="btn btn-sm btn-secondary">Edit</button>
+            </div>
+          </div>
+
+          <div class="timeline-entry compact">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon medical">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Office Visit — Cervical Pain with Radicular Symptoms</div>
+                <div class="timeline-entry-provider">Dr. Miguel Alvarez &middot; Orthopedic Surgery</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-gray">Office Visit</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 112-117</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nov 2025 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">November 15, 2025</div>
+            <div class="timeline-date-sub">1 entry</div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon medical">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">EMG / Nerve Conduction Study — Left Lower Extremity</div>
+                <div class="timeline-entry-provider">Dr. James Liu &middot; Pain Management</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-purple">Flagged</span>
+                <span class="badge badge-blue">Diagnostic</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 98-106</div>
+            </div>
+            <div class="timeline-entry-body">
+              <div class="timeline-entry-summary">
+                Electrodiagnostic study reveals <strong>moderate left L5 radiculopathy</strong> with active denervation. Findings consistent with left L4-L5 disc herniation and correlate with MRI results. Chronic changes also noted at L5-S1 distribution.
+              </div>
+              <div class="timeline-entry-details">
+                <div>
+                  <div class="entry-detail-label">Result</div>
+                  <div class="entry-detail-value" style="color:var(--color-primary);font-weight:600">Moderate L5 radiculopathy confirmed</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Correlation</div>
+                  <div class="entry-detail-value">Consistent with MRI from 01/22/2026</div>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-entry-footer">
+              <button class="btn btn-sm btn-secondary">View PDF</button>
+              <button class="btn btn-sm btn-secondary">Copy to Brief</button>
+              <button class="btn btn-sm btn-secondary">Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2025 divider -->
+        <div class="year-divider">
+          <div class="year-divider-text">2025 (earlier)</div>
+          <div class="year-divider-line"></div>
+        </div>
+
+        <!-- Oct 2025 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">October 3, 2025</div>
+            <div class="timeline-date-sub">1 entry</div>
+          </div>
+
+          <div class="timeline-entry compact">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon medical">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Follow-up — Pain 7/10, Limited ROM, Lumbar Epidural Discussed</div>
+                <div class="timeline-entry-provider">Dr. James Liu &middot; Pain Management</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-gray">Office Visit</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 89-94</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sep 2025 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">September 12, 2025</div>
+            <div class="timeline-date-sub">1 entry</div>
+          </div>
+
+          <div class="timeline-entry compact">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon surgery">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">Lumbar Epidural Steroid Injection — L4-L5</div>
+                <div class="timeline-entry-provider">Dr. James Liu &middot; Pain Management &middot; Outpatient</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-orange">Procedure</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 80-88</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aug 2025 -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text">August 18, 2025</div>
+            <div class="timeline-date-sub">1 entry</div>
+          </div>
+
+          <div class="timeline-entry highlight">
+            <div class="timeline-entry-connector"></div>
+            <div class="timeline-entry-header">
+              <div class="timeline-entry-icon er">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="timeline-entry-title-area">
+                <div class="timeline-entry-title">ER Visit — Acute Low Back Pain with Left Leg Numbness</div>
+                <div class="timeline-entry-provider">Memorial Hermann Hospital &middot; Emergency Dept</div>
+              </div>
+              <div class="timeline-entry-badges">
+                <span class="badge badge-purple">Flagged</span>
+                <span class="badge badge-red badge-dot">ER Visit</span>
+              </div>
+              <div class="timeline-entry-page">Pg. 62-79</div>
+            </div>
+            <div class="timeline-entry-body">
+              <div class="timeline-entry-summary">
+                Patient presents via EMS with severe acute exacerbation of chronic low back pain radiating to left lower extremity with numbness and tingling. <strong>Pain reported 9/10</strong>. Unable to ambulate. CT lumbar spine ordered — confirmed disc pathology. Given Toradol 30mg IV, Flexeril 10mg PO. Discharged with referral to orthopedics on an urgent basis.
+              </div>
+              <div class="timeline-entry-details">
+                <div>
+                  <div class="entry-detail-label">Pain Level</div>
+                  <div class="entry-detail-value" style="color:var(--color-danger);font-weight:700">9 / 10</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Arrival Method</div>
+                  <div class="entry-detail-value">EMS / Ambulance</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Treatment</div>
+                  <div class="entry-detail-value">Toradol IV, Flexeril, CT scan</div>
+                </div>
+                <div>
+                  <div class="entry-detail-label">Disposition</div>
+                  <div class="entry-detail-value">Discharged, urgent ortho referral</div>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-entry-footer">
+              <button class="btn btn-sm btn-secondary">View PDF</button>
+              <button class="btn btn-sm btn-secondary">Copy to Brief</button>
+              <button class="btn btn-sm btn-secondary">Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onset marker -->
+        <div class="timeline-group">
+          <div class="timeline-date-marker">
+            <div class="timeline-date-text" style="color:var(--color-primary)">August 3, 2024 — Alleged Onset Date</div>
+            <div class="timeline-date-sub">Work injury incident</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="token-section">
+        <h2 class="token-section-title">Design Tokens</h2>
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="token-card-title">Timeline Structure</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.6">
+              <strong>Spine:</strong> 2px #E3E8EE, 11px from left<br>
+              <strong>Date marker dot:</strong> 12px gradient, 3px bg border<br>
+              <strong>Entry dot:</strong> 8px, 2px border, bg fill (highlight = primary fill)<br>
+              <strong>Connector:</strong> 1px horizontal line to entry<br>
+              <strong>Entry offset:</strong> 32px left pad + 24px entry margin<br>
+              <strong>Year divider:</strong> 16px gradient dot + line
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Entry Card Anatomy</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.6">
+              <strong>Header:</strong> icon + title + badges + page ref<br>
+              <strong>Body:</strong> summary text + 2-col detail grid<br>
+              <strong>Footer:</strong> action buttons on bg tint<br>
+              <strong>Compact:</strong> header only, no bottom border<br>
+              <strong>Radius:</strong> 12px (radius-lg)<br>
+              <strong>Hover:</strong> shadow-lg elevation
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Entry Type Icons</div>
+            <div class="component-showcase">
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon medical" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">Medical</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon imaging" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="12" cy="12" r="4"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">Imaging</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon mental" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">Mental</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon er" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">ER</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon rx" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">Rx</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--space-2)">
+                <div class="timeline-entry-icon surgery" style="width:28px;height:28px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <span style="font-size:var(--font-size-xs)">Surgery</span>
+              </div>
+            </div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">
+              32px square, radius-md, semantic tinted background. Colors map to entry type.
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Filter Chips</div>
+            <div class="component-showcase">
+              <button class="filter-chip active">Active Chip <span class="filter-chip-remove">&times;</span></button>
+              <button class="filter-chip">Inactive Chip</button>
+            </div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-tertiary)">
+              Default: rgba(99,91,255,0.08) bg, primary text. Active: primary bg, white text. Pill radius. xs font, 600 weight.
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Stat Cards (Compact)</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.6">
+              <strong>Layout:</strong> 5-column grid<br>
+              <strong>Padding:</strong> 20px<br>
+              <strong>Value:</strong> 30px, weight 800, tight tracking<br>
+              <strong>Label:</strong> xs, secondary, 500 weight<br>
+              <strong>Alignment:</strong> centered<br>
+              <strong>Hover:</strong> shadow-lg + 1px lift
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-card-title">Badge Type Mapping</div>
+            <div class="component-showcase">
+              <span class="badge badge-gray">Office Visit</span>
+              <span class="badge badge-blue">Imaging</span>
+              <span class="badge badge-blue">Diagnostic</span>
+              <span class="badge badge-purple badge-dot">Mental Health</span>
+              <span class="badge badge-red badge-dot">ER Visit</span>
+              <span class="badge badge-green">Rx</span>
+              <span class="badge badge-orange">Procedure</span>
+              <span class="badge badge-purple">Flagged</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -11,7 +10,6 @@ import {
   WebhookIcon,
   LinkSquare02Icon,
   FileSearchIcon,
-  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 import * as outlookClient from "@/lib/integrations/outlook";
@@ -43,48 +41,24 @@ function IntegrationCard({
   manageUrl,
 }: IntegrationCardProps) {
   return (
-    <Card
-      className={
-        isConfigured
-          ? "border-l-[3px] border-l-green-400"
-          : "border-l-[3px] border-l-transparent border-dashed opacity-80"
-      }
-    >
+    <Card className="border-[#eaeaea]">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] border border-[#eaeaea] bg-white">
               {icon}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium text-foreground">{name}</h3>
-                {isConfigured && (
-                  <HugeiconsIcon
-                    icon={Tick01Icon}
-                    size={16}
-                    className="text-green-600"
-                  />
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <h3 className="font-medium text-[#171717]">{name}</h3>
+              <p className="text-sm text-[#666]">{description}</p>
             </div>
           </div>
-          <Badge
-            variant="outline"
-            className={
-              isConfigured
-                ? "border-green-300 bg-green-50 text-green-700"
-                : "border-border text-muted-foreground"
-            }
-          >
-            {status}
-          </Badge>
+          <span className="text-xs text-[#666]">{status}</span>
         </div>
 
         <div className="mt-4 space-y-1.5">
           {details.map((detail, i) => (
-            <p key={i} className="text-sm text-muted-foreground">
+            <p key={i} className="text-sm text-[#666]">
               {detail}
             </p>
           ))}
@@ -126,20 +100,10 @@ export default async function IntegrationsPage() {
     // DB unavailable
   }
 
-  const integrations = [
-    { configured: true }, // Chronicle (always deep-linked)
-    { configured: ereConfigured },
-    { configured: caseStatusConfigured },
-    { configured: outlookConfigured },
-    { configured: true }, // Zapier (always active)
-  ];
-  const activeCount = integrations.filter((i) => i.configured).length;
-  const totalCount = integrations.length;
-
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Integrations \u00B7 ${activeCount} of ${totalCount} active`}
+        title="Integrations"
         description="Configure connections to Chronicle, Case Status, Outlook, and other services."
       />
 
@@ -148,7 +112,7 @@ export default async function IntegrationsPage() {
           name="Chronicle"
           description="SSA document sync and ERE access"
           icon={
-            <HugeiconsIcon icon={GlobeIcon} size={24} color="rgb(147 51 234)" />
+            <HugeiconsIcon icon={GlobeIcon} size={20} className="text-[#666]" />
           }
           isConfigured={true}
           status="Deep Link"
@@ -165,8 +129,8 @@ export default async function IntegrationsPage() {
           icon={
             <HugeiconsIcon
               icon={FileSearchIcon}
-              size={24}
-              color="rgb(37 99 235)"
+              size={20}
+              className="text-[#666]"
             />
           }
           isConfigured={ereConfigured}
@@ -191,8 +155,8 @@ export default async function IntegrationsPage() {
           icon={
             <HugeiconsIcon
               icon={Message01Icon}
-              size={24}
-              color="rgb(22 163 74)"
+              size={20}
+              className="text-[#666]"
             />
           }
           isConfigured={caseStatusConfigured}
@@ -217,8 +181,8 @@ export default async function IntegrationsPage() {
           icon={
             <HugeiconsIcon
               icon={Mail01Icon}
-              size={24}
-              className="text-primary"
+              size={20}
+              className="text-[#666]"
             />
           }
           isConfigured={outlookConfigured}
@@ -243,8 +207,8 @@ export default async function IntegrationsPage() {
           icon={
             <HugeiconsIcon
               icon={WebhookIcon}
-              size={24}
-              color="rgb(217 119 6)"
+              size={20}
+              className="text-[#666]"
             />
           }
           isConfigured={true}

@@ -62,8 +62,6 @@ export default async function CaseCalendarPage({
             icon={Calendar01Icon}
             title="No events"
             description="Hearings, deadlines, and appointments for this case will appear here."
-            accent="blue"
-            bordered
           />
         ) : (
           <div className="space-y-3">

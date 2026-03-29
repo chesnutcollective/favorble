@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble Dark — Cases</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-sidebar: #080A10;
+    --color-sidebar-hover: #111520;
+    --color-sidebar-active: #162032;
+    --color-sidebar-text: #6B7280;
+    --color-sidebar-text-active: #FFFFFF;
+    --color-sidebar-divider: #111827;
+    --color-bg: #0B0E14;
+    --color-surface: #12161E;
+    --color-border: #1E2430;
+    --color-border-strong: #2A3242;
+    --color-text-primary: #D1D5DB;
+    --color-text-secondary: #6B7280;
+    --color-text-tertiary: #4B5563;
+    --color-text-inverse: #FFFFFF;
+    --color-primary: #3B82F6;
+    --color-primary-hover: #2563EB;
+    --color-primary-light: #1E2A3F;
+    --color-secondary: #F59E0B;
+    --color-secondary-light: #2A2210;
+    --color-secondary-hover: #D97706;
+    --color-success: #10B981;
+    --color-success-light: #0F2A1D;
+    --color-warning: #F59E0B;
+    --color-warning-light: #2A2210;
+    --color-danger: #EF4444;
+    --color-danger-light: #2A1515;
+    --color-info: #3B82F6;
+    --color-info-light: #1E2A3F;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --sidebar-width: 240px;
+    --header-height: 56px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-sidebar-divider);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .sidebar-brand-icon {
+    width: 32px; height: 32px;
+    background: var(--color-primary);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: var(--font-size-lg); color: var(--color-text-inverse);
+  }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; color: var(--color-text-inverse); letter-spacing: -0.3px; }
+  .sidebar-section { padding: var(--space-4) 0 var(--space-2); }
+  .sidebar-section-label {
+    font-size: var(--font-size-xs); font-weight: 600; color: var(--color-sidebar-text);
+    text-transform: uppercase; letter-spacing: 0.8px; padding: 0 var(--space-5) var(--space-2);
+  }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-2) var(--space-5);
+    color: var(--color-sidebar-text); font-size: var(--font-size-base); font-weight: 500;
+    cursor: pointer; text-decoration: none; transition: background 0.15s, color 0.15s;
+    position: relative;
+  }
+  .sidebar-nav-item:hover { background: var(--color-sidebar-hover); color: var(--color-sidebar-text-active); }
+  .sidebar-nav-item.active { background: var(--color-sidebar-active); color: var(--color-sidebar-text-active); }
+  .sidebar-nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+    width: 3px; background: var(--color-secondary); border-radius: 0 2px 2px 0;
+  }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-nav-item.active svg { opacity: 1; }
+  .sidebar-badge {
+    margin-left: auto; background: var(--color-primary); color: var(--color-text-inverse);
+    font-size: var(--font-size-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px;
+  }
+  .sidebar-badge.gold { background: var(--color-secondary); }
+  .sidebar-divider { border-top: 1px solid var(--color-sidebar-divider); margin: var(--space-3) var(--space-5); }
+  .sidebar-user {
+    margin-top: auto; padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-sidebar-divider);
+    display: flex; align-items: center; gap: var(--space-3);
+  }
+  .sidebar-user-avatar {
+    width: 32px; height: 32px; background: var(--color-primary); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: var(--font-size-sm); font-weight: 600;
+  }
+  .sidebar-user-name { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text-inverse); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-sidebar-text); }
+
+  /* Main */
+  .main-content { margin-left: var(--sidebar-width); flex: 1; min-width: 0; }
+  .top-bar {
+    height: var(--header-height); background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--space-6); position: sticky; top: 0; z-index: 50;
+  }
+  .top-bar-title { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .top-bar-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .top-bar-right { display: flex; align-items: center; gap: var(--space-3); }
+  .page-content { padding: var(--space-6); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600;
+    padding: var(--space-2) var(--space-3); border: 1px solid transparent;
+    border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s;
+    text-decoration: none; white-space: nowrap;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-gold { background: var(--color-secondary); color: var(--color-text-inverse); }
+  .btn-ghost { background: transparent; color: var(--color-text-secondary); }
+  .btn-ghost:hover { color: var(--color-text-primary); background: var(--color-bg); }
+  .btn-sm { font-size: var(--font-size-xs); padding: 2px var(--space-2); }
+  .btn-danger { background: var(--color-danger); color: white; border-color: var(--color-danger); }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: var(--font-size-xs); font-weight: 600;
+    padding: 2px 8px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .badge-blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .badge-gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-green { background: var(--color-success-light); color: var(--color-success); }
+  .badge-red { background: var(--color-danger-light); color: var(--color-danger); }
+  .badge-gray { background: #161B25; color: var(--color-text-secondary); }
+  .badge-purple { background: #1F1A30; color: #A78BFA; }
+
+  /* Section Label */
+  .section-label {
+    font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3);
+  }
+
+  /* Card */
+  .card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border);
+  }
+  .card-title { font-size: var(--font-size-md); font-weight: 700; letter-spacing: -0.2px; }
+
+  /* Filters Bar */
+  .filters-bar {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-4);
+  }
+  .search-input {
+    display: flex; align-items: center; gap: var(--space-2);
+    background: var(--color-bg); border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3);
+    flex: 1; max-width: 320px;
+  }
+  .search-input svg { width: 14px; height: 14px; color: var(--color-text-tertiary); flex-shrink: 0; }
+  .search-input input {
+    border: none; background: transparent; outline: none;
+    font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--color-text-primary); width: 100%;
+  }
+  .search-input input::placeholder { color: var(--color-text-tertiary); }
+  .filter-select {
+    font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 500;
+    padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm); background: var(--color-surface);
+    color: var(--color-text-primary); cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+  }
+  .filter-divider {
+    width: 1px; height: 24px; background: var(--color-border);
+  }
+  .active-filters {
+    display: flex; align-items: center; gap: var(--space-2);
+  }
+  .filter-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: var(--font-size-xs); font-weight: 500;
+    padding: 2px 8px; border-radius: 3px;
+    background: var(--color-primary-light); color: var(--color-primary);
+    cursor: pointer;
+  }
+  .filter-tag svg { width: 10px; height: 10px; }
+
+  /* Stats Summary */
+  .stats-summary {
+    display: flex; gap: var(--space-6); padding: var(--space-3) 0;
+    margin-bottom: var(--space-4);
+  }
+  .stats-summary-item {
+    display: flex; align-items: baseline; gap: var(--space-2);
+  }
+  .stats-summary-value { font-size: var(--font-size-md); font-weight: 700; }
+  .stats-summary-label {
+    font-size: var(--font-size-xs); color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;
+  }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+  }
+  .data-table thead { background: var(--color-bg); }
+  .data-table th {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  .data-table th:hover { color: var(--color-text-primary); }
+  .data-table th .sort-arrow {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+  }
+  .data-table th .sort-arrow.active { color: var(--color-primary); }
+  .data-table td {
+    padding: var(--space-3) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+  .data-table tbody tr { transition: background 0.1s; }
+  .data-table tbody tr:hover { background: #0F1319; }
+  .data-table tbody tr:nth-child(even) { background: #0F1319; }
+  .data-table tbody tr:nth-child(even):hover { background: #161B25; }
+
+  /* Table — Case Name Cell */
+  .case-name {
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+  }
+  .case-name:hover { text-decoration: underline; }
+  .case-number {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+
+  /* Table — Priority Dot */
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .priority-dot.high { background: var(--color-danger); }
+  .priority-dot.medium { background: var(--color-warning); }
+  .priority-dot.low { background: var(--color-info); }
+
+  /* Table — Value Cell */
+  .value-cell {
+    font-weight: 700;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: var(--font-size-xs);
+  }
+  .value-cell.high-value { color: var(--color-secondary); }
+
+  /* Table — Progress Mini */
+  .progress-mini {
+    display: flex; align-items: center; gap: var(--space-2);
+  }
+  .progress-mini-bar {
+    width: 60px; height: 4px; background: #1E2430; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    height: 100%; border-radius: 2px; background: var(--color-primary);
+  }
+  .progress-mini-fill.gold { background: var(--color-secondary); }
+  .progress-mini-fill.green { background: var(--color-success); }
+  .progress-mini-label {
+    font-size: var(--font-size-xs); color: var(--color-text-tertiary); font-weight: 500;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+  .pagination-info {
+    font-size: var(--font-size-xs); color: var(--color-text-tertiary);
+  }
+  .pagination-controls {
+    display: flex; align-items: center; gap: var(--space-1);
+  }
+  .pagination-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--font-size-xs); font-weight: 600; font-family: var(--font-family);
+    border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+    background: var(--color-surface); cursor: pointer; color: var(--color-text-secondary);
+  }
+  .pagination-btn:hover { background: var(--color-bg); color: var(--color-text-primary); }
+  .pagination-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+  /* Checkbox */
+  .table-checkbox {
+    width: 14px; height: 14px; border: 2px solid var(--color-border-strong);
+    border-radius: 3px; cursor: pointer; flex-shrink: 0;
+  }
+  .table-checkbox.checked { background: var(--color-primary); border-color: var(--color-primary); }
+
+  /* Bulk Actions Bar */
+  .bulk-actions {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-primary);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .bulk-actions .btn { color: white; border-color: rgba(255,255,255,0.15); font-size: var(--font-size-xs); }
+  .bulk-actions .btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* Tabs */
+  .view-tabs {
+    display: flex; gap: 0; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-4);
+  }
+  .view-tab {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm); font-weight: 600;
+    color: var(--color-text-secondary); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .view-tab:hover { color: var(--color-text-primary); }
+  .view-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+  .view-tab .tab-count {
+    font-size: var(--font-size-xs); font-weight: 500;
+    color: var(--color-text-tertiary); margin-left: var(--space-1);
+  }
+
+  /* Top Bar Extras */
+  .top-bar-icon-btn {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+    background: var(--color-surface); cursor: pointer; color: var(--color-text-secondary);
+  }
+  .top-bar-icon-btn svg { width: 16px; height: 16px; }
+  .notification-dot {
+    position: absolute; top: 6px; right: 6px; width: 7px; height: 7px;
+    background: var(--color-danger); border-radius: 50%; border: 1.5px solid #12161E;
+  }
+
+  /* ============================================
+     DESIGN TOKENS SECTION
+     ============================================ */
+  .tokens-section {
+    margin-top: var(--space-8);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .tokens-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .tokens-title {
+    font-size: var(--font-size-md); font-weight: 700;
+    display: flex; align-items: center; gap: var(--space-2);
+  }
+  .tokens-body {
+    padding: var(--space-5);
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6);
+  }
+  .token-group-label {
+    font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3);
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item" href="dashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a></li>
+        <li><a class="sidebar-nav-item active" href="cases-list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          Cases
+          <span class="sidebar-badge">47</span>
+        </a></li>
+        <li><a class="sidebar-nav-item" href="case-detail.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+          Documents
+        </a></li>
+        <li><a class="sidebar-nav-item" href="chronology.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Chronology
+          <span class="sidebar-badge gold">3</span>
+        </a></li>
+      </ul>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Clients
+        </a></li>
+        <li><a class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Billing
+          <span class="sidebar-badge">5</span>
+        </a></li>
+        <li><a class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Reports
+        </a></li>
+        <li><a class="sidebar-nav-item" href="admin-integrations.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </a></li>
+      </ul>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">SM</div>
+      <div>
+        <div class="sidebar-user-name">Sarah Mitchell</div>
+        <div class="sidebar-user-role">Managing Partner</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Cases</div>
+        <div class="top-bar-subtitle">47 active cases &middot; $52.4M portfolio value</div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Case
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- View Tabs -->
+      <div class="view-tabs">
+        <div class="view-tab active">All Cases <span class="tab-count">47</span></div>
+        <div class="view-tab">Active <span class="tab-count">38</span></div>
+        <div class="view-tab">Pending <span class="tab-count">5</span></div>
+        <div class="view-tab">Settled <span class="tab-count">3</span></div>
+        <div class="view-tab">Closed <span class="tab-count">1</span></div>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search cases, clients, case numbers..." />
+        </div>
+        <div class="filter-divider"></div>
+        <select class="filter-select">
+          <option>All Types</option>
+          <option>Personal Injury</option>
+          <option>Medical Malpractice</option>
+          <option>Product Liability</option>
+          <option>Employment</option>
+        </select>
+        <select class="filter-select">
+          <option>All Stages</option>
+          <option>Intake</option>
+          <option>Investigation</option>
+          <option>Litigation</option>
+          <option>Discovery</option>
+          <option>Settlement</option>
+          <option>Trial</option>
+        </select>
+        <select class="filter-select">
+          <option>All Attorneys</option>
+          <option>Sarah Mitchell</option>
+          <option>James Kim</option>
+          <option>Angela Rivera</option>
+          <option>David Torres</option>
+        </select>
+        <select class="filter-select">
+          <option>All Priority</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+        <div class="filter-divider"></div>
+        <div class="active-filters">
+          <span class="filter-tag">
+            Personal Injury
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+          <span class="filter-tag">
+            Sarah Mitchell
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="stats-summary">
+        <div class="stats-summary-item">
+          <span class="stats-summary-value">47</span>
+          <span class="stats-summary-label">Total</span>
+        </div>
+        <div class="stats-summary-item">
+          <span class="stats-summary-value" style="color:var(--color-secondary);">$52.4M</span>
+          <span class="stats-summary-label">Value</span>
+        </div>
+        <div class="stats-summary-item">
+          <span class="stats-summary-value" style="color:var(--color-success);">78%</span>
+          <span class="stats-summary-label">Win Rate</span>
+        </div>
+        <div class="stats-summary-item">
+          <span class="stats-summary-value" style="color:var(--color-danger);">12</span>
+          <span class="stats-summary-label">Overdue Tasks</span>
+        </div>
+        <div class="stats-summary-item">
+          <span class="stats-summary-value">142</span>
+          <span class="stats-summary-label">Avg Days</span>
+        </div>
+      </div>
+
+      <!-- Bulk Actions (shown when rows selected) -->
+      <div class="bulk-actions">
+        <strong>3 cases selected</strong>
+        <div style="margin-left: auto; display:flex; gap:var(--space-2);">
+          <button class="btn btn-sm">Assign Attorney</button>
+          <button class="btn btn-sm">Change Status</button>
+          <button class="btn btn-sm">Export Selected</button>
+          <button class="btn btn-sm" style="border-color:rgba(255,255,255,0.25);">Deselect All</button>
+        </div>
+      </div>
+
+      <!-- Cases Table -->
+      <div class="card" style="border-radius: 0 0 var(--radius-md) var(--radius-md);">
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"><div class="table-checkbox"></div></th>
+                <th><span class="sort-arrow"></span></th>
+                <th>Case Name <span class="sort-arrow active">&#9650;</span></th>
+                <th>Case # <span class="sort-arrow">&#9660;</span></th>
+                <th>Type <span class="sort-arrow">&#9660;</span></th>
+                <th>Stage <span class="sort-arrow">&#9660;</span></th>
+                <th>Attorney <span class="sort-arrow">&#9660;</span></th>
+                <th>Value <span class="sort-arrow">&#9660;</span></th>
+                <th>Progress <span class="sort-arrow">&#9660;</span></th>
+                <th>Filed <span class="sort-arrow">&#9660;</span></th>
+                <th>Tasks <span class="sort-arrow">&#9660;</span></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="table-checkbox checked"></div></td>
+                <td><span class="priority-dot high"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Martinez v. Allied Health Systems</a>
+                  <div class="case-number">CV-2025-04892</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">04892</td>
+                <td><span class="badge badge-blue">Med Mal</span></td>
+                <td><span class="badge badge-gold">Litigation</span></td>
+                <td style="font-size:var(--font-size-sm);">S. Mitchell</td>
+                <td><span class="value-cell high-value">$4,200,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill gold" style="width:65%;"></div></div>
+                    <span class="progress-mini-label">65%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Jan 15, 2025</td>
+                <td><span class="badge badge-red">3 overdue</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox checked"></div></td>
+                <td><span class="priority-dot high"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Williams v. MedCorp International</a>
+                  <div class="case-number">CV-2025-05134</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">05134</td>
+                <td><span class="badge badge-blue">Med Mal</span></td>
+                <td><span class="badge badge-blue">Discovery</span></td>
+                <td style="font-size:var(--font-size-sm);">J. Kim</td>
+                <td><span class="value-cell high-value">$2,800,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill" style="width:45%;"></div></div>
+                    <span class="progress-mini-label">45%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Feb 03, 2025</td>
+                <td><span class="badge badge-red">1 overdue</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox checked"></div></td>
+                <td><span class="priority-dot medium"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Patterson v. TechDynamics Corp</a>
+                  <div class="case-number">CV-2024-03871</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">03871</td>
+                <td><span class="badge badge-purple">Product</span></td>
+                <td><span class="badge badge-green">Settlement</span></td>
+                <td style="font-size:var(--font-size-sm);">A. Rivera</td>
+                <td><span class="value-cell high-value">$1,500,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill green" style="width:90%;"></div></div>
+                    <span class="progress-mini-label">90%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Sep 22, 2024</td>
+                <td><span class="badge badge-gray">0 tasks</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot high"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Okafor v. StateFarm Insurance</a>
+                  <div class="case-number">CV-2025-05267</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">05267</td>
+                <td><span class="badge badge-gold">PI</span></td>
+                <td><span class="badge badge-gold">Litigation</span></td>
+                <td style="font-size:var(--font-size-sm);">D. Torres</td>
+                <td><span class="value-cell high-value">$3,200,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill gold" style="width:55%;"></div></div>
+                    <span class="progress-mini-label">55%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Feb 18, 2025</td>
+                <td><span class="badge badge-red">2 overdue</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot low"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Nguyen v. Metro Transit Authority</a>
+                  <div class="case-number">CV-2026-00142</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">00142</td>
+                <td><span class="badge badge-gold">PI</span></td>
+                <td><span class="badge badge-gray">Intake</span></td>
+                <td style="font-size:var(--font-size-sm);">A. Rivera</td>
+                <td><span class="value-cell">$750,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill" style="width:10%;"></div></div>
+                    <span class="progress-mini-label">10%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Mar 20, 2026</td>
+                <td><span class="badge badge-blue">2 pending</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot medium"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Brooks v. National Insurance Group</a>
+                  <div class="case-number">CV-2025-04501</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">04501</td>
+                <td><span class="badge badge-gold">PI</span></td>
+                <td><span class="badge badge-blue">Investigation</span></td>
+                <td style="font-size:var(--font-size-sm);">S. Mitchell</td>
+                <td><span class="value-cell high-value">$1,800,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill" style="width:30%;"></div></div>
+                    <span class="progress-mini-label">30%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Dec 05, 2024</td>
+                <td><span class="badge badge-gold">5 active</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot high"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Davis v. HCA Healthcare</a>
+                  <div class="case-number">CV-2025-04712</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">04712</td>
+                <td><span class="badge badge-blue">Med Mal</span></td>
+                <td><span class="badge badge-gold">Litigation</span></td>
+                <td style="font-size:var(--font-size-sm);">J. Kim</td>
+                <td><span class="value-cell high-value">$5,600,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill gold" style="width:70%;"></div></div>
+                    <span class="progress-mini-label">70%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Jan 08, 2025</td>
+                <td><span class="badge badge-red">1 overdue</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot low"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Chen v. Pacific Mutual Life</a>
+                  <div class="case-number">CV-2024-03245</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">03245</td>
+                <td><span class="badge badge-purple">Product</span></td>
+                <td><span class="badge badge-green">Settlement</span></td>
+                <td style="font-size:var(--font-size-sm);">S. Mitchell</td>
+                <td><span class="value-cell">$750,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill green" style="width:95%;"></div></div>
+                    <span class="progress-mini-label">95%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Jul 14, 2024</td>
+                <td><span class="badge badge-green">Complete</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot medium"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Ramirez v. CityWide Construction</a>
+                  <div class="case-number">CV-2025-05089</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">05089</td>
+                <td><span class="badge badge-gold">PI</span></td>
+                <td><span class="badge badge-blue">Investigation</span></td>
+                <td style="font-size:var(--font-size-sm);">D. Torres</td>
+                <td><span class="value-cell high-value">$2,100,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill" style="width:25%;"></div></div>
+                    <span class="progress-mini-label">25%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Jan 28, 2025</td>
+                <td><span class="badge badge-blue">4 pending</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+              <tr>
+                <td><div class="table-checkbox"></div></td>
+                <td><span class="priority-dot medium"></span></td>
+                <td>
+                  <a class="case-name" href="case-detail.html">Thompson v. Mercy General Hospital</a>
+                  <div class="case-number">CV-2025-05301</div>
+                </td>
+                <td style="font-family:'SF Mono','Consolas',monospace; font-size:var(--font-size-xs); color:var(--color-text-tertiary);">05301</td>
+                <td><span class="badge badge-blue">Med Mal</span></td>
+                <td><span class="badge badge-gray">Intake</span></td>
+                <td style="font-size:var(--font-size-sm);">A. Rivera</td>
+                <td><span class="value-cell">$900,000</span></td>
+                <td>
+                  <div class="progress-mini">
+                    <div class="progress-mini-bar"><div class="progress-mini-fill" style="width:8%;"></div></div>
+                    <span class="progress-mini-label">8%</span>
+                  </div>
+                </td>
+                <td style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Mar 15, 2025</td>
+                <td><span class="badge badge-blue">1 pending</span></td>
+                <td><button class="btn btn-sm btn-ghost">...</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination-info">Showing 1-10 of 47 cases</div>
+          <div class="pagination-controls">
+            <div class="pagination-btn">&laquo;</div>
+            <div class="pagination-btn active">1</div>
+            <div class="pagination-btn">2</div>
+            <div class="pagination-btn">3</div>
+            <div class="pagination-btn">4</div>
+            <div class="pagination-btn">5</div>
+            <div class="pagination-btn">&raquo;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="tokens-section">
+        <div class="tokens-header">
+          <div class="tokens-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-secondary);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Design Tokens — Table Components (Dark)
+          </div>
+          <span class="badge badge-gold">Reference</span>
+        </div>
+        <div class="tokens-body">
+          <div>
+            <div class="token-group-label">Table Styles</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Header:</strong> 11px, 600 weight, uppercase, 0.5px tracking</div>
+              <div><strong>Row padding:</strong> 12px horizontal, alternating #0F1319</div>
+              <div><strong>Hover:</strong> #0F1319 (even rows: #161B25)</div>
+              <div><strong>Sort arrows:</strong> Unicode triangles, active = primary blue</div>
+              <div><strong>Checkboxes:</strong> 14px, 2px border, 3px radius</div>
+              <div><strong>Case name:</strong> 600 weight, primary blue, underline on hover</div>
+              <div><strong>Case number:</strong> monospace, 11px, tertiary gray</div>
+              <div><strong>Value cell:</strong> monospace, 11px, 700 weight; gold for high-value</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">Filter Components</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Search input:</strong> bg #0B0E14, 1px border, 12px text</div>
+              <div><strong>Select dropdowns:</strong> custom chevron, 12px, 500 weight</div>
+              <div><strong>Filter tags:</strong> primary-light bg, primary text, 11px</div>
+              <div><strong>Bulk actions bar:</strong> primary bg, white text, top-attached to table</div>
+              <div><strong>Pagination:</strong> 28px square buttons, active = primary fill</div>
+              <div style="margin-top:var(--space-2);"><strong>Status Badges:</strong></div>
+              <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                <span class="badge badge-gold">Litigation</span>
+                <span class="badge badge-blue">Discovery</span>
+                <span class="badge badge-green">Settlement</span>
+                <span class="badge badge-gray">Intake</span>
+                <span class="badge badge-red">Overdue</span>
+                <span class="badge badge-purple">Product</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

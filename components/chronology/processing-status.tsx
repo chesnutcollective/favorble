@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-gray-100 text-gray-700 border-gray-200",
-  extracting: "bg-blue-100 text-blue-700 border-blue-200",
-  classifying: "bg-purple-100 text-purple-700 border-purple-200",
-  completed: "bg-green-100 text-green-700 border-green-200",
-  failed: "bg-red-100 text-red-700 border-red-200",
+  pending: "border border-[#EAEAEA] text-[#666] bg-transparent",
+  extracting: "border border-[#EAEAEA] text-[#0070F3] bg-transparent",
+  classifying: "border border-[#EAEAEA] text-[#0070F3] bg-transparent",
+  completed: "border border-[#EAEAEA] text-[#00C853] bg-transparent",
+  failed: "border border-[#EAEAEA] text-[#EE0000] bg-transparent",
 };
 
 const STATUS_LABELS: Record<string, string> = {

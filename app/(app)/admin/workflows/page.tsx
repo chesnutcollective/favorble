@@ -43,11 +43,9 @@ export default async function WorkflowsPage() {
           icon={WorkflowSquare01Icon}
           title="No workflows yet"
           description="Create your first workflow to automate task generation when cases change stages."
-          accent="amber"
-          bordered
           action={<NewWorkflowDialog stages={stagesForDialog} />}
           secondary={
-            <p className="mt-1 max-w-md italic text-muted-foreground/70">
+            <p className="mt-1 max-w-md text-[#666]">
               Example: When a case moves to Hearing, automatically create a
               &ldquo;Prepare exhibit packet&rdquo; task
             </p>

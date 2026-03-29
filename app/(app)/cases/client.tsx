@@ -306,25 +306,6 @@ export function CasesListClient({
 
   const hasFilters = search || stageFilter || teamFilter || assignedToFilter;
 
-  // Summary stats: count cases per stage group
-  const stageGroupCounts = cases.reduce(
-    (acc, c) => {
-      const group = c.stageGroupName ?? "Unknown";
-      acc[group] = (acc[group] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
-  // Status counts for closed cases
-  const statusCounts = cases.reduce(
-    (acc, c) => {
-      acc[c.status] = (acc[c.status] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
   function SortIcon({ column }: { column: string }) {
     if (sortBy !== column) return null;
     return (
@@ -427,54 +408,6 @@ export function CasesListClient({
           </Dialog>
         }
       />
-
-      {/* Summary Stats */}
-      {cases.length > 0 && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <span className="font-medium text-foreground">
-            {total} case{total !== 1 ? "s" : ""}
-          </span>
-          <span className="text-muted-foreground">·</span>
-          {Object.entries(stageGroupCounts)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 5)
-            .map(([group, count]) => {
-              const sample = cases.find((c) => c.stageGroupName === group);
-              const color = sample?.stageGroupColor ?? undefined;
-              return (
-                <span key={group} className="inline-flex items-center gap-1.5">
-                  <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ backgroundColor: color ?? "rgb(156 163 175)" }}
-                  />
-                  <span
-                    style={{ color: color ?? undefined }}
-                    className={color ? "font-medium" : "text-muted-foreground"}
-                  >
-                    {count}
-                  </span>
-                  <span className="text-muted-foreground">{group}</span>
-                </span>
-              );
-            })}
-          {(statusCounts.closed_won ?? 0) > 0 && (
-            <>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-emerald-600 font-medium">
-                {statusCounts.closed_won} won
-              </span>
-            </>
-          )}
-          {(statusCounts.closed_lost ?? 0) > 0 && (
-            <>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-red-600 font-medium">
-                {statusCounts.closed_lost} lost
-              </span>
-            </>
-          )}
-        </div>
-      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
@@ -677,7 +610,7 @@ export function CasesListClient({
               cases.map((c) => (
                 <TableRow
                   key={c.id}
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  className="cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -692,7 +625,7 @@ export function CasesListClient({
                           ? `${c.claimant.lastName}, ${c.claimant.firstName}`
                           : "Unknown"}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#999] font-mono">
                         {c.caseNumber}
                       </p>
                     </Link>

@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorble — Medical Chronology</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           DESIGN TOKENS
+           ======================================== */
+        :root {
+            --bg-base: #FFFFFF;
+            --bg-subtle: #FAFAFA;
+            --bg-sidebar: #F8F7FF;
+            --bg-hover: #F5F3FF;
+
+            --text-primary: #1E1E2E;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+            --text-inverse: #FFFFFF;
+
+            --primary: #6366F1;
+            --primary-light: #EEF2FF;
+            --primary-hover: #5558E6;
+            --primary-bg: #F0EEFF;
+
+            --pink: #EC4899;
+            --pink-light: #FDF2F8;
+            --pink-bg: #FCE7F3;
+            --teal: #14B8A6;
+            --teal-light: #F0FDFA;
+            --teal-bg: #CCFBF1;
+            --amber: #F59E0B;
+            --amber-light: #FFFBEB;
+            --amber-bg: #FEF3C7;
+            --green: #22C55E;
+            --green-light: #F0FDF4;
+            --green-bg: #DCFCE7;
+            --red: #EF4444;
+            --red-light: #FEF2F2;
+            --red-bg: #FEE2E2;
+            --blue: #3B82F6;
+            --blue-light: #EFF6FF;
+            --blue-bg: #DBEAFE;
+            --purple: #8B5CF6;
+            --purple-light: #F5F3FF;
+            --purple-bg: #EDE9FE;
+
+            --border: #F0F0F0;
+            --border-hover: #E5E7EB;
+            --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-pill: 9999px;
+
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --text-xs: 0.75rem;
+            --text-sm: 0.8125rem;
+            --text-base: 0.875rem;
+            --text-lg: 1rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            font-size: var(--text-base);
+            color: var(--text-primary);
+            background: var(--bg-base);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px; background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0; z-index: 10;
+        }
+        .sidebar-logo { padding: var(--space-6); display: flex; align-items: center; gap: var(--space-3); }
+        .sidebar-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #818CF8); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: var(--text-lg); }
+        .sidebar-logo .logo-text { font-size: var(--text-xl); font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+        .sidebar-nav { flex: 1; padding: 0 var(--space-3); overflow-y: auto; }
+        .nav-section { margin-bottom: var(--space-5); }
+        .nav-section-title { font-size: var(--text-xs); font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding: var(--space-2) var(--space-3); margin-bottom: var(--space-1); }
+        .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all 0.15s ease; margin-bottom: 2px; }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .nav-item .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: var(--text-lg); }
+        .nav-item .nav-badge { margin-left: auto; background: var(--pink-bg); color: var(--pink); font-size: var(--text-xs); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-pill); }
+        .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+        .user-card { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-sm); cursor: pointer; }
+        .user-card:hover { background: var(--bg-hover); }
+        .user-avatar { width: 34px; height: 34px; border-radius: var(--radius-pill); background: linear-gradient(135deg, var(--primary), var(--pink)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--text-sm); }
+        .user-name { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+        .user-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+        /* Main */
+        .main {
+            flex: 1; margin-left: 260px;
+            padding: var(--space-8);
+            background: var(--bg-subtle);
+            min-height: 100vh;
+        }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); font-family: var(--font); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s ease; border: none; text-decoration: none; white-space: nowrap; height: 38px; }
+        .btn-primary { background: var(--primary); color: var(--text-inverse); }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--bg-base); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--border-hover); color: var(--text-primary); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); }
+        .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .btn-sm { height: 32px; padding: var(--space-1) var(--space-4); font-size: var(--text-xs); }
+        .btn-icon { width: 38px; padding: 0; justify-content: center; }
+
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: 600; }
+        .badge-indigo { background: var(--primary-light); color: var(--primary); }
+        .badge-pink { background: var(--pink-bg); color: var(--pink); }
+        .badge-teal { background: var(--teal-bg); color: var(--teal); }
+        .badge-amber { background: var(--amber-bg); color: var(--amber); }
+        .badge-green { background: var(--green-bg); color: var(--green); }
+        .badge-red { background: var(--red-bg); color: var(--red); }
+        .badge-blue { background: var(--blue-bg); color: var(--blue); }
+        .badge-purple { background: var(--purple-bg); color: var(--purple); }
+        .badge-gray { background: #F3F4F6; color: var(--text-secondary); }
+
+        /* Card */
+        .card { background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-xs); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5); border-bottom: 1px solid var(--border); }
+        .card-title { font-size: var(--text-base); font-weight: 700; color: var(--text-primary); }
+        .card-body { padding: var(--space-5); }
+
+        /* ========================================
+           BREADCRUMB
+           ======================================== */
+        .breadcrumb {
+            display: flex; align-items: center; gap: var(--space-2);
+            margin-bottom: var(--space-5); font-size: var(--text-sm);
+        }
+        .breadcrumb a { color: var(--text-tertiary); text-decoration: none; transition: color 0.15s ease; }
+        .breadcrumb a:hover { color: var(--primary); }
+        .breadcrumb .separator { color: var(--text-tertiary); }
+        .breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+        /* ========================================
+           PAGE HEADER
+           ======================================== */
+        .page-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: var(--space-6);
+        }
+        .page-title { font-size: var(--text-2xl); font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+        .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-1); }
+
+        /* ========================================
+           STATS GRID
+           ======================================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .stat-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            box-shadow: var(--shadow-xs);
+            border-left: 3px solid transparent;
+        }
+
+        .stat-card.indigo { border-left-color: var(--primary); }
+        .stat-card.pink { border-left-color: var(--pink); }
+        .stat-card.teal { border-left-color: var(--teal); }
+        .stat-card.amber { border-left-color: var(--amber); }
+        .stat-card.green { border-left-color: var(--green); }
+
+        .stat-value {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            margin-top: var(--space-1);
+        }
+
+        /* ========================================
+           FILTERS
+           ======================================== */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-5);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex; align-items: center; gap: var(--space-2);
+            background: var(--bg-base); border: 1px solid var(--border);
+            border-radius: var(--radius-pill); padding: 0 var(--space-4);
+            height: 38px; flex: 1; max-width: 320px;
+            transition: border-color 0.15s ease;
+        }
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .search-box .search-icon { color: var(--text-tertiary); font-size: var(--text-lg); }
+        .search-box input { border: none; outline: none; font-family: var(--font); font-size: var(--text-sm); color: var(--text-primary); background: transparent; flex: 1; }
+        .search-box input::placeholder { color: var(--text-tertiary); }
+
+        .filter-chip {
+            display: inline-flex; align-items: center; gap: var(--space-2);
+            padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill);
+            font-size: var(--text-xs); font-weight: 600; cursor: pointer;
+            transition: all 0.15s ease; border: 1px solid var(--border);
+            background: var(--bg-base); color: var(--text-secondary); height: 34px;
+        }
+        .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-chip.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+        .filter-divider { width: 1px; height: 24px; background: var(--border); }
+
+        /* ========================================
+           TIMELINE
+           ======================================== */
+        .timeline {
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-group {
+            margin-bottom: var(--space-6);
+        }
+
+        .timeline-group-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            position: relative;
+        }
+
+        .timeline-group-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--radius-pill);
+            background: var(--primary);
+            border: 3px solid var(--primary-light);
+            z-index: 1;
+            flex-shrink: 0;
+            margin-left: 18px;
+        }
+
+        .timeline-group-date {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .timeline-group-count {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .timeline-entries {
+            padding-left: 48px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .timeline-entry {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4) var(--space-5);
+            box-shadow: var(--shadow-xs);
+            position: relative;
+            transition: all 0.15s ease;
+        }
+
+        .timeline-entry:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--border-hover);
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 20px;
+            width: 24px;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .timeline-entry-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .timeline-entry-type {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .entry-type-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-sm);
+            flex-shrink: 0;
+        }
+
+        .entry-type-label {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .timeline-entry-date {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .timeline-entry-title {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .timeline-entry-body {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .timeline-entry-footer {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
+            border-top: 1px solid var(--border);
+        }
+
+        .entry-provider {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+        }
+
+        .provider-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 8px;
+            color: white;
+        }
+
+        .entry-tags {
+            display: flex;
+            gap: var(--space-2);
+            margin-left: auto;
+        }
+
+        .entry-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: var(--radius-pill);
+        }
+
+        /* ========================================
+           BODY PARTS / INJURY SUMMARY
+           ======================================== */
+        .injury-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-5);
+            margin-bottom: var(--space-6);
+        }
+
+        .injury-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .injury-item:last-child {
+            border-bottom: none;
+        }
+
+        .injury-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: var(--radius-pill);
+            flex-shrink: 0;
+        }
+
+        .injury-name {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .injury-count {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: var(--radius-pill);
+        }
+
+        /* ========================================
+           CONTENT GRID
+           ======================================== */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: var(--space-5);
+        }
+
+        /* ========================================
+           PROVIDER SUMMARY
+           ======================================== */
+        .provider-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .provider-item:last-child { border-bottom: none; }
+
+        .provider-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--text-xs);
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .provider-name {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .provider-specialty {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .provider-visits {
+            margin-left: auto;
+            font-size: var(--text-xs);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ========================================
+           BILLING SUMMARY
+           ======================================== */
+        .billing-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .billing-row:last-child {
+            border-bottom: none;
+        }
+
+        .billing-label {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .billing-value {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .billing-total {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ========================================
+           DESIGN TOKENS SECTION
+           ======================================== */
+        .design-tokens {
+            margin-top: var(--space-10);
+            padding-top: var(--space-8);
+            border-top: 2px dashed var(--border);
+        }
+        .tokens-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-6); color: var(--text-primary); }
+        .token-group { margin-bottom: var(--space-6); }
+        .token-group-title { font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: var(--space-3); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">F</div>
+                <span class="logo-text">Favorble</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a class="nav-item" href="dashboard.html"><span class="nav-icon">&#9634;</span>Dashboard</a>
+                    <a class="nav-item" href="cases-list.html"><span class="nav-icon">&#128203;</span>Cases<span class="nav-badge">24</span></a>
+                    <a class="nav-item" href="case-detail.html"><span class="nav-icon">&#128196;</span>Case Detail</a>
+                    <a class="nav-item active" href="chronology.html"><span class="nav-icon">&#128337;</span>Chronology</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Workspace</div>
+                    <a class="nav-item" href="#"><span class="nav-icon">&#128100;</span>Contacts</a>
+                    <a class="nav-item" href="#"><span class="nav-icon">&#128197;</span>Calendar</a>
+                    <a class="nav-item" href="#"><span class="nav-icon">&#128172;</span>Messages<span class="nav-badge">3</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">&#128202;</span>Reports</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a class="nav-item" href="admin-integrations.html"><span class="nav-icon">&#128268;</span>Integrations</a>
+                    <a class="nav-item" href="#"><span class="nav-icon">&#9881;</span>Settings</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">SK</div>
+                    <div>
+                        <div class="user-name">Sarah Kim</div>
+                        <div class="user-role">Senior Paralegal</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="cases-list.html">Cases</a>
+                <span class="separator">/</span>
+                <a href="case-detail.html">Garcia v. Metro Transit</a>
+                <span class="separator">/</span>
+                <span class="current">Medical Chronology</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Medical Chronology</div>
+                    <div class="page-subtitle">Garcia v. Metro Transit Authority &middot; CS-2026-0089</div>
+                </div>
+                <div style="display: flex; gap: var(--space-3);">
+                    <button class="btn btn-secondary">&#128196; Export PDF</button>
+                    <button class="btn btn-secondary">&#128196; Export XLSX</button>
+                    <button class="btn btn-primary">+ Add Entry</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card indigo">
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-card pink">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">Providers</div>
+                </div>
+                <div class="stat-card teal">
+                    <div class="stat-value">22</div>
+                    <div class="stat-label">Office Visits</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-value">$47,832</div>
+                    <div class="stat-label">Total Billings</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-value">112</div>
+                    <div class="stat-label">Days in Treatment</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" placeholder="Search entries, providers, diagnoses...">
+                </div>
+                <div class="filter-divider"></div>
+                <button class="filter-chip active">All Types</button>
+                <button class="filter-chip">Office Visit</button>
+                <button class="filter-chip">Diagnostic</button>
+                <button class="filter-chip">Physical Therapy</button>
+                <button class="filter-chip">ER / Urgent</button>
+                <button class="filter-chip">Surgery</button>
+                <div class="filter-divider"></div>
+                <button class="btn btn-secondary btn-sm">&#9881; More Filters</button>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Timeline -->
+                <div>
+                    <div class="timeline">
+                        <!-- March 2026 -->
+                        <div class="timeline-group">
+                            <div class="timeline-group-header">
+                                <div class="timeline-group-dot"></div>
+                                <span class="timeline-group-date">March 2026</span>
+                                <span class="timeline-group-count">4 entries</span>
+                            </div>
+                            <div class="timeline-entries">
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--teal-bg); color: var(--teal);">&#129658;</div>
+                                            <span class="entry-type-label" style="color: var(--teal);">Office Visit</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Mar 15, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">Follow-up Examination - Dr. Martinez</div>
+                                    <div class="timeline-entry-body">
+                                        Patient reports continued improvement in lower back pain. ROM testing shows 80% of normal. Recommended 4 additional PT sessions. Released to light duty work with restrictions: no lifting over 15 lbs, no prolonged sitting beyond 45 minutes.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--teal), #2DD4BF);">RM</div>
+                                            <span>Dr. Ricardo Martinez, MD</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-teal">Orthopedic</span>
+                                            <span class="entry-tag badge-green">Improvement</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--purple-bg); color: var(--purple);">&#127947;</div>
+                                            <span class="entry-type-label" style="color: var(--purple);">Physical Therapy</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Mar 12, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">PT Session #8 - Valley Physical Therapy</div>
+                                    <div class="timeline-entry-body">
+                                        Continued lumbar stabilization exercises. Core strengthening program progressed to resistance bands. Patient tolerated well with mild post-session soreness. Pain level 3/10 during activity, 2/10 at rest.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--purple), #A78BFA);">JT</div>
+                                            <span>Jennifer Torres, DPT</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-purple">Physical Therapy</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--purple-bg); color: var(--purple);">&#127947;</div>
+                                            <span class="entry-type-label" style="color: var(--purple);">Physical Therapy</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Mar 08, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">PT Session #7 - Valley Physical Therapy</div>
+                                    <div class="timeline-entry-body">
+                                        Lumbar traction, ultrasound therapy, and progressive strengthening. Patient demonstrates improved core engagement. Functional mobility testing improved from 65% to 78% baseline.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--purple), #A78BFA);">JT</div>
+                                            <span>Jennifer Torres, DPT</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-purple">Physical Therapy</span>
+                                            <span class="entry-tag badge-green">Progress</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--teal-bg); color: var(--teal);">&#129658;</div>
+                                            <span class="entry-type-label" style="color: var(--teal);">Office Visit</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Mar 01, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">Progress Evaluation - Dr. Martinez</div>
+                                    <div class="timeline-entry-body">
+                                        Six-week follow-up. MRI review confirms L4-L5 disc herniation stable, no progression. Neurological exam normal. Continue conservative treatment plan with PT. Pain management with NSAIDs as needed.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--teal), #2DD4BF);">RM</div>
+                                            <span>Dr. Ricardo Martinez, MD</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-teal">Orthopedic</span>
+                                            <span class="entry-tag badge-blue">MRI Review</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- February 2026 -->
+                        <div class="timeline-group">
+                            <div class="timeline-group-header">
+                                <div class="timeline-group-dot"></div>
+                                <span class="timeline-group-date">February 2026</span>
+                                <span class="timeline-group-count">6 entries</span>
+                            </div>
+                            <div class="timeline-entries">
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--blue-bg); color: var(--blue);">&#128171;</div>
+                                            <span class="entry-type-label" style="color: var(--blue);">Diagnostic</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Feb 18, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">MRI - Lumbar Spine - Valley Imaging Center</div>
+                                    <div class="timeline-entry-body">
+                                        Findings: L4-L5 broad-based disc herniation with mild central canal stenosis. L3-L4 mild disc bulge without significant stenosis. No fracture or subluxation. Conus medullaris terminates normally. Impression: L4-L5 disc herniation, likely traumatic in origin given clinical history.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--blue), #60A5FA);">SL</div>
+                                            <span>Dr. Susan Lee, Radiologist</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-blue">MRI</span>
+                                            <span class="entry-tag badge-red">Key Finding</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--teal-bg); color: var(--teal);">&#129658;</div>
+                                            <span class="entry-type-label" style="color: var(--teal);">Office Visit</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Feb 14, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">Orthopedic Consultation - Dr. Martinez</div>
+                                    <div class="timeline-entry-body">
+                                        Initial orthopedic evaluation. Patient presents with persistent lower back pain radiating to left leg following MVA. Physical exam reveals limited ROM, positive straight leg raise on left. Ordered MRI lumbar spine. Prescribed Naproxen 500mg BID. Referral to physical therapy.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--teal), #2DD4BF);">RM</div>
+                                            <span>Dr. Ricardo Martinez, MD</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-teal">Orthopedic</span>
+                                            <span class="entry-tag badge-amber">Initial Consult</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--purple-bg); color: var(--purple);">&#127947;</div>
+                                            <span class="entry-type-label" style="color: var(--purple);">Physical Therapy</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Feb 10, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">PT Initial Evaluation - Valley Physical Therapy</div>
+                                    <div class="timeline-entry-body">
+                                        Initial PT evaluation. Functional limitations: difficulty sitting >30 min, unable to lift >10 lbs, limited bending. Treatment plan: 2x/week for 8 weeks, focusing on lumbar stabilization, core strengthening, and pain management modalities.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--purple), #A78BFA);">JT</div>
+                                            <span>Jennifer Torres, DPT</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-purple">PT Eval</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- January 2026 -->
+                        <div class="timeline-group">
+                            <div class="timeline-group-header">
+                                <div class="timeline-group-dot"></div>
+                                <span class="timeline-group-date">January 2026</span>
+                                <span class="timeline-group-count">3 entries</span>
+                            </div>
+                            <div class="timeline-entries">
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--teal-bg); color: var(--teal);">&#129658;</div>
+                                            <span class="entry-type-label" style="color: var(--teal);">Office Visit</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Jan 22, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">Follow-up Visit - Dr. Patel (PCP)</div>
+                                    <div class="timeline-entry-body">
+                                        Follow-up from ER visit. Patient continues to experience lower back pain, neck stiffness, and headaches. Prescribed muscle relaxants (Cyclobenzaprine 10mg). Referred to orthopedic specialist for further evaluation. Work note provided for 2 weeks off.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--amber), #FBBF24);">AP</div>
+                                            <span>Dr. Anita Patel, MD</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-amber">PCP</span>
+                                            <span class="entry-tag badge-red">Work Restriction</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-entry">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--blue-bg); color: var(--blue);">&#128171;</div>
+                                            <span class="entry-type-label" style="color: var(--blue);">Diagnostic</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Jan 10, 2026</span>
+                                    </div>
+                                    <div class="timeline-entry-title">X-Ray - Cervical &amp; Lumbar Spine</div>
+                                    <div class="timeline-entry-body">
+                                        Cervical spine: Loss of normal lordotic curve suggesting muscle spasm. No fractures. Lumbar spine: Mild disc space narrowing at L4-L5. No acute fracture or dislocation. Recommend MRI if symptoms persist.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--blue), #60A5FA);">VR</div>
+                                            <span>Valley Radiology Associates</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-blue">X-Ray</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- December 2025 -->
+                        <div class="timeline-group">
+                            <div class="timeline-group-header">
+                                <div class="timeline-group-dot" style="background: var(--red); border-color: var(--red-bg);"></div>
+                                <span class="timeline-group-date">December 2025</span>
+                                <span class="timeline-group-count">1 entry &middot; Date of Loss</span>
+                            </div>
+                            <div class="timeline-entries">
+                                <div class="timeline-entry" style="border-left: 3px solid var(--red);">
+                                    <div class="timeline-entry-header">
+                                        <div class="timeline-entry-type">
+                                            <div class="entry-type-icon" style="background: var(--red-bg); color: var(--red);">&#128680;</div>
+                                            <span class="entry-type-label" style="color: var(--red);">Emergency</span>
+                                        </div>
+                                        <span class="timeline-entry-date">Dec 08, 2025</span>
+                                    </div>
+                                    <div class="timeline-entry-title">Emergency Room Visit - Valley Medical Center</div>
+                                    <div class="timeline-entry-body">
+                                        Patient presented via ambulance following rear-end motor vehicle collision on Highway 101. Chief complaints: severe lower back pain (8/10), neck pain (6/10), headache. Physical exam: tenderness over lumbar paraspinals bilaterally, limited ROM cervical and lumbar spine. X-rays ordered. Diagnosis: Acute cervical and lumbar strain/sprain. Discharged with Ibuprofen 800mg, Flexeril 10mg. Follow up with PCP in 2 weeks.
+                                    </div>
+                                    <div class="timeline-entry-footer">
+                                        <div class="entry-provider">
+                                            <div class="provider-avatar" style="background: linear-gradient(135deg, var(--red), #F87171);">ER</div>
+                                            <span>Valley Medical Center ER</span>
+                                        </div>
+                                        <div class="entry-tags">
+                                            <span class="entry-tag badge-red">ER Visit</span>
+                                            <span class="entry-tag badge-red">Date of Loss</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Providers -->
+                    <div class="card" style="margin-bottom: var(--space-5);">
+                        <div class="card-header">
+                            <span class="card-title">Providers</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--teal), #2DD4BF);">RM</div>
+                                <div>
+                                    <div class="provider-name">Dr. Ricardo Martinez</div>
+                                    <div class="provider-specialty">Orthopedic Surgery</div>
+                                </div>
+                                <span class="provider-visits">14 visits</span>
+                            </div>
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--purple), #A78BFA);">JT</div>
+                                <div>
+                                    <div class="provider-name">Jennifer Torres, DPT</div>
+                                    <div class="provider-specialty">Physical Therapy</div>
+                                </div>
+                                <span class="provider-visits">8 sessions</span>
+                            </div>
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--amber), #FBBF24);">AP</div>
+                                <div>
+                                    <div class="provider-name">Dr. Anita Patel</div>
+                                    <div class="provider-specialty">Primary Care</div>
+                                </div>
+                                <span class="provider-visits">3 visits</span>
+                            </div>
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--blue), #60A5FA);">SL</div>
+                                <div>
+                                    <div class="provider-name">Dr. Susan Lee</div>
+                                    <div class="provider-specialty">Radiology</div>
+                                </div>
+                                <span class="provider-visits">2 studies</span>
+                            </div>
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--red), #F87171);">ER</div>
+                                <div>
+                                    <div class="provider-name">Valley Medical Center</div>
+                                    <div class="provider-specialty">Emergency Dept.</div>
+                                </div>
+                                <span class="provider-visits">1 visit</span>
+                            </div>
+                            <div class="provider-item">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, var(--blue), #60A5FA);">VR</div>
+                                <div>
+                                    <div class="provider-name">Valley Radiology</div>
+                                    <div class="provider-specialty">Diagnostic Imaging</div>
+                                </div>
+                                <span class="provider-visits">1 study</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnoses -->
+                    <div class="card" style="margin-bottom: var(--space-5);">
+                        <div class="card-header">
+                            <span class="card-title">Diagnoses</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="injury-item">
+                                <div class="injury-indicator" style="background: var(--red);"></div>
+                                <span class="injury-name">L4-L5 Disc Herniation</span>
+                                <span class="badge badge-red" style="font-size: 10px;">Primary</span>
+                            </div>
+                            <div class="injury-item">
+                                <div class="injury-indicator" style="background: var(--amber);"></div>
+                                <span class="injury-name">Lumbar Strain/Sprain</span>
+                            </div>
+                            <div class="injury-item">
+                                <div class="injury-indicator" style="background: var(--amber);"></div>
+                                <span class="injury-name">Cervical Strain/Sprain</span>
+                            </div>
+                            <div class="injury-item">
+                                <div class="injury-indicator" style="background: var(--blue);"></div>
+                                <span class="injury-name">L3-L4 Disc Bulge</span>
+                            </div>
+                            <div class="injury-item">
+                                <div class="injury-indicator" style="background: var(--teal);"></div>
+                                <span class="injury-name">Left Lower Extremity Radiculopathy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Summary -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Billing Summary</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="billing-row">
+                                <span class="billing-label">Emergency Room</span>
+                                <span class="billing-value">$8,450</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Orthopedic (14 visits)</span>
+                                <span class="billing-value">$12,600</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Physical Therapy (8 sessions)</span>
+                                <span class="billing-value">$6,400</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">MRI - Lumbar Spine</span>
+                                <span class="billing-value">$4,200</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">X-Ray (Cervical + Lumbar)</span>
+                                <span class="billing-value">$1,800</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Primary Care (3 visits)</span>
+                                <span class="billing-value">$982</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Medications</span>
+                                <span class="billing-value">$2,400</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Ambulance</span>
+                                <span class="billing-value">$3,200</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Miscellaneous</span>
+                                <span class="billing-value">$7,800</span>
+                            </div>
+                            <div class="billing-row" style="border-top: 2px solid var(--primary-light); border-bottom: none; padding-top: var(--space-4);">
+                                <span class="billing-label" style="font-weight: 700; color: var(--text-primary);">Total Medical Specials</span>
+                                <span class="billing-total">$47,832</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design Tokens -->
+            <div class="design-tokens">
+                <div class="tokens-title">Design Tokens</div>
+
+                <div class="token-group">
+                    <div class="token-group-title">Entry Type Indicators</div>
+                    <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--teal-bg); color: var(--teal);">&#129658;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Office Visit</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--blue-bg); color: var(--blue);">&#128171;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Diagnostic</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--purple-bg); color: var(--purple);">&#127947;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Physical Therapy</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--red-bg); color: var(--red);">&#128680;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Emergency</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--pink-bg); color: var(--pink);">&#128137;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Surgery</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="entry-type-icon" style="background: var(--amber-bg); color: var(--amber);">&#128138;</div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Medication</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="token-group">
+                    <div class="token-group-title">Timeline Structure</div>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 3px solid var(--primary-light);"></div>
+                            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Group dot: 12px, primary color, 3px pastel border</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--red); border: 3px solid var(--red-bg);"></div>
+                            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Special dot (e.g., Date of Loss): red accent</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <div style="width: 40px; height: 2px; background: var(--border);"></div>
+                            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Connector line: 2px, #F0F0F0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="token-group">
+                    <div class="token-group-title">Entry Card Variants</div>
+                    <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="width: 120px; height: 80px; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: var(--space-2);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Default</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 120px; height: 80px; border: 1px solid var(--border-hover); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: var(--space-2);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Hover</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 120px; height: 80px; border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: var(--radius-md); margin-bottom: var(--space-2);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Key Event</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="token-group">
+                    <div class="token-group-title">Entry Tags</div>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                        <span class="entry-tag badge-teal">Orthopedic</span>
+                        <span class="entry-tag badge-purple">Physical Therapy</span>
+                        <span class="entry-tag badge-blue">MRI</span>
+                        <span class="entry-tag badge-blue">X-Ray</span>
+                        <span class="entry-tag badge-red">ER Visit</span>
+                        <span class="entry-tag badge-red">Key Finding</span>
+                        <span class="entry-tag badge-red">Date of Loss</span>
+                        <span class="entry-tag badge-amber">Initial Consult</span>
+                        <span class="entry-tag badge-amber">PCP</span>
+                        <span class="entry-tag badge-green">Improvement</span>
+                        <span class="entry-tag badge-green">Progress</span>
+                        <span class="entry-tag badge-red">Work Restriction</span>
+                    </div>
+                </div>
+
+                <div class="token-group">
+                    <div class="token-group-title">Diagnosis Severity Indicators</div>
+                    <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="injury-indicator" style="background: var(--red);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Primary / Severe</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="injury-indicator" style="background: var(--amber);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Moderate</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="injury-indicator" style="background: var(--blue);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Secondary</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2);">
+                            <div class="injury-indicator" style="background: var(--teal);"></div>
+                            <span style="font-size: var(--text-xs); color: var(--text-secondary);">Associated</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

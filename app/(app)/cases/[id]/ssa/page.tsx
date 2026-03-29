@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { LinkSquare02Icon, GlobeIcon } from "@hugeicons/core-free-icons";
+import { LinkSquare02Icon } from "@hugeicons/core-free-icons";
 import { EreScrapingCard } from "@/components/ere/ere-scraping-card";
 import { EreDocumentsFeed } from "@/components/ere/ere-documents-feed";
 
@@ -160,35 +160,16 @@ export default async function CaseSsaPage({
       <Card>
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-purple-100 p-2">
-                <HugeiconsIcon
-                  icon={GlobeIcon}
-                  size={20}
-                  color="rgb(147 51 234)"
-                />
-              </div>
-              <div>
-                <h3 className="font-medium text-foreground">Chronicle</h3>
-                <p className="text-sm text-muted-foreground">
-                  SSA document sync and ERE access
-                </p>
-              </div>
+            <div>
+              <h3 className="font-medium text-foreground">Chronicle</h3>
+              <p className="text-sm text-[#666]">
+                SSA document sync and ERE access
+              </p>
             </div>
             {hasChronicle ? (
-              <Badge
-                variant="outline"
-                className="text-green-700 border-green-300 bg-green-50 dark:bg-green-950/20"
-              >
-                Connected
-              </Badge>
+              <Badge variant="outline">Connected</Badge>
             ) : (
-              <Badge
-                variant="outline"
-                className="text-amber-700 border-amber-300 bg-amber-50 dark:bg-amber-950/20"
-              >
-                Not linked
-              </Badge>
+              <Badge variant="outline">Not linked</Badge>
             )}
           </div>
 
@@ -308,10 +289,10 @@ function InfoItem({
 }) {
   return (
     <div className="py-2">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+      <p className="text-xs text-[#666] uppercase tracking-wider">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium text-foreground">{value ?? "—"}</p>
+      <p className="mt-1 text-sm font-medium">{value ?? "—"}</p>
     </div>
   );
 }

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0C1117;
+    --bg-card: #151C25;
+    --bg-card-end: #1A222D;
+    --bg-sidebar: #0A0F14;
+    --bg-hover: #1E2733;
+    --bg-input: #111820;
+    --bg-row-alt: #131A22;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-accent: rgba(16,185,129,0.3);
+    --border-hover: rgba(16,185,129,0.5);
+    --text-primary: #E2E8F0;
+    --text-secondary: #64748B;
+    --text-muted: #475569;
+    --text-on-accent: #022C22;
+    --text-white: #FFFFFF;
+    --emerald: #10B981;
+    --emerald-light: #34D399;
+    --emerald-dark: #059669;
+    --emerald-glow: rgba(16,185,129,0.15);
+    --amber: #F59E0B;
+    --amber-bg: rgba(245,158,11,0.12);
+    --red: #EF4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --blue: #3B82F6;
+    --blue-bg: rgba(59,130,246,0.12);
+    --purple: #8B5CF6;
+    --purple-bg: rgba(139,92,246,0.12);
+    --teal: #14B8A6;
+    --teal-bg: rgba(20,184,166,0.12);
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-accent: 0 4px 16px rgba(16,185,129,0.1);
+    --radius: 8px;
+    --radius-sm: 6px;
+    --radius-lg: 12px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --text-xs: 0.75rem;
+    --text-sm: 0.8125rem;
+    --text-base: 0.875rem;
+    --text-lg: 1rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 2rem;
+    --tracking: -0.01em;
+    --transition: 150ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking);
+    color: var(--text-primary);
+    background: var(--bg-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 248px; min-width: 248px; background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; padding: 20px 0;
+  }
+  .sidebar-brand { padding: 0 20px 24px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-brand-icon {
+    width: 32px; height: 32px; background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: var(--text-lg); color: var(--text-on-accent);
+  }
+  .sidebar-brand-name { font-size: var(--text-lg); font-weight: 600; color: var(--text-white); }
+  .sidebar-section { padding: 0 12px; margin-bottom: 24px; }
+  .sidebar-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 0 8px 8px; }
+  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm); font-weight: 500; transition: all var(--transition); cursor: pointer; }
+  .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .sidebar-link.active { background: var(--emerald-glow); color: var(--emerald); }
+  .sidebar-link svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-link.active svg { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--emerald-glow); color: var(--emerald); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border-subtle); }
+  .sidebar-user { display: flex; align-items: center; gap: 10px; }
+  .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1E293B, #334155); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); font-weight: 600; color: var(--emerald); border: 1px solid var(--border-subtle); }
+  .sidebar-user-name { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+  .sidebar-user-role { font-size: var(--text-xs); color: var(--text-muted); }
+
+  /* MAIN */
+  .main-content { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: 100vh; }
+
+  /* BREADCRUMB */
+  .breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: var(--text-sm); }
+  .breadcrumb a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+  .breadcrumb a:hover { color: var(--emerald); }
+  .breadcrumb .sep { color: var(--text-muted); }
+  .breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+
+  /* HEADER */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: var(--text-2xl); font-weight: 700; color: var(--text-white); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); margin-top: 2px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); font-family: var(--font); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all var(--transition); border: 1px solid transparent; text-decoration: none; }
+  .btn-primary { background: var(--emerald); color: var(--text-on-accent); border-color: var(--emerald); }
+  .btn-primary:hover { background: var(--emerald-light); box-shadow: var(--shadow-accent); }
+  .btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--border-subtle); }
+  .btn-secondary:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.12); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: none; padding: 6px 10px; }
+  .btn-ghost:hover { color: var(--text-primary); background: var(--bg-hover); }
+  .btn svg { width: 16px; height: 16px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-emerald { background: var(--emerald-glow); color: var(--emerald); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple); }
+  .badge-teal { background: var(--teal-bg); color: var(--teal); }
+  .badge-neutral { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+
+  /* CARD */
+  .card { background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end)); border: 1px solid var(--border-subtle); border-radius: var(--radius); box-shadow: var(--shadow-card); }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: var(--text-base); font-weight: 600; color: var(--text-white); }
+  .card-body { padding: 20px; }
+
+  /* STAT CARDS */
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+
+  .stat-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: all var(--transition);
+  }
+  .stat-card:hover { border-color: var(--border-accent); box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+  .stat-label { font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .stat-value { font-size: var(--text-2xl); font-weight: 700; color: var(--text-white); line-height: 1.1; }
+  .stat-detail { font-size: var(--text-xs); color: var(--text-muted); margin-top: 4px; }
+
+  /* FILTERS */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-wrapper { position: relative; flex: 1; min-width: 240px; }
+  .search-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+  .search-input { width: 100%; padding: 9px 14px 9px 36px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font); font-size: var(--text-sm); outline: none; transition: border-color var(--transition); }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: var(--border-accent); }
+  .filter-select { padding: 9px 32px 9px 12px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font); font-size: var(--text-sm); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color var(--transition); }
+  .filter-select:focus { border-color: var(--border-accent); }
+
+  .filter-chips { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 16px; font-size: var(--text-xs); font-weight: 500; border: 1px solid var(--border-subtle); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
+  .filter-chip:hover { border-color: rgba(255,255,255,0.12); color: var(--text-primary); }
+  .filter-chip.active { background: var(--emerald-glow); border-color: var(--border-accent); color: var(--emerald); }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--emerald), var(--border-subtle));
+  }
+
+  .timeline-event {
+    position: relative;
+    margin-bottom: 0;
+    padding-bottom: 24px;
+  }
+
+  .timeline-event:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--bg-base);
+    z-index: 1;
+  }
+
+  .timeline-dot.treatment { border-color: var(--emerald); }
+  .timeline-dot.diagnosis { border-color: var(--blue); }
+  .timeline-dot.surgery { border-color: var(--red); }
+  .timeline-dot.imaging { border-color: var(--purple); }
+  .timeline-dot.incident { border-color: var(--amber); background: var(--amber); }
+  .timeline-dot.medication { border-color: var(--teal); }
+  .timeline-dot.followup { border-color: var(--text-muted); }
+
+  .timeline-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    transition: all var(--transition);
+  }
+
+  .timeline-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-accent);
+  }
+
+  .timeline-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .timeline-date {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timeline-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-white);
+    margin-bottom: 4px;
+  }
+
+  .timeline-provider {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .timeline-body {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .timeline-body p {
+    margin-bottom: 6px;
+  }
+
+  .timeline-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .timeline-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .timeline-source {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .timeline-source svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+  }
+
+  /* Period markers */
+  .timeline-period {
+    position: relative;
+    padding: 8px 0 16px;
+    margin-left: -32px;
+    padding-left: 32px;
+  }
+
+  .timeline-period-label {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    background: var(--bg-base);
+    padding: 4px 12px;
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Summary card */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .summary-item {
+    padding: 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .summary-item-label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .summary-item-value {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Provider list */
+  .provider-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .provider-item:last-child {
+    border-bottom: none;
+  }
+
+  .provider-name {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .provider-specialty {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .provider-visits {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  /* Layout */
+  .chrono-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+  }
+
+  .chrono-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  /* DESIGN TOKENS */
+  .tokens-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border-subtle); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+  .token-swatch { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-input); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
+  .token-color { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .token-name { font-size: var(--text-xs); font-weight: 600; color: var(--text-primary); }
+  .token-value { font-size: var(--text-xs); color: var(--text-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sidebar-link" href="cases-list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Cases<span class="sidebar-badge">47</span></a>
+      <a class="sidebar-link" href="case-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Case Detail</a>
+      <a class="sidebar-link active" href="chronology.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Chronology</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a class="sidebar-link" href="admin-integrations.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Integrations</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JR</div>
+        <div>
+          <div class="sidebar-user-name">Jordan Rivera</div>
+          <div class="sidebar-user-role">Senior Paralegal</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="cases-list.html">Cases</a>
+      <span class="sep">/</span>
+      <a href="case-detail.html">Martinez v. Allied Health</a>
+      <span class="sep">/</span>
+      <span class="current">Medical Chronology</span>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Medical Chronology</div>
+        <div class="page-subtitle">Martinez v. Allied Health Systems &mdash; CV-2025-04821</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export PDF
+        </button>
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          Edit
+        </button>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Entry
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Entries</div>
+        <div class="stat-value">34</div>
+        <div class="stat-detail">Across 7 months</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Providers</div>
+        <div class="stat-value">6</div>
+        <div class="stat-detail">3 facilities, 3 specialists</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Billed</div>
+        <div class="stat-value">$124K</div>
+        <div class="stat-detail">Medical expenses to date</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Duration</div>
+        <div class="stat-value">7 mo</div>
+        <div class="stat-detail">Aug 14, 2024 &mdash; Present</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Key Findings</div>
+        <div class="stat-value" style="color:var(--amber)">3</div>
+        <div class="stat-detail">Flagged for review</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="search-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" placeholder="Search chronology entries...">
+      </div>
+      <select class="filter-select">
+        <option>All Event Types</option>
+        <option>Treatment</option>
+        <option>Diagnosis</option>
+        <option>Surgery</option>
+        <option>Imaging</option>
+        <option>Medication</option>
+        <option>Follow-up</option>
+      </select>
+      <select class="filter-select">
+        <option>All Providers</option>
+        <option>St. Mary's Hospital</option>
+        <option>Dr. Nakamura</option>
+        <option>Pacific Rehab Center</option>
+        <option>Bay Area Imaging</option>
+        <option>Dr. Patel (Ortho)</option>
+        <option>PharmaCare Rx</option>
+      </select>
+      <select class="filter-select">
+        <option>All Time</option>
+        <option>Last 30 days</option>
+        <option>Last 90 days</option>
+        <option>Last 6 months</option>
+      </select>
+    </div>
+
+    <div class="filter-chips">
+      <span class="filter-chip active">All Events</span>
+      <span class="filter-chip">Key Findings Only</span>
+      <span class="filter-chip">Surgeries &amp; Procedures</span>
+      <span class="filter-chip">Medications</span>
+      <span class="filter-chip">Has Documents</span>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="chrono-layout">
+
+      <!-- Timeline -->
+      <div>
+        <div class="timeline">
+
+          <!-- Period: August 2024 -->
+          <div class="timeline-period">
+            <div class="timeline-period-label">August 2024</div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot incident"></div>
+            <div class="timeline-card" style="border-left: 3px solid var(--amber)">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Incident &mdash; Initial Injury</div>
+                  <div class="timeline-provider">Self-reported by patient</div>
+                </div>
+                <div class="timeline-date">Aug 14, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Patient Maria Martinez, age 42, presented to ER following alleged misadministration of medication during routine outpatient procedure at Allied Health Systems facility. Patient reports immediate onset of severe abdominal pain, nausea, and dizziness within 30 minutes of IV medication administration.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--amber-bg);color:var(--amber)">Incident</span>
+                <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Key Finding</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot treatment"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Emergency Department Visit</div>
+                  <div class="timeline-provider">St. Mary's Hospital &mdash; Dr. James Liu, M.D.</div>
+                </div>
+                <div class="timeline-date">Aug 14, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Patient arrived via ambulance at 14:32. Chief complaint: severe abdominal pain (8/10), nausea, tachycardia. Initial vitals: BP 148/92, HR 112, Temp 99.1F. IV fluids administered. Abdominal CT ordered.</p>
+                <p>Admitted for observation. Pain management initiated with morphine 4mg IV.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Treatment</span>
+                <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Key Finding</span>
+              </div>
+              <div class="timeline-source">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                ER_Report_081424.pdf &bull; Pages 1-4
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot imaging"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">CT Abdomen &amp; Pelvis with Contrast</div>
+                  <div class="timeline-provider">St. Mary's Hospital &mdash; Radiology Dept.</div>
+                </div>
+                <div class="timeline-date">Aug 14, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Findings: Moderate inflammation of gastric lining consistent with chemical irritation. No perforation. Small amount of free fluid in peritoneal cavity. No masses or obstructive pathology identified.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--purple-bg);color:var(--purple)">Imaging</span>
+              </div>
+              <div class="timeline-source">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                CT_Report_081424.pdf
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot diagnosis"></div>
+            <div class="timeline-card" style="border-left: 3px solid var(--blue)">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Diagnosis &mdash; Chemical Gastritis, Medication Error</div>
+                  <div class="timeline-provider">St. Mary's Hospital &mdash; Dr. James Liu, M.D.</div>
+                </div>
+                <div class="timeline-date">Aug 16, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Final diagnosis: Acute chemical gastritis secondary to medication administration error. Patient records from Allied Health confirm wrong medication dosage — 10x prescribed concentration of potassium chloride administered intravenously. Discharge after 48-hour observation with follow-up instructions.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--blue-bg);color:var(--blue)">Diagnosis</span>
+                <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Key Finding</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Period: September 2024 -->
+          <div class="timeline-period">
+            <div class="timeline-period-label">September 2024</div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot followup"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Follow-up Visit</div>
+                  <div class="timeline-provider">Dr. Hiroshi Nakamura, M.D. &mdash; Gastroenterology</div>
+                </div>
+                <div class="timeline-date">Sep 3, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Patient reports persistent epigastric pain (5/10), intermittent nausea, difficulty tolerating solid foods. Weight loss of 8 lbs since incident. Physical exam reveals epigastric tenderness. Prescribed omeprazole 40mg daily. Ordered upper endoscopy.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:rgba(100,116,139,0.15);color:var(--text-secondary)">Follow-up</span>
+                <span class="timeline-tag" style="background:var(--teal-bg);color:var(--teal)">Medication</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot surgery"></div>
+            <div class="timeline-card" style="border-left: 3px solid var(--red)">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Upper Endoscopy (EGD)</div>
+                  <div class="timeline-provider">Bay Area Surgical Center &mdash; Dr. Nakamura</div>
+                </div>
+                <div class="timeline-date">Sep 18, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Findings: Erythematous gastric mucosa with scattered erosions in the antrum and body. Biopsy taken from 3 sites. Consistent with resolving chemical gastritis. H. pylori negative. Recommended continued PPI therapy and bland diet.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Procedure</span>
+              </div>
+              <div class="timeline-source">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                EGD_Report_091824.pdf
+              </div>
+            </div>
+          </div>
+
+          <!-- Period: October 2024 -->
+          <div class="timeline-period">
+            <div class="timeline-period-label">October &ndash; December 2024</div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot treatment"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Physical Therapy Evaluation</div>
+                  <div class="timeline-provider">Pacific Rehab Center &mdash; Dr. Lisa Ortiz, DPT</div>
+                </div>
+                <div class="timeline-date">Oct 8, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Initial PT evaluation. Patient reports difficulty with daily activities due to chronic abdominal pain and fatigue. Treatment plan: 2x weekly sessions for 12 weeks focusing on core strengthening, pain management techniques, and gradual return to normal activities. Patient unable to return to work as dental hygienist due to standing requirements.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Treatment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot medication"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Medication Adjustment</div>
+                  <div class="timeline-provider">Dr. Nakamura &mdash; Gastroenterology</div>
+                </div>
+                <div class="timeline-date">Nov 12, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Patient reports improvement in nausea but continued epigastric discomfort (4/10). Omeprazole increased to 40mg BID. Added sucralfate 1g QID before meals. Discussed potential need for repeat endoscopy if symptoms persist beyond 3 months.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--teal-bg);color:var(--teal)">Medication</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot followup"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">PT Progress Note &mdash; Week 8</div>
+                  <div class="timeline-provider">Pacific Rehab Center &mdash; Dr. Lisa Ortiz, DPT</div>
+                </div>
+                <div class="timeline-date">Dec 3, 2024</div>
+              </div>
+              <div class="timeline-body">
+                <p>Patient has attended 14 of 16 scheduled sessions. Moderate improvement in core strength and functional capacity. Pain levels reduced from 5/10 to 3/10 on average. Still unable to tolerate prolonged standing (&gt;2 hours). Recommend continuation of PT for additional 8 weeks.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:rgba(100,116,139,0.15);color:var(--text-secondary)">Follow-up</span>
+                <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Progress</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Period: 2025 -->
+          <div class="timeline-period">
+            <div class="timeline-period-label">January &ndash; March 2025</div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot followup"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">Gastroenterology Follow-up</div>
+                  <div class="timeline-provider">Dr. Nakamura &mdash; Gastroenterology</div>
+                </div>
+                <div class="timeline-date">Jan 22, 2025</div>
+              </div>
+              <div class="timeline-body">
+                <p>5-month post-incident evaluation. Symptoms improving but not resolved. Pain 3/10, occasional nausea. Able to tolerate normal diet with restrictions. PPI therapy to continue. Dr. Nakamura provides letter confirming ongoing need for treatment and establishing causation link to medication error. Estimated 6-12 months additional recovery.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:rgba(100,116,139,0.15);color:var(--text-secondary)">Follow-up</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-event">
+            <div class="timeline-dot treatment"></div>
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <div>
+                  <div class="timeline-title">PT Discharge &mdash; Phase 1 Complete</div>
+                  <div class="timeline-provider">Pacific Rehab Center</div>
+                </div>
+                <div class="timeline-date">Feb 28, 2025</div>
+              </div>
+              <div class="timeline-body">
+                <p>Completed 20 weeks of physical therapy (36 sessions). Significant functional improvement. Pain reduced to 2/10 baseline. Patient cleared for light work duties but not full return to dental hygienist role. Home exercise program provided. Re-evaluation in 6 weeks.</p>
+              </div>
+              <div class="timeline-tags">
+                <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Treatment</span>
+                <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Milestone</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="chrono-sidebar">
+
+        <!-- Summary -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Summary</span>
+          </div>
+          <div class="card-body">
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-item-label">Date of Injury</div>
+                <div class="summary-item-value">Aug 14, 2024</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-item-label">Last Treatment</div>
+                <div class="summary-item-value">Feb 28, 2025</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-item-label">ER Visits</div>
+                <div class="summary-item-value">1</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-item-label">Hospital Days</div>
+                <div class="summary-item-value">2</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-item-label">PT Sessions</div>
+                <div class="summary-item-value">36</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-item-label">Procedures</div>
+                <div class="summary-item-value">1 (EGD)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Providers -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Providers</span>
+          </div>
+          <div class="card-body" style="padding:12px 20px">
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">St. Mary's Hospital</div>
+                <div class="provider-specialty">Emergency / Inpatient</div>
+              </div>
+              <div class="provider-visits">2 visits</div>
+            </div>
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">Dr. Hiroshi Nakamura</div>
+                <div class="provider-specialty">Gastroenterology</div>
+              </div>
+              <div class="provider-visits">4 visits</div>
+            </div>
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">Pacific Rehab Center</div>
+                <div class="provider-specialty">Physical Therapy</div>
+              </div>
+              <div class="provider-visits">36 visits</div>
+            </div>
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">Bay Area Surgical Center</div>
+                <div class="provider-specialty">Outpatient Surgery</div>
+              </div>
+              <div class="provider-visits">1 visit</div>
+            </div>
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">Bay Area Imaging</div>
+                <div class="provider-specialty">Diagnostic Radiology</div>
+              </div>
+              <div class="provider-visits">1 visit</div>
+            </div>
+            <div class="provider-item">
+              <div>
+                <div class="provider-name">PharmaCare Rx</div>
+                <div class="provider-specialty">Pharmacy</div>
+              </div>
+              <div class="provider-visits">Ongoing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Summary -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Medical Expenses</span>
+          </div>
+          <div class="card-body" style="padding:12px 20px">
+            <div class="provider-item">
+              <div class="provider-name">Emergency / Hospital</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$42,800</div>
+            </div>
+            <div class="provider-item">
+              <div class="provider-name">Gastroenterology</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$18,400</div>
+            </div>
+            <div class="provider-item">
+              <div class="provider-name">EGD Procedure</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$12,600</div>
+            </div>
+            <div class="provider-item">
+              <div class="provider-name">Physical Therapy</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$38,400</div>
+            </div>
+            <div class="provider-item">
+              <div class="provider-name">Imaging / Radiology</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$8,200</div>
+            </div>
+            <div class="provider-item">
+              <div class="provider-name">Medications</div>
+              <div class="provider-visits" style="color:var(--text-white);font-weight:600">$3,600</div>
+            </div>
+            <div class="provider-item" style="border-top:2px solid var(--border-subtle);padding-top:12px">
+              <div class="provider-name" style="font-weight:700;color:var(--text-white)">Total</div>
+              <div class="provider-visits" style="color:var(--emerald);font-weight:700;font-size:var(--text-base)">$124,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Types Legend -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Event Types</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--amber)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Incident</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--emerald)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Treatment</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--blue)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Diagnosis</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--red)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Surgery / Procedure</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--purple)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Imaging</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--teal)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Medication</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--text-muted)"></div>
+                <span style="font-size:var(--text-xs);color:var(--text-secondary)">Follow-up</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- DESIGN TOKENS -->
+    <div class="tokens-section">
+      <div style="font-size:var(--text-xl);font-weight:700;color:var(--text-white);margin-bottom:4px">Design Tokens</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary)">Midnight Emerald &mdash; Chronology Components</div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Timeline Dot Colors</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--amber)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Incident</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--emerald);background:var(--bg-base)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Treatment</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--blue);background:var(--bg-base)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Diagnosis</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--red);background:var(--bg-base)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Surgery</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--purple);background:var(--bg-base)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Imaging</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--teal);background:var(--bg-base)"></div>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">Medication</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Timeline Tags</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="timeline-tag" style="background:var(--amber-bg);color:var(--amber)">Incident</span>
+        <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Key Finding</span>
+        <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Treatment</span>
+        <span class="timeline-tag" style="background:var(--blue-bg);color:var(--blue)">Diagnosis</span>
+        <span class="timeline-tag" style="background:var(--red-bg);color:var(--red)">Procedure</span>
+        <span class="timeline-tag" style="background:var(--purple-bg);color:var(--purple)">Imaging</span>
+        <span class="timeline-tag" style="background:var(--teal-bg);color:var(--teal)">Medication</span>
+        <span class="timeline-tag" style="background:rgba(100,116,139,0.15);color:var(--text-secondary)">Follow-up</span>
+        <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Milestone</span>
+        <span class="timeline-tag" style="background:var(--emerald-glow);color:var(--emerald)">Progress</span>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Extended Palette</div>
+      <div class="tokens-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#10B981"></div><div><div class="token-name">Emerald</div><div class="token-value">#10B981</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#3B82F6"></div><div><div class="token-name">Blue</div><div class="token-value">#3B82F6</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EF4444"></div><div><div class="token-name">Red</div><div class="token-value">#EF4444</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#F59E0B"></div><div><div class="token-name">Amber</div><div class="token-value">#F59E0B</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#8B5CF6"></div><div><div class="token-name">Purple</div><div class="token-value">#8B5CF6</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#14B8A6"></div><div><div class="token-name">Teal</div><div class="token-value">#14B8A6</div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

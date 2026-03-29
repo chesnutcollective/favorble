@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-root:#FAFAFA;--bg-card:#FFFFFF;--bg-card-alt:#FAFAFA;--bg-hover:#F0F0F0;--bg-input:#FFFFFF;
+    --border:#EAEAEA;--border-hover:#CCCCCC;--border-focus:#888888;
+    --text-primary:#171717;--text-secondary:#666666;--text-tertiary:#999999;
+    --accent-emerald:#059669;--accent-emerald-hover:#047857;
+    --accent-emerald-muted:rgba(5,150,105,0.12);--accent-emerald-subtle:rgba(5,150,105,0.06);
+    --accent-amber:#D97706;--accent-red:#DC2626;--accent-black:#000000;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .app{display:flex;height:100vh}
+
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-emerald);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer;border-left:3px solid transparent}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card);border-left-color:var(--accent-emerald)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px}
+  .sidebar-link.active .icon{opacity:1}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-emerald-muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent-emerald)}
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+
+  .breadcrumb{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .breadcrumb a{color:var(--accent-emerald)}.breadcrumb a:hover{text-decoration:underline}.breadcrumb .sep{color:var(--text-tertiary)}
+  .case-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-6)}
+  .case-header-left h1{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:var(--sp-2)}
+  .case-meta{display:flex;align-items:center;gap:var(--sp-4);font-size:13px;color:var(--text-secondary)}
+  .case-meta .mono{font-family:var(--font-mono);font-size:12px}
+  .header-actions{display:flex;gap:var(--sp-3)}
+
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-emerald);color:#FFF;border-color:var(--accent-emerald)}
+  .btn-primary:hover{background:var(--accent-emerald-hover);border-color:var(--accent-emerald-hover)}
+  .btn-secondary{background:var(--bg-card);color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}
+  .btn-ghost:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+
+  .badge-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;border:1px solid}
+  .badge-status.hearing{color:#2563EB;border-color:rgba(37,99,235,0.3);background:rgba(37,99,235,0.06)}
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+  .stage-progress{margin-bottom:var(--sp-6)}
+  .stage-bar{display:flex;gap:2px;margin-bottom:var(--sp-2)}
+  .stage-step{flex:1;height:4px;border-radius:2px;background:var(--border)}
+  .stage-step.complete{background:var(--accent-emerald)}
+  .stage-step.current{background:var(--accent-amber)}
+  .stage-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary)}
+  .stage-labels span.active{color:var(--text-primary);font-weight:500}
+  .stage-labels span.done{color:var(--accent-emerald)}
+
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:var(--sp-6)}
+  .tab{padding:var(--sp-3) var(--sp-4);font-size:13px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;transition:all var(--transition);margin-bottom:-1px}
+  .tab:hover{color:var(--text-primary)}
+  .tab.active{color:var(--text-primary);border-bottom-color:var(--accent-emerald)}
+  .tab .tab-count{margin-left:var(--sp-2);font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)}
+
+  .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--sp-4)}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5);transition:border-color var(--transition)}
+  .card:hover{border-color:var(--border-hover)}
+  .card-title{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:var(--sp-4)}
+
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4) var(--sp-6)}
+  .kv-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px}
+  .kv-value{font-size:13px;font-weight:500}
+  .kv-value.mono{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)}
+
+  .task-list{list-style:none}
+  .task-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .task-item:last-child{border-bottom:none}
+  .task-checkbox{width:16px;height:16px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;cursor:pointer}
+  .task-checkbox.checked{background:var(--accent-emerald);border-color:var(--accent-emerald);position:relative}
+  .task-checkbox.checked::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:5px;border-left:2px solid #FFF;border-bottom:2px solid #FFF;transform:rotate(-45deg)}
+  .task-text{flex:1}.task-text.done{text-decoration:line-through;color:var(--text-tertiary)}
+  .task-due{font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}.task-due.overdue{color:var(--accent-red)}
+  .task-assignee{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+
+  .doc-list{list-style:none}
+  .doc-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;transition:color var(--transition)}
+  .doc-item:last-child{border-bottom:none}.doc-item:hover{color:var(--accent-emerald)}
+  .doc-icon{width:28px;height:28px;background:var(--bg-root);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-tertiary);flex-shrink:0}
+  .doc-info{flex:1}.doc-name{font-weight:500;font-size:13px}.doc-meta{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}.doc-size{font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)}
+
+  .detail-sidebar{display:flex;flex-direction:column;gap:var(--sp-4)}
+  .mini-stat{text-align:center;padding:var(--sp-4)}
+  .mini-stat .value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1.1;color:var(--accent-emerald)}
+  .mini-stat .label{font-size:11px;color:var(--text-secondary);margin-top:var(--sp-1)}
+
+  .contact-list{list-style:none}
+  .contact-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .contact-item:last-child{border-bottom:none}
+  .contact-avatar{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-primary);flex-shrink:0}
+  .contact-info{flex:1}.contact-name{font-weight:500}.contact-role{font-size:11px;color:var(--text-tertiary)}
+
+  .note{padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}.note:last-child{border-bottom:none}
+  .note-header{display:flex;justify-content:space-between;margin-bottom:var(--sp-1)}
+  .note-author{font-weight:500;font-size:12px}.note-time{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary)}
+  .note-body{color:var(--text-secondary);font-size:13px;line-height:1.6}
+
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}.token-name{font-weight:500;margin-bottom:1px}.token-value{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Overview</div><a class="sidebar-link" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a><a class="sidebar-link active" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">134</span></a><a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">26</span></a><a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Tools</div><a class="sidebar-link" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a><a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a><a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Briefs</a></div>
+    <div class="sidebar-section"><div class="sidebar-section-label">Settings</div><a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a><a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a></div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="avatar">RM</div><div><div style="font-size:13px;color:var(--text-primary)">Rachel Martinez</div><div style="font-size:11px;color:var(--text-tertiary)">Managing Attorney</div></div></div>
+  </nav>
+  <main class="main">
+    <div class="breadcrumb"><a href="cases-list.html">Cases</a><span class="sep">/</span><span>SSA-1987</span></div>
+    <div class="case-header">
+      <div class="case-header-left">
+        <h1>Chen, Robert W.</h1>
+        <div class="case-meta"><span class="mono">SSA-1987</span><span class="badge-status hearing"><span class="badge-dot"></span>ALJ Hearing</span><span>SSDI — Degenerative Disc Disease, Major Depressive Disorder</span><span class="mono">Filed Nov 22, 2025</span></div>
+      </div>
+      <div class="header-actions"><button class="btn btn-secondary btn-sm">Edit</button><button class="btn btn-secondary btn-sm">Generate Brief</button><button class="btn btn-primary btn-sm">+ Add Task</button></div>
+    </div>
+    <div class="stage-progress">
+      <div class="stage-bar"><div class="stage-step complete"></div><div class="stage-step complete"></div><div class="stage-step current"></div><div class="stage-step"></div><div class="stage-step"></div></div>
+      <div class="stage-labels"><span class="done">Initial App</span><span class="done">Reconsideration</span><span class="active">ALJ Hearing</span><span>Appeals Council</span><span>Federal Court</span></div>
+    </div>
+    <div class="tabs"><div class="tab active">Overview</div><div class="tab">Tasks <span class="tab-count">6</span></div><div class="tab">Documents <span class="tab-count">34</span></div><div class="tab">Medical Records <span class="tab-count">218</span></div><div class="tab">Notes <span class="tab-count">8</span></div><div class="tab">Financials</div></div>
+    <div class="overview-grid">
+      <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+        <div class="card">
+          <div class="card-title">Claim Details</div>
+          <div class="kv-grid">
+            <div class="kv-item"><div class="kv-label">Claimant</div><div class="kv-value">Robert W. Chen</div></div>
+            <div class="kv-item"><div class="kv-label">SSN (last 4)</div><div class="kv-value mono">***-**-4872</div></div>
+            <div class="kv-item"><div class="kv-label">Date of Birth</div><div class="kv-value mono">April 12, 1971</div></div>
+            <div class="kv-item"><div class="kv-label">Alleged Onset Date</div><div class="kv-value mono">March 8, 2024</div></div>
+            <div class="kv-item"><div class="kv-label">Primary Impairments</div><div class="kv-value">Degenerative Disc Disease (L4-S1), MDD, Anxiety Disorder</div></div>
+            <div class="kv-item"><div class="kv-label">Date Last Insured</div><div class="kv-value mono">December 31, 2028</div></div>
+            <div class="kv-item"><div class="kv-label">Past Relevant Work</div><div class="kv-value">Warehouse Manager (Medium, SVP 7), Forklift Operator (Medium, SVP 4)</div></div>
+            <div class="kv-item"><div class="kv-label">ODAR Office</div><div class="kv-value">Houston, TX</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)"><div class="card-title" style="margin-bottom:0">Tasks</div><button class="btn btn-ghost btn-sm">View All</button></div>
+          <ul class="task-list">
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Draft pre-hearing brief for ALJ Martinez</span><span class="task-due">Apr 2</span><div class="task-assignee">RM</div></li>
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Subpoena updated psych records from Dr. Wallace</span><span class="task-due">Apr 5</span><div class="task-assignee">KL</div></li>
+            <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Prepare claimant for direct testimony</span><span class="task-due overdue">Mar 25</span><div class="task-assignee">RM</div></li>
+            <li class="task-item"><div class="task-checkbox checked"></div><span class="task-text done">Submit updated medical evidence exhibit list</span><span class="task-due">Mar 20</span><div class="task-assignee">JS</div></li>
+            <li class="task-item"><div class="task-checkbox checked"></div><span class="task-text done">Obtain RFC opinion from treating physician</span><span class="task-due">Mar 15</span><div class="task-assignee">KL</div></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)"><div class="card-title" style="margin-bottom:0">Recent Documents</div><button class="btn btn-ghost btn-sm">View All (34)</button></div>
+          <ul class="doc-list">
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">RFC Opinion — Dr. Anand Sharma, MD</div><div class="doc-meta">Uploaded Mar 15 by K. Liu</div></div><div class="doc-size">180 KB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">Psych Evaluation — Dr. Lisa Wallace, PhD</div><div class="doc-meta">Uploaded Mar 8 by J. Song</div></div><div class="doc-size">2.1 MB</div></li>
+            <li class="doc-item"><div class="doc-icon">PDF</div><div class="doc-info"><div class="doc-name">MRI Lumbar Spine — Houston Imaging Center</div><div class="doc-meta">Uploaded Feb 28 by K. Liu</div></div><div class="doc-size">6.4 MB</div></li>
+            <li class="doc-item"><div class="doc-icon">DOC</div><div class="doc-info"><div class="doc-name">Function Report — Adult (SSA-3373)</div><div class="doc-meta">Filed Jan 12 by R. Martinez</div></div><div class="doc-size">92 KB</div></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Notes</div>
+          <div class="note"><div class="note-header"><span class="note-author">Rachel Martinez</span><span class="note-time">2h ago</span></div><div class="note-body">Hearing confirmed for Apr 18 before ALJ Patricia Martinez (no relation). VE testimony expected. Need to focus on Grid Rule 201.14 — claimant is 54 with RFC limiting to sedentary. Strong case for directed finding.</div></div>
+          <div class="note"><div class="note-header"><span class="note-author">Kevin Liu</span><span class="note-time">Mar 20</span></div><div class="note-body">Dr. Sharma's RFC opinion is very supportive. Limits standing/walking to 2 hours, sitting to 4 hours, no bending or lifting over 10 lbs. Consistent with MRI findings.</div></div>
+        </div>
+      </div>
+      <div class="detail-sidebar">
+        <div class="card mini-stat"><div class="value">$2,540</div><div class="label">Estimated Monthly Benefit</div></div>
+        <div class="card">
+          <div class="card-title">Benefits Summary</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">Monthly SSDI</span><span style="font-family:var(--font-mono);font-size:12px">$2,540</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">Back Pay (est.)</span><span style="font-family:var(--font-mono);font-size:12px">$60,960</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-secondary)">Attorney Fee (25%)</span><span style="font-family:var(--font-mono);font-size:12px">$7,200 cap</span></div>
+            <div style="border-top:1px solid var(--border);padding-top:var(--sp-3);display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>Est. Client Net</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-emerald)">$53,760</span></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title">Team</div><ul class="contact-list"><li class="contact-item"><div class="contact-avatar">RM</div><div class="contact-info"><div class="contact-name">Rachel Martinez</div><div class="contact-role">Lead Attorney</div></div></li><li class="contact-item"><div class="contact-avatar">KL</div><div class="contact-info"><div class="contact-name">Kevin Liu</div><div class="contact-role">Associate</div></div></li><li class="contact-item"><div class="contact-avatar">JS</div><div class="contact-info"><div class="contact-name">Julie Song</div><div class="contact-role">Paralegal</div></div></li></ul></div>
+        <div class="card"><div class="card-title">Key Contacts</div><ul class="contact-list"><li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">RC</div><div class="contact-info"><div class="contact-name">Robert Chen</div><div class="contact-role">Claimant</div></div></li><li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">AS</div><div class="contact-info"><div class="contact-name">Dr. Anand Sharma</div><div class="contact-role">Treating Physician</div></div></li><li class="contact-item"><div class="contact-avatar" style="background:var(--bg-root);border:1px solid var(--border)">LW</div><div class="contact-info"><div class="contact-name">Dr. Lisa Wallace</div><div class="contact-role">Treating Psychologist</div></div></li></ul></div>
+        <div class="card"><div class="card-title">Key Dates</div><div style="display:flex;flex-direction:column;gap:var(--sp-3)"><div><div style="font-size:11px;color:var(--text-tertiary)">Alleged Onset</div><div style="font-size:12px;font-family:var(--font-mono)">Mar 8, 2024</div></div><div><div style="font-size:11px;color:var(--text-tertiary)">Initial Denial</div><div style="font-size:12px;font-family:var(--font-mono)">Sep 14, 2024</div></div><div><div style="font-size:11px;color:var(--accent-emerald)">ALJ Hearing</div><div style="font-size:12px;font-family:var(--font-mono)">Apr 18, 2026</div></div><div><div style="font-size:11px;color:var(--accent-amber)">Date Last Insured</div><div style="font-size:12px;font-family:var(--font-mono)">Dec 31, 2028</div></div></div></div>
+      </div>
+    </div>
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#FAFAFA"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-value">#FAFAFA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#FFF"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-value">#FFFFFF</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EAEAEA"></div><div class="token-info"><div class="token-name">border</div><div class="token-value">#EAEAEA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#171717"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-value">#171717</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#059669"></div><div class="token-info"><div class="token-name">accent-emerald</div><div class="token-value">#059669</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#D97706"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-value">#D97706</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#DC2626"></div><div class="token-info"><div class="token-name">accent-red</div><div class="token-value">#DC2626</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

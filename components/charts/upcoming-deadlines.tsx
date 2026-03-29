@@ -13,33 +13,23 @@ type DeadlineEvent = {
   caseNumber: string | null;
 };
 
-const EVENT_TYPE_COLORS: Record<string, string> = {
-  hearing: "bg-red-100 text-red-700",
-  deadline: "bg-orange-100 text-orange-700",
-  appointment: "bg-blue-100 text-blue-700",
-  follow_up: "bg-purple-100 text-purple-700",
-  reminder: "bg-yellow-100 text-yellow-700",
-};
-
 export function UpcomingDeadlines({ events }: { events: DeadlineEvent[] }) {
   if (events.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground py-4 text-center">
+      <p className="text-sm text-[#999] py-4 text-center">
         No upcoming deadlines
       </p>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div>
       {events.map((event) => (
         <div
           key={event.id}
-          className="flex items-center gap-3 rounded-md p-2 hover:bg-accent"
+          className="flex items-center gap-3 py-2.5 border-b border-[#EAEAEA] last:border-b-0"
         >
-          <Badge
-            className={`text-xs shrink-0 ${EVENT_TYPE_COLORS[event.eventType] ?? "bg-muted text-foreground"}`}
-          >
+          <Badge variant="outline" className="text-xs shrink-0 font-mono">
             {event.eventType.replace(/_/g, " ")}
           </Badge>
           <div className="min-w-0 flex-1">
@@ -49,13 +39,13 @@ export function UpcomingDeadlines({ events }: { events: DeadlineEvent[] }) {
             {event.caseId && event.caseNumber && (
               <Link
                 href={`/cases/${event.caseId}`}
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-[#666] font-mono hover:underline"
               >
                 {event.caseNumber}
               </Link>
             )}
           </div>
-          <span className="text-xs text-muted-foreground shrink-0">
+          <span className="text-xs text-[#999] font-mono shrink-0">
             {format(event.startAt, "MMM d, yyyy")}
           </span>
         </div>

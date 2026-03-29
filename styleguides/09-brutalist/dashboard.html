@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard (Neo-Brutalist)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Neo-Brutalist System
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg:           #FFFDF7;
+    --card-bg:      #FFFFFF;
+    --sidebar-bg:   #000000;
+
+    /* Text */
+    --text-primary:   #000000;
+    --text-secondary: #555555;
+    --text-inverse:   #FFFFFF;
+
+    /* Accents */
+    --orange:  #FF6B00;
+    --purple:  #5B21B6;
+    --yellow:  #FFD700;
+    --green:   #00CC88;
+    --pink:    #FF3366;
+    --blue:    #3B82F6;
+
+    /* Borders & Shadows */
+    --border:        2px solid #000;
+    --border-light:  2px solid #ddd;
+    --shadow:        4px 4px 0 #000;
+    --shadow-sm:     3px 3px 0 #000;
+    --shadow-orange: 4px 4px 0 var(--orange);
+    --shadow-purple: 4px 4px 0 var(--purple);
+    --shadow-green:  4px 4px 0 var(--green);
+    --shadow-pink:   4px 4px 0 var(--pink);
+    --shadow-yellow: 4px 4px 0 var(--yellow);
+
+    /* Radius */
+    --radius-none: 0px;
+    --radius-pill: 999px;
+
+    /* Typography */
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR
+     ============================================================ */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    color: var(--text-inverse);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: var(--space-2xl);
+    letter-spacing: -1px;
+  }
+
+  .sidebar-logo span { color: var(--orange); }
+
+  .sidebar nav { flex: 1; }
+
+  .sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: #aaa;
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 2px solid transparent;
+    margin-bottom: 4px;
+    transition: all 0.1s;
+  }
+
+  .sidebar nav a:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .sidebar nav a.active {
+    color: #000;
+    background: var(--orange);
+    border: 2px solid var(--orange);
+    font-weight: 700;
+  }
+
+  .sidebar nav a .icon {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .sidebar-section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #666;
+    margin: var(--space-lg) 0 var(--space-sm) var(--space-md);
+  }
+
+  .sidebar-user {
+    border-top: 1px solid #333;
+    padding-top: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .sidebar-user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--purple);
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .sidebar-user-info { font-size: 13px; }
+  .sidebar-user-info .name { font-weight: 600; }
+  .sidebar-user-info .role { color: #888; font-size: 11px; }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    margin-left: 260px;
+    padding: var(--space-xl) var(--space-2xl);
+    max-width: 1200px;
+  }
+
+  /* ============================================================
+     PAGE HEADER
+     ============================================================ */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-xl);
+  }
+
+  .page-header h1 {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .page-header .subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-top: 2px;
+  }
+
+  .page-header .date {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--yellow);
+    color: #000;
+    padding: 4px 12px;
+    border: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ============================================================
+     STAT CARDS
+     ============================================================ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: var(--border);
+    box-shadow: var(--shadow);
+    padding: var(--space-lg);
+    position: relative;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  .stat-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #000;
+  }
+
+  .stat-card .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .stat-card .stat-value {
+    font-family: var(--font-heading);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .stat-card .stat-change {
+    font-size: 13px;
+    margin-top: var(--space-sm);
+    font-weight: 600;
+  }
+
+  .stat-card .stat-change.up { color: var(--green); }
+  .stat-card .stat-change.down { color: var(--pink); }
+
+  .stat-card .stat-accent {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 100%;
+  }
+
+  .stat-accent.orange { background: var(--orange); }
+  .stat-accent.purple { background: var(--purple); }
+  .stat-accent.green  { background: var(--green); }
+  .stat-accent.pink   { background: var(--pink); }
+
+  /* ============================================================
+     TWO-COLUMN LAYOUT
+     ============================================================ */
+  .two-col {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  /* ============================================================
+     PIPELINE / KANBAN
+     ============================================================ */
+  .card {
+    background: var(--card-bg);
+    border: var(--border);
+    box-shadow: var(--shadow);
+    padding: var(--space-lg);
+  }
+
+  .card-title {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title .count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg);
+    padding: 2px 10px;
+    border: var(--border);
+  }
+
+  .pipeline-stages {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+  }
+
+  .pipeline-stage {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .pipeline-stage-header {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    border: var(--border);
+    margin-bottom: var(--space-sm);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .pipeline-stage-header.intake    { background: var(--yellow); }
+  .pipeline-stage-header.review    { background: var(--orange); color: #fff; }
+  .pipeline-stage-header.discovery { background: var(--purple); color: #fff; }
+  .pipeline-stage-header.negotiate { background: var(--blue); color: #fff; }
+  .pipeline-stage-header.closed    { background: var(--green); }
+
+  .pipeline-item {
+    background: var(--bg);
+    border: var(--border);
+    padding: var(--space-sm) 10px;
+    margin-bottom: var(--space-sm);
+    font-size: 13px;
+    cursor: grab;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  .pipeline-item:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .pipeline-item .item-name { font-weight: 600; }
+  .pipeline-item .item-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+     TASKS
+     ============================================================ */
+  .task-list { list-style: none; }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 10px 0;
+    border-bottom: 2px solid #eee;
+    font-size: 14px;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+
+  .task-checkbox {
+    width: 22px;
+    height: 22px;
+    border: var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.1s;
+  }
+
+  .task-checkbox:hover { background: var(--yellow); }
+  .task-checkbox.done { background: var(--green); color: #fff; }
+
+  .task-text { flex: 1; }
+  .task-text.done { text-decoration: line-through; color: #999; }
+
+  .task-due {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border: var(--border);
+    white-space: nowrap;
+  }
+
+  .task-due.overdue { background: var(--pink); color: #fff; }
+  .task-due.today { background: var(--orange); color: #fff; }
+  .task-due.upcoming { background: var(--bg); }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border: var(--border);
+  }
+
+  .badge-orange { background: var(--orange); color: #fff; }
+  .badge-purple { background: var(--purple); color: #fff; }
+  .badge-green  { background: var(--green); }
+  .badge-pink   { background: var(--pink); color: #fff; }
+  .badge-yellow { background: var(--yellow); }
+  .badge-blue   { background: var(--blue); color: #fff; }
+
+  /* ============================================================
+     ACTIVITY FEED
+     ============================================================ */
+  .activity-feed { list-style: none; }
+
+  .activity-item {
+    display: flex;
+    gap: var(--space-sm);
+    padding: 10px 0;
+    border-bottom: 2px solid #eee;
+    font-size: 13px;
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #000;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .activity-dot.orange { background: var(--orange); }
+  .activity-dot.green  { background: var(--green); }
+  .activity-dot.purple { background: var(--purple); }
+  .activity-dot.pink   { background: var(--pink); }
+
+  .activity-content { flex: 1; }
+  .activity-content strong { font-weight: 700; }
+  .activity-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+     QUICK ACTIONS BAR
+     ============================================================ */
+  .quick-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #000;
+  }
+
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0 #000;
+  }
+
+  .btn-primary {
+    background: var(--orange);
+    color: #fff;
+  }
+
+  .btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+  }
+
+  .btn-dark {
+    background: #000;
+    color: #fff;
+  }
+
+  .btn-pill {
+    border-radius: var(--radius-pill);
+  }
+
+  .btn-sm {
+    font-size: 12px;
+    padding: 6px 14px;
+    box-shadow: 2px 2px 0 #000;
+  }
+
+  /* ============================================================
+     BOTTOM ROW
+     ============================================================ */
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  /* ============================================================
+     MINI CHART (CSS-only bar chart)
+     ============================================================ */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+    margin-top: var(--space-md);
+  }
+
+  .mini-chart .bar {
+    flex: 1;
+    background: var(--orange);
+    border: 1px solid #000;
+    min-height: 4px;
+    transition: height 0.2s;
+  }
+
+  .mini-chart .bar:hover { background: var(--purple); }
+
+  /* ============================================================
+     DESIGN TOKENS SECTION
+     ============================================================ */
+  .tokens-section {
+    border-top: 4px solid #000;
+    padding-top: var(--space-xl);
+    margin-top: var(--space-2xl);
+  }
+
+  .tokens-section h2 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+  }
+
+  .token-group {
+    margin-bottom: var(--space-xl);
+  }
+
+  .token-group h3 {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--space-md);
+    color: var(--text-secondary);
+  }
+
+  .color-swatches {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .swatch {
+    width: 80px;
+    text-align: center;
+  }
+
+  .swatch-color {
+    width: 80px;
+    height: 60px;
+    border: var(--border);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  .swatch-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .type-sample {
+    border: var(--border);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .type-sample .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .shadow-demos {
+    display: flex;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  .shadow-demo {
+    width: 100px;
+    height: 100px;
+    background: #fff;
+    border: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Favor<span>ble</span></div>
+  <nav>
+    <div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="active"><span class="icon">&#9632;</span> Dashboard</a>
+    <a href="cases-list.html"><span class="icon">&#9830;</span> Cases</a>
+    <a href="chronology.html"><span class="icon">&#9672;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a href="#"><span class="icon">&#9734;</span> Contacts</a>
+    <a href="#"><span class="icon">&#9998;</span> Documents</a>
+    <a href="#"><span class="icon">&#8853;</span> Calendar</a>
+    <div class="sidebar-section-label">Admin</div>
+    <a href="admin-integrations.html"><span class="icon">&#8644;</span> Integrations</a>
+    <a href="#"><span class="icon">&#9881;</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">JR</div>
+    <div class="sidebar-user-info">
+      <div class="name">Jessica Reyes</div>
+      <div class="role">Senior Paralegal</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="subtitle">Welcome back, Jessica. Here's your firm at a glance.</p>
+    </div>
+    <div class="date">Mar 28, 2026</div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button class="btn btn-primary">+ New Case</button>
+    <button class="btn btn-secondary">Add Contact</button>
+    <button class="btn btn-secondary">Upload Document</button>
+    <button class="btn btn-dark btn-pill">Generate Report</button>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-accent orange"></div>
+      <div class="stat-label">Active Cases</div>
+      <div class="stat-value">147</div>
+      <div class="stat-change up">+12 this month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent green"></div>
+      <div class="stat-label">Settled This QTR</div>
+      <div class="stat-value">38</div>
+      <div class="stat-change up">+6 vs last QTR</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent purple"></div>
+      <div class="stat-label">Avg. Settlement</div>
+      <div class="stat-value">$285K</div>
+      <div class="stat-change up">+14% YoY</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent pink"></div>
+      <div class="stat-label">Overdue Tasks</div>
+      <div class="stat-value">9</div>
+      <div class="stat-change down">3 critical</div>
+    </div>
+  </div>
+
+  <!-- Pipeline + Activity -->
+  <div class="two-col">
+    <!-- Pipeline -->
+    <div class="card">
+      <div class="card-title">
+        Case Pipeline
+        <span class="count">147 cases</span>
+      </div>
+      <div class="pipeline-stages">
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-header intake">Intake (23)</div>
+          <div class="pipeline-item">
+            <div class="item-name">Garcia v. Metro Health</div>
+            <div class="item-meta">Med Mal &middot; 3d ago</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Chen v. Allied Transport</div>
+            <div class="item-meta">Auto &middot; 1d ago</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Williams v. SafeGuard</div>
+            <div class="item-meta">Premises &middot; Today</div>
+          </div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-header review">Review (31)</div>
+          <div class="pipeline-item">
+            <div class="item-name">Okonkwo v. TrustCare</div>
+            <div class="item-meta">Med Mal &middot; 5d ago</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Patel v. Summit LLC</div>
+            <div class="item-meta">Slip & Fall &middot; 2d ago</div>
+          </div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-header discovery">Discovery (42)</div>
+          <div class="pipeline-item">
+            <div class="item-name">Barnes v. Meridian</div>
+            <div class="item-meta">Workers' Comp &middot; 12d</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Nguyen v. PrimeCare</div>
+            <div class="item-meta">Med Mal &middot; 8d</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Robinson v. CityBus</div>
+            <div class="item-meta">Transit &middot; 20d</div>
+          </div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-header negotiate">Negotiate (34)</div>
+          <div class="pipeline-item">
+            <div class="item-name">Kim v. Apex Roofing</div>
+            <div class="item-meta">Premises &middot; 30d</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Foster v. Greenway</div>
+            <div class="item-meta">Product &middot; 45d</div>
+          </div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-header closed">Closed (17)</div>
+          <div class="pipeline-item">
+            <div class="item-name">Davis v. UnitedHlth</div>
+            <div class="item-meta">$410K &middot; Settled</div>
+          </div>
+          <div class="pipeline-item">
+            <div class="item-name">Martinez v. AutoCo</div>
+            <div class="item-meta">$185K &middot; Settled</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="card">
+      <div class="card-title">Activity</div>
+      <ul class="activity-feed">
+        <li class="activity-item">
+          <div class="activity-dot orange"></div>
+          <div class="activity-content">
+            <div><strong>Sarah Kim</strong> uploaded demand letter for <strong>Barnes v. Meridian</strong></div>
+            <div class="activity-time">12 min ago</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-content">
+            <div><strong>Davis v. UnitedHlth</strong> settlement finalized at <strong>$410,000</strong></div>
+            <div class="activity-time">1 hour ago</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot purple"></div>
+          <div class="activity-content">
+            <div><strong>Dr. Pham</strong> submitted IME report for <strong>Nguyen v. PrimeCare</strong></div>
+            <div class="activity-time">2 hours ago</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot pink"></div>
+          <div class="activity-content">
+            <div><strong>Statute deadline</strong> approaching for <strong>Williams v. SafeGuard</strong> (14d)</div>
+            <div class="activity-time">3 hours ago</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot orange"></div>
+          <div class="activity-content">
+            <div><strong>Mike Torres</strong> added new contact to <strong>Chen v. Allied</strong></div>
+            <div class="activity-time">4 hours ago</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-content">
+            <div><strong>Okonkwo v. TrustCare</strong> moved to Review stage</div>
+            <div class="activity-time">Yesterday</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom Row: Tasks, Chart, Deadlines -->
+  <div class="three-col">
+    <!-- Tasks -->
+    <div class="card">
+      <div class="card-title">My Tasks <span class="count">14 open</span></div>
+      <ul class="task-list">
+        <li class="task-item">
+          <div class="task-checkbox done">&#10003;</div>
+          <span class="task-text done">Review Garcia intake form</span>
+          <span class="task-due upcoming">Mar 27</span>
+        </li>
+        <li class="task-item">
+          <div class="task-checkbox"></div>
+          <span class="task-text">Draft discovery requests — Barnes</span>
+          <span class="task-due overdue">Mar 25</span>
+        </li>
+        <li class="task-item">
+          <div class="task-checkbox"></div>
+          <span class="task-text">Schedule Patel deposition</span>
+          <span class="task-due today">Today</span>
+        </li>
+        <li class="task-item">
+          <div class="task-checkbox"></div>
+          <span class="task-text">File motion to compel — Robinson</span>
+          <span class="task-due upcoming">Mar 30</span>
+        </li>
+        <li class="task-item">
+          <div class="task-checkbox"></div>
+          <span class="task-text">Review Nguyen medical records</span>
+          <span class="task-due upcoming">Apr 2</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Cases by Type -->
+    <div class="card">
+      <div class="card-title">Cases by Type</div>
+      <div style="font-size:13px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Medical Malpractice</span>
+          <span class="badge badge-orange">42</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Auto Accident</span>
+          <span class="badge badge-purple">38</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Premises Liability</span>
+          <span class="badge badge-green">27</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Workers' Compensation</span>
+          <span class="badge badge-yellow">22</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Product Liability</span>
+          <span class="badge badge-pink">18</span>
+        </div>
+      </div>
+      <div class="mini-chart">
+        <div class="bar" style="height:70%"></div>
+        <div class="bar" style="height:62%"></div>
+        <div class="bar" style="height:45%"></div>
+        <div class="bar" style="height:37%"></div>
+        <div class="bar" style="height:30%"></div>
+        <div class="bar" style="height:55%"></div>
+        <div class="bar" style="height:80%"></div>
+        <div class="bar" style="height:90%"></div>
+        <div class="bar" style="height:65%"></div>
+        <div class="bar" style="height:50%"></div>
+        <div class="bar" style="height:72%"></div>
+        <div class="bar" style="height:100%"></div>
+      </div>
+    </div>
+
+    <!-- Upcoming Deadlines -->
+    <div class="card">
+      <div class="card-title">Deadlines</div>
+      <ul class="task-list">
+        <li class="task-item">
+          <span class="badge badge-pink" style="min-width:60px;text-align:center;">2 Days</span>
+          <span class="task-text">SOL — Williams v. SafeGuard</span>
+        </li>
+        <li class="task-item">
+          <span class="badge badge-orange" style="min-width:60px;text-align:center;">5 Days</span>
+          <span class="task-text">Discovery cutoff — Robinson</span>
+        </li>
+        <li class="task-item">
+          <span class="badge badge-yellow" style="min-width:60px;text-align:center;">12 Days</span>
+          <span class="task-text">Mediation — Kim v. Apex</span>
+        </li>
+        <li class="task-item">
+          <span class="badge badge-green" style="min-width:60px;text-align:center;">21 Days</span>
+          <span class="task-text">Trial date — Foster v. Greenway</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       DESIGN TOKENS SECTION
+       ============================================================ -->
+  <section class="tokens-section">
+    <h2>Design Tokens</h2>
+
+    <!-- Colors -->
+    <div class="token-group">
+      <h3>Colors</h3>
+      <div class="color-swatches">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFFDF7;"></div>
+          <div class="swatch-label">BG<br>#FFFDF7</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFFFFF;"></div>
+          <div class="swatch-label">Card<br>#FFFFFF</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#000000;"></div>
+          <div class="swatch-label">Primary<br>#000000</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#555555;"></div>
+          <div class="swatch-label">Secondary<br>#555555</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FF6B00;"></div>
+          <div class="swatch-label">Orange<br>#FF6B00</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#5B21B6;"></div>
+          <div class="swatch-label">Purple<br>#5B21B6</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFD700;"></div>
+          <div class="swatch-label">Yellow<br>#FFD700</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#00CC88;"></div>
+          <div class="swatch-label">Green<br>#00CC88</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FF3366;"></div>
+          <div class="swatch-label">Pink<br>#FF3366</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#3B82F6;"></div>
+          <div class="swatch-label">Blue<br>#3B82F6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="token-group">
+      <h3>Typography</h3>
+      <div class="type-sample">
+        <span style="font-family:var(--font-heading);font-size:32px;font-weight:700;letter-spacing:-1px;">Page Heading</span>
+        <span class="meta">Space Grotesk 700 / 32px</span>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:var(--font-heading);font-size:18px;font-weight:700;">Card Title</span>
+        <span class="meta">Space Grotesk 700 / 18px</span>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:var(--font-body);font-size:14px;">Body text in DM Sans for comfortable reading across all components.</span>
+        <span class="meta">DM Sans 400 / 14px</span>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:var(--font-mono);font-size:12px;">MONO_LABEL_TEXT</span>
+        <span class="meta">Space Mono 400 / 12px</span>
+      </div>
+    </div>
+
+    <!-- Shadows -->
+    <div class="token-group">
+      <h3>Shadows</h3>
+      <div class="shadow-demos">
+        <div class="shadow-demo" style="box-shadow:3px 3px 0 #000;">3px 3px<br>Black</div>
+        <div class="shadow-demo" style="box-shadow:4px 4px 0 #000;">4px 4px<br>Black</div>
+        <div class="shadow-demo" style="box-shadow:4px 4px 0 var(--orange);">4px 4px<br>Orange</div>
+        <div class="shadow-demo" style="box-shadow:4px 4px 0 var(--purple);">4px 4px<br>Purple</div>
+        <div class="shadow-demo" style="box-shadow:4px 4px 0 var(--green);">4px 4px<br>Green</div>
+        <div class="shadow-demo" style="box-shadow:6px 6px 0 #000;">6px 6px<br>Hover</div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="token-group">
+      <h3>Buttons</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-dark">Dark</button>
+        <button class="btn btn-primary btn-pill">Pill Primary</button>
+        <button class="btn btn-secondary btn-pill">Pill Secondary</button>
+        <button class="btn btn-sm btn-primary">Small</button>
+        <button class="btn btn-sm btn-secondary">Small Sec.</button>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="token-group">
+      <h3>Badges</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="badge badge-orange">Orange</span>
+        <span class="badge badge-purple">Purple</span>
+        <span class="badge badge-green">Green</span>
+        <span class="badge badge-pink">Pink</span>
+        <span class="badge badge-yellow">Yellow</span>
+        <span class="badge badge-blue">Blue</span>
+      </div>
+    </div>
+
+    <!-- Borders & Radius -->
+    <div class="token-group">
+      <h3>Borders & Radius</h3>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div style="width:80px;height:60px;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;">0px radius</div>
+        <div style="width:80px;height:60px;border:2px solid #000;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;">999px pill</div>
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);">No in-between. Sharp or pill.</div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+</body>
+</html>

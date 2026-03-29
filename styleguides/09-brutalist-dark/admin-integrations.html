@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Integrations (Neo-Brutalist Dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#111111;--card-bg:#1A1A1A;--sidebar-bg:#0A0A0A;
+    --text-primary:#F0F0F0;--text-secondary:#999;--text-inverse:#F0F0F0;
+    --orange:#FF6B00;--purple:#5B21B6;--yellow:#FFD700;
+    --green:#00CC88;--pink:#FF3366;--blue:#3B82F6;
+    --border:2px solid #444;--shadow:4px 4px 0 rgba(255,255,255,0.15);--shadow-sm:3px 3px 0 rgba(255,255,255,0.1);
+    --radius-none:0px;--radius-pill:999px;
+    --font-heading:'Space Grotesk',sans-serif;
+    --font-body:'DM Sans',sans-serif;
+    --font-mono:'Space Mono',monospace;
+    --space-xs:4px;--space-sm:8px;--space-md:16px;
+    --space-lg:24px;--space-xl:32px;--space-2xl:48px;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary);line-height:1.5;display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:260px;background:var(--sidebar-bg);color:var(--text-inverse);padding:var(--space-lg);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+  .sidebar-logo{font-family:var(--font-heading);font-size:28px;font-weight:700;margin-bottom:var(--space-2xl);letter-spacing:-1px;}
+  .sidebar-logo span{color:var(--orange);}
+  .sidebar nav{flex:1;}
+  .sidebar nav a{display:flex;align-items:center;gap:var(--space-sm);color:#777;text-decoration:none;padding:10px 14px;font-size:15px;font-weight:500;border:2px solid transparent;margin-bottom:4px;transition:all .1s;}
+  .sidebar nav a:hover{color:#F0F0F0;background:rgba(255,255,255,.06);}
+  .sidebar nav a.active{color:#F0F0F0;background:var(--orange);border:2px solid var(--orange);font-weight:700;}
+  .sidebar nav a .icon{width:20px;text-align:center;font-size:16px;}
+  .sidebar-section-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#777;margin:var(--space-lg) 0 var(--space-sm) var(--space-md);}
+  .sidebar-user{border-top:1px solid #333;padding-top:var(--space-md);display:flex;align-items:center;gap:var(--space-sm);}
+  .sidebar-user-avatar{width:36px;height:36px;background:var(--purple);border:2px solid #444;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .sidebar-user-info{font-size:13px;}
+  .sidebar-user-info .name{font-weight:600;}
+  .sidebar-user-info .role{color:#777;font-size:11px;}
+
+  /* Main */
+  .main{flex:1;margin-left:260px;padding:var(--space-xl) var(--space-2xl);max-width:1200px;}
+
+  /* Buttons */
+  .btn{font-family:var(--font-heading);font-size:14px;font-weight:600;padding:10px 20px;border:var(--border);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-sm);transition:transform .1s,box-shadow .1s;box-shadow:var(--shadow-sm);}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(255,255,255,0.2);}
+  .btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent;}
+  .btn-primary{background:var(--orange);color:#F0F0F0;}
+  .btn-secondary{background:var(--card-bg);color:var(--text-primary);}
+  .btn-dark{background:#0A0A0A;color:#F0F0F0;}
+  .btn-danger{background:var(--pink);color:#F0F0F0;}
+  .btn-success{background:var(--green);color:#F0F0F0;}
+  .btn-sm{font-size:12px;padding:6px 14px;box-shadow:2px 2px 0 rgba(255,255,255,0.1);}
+  .btn-pill{border-radius:var(--radius-pill);}
+
+  /* Badge */
+  .badge{display:inline-block;font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border:var(--border);}
+  .badge-orange{background:var(--orange);color:#F0F0F0;}
+  .badge-purple{background:var(--purple);color:#F0F0F0;}
+  .badge-green{background:var(--green);}
+  .badge-pink{background:var(--pink);color:#F0F0F0;}
+  .badge-yellow{background:var(--yellow);}
+  .badge-blue{background:var(--blue);color:#F0F0F0;}
+
+  /* Page Header */
+  .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-xl);}
+  .page-header h1{font-family:var(--font-heading);font-size:32px;font-weight:700;letter-spacing:-1px;}
+  .page-header .subtitle{color:var(--text-secondary);font-size:15px;margin-top:2px;}
+
+  /* Search */
+  .search-bar{display:flex;gap:var(--space-sm);margin-bottom:var(--space-xl);}
+  .search-input{font-family:var(--font-body);font-size:14px;padding:10px 16px;border:var(--border);background:var(--card-bg);color:var(--text-primary);box-shadow:var(--shadow-sm);flex:1;min-width:240px;outline:none;}
+  .search-input:focus{box-shadow:4px 4px 0 var(--orange);}
+  .filter-pills{display:flex;gap:var(--space-sm);flex-wrap:wrap;margin-bottom:var(--space-lg);}
+  .filter-pill{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:4px 12px;border:var(--border);cursor:pointer;background:var(--bg);transition:all .1s;text-transform:uppercase;letter-spacing:.5px;}
+  .filter-pill:hover{background:var(--yellow);}
+  .filter-pill.active{background:var(--orange);color:#F0F0F0;}
+
+  /* Category Header */
+  .category-header{font-family:var(--font-heading);font-size:20px;font-weight:700;margin-bottom:var(--space-md);margin-top:var(--space-xl);padding-bottom:var(--space-sm);border-bottom:3px solid #444;display:flex;align-items:center;gap:var(--space-sm);}
+  .category-header:first-of-type{margin-top:0;}
+  .category-count{font-family:var(--font-mono);font-size:12px;background:var(--bg);padding:2px 10px;border:var(--border);font-weight:400;}
+
+  /* Integration Cards Grid */
+  .integrations-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-md);margin-bottom:var(--space-lg);}
+
+  /* Integration Card */
+  .integration-card{background:var(--card-bg);border:var(--border);box-shadow:var(--shadow);padding:var(--space-lg);display:flex;flex-direction:column;transition:transform .1s,box-shadow .1s;position:relative;}
+  .integration-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(255,255,255,0.2);}
+
+  .integration-header{display:flex;align-items:flex-start;gap:var(--space-md);margin-bottom:var(--space-md);}
+  .integration-icon{width:52px;height:52px;border:var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;font-weight:700;}
+  .integration-icon.blue{background:var(--blue);color:#F0F0F0;}
+  .integration-icon.green{background:var(--green);}
+  .integration-icon.purple{background:var(--purple);color:#F0F0F0;}
+  .integration-icon.orange{background:var(--orange);color:#F0F0F0;}
+  .integration-icon.pink{background:var(--pink);color:#F0F0F0;}
+  .integration-icon.yellow{background:var(--yellow);}
+  .integration-icon.dark{background:#0A0A0A;color:#F0F0F0;}
+
+  .integration-title-area{flex:1;}
+  .integration-name{font-family:var(--font-heading);font-size:16px;font-weight:700;margin-bottom:2px;}
+  .integration-vendor{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;}
+
+  .integration-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:var(--space-md);flex:1;}
+
+  .integration-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:var(--space-md);border-top:2px solid #333;}
+
+  /* Status indicator */
+  .status{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .status-dot{width:10px;height:10px;border:2px solid #444;}
+  .status-dot.connected{background:var(--green);}
+  .status-dot.disconnected{background:#333;}
+  .status-dot.error{background:var(--pink);}
+  .status-dot.beta{background:var(--yellow);}
+
+  /* Toggle Switch */
+  .toggle{width:44px;height:24px;border:var(--border);cursor:pointer;position:relative;transition:background .15s;}
+  .toggle.on{background:var(--green);}
+  .toggle.off{background:#2A2A2A;}
+  .toggle-knob{width:16px;height:16px;background:#1A1A1A;border:2px solid #444;position:absolute;top:2px;transition:left .15s;}
+  .toggle.on .toggle-knob{left:22px;}
+  .toggle.off .toggle-knob{left:2px;}
+
+  /* Stats in card */
+  .integration-stats{display:flex;gap:var(--space-md);margin-bottom:var(--space-md);}
+  .integration-stat{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);}
+  .integration-stat strong{display:block;font-family:var(--font-heading);font-size:18px;color:var(--text-primary);letter-spacing:-1px;}
+
+  /* Config detail card (expanded) */
+  .config-card{background:var(--card-bg);border:var(--border);box-shadow:var(--shadow);padding:var(--space-lg);margin-bottom:var(--space-lg);}
+  .config-card .card-title{font-family:var(--font-heading);font-size:18px;font-weight:700;margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;}
+  .config-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:2px solid #333;font-size:14px;}
+  .config-row:last-child{border-bottom:none;}
+  .config-label{font-weight:600;}
+  .config-value{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);}
+  .config-value.masked{letter-spacing:2px;}
+
+  /* Webhook log */
+  .webhook-log{font-family:var(--font-mono);font-size:12px;background:#0A0A0A;color:var(--green);padding:var(--space-md);border:var(--border);max-height:200px;overflow-y:auto;line-height:1.8;}
+  .webhook-log .log-time{color:#777;}
+  .webhook-log .log-success{color:var(--green);}
+  .webhook-log .log-error{color:var(--pink);}
+  .webhook-log .log-info{color:var(--yellow);}
+
+  /* Design Tokens */
+  .tokens-section{border-top:4px solid #444;padding-top:var(--space-xl);margin-top:var(--space-2xl);}
+  .tokens-section h2{font-family:var(--font-heading);font-size:24px;font-weight:700;margin-bottom:var(--space-lg);}
+  .token-group{margin-bottom:var(--space-xl);}
+  .token-group h3{font-family:var(--font-mono);font-size:13px;text-transform:uppercase;letter-spacing:2px;margin-bottom:var(--space-md);color:var(--text-secondary);}
+  .color-swatches{display:flex;gap:var(--space-sm);flex-wrap:wrap;}
+  .swatch{width:80px;text-align:center;}
+  .swatch-color{width:80px;height:60px;border:var(--border);box-shadow:var(--shadow-sm);margin-bottom:var(--space-xs);}
+  .swatch-label{font-family:var(--font-mono);font-size:10px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Favor<span>ble</span></div>
+  <nav>
+    <div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+    <a href="cases-list.html"><span class="icon">&#9830;</span> Cases</a>
+    <a href="chronology.html"><span class="icon">&#9672;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a href="#"><span class="icon">&#9734;</span> Contacts</a>
+    <a href="#"><span class="icon">&#9998;</span> Documents</a>
+    <a href="#"><span class="icon">&#8853;</span> Calendar</a>
+    <div class="sidebar-section-label">Admin</div>
+    <a href="admin-integrations.html" class="active"><span class="icon">&#8644;</span> Integrations</a>
+    <a href="#"><span class="icon">&#9881;</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">JR</div>
+    <div class="sidebar-user-info">
+      <div class="name">Jessica Reyes</div>
+      <div class="role">Senior Paralegal</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="page-header">
+    <div>
+      <h1>Integrations</h1>
+      <p class="subtitle">Connect your tools. Automate your workflow.</p>
+    </div>
+    <button class="btn btn-primary">+ Request Integration</button>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="search-bar">
+    <input type="text" class="search-input" placeholder="Search integrations...">
+  </div>
+  <div class="filter-pills">
+    <div class="filter-pill active">All</div>
+    <div class="filter-pill">Connected</div>
+    <div class="filter-pill">Available</div>
+    <div class="filter-pill">Documents</div>
+    <div class="filter-pill">Communication</div>
+    <div class="filter-pill">Billing</div>
+    <div class="filter-pill">Calendar</div>
+    <div class="filter-pill">Medical</div>
+  </div>
+
+  <!-- Connected Integrations -->
+  <div class="category-header">Connected <span class="category-count">6 active</span></div>
+  <div class="integrations-grid">
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon blue">G</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Google Workspace</div>
+          <div class="integration-vendor">Google LLC</div>
+        </div>
+      </div>
+      <div class="integration-desc">Sync Gmail, Calendar, and Drive. Auto-file emails to cases, sync deadlines, and link documents.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>1,247</strong>Emails synced</div>
+        <div class="integration-stat"><strong>84</strong>Events</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon purple">D</div>
+        <div class="integration-title-area">
+          <div class="integration-name">DocuSign</div>
+          <div class="integration-vendor">DocuSign Inc.</div>
+        </div>
+      </div>
+      <div class="integration-desc">Send and track signature requests directly from case files. Auto-attach signed documents.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>326</strong>Envelopes</div>
+        <div class="integration-stat"><strong>98%</strong>Completion</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon green">Q</div>
+        <div class="integration-title-area">
+          <div class="integration-name">QuickBooks</div>
+          <div class="integration-vendor">Intuit Inc.</div>
+        </div>
+      </div>
+      <div class="integration-desc">Sync billing, trust accounts, and expenses. Auto-generate invoices from case time entries.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>$2.1M</strong>Invoiced</div>
+        <div class="integration-stat"><strong>412</strong>Entries</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon dark">S</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Slack</div>
+          <div class="integration-vendor">Salesforce</div>
+        </div>
+      </div>
+      <div class="integration-desc">Get case notifications in Slack channels. Create tasks from messages and share updates with team.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>5</strong>Channels</div>
+        <div class="integration-stat"><strong>890</strong>Notifications</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon orange">Z</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Zoom</div>
+          <div class="integration-vendor">Zoom Video Comms</div>
+        </div>
+      </div>
+      <div class="integration-desc">Schedule depositions and client meetings. Auto-record and transcribe. Link recordings to cases.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>67</strong>Meetings</div>
+        <div class="integration-stat"><strong>42h</strong>Recorded</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon pink">T</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Twilio</div>
+          <div class="integration-vendor">Twilio Inc.</div>
+        </div>
+      </div>
+      <div class="integration-desc">Send SMS updates to clients. Automated appointment reminders and case status notifications.</div>
+      <div class="integration-stats">
+        <div class="integration-stat"><strong>2,340</strong>Messages</div>
+        <div class="integration-stat"><strong>96%</strong>Delivered</div>
+      </div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot error"></span> Auth Error</div>
+        <div class="toggle on"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Available Integrations -->
+  <div class="category-header">Available <span class="category-count">6 more</span></div>
+  <div class="integrations-grid">
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon blue">B</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Box</div>
+          <div class="integration-vendor">Box Inc.</div>
+        </div>
+      </div>
+      <div class="integration-desc">Enterprise document management with advanced security. Sync case files with automatic retention policies.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <button class="btn btn-sm btn-primary">Connect</button>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon yellow">L</div>
+        <div class="integration-title-area">
+          <div class="integration-name">LawPay</div>
+          <div class="integration-vendor">AffiniPay</div>
+        </div>
+      </div>
+      <div class="integration-desc">Accept credit card and ACH payments. IOLTA-compliant trust account management and online invoicing.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <button class="btn btn-sm btn-primary">Connect</button>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon purple">W</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Westlaw</div>
+          <div class="integration-vendor">Thomson Reuters</div>
+        </div>
+      </div>
+      <div class="integration-desc">Legal research integration. Search case law and statutes directly from case files. Auto-cite references.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <button class="btn btn-sm btn-primary">Connect</button>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon green">H</div>
+        <div class="integration-title-area">
+          <div class="integration-name">HIPAA Vault</div>
+          <div class="integration-vendor">HIPAA Vault</div>
+        </div>
+      </div>
+      <div class="integration-desc">Secure medical records storage with full HIPAA compliance. Automatic PII redaction and audit trails.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot beta"></span> Beta</div>
+        <button class="btn btn-sm btn-secondary">Request Access</button>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon dark">M</div>
+        <div class="integration-title-area">
+          <div class="integration-name">Microsoft 365</div>
+          <div class="integration-vendor">Microsoft Corp.</div>
+        </div>
+      </div>
+      <div class="integration-desc">Outlook, Teams, and SharePoint integration. Sync emails, calendar events, and shared documents.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <button class="btn btn-sm btn-primary">Connect</button>
+      </div>
+    </div>
+
+    <div class="integration-card">
+      <div class="integration-header">
+        <div class="integration-icon orange">R</div>
+        <div class="integration-title-area">
+          <div class="integration-name">RingCentral</div>
+          <div class="integration-vendor">RingCentral Inc.</div>
+        </div>
+      </div>
+      <div class="integration-desc">VoIP phone system integration. Log calls to cases, record conversations, and auto-transcribe voicemails.</div>
+      <div class="integration-footer">
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <button class="btn btn-sm btn-primary">Connect</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Expanded Config Example -->
+  <div class="category-header">Configuration Detail</div>
+  <div class="config-card">
+    <div class="card-title">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="integration-icon blue" style="width:36px;height:36px;font-size:16px;">G</div>
+        Google Workspace
+        <span class="badge badge-green">Connected</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-secondary">Test Connection</button>
+        <button class="btn btn-sm btn-danger">Disconnect</button>
+      </div>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Account</span>
+      <span class="config-value">firm@favorble.com</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">API Key</span>
+      <span class="config-value masked">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;xK9f</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Sync Frequency</span>
+      <span class="config-value">Every 15 minutes</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Last Synced</span>
+      <span class="config-value">Mar 28, 2026 — 2:45 PM</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Permissions</span>
+      <span class="config-value">Gmail (read/write), Calendar (read/write), Drive (read)</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Auto-file Emails</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Sync Calendar Events</span>
+      <div class="toggle on"><div class="toggle-knob"></div></div>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Link Drive Documents</span>
+      <div class="toggle off"><div class="toggle-knob"></div></div>
+    </div>
+  </div>
+
+  <!-- Webhook Log -->
+  <div class="config-card">
+    <div class="card-title">Webhook Activity Log</div>
+    <div class="webhook-log">
+      <div><span class="log-time">[2026-03-28 14:45:02]</span> <span class="log-success">200 OK</span> — POST /webhooks/google — Email sync completed (12 new)</div>
+      <div><span class="log-time">[2026-03-28 14:30:01]</span> <span class="log-success">200 OK</span> — POST /webhooks/google — Calendar sync completed (3 events)</div>
+      <div><span class="log-time">[2026-03-28 14:15:03]</span> <span class="log-success">200 OK</span> — POST /webhooks/google — Email sync completed (8 new)</div>
+      <div><span class="log-time">[2026-03-28 14:00:02]</span> <span class="log-success">200 OK</span> — POST /webhooks/docusign — Envelope completed: CS-2026-0241</div>
+      <div><span class="log-time">[2026-03-28 13:45:01]</span> <span class="log-error">401 UNAUTHORIZED</span> — POST /webhooks/twilio — Token expired, re-auth required</div>
+      <div><span class="log-time">[2026-03-28 13:30:02]</span> <span class="log-success">200 OK</span> — POST /webhooks/slack — Notification delivered: #case-updates</div>
+      <div><span class="log-time">[2026-03-28 13:15:01]</span> <span class="log-info">RETRY</span> — POST /webhooks/twilio — Attempting re-authentication...</div>
+      <div><span class="log-time">[2026-03-28 13:00:03]</span> <span class="log-success">200 OK</span> — POST /webhooks/quickbooks — Invoice #INV-2026-0089 synced</div>
+      <div><span class="log-time">[2026-03-28 12:45:02]</span> <span class="log-success">200 OK</span> — POST /webhooks/zoom — Recording processed: Deposition-Barnes</div>
+    </div>
+  </div>
+
+  <!-- Design Tokens -->
+  <section class="tokens-section">
+    <h2>Design Tokens</h2>
+    <div class="token-group">
+      <h3>Colors</h3>
+      <div class="color-swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-label">BG<br>#111111</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-label">Card<br>#1A1A1A</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F0F0;"></div><div class="swatch-label">Primary<br>#F0F0F0</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF6B00;"></div><div class="swatch-label">Orange<br>#FF6B00</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5B21B6;"></div><div class="swatch-label">Purple<br>#5B21B6</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFD700;"></div><div class="swatch-label">Yellow<br>#FFD700</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#00CC88;"></div><div class="swatch-label">Green<br>#00CC88</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF3366;"></div><div class="swatch-label">Pink<br>#FF3366</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3B82F6;"></div><div class="swatch-label">Blue<br>#3B82F6</div></div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Status Indicators</h3>
+      <div style="display:flex;gap:24px;align-items:center;">
+        <div class="status"><span class="status-dot connected"></span> Connected</div>
+        <div class="status"><span class="status-dot disconnected"></span> Not Connected</div>
+        <div class="status"><span class="status-dot error"></span> Error</div>
+        <div class="status"><span class="status-dot beta"></span> Beta</div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Toggle States</h3>
+      <div style="display:flex;gap:24px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="toggle on" style="position:relative;"><div class="toggle-knob"></div></div>
+          <span style="font-family:var(--font-mono);font-size:11px;">ON</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="toggle off" style="position:relative;"><div class="toggle-knob"></div></div>
+          <span style="font-family:var(--font-mono);font-size:11px;">OFF</span>
+        </div>
+      </div>
+    </div>
+    <div class="token-group">
+      <h3>Integration Card Variants</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="integration-icon blue" style="width:48px;height:48px;">G</div>
+        <div class="integration-icon purple" style="width:48px;height:48px;">D</div>
+        <div class="integration-icon green" style="width:48px;height:48px;">Q</div>
+        <div class="integration-icon dark" style="width:48px;height:48px;">S</div>
+        <div class="integration-icon orange" style="width:48px;height:48px;">Z</div>
+        <div class="integration-icon pink" style="width:48px;height:48px;">T</div>
+        <div class="integration-icon yellow" style="width:48px;height:48px;">L</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

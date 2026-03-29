@@ -16,14 +16,6 @@ import { CasesByStageBarChart } from "@/components/charts/cases-by-stage-bar-cha
 import { PipelineFunnelChart } from "@/components/charts/pipeline-funnel-chart";
 import { ActivityFeed } from "@/components/charts/activity-feed";
 import { UpcomingDeadlines } from "@/components/charts/upcoming-deadlines";
-import {
-  Briefcase01Icon,
-  Task01Icon,
-  Layers01Icon,
-  GitBranchIcon,
-  CheckmarkCircle01Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -93,14 +85,7 @@ export default async function DashboardPage() {
 
       {/* Metric Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Active Cases"
-          value={activeCases}
-          icon={Briefcase01Icon}
-          iconBgClass="bg-blue-50"
-          iconColor="rgb(59 130 246)"
-          accentClass="border-l-blue-500"
-        />
+        <StatsCard title="Active Cases" value={activeCases} />
         <StatsCard
           title="Tasks Due Today"
           value={tasksDueToday}
@@ -108,27 +93,9 @@ export default async function DashboardPage() {
             overdueTaskCount > 0 ? `${overdueTaskCount} overdue` : undefined
           }
           subtitleVariant={overdueTaskCount > 0 ? "danger" : "default"}
-          icon={Task01Icon}
-          iconBgClass="bg-amber-50"
-          iconColor="rgb(245 158 11)"
-          accentClass="border-l-amber-500"
         />
-        <StatsCard
-          title="Stage Groups"
-          value={groupedStages.size}
-          icon={Layers01Icon}
-          iconBgClass="bg-emerald-50"
-          iconColor="rgb(16 185 129)"
-          accentClass="border-l-emerald-500"
-        />
-        <StatsCard
-          title="Pipeline Stages"
-          value={stageBreakdown.length}
-          icon={GitBranchIcon}
-          iconBgClass="bg-violet-50"
-          iconColor="rgb(139 92 246)"
-          accentClass="border-l-violet-500"
-        />
+        <StatsCard title="Stage Groups" value={groupedStages.size} />
+        <StatsCard title="Pipeline Stages" value={stageBreakdown.length} />
       </div>
 
       {/* Pipeline Funnel */}
@@ -159,30 +126,20 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             {myTasks.length === 0 ? (
-              <div
-                className="flex flex-col items-center justify-center py-6 text-center"
-                style={{ animation: "emptyStateIn 0.3s ease-out" }}
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(43,138,62,0.08)]">
-                  <HugeiconsIcon
-                    icon={CheckmarkCircle01Icon}
-                    size={20}
-                    className="text-[#2b8a3e]"
-                  />
-                </div>
-                <p className="mt-2 text-sm font-medium text-foreground">
-                  You're all caught up!
+              <div className="py-6 text-center">
+                <p className="text-sm text-foreground">
+                  You&apos;re all caught up.
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 text-xs text-[#999]">
                   No tasks due today
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div>
                 {myTasks.slice(0, 5).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-start gap-3 rounded-md p-2 hover:bg-accent"
+                    className="flex items-start gap-3 py-2.5 border-b border-[#EAEAEA] last:border-b-0"
                   >
                     <Checkbox className="mt-0.5" />
                     <div className="min-w-0 flex-1">
@@ -192,26 +149,19 @@ export default async function DashboardPage() {
                       <div className="flex items-center gap-2 mt-0.5">
                         <Link
                           href={`/cases/${task.caseId}`}
-                          className="text-xs text-primary hover:underline"
+                          className="text-xs text-[#666] font-mono hover:underline"
                         >
                           {task.caseNumber}
                         </Link>
                         {task.stageName && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs"
-                            style={{
-                              borderColor: task.stageGroupColor ?? undefined,
-                              color: task.stageGroupColor ?? undefined,
-                            }}
-                          >
+                          <Badge variant="outline" className="text-xs">
                             {task.stageName}
                           </Badge>
                         )}
                       </div>
                     </div>
                     {task.priority === "urgent" || task.priority === "high" ? (
-                      <Badge variant="destructive" className="text-xs shrink-0">
+                      <Badge variant="outline" className="text-xs shrink-0 border-[#EE0000] text-[#EE0000]">
                         {task.priority}
                       </Badge>
                     ) : null}

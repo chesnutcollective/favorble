@@ -63,8 +63,6 @@ export default async function EmailPage() {
           icon={Mail01Icon}
           title="No emails yet"
           description="Emails fetched from Outlook will appear here for review and case association."
-          accent="blue"
-          bordered
         />
       ) : (
         <EmailQueueClient

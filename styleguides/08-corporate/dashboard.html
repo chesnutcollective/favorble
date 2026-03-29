@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     DESIGN TOKENS — Corporate Premium
+     ============================================ */
+  :root {
+    /* Colors — Core */
+    --color-sidebar: #0F1729;
+    --color-sidebar-hover: #1A2744;
+    --color-sidebar-active: #1E3A5F;
+    --color-sidebar-text: #94A3B8;
+    --color-sidebar-text-active: #FFFFFF;
+    --color-sidebar-divider: #1E293B;
+
+    --color-bg: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-border: #E2E8F0;
+    --color-border-strong: #CBD5E1;
+
+    /* Colors — Text */
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-text-tertiary: #94A3B8;
+    --color-text-inverse: #FFFFFF;
+
+    /* Colors — Accent */
+    --color-primary: #1E40AF;
+    --color-primary-hover: #1E3A8A;
+    --color-primary-light: #DBEAFE;
+    --color-secondary: #D97706;
+    --color-secondary-light: #FEF3C7;
+    --color-secondary-hover: #B45309;
+
+    /* Colors — Status */
+    --color-success: #059669;
+    --color-success-light: #D1FAE5;
+    --color-warning: #D97706;
+    --color-warning-light: #FEF3C7;
+    --color-danger: #DC2626;
+    --color-danger-light: #FEE2E2;
+    --color-info: #2563EB;
+    --color-info-light: #DBEAFE;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --font-size-4xl: 40px;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Effects */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+
+    /* Layout */
+    --sidebar-width: 240px;
+    --header-height: 56px;
+  }
+
+  /* ============================================
+     RESET & BASE
+     ============================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ============================================
+     SIDEBAR
+     ============================================ */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: var(--space-5) var(--space-5);
+    border-bottom: 1px solid var(--color-sidebar-divider);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .sidebar-brand-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-inverse);
+  }
+  .sidebar-brand-name {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-text-inverse);
+    letter-spacing: -0.3px;
+  }
+  .sidebar-section {
+    padding: var(--space-4) 0 var(--space-2);
+  }
+  .sidebar-section-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-sidebar-text);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0 var(--space-5) var(--space-2);
+  }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-5);
+    color: var(--color-sidebar-text);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+  }
+  .sidebar-nav-item:hover {
+    background: var(--color-sidebar-hover);
+    color: var(--color-sidebar-text-active);
+  }
+  .sidebar-nav-item.active {
+    background: var(--color-sidebar-active);
+    color: var(--color-sidebar-text-active);
+  }
+  .sidebar-nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    background: var(--color-secondary);
+    border-radius: 0 2px 2px 0;
+  }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-nav-item.active svg { opacity: 1; }
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .sidebar-badge.gold {
+    background: var(--color-secondary);
+  }
+  .sidebar-divider {
+    border-top: 1px solid var(--color-sidebar-divider);
+    margin: var(--space-3) var(--space-5);
+  }
+  .sidebar-user {
+    margin-top: auto;
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-sidebar-divider);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .sidebar-user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+  }
+  .sidebar-user-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text-inverse);
+  }
+  .sidebar-user-role {
+    font-size: var(--font-size-xs);
+    color: var(--color-sidebar-text);
+  }
+
+  /* ============================================
+     MAIN CONTENT
+     ============================================ */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ============================================
+     TOP BAR
+     ============================================ */
+  .top-bar {
+    height: var(--header-height);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-6);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .top-bar-title {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.3px;
+  }
+  .top-bar-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .top-bar-search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    width: 220px;
+  }
+  .top-bar-search svg { width: 14px; height: 14px; opacity: 0.5; }
+  .top-bar-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    cursor: pointer;
+    position: relative;
+    color: var(--color-text-secondary);
+  }
+  .top-bar-icon-btn svg { width: 16px; height: 16px; }
+  .notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    background: var(--color-danger);
+    border-radius: 50%;
+    border: 1.5px solid white;
+  }
+
+  /* ============================================
+     PAGE CONTENT
+     ============================================ */
+  .page-content {
+    padding: var(--space-6);
+  }
+
+  /* ============================================
+     SECTION LABEL
+     ============================================ */
+  .section-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-3);
+  }
+
+  /* ============================================
+     STAT CARDS
+     ============================================ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+  }
+  .stat-card-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-text-secondary);
+  }
+  .stat-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-card-icon.blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .stat-card-icon.gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .stat-card-icon.green { background: var(--color-success-light); color: var(--color-success); }
+  .stat-card-icon.red { background: var(--color-danger-light); color: var(--color-danger); }
+  .stat-card-icon svg { width: 16px; height: 16px; }
+  .stat-card-value {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: var(--space-2);
+  }
+  .stat-card-value.gold { color: var(--color-secondary); }
+  .stat-card-trend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+  }
+  .stat-card-trend.up { color: var(--color-success); }
+  .stat-card-trend.down { color: var(--color-danger); }
+  .stat-card-trend svg { width: 12px; height: 12px; }
+  .stat-card-trend-label { color: var(--color-text-tertiary); margin-left: var(--space-1); }
+
+  /* ============================================
+     CARDS & PANELS
+     ============================================ */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .card-title {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.2px;
+  }
+  .card-body { padding: var(--space-5); }
+  .card-body.no-padding { padding: 0; }
+
+  /* ============================================
+     CONTENT GRID
+     ============================================ */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .content-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  /* ============================================
+     PIPELINE / KANBAN
+     ============================================ */
+  .pipeline-stages {
+    display: flex;
+    gap: 2px;
+    margin-bottom: var(--space-6);
+  }
+  .pipeline-stage {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-3) var(--space-2);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    position: relative;
+  }
+  .pipeline-stage:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .pipeline-stage:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .pipeline-stage-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-1);
+  }
+  .pipeline-stage-count {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--color-text-primary);
+  }
+  .pipeline-stage-value {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+  }
+  .pipeline-stage.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  .pipeline-stage.active .pipeline-stage-label,
+  .pipeline-stage.active .pipeline-stage-count,
+  .pipeline-stage.active .pipeline-stage-value { color: white; }
+
+  /* ============================================
+     TASK LIST
+     ============================================ */
+  .task-list { list-style: none; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-base);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-border-strong);
+    border-radius: 3px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .task-checkbox.checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    position: relative;
+  }
+  .task-checkbox.checked::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 4px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .task-text { flex: 1; }
+  .task-text.completed { text-decoration: line-through; color: var(--color-text-tertiary); }
+  .task-priority {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .task-priority.high { background: var(--color-danger-light); color: var(--color-danger); }
+  .task-priority.medium { background: var(--color-warning-light); color: var(--color-warning); }
+  .task-priority.low { background: var(--color-info-light); color: var(--color-info); }
+  .task-due {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+  }
+  .task-due.overdue { color: var(--color-danger); font-weight: 600; }
+
+  /* ============================================
+     ACTIVITY FEED
+     ============================================ */
+  .activity-list { list-style: none; }
+  .activity-item {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    flex-shrink: 0;
+    color: white;
+  }
+  .activity-avatar.blue { background: var(--color-primary); }
+  .activity-avatar.gold { background: var(--color-secondary); }
+  .activity-avatar.green { background: var(--color-success); }
+  .activity-avatar.purple { background: #7C3AED; }
+  .activity-content { flex: 1; }
+  .activity-user { font-weight: 600; color: var(--color-text-primary); }
+  .activity-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* ============================================
+     BUTTONS
+     ============================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+  }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-gold {
+    background: var(--color-secondary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-secondary);
+  }
+  .btn-gold:hover { background: var(--color-secondary-hover); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-color: transparent;
+  }
+  .btn-ghost:hover { color: var(--color-text-primary); background: var(--color-bg); }
+  .btn-sm { font-size: var(--font-size-xs); padding: 2px var(--space-2); }
+
+  /* ============================================
+     BADGES
+     ============================================ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .badge-gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-green { background: var(--color-success-light); color: var(--color-success); }
+  .badge-red { background: var(--color-danger-light); color: var(--color-danger); }
+  .badge-gray { background: #F1F5F9; color: var(--color-text-secondary); }
+
+  /* ============================================
+     QUICK METRICS BAR
+     ============================================ */
+  .metrics-bar {
+    display: flex;
+    gap: var(--space-6);
+    padding: var(--space-3) 0;
+    margin-bottom: var(--space-4);
+  }
+  .metric-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .metric-value {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+  .metric-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  /* ============================================
+     MINI BAR CHART
+     ============================================ */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+  }
+  .mini-chart-bar {
+    width: 8px;
+    border-radius: 2px 2px 0 0;
+    background: var(--color-primary);
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+  .mini-chart-bar:hover { opacity: 1; }
+  .mini-chart-bar.gold { background: var(--color-secondary); }
+
+  /* ============================================
+     PROGRESS BAR
+     ============================================ */
+  .progress-bar {
+    height: 6px;
+    background: #E2E8F0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+  }
+  .progress-fill.gold { background: var(--color-secondary); }
+  .progress-fill.green { background: var(--color-success); }
+
+  /* ============================================
+     UTILITY
+     ============================================ */
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-2 { gap: var(--space-2); }
+  .gap-3 { gap: var(--space-3); }
+  .gap-4 { gap: var(--space-4); }
+  .mt-2 { margin-top: var(--space-2); }
+  .mt-4 { margin-top: var(--space-4); }
+  .mb-4 { margin-bottom: var(--space-4); }
+  .mb-6 { margin-bottom: var(--space-6); }
+  .text-sm { font-size: var(--font-size-sm); }
+  .text-xs { font-size: var(--font-size-xs); }
+  .text-secondary { color: var(--color-text-secondary); }
+  .text-tertiary { color: var(--color-text-tertiary); }
+  .font-bold { font-weight: 700; }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- ============================================
+       SIDEBAR
+       ============================================ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <ul class="sidebar-nav">
+        <li>
+          <a class="sidebar-nav-item active" href="dashboard.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item" href="cases-list.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Cases
+            <span class="sidebar-badge">47</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item" href="case-detail.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+            Documents
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item" href="chronology.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Chronology
+            <span class="sidebar-badge gold">3</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <ul class="sidebar-nav">
+        <li>
+          <a class="sidebar-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            Clients
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Billing
+            <span class="sidebar-badge">5</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Reports
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-nav-item" href="admin-integrations.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">SM</div>
+      <div>
+        <div class="sidebar-user-name">Sarah Mitchell</div>
+        <div class="sidebar-user-role">Managing Partner</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <div>
+          <div class="top-bar-title">Dashboard</div>
+          <div class="top-bar-subtitle">Friday, March 28, 2026</div>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <div class="top-bar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search cases, clients...
+        </div>
+        <div class="top-bar-icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <div class="notification-dot"></div>
+        </div>
+        <div class="top-bar-icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Stat Cards -->
+      <div class="section-label">Portfolio Overview</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-label">Active Cases</span>
+            <div class="stat-card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card-value">47</div>
+          <div class="stat-card-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +12%
+            <span class="stat-card-trend-label">vs last quarter</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-label">Portfolio Value</span>
+            <div class="stat-card-icon gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+          </div>
+          <div class="stat-card-value gold">$52.4M</div>
+          <div class="stat-card-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +18.3%
+            <span class="stat-card-trend-label">vs last quarter</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-label">Resolution Rate</span>
+            <div class="stat-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+          <div class="stat-card-value">78%</div>
+          <div class="stat-card-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +5.2%
+            <span class="stat-card-trend-label">vs last quarter</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-label">Overdue Tasks</span>
+            <div class="stat-card-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+          </div>
+          <div class="stat-card-value">12</div>
+          <div class="stat-card-trend down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>
+            -3
+            <span class="stat-card-trend-label">from last week</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="section-label">Case Pipeline</div>
+      <div class="pipeline-stages">
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-label">Intake</div>
+          <div class="pipeline-stage-count">8</div>
+          <div class="pipeline-stage-value">$4.2M</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-label">Investigation</div>
+          <div class="pipeline-stage-count">12</div>
+          <div class="pipeline-stage-value">$15.8M</div>
+        </div>
+        <div class="pipeline-stage active">
+          <div class="pipeline-stage-label">Litigation</div>
+          <div class="pipeline-stage-count">15</div>
+          <div class="pipeline-stage-value">$22.1M</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-label">Discovery</div>
+          <div class="pipeline-stage-count">7</div>
+          <div class="pipeline-stage-value">$6.8M</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-label">Settlement</div>
+          <div class="pipeline-stage-count">3</div>
+          <div class="pipeline-stage-value">$2.4M</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-label">Trial</div>
+          <div class="pipeline-stage-count">2</div>
+          <div class="pipeline-stage-value">$1.1M</div>
+        </div>
+      </div>
+
+      <!-- Two-column grid: Tasks + Activity -->
+      <div class="content-grid">
+        <!-- Tasks -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Priority Tasks</div>
+            <div class="flex gap-2">
+              <span class="badge badge-red">4 Overdue</span>
+              <button class="btn btn-sm btn-ghost">View All</button>
+            </div>
+          </div>
+          <div class="card-body no-padding">
+            <ul class="task-list">
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">File motion to compel — <strong>Martinez v. Allied Health</strong></span>
+                <span class="task-priority high">High</span>
+                <span class="task-due overdue">Mar 25</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">Deposition prep for Dr. Chen — <strong>Williams v. MedCorp</strong></span>
+                <span class="task-priority high">High</span>
+                <span class="task-due overdue">Mar 26</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">Review settlement offer — <strong>Patterson v. TechDyn</strong></span>
+                <span class="task-priority medium">Med</span>
+                <span class="task-due">Mar 30</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">Submit expert witness disclosure — <strong>Okafor v. StateFarm</strong></span>
+                <span class="task-priority high">High</span>
+                <span class="task-due overdue">Mar 27</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox checked"></div>
+                <span class="task-text completed">Client intake meeting — <strong>Nguyen v. Metro Transit</strong></span>
+                <span class="task-priority low">Low</span>
+                <span class="task-due">Mar 28</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">Draft interrogatories — <strong>Brooks v. National Insurance</strong></span>
+                <span class="task-priority medium">Med</span>
+                <span class="task-due">Apr 1</span>
+              </li>
+              <li class="task-item">
+                <div class="task-checkbox"></div>
+                <span class="task-text">Medical records request follow-up — <strong>Davis v. HCA Healthcare</strong></span>
+                <span class="task-priority low">Low</span>
+                <span class="task-due">Apr 3</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Activity</div>
+            <button class="btn btn-sm btn-ghost">View All</button>
+          </div>
+          <div class="card-body no-padding">
+            <ul class="activity-list">
+              <li class="activity-item">
+                <div class="activity-avatar blue">SM</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">Sarah Mitchell</span> filed response to motion in <strong>Martinez v. Allied Health</strong></div>
+                  <div class="activity-time">12 minutes ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar gold">JK</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">James Kim</span> uploaded 14 documents to <strong>Williams v. MedCorp</strong></div>
+                  <div class="activity-time">43 minutes ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar green">AR</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">Angela Rivera</span> updated case status to <strong>Settlement</strong> for <strong>Patterson v. TechDyn</strong></div>
+                  <div class="activity-time">1 hour ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar purple">DT</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">David Torres</span> completed medical chronology for <strong>Okafor v. StateFarm</strong></div>
+                  <div class="activity-time">2 hours ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar blue">SM</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">Sarah Mitchell</span> approved $750K settlement in <strong>Chen v. Pacific Mutual</strong></div>
+                  <div class="activity-time">3 hours ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar gold">JK</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">James Kim</span> scheduled deposition for <strong>Brooks v. National Insurance</strong></div>
+                  <div class="activity-time">4 hours ago</div>
+                </div>
+              </li>
+              <li class="activity-item">
+                <div class="activity-avatar green">AR</div>
+                <div class="activity-content">
+                  <div><span class="activity-user">Angela Rivera</span> added new client <strong>Nguyen, Tran H.</strong> to the system</div>
+                  <div class="activity-time">5 hours ago</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Three-column grid: upcoming, revenue chart, team -->
+      <div class="content-grid-3">
+        <!-- Upcoming Deadlines -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Upcoming Deadlines</div>
+            <span class="badge badge-gold">This Week</span>
+          </div>
+          <div class="card-body" style="padding: var(--space-3) var(--space-5);">
+            <div style="display:flex; flex-direction:column; gap: var(--space-3);">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+                <div>
+                  <div style="font-size:var(--font-size-sm); font-weight:600;">Discovery Deadline</div>
+                  <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Brooks v. National Ins.</div>
+                </div>
+                <span class="badge badge-red">Mar 29</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+                <div>
+                  <div style="font-size:var(--font-size-sm); font-weight:600;">Expert Report Due</div>
+                  <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Okafor v. StateFarm</div>
+                </div>
+                <span class="badge badge-gold">Mar 31</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+                <div>
+                  <div style="font-size:var(--font-size-sm); font-weight:600;">Mediation Session</div>
+                  <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Patterson v. TechDyn</div>
+                </div>
+                <span class="badge badge-blue">Apr 1</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) 0;">
+                <div>
+                  <div style="font-size:var(--font-size-sm); font-weight:600;">Deposition — Dr. Chen</div>
+                  <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Williams v. MedCorp</div>
+                </div>
+                <span class="badge badge-blue">Apr 3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Monthly Revenue</div>
+            <div class="flex items-center gap-3">
+              <span style="font-size:var(--font-size-xl); font-weight:800; color:var(--color-secondary);">$1.84M</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex; align-items:flex-end; justify-content:space-between; height:100px; gap:6px; margin-bottom: var(--space-3);">
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-primary); border-radius:3px 3px 0 0; height:45px; opacity:0.6;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary);">Oct</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-primary); border-radius:3px 3px 0 0; height:58px; opacity:0.7;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary);">Nov</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-primary); border-radius:3px 3px 0 0; height:52px; opacity:0.65;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary);">Dec</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-primary); border-radius:3px 3px 0 0; height:70px; opacity:0.8;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary);">Jan</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-primary); border-radius:3px 3px 0 0; height:82px; opacity:0.9;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary);">Feb</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; flex:1; gap:4px;">
+                <div style="width:100%; background:var(--color-secondary); border-radius:3px 3px 0 0; height:100px;"></div>
+                <span style="font-size:10px; color:var(--color-text-tertiary); font-weight:600;">Mar</span>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:var(--font-size-xs);">
+              <span style="color:var(--color-text-tertiary);">YTD Total</span>
+              <span style="font-weight:700; color:var(--color-text-primary);">$5.12M</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Workload -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Team Workload</div>
+            <button class="btn btn-sm btn-ghost">Manage</button>
+          </div>
+          <div class="card-body" style="padding: var(--space-3) var(--space-5);">
+            <div style="display:flex; flex-direction:column; gap: var(--space-4);">
+              <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                  <span style="font-size:var(--font-size-sm); font-weight:600;">Sarah Mitchell</span>
+                  <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">14 cases</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:88%;"></div></div>
+                <div style="font-size:var(--font-size-xs); color:var(--color-danger); margin-top:2px; font-weight:500;">Near capacity</div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                  <span style="font-size:var(--font-size-sm); font-weight:600;">James Kim</span>
+                  <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">11 cases</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill gold" style="width:68%;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                  <span style="font-size:var(--font-size-sm); font-weight:600;">Angela Rivera</span>
+                  <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">12 cases</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:75%;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                  <span style="font-size:var(--font-size-sm); font-weight:600;">David Torres</span>
+                  <span style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">10 cases</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:62%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           DESIGN TOKENS REFERENCE
+           ============================================ -->
+      <div class="card" style="margin-top: var(--space-8); border: 2px dashed var(--color-border);">
+        <div class="card-header" style="background: var(--color-bg);">
+          <div class="card-title" style="display:flex; align-items:center; gap:var(--space-2);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-secondary);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Design Tokens — Corporate Premium
+          </div>
+          <span class="badge badge-gold">Reference</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6);">
+            <!-- Colors -->
+            <div>
+              <div class="section-label">Core Colors</div>
+              <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#0F1729;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#0F1729</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Sidebar</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#1E40AF;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#1E40AF</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Primary</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#D97706;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#D97706</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Gold Accent</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#0F172A;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#0F172A</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Text Primary</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#64748B;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#64748B</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Text Secondary</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                  <div style="width:24px;height:24px;border-radius:4px;background:#F8FAFC;border:1px solid var(--color-border);"></div>
+                  <span style="font-size:var(--font-size-xs);font-family:monospace;">#F8FAFC</span>
+                  <span style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">Background</span>
+                </div>
+              </div>
+            </div>
+            <!-- Typography -->
+            <div>
+              <div class="section-label">Typography</div>
+              <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+                <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Font: Inter, 13px base</div>
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px;">Section Label — 11px/600/Caps</div>
+                <div style="font-size:13px; font-weight:400;">Body Text — 13px/400</div>
+                <div style="font-size:14px; font-weight:700; letter-spacing:-0.2px;">Card Title — 14px/700</div>
+                <div style="font-size:16px; font-weight:700; letter-spacing:-0.3px;">Page Title — 16px/700</div>
+                <div style="font-size:32px; font-weight:800; letter-spacing:-1px; line-height:1;">Stat Value — 32px/800</div>
+              </div>
+            </div>
+            <!-- Spacing & Effects -->
+            <div>
+              <div class="section-label">Spacing & Effects</div>
+              <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+                <div><strong>Radius:</strong> 4px (sm), 6px (md), 8px (lg)</div>
+                <div><strong>Shadow SM:</strong> 0 1px 2px rgba(0,0,0,0.06)</div>
+                <div><strong>Shadow MD:</strong> 0 1px 3px rgba(0,0,0,0.08)</div>
+                <div><strong>Sidebar:</strong> 240px fixed</div>
+                <div><strong>Header:</strong> 56px sticky</div>
+                <div style="margin-top:var(--space-2);"><strong>Buttons:</strong></div>
+                <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                  <button class="btn btn-primary">Primary</button>
+                  <button class="btn btn-secondary">Secondary</button>
+                  <button class="btn btn-gold">Gold</button>
+                  <button class="btn btn-ghost">Ghost</button>
+                </div>
+                <div style="margin-top:var(--space-2);"><strong>Badges:</strong></div>
+                <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                  <span class="badge badge-blue">Blue</span>
+                  <span class="badge badge-gold">Gold</span>
+                  <span class="badge badge-green">Green</span>
+                  <span class="badge badge-red">Red</span>
+                  <span class="badge badge-gray">Gray</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

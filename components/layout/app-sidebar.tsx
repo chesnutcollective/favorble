@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
@@ -89,19 +88,12 @@ export function AppSidebar({ user }: { user: SessionUser }) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <Image
-                  src="/hogansmith-logo.png"
-                  alt="Hogan Smith Law"
-                  width={32}
-                  height={32}
-                  className="size-8 rounded-md object-cover"
-                />
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Favorble</span>
-                  <span className="text-[10px] text-sidebar-foreground/40">
-                    by Hogan Smith
-                  </span>
+                <div className="flex size-6 items-center justify-center rounded-[4px] bg-black">
+                  <span className="sr-only">Favorble</span>
                 </div>
+                <span className="text-[15px] font-semibold tracking-[-0.3px] text-[#171717]">
+                  Favorble
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -120,7 +112,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                     tooltip={item.title}
                   >
                     <Link href={item.href}>
-                      <HugeiconsIcon icon={item.icon} />
+                      <HugeiconsIcon icon={item.icon} size={16} className="opacity-50 [[data-active=true]_&]:opacity-100" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -143,7 +135,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                     tooltip={item.title}
                   >
                     <Link href={item.href}>
-                      <HugeiconsIcon icon={item.icon} />
+                      <HugeiconsIcon icon={item.icon} size={16} className="opacity-50 [[data-active=true]_&]:opacity-100" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -179,7 +171,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                             tooltip={item.title}
                           >
                             <Link href={item.href}>
-                              <HugeiconsIcon icon={item.icon} />
+                              <HugeiconsIcon icon={item.icon} size={16} className="opacity-50 [[data-active=true]_&]:opacity-100" />
                               <span>{item.title}</span>
                             </Link>
                           </SidebarMenuButton>

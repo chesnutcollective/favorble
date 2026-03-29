@@ -26,23 +26,23 @@ const PROCESSING_STATUS_BADGE: Record<
 > = {
   pending: {
     label: "Pending",
-    className: "border-yellow-300 text-yellow-700",
+    className: "border-[#eaeaea] text-[#666]",
   },
   extracting: {
     label: "Extracting",
-    className: "border-blue-300 text-blue-700",
+    className: "border-[#eaeaea] text-[#171717]",
   },
   classifying: {
     label: "Classifying",
-    className: "border-blue-300 text-blue-700",
+    className: "border-[#eaeaea] text-[#171717]",
   },
   completed: {
     label: "Processed",
-    className: "border-green-300 text-green-700",
+    className: "border-[#eaeaea] text-[#171717]",
   },
   failed: {
     label: "Failed",
-    className: "border-red-300 text-red-700",
+    className: "border-[#eaeaea] text-[#666]",
   },
 };
 
@@ -56,21 +56,16 @@ export function EreDocumentsFeed({
       <Card>
         <CardContent className="p-6">
           <h3 className="font-medium text-foreground mb-3">ERE Documents</h3>
-          <div
-            className="flex flex-col items-center justify-center py-8 text-center"
-            style={{ animation: "emptyStateIn 0.3s ease-out" }}
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(59,89,152,0.08)]">
-              <HugeiconsIcon
-                icon={File01Icon}
-                size={20}
-                className="text-[#3b5998]"
-              />
-            </div>
-            <p className="mt-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <HugeiconsIcon
+              icon={File01Icon}
+              size={24}
+              className="text-[#999]"
+            />
+            <p className="mt-3 text-sm font-medium text-[#171717]">
               No documents downloaded yet
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-[#666]">
               Documents from ERE will appear here once synced
             </p>
           </div>
@@ -85,7 +80,7 @@ export function EreDocumentsFeed({
         <h3 className="font-medium text-foreground mb-4">ERE Documents</h3>
         <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-accent">
+            <thead className="border-b border-[#eaeaea] bg-[#fafafa]">
               <tr>
                 <th className="px-4 py-2.5 font-medium text-muted-foreground">
                   Name
@@ -104,15 +99,15 @@ export function EreDocumentsFeed({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#eaeaea]">
               {documents.map((doc) => (
-                <tr key={doc.id} className="hover:bg-accent transition-colors">
+                <tr key={doc.id} className="hover:bg-[#fafafa] transition-colors duration-200">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
                       <HugeiconsIcon
                         icon={File01Icon}
                         size={16}
-                        className="shrink-0 text-red-500"
+                        className="shrink-0 text-[#666]"
                       />
                       <span className="truncate font-medium text-foreground max-w-[200px]">
                         {doc.fileName}

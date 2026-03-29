@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440, initial-scale=1">
+<title>Favorble - Case Detail | Linear-Inspired</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-base); color: var(--text-primary); line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+:root {
+  --bg-base: #0A0A0F; --bg-surface: #111118; --bg-card: #16161F; --bg-card-hover: #1C1C28;
+  --bg-elevated: #1E1E2A; --bg-input: #12121A;
+  --border-subtle: rgba(255,255,255,0.06); --border-default: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.15);
+  --text-primary: #FFFFFF; --text-secondary: rgba(255,255,255,0.50); --text-tertiary: rgba(255,255,255,0.30);
+  --accent: #8B5CF6; --accent-hover: #7C3AED; --accent-muted: rgba(139,92,246,0.15); --accent-text: #A78BFA;
+  --blue: #3B82F6; --blue-muted: rgba(59,130,246,0.15);
+  --green: #10B981; --green-muted: rgba(16,185,129,0.15);
+  --amber: #F59E0B; --amber-muted: rgba(245,158,11,0.15);
+  --red: #EF4444; --red-muted: rgba(239,68,68,0.15);
+  --purple: #8B5CF6; --purple-muted: rgba(139,92,246,0.15);
+  --font-xs: 0.6875rem; --font-sm: 0.8125rem; --font-base: 0.875rem;
+  --font-md: 1rem; --font-lg: 1.125rem; --font-xl: 1.5rem; --font-2xl: 1.875rem;
+  --tracking-tight: -0.02em;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px; --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow-md: 0 2px 8px rgba(0,0,0,0.4); --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+  --sidebar-width: 240px;
+}
+
+.app-layout { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: var(--sidebar-width); background: var(--bg-surface); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; overflow-y: auto; }
+.sidebar-header { padding: var(--space-5) var(--space-4); display: flex; align-items: center; gap: var(--space-3); }
+.sidebar-logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), #6D28D9); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--font-sm); color: white; }
+.sidebar-brand { display: flex; flex-direction: column; }
+.sidebar-brand-name { font-weight: 600; font-size: var(--font-base); letter-spacing: var(--tracking-tight); }
+.sidebar-brand-sub { font-size: var(--font-xs); color: var(--text-tertiary); }
+.sidebar-section { padding: var(--space-2) var(--space-3); }
+.sidebar-section-label { font-size: var(--font-xs); font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding: var(--space-2) var(--space-2) var(--space-1); }
+.sidebar-divider { height: 1px; background: var(--border-subtle); margin: var(--space-2) var(--space-4); }
+.sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-md); font-size: var(--font-sm); color: var(--text-secondary); transition: all 150ms ease; margin: 1px 0; }
+.sidebar-nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+.sidebar-nav-item.active { background: var(--accent-muted); color: var(--accent-text); }
+.sidebar-nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+.sidebar-nav-item.active .sidebar-nav-icon { opacity: 1; }
+.sidebar-footer { margin-top: auto; padding: var(--space-4); border-top: 1px solid var(--border-subtle); }
+.sidebar-user { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-md); }
+.sidebar-avatar { width: 28px; height: 28px; background: var(--accent-muted); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: var(--font-xs); font-weight: 600; color: var(--accent-text); }
+.sidebar-user-info { display: flex; flex-direction: column; }
+.sidebar-user-name { font-size: var(--font-sm); font-weight: 500; }
+.sidebar-user-role { font-size: var(--font-xs); color: var(--text-tertiary); }
+
+.main-content { margin-left: var(--sidebar-width); flex: 1; padding: var(--space-8); max-width: 1200px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); font-size: var(--font-sm); font-weight: 500; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); transition: all 150ms ease; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--bg-elevated); border: 1px solid var(--border-default); color: var(--text-primary); }
+.btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+.btn-ghost { color: var(--text-secondary); }
+.btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.btn-destructive { background: var(--red-muted); color: var(--red); }
+.btn-destructive:hover { background: rgba(239,68,68,0.25); }
+.btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--font-xs); }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-xs); font-weight: 500; line-height: 1.4; }
+.badge-outline { border: 1px solid var(--border-default); color: var(--text-secondary); }
+.badge-accent { background: var(--accent-muted); color: var(--accent-text); }
+.badge-blue { background: var(--blue-muted); color: var(--blue); }
+.badge-green { background: var(--green-muted); color: var(--green); }
+.badge-amber { background: var(--amber-muted); color: var(--amber); }
+.badge-red { background: var(--red-muted); color: var(--red); }
+.badge-destructive { background: var(--red-muted); color: var(--red); font-weight: 600; }
+
+/* Inputs */
+.input { width: 100%; padding: var(--space-2) var(--space-3); background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: var(--font-sm); transition: all 150ms ease; outline: none; }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-muted); }
+.input::placeholder { color: var(--text-tertiary); }
+.select { appearance: none; padding-right: var(--space-8); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+/* Cards */
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; transition: border-color 150ms ease; }
+.card:hover { border-color: var(--border-default); }
+.card-header { padding: var(--space-5) var(--space-5) var(--space-3); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: var(--font-base); font-weight: 600; letter-spacing: var(--tracking-tight); display: flex; align-items: center; gap: var(--space-2); }
+.card-body { padding: 0 var(--space-5) var(--space-5); }
+.card-link { font-size: var(--font-sm); color: var(--accent-text); font-weight: 500; transition: color 150ms ease; }
+.card-link:hover { color: var(--accent); }
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+  transition: color 150ms ease;
+}
+.back-link:hover { color: var(--text-primary); }
+
+/* Case Header */
+.case-header {
+  display: flex;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.case-header-main {
+  flex: 1;
+}
+
+.case-header-title {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+.case-header-meta {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.case-header-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* Stage Selector */
+.stage-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.stage-selector:hover { border-color: var(--border-strong); background: var(--bg-card-hover); }
+.stage-dot { width: 8px; height: 8px; border-radius: var(--radius-full); }
+.stage-name { font-size: var(--font-sm); font-weight: 500; }
+
+/* Progress Bar */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: var(--space-4) 0;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  transition: opacity 150ms ease;
+}
+
+.progress-labels {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+.progress-labels .current {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Quick Info Sidebar */
+.quick-info {
+  width: 256px;
+  flex-shrink: 0;
+}
+
+.info-item {
+  margin-bottom: var(--space-3);
+}
+
+.info-label {
+  font-size: var(--font-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.info-value {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+}
+
+.info-link {
+  font-size: var(--font-xs);
+  color: var(--accent-text);
+  transition: color 150ms ease;
+}
+.info-link:hover { color: var(--accent); }
+
+.staff-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.staff-avatar {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-muted);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent-text);
+  flex-shrink: 0;
+}
+
+.staff-detail-name {
+  font-size: var(--font-xs);
+  color: var(--text-primary);
+}
+
+.staff-detail-role {
+  font-size: var(--font-xs);
+  color: var(--text-tertiary);
+  margin-left: var(--space-1);
+}
+
+/* Tab Nav */
+.tab-nav {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+}
+
+.tab-nav-separator {
+  width: 1px;
+  background: var(--border-subtle);
+  margin: 0 var(--space-1);
+  align-self: stretch;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 150ms ease;
+  margin-bottom: -1px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.tab-item:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.03);
+  border-bottom-color: var(--border-default);
+}
+
+.tab-item.active {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+.tab-icon {
+  width: 15px;
+  height: 15px;
+  opacity: 0.5;
+}
+
+.tab-item.active .tab-icon {
+  opacity: 1;
+  color: var(--accent-text);
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.content-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+/* Card with accent border */
+.card-accent-blue { border-left: 3px solid var(--blue); }
+.card-accent-purple { border-left: 3px solid var(--accent); }
+
+.card-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-icon-blue { background: var(--blue-muted); color: var(--blue); }
+.card-icon-purple { background: var(--purple-muted); color: var(--accent); }
+
+/* Task Items */
+.task-item { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); }
+.task-item:last-child { border-bottom: none; }
+.task-checkbox { width: 16px; height: 16px; border: 1.5px solid var(--border-strong); border-radius: 3px; margin-top: 2px; flex-shrink: 0; transition: all 150ms ease; }
+.task-checkbox:hover { border-color: var(--accent); }
+.task-content { flex: 1; min-width: 0; }
+.task-title { font-size: var(--font-sm); font-weight: 500; }
+.task-meta { font-size: var(--font-xs); color: var(--text-tertiary); margin-top: 1px; }
+
+/* Document Items */
+.doc-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); }
+.doc-item:last-child { border-bottom: none; }
+.doc-name { font-size: var(--font-sm); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+.doc-meta { font-size: var(--font-xs); color: var(--text-tertiary); margin-top: 1px; }
+
+/* Timeline */
+.timeline-item { display: flex; gap: var(--space-3); padding: var(--space-3) 0; position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: 11px; top: 32px; bottom: -12px; width: 1px; background: var(--border-subtle); }
+.timeline-item:last-child::before { display: none; }
+.timeline-dot { width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--bg-elevated); border: 2px solid var(--border-default); display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; }
+.timeline-dot.accent { border-color: var(--accent); background: var(--accent-muted); }
+.timeline-dot.blue { border-color: var(--blue); background: var(--blue-muted); }
+.timeline-dot.green { border-color: var(--green); background: var(--green-muted); }
+.timeline-content { flex: 1; }
+.timeline-title { font-size: var(--font-sm); font-weight: 500; }
+.timeline-desc { font-size: var(--font-xs); color: var(--text-tertiary); margin-top: 1px; }
+.timeline-time { font-size: var(--font-xs); color: var(--text-tertiary); flex-shrink: 0; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .case-header { flex-direction: column; }
+  .quick-info { width: 100%; }
+  .content-grid { grid-template-columns: 1fr; }
+}
+
+/* Design Tokens */
+.tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 1px solid var(--border-subtle); }
+.tokens-section h2 { font-size: var(--font-xl); font-weight: 700; letter-spacing: var(--tracking-tight); margin-bottom: var(--space-6); }
+.tokens-section h3 { font-size: var(--font-md); font-weight: 600; margin-bottom: var(--space-4); margin-top: var(--space-8); }
+.color-swatches { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.color-swatch { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+.color-swatch-box { width: 56px; height: 56px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); }
+.color-swatch-label { font-size: var(--font-xs); color: var(--text-secondary); }
+.color-swatch-value { font-size: 10px; color: var(--text-tertiary); font-family: 'SF Mono', monospace; }
+.type-scale-row { display: flex; align-items: baseline; gap: var(--space-6); padding: var(--space-3) 0; border-bottom: 1px solid var(--border-subtle); }
+.type-scale-label { width: 80px; font-size: var(--font-xs); color: var(--text-tertiary); flex-shrink: 0; font-family: 'SF Mono', monospace; }
+.spacing-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) 0; }
+.spacing-box { height: 24px; background: var(--accent-muted); border-radius: var(--radius-sm); border: 1px solid var(--accent); }
+.spacing-label { font-size: var(--font-xs); color: var(--text-tertiary); width: 60px; flex-shrink: 0; font-family: 'SF Mono', monospace; }
+.shadow-row { display: flex; gap: var(--space-4); margin-bottom: var(--space-4); }
+.shadow-box { width: 120px; height: 64px; background: var(--bg-card); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: var(--font-xs); color: var(--text-secondary); }
+.radius-row { display: flex; gap: var(--space-4); }
+.radius-box { width: 56px; height: 56px; background: var(--accent-muted); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-secondary); font-family: 'SF Mono', monospace; }
+.component-showcase { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.tooltip-wrapper { position: relative; display: inline-block; }
+.tooltip-wrapper .tooltip-text { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: var(--space-1) var(--space-2); background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-sm); font-size: var(--font-xs); color: var(--text-primary); white-space: nowrap; transition: all 150ms ease; z-index: 50; }
+.tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">F</div>
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-name">Favorble</span>
+        <span class="sidebar-brand-sub">by Hogan Smith</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>My Queue</a>
+      <a href="cases-list.html" class="sidebar-nav-item active"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>Leads</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Contacts</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>Workflows</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="6" rx="1"/><rect x="3" y="15" width="18" height="6" rx="1"/></svg>Stages</a>
+      <a href="admin-integrations.html" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>Integrations</a>
+      <a href="#" class="sidebar-nav-item"><svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.2.65.78 1.1 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JK</div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">Jake Klinvex</span>
+          <span class="sidebar-user-role">Admin</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Back link -->
+    <a href="cases-list.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Cases
+    </a>
+
+    <!-- Case Header -->
+    <div class="case-header">
+      <div class="case-header-main">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4);">
+          <div>
+            <div class="case-header-title">Denise Williams</div>
+            <div class="case-header-meta">HS-2024-0892 &middot; DOB: 04/15/1978</div>
+          </div>
+          <div class="stage-selector">
+            <div class="stage-dot" style="background: var(--amber);"></div>
+            <span class="stage-name">Reconsideration</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.5;"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+          <div class="progress-segment" style="background: var(--blue); opacity: 0.7;" title="Intake"></div>
+          <div class="progress-segment" style="background: var(--accent); opacity: 0.7;" title="Application"></div>
+          <div class="progress-segment" style="background: var(--amber); opacity: 1;" title="Reconsideration"></div>
+          <div class="progress-segment" style="background: var(--green); opacity: 0.3;" title="Hearing"></div>
+          <div class="progress-segment" style="background: #10B981; opacity: 0.3;" title="Resolution"></div>
+        </div>
+        <div class="progress-labels">
+          <span>Intake</span>
+          <span>Application</span>
+          <span class="current">Reconsideration</span>
+          <span>Hearing</span>
+          <span>Resolution</span>
+        </div>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="quick-info">
+        <div class="card" style="padding: var(--space-4);">
+          <div class="info-item">
+            <div class="info-label">Assigned Staff</div>
+            <div class="staff-row">
+              <div class="staff-avatar">JK</div>
+              <span class="staff-detail-name">Jake Klinvex</span>
+              <span class="staff-detail-role">attorney</span>
+            </div>
+            <div class="staff-row">
+              <div class="staff-avatar" style="background: var(--blue-muted); color: var(--blue);">SC</div>
+              <span class="staff-detail-name">Sarah Chen</span>
+              <span class="staff-detail-role">paralegal</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">SSN</div>
+            <div class="info-value">***-**-4589</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">SSA Office</div>
+            <div class="info-value">Tulsa Downtown</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Opened</div>
+            <div class="info-value">Jan 15, 2024</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Case Status</div>
+            <a href="#" class="info-link">Open in Case Status</a>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Chronicle</div>
+            <a href="#" class="info-link">Open in Chronicle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Nav -->
+    <nav class="tab-nav">
+      <a class="tab-item active">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Overview
+      </a>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        Documents
+      </a>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Fields
+      </a>
+      <div class="tab-nav-separator"></div>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Activity
+      </a>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </a>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Tasks
+      </a>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </a>
+      <div class="tab-nav-separator"></div>
+      <a class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        SSA Data
+      </a>
+      <a href="chronology.html" class="tab-item">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.8 2.3A.3.3 0 105 2H4a2 2 0 00-2 2v5c0 1.1.9 2 2 2h.5a2 2 0 012 2v0a2 2 0 01-2 2H4a2 2 0 00-2 2v5c0 1.1.9 2 2 2h1"/><path d="M8 15h4c1.1 0 2-.9 2-2v-1c0-1.1-.9-2-2-2H8"/><path d="M20 8h-4c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h4"/></svg>
+        Chronology
+      </a>
+    </nav>
+
+    <!-- Content: Overview tab -->
+    <div class="content-grid">
+      <!-- Open Tasks -->
+      <div class="card card-accent-blue">
+        <div class="card-header">
+          <span class="card-title">
+            <div class="card-icon card-icon-blue">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            Open Tasks (4)
+          </span>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Submit reconsideration request to SSA</div>
+              <div class="task-meta">Jake Klinvex &middot; Due Mar 30, 2026</div>
+            </div>
+            <span class="badge badge-destructive">urgent</span>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Gather updated medical records from Dr. Patel</div>
+              <div class="task-meta">Sarah Chen &middot; Due Apr 2, 2026</div>
+            </div>
+            <span class="badge badge-red">high</span>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Call claimant re: function report corrections</div>
+              <div class="task-meta">Jake Klinvex &middot; Due Apr 5, 2026</div>
+            </div>
+            <span class="badge badge-outline">normal</span>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+              <div class="task-title">Review DDS determination letter</div>
+              <div class="task-meta">Sarah Chen &middot; Due Apr 8, 2026</div>
+            </div>
+            <span class="badge badge-outline">normal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Documents -->
+      <div class="card card-accent-purple">
+        <div class="card-header">
+          <span class="card-title">
+            <div class="card-icon card-icon-purple">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            </div>
+            Recent Documents (12)
+          </span>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="doc-item">
+            <div>
+              <div class="doc-name">Initial_Denial_Letter_SSA_2024.pdf</div>
+              <div class="doc-meta">ERE &middot; Mar 15, 2026</div>
+            </div>
+            <span class="badge badge-outline">Denial</span>
+          </div>
+          <div class="doc-item">
+            <div>
+              <div class="doc-name">Dr_Patel_Treatment_Notes_2024.pdf</div>
+              <div class="doc-meta">Upload &middot; Mar 10, 2026</div>
+            </div>
+            <span class="badge badge-outline">Medical</span>
+          </div>
+          <div class="doc-item">
+            <div>
+              <div class="doc-name">Function_Report_Adult_Form.pdf</div>
+              <div class="doc-meta">Upload &middot; Feb 28, 2026</div>
+            </div>
+            <span class="badge badge-outline">Form</span>
+          </div>
+          <div class="doc-item">
+            <div>
+              <div class="doc-name">MRI_Lumbar_Spine_Results.pdf</div>
+              <div class="doc-meta">ERE &middot; Feb 20, 2026</div>
+            </div>
+            <span class="badge badge-outline">Imaging</span>
+          </div>
+          <div class="doc-item">
+            <div>
+              <div class="doc-name">SSA_Disability_Application_SSA-16.pdf</div>
+              <div class="doc-meta">ERE &middot; Jan 18, 2026</div>
+            </div>
+            <span class="badge badge-outline">Application</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Timeline -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Recent Activity</span>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="timeline-item">
+            <div class="timeline-dot accent">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Stage changed to Reconsideration</div>
+              <div class="timeline-desc">Moved from Application by Sarah Chen</div>
+            </div>
+            <span class="timeline-time">2 days ago</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot blue">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Document uploaded: Initial_Denial_Letter_SSA_2024.pdf</div>
+              <div class="timeline-desc">Scraped from ERE by system</div>
+            </div>
+            <span class="timeline-time">3 days ago</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot green">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/></svg>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Task completed: Submit initial application</div>
+              <div class="timeline-desc">Completed by Jake Klinvex</div>
+            </div>
+            <span class="timeline-time">1 week ago</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Message sent via Case Status</div>
+              <div class="timeline-desc">Application status update to claimant</div>
+            </div>
+            <span class="timeline-time">2 weeks ago</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot accent"></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Case created</div>
+              <div class="timeline-desc">Initial intake by Jake Klinvex</div>
+            </div>
+            <span class="timeline-time">Jan 15, 2024</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Tokens -->
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <h3>Color Palette</h3>
+      <div class="color-swatches">
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#0A0A0F;"></div><span class="color-swatch-label">Base</span><span class="color-swatch-value">#0A0A0F</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#111118;"></div><span class="color-swatch-label">Surface</span><span class="color-swatch-value">#111118</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#16161F;"></div><span class="color-swatch-label">Card</span><span class="color-swatch-value">#16161F</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#1E1E2A;"></div><span class="color-swatch-label">Elevated</span><span class="color-swatch-value">#1E1E2A</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#8B5CF6;"></div><span class="color-swatch-label">Accent</span><span class="color-swatch-value">#8B5CF6</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#3B82F6;"></div><span class="color-swatch-label">Blue</span><span class="color-swatch-value">#3B82F6</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#10B981;"></div><span class="color-swatch-label">Green</span><span class="color-swatch-value">#10B981</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#F59E0B;"></div><span class="color-swatch-label">Amber</span><span class="color-swatch-value">#F59E0B</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#EF4444;"></div><span class="color-swatch-label">Red</span><span class="color-swatch-value">#EF4444</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:#FFFFFF;"></div><span class="color-swatch-label">Text</span><span class="color-swatch-value">#FFFFFF</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:rgba(255,255,255,0.5);"></div><span class="color-swatch-label">Secondary</span><span class="color-swatch-value">50% white</span></div>
+        <div class="color-swatch"><div class="color-swatch-box" style="background:rgba(255,255,255,0.3);"></div><span class="color-swatch-label">Tertiary</span><span class="color-swatch-value">30% white</span></div>
+      </div>
+      <h3>Typography Scale</h3>
+      <div class="type-scale-row"><span class="type-scale-label">2xl / 30px</span><span style="font-size:1.875rem; font-weight:700; letter-spacing:-0.02em;">Page Heading</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">xl / 24px</span><span style="font-size:1.5rem; font-weight:700; letter-spacing:-0.02em;">Section Title</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">lg / 18px</span><span style="font-size:1.125rem; font-weight:600;">Card Title</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">md / 16px</span><span style="font-size:1rem; font-weight:500;">Body Large</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">base / 14px</span><span style="font-size:0.875rem;">Body text</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">sm / 13px</span><span style="font-size:0.8125rem; color:var(--text-secondary);">Secondary text</span></div>
+      <div class="type-scale-row"><span class="type-scale-label">xs / 11px</span><span style="font-size:0.6875rem; color:var(--text-tertiary);">Captions</span></div>
+      <h3>Spacing Scale</h3>
+      <div class="spacing-row"><span class="spacing-label">4px</span><div class="spacing-box" style="width:16px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">8px</span><div class="spacing-box" style="width:32px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">12px</span><div class="spacing-box" style="width:48px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">16px</span><div class="spacing-box" style="width:64px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">24px</span><div class="spacing-box" style="width:96px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">32px</span><div class="spacing-box" style="width:128px;"></div></div>
+      <div class="spacing-row"><span class="spacing-label">48px</span><div class="spacing-box" style="width:192px;"></div></div>
+      <h3>Shadows</h3>
+      <div class="shadow-row">
+        <div class="shadow-box" style="box-shadow:var(--shadow-sm);">sm</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-md);">md</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-lg);">lg</div>
+      </div>
+      <h3>Border Radius</h3>
+      <div class="radius-row">
+        <div class="radius-box" style="border-radius:4px;">4px</div>
+        <div class="radius-box" style="border-radius:6px;">6px</div>
+        <div class="radius-box" style="border-radius:8px;">8px</div>
+        <div class="radius-box" style="border-radius:12px;">12px</div>
+        <div class="radius-box" style="border-radius:9999px; width:56px;">full</div>
+      </div>
+      <h3>Buttons</h3>
+      <div class="component-showcase" style="margin-bottom:var(--space-4);">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-destructive">Destructive</button>
+        <button class="btn btn-primary btn-sm">Small</button>
+      </div>
+      <h3>Badges</h3>
+      <div class="component-showcase" style="margin-bottom:var(--space-4);">
+        <span class="badge badge-outline">Outline</span>
+        <span class="badge badge-accent">Accent</span>
+        <span class="badge badge-blue">Blue</span>
+        <span class="badge badge-green">Green</span>
+        <span class="badge badge-amber">Amber</span>
+        <span class="badge badge-red">Red</span>
+      </div>
+      <h3>Inputs</h3>
+      <div style="display:flex; gap:var(--space-4); max-width:600px; margin-bottom:var(--space-4);">
+        <input type="text" class="input" placeholder="Text input...">
+        <select class="input select"><option>Select option</option></select>
+      </div>
+      <h3>Tooltips</h3>
+      <div class="component-showcase">
+        <div class="tooltip-wrapper">
+          <button class="btn btn-secondary">Hover me</button>
+          <span class="tooltip-text">Tooltip content</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

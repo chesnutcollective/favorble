@@ -47,38 +47,16 @@ const CONTACT_TYPE_LABELS: Record<string, string> = {
   expert: "Expert",
 };
 
-const CONTACT_TYPE_COLORS: Record<string, string> = {
-  claimant: "#3b82f6",
-  attorney: "#8b5cf6",
-  medical_provider: "#10b981",
-  ssa_office: "#f59e0b",
-  expert: "#ec4899",
-};
-
-const AVATAR_BG_COLORS: Record<string, string> = {
-  claimant: "bg-blue-100 text-blue-700",
-  attorney: "bg-violet-100 text-violet-700",
-  medical_provider: "bg-emerald-100 text-emerald-700",
-  ssa_office: "bg-amber-100 text-amber-700",
-  expert: "bg-pink-100 text-pink-700",
-};
-
 function ContactAvatar({
   firstName,
   lastName,
-  contactType,
 }: {
   firstName: string;
   lastName: string;
-  contactType: string;
 }) {
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  const colorClass =
-    AVATAR_BG_COLORS[contactType] ?? "bg-gray-100 text-gray-600";
   return (
-    <span
-      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${colorClass}`}
-    >
+    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eaeaea] text-xs font-semibold text-[#171717]">
       {initials}
     </span>
   );
@@ -205,7 +183,6 @@ export function ContactsListClient({
                       <ContactAvatar
                         firstName={c.firstName}
                         lastName={c.lastName}
-                        contactType={c.contactType}
                       />
                       <p className="font-medium text-foreground">
                         {c.lastName}, {c.firstName}
@@ -215,13 +192,7 @@ export function ContactsListClient({
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className="border-transparent"
-                      style={{
-                        backgroundColor: CONTACT_TYPE_COLORS[c.contactType]
-                          ? `${CONTACT_TYPE_COLORS[c.contactType]}15`
-                          : undefined,
-                        color: CONTACT_TYPE_COLORS[c.contactType] ?? undefined,
-                      }}
+                      className="border-[#eaeaea] text-[#666]"
                     >
                       {CONTACT_TYPE_LABELS[c.contactType] ?? c.contactType}
                     </Badge>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL v2 (LIGHT / BLUE ACCENT)
+     ============================================================ */
+  :root {
+    --bg-root:#FAFAFA;--bg-card:#FFFFFF;--bg-card-alt:#FAFAFA;--bg-hover:#F0F0F0;--bg-input:#FFFFFF;
+    --border:#EAEAEA;--border-hover:#CCCCCC;--border-focus:#0070F3;
+    --text-primary:#171717;--text-secondary:#666666;--text-tertiary:#999999;
+    --accent-blue:#0070F3;--accent-blue-hover:#005BC4;--accent-blue-muted:rgba(0,112,243,0.08);--accent-blue-subtle:rgba(0,112,243,0.04);
+    --accent-green:#00C853;--accent-amber:#F5A623;--accent-red:#EE0000;
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-mono:'Geist Mono','SF Mono','Consolas',monospace;
+    --radius:6px;--radius-sm:4px;--radius-lg:8px;--transition:200ms ease;
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-root);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .app{display:flex;height:100vh}
+  .sidebar{width:240px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-root);padding:var(--sp-4) 0}
+  .sidebar-brand{padding:0 var(--sp-5);margin-bottom:var(--sp-6);display:flex;align-items:center;gap:var(--sp-3)}
+  .sidebar-brand .logo{width:24px;height:24px;background:var(--accent-blue);border-radius:var(--radius-sm)}
+  .sidebar-brand span{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .sidebar-section{margin-bottom:var(--sp-6)}
+  .sidebar-section-label{padding:0 var(--sp-5);margin-bottom:var(--sp-2);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary)}
+  .sidebar-link{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-5);font-size:13px;color:var(--text-secondary);transition:color var(--transition),background var(--transition);cursor:pointer;text-decoration:none;border-left:2px solid transparent}
+  .sidebar-link:hover{color:var(--text-primary);background:var(--bg-hover);text-decoration:none}
+  .sidebar-link.active{color:var(--text-primary);background:var(--bg-card);border-left-color:var(--accent-blue)}
+  .sidebar-link .icon{width:16px;height:16px;opacity:0.5;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .sidebar-link.active .icon{opacity:1;color:var(--accent-blue)}
+  .sidebar-link .badge{margin-left:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0 6px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .sidebar-spacer{flex:1}
+  .sidebar-user{padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--border);display:flex;align-items:center;gap:var(--sp-3);font-size:13px;color:var(--text-secondary)}
+  .sidebar-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-blue-muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent-blue)}
+
+  .main{flex:1;overflow-y:auto;padding:var(--sp-8)}
+  .main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-8)}
+  .main-header h1{font-size:22px;font-weight:600;letter-spacing:-0.5px}
+  .header-actions{display:flex;gap:var(--sp-3)}
+
+  .btn{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 14px;font-family:var(--font-sans);font-size:13px;font-weight:500;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all var(--transition);line-height:1}
+  .btn-primary{background:var(--accent-blue);color:#FFF;border-color:var(--accent-blue)}
+  .btn-primary:hover{background:var(--accent-blue-hover);border-color:var(--accent-blue-hover)}
+  .btn-secondary{background:var(--bg-card);color:var(--text-primary);border-color:var(--border)}
+  .btn-secondary:hover{border-color:var(--border-hover)}
+  .btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}
+  .btn-ghost:hover{color:var(--text-primary);background:var(--bg-hover)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5);transition:border-color var(--transition)}
+  .card:hover{border-color:var(--border-hover)}
+  .card-title{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:var(--sp-3)}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-4);margin-bottom:var(--sp-6)}
+  .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5);transition:border-color var(--transition);border-top:2px solid var(--accent-blue)}
+  .stat-card:hover{border-color:var(--border-hover);border-top-color:var(--accent-blue)}
+  .stat-label{font-size:12px;color:var(--text-secondary);margin-bottom:var(--sp-2)}
+  .stat-value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1.1;font-feature-settings:"tnum"}
+  .stat-meta{margin-top:var(--sp-2);font-size:12px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .stat-meta .up{color:var(--accent-green)}
+  .stat-meta .down{color:var(--accent-red)}
+
+  .pipeline-section{margin-bottom:var(--sp-6)}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4)}
+  .section-header h2{font-size:14px;font-weight:600;letter-spacing:-0.2px}
+  .pipeline-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-3)}
+  .pipeline-col{background:var(--bg-card-alt);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-3)}
+  .pipeline-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3);padding-bottom:var(--sp-3);border-bottom:1px solid var(--border)}
+  .pipeline-col-title{font-size:12px;font-weight:500;color:var(--text-secondary)}
+  .pipeline-col-count{font-size:11px;font-family:var(--font-mono);color:var(--accent-blue);background:var(--accent-blue-subtle);border:1px solid rgba(0,112,243,0.15);border-radius:10px;padding:0 6px}
+  .pipeline-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--sp-3);margin-bottom:var(--sp-2);transition:border-color var(--transition);cursor:pointer}
+  .pipeline-item:hover{border-color:var(--accent-blue)}
+  .pipeline-item:last-child{margin-bottom:0}
+  .pipeline-item-title{font-size:13px;font-weight:500;margin-bottom:2px}
+  .pipeline-item-meta{font-size:11px;color:var(--text-secondary);font-family:var(--font-mono)}
+  .pipeline-item-type{display:inline-block;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent-blue);background:var(--accent-blue-subtle);border:1px solid rgba(0,112,243,0.15);border-radius:3px;padding:0 4px;margin-top:4px}
+
+  .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4)}
+  .task-list{list-style:none}
+  .task-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .task-item:last-child{border-bottom:none}
+  .task-checkbox{width:16px;height:16px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;cursor:pointer;transition:border-color var(--transition)}
+  .task-checkbox:hover{border-color:var(--accent-blue)}
+  .task-checkbox.checked{background:var(--accent-blue);border-color:var(--accent-blue);position:relative}
+  .task-checkbox.checked::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:5px;border-left:2px solid #FFF;border-bottom:2px solid #FFF;transform:rotate(-45deg)}
+  .task-text{flex:1}
+  .task-text.done{text-decoration:line-through;color:var(--text-tertiary)}
+  .task-due{font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)}
+  .task-due.overdue{color:var(--accent-red)}
+  .task-assignee{width:22px;height:22px;border-radius:50%;background:var(--accent-blue-muted);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--accent-blue)}
+
+  .activity-list{list-style:none}
+  .activity-item{display:flex;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border);font-size:13px}
+  .activity-item:last-child{border-bottom:none}
+  .activity-dot{width:8px;height:8px;border-radius:50%;background:var(--border);margin-top:5px;flex-shrink:0}
+  .activity-dot.blue{background:var(--accent-blue)}
+  .activity-dot.green{background:var(--accent-green)}
+  .activity-dot.amber{background:var(--accent-amber)}
+  .activity-content{flex:1}
+  .activity-text{color:var(--text-secondary)}
+  .activity-text strong{color:var(--text-primary);font-weight:500}
+  .activity-time{font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);margin-top:2px}
+
+  .tokens-section{margin-top:var(--sp-12);padding-top:var(--sp-8);border-top:1px solid var(--border)}
+  .tokens-section h2{font-size:14px;font-weight:600;margin-bottom:var(--sp-5)}
+  .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3)}
+  .token-swatch{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+  .token-color{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);flex-shrink:0}
+  .token-info{font-size:12px}
+  .token-name{font-weight:500;margin-bottom:1px}
+  .token-value{font-family:var(--font-mono);color:var(--text-secondary);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><div class="logo"></div><span>Favorble</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <a class="sidebar-link active" href="dashboard.html"><span class="icon">&#9632;</span> Dashboard</a>
+      <a class="sidebar-link" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="badge">83</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9998;</span> Tasks <span class="badge">24</span></a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <a class="sidebar-link" href="chronology.html"><span class="icon">&#9201;</span> Chronology</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128196;</span> Documents</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#9878;</span> Briefs</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a class="sidebar-link" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+      <a class="sidebar-link" href="#"><span class="icon">&#128101;</span> Team</a>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user"><div class="avatar">RM</div><div><div style="font-size:13px;color:var(--text-primary)">Rachel Morrison</div><div style="font-size:11px;color:var(--text-tertiary)">Managing Attorney</div></div></div>
+  </nav>
+
+  <main class="main">
+    <div class="main-header"><h1>Dashboard</h1><div class="header-actions"><button class="btn btn-secondary btn-sm">Export</button><button class="btn btn-primary btn-sm">+ New Case</button></div></div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Active Cases</div><div class="stat-value">83</div><div class="stat-meta"><span class="up">+6</span> this week</div></div>
+      <div class="stat-card"><div class="stat-label">Pending Hearings</div><div class="stat-value">31</div><div class="stat-meta"><span class="up">+4</span> scheduled this month</div></div>
+      <div class="stat-card"><div class="stat-label">Approvals This Month</div><div class="stat-value">12</div><div class="stat-meta"><span class="up">+33%</span> vs last month</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Days to Decision</div><div class="stat-value">487</div><div class="stat-meta"><span class="up">-22</span> vs 90-day avg</div></div>
+    </div>
+
+    <div class="pipeline-section">
+      <div class="section-header"><h2>Pipeline</h2><button class="btn btn-ghost btn-sm">View All</button></div>
+      <div class="pipeline-cols">
+        <div class="pipeline-col"><div class="pipeline-col-header"><span class="pipeline-col-title">Initial Application</span><span class="pipeline-col-count">18</span></div><div class="pipeline-item"><div class="pipeline-item-title">Johnson, Marie T.</div><div class="pipeline-item-meta">SSA-2041 &middot; 3d ago</div><span class="pipeline-item-type">SSDI</span></div><div class="pipeline-item"><div class="pipeline-item-title">Williams, Robert D.</div><div class="pipeline-item-meta">SSA-2039 &middot; 5d ago</div><span class="pipeline-item-type">SSI</span></div></div>
+        <div class="pipeline-col"><div class="pipeline-col-header"><span class="pipeline-col-title">Reconsideration</span><span class="pipeline-col-count">22</span></div><div class="pipeline-item"><div class="pipeline-item-title">Garcia, Elena M.</div><div class="pipeline-item-meta">SSA-1987 &middot; 14d ago</div><span class="pipeline-item-type">SSDI</span></div><div class="pipeline-item"><div class="pipeline-item-title">Thompson, James L.</div><div class="pipeline-item-meta">SSA-1972 &middot; 21d ago</div><span class="pipeline-item-type">SSDI/SSI</span></div></div>
+        <div class="pipeline-col"><div class="pipeline-col-header"><span class="pipeline-col-title">ALJ Hearing</span><span class="pipeline-col-count">28</span></div><div class="pipeline-item"><div class="pipeline-item-title">Brown, Patricia A.</div><div class="pipeline-item-meta">SSA-1845 &middot; 42d ago</div><span class="pipeline-item-type">SSDI</span></div><div class="pipeline-item"><div class="pipeline-item-title">Nguyen, David K.</div><div class="pipeline-item-meta">SSA-1832 &middot; 48d ago</div><span class="pipeline-item-type">SSI</span></div></div>
+        <div class="pipeline-col"><div class="pipeline-col-header"><span class="pipeline-col-title">Appeals Council</span><span class="pipeline-col-count">9</span></div><div class="pipeline-item"><div class="pipeline-item-title">Martinez, Sofia R.</div><div class="pipeline-item-meta">SSA-1678 &middot; 88d ago</div><span class="pipeline-item-type">SSDI</span></div><div class="pipeline-item"><div class="pipeline-item-title">Davis, Kenneth W.</div><div class="pipeline-item-meta">SSA-1652 &middot; 102d ago</div><span class="pipeline-item-type">SSDI/SSI</span></div></div>
+        <div class="pipeline-col"><div class="pipeline-col-header"><span class="pipeline-col-title">Federal Court</span><span class="pipeline-col-count">6</span></div><div class="pipeline-item"><div class="pipeline-item-title">Robinson, Angela P.</div><div class="pipeline-item-meta">SSA-1421 &middot; 180d ago</div><span class="pipeline-item-type">SSDI</span></div><div class="pipeline-item"><div class="pipeline-item-title">Lee, Michael S.</div><div class="pipeline-item-meta">SSA-1398 &middot; 210d ago</div><span class="pipeline-item-type">SSI</span></div></div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-title">Upcoming Tasks</div>
+        <ul class="task-list">
+          <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Submit RFC forms to DDS — Johnson</span><span class="task-due overdue">Mar 26</span><div class="task-assignee">RM</div></li>
+          <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Request treating source statement — Garcia</span><span class="task-due">Mar 30</span><div class="task-assignee">KP</div></li>
+          <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Pre-hearing brief — Brown v. Kijakazi</span><span class="task-due">Apr 4</span><div class="task-assignee">RM</div></li>
+          <li class="task-item"><div class="task-checkbox checked"></div><span class="task-text done">Order CE report — Thompson</span><span class="task-due">Mar 25</span><div class="task-assignee">TN</div></li>
+          <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Appeals Council brief — Martinez</span><span class="task-due">Apr 10</span><div class="task-assignee">RM</div></li>
+          <li class="task-item"><div class="task-checkbox"></div><span class="task-text">Gather updated MERs — Nguyen</span><span class="task-due">Apr 12</span><div class="task-assignee">KP</div></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <ul class="activity-list">
+          <li class="activity-item"><div class="activity-dot blue"></div><div class="activity-content"><div class="activity-text"><strong>Karen Park</strong> uploaded 22 medical records to <strong>Brown, Patricia A.</strong></div><div class="activity-time">18 min ago</div></div></li>
+          <li class="activity-item"><div class="activity-dot green"></div><div class="activity-content"><div class="activity-text"><strong>Fully Favorable decision</strong> received — Robinson, Angela P. approved at ALJ level</div><div class="activity-time">1h ago</div></div></li>
+          <li class="activity-item"><div class="activity-dot amber"></div><div class="activity-content"><div class="activity-text"><strong>Hearing scheduled</strong> — Nguyen, David K. before ALJ Henderson on Apr 18</div><div class="activity-time">2h ago</div></div></li>
+          <li class="activity-item"><div class="activity-dot"></div><div class="activity-content"><div class="activity-text"><strong>Tom Nguyen</strong> submitted reconsideration request for <strong>Williams, Robert D.</strong></div><div class="activity-time">4h ago</div></div></li>
+          <li class="activity-item"><div class="activity-dot blue"></div><div class="activity-content"><div class="activity-text"><strong>New case</strong> — Johnson, Marie T. assigned to Rachel Morrison</div><div class="activity-time">6h ago</div></div></li>
+          <li class="activity-item"><div class="activity-dot green"></div><div class="activity-content"><div class="activity-text"><strong>Chronology generated</strong> for Brown, Patricia A. (318 entries)</div><div class="activity-time">Yesterday</div></div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tokens-section">
+      <h2>Design Tokens</h2>
+      <div class="token-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#FAFAFA"></div><div class="token-info"><div class="token-name">bg-root</div><div class="token-value">#FAFAFA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#FFFFFF"></div><div class="token-info"><div class="token-name">bg-card</div><div class="token-value">#FFFFFF</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EAEAEA"></div><div class="token-info"><div class="token-name">border</div><div class="token-value">#EAEAEA</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#171717"></div><div class="token-info"><div class="token-name">text-primary</div><div class="token-value">#171717</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#666666"></div><div class="token-info"><div class="token-name">text-secondary</div><div class="token-value">#666666</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#0070F3"></div><div class="token-info"><div class="token-name">accent-blue (primary)</div><div class="token-value">#0070F3</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#005BC4"></div><div class="token-info"><div class="token-name">accent-blue-hover</div><div class="token-value">#005BC4</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:rgba(0,112,243,0.08);border:1px solid rgba(0,112,243,0.2)"></div><div class="token-info"><div class="token-name">accent-blue-muted</div><div class="token-value">rgba(0,112,243,0.08)</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#00C853"></div><div class="token-info"><div class="token-name">accent-green</div><div class="token-value">#00C853</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#F5A623"></div><div class="token-info"><div class="token-name">accent-amber</div><div class="token-value">#F5A623</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EE0000"></div><div class="token-info"><div class="token-name">accent-red</div><div class="token-value">#EE0000</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

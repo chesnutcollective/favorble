@@ -201,8 +201,6 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
           icon={File01Icon}
           title="No templates yet"
           description="Create your first document template."
-          accent="blue"
-          bordered
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

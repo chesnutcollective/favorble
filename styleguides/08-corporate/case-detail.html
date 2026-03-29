@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Case Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-sidebar: #0F1729;
+    --color-sidebar-hover: #1A2744;
+    --color-sidebar-active: #1E3A5F;
+    --color-sidebar-text: #94A3B8;
+    --color-sidebar-text-active: #FFFFFF;
+    --color-sidebar-divider: #1E293B;
+    --color-bg: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-border: #E2E8F0;
+    --color-border-strong: #CBD5E1;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-text-tertiary: #94A3B8;
+    --color-text-inverse: #FFFFFF;
+    --color-primary: #1E40AF;
+    --color-primary-hover: #1E3A8A;
+    --color-primary-light: #DBEAFE;
+    --color-secondary: #D97706;
+    --color-secondary-light: #FEF3C7;
+    --color-secondary-hover: #B45309;
+    --color-success: #059669;
+    --color-success-light: #D1FAE5;
+    --color-warning: #D97706;
+    --color-warning-light: #FEF3C7;
+    --color-danger: #DC2626;
+    --color-danger-light: #FEE2E2;
+    --color-info: #2563EB;
+    --color-info-light: #DBEAFE;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --sidebar-width: 240px;
+    --header-height: 56px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size-base); }
+  body { font-family: var(--font-family); background: var(--color-bg); color: var(--color-text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: var(--sidebar-width); background: var(--color-sidebar); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; }
+  .sidebar-brand { padding: var(--space-5); border-bottom: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-brand-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: var(--font-size-lg); color: white; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; color: white; letter-spacing: -0.3px; }
+  .sidebar-section { padding: var(--space-4) 0 var(--space-2); }
+  .sidebar-section-label { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-sidebar-text); text-transform: uppercase; letter-spacing: 0.8px; padding: 0 var(--space-5) var(--space-2); }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-5); color: var(--color-sidebar-text); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s; position: relative; }
+  .sidebar-nav-item:hover { background: var(--color-sidebar-hover); color: white; }
+  .sidebar-nav-item.active { background: var(--color-sidebar-active); color: white; }
+  .sidebar-nav-item.active::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--color-secondary); border-radius: 0 2px 2px 0; }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-nav-item.active svg { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-primary); color: white; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-badge.gold { background: var(--color-secondary); }
+  .sidebar-divider { border-top: 1px solid var(--color-sidebar-divider); margin: var(--space-3) var(--space-5); }
+  .sidebar-user { margin-top: auto; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--color-sidebar-divider); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-user-avatar { width: 32px; height: 32px; background: var(--color-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-sm); font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-base); font-weight: 600; color: white; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-sidebar-text); }
+
+  /* Main */
+  .main-content { margin-left: var(--sidebar-width); flex: 1; min-width: 0; }
+  .top-bar { height: var(--header-height); background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: sticky; top: 0; z-index: 50; }
+  .top-bar-title { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .top-bar-right { display: flex; align-items: center; gap: var(--space-3); }
+  .page-content { padding: var(--space-6); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; padding: var(--space-2) var(--space-3); border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; text-decoration: none; white-space: nowrap; }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-gold { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+  .btn-ghost { background: transparent; color: var(--color-text-secondary); }
+  .btn-ghost:hover { color: var(--color-text-primary); background: var(--color-bg); }
+  .btn-sm { font-size: var(--font-size-xs); padding: 2px var(--space-2); }
+  .btn-danger-outline { background: transparent; color: var(--color-danger); border-color: var(--color-danger); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-blue { background: var(--color-primary-light); color: var(--color-primary); }
+  .badge-gold { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-green { background: var(--color-success-light); color: var(--color-success); }
+  .badge-red { background: var(--color-danger-light); color: var(--color-danger); }
+  .badge-gray { background: #F1F5F9; color: var(--color-text-secondary); }
+
+  /* Section Label */
+  .section-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+
+  /* Card */
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); }
+  .card-title { font-size: var(--font-size-md); font-weight: 700; letter-spacing: -0.2px; }
+  .card-body { padding: var(--space-5); }
+  .card-body.no-padding { padding: 0; }
+
+  /* Breadcrumb */
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-bottom: var(--space-4); }
+  .breadcrumb a { color: var(--color-text-secondary); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--color-primary); }
+  .breadcrumb-sep { font-size: 10px; }
+
+  /* Case Header */
+  .case-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-6); }
+  .case-header-left { display: flex; flex-direction: column; gap: var(--space-2); }
+  .case-title { font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.5px; }
+  .case-meta { display: flex; align-items: center; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+  .case-meta-item { display: flex; align-items: center; gap: var(--space-1); }
+  .case-meta-item svg { width: 14px; height: 14px; }
+
+  /* Stage Progress */
+  .stage-progress { margin-bottom: var(--space-6); }
+  .stage-progress-bar { display: flex; gap: 2px; margin-bottom: var(--space-2); }
+  .stage-step { flex: 1; text-align: center; position: relative; }
+  .stage-step-bar { height: 6px; border-radius: 3px; background: #E2E8F0; margin-bottom: var(--space-2); }
+  .stage-step-bar.completed { background: var(--color-primary); }
+  .stage-step-bar.current { background: var(--color-secondary); }
+  .stage-step-label { font-size: var(--font-size-xs); font-weight: 500; color: var(--color-text-tertiary); }
+  .stage-step-label.completed { color: var(--color-primary); font-weight: 600; }
+  .stage-step-label.current { color: var(--color-secondary); font-weight: 700; }
+
+  /* Detail Grid */
+  .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6); }
+  .detail-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6); }
+
+  /* Info Grid */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .info-item { }
+  .info-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+  .info-value { font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); }
+  .info-value.large { font-size: var(--font-size-xl); font-weight: 800; }
+  .info-value.gold { color: var(--color-secondary); }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-5); }
+  .tab-item { padding: var(--space-3) var(--space-4); font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s; }
+  .tab-item:hover { color: var(--color-text-primary); }
+  .tab-item.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+  .tab-item .tab-count { font-size: var(--font-size-xs); font-weight: 500; color: var(--color-text-tertiary); margin-left: 4px; }
+
+  /* Task List */
+  .task-list { list-style: none; }
+  .task-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-base); }
+  .task-item:last-child { border-bottom: none; }
+  .task-checkbox { width: 16px; height: 16px; border: 2px solid var(--color-border-strong); border-radius: 3px; flex-shrink: 0; cursor: pointer; }
+  .task-checkbox.checked { background: var(--color-primary); border-color: var(--color-primary); position: relative; }
+  .task-checkbox.checked::after { content: ''; position: absolute; top: 1px; left: 4px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .task-text { flex: 1; }
+  .task-text.completed { text-decoration: line-through; color: var(--color-text-tertiary); }
+  .task-priority { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 6px; border-radius: 3px; }
+  .task-priority.high { background: var(--color-danger-light); color: var(--color-danger); }
+  .task-priority.medium { background: var(--color-warning-light); color: var(--color-warning); }
+  .task-priority.low { background: var(--color-info-light); color: var(--color-info); }
+  .task-due { font-size: var(--font-size-xs); color: var(--color-text-tertiary); white-space: nowrap; }
+  .task-due.overdue { color: var(--color-danger); font-weight: 600; }
+  .task-assignee { font-size: var(--font-size-xs); color: var(--color-text-secondary); white-space: nowrap; }
+
+  /* Document List */
+  .doc-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border); }
+  .doc-item:last-child { border-bottom: none; }
+  .doc-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); font-weight: 700; flex-shrink: 0; }
+  .doc-icon.pdf { background: var(--color-danger-light); color: var(--color-danger); }
+  .doc-icon.doc { background: var(--color-primary-light); color: var(--color-primary); }
+  .doc-icon.xls { background: var(--color-success-light); color: var(--color-success); }
+  .doc-icon.img { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .doc-info { flex: 1; }
+  .doc-name { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-primary); }
+  .doc-meta { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .doc-actions { display: flex; gap: var(--space-2); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: var(--space-6); }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--color-border); }
+  .timeline-item { position: relative; padding-bottom: var(--space-5); }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-dot { position: absolute; left: -21px; top: 2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-surface); }
+  .timeline-dot.blue { background: var(--color-primary); }
+  .timeline-dot.gold { background: var(--color-secondary); }
+  .timeline-dot.green { background: var(--color-success); }
+  .timeline-dot.red { background: var(--color-danger); }
+  .timeline-date { font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-bottom: 2px; }
+  .timeline-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-primary); }
+  .timeline-desc { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  /* Notes */
+  .note-item { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); }
+  .note-item:last-child { border-bottom: none; }
+  .note-header { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .note-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: white; }
+  .note-author { font-size: var(--font-size-sm); font-weight: 600; }
+  .note-time { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .note-body { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.6; }
+
+  /* Stat mini */
+  .stat-mini { text-align: center; padding: var(--space-4); }
+  .stat-mini-value { font-size: var(--font-size-2xl); font-weight: 800; letter-spacing: -0.5px; line-height: 1; margin-bottom: var(--space-1); }
+  .stat-mini-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-secondary); }
+
+  /* Design Tokens */
+  .tokens-section { margin-top: var(--space-8); border: 2px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+  .tokens-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); background: var(--color-bg); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .tokens-title { font-size: var(--font-size-md); font-weight: 700; display: flex; align-items: center; gap: var(--space-2); }
+  .tokens-body { padding: var(--space-5); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .token-group-label { font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a></li>
+        <li><a class="sidebar-nav-item active" href="cases-list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Cases<span class="sidebar-badge">47</span></a></li>
+        <li><a class="sidebar-nav-item" href="case-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Documents</a></li>
+        <li><a class="sidebar-nav-item" href="chronology.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Chronology<span class="sidebar-badge gold">3</span></a></li>
+      </ul>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <ul class="sidebar-nav">
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Billing<span class="sidebar-badge">5</span></a></li>
+        <li><a class="sidebar-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a></li>
+        <li><a class="sidebar-nav-item" href="admin-integrations.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">SM</div>
+      <div><div class="sidebar-user-name">Sarah Mitchell</div><div class="sidebar-user-role">Managing Partner</div></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div class="top-bar-title" style="display:flex; align-items:center; gap:var(--space-3);">
+        <a href="cases-list.html" style="color:var(--color-text-tertiary); text-decoration:none; font-size:var(--font-size-sm);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        Case Detail
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Case
+        </button>
+        <button class="btn btn-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Document
+        </button>
+        <button class="btn btn-danger-outline">Close Case</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="cases-list.html">Cases</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--color-text-primary); font-weight:500;">Martinez v. Allied Health Systems</span>
+      </div>
+
+      <!-- Case Header -->
+      <div class="case-header">
+        <div class="case-header-left">
+          <div class="case-title">Martinez v. Allied Health Systems</div>
+          <div class="case-meta">
+            <div class="case-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+              CV-2025-04892
+            </div>
+            <div class="case-meta-item">
+              <span class="badge badge-gold">Litigation</span>
+            </div>
+            <div class="case-meta-item">
+              <span class="badge badge-blue">Med Mal</span>
+            </div>
+            <div class="case-meta-item">
+              <span class="badge badge-red">High Priority</span>
+            </div>
+            <div class="case-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed Jan 15, 2025
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage Progress -->
+      <div class="stage-progress">
+        <div class="section-label">Case Progress</div>
+        <div class="stage-progress-bar">
+          <div class="stage-step">
+            <div class="stage-step-bar completed"></div>
+            <div class="stage-step-label completed">Intake</div>
+          </div>
+          <div class="stage-step">
+            <div class="stage-step-bar completed"></div>
+            <div class="stage-step-label completed">Investigation</div>
+          </div>
+          <div class="stage-step">
+            <div class="stage-step-bar current"></div>
+            <div class="stage-step-label current">Litigation</div>
+          </div>
+          <div class="stage-step">
+            <div class="stage-step-bar"></div>
+            <div class="stage-step-label">Discovery</div>
+          </div>
+          <div class="stage-step">
+            <div class="stage-step-bar"></div>
+            <div class="stage-step-label">Settlement</div>
+          </div>
+          <div class="stage-step">
+            <div class="stage-step-bar"></div>
+            <div class="stage-step-label">Trial</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="detail-grid-3" style="margin-bottom:var(--space-6);">
+        <div class="card">
+          <div class="stat-mini">
+            <div class="stat-mini-value" style="color:var(--color-secondary);">$4.2M</div>
+            <div class="stat-mini-label">Case Value</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stat-mini">
+            <div class="stat-mini-value">65%</div>
+            <div class="stat-mini-label">Completion</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stat-mini">
+            <div class="stat-mini-value" style="color:var(--color-danger);">72</div>
+            <div class="stat-mini-label">Days Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <div class="tab-item active">Overview</div>
+        <div class="tab-item">Tasks <span class="tab-count">8</span></div>
+        <div class="tab-item">Documents <span class="tab-count">23</span></div>
+        <div class="tab-item">Timeline</div>
+        <div class="tab-item">Notes <span class="tab-count">5</span></div>
+        <div class="tab-item">Billing</div>
+      </div>
+
+      <!-- Main detail layout -->
+      <div class="detail-grid">
+        <!-- Left: Info + Tasks + Documents -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          <!-- Case Information -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Case Information</div>
+              <button class="btn btn-sm btn-ghost">Edit</button>
+            </div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">Plaintiff</div>
+                  <div class="info-value">Maria C. Martinez</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Defendant</div>
+                  <div class="info-value">Allied Health Systems, Inc.</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Lead Attorney</div>
+                  <div class="info-value">Sarah Mitchell</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Associate</div>
+                  <div class="info-value">James Kim</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Court</div>
+                  <div class="info-value">Superior Court, County of Los Angeles</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Judge</div>
+                  <div class="info-value">Hon. Robert Nakamura</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Opposing Counsel</div>
+                  <div class="info-value">David Whitfield, Baker & Associates</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Insurance Carrier</div>
+                  <div class="info-value">Physicians Mutual Insurance Co.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Tasks</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <span class="badge badge-red">3 overdue</span>
+                <button class="btn btn-sm btn-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add Task
+                </button>
+              </div>
+            </div>
+            <div class="card-body no-padding">
+              <ul class="task-list">
+                <li class="task-item">
+                  <div class="task-checkbox"></div>
+                  <span class="task-text">File motion to compel discovery responses</span>
+                  <span class="task-priority high">High</span>
+                  <span class="task-assignee">S. Mitchell</span>
+                  <span class="task-due overdue">Mar 25</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox"></div>
+                  <span class="task-text">Prepare deposition outline for Dr. Patel</span>
+                  <span class="task-priority high">High</span>
+                  <span class="task-assignee">J. Kim</span>
+                  <span class="task-due overdue">Mar 26</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox"></div>
+                  <span class="task-text">Review expert report from Dr. Yamamoto</span>
+                  <span class="task-priority high">High</span>
+                  <span class="task-assignee">S. Mitchell</span>
+                  <span class="task-due overdue">Mar 27</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox"></div>
+                  <span class="task-text">Schedule IME with defense expert</span>
+                  <span class="task-priority medium">Med</span>
+                  <span class="task-assignee">J. Kim</span>
+                  <span class="task-due">Mar 31</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox"></div>
+                  <span class="task-text">Draft supplemental interrogatories</span>
+                  <span class="task-priority medium">Med</span>
+                  <span class="task-assignee">J. Kim</span>
+                  <span class="task-due">Apr 3</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox checked"></div>
+                  <span class="task-text completed">Client intake and case evaluation</span>
+                  <span class="task-priority low">Low</span>
+                  <span class="task-assignee">A. Rivera</span>
+                  <span class="task-due">Jan 20</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox checked"></div>
+                  <span class="task-text completed">File initial complaint</span>
+                  <span class="task-priority low">Low</span>
+                  <span class="task-assignee">S. Mitchell</span>
+                  <span class="task-due">Jan 15</span>
+                </li>
+                <li class="task-item">
+                  <div class="task-checkbox checked"></div>
+                  <span class="task-text completed">Serve defendant with complaint</span>
+                  <span class="task-priority low">Low</span>
+                  <span class="task-assignee">J. Kim</span>
+                  <span class="task-due">Jan 22</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Documents -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Documents</div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <span class="badge badge-gray">23 files</span>
+                <button class="btn btn-sm btn-gold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload
+                </button>
+              </div>
+            </div>
+            <div class="card-body no-padding">
+              <div class="doc-item">
+                <div class="doc-icon pdf">PDF</div>
+                <div class="doc-info">
+                  <div class="doc-name">Initial_Complaint_Martinez_v_Allied.pdf</div>
+                  <div class="doc-meta">2.4 MB &middot; Uploaded Jan 15, 2025 by S. Mitchell</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon pdf">PDF</div>
+                <div class="doc-info">
+                  <div class="doc-name">Medical_Records_Batch_1.pdf</div>
+                  <div class="doc-meta">18.7 MB &middot; Uploaded Feb 03, 2025 by J. Kim</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon doc">DOC</div>
+                <div class="doc-info">
+                  <div class="doc-name">Expert_Report_Dr_Yamamoto.docx</div>
+                  <div class="doc-meta">845 KB &middot; Uploaded Mar 12, 2025 by S. Mitchell</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon xls">XLS</div>
+                <div class="doc-info">
+                  <div class="doc-name">Damages_Calculation_v3.xlsx</div>
+                  <div class="doc-meta">156 KB &middot; Uploaded Mar 18, 2025 by A. Rivera</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon img">IMG</div>
+                <div class="doc-info">
+                  <div class="doc-name">Surgery_Photos_Set_1.zip</div>
+                  <div class="doc-meta">42.1 MB &middot; Uploaded Feb 14, 2025 by J. Kim</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon pdf">PDF</div>
+                <div class="doc-info">
+                  <div class="doc-name">Defendant_Answer_to_Complaint.pdf</div>
+                  <div class="doc-meta">1.8 MB &middot; Uploaded Feb 22, 2025 by S. Mitchell</div>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn btn-sm btn-ghost">View</button>
+                  <button class="btn btn-sm btn-ghost">Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Timeline + Notes -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          <!-- Case Timeline -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Timeline</div>
+              <button class="btn btn-sm btn-ghost">View All</button>
+            </div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot gold"></div>
+                  <div class="timeline-date">Mar 28, 2026</div>
+                  <div class="timeline-title">Motion to Compel Filed</div>
+                  <div class="timeline-desc">S. Mitchell filed motion to compel discovery responses from defendant</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot blue"></div>
+                  <div class="timeline-date">Mar 18, 2026</div>
+                  <div class="timeline-title">Expert Report Received</div>
+                  <div class="timeline-desc">Dr. Yamamoto submitted expert opinion supporting causation</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot red"></div>
+                  <div class="timeline-date">Mar 5, 2026</div>
+                  <div class="timeline-title">Discovery Dispute</div>
+                  <div class="timeline-desc">Defendant failed to produce requested medical records within 30-day window</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot blue"></div>
+                  <div class="timeline-date">Feb 22, 2026</div>
+                  <div class="timeline-title">Answer Filed</div>
+                  <div class="timeline-desc">Defendant filed answer with affirmative defenses</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot green"></div>
+                  <div class="timeline-date">Feb 3, 2026</div>
+                  <div class="timeline-title">Medical Records Obtained</div>
+                  <div class="timeline-desc">Batch 1 of medical records received from Allied Health Systems</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot blue"></div>
+                  <div class="timeline-date">Jan 22, 2026</div>
+                  <div class="timeline-title">Defendant Served</div>
+                  <div class="timeline-desc">Personal service on Allied Health Systems registered agent</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot green"></div>
+                  <div class="timeline-date">Jan 15, 2026</div>
+                  <div class="timeline-title">Complaint Filed</div>
+                  <div class="timeline-desc">Initial complaint filed in Superior Court, County of Los Angeles</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Notes</div>
+              <button class="btn btn-sm btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Note
+              </button>
+            </div>
+            <div class="card-body no-padding">
+              <div class="note-item">
+                <div class="note-header">
+                  <div class="note-avatar" style="background:var(--color-primary);">SM</div>
+                  <span class="note-author">Sarah Mitchell</span>
+                  <span class="note-time">Mar 28, 2026</span>
+                </div>
+                <div class="note-body">Filed motion to compel. Defendant has been stonewalling on medical records production. Judge Nakamura typically rules favorably on these motions — expecting a decision within 10 business days.</div>
+              </div>
+              <div class="note-item">
+                <div class="note-header">
+                  <div class="note-avatar" style="background:var(--color-secondary);">JK</div>
+                  <span class="note-author">James Kim</span>
+                  <span class="note-time">Mar 20, 2026</span>
+                </div>
+                <div class="note-body">Dr. Yamamoto's expert report is very strong on causation. Recommending we use him as lead expert witness if this goes to trial. Damages estimate supports $4.2M valuation.</div>
+              </div>
+              <div class="note-item">
+                <div class="note-header">
+                  <div class="note-avatar" style="background:var(--color-success);">AR</div>
+                  <span class="note-author">Angela Rivera</span>
+                  <span class="note-time">Mar 5, 2026</span>
+                </div>
+                <div class="note-body">Client called — concerned about timeline. Reassured her that discovery delays are common and we are pursuing aggressively. Scheduled follow-up call for March 15.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Dates -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Key Dates</div>
+            </div>
+            <div class="card-body" style="padding: var(--space-3) var(--space-5);">
+              <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:var(--font-size-sm); font-weight:600;">Motion Hearing</div>
+                    <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Motion to Compel</div>
+                  </div>
+                  <span class="badge badge-gold">Apr 8</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:var(--font-size-sm); font-weight:600;">Deposition</div>
+                    <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Dr. Patel (Defendant)</div>
+                  </div>
+                  <span class="badge badge-blue">Apr 15</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:var(--font-size-sm); font-weight:600;">Expert Disclosure</div>
+                    <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Defendant deadline</div>
+                  </div>
+                  <span class="badge badge-blue">May 1</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:var(--font-size-sm); font-weight:600;">Discovery Cutoff</div>
+                    <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">All parties</div>
+                  </div>
+                  <span class="badge badge-red">Jun 15</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:var(--font-size-sm); font-weight:600;">Trial Date</div>
+                    <div style="font-size:var(--font-size-xs); color:var(--color-text-tertiary);">Estimated</div>
+                  </div>
+                  <span class="badge badge-gray">Sep 2026</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="tokens-section">
+        <div class="tokens-header">
+          <div class="tokens-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--color-secondary);"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Design Tokens — Case Detail Components
+          </div>
+          <span class="badge badge-gold">Reference</span>
+        </div>
+        <div class="tokens-body">
+          <div>
+            <div class="token-group-label">Stage Progress</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Bar height:</strong> 6px with 3px radius</div>
+              <div><strong>Completed:</strong> Primary blue fill</div>
+              <div><strong>Current:</strong> Gold/amber fill</div>
+              <div><strong>Pending:</strong> #E2E8F0 gray</div>
+              <div><strong>Labels:</strong> 11px; completed=blue 600wt, current=gold 700wt, pending=tertiary</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">Timeline</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div><strong>Line:</strong> 2px, var(--color-border), left-aligned</div>
+              <div><strong>Dots:</strong> 10px, colored by type (blue/gold/green/red)</div>
+              <div><strong>Date:</strong> 11px, tertiary color</div>
+              <div><strong>Title:</strong> 12px, 600 weight</div>
+              <div><strong>Description:</strong> 11px, secondary color</div>
+            </div>
+          </div>
+          <div>
+            <div class="token-group-label">Document Icons</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--font-size-xs);">
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <div class="doc-icon pdf" style="width:24px;height:24px;font-size:9px;">PDF</div>
+                <span>PDF: danger-light bg, danger text</span>
+              </div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <div class="doc-icon doc" style="width:24px;height:24px;font-size:9px;">DOC</div>
+                <span>DOC: primary-light bg, primary text</span>
+              </div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <div class="doc-icon xls" style="width:24px;height:24px;font-size:9px;">XLS</div>
+                <span>XLS: success-light bg, success text</span>
+              </div>
+              <div style="display:flex; gap:var(--space-2); align-items:center;">
+                <div class="doc-icon img" style="width:24px;height:24px;font-size:9px;">IMG</div>
+                <span>IMG: secondary-light bg, secondary text</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { requireSession } from "@/lib/auth/session";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Header } from "@/components/layout/header";
+import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { cookies } from "next/headers";
 
 export default async function AppLayout({
@@ -15,12 +16,14 @@ export default async function AppLayout({
   const defaultOpen = sidebarState !== "false";
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar user={user} />
-      <SidebarInset>
-        <Header />
-        <div className="flex-1 overflow-auto p-4 md:p-6">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <ThemeWrapper>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <AppSidebar user={user} />
+        <SidebarInset>
+          <Header />
+          <div className="flex-1 overflow-auto p-4 md:p-8">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ThemeWrapper>
   );
 }

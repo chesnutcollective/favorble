@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Cases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     DESIGN TOKENS — Midnight Emerald
+     ============================================ */
+  :root {
+    --bg-base: #0C1117;
+    --bg-card: #151C25;
+    --bg-card-end: #1A222D;
+    --bg-sidebar: #0A0F14;
+    --bg-hover: #1E2733;
+    --bg-input: #111820;
+    --bg-row-alt: #131A22;
+
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-accent: rgba(16,185,129,0.3);
+    --border-hover: rgba(16,185,129,0.5);
+
+    --text-primary: #E2E8F0;
+    --text-secondary: #64748B;
+    --text-muted: #475569;
+    --text-on-accent: #022C22;
+    --text-white: #FFFFFF;
+
+    --emerald: #10B981;
+    --emerald-light: #34D399;
+    --emerald-dark: #059669;
+    --emerald-glow: rgba(16,185,129,0.15);
+    --amber: #F59E0B;
+    --amber-light: #FCD34D;
+    --amber-bg: rgba(245,158,11,0.12);
+    --red: #EF4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --blue: #3B82F6;
+    --blue-bg: rgba(59,130,246,0.12);
+
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-accent: 0 4px 16px rgba(16,185,129,0.1);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+
+    --radius: 8px;
+    --radius-sm: 6px;
+    --radius-lg: 12px;
+
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --text-xs: 0.75rem;
+    --text-sm: 0.8125rem;
+    --text-base: 0.875rem;
+    --text-lg: 1rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 2rem;
+    --tracking: -0.01em;
+    --transition: 150ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking);
+    color: var(--text-primary);
+    background: var(--bg-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ============================================
+     SIDEBAR (shared)
+     ============================================ */
+  .sidebar {
+    width: 248px;
+    min-width: 248px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+  }
+
+  .sidebar-brand {
+    padding: 0 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-brand-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-lg);
+    color: var(--text-on-accent);
+  }
+
+  .sidebar-brand-name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-white);
+  }
+
+  .sidebar-section { padding: 0 12px; margin-bottom: 24px; }
+
+  .sidebar-section-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding: 0 8px 8px;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .sidebar-link.active { background: var(--emerald-glow); color: var(--emerald); }
+  .sidebar-link svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-link.active svg { opacity: 1; }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--emerald-glow);
+    color: var(--emerald);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .sidebar-user { display: flex; align-items: center; gap: 10px; }
+
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E293B, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--emerald);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .sidebar-user-name { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+  .sidebar-user-role { font-size: var(--text-xs); color: var(--text-muted); }
+
+  /* ============================================
+     MAIN
+     ============================================ */
+  .main-content {
+    flex: 1;
+    padding: 28px 32px;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-white);
+  }
+
+  .page-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* ============================================
+     BUTTONS
+     ============================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--emerald);
+    color: var(--text-on-accent);
+    border-color: var(--emerald);
+  }
+  .btn-primary:hover { background: var(--emerald-light); box-shadow: var(--shadow-accent); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+  }
+  .btn-secondary:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.12); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 6px 10px;
+  }
+  .btn-ghost:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+  .btn svg { width: 16px; height: 16px; }
+
+  /* ============================================
+     BADGES
+     ============================================ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .badge-emerald { background: var(--emerald-glow); color: var(--emerald); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-neutral { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+
+  /* ============================================
+     TOOLBAR / FILTERS
+     ============================================ */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 9px 14px 9px 36px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: var(--border-accent); }
+
+  .search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .search-wrapper svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+  }
+
+  .filter-select {
+    padding: 9px 32px 9px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color var(--transition);
+  }
+
+  .filter-select:focus { border-color: var(--border-accent); }
+
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .filter-chip:hover { border-color: rgba(255,255,255,0.12); color: var(--text-primary); }
+  .filter-chip.active { background: var(--emerald-glow); border-color: var(--border-accent); color: var(--emerald); }
+
+  .filter-chip .chip-close {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px;
+    margin-left: 2px;
+  }
+
+  .results-count {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .results-count strong {
+    color: var(--text-white);
+  }
+
+  /* ============================================
+     TABLE
+     ============================================ */
+  .table-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .cases-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .cases-table th {
+    text-align: left;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+
+  .cases-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cases-table th.sortable:hover {
+    color: var(--text-secondary);
+  }
+
+  .cases-table th .sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0.4;
+  }
+
+  .cases-table th.sorted .sort-icon {
+    opacity: 1;
+    color: var(--emerald);
+  }
+
+  .cases-table td {
+    padding: 14px 16px;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+
+  .cases-table tbody tr {
+    transition: background var(--transition);
+  }
+
+  .cases-table tbody tr:nth-child(even) td {
+    background: var(--bg-row-alt);
+  }
+
+  .cases-table tbody tr:hover td {
+    background: var(--emerald-glow);
+  }
+
+  .case-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .case-name {
+    font-weight: 600;
+    color: var(--text-white);
+    cursor: pointer;
+  }
+
+  .case-name:hover {
+    color: var(--emerald);
+  }
+
+  .case-number {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .case-attorney {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .attorney-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E293B, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--emerald);
+    flex-shrink: 0;
+  }
+
+  .case-value {
+    font-weight: 600;
+    color: var(--text-white);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .case-date {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .case-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .case-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .case-action-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .case-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Stage badge with dot */
+  .stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .stage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ============================================
+     PAGINATION
+     ============================================ */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .pagination-info {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .page-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .page-btn.active { background: var(--emerald-glow); color: var(--emerald); border-color: var(--border-accent); }
+
+  .page-btn svg { width: 14px; height: 14px; }
+
+  /* ============================================
+     SCROLLBAR
+     ============================================ */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  /* ============================================
+     DESIGN TOKENS SECTION
+     ============================================ */
+  .tokens-section {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .tokens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .token-swatch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .token-color {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  .token-name { font-size: var(--text-xs); font-weight: 600; color: var(--text-primary); }
+  .token-value { font-size: var(--text-xs); color: var(--text-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+  /* Stat row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stat-mini {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: all var(--transition);
+  }
+
+  .stat-mini:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-accent);
+  }
+
+  .stat-mini-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .stat-mini-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text-white);
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="sidebar-link active" href="cases-list.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Cases
+        <span class="sidebar-badge">47</span>
+      </a>
+      <a class="sidebar-link" href="case-detail.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Case Detail
+      </a>
+      <a class="sidebar-link" href="chronology.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Chronology
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <a class="sidebar-link" href="admin-integrations.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Integrations
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Team
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JR</div>
+        <div>
+          <div class="sidebar-user-name">Jordan Rivera</div>
+          <div class="sidebar-user-role">Senior Paralegal</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Cases</div>
+        <div class="page-subtitle">Manage and track all active and closed cases</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Case
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-label">Total Active</div>
+        <div class="stat-mini-value">47</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">In Discovery</div>
+        <div class="stat-mini-value">15</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">Awaiting Settlement</div>
+        <div class="stat-mini-value">7</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">Closed This Month</div>
+        <div class="stat-mini-value">4</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" placeholder="Search cases by name, number, or attorney...">
+      </div>
+      <select class="filter-select">
+        <option>All Stages</option>
+        <option>Intake</option>
+        <option>Investigation</option>
+        <option>Discovery</option>
+        <option>Negotiation</option>
+        <option>Litigation</option>
+        <option>Settled</option>
+      </select>
+      <select class="filter-select">
+        <option>All Types</option>
+        <option>Personal Injury</option>
+        <option>Medical Malpractice</option>
+        <option>Product Liability</option>
+        <option>Employment</option>
+      </select>
+      <select class="filter-select">
+        <option>All Attorneys</option>
+        <option>Sarah Chen</option>
+        <option>Mike Torres</option>
+        <option>Priya Patel</option>
+        <option>David Kim</option>
+      </select>
+    </div>
+
+    <!-- Active Filters -->
+    <div class="filter-chips" style="margin-bottom:12px">
+      <span class="filter-chip active">All Cases <span class="chip-close">&times;</span></span>
+      <span class="filter-chip">High Priority</span>
+      <span class="filter-chip">My Cases</span>
+      <span class="filter-chip">Overdue Tasks</span>
+      <span class="filter-chip">Recently Updated</span>
+    </div>
+
+    <div class="results-count">Showing <strong>47</strong> of 124 total cases</div>
+
+    <!-- Cases Table -->
+    <div class="table-card">
+      <table class="cases-table">
+        <thead>
+          <tr>
+            <th class="sortable sorted">Case Name <span class="sort-icon">&#9660;</span></th>
+            <th class="sortable">Stage <span class="sort-icon">&#9650;</span></th>
+            <th class="sortable">Type <span class="sort-icon">&#9650;</span></th>
+            <th class="sortable">Attorney <span class="sort-icon">&#9650;</span></th>
+            <th class="sortable">Value <span class="sort-icon">&#9650;</span></th>
+            <th class="sortable">Filed <span class="sort-icon">&#9650;</span></th>
+            <th>Priority</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Martinez v. Allied Health Systems</span>
+                <span class="case-number">CV-2025-04821</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-blue"><span class="stage-dot" style="background:var(--blue)"></span> Discovery</span></td>
+            <td style="color:var(--text-secondary)">Medical Malpractice</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">SC</div>
+                Sarah Chen
+              </div>
+            </td>
+            <td><span class="case-value">$850,000</span></td>
+            <td><span class="case-date">Jan 15, 2025</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn" title="View">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="case-action-btn" title="Edit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="case-action-btn" title="More">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Thompson v. Metro Transit Authority</span>
+                <span class="case-number">CV-2025-05103</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-blue"><span class="stage-dot" style="background:var(--blue)"></span> Discovery</span></td>
+            <td style="color:var(--text-secondary)">Personal Injury</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">MT</div>
+                Mike Torres
+              </div>
+            </td>
+            <td><span class="case-value">$425,000</span></td>
+            <td><span class="case-date">Feb 3, 2025</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Davis v. NexGen Corporation</span>
+                <span class="case-number">CV-2024-12847</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-amber"><span class="stage-dot" style="background:var(--amber)"></span> Negotiation</span></td>
+            <td style="color:var(--text-secondary)">Product Liability</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">PP</div>
+                Priya Patel
+              </div>
+            </td>
+            <td><span class="case-value">$1,200,000</span></td>
+            <td><span class="case-date">Oct 22, 2024</span></td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Williams v. St. Luke's Medical Center</span>
+                <span class="case-number">CV-2025-06234</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-emerald"><span class="stage-dot" style="background:var(--emerald)"></span> Investigation</span></td>
+            <td style="color:var(--text-secondary)">Medical Malpractice</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">SC</div>
+                Sarah Chen
+              </div>
+            </td>
+            <td><span class="case-value">$675,000</span></td>
+            <td><span class="case-date">Mar 1, 2025</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Anderson v. CityWide Insurance</span>
+                <span class="case-number">CV-2025-03918</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-blue"><span class="stage-dot" style="background:var(--blue)"></span> Discovery</span></td>
+            <td style="color:var(--text-secondary)">Personal Injury</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">DK</div>
+                David Kim
+              </div>
+            </td>
+            <td><span class="case-value">$320,000</span></td>
+            <td><span class="case-date">Dec 8, 2024</span></td>
+            <td><span class="badge badge-emerald">Low</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Park v. Ridgeline Properties LLC</span>
+                <span class="case-number">CV-2024-11502</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-neutral"><span class="stage-dot" style="background:var(--text-secondary)"></span> Settled</span></td>
+            <td style="color:var(--text-secondary)">Personal Injury</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">MT</div>
+                Mike Torres
+              </div>
+            </td>
+            <td><span class="case-value">$185,000</span></td>
+            <td><span class="case-date">Aug 19, 2024</span></td>
+            <td><span class="badge badge-neutral">Closed</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Nguyen v. Pacific Coast Carriers</span>
+                <span class="case-number">CV-2025-07189</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-emerald"><span class="stage-dot" style="background:var(--emerald)"></span> Intake</span></td>
+            <td style="color:var(--text-secondary)">Personal Injury</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">PP</div>
+                Priya Patel
+              </div>
+            </td>
+            <td><span class="case-value">$250,000</span></td>
+            <td><span class="case-date">Mar 20, 2025</span></td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="case-name-cell">
+                <span class="case-name">Robertson v. Apex Manufacturing</span>
+                <span class="case-number">CV-2024-09841</span>
+              </div>
+            </td>
+            <td><span class="stage-badge badge-red"><span class="stage-dot" style="background:var(--red)"></span> Litigation</span></td>
+            <td style="color:var(--text-secondary)">Product Liability</td>
+            <td>
+              <div class="case-attorney">
+                <div class="attorney-avatar">DK</div>
+                David Kim
+              </div>
+            </td>
+            <td><span class="case-value">$2,100,000</span></td>
+            <td><span class="case-date">Jun 14, 2024</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>
+              <div class="case-actions">
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="case-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <div class="pagination-info">Showing 1-8 of 47 cases</div>
+        <div class="pagination-controls">
+          <button class="page-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">5</button>
+          <button class="page-btn">6</button>
+          <button class="page-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DESIGN TOKENS ============ -->
+    <div class="tokens-section">
+      <div class="page-title" style="font-size:var(--text-xl);margin-bottom:4px">Design Tokens</div>
+      <div class="page-subtitle">Midnight Emerald &mdash; Table & Filter Components</div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Stage Badges</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span class="stage-badge badge-emerald"><span class="stage-dot" style="background:var(--emerald)"></span> Intake</span>
+        <span class="stage-badge badge-emerald"><span class="stage-dot" style="background:var(--emerald)"></span> Investigation</span>
+        <span class="stage-badge badge-blue"><span class="stage-dot" style="background:var(--blue)"></span> Discovery</span>
+        <span class="stage-badge badge-amber"><span class="stage-dot" style="background:var(--amber)"></span> Negotiation</span>
+        <span class="stage-badge badge-red"><span class="stage-dot" style="background:var(--red)"></span> Litigation</span>
+        <span class="stage-badge badge-neutral"><span class="stage-dot" style="background:var(--text-secondary)"></span> Settled</span>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Priority Levels</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span class="badge badge-red">High</span>
+        <span class="badge badge-amber">Medium</span>
+        <span class="badge badge-emerald">Low</span>
+        <span class="badge badge-neutral">Closed</span>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Filter Chips</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span class="filter-chip active">Active Filter</span>
+        <span class="filter-chip">Inactive Filter</span>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Inputs</div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <input type="text" class="search-input" placeholder="Search input" style="flex:none;width:240px">
+        <select class="filter-select"><option>Select dropdown</option></select>
+      </div>
+
+      <div style="margin-top:20px;font-size:var(--text-sm);font-weight:600;color:var(--text-white)">Colors</div>
+      <div class="tokens-grid">
+        <div class="token-swatch"><div class="token-color" style="background:#10B981"></div><div><div class="token-name">Emerald</div><div class="token-value">#10B981</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#F59E0B"></div><div><div class="token-name">Amber</div><div class="token-value">#F59E0B</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#EF4444"></div><div><div class="token-name">Red</div><div class="token-value">#EF4444</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#3B82F6"></div><div><div class="token-name">Blue</div><div class="token-value">#3B82F6</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:#131A22"></div><div><div class="token-name">Row Alt</div><div class="token-value">#131A22</div></div></div>
+        <div class="token-swatch"><div class="token-color" style="background:rgba(16,185,129,0.15)"></div><div><div class="token-name">Row Hover</div><div class="token-value">emerald-glow</div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

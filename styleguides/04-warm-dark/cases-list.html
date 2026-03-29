@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Cases (Dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Warm Minimal Dark
+     ============================================================ */
+  :root {
+    --bg-page:        #1C1917;
+    --bg-card:        #292524;
+    --bg-sidebar:     #171412;
+    --bg-hover:       #352F2C;
+    --bg-active:      #3F3B37;
+    --bg-input:       #292524;
+    --bg-badge:       #3D2E0A;
+    --bg-badge-green: #0A3324;
+    --bg-badge-red:   #3B1111;
+    --bg-badge-blue:  #172554;
+    --bg-badge-gray:  #352F2C;
+    --bg-badge-purple:#2E1065;
+
+    --text-primary:   #E7E5E4;
+    --text-secondary: #A8A29E;
+    --text-tertiary:  #78716C;
+    --text-inverse:   #FFFFFF;
+    --text-accent:    #D97706;
+
+    --accent:         #B45309;
+    --accent-hover:   #D97706;
+    --accent-light:   #3D2E0A;
+    --success:        #059669;
+    --success-light:  #0A3324;
+    --warning:        #D97706;
+    --warning-light:  #3D2E0A;
+    --danger:         #DC2626;
+    --danger-light:   #3B1111;
+    --info:           #2563EB;
+    --info-light:     #172554;
+    --purple:         #7C3AED;
+    --purple-light:   #EDE9FE;
+
+    --border:         #3F3B37;
+    --border-strong:  #57534E;
+    --border-accent:  #B45309;
+
+    --shadow-sm:      0 1px 2px rgba(0,0,0,0.2);
+    --shadow-md:      0 1px 3px rgba(0,0,0,0.3);
+    --shadow-lg:      0 4px 12px rgba(0,0,0,0.4);
+    --shadow-xl:      0 8px 24px rgba(0,0,0,0.5);
+
+    --radius-sm:      4px;
+    --radius-md:      6px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    --font-heading:   'DM Serif Display', Georgia, serif;
+    --font-body:      'DM Sans', -apple-system, sans-serif;
+
+    --text-xs:   0.75rem;
+    --text-sm:   0.8125rem;
+    --text-base: 0.875rem;
+    --text-md:   1rem;
+    --text-lg:   1.125rem;
+    --text-xl:   1.25rem;
+    --text-2xl:  1.5rem;
+    --text-3xl:  1.875rem;
+
+    --space-1: 4px;  --space-2: 8px;  --space-3: 12px;  --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px;  --space-10: 40px;
+    --space-12: 48px;
+
+    --sidebar-width: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    background: var(--bg-page);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 400; line-height: 1.3; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+  }
+
+  .sidebar-header { padding: var(--space-5); border-bottom: 1px solid var(--border); }
+  .sidebar-logo { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-nav { flex: 1; padding: var(--space-3); overflow-y: auto; }
+  .nav-section { margin-bottom: var(--space-5); }
+  .nav-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: var(--space-2) var(--space-3); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+  .nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--accent-light); color: var(--accent); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 600; }
+  .user-name { font-size: var(--text-sm); font-weight: 500; }
+  .user-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  .main { flex: 1; margin-left: var(--sidebar-width); min-width: 0; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-8); border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .topbar-left { display: flex; align-items: center; gap: var(--space-4); }
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-tertiary); }
+  .breadcrumb-sep { color: var(--text-tertiary); }
+  .breadcrumb-current { color: var(--text-primary); font-weight: 500; }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+
+  .icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .page-content { padding: var(--space-8); max-width: 1400px; }
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: var(--space-6); }
+  .page-title { font-size: var(--text-2xl); margin-bottom: var(--space-1); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); }
+
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; line-height: 1.5; }
+  .btn-primary { background: var(--accent); color: var(--text-inverse); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--text-xs); }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-amber  { background: var(--bg-badge);       color: var(--accent); }
+  .badge-green  { background: var(--bg-badge-green);  color: var(--success); }
+  .badge-red    { background: var(--bg-badge-red);    color: var(--danger); }
+  .badge-blue   { background: var(--bg-badge-blue);   color: var(--info); }
+  .badge-gray   { background: var(--bg-badge-gray);   color: var(--text-secondary); }
+  .badge-purple { background: var(--bg-badge-purple); color: var(--purple); }
+
+  /* ============================================================
+     FILTERS BAR
+     ============================================================ */
+  .filters-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    width: 260px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent); }
+
+  .filter-select {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    padding-right: var(--space-8);
+    font-size: var(--text-sm);
+    font-family: var(--font-body);
+    color: var(--text-secondary);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+
+  .filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  .filter-tag-remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .filter-tag-remove:hover { opacity: 1; }
+
+  .filter-count {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  /* ============================================================
+     TABS
+     ============================================================ */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-5);
+  }
+
+  .tab {
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text-primary); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: var(--space-2);
+    background: var(--bg-page);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+  }
+
+  .tab.active .tab-count { background: var(--accent-light); color: var(--accent); }
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  .table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-page);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-hover); }
+
+  .case-name-cell {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .case-name-cell a {
+    color: var(--text-primary);
+    transition: color 0.15s;
+  }
+  .case-name-cell a:hover { color: var(--accent); }
+
+  .case-id {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  .attorney-cell { display: flex; align-items: center; gap: var(--space-2); }
+  .attorney-avatar {
+    width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--text-inverse); flex-shrink: 0;
+  }
+
+  .date-cell { color: var(--text-secondary); white-space: nowrap; }
+  .value-cell { font-family: var(--font-heading); font-size: var(--text-sm); color: var(--text-primary); white-space: nowrap; }
+
+  .actions-cell { display: flex; gap: var(--space-2); }
+
+  /* Row checkbox */
+  .row-check {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border-strong);
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Pagination */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border);
+    background: var(--bg-page);
+  }
+
+  .pagination-info { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  .pagination-nav {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .page-btn {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    font-size: var(--text-xs);
+    font-family: var(--font-body);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .page-btn.active { background: var(--accent); color: var(--text-inverse); border-color: var(--accent); }
+
+  /* ============================================================
+     EMPTY STATES
+     ============================================================ */
+  .empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-8);
+  }
+
+  .empty-state-icon {
+    width: 48px; height: 48px;
+    margin: 0 auto var(--space-4);
+    color: var(--text-tertiary);
+    opacity: 0.5;
+  }
+
+  .empty-state-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  .empty-state-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-5);
+  }
+
+  /* ============================================================
+     DESIGN TOKENS
+     ============================================================ */
+  .tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid var(--border); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+  .token-swatch { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .token-color { height: 48px; }
+  .token-info { padding: var(--space-2) var(--space-3); background: var(--bg-card); }
+  .token-name { font-size: var(--text-xs); font-weight: 600; }
+  .token-value { font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace; }
+  .section-title { font-family: var(--font-heading); font-size: var(--text-xl); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">Favor<span>ble</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Main</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Cases
+            <span class="nav-badge">47</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            Contacts
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Documents
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Chronologies
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Manage</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Reports
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">MR</div>
+          <div>
+            <div class="user-name">Maria Reynolds</div>
+            <div class="user-role">Senior Paralegal</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="breadcrumb">
+            <span>Dashboard</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-current">Cases</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Case
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Cases</h1>
+            <p class="page-subtitle">Manage and track all active and closed cases</p>
+          </div>
+          <div style="display: flex; gap: var(--space-3);">
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+            <button class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <div class="tab active">All Cases <span class="tab-count">47</span></div>
+          <div class="tab">Active <span class="tab-count">34</span></div>
+          <div class="tab">Pre-Litigation <span class="tab-count">18</span></div>
+          <div class="tab">In Litigation <span class="tab-count">12</span></div>
+          <div class="tab">Settled <span class="tab-count">9</span></div>
+          <div class="tab">Closed <span class="tab-count">4</span></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <input type="text" class="search-input" placeholder="Search by case name, client, or ID...">
+          <select class="filter-select">
+            <option>Case Type</option>
+            <option>Personal Injury</option>
+            <option>Medical Malpractice</option>
+            <option>Workers' Comp</option>
+            <option>Product Liability</option>
+          </select>
+          <select class="filter-select">
+            <option>Stage</option>
+            <option>Intake</option>
+            <option>Investigation</option>
+            <option>Discovery</option>
+            <option>Negotiation</option>
+            <option>Settlement</option>
+          </select>
+          <select class="filter-select">
+            <option>Attorney</option>
+            <option>James Thornton</option>
+            <option>Sarah Kim</option>
+            <option>David Okafor</option>
+          </select>
+          <select class="filter-select">
+            <option>Priority</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <div class="filter-tag">
+            Status: Active
+            <span class="filter-tag-remove">&times;</span>
+          </div>
+          <span class="filter-count">Showing 34 of 47 cases</span>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 36px; padding-left: var(--space-4);"><div class="row-check"></div></th>
+                <th>Case Name</th>
+                <th>Type</th>
+                <th>Stage</th>
+                <th>Attorney</th>
+                <th>Client</th>
+                <th>Filed</th>
+                <th>Est. Value</th>
+                <th>Priority</th>
+                <th style="width: 60px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Williams v. City Transit Authority</a>
+                  <div class="case-id">CS-2026-0134</div>
+                </td>
+                <td><span class="badge badge-blue">Personal Injury</span></td>
+                <td><span class="badge badge-amber">Discovery</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #4F46E5;">JT</div>
+                    James Thornton
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Marcus Williams</td>
+                <td class="date-cell">Jan 15, 2026</td>
+                <td class="value-cell">$425,000</td>
+                <td><span class="badge badge-red">High</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Henderson v. MedCorp Systems</a>
+                  <div class="case-id">CS-2026-0147</div>
+                </td>
+                <td><span class="badge badge-purple">Med Malpractice</span></td>
+                <td><span class="badge badge-gray">Intake</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #059669;">SK</div>
+                    Sarah Kim
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Patricia Henderson</td>
+                <td class="date-cell">Mar 26, 2026</td>
+                <td class="value-cell">$850,000</td>
+                <td><span class="badge badge-red">High</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Park v. AutoDrive Inc</a>
+                  <div class="case-id">CS-2026-0098</div>
+                </td>
+                <td><span class="badge badge-amber">Product Liability</span></td>
+                <td><span class="badge badge-blue">Investigation</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #B45309;">DO</div>
+                    David Okafor
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Jin-ho Park</td>
+                <td class="date-cell">Nov 3, 2025</td>
+                <td class="value-cell">$1,200,000</td>
+                <td><span class="badge badge-amber">Medium</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Davis v. TruckCo LLC</a>
+                  <div class="case-id">CS-2025-0412</div>
+                </td>
+                <td><span class="badge badge-blue">Auto Accident</span></td>
+                <td><span class="badge badge-green">Negotiation</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #4F46E5;">JT</div>
+                    James Thornton
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Robert Davis</td>
+                <td class="date-cell">Sep 18, 2025</td>
+                <td class="value-cell">$275,000</td>
+                <td><span class="badge badge-amber">Medium</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Baker v. PharmaCo International</a>
+                  <div class="case-id">CS-2025-0356</div>
+                </td>
+                <td><span class="badge badge-red">Mass Tort</span></td>
+                <td><span class="badge badge-green">Settlement</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #059669;">SK</div>
+                    Sarah Kim
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Thomas Baker</td>
+                <td class="date-cell">Jul 22, 2025</td>
+                <td class="value-cell">$540,000</td>
+                <td><span class="badge badge-gray">Low</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Nguyen v. Apex Builders Corp</a>
+                  <div class="case-id">CS-2026-0112</div>
+                </td>
+                <td><span class="badge badge-amber">Construction</span></td>
+                <td><span class="badge badge-amber">Discovery</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #B45309;">DO</div>
+                    David Okafor
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Linh Nguyen</td>
+                <td class="date-cell">Dec 8, 2025</td>
+                <td class="value-cell">$380,000</td>
+                <td><span class="badge badge-amber">Medium</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Chen Slip & Fall</a>
+                  <div class="case-id">CS-2026-0139</div>
+                </td>
+                <td><span class="badge badge-blue">Premises Liability</span></td>
+                <td><span class="badge badge-blue">Investigation</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #4F46E5;">JT</div>
+                    James Thornton
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Wei Chen</td>
+                <td class="date-cell">Mar 25, 2026</td>
+                <td class="value-cell">$95,000</td>
+                <td><span class="badge badge-gray">Low</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: var(--space-4);"><div class="row-check"></div></td>
+                <td class="case-name-cell">
+                  <a href="#">Foster Estate Wrongful Death</a>
+                  <div class="case-id">CS-2025-0289</div>
+                </td>
+                <td><span class="badge badge-red">Wrongful Death</span></td>
+                <td><span class="badge badge-green">Negotiation</span></td>
+                <td>
+                  <div class="attorney-cell">
+                    <div class="attorney-avatar" style="background: #059669;">SK</div>
+                    Sarah Kim
+                  </div>
+                </td>
+                <td style="color: var(--text-secondary);">Linda Foster</td>
+                <td class="date-cell">Jun 14, 2025</td>
+                <td class="value-cell">$2,100,000</td>
+                <td><span class="badge badge-red">High</span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="icon-btn" style="width: 28px; height: 28px; border: none; background: none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="table-footer">
+            <div class="pagination-info">Showing 1-8 of 34 cases</div>
+            <div class="pagination-nav">
+              <button class="page-btn">&larr;</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">4</button>
+              <button class="page-btn">5</button>
+              <button class="page-btn">&rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== DESIGN TOKENS ====== -->
+        <div class="tokens-section">
+          <div style="margin-bottom: var(--space-6);">
+            <h2 class="section-title">Design Tokens</h2>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Table Variants</h4>
+          <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8);">
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Row Height</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">56px (comfortable)</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Header Style</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">Uppercase, warm gray bg</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Hover State</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">#352F2C (warm dark hover)</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Separator</div>
+              <div style="font-size: var(--text-sm); font-weight: 500;">1px #3F3B37</div>
+            </div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Badge Variants</h4>
+          <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-6);">
+            <span class="badge badge-amber">Amber / Discovery</span>
+            <span class="badge badge-green">Green / Settlement</span>
+            <span class="badge badge-red">Red / High Priority</span>
+            <span class="badge badge-blue">Blue / Investigation</span>
+            <span class="badge badge-gray">Gray / Intake</span>
+            <span class="badge badge-purple">Purple / Med Mal</span>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Filter Components</h4>
+          <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-6);">
+            <input type="text" class="search-input" placeholder="Search input" style="width: 200px;">
+            <select class="filter-select"><option>Filter Select</option></select>
+            <div class="filter-tag">Active Tag <span class="filter-tag-remove">&times;</span></div>
+          </div>
+
+          <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Colors</h4>
+          <div class="tokens-grid">
+            <div class="token-swatch"><div class="token-color" style="background: #1C1917;"></div><div class="token-info"><div class="token-name">Page Background</div><div class="token-value">#1C1917</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #E7E5E4;"></div><div class="token-info"><div class="token-name">Primary Text</div><div class="token-value">#E7E5E4</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #A8A29E;"></div><div class="token-info"><div class="token-name">Secondary Text</div><div class="token-value">#A8A29E</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #B45309;"></div><div class="token-info"><div class="token-name">Accent</div><div class="token-value">#B45309</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #059669;"></div><div class="token-info"><div class="token-name">Success</div><div class="token-value">#059669</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #7C3AED;"></div><div class="token-info"><div class="token-name">Purple</div><div class="token-value">#7C3AED</div></div></div>
+            <div class="token-swatch"><div class="token-color" style="background: #3F3B37;"></div><div class="token-info"><div class="token-name">Border</div><div class="token-value">#3F3B37</div></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

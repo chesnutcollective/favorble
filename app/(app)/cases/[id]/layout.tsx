@@ -105,11 +105,12 @@ export default async function CaseDetailLayout({
                   key={group.id}
                   className="flex-1 h-2 rounded-full"
                   style={{
-                    backgroundColor:
-                      isCompleted || isCurrent
-                        ? (group.color ?? "#6B7280")
-                        : "#E5E7EB",
-                    opacity: isCurrent ? 1 : isCompleted ? 0.7 : 0.3,
+                    backgroundColor: isCompleted
+                      ? "#000"
+                      : isCurrent
+                        ? "transparent"
+                        : "#EAEAEA",
+                    border: isCurrent ? "1.5px solid #000" : "none",
                   }}
                   title={group.name}
                 />
@@ -209,8 +210,8 @@ export default async function CaseDetailLayout({
       {/* Tabs */}
       <CaseTabNav caseId={id} />
 
-      {/* Tab Content — tighter top spacing */}
-      <div className="-mt-1">{children}</div>
+      {/* Tab Content */}
+      <div>{children}</div>
     </div>
   );
 }

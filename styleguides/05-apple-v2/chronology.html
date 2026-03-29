@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble v2 — Medical Chronology</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Apple HIG v2 (Warm Indigo)
+     ============================================================ */
+  :root {
+    --color-bg:              #F5F5F2;
+    --color-surface:         #FFFFFE;
+    --color-sidebar:         rgba(248,246,242,0.72);
+    --color-toolbar:         rgba(248,246,242,0.82);
+    --color-text-primary:    #1D1D1F;
+    --color-text-secondary:  #86868B;
+    --color-text-tertiary:   #AEAEB2;
+    --color-accent:          #5856D6;
+    --color-accent-hover:    #4644B0;
+    --color-destructive:     #FF3B30;
+    --color-success:         #34C759;
+    --color-warning:         #FF9F0A;
+    --color-orange:          #FF9500;
+    --color-amber:           #FF9500;
+    --color-purple:          #AF52DE;
+    --color-indigo:          #5856D6;
+    --color-teal:            #5AC8FA;
+    --color-pink:            #FF2D55;
+    --color-separator:       rgba(0,0,0,0.06);
+    --color-hover:           rgba(0,0,0,0.04);
+    --color-selected:        rgba(88,86,214,0.12);
+
+    --shadow-card:  0 1px 3px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.04);
+    --shadow-popup: 0 4px 16px rgba(0,0,0,0.12), 0 16px 48px rgba(0,0,0,0.08);
+    --shadow-toolbar: 0 0.5px 0 rgba(0,0,0,0.1);
+
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  12px;
+    --radius-xl:  16px;
+
+    --font-family: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, sans-serif;
+    --font-size-xs:    11px;
+    --font-size-sm:    12px;
+    --font-size-base:  14px;
+    --font-size-md:    15px;
+    --font-size-lg:    17px;
+    --font-size-xl:    20px;
+    --font-size-2xl:   24px;
+    --font-size-3xl:   28px;
+
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+
+    --sidebar-width: 240px;
+    --toolbar-height: 52px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text-primary); background: var(--color-bg); -webkit-font-smoothing: antialiased; }
+  .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); background: var(--color-sidebar); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-right: 0.5px solid var(--color-separator); display: flex; flex-direction: column; padding: var(--space-lg) 0; user-select: none; overflow-y: auto; }
+  .sidebar-brand { padding: 0 var(--space-xl); margin-bottom: var(--space-2xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--color-accent), #7B79E8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.3px; }
+  .sidebar-section-label { padding: var(--space-lg) var(--space-xl) var(--space-xs); font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar-item { display: flex; align-items: center; gap: var(--space-sm); padding: 6px var(--space-xl); margin: 1px var(--space-sm); border-radius: var(--radius-sm); font-size: var(--font-size-base); color: var(--color-text-primary); cursor: pointer; transition: background 0.15s; text-decoration: none; }
+  .sidebar-item:hover { background: var(--color-hover); }
+  .sidebar-item.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 15px; opacity: 0.75; }
+  .sidebar-item.active .icon { opacity: 1; }
+  .sidebar-badge { margin-left: auto; background: var(--color-destructive); color: #fff; font-size: var(--font-size-xs); font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-user { padding: var(--space-md) var(--space-xl); border-top: 0.5px solid var(--color-separator); display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm); }
+  .sidebar-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FF6B6B, var(--color-orange)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; }
+  .sidebar-user-name { font-size: var(--font-size-sm); font-weight: 500; }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .toolbar { height: var(--toolbar-height); min-height: var(--toolbar-height); background: var(--color-toolbar); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 0.5px solid var(--color-separator); box-shadow: var(--shadow-toolbar); display: flex; align-items: center; padding: 0 var(--space-2xl); gap: var(--space-lg); user-select: none; z-index: 10; }
+  .toolbar-title { font-size: var(--font-size-lg); font-weight: 600; letter-spacing: -0.2px; }
+  .toolbar-spacer { flex: 1; }
+  .toolbar-search { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.04); border: 0.5px solid var(--color-separator); border-radius: var(--radius-sm); padding: 5px 10px; font-size: var(--font-size-sm); color: var(--color-text-secondary); width: 220px; }
+  .toolbar-search input { border: none; background: none; outline: none; font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--color-text-primary); width: 100%; }
+  .toolbar-btn { display: flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--radius-sm); border: 0.5px solid var(--color-separator); background: var(--color-surface); font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--color-text-primary); cursor: pointer; transition: all 0.15s; }
+  .toolbar-btn:hover { background: var(--color-hover); }
+  .toolbar-btn.primary { background: var(--color-accent); color: #fff; border-color: transparent; background-image: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0) 100%); }
+
+  .content { flex: 1; overflow-y: auto; padding: var(--space-2xl); display: flex; flex-direction: column; gap: var(--space-2xl); }
+
+  .segmented-control { display: inline-flex; background: rgba(0,0,0,0.06); border-radius: var(--radius-sm); padding: 2px; gap: 1px; }
+  .segmented-option { padding: 5px 16px; border-radius: 5px; font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; user-select: none; }
+  .segmented-option.active { background: var(--color-surface); color: var(--color-text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-lg); }
+  .stat-card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-lg) var(--space-xl); display: flex; flex-direction: column; gap: var(--space-xs); }
+  .stat-label { font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 500; }
+  .stat-value { font-size: var(--font-size-2xl); font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+  .stat-sub { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+
+  .card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-lg) var(--space-xl); border-bottom: 0.5px solid var(--color-separator); }
+  .card-title { font-size: var(--font-size-md); font-weight: 600; letter-spacing: -0.2px; }
+  .card-action { font-size: var(--font-size-sm); color: var(--color-accent); cursor: pointer; font-weight: 500; text-decoration: none; }
+  .card-body { padding: var(--space-lg) var(--space-xl); }
+
+  .filter-bar { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; background: rgba(0,0,0,0.05); font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; border: none; font-family: var(--font-family); }
+  .filter-chip:hover { background: rgba(0,0,0,0.08); }
+  .filter-chip.active { background: var(--color-selected); color: var(--color-accent); font-weight: 500; }
+  .filter-divider { width: 1px; height: 20px; background: var(--color-separator); }
+
+  .case-selector { display: flex; align-items: center; gap: var(--space-md); background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-lg) var(--space-xl); }
+  .case-selector-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); font-weight: 500; }
+  .case-selector-dropdown { display: flex; align-items: center; gap: var(--space-sm); padding: 6px 12px; border-radius: var(--radius-sm); border: 0.5px solid var(--color-separator); background: var(--color-bg); font-family: var(--font-family); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; }
+  .case-selector-dropdown .chevron { font-size: 10px; color: var(--color-text-tertiary); margin-left: 4px; }
+  .case-selector-spacer { flex: 1; }
+  .case-selector-meta { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+
+  /* ---- TIMELINE ---- */
+  .timeline { position: relative; }
+  .timeline-year { font-size: var(--font-size-lg); font-weight: 700; letter-spacing: -0.2px; padding: var(--space-lg) var(--space-xl); background: rgba(0,0,0,0.015); border-bottom: 0.5px solid var(--color-separator); position: sticky; top: 0; z-index: 2; }
+  .timeline-month { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); padding: var(--space-md) var(--space-xl); background: var(--color-surface); border-bottom: 0.5px solid var(--color-separator); position: sticky; top: 44px; z-index: 1; }
+  .timeline-entry { display: flex; padding: var(--space-lg) var(--space-xl); border-bottom: 0.5px solid var(--color-separator); gap: var(--space-lg); transition: background 0.1s; cursor: pointer; }
+  .timeline-entry:hover { background: var(--color-hover); }
+  .timeline-entry:last-child { border-bottom: none; }
+  .timeline-date-col { width: 80px; flex-shrink: 0; }
+  .timeline-date { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-primary); }
+  .timeline-day { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .timeline-marker-col { width: 28px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .timeline-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; z-index: 1; margin-top: 4px; }
+  .timeline-dot.emergency  { background: var(--color-destructive); }
+  .timeline-dot.surgery    { background: var(--color-purple); }
+  .timeline-dot.imaging    { background: var(--color-indigo); }
+  .timeline-dot.office     { background: var(--color-accent); }
+  .timeline-dot.therapy    { background: var(--color-teal); }
+  .timeline-dot.medication { background: var(--color-success); }
+  .timeline-dot.lab        { background: var(--color-amber); }
+  .timeline-dot.mental     { background: var(--color-purple); }
+  .timeline-dot.ce         { background: var(--color-pink); }
+  .timeline-dot.incident   { background: var(--color-pink); }
+  .timeline-line { width: 1.5px; flex: 1; background: var(--color-separator); margin-top: 4px; }
+  .timeline-content { flex: 1; min-width: 0; }
+  .timeline-title { font-size: var(--font-size-base); font-weight: 600; margin-bottom: 2px; }
+  .timeline-provider { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-xs); }
+  .timeline-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5; }
+  .timeline-tags { display: flex; gap: var(--space-xs); margin-top: var(--space-sm); flex-wrap: wrap; }
+  .timeline-tag { font-size: var(--font-size-xs); padding: 1px 7px; border-radius: 4px; font-weight: 500; }
+  .timeline-tag.emergency  { background: rgba(255,59,48,0.1);  color: var(--color-destructive); }
+  .timeline-tag.surgery    { background: rgba(175,82,222,0.1); color: var(--color-purple); }
+  .timeline-tag.imaging    { background: rgba(88,86,214,0.1);  color: var(--color-indigo); }
+  .timeline-tag.office     { background: rgba(88,86,214,0.1);  color: var(--color-accent); }
+  .timeline-tag.therapy    { background: rgba(90,200,250,0.12); color: #0A84FF; }
+  .timeline-tag.medication { background: rgba(52,199,89,0.1);  color: var(--color-success); }
+  .timeline-tag.lab        { background: rgba(255,149,0,0.1);  color: var(--color-amber); }
+  .timeline-tag.mental     { background: rgba(175,82,222,0.1); color: var(--color-purple); }
+  .timeline-tag.ce         { background: rgba(255,45,85,0.1);  color: var(--color-pink); }
+  .timeline-cost { flex-shrink: 0; text-align: right; min-width: 80px; }
+  .timeline-cost-value { font-size: var(--font-size-base); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .timeline-cost-label { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+  .timeline-source { flex-shrink: 0; width: 60px; text-align: right; }
+  .timeline-page { font-size: var(--font-size-xs); color: var(--color-accent); font-weight: 500; cursor: pointer; }
+
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+  .summary-item { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md) 0; border-bottom: 0.5px solid var(--color-separator); }
+  .summary-item:last-child { border-bottom: none; }
+  .summary-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .summary-label { font-size: var(--font-size-sm); flex: 1; }
+  .summary-count { font-size: var(--font-size-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .bar-chart { display: flex; flex-direction: column; gap: var(--space-sm); }
+  .bar-row { display: flex; align-items: center; gap: var(--space-md); }
+  .bar-label { width: 100px; font-size: var(--font-size-xs); color: var(--color-text-secondary); text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .bar-value { width: 60px; font-size: var(--font-size-xs); font-weight: 600; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  .design-tokens { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-2xl); }
+  .design-tokens h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-xl); letter-spacing: -0.3px; }
+  .token-group { margin-bottom: var(--space-2xl); }
+  .token-group:last-child { margin-bottom: 0; }
+  .token-group-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 0.5px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .token-name { font-weight: 500; width: 200px; }
+  .token-value { font-family: "SF Mono", SFMono-Regular, Menlo, monospace; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+  .component-preview { display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-md) 0; align-items: center; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Favorble</div>
+    </div>
+    <div class="sidebar-section-label">Main</div>
+    <a class="sidebar-item" href="dashboard.html"><span class="icon">&#9673;</span> Dashboard</a>
+    <a class="sidebar-item" href="cases-list.html"><span class="icon">&#9776;</span> Cases <span class="sidebar-badge">24</span></a>
+    <a class="sidebar-item active" href="chronology.html"><span class="icon">&#128337;</span> Chronology</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-item" href="#"><span class="icon">&#128100;</span> Claimants</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128197;</span> Calendar</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128196;</span> Documents</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128200;</span> Reports</a>
+    <div class="sidebar-section-label">Settings</div>
+    <a class="sidebar-item" href="admin-integrations.html"><span class="icon">&#9881;</span> Integrations</a>
+    <a class="sidebar-item" href="#"><span class="icon">&#128101;</span> Team</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">JK</div>
+      <div>
+        <div class="sidebar-user-name">Jake Klinvex</div>
+        <div class="sidebar-user-role">Admin</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <header class="toolbar">
+      <h1 class="toolbar-title">Medical Chronology</h1>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-search">
+        <span>&#128269;</span>
+        <input type="text" placeholder="Search events...">
+      </div>
+      <button class="toolbar-btn">&#8595; Export PDF</button>
+      <button class="toolbar-btn">&#128424; Print</button>
+      <button class="toolbar-btn primary">+ Add Entry</button>
+    </header>
+
+    <div class="content">
+      <div class="case-selector">
+        <span class="case-selector-label">Claimant:</span>
+        <div class="case-selector-dropdown">
+          Jackson, Terrence
+          <span class="chevron">&#9660;</span>
+        </div>
+        <div class="case-selector-spacer"></div>
+        <span class="case-selector-meta">SSA-2024-08142 &middot; SSDI &middot; PTSD / TBI</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Events</div>
+          <div class="stat-value">38</div>
+          <div class="stat-sub">Across 6 providers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Medical Expenses</div>
+          <div class="stat-value" style="color:var(--color-destructive);">$48.2K</div>
+          <div class="stat-sub">VA + private combined</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Treatment Period</div>
+          <div class="stat-value">33</div>
+          <div class="stat-sub">Months (Jun 2023 - Mar 2026)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Providers</div>
+          <div class="stat-value">6</div>
+          <div class="stat-sub">VA + private treating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Records Pages</div>
+          <div class="stat-value">486</div>
+          <div class="stat-sub">Across 22 exhibits</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="segmented-control">
+          <div class="segmented-option active">Timeline</div>
+          <div class="segmented-option">Table</div>
+          <div class="segmented-option">Summary</div>
+        </div>
+        <div class="filter-divider"></div>
+        <button class="filter-chip active">All Types</button>
+        <button class="filter-chip">Mental Health</button>
+        <button class="filter-chip">Neurology</button>
+        <button class="filter-chip">Imaging</button>
+        <button class="filter-chip">Therapy</button>
+        <button class="filter-chip">Medication</button>
+        <button class="filter-chip">CE Exam</button>
+        <div class="filter-divider"></div>
+        <button class="filter-chip">All Providers</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 320px; gap: var(--space-2xl);">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Treatment Timeline</span>
+            <span style="font-size:var(--font-size-sm); color:var(--color-text-secondary);">38 events</span>
+          </div>
+
+          <div class="timeline-year">2026</div>
+          <div class="timeline-month">March</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Mar 18</div>
+              <div class="timeline-day">Wednesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot mental"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Psychiatry Follow-up &mdash; PTSD Management</div>
+              <div class="timeline-provider">VA Medical Center Dallas &middot; Dr. Maria Ramirez, MD</div>
+              <div class="timeline-desc">Patient reports persistent nightmares (4-5x/week), hypervigilance, and difficulty with crowds. GAF score 42 (unchanged). Increased Sertraline to 200mg daily. Prazosin 2mg HS for nightmares. Continues individual CBT therapy weekly.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag mental">Mental Health</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$0</div>
+              <div class="timeline-cost-label">VA covered</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 462-468</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Mar 4</div>
+              <div class="timeline-day">Tuesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot imaging"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Brain MRI &mdash; Follow-up TBI Evaluation</div>
+              <div class="timeline-provider">VA Medical Center Dallas &middot; Dr. Kevin Park, Neuroradiology</div>
+              <div class="timeline-desc">MRI shows persistent bilateral frontal white matter hyperintensities consistent with post-traumatic changes. No new hemorrhage. Mild cerebral atrophy disproportionate to age. Findings stable from prior study Aug 2024.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag imaging">Imaging</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$0</div>
+              <div class="timeline-cost-label">VA covered</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 448-454</div>
+            </div>
+          </div>
+
+          <div class="timeline-month">February</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Feb 10</div>
+              <div class="timeline-day">Monday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot ce"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Consultative Psychological Examination</div>
+              <div class="timeline-provider">Dr. Angela Nguyen, PsyD &middot; SSA-ordered CE</div>
+              <div class="timeline-desc">MMPI-2 and WAIS-IV administered. Findings: marked limitations in sustained concentration, persistence, and pace. Moderate limitations in social interaction. Unable to complete complex multi-step tasks. Consistent with PTSD and mild neurocognitive disorder due to TBI.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag ce">CE Exam</span>
+                <span class="timeline-tag mental">Mental Health</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$1,200</div>
+              <div class="timeline-cost-label">SSA-paid</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 420-438</div>
+            </div>
+          </div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Feb 3</div>
+              <div class="timeline-day">Monday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot therapy"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">CBT Therapy Session #28</div>
+              <div class="timeline-provider">VA Mental Health Clinic &middot; Dr. James Willis, PsyD</div>
+              <div class="timeline-desc">Continued prolonged exposure therapy for combat-related PTSD. Patient reports modest improvement in avoidance behaviors but still unable to maintain employment due to concentration deficits and emotional dysregulation.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag therapy">Therapy</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$0</div>
+              <div class="timeline-cost-label">VA covered</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 410-414</div>
+            </div>
+          </div>
+
+          <div class="timeline-month">January</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Jan 14</div>
+              <div class="timeline-day">Tuesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot office"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Neurology Follow-up &mdash; Post-TBI Assessment</div>
+              <div class="timeline-provider">VA Medical Center Dallas &middot; Dr. Sarah Chen, MD, Neurology</div>
+              <div class="timeline-desc">Neuropsychological testing shows persistent deficits in processing speed, working memory, and executive function. Headaches 3-4x/week managed with Topiramate 100mg BID. No seizure activity. Continue current medications.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag office">Office Visit</span>
+                <span class="timeline-tag medication">Medication</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$0</div>
+              <div class="timeline-cost-label">VA covered</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 388-396</div>
+            </div>
+          </div>
+
+          <div class="timeline-year">2025</div>
+          <div class="timeline-month">August</div>
+
+          <div class="timeline-entry">
+            <div class="timeline-date-col">
+              <div class="timeline-date">Aug 12</div>
+              <div class="timeline-day">Tuesday</div>
+            </div>
+            <div class="timeline-marker-col">
+              <div class="timeline-dot imaging"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Brain MRI &mdash; Initial TBI Evaluation</div>
+              <div class="timeline-provider">VA Medical Center Dallas &middot; Dr. Kevin Park, Neuroradiology</div>
+              <div class="timeline-desc">MRI reveals bilateral frontal white matter hyperintensities and mild diffuse axonal injury pattern. Small old hemorrhagic foci in right temporal lobe. Findings consistent with moderate TBI.</div>
+              <div class="timeline-tags">
+                <span class="timeline-tag imaging">Imaging</span>
+              </div>
+            </div>
+            <div class="timeline-cost">
+              <div class="timeline-cost-value">$0</div>
+              <div class="timeline-cost-label">VA covered</div>
+            </div>
+            <div class="timeline-source">
+              <div class="timeline-page">pp. 220-228</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right sidebar: Summary -->
+        <div style="display: flex; flex-direction: column; gap: var(--space-2xl);">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">By Type</span>
+            </div>
+            <div class="card-body">
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-purple);"></div>
+                <div class="summary-label">Mental Health</div>
+                <div class="summary-count">14</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-teal);"></div>
+                <div class="summary-label">Therapy (CBT)</div>
+                <div class="summary-count">9</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-indigo);"></div>
+                <div class="summary-label">Imaging</div>
+                <div class="summary-count">5</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-accent);"></div>
+                <div class="summary-label">Office Visit</div>
+                <div class="summary-count">4</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-success);"></div>
+                <div class="summary-label">Medication Changes</div>
+                <div class="summary-count">3</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-pink);"></div>
+                <div class="summary-label">CE Exams</div>
+                <div class="summary-count">2</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-dot" style="background:var(--color-amber);"></div>
+                <div class="summary-label">Lab Work</div>
+                <div class="summary-count">1</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Expenses by Provider</span>
+            </div>
+            <div class="card-body">
+              <div class="bar-chart">
+                <div class="bar-row">
+                  <div class="bar-label">VA Medical Ctr</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:8%; background:var(--color-accent);"></div></div>
+                  <div class="bar-value">$0 (covered)</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">CE (SSA-paid)</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:22%; background:var(--color-pink);"></div></div>
+                  <div class="bar-value">$2,400</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Private Neuro</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:45%; background:var(--color-purple);"></div></div>
+                  <div class="bar-value">$8,600</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-label">Quest Labs</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:12%; background:var(--color-amber);"></div></div>
+                  <div class="bar-value">$1,240</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Tokens -->
+      <div class="design-tokens">
+        <h2>Design Tokens</h2>
+        <div class="token-group">
+          <div class="token-group-title">Timeline Dot Colors (SSA-specific)</div>
+          <div class="component-preview">
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot mental" style="position:static;"></div><span style="font-size:12px;">Mental Health</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot imaging" style="position:static;"></div><span style="font-size:12px;">Imaging</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot therapy" style="position:static;"></div><span style="font-size:12px;">Therapy</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot ce" style="position:static;"></div><span style="font-size:12px;">CE Exam</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot office" style="position:static;"></div><span style="font-size:12px;">Office</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot medication" style="position:static;"></div><span style="font-size:12px;">Medication</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="timeline-dot lab" style="position:static;"></div><span style="font-size:12px;">Lab</span></div>
+          </div>
+        </div>
+        <div class="token-group">
+          <div class="token-group-title">v2 Warm Accent in Timeline</div>
+          <div class="token-row">
+            <div class="token-name">Office visit dot</div>
+            <div class="token-value">#5856D6 indigo (was #007AFF blue)</div>
+          </div>
+          <div class="token-row">
+            <div class="token-name">Page reference link</div>
+            <div class="token-value">#5856D6 indigo accent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

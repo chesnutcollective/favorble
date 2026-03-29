@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Integrations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-page:#FAFAF8; --bg-card:#FFFFFF; --bg-sidebar:#F5F5F0; --bg-hover:#F5F5F0; --bg-active:#EDECE8;
+    --bg-badge:#FEF3C7; --bg-badge-green:#D1FAE5; --bg-badge-red:#FEE2E2; --bg-badge-blue:#DBEAFE; --bg-badge-gray:#F5F5F0;
+    --text-primary:#1C1917; --text-secondary:#78716C; --text-tertiary:#A8A29E; --text-inverse:#FFFFFF; --text-accent:#B45309;
+    --accent:#B45309; --accent-hover:#92400E; --accent-light:#FEF3C7;
+    --success:#059669; --success-light:#D1FAE5; --warning:#D97706; --warning-light:#FEF3C7;
+    --danger:#DC2626; --danger-light:#FEE2E2; --info:#2563EB; --info-light:#DBEAFE;
+    --border:#E7E5E4; --border-strong:#D6D3D1;
+    --shadow-sm:0 1px 2px rgba(120,100,80,0.05); --shadow-md:0 1px 3px rgba(120,100,80,0.08);
+    --shadow-lg:0 4px 12px rgba(120,100,80,0.10); --shadow-xl:0 8px 24px rgba(120,100,80,0.12);
+    --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
+    --font-heading:'DM Serif Display', Georgia, serif; --font-body:'DM Sans', -apple-system, sans-serif;
+    --text-xs:0.75rem; --text-sm:0.8125rem; --text-base:0.875rem; --text-md:1rem; --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
+    --sidebar-width:240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); font-size: var(--text-base); color: var(--text-primary); background: var(--bg-page); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  h1,h2,h3,h4 { font-family: var(--font-heading); font-weight: 400; line-height: 1.3; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+  .sidebar-header { padding: var(--space-5); border-bottom: 1px solid var(--border); }
+  .sidebar-logo { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-nav { flex: 1; padding: var(--space-3); overflow-y: auto; }
+  .nav-section { margin-bottom: var(--space-5); }
+  .nav-section-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: var(--space-2) var(--space-3); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+  .nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--accent-light); color: var(--accent); font-size: var(--text-xs); font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-3); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 600; }
+  .user-name { font-size: var(--text-sm); font-weight: 500; }
+  .user-role { font-size: var(--text-xs); color: var(--text-tertiary); }
+
+  .main { flex: 1; margin-left: var(--sidebar-width); min-width: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-8); border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .topbar-left { display: flex; align-items: center; gap: var(--space-4); }
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-tertiary); }
+  .breadcrumb-current { color: var(--text-primary); font-weight: 500; }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .page-content { padding: var(--space-8); max-width: 1280px; }
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: var(--space-8); }
+  .page-title { font-size: var(--text-2xl); margin-bottom: var(--space-1); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--text-secondary); }
+
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; line-height: 1.5; }
+  .btn-primary { background: var(--accent); color: var(--text-inverse); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .btn-success { background: var(--success); color: var(--text-inverse); border-color: var(--success); }
+  .btn-danger-outline { background: var(--bg-card); color: var(--danger); border-color: var(--danger); }
+  .btn-danger-outline:hover { background: var(--danger-light); }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: var(--text-xs); font-weight: 600; }
+  .badge-green { background: var(--bg-badge-green); color: var(--success); }
+  .badge-gray  { background: var(--bg-badge-gray); color: var(--text-secondary); }
+  .badge-amber { background: var(--bg-badge); color: var(--accent); }
+  .badge-blue  { background: var(--bg-badge-blue); color: var(--info); }
+
+  .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-family: var(--font-body); color: var(--text-primary); width: 260px; outline: none; transition: border-color 0.15s; }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* Settings Sidebar */
+  .settings-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-8);
+  }
+
+  .settings-nav { }
+
+  .settings-nav-item {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: var(--space-1);
+  }
+
+  .settings-nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .settings-nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+
+  /* ============================================================
+     INTEGRATION CARDS
+     ============================================================ */
+  .section-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-4);
+  }
+
+  .integrations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-5);
+    margin-bottom: var(--space-10);
+  }
+
+  .integration-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-5) var(--space-6);
+    transition: box-shadow 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .integration-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+  }
+
+  .integration-card.connected {
+    border-left: 3px solid var(--success);
+  }
+
+  .integration-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .integration-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .integration-icon-blue   { background: var(--info-light); color: var(--info); }
+  .integration-icon-green  { background: var(--success-light); color: var(--success); }
+  .integration-icon-amber  { background: var(--accent-light); color: var(--accent); }
+  .integration-icon-red    { background: var(--danger-light); color: var(--danger); }
+  .integration-icon-gray   { background: var(--bg-badge-gray); color: var(--text-secondary); }
+  .integration-icon-purple { background: #EDE9FE; color: #7C3AED; }
+
+  .integration-info { flex: 1; min-width: 0; }
+
+  .integration-name {
+    font-size: var(--text-md);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .integration-category {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  .integration-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--space-4);
+    flex: 1;
+  }
+
+  .integration-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .integration-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-dot-green { background: var(--success); }
+  .status-dot-gray  { background: var(--text-tertiary); }
+  .status-dot-amber { background: var(--warning); }
+
+  /* Toggle switch */
+  .toggle {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--border-strong);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: var(--success); }
+
+  .toggle-knob {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .toggle.on .toggle-knob { transform: translateX(16px); }
+
+  /* API Key display */
+  .api-key-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: monospace;
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  /* Webhooks table */
+  .mini-table { width: 100%; border-collapse: collapse; }
+  .mini-table th {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-page);
+  }
+  .mini-table td {
+    padding: var(--space-3);
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-table tr:last-child td { border-bottom: none; }
+
+  /* Tokens */
+  .tokens-section { margin-top: var(--space-12); padding-top: var(--space-8); border-top: 2px solid var(--border); }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+  .token-swatch { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .token-color { height: 48px; }
+  .token-info { padding: var(--space-2) var(--space-3); background: var(--bg-card); }
+  .token-name { font-size: var(--text-xs); font-weight: 600; }
+  .token-value { font-size: var(--text-xs); color: var(--text-tertiary); font-family: monospace; }
+  .section-title { font-family: var(--font-heading); font-size: var(--text-xl); }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--border); }
+  .card-title { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: 400; }
+  .card-body { padding: var(--space-5) var(--space-6); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-logo">Favor<span>ble</span></div></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Main</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Cases
+            <span class="nav-badge">47</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            Contacts
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Documents
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Chronologies
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Manage</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Reports
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+          </div>
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>
+            Integrations
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">MR</div>
+          <div><div class="user-name">Maria Reynolds</div><div class="user-role">Senior Paralegal</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="breadcrumb">
+            <span>Settings</span>
+            <span style="color: var(--text-tertiary);">/</span>
+            <span class="breadcrumb-current">Integrations</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <input type="text" class="search-input" placeholder="Search integrations...">
+          <button class="icon-btn" title="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div class="settings-layout">
+          <!-- Settings Nav -->
+          <div class="settings-nav">
+            <div class="settings-nav-item">General</div>
+            <div class="settings-nav-item">Users & Roles</div>
+            <div class="settings-nav-item">Billing</div>
+            <div class="settings-nav-item active">Integrations</div>
+            <div class="settings-nav-item">API Keys</div>
+            <div class="settings-nav-item">Webhooks</div>
+            <div class="settings-nav-item">Notifications</div>
+            <div class="settings-nav-item">Security</div>
+          </div>
+
+          <!-- Settings Content -->
+          <div>
+            <div class="page-header" style="margin-bottom: var(--space-6);">
+              <div>
+                <h1 class="page-title">Integrations</h1>
+                <p class="page-subtitle">Connect Favorble with the tools your team already uses</p>
+              </div>
+              <button class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                API Docs
+              </button>
+            </div>
+
+            <!-- Connected Integrations -->
+            <div class="section-label">Connected (4)</div>
+            <div class="integrations-grid">
+              <div class="integration-card connected">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-blue">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Microsoft Outlook <span class="badge badge-green">Connected</span></div>
+                    <div class="integration-category">Email & Calendar</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Sync emails, calendar events, and contacts. Automatically link correspondence to cases and track deadlines.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-green"></span>
+                    Last synced 5 min ago
+                  </div>
+                  <div style="display: flex; gap: var(--space-2);">
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Configure</button>
+                    <div class="toggle on"><div class="toggle-knob"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="integration-card connected">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-green">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">DocuSign <span class="badge badge-green">Connected</span></div>
+                    <div class="integration-category">E-Signatures</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Send documents for electronic signature directly from case files. Track signing status and store completed agreements.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-green"></span>
+                    Last synced 12 min ago
+                  </div>
+                  <div style="display: flex; gap: var(--space-2);">
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Configure</button>
+                    <div class="toggle on"><div class="toggle-knob"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="integration-card connected">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-purple">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Slack <span class="badge badge-green">Connected</span></div>
+                    <div class="integration-category">Team Communication</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Receive case notifications in Slack channels. Get alerts for new tasks, deadlines, and status changes.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-green"></span>
+                    Active &mdash; 3 channels
+                  </div>
+                  <div style="display: flex; gap: var(--space-2);">
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Configure</button>
+                    <div class="toggle on"><div class="toggle-knob"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="integration-card connected">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-amber">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">QuickBooks <span class="badge badge-green">Connected</span></div>
+                    <div class="integration-category">Accounting</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Sync invoices, trust accounting, and expense tracking. Automatically generate billing reports for case costs.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-amber"></span>
+                    Sync paused &mdash; needs re-auth
+                  </div>
+                  <div style="display: flex; gap: var(--space-2);">
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3); color: var(--warning);">Fix</button>
+                    <div class="toggle on"><div class="toggle-knob"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Available Integrations -->
+            <div class="section-label">Available (6)</div>
+            <div class="integrations-grid">
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-blue">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Dropbox</div>
+                    <div class="integration-category">Cloud Storage</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Sync documents and files with Dropbox. Access case files from anywhere and keep everything backed up in the cloud.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-green">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Twilio</div>
+                    <div class="integration-category">Communications</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Send SMS notifications to clients. Automated case update reminders, appointment confirmations, and deadline alerts.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-red">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Google Calendar</div>
+                    <div class="integration-category">Calendar</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Sync hearings, depositions, and deadlines with Google Calendar. Two-way sync keeps all schedules up to date.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-amber">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">LexisNexis</div>
+                    <div class="integration-category">Legal Research</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Access LexisNexis legal research directly within Favorble. Search case law, statutes, and secondary sources without leaving the app.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-gray">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Zapier</div>
+                    <div class="integration-category">Automation</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Connect Favorble to 5,000+ apps via Zapier. Automate repetitive workflows, data entry, and cross-platform notifications.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-card">
+                <div class="integration-card-header">
+                  <div class="integration-icon integration-icon-blue">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
+                  <div class="integration-info">
+                    <div class="integration-name">Westlaw</div>
+                    <div class="integration-category">Legal Research</div>
+                  </div>
+                </div>
+                <div class="integration-desc">Search Westlaw databases from within case files. Link relevant authorities and save research directly to case records.</div>
+                <div class="integration-footer">
+                  <div class="integration-status">
+                    <span class="status-dot status-dot-gray"></span>
+                    Not connected
+                  </div>
+                  <button class="btn btn-primary" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">Connect</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Webhooks & API Section -->
+            <div class="card" style="margin-bottom: var(--space-6);">
+              <div class="card-header">
+                <h3 class="card-title">API Configuration</h3>
+                <button class="btn btn-secondary" style="font-size: var(--text-xs);">Regenerate Key</button>
+              </div>
+              <div class="card-body">
+                <div style="margin-bottom: var(--space-4);">
+                  <div style="font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); margin-bottom: var(--space-2);">API Key</div>
+                  <div class="api-key-display">
+                    fvbl_sk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: 2px 8px; margin-left: auto;">Copy</button>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); margin-bottom: var(--space-2);">Base URL</div>
+                  <div class="api-key-display">
+                    https://api.favorble.com/v1
+                    <button class="btn btn-ghost" style="font-size: var(--text-xs); padding: 2px 8px; margin-left: auto;">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Webhooks</h3>
+                <button class="btn btn-primary" style="font-size: var(--text-xs);">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add Webhook
+                </button>
+              </div>
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Events</th>
+                    <th>Status</th>
+                    <th>Last Triggered</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-family: monospace; font-size: var(--text-xs);">https://hooks.slack.com/services/T0...</td>
+                    <td><span class="badge badge-blue">case.updated</span></td>
+                    <td><span class="badge badge-green">Active</span></td>
+                    <td style="color: var(--text-secondary);">2 min ago</td>
+                    <td><button class="btn btn-ghost" style="font-size: var(--text-xs); padding: 2px 8px;">Edit</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-family: monospace; font-size: var(--text-xs);">https://api.internal.firm.com/webhoo...</td>
+                    <td><span class="badge badge-amber">task.created</span> <span class="badge badge-amber">task.completed</span></td>
+                    <td><span class="badge badge-green">Active</span></td>
+                    <td style="color: var(--text-secondary);">1 hour ago</td>
+                    <td><button class="btn btn-ghost" style="font-size: var(--text-xs); padding: 2px 8px;">Edit</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-family: monospace; font-size: var(--text-xs);">https://erp.firm.com/api/v2/intake</td>
+                    <td><span class="badge badge-gray">case.created</span></td>
+                    <td><span class="badge badge-gray">Paused</span></td>
+                    <td style="color: var(--text-secondary);">3 days ago</td>
+                    <td><button class="btn btn-ghost" style="font-size: var(--text-xs); padding: 2px 8px;">Edit</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ====== DESIGN TOKENS ====== -->
+            <div class="tokens-section">
+              <div style="margin-bottom: var(--space-6);"><h2 class="section-title">Design Tokens</h2></div>
+
+              <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Integration Card States</h4>
+              <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8);">
+                <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: var(--radius-md);">
+                  <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Connected</div>
+                  <div style="font-size: var(--text-sm); font-weight: 500;">3px green left border</div>
+                </div>
+                <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+                  <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Available</div>
+                  <div style="font-size: var(--text-sm); font-weight: 500;">Standard border</div>
+                </div>
+                <div style="padding: var(--space-3) var(--space-5); background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--warning); border-radius: var(--radius-md);">
+                  <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-bottom: var(--space-1);">Needs Attention</div>
+                  <div style="font-size: var(--text-sm); font-weight: 500;">3px amber left border</div>
+                </div>
+              </div>
+
+              <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Toggle States</h4>
+              <div style="display: flex; gap: var(--space-8); align-items: center; margin-bottom: var(--space-8);">
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                  <div class="toggle on"><div class="toggle-knob"></div></div>
+                  <span style="font-size: var(--text-sm);">Enabled</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                  <div class="toggle"><div class="toggle-knob"></div></div>
+                  <span style="font-size: var(--text-sm);">Disabled</span>
+                </div>
+              </div>
+
+              <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Status Indicators</h4>
+              <div style="display: flex; gap: var(--space-6); margin-bottom: var(--space-8);">
+                <div style="display: flex; align-items: center; gap: var(--space-2);"><span class="status-dot status-dot-green"></span><span style="font-size: var(--text-sm);">Connected / Active</span></div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);"><span class="status-dot status-dot-amber"></span><span style="font-size: var(--text-sm);">Needs Attention</span></div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);"><span class="status-dot status-dot-gray"></span><span style="font-size: var(--text-sm);">Not Connected</span></div>
+              </div>
+
+              <h4 style="font-family: var(--font-heading); margin-bottom: var(--space-4); font-size: var(--text-lg);">Icon Backgrounds</h4>
+              <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-8);">
+                <div class="integration-icon integration-icon-blue" style="width: 40px; height: 40px; font-size: 11px;">B</div>
+                <div class="integration-icon integration-icon-green" style="width: 40px; height: 40px; font-size: 11px;">G</div>
+                <div class="integration-icon integration-icon-amber" style="width: 40px; height: 40px; font-size: 11px;">A</div>
+                <div class="integration-icon integration-icon-red" style="width: 40px; height: 40px; font-size: 11px;">R</div>
+                <div class="integration-icon integration-icon-purple" style="width: 40px; height: 40px; font-size: 11px;">P</div>
+                <div class="integration-icon integration-icon-gray" style="width: 40px; height: 40px; font-size: 11px;">G</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

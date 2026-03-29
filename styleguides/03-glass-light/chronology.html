@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Medical Chronology (Light Glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep: #EEE5FF; --bg-purple: #E0F7FF;
+    --glass-bg: rgba(255,255,255,0.60); --glass-bg-hover: rgba(255,255,255,0.75);
+    --glass-bg-active: rgba(255,255,255,0.85);
+    --glass-border: rgba(255,255,255,0.80); --glass-border-hover: rgba(255,255,255,0.95);
+    --glass-blur: blur(20px); --glass-blur-heavy: blur(40px);
+    --text-primary: #1E1B4B; --text-secondary: #6B7280; --text-tertiary: #9CA3AF;
+    --accent-cyan: #0891B2; --accent-magenta: #DB2777;
+    --accent-gradient: linear-gradient(135deg, #0891B2, #DB2777);
+    --status-success: #059669; --status-warning: #D97706; --status-danger: #DC2626; --status-info: #2563EB;
+    --shadow-glass: 0 8px 32px rgba(100,100,200,0.10); --shadow-elevated: 0 16px 48px rgba(100,100,200,0.15);
+    --shadow-glow-cyan: 0 0 20px rgba(8,145,178,0.15); --shadow-glow-magenta: 0 0 20px rgba(219,39,119,0.15);
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-pill: 9999px;
+    --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-xs: 11px; --font-size-sm: 12px; --font-size-base: 14px; --font-size-md: 16px;
+    --font-size-lg: 20px; --font-size-xl: 24px; --font-size-2xl: 32px;
+    --sidebar-width: 260px;
+    --transition-fast: 150ms ease; --transition-base: 250ms ease;
+  }
+
+  html { font-size: var(--font-size-base); }
+  body {
+    font-family: var(--font-family); color: var(--text-primary); line-height: 1.5;
+    min-height: 100vh; background: var(--bg-deep);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(219,39,119,0.06) 0%, transparent 60%),
+      linear-gradient(160deg, #EEE5FF 0%, #E0F7FF 50%, #F0EAFF 100%);
+    background-attachment: fixed;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width); position: fixed; top: 0; left: 0; bottom: 0;
+    background: rgba(255,255,255,0.50); backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; z-index: 100; padding: var(--space-lg) 0;
+  }
+  .sidebar-brand { padding: 0 var(--space-lg); margin-bottom: var(--space-xl); display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-brand-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: var(--font-size-lg); color: white; }
+  .sidebar-brand-name { font-size: var(--font-size-lg); font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-section { margin-bottom: var(--space-lg); }
+  .sidebar-section-title { padding: 0 var(--space-lg); font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-sm); }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav-item a { display: flex; align-items: center; gap: var(--space-sm); padding: 10px var(--space-lg); color: var(--text-secondary); text-decoration: none; font-size: var(--font-size-base); font-weight: 500; transition: all var(--transition-fast); border-left: 3px solid transparent; }
+  .sidebar-nav-item a:hover { color: var(--text-primary); background: rgba(255,255,255,0.50); }
+  .sidebar-nav-item.active a { color: var(--accent-cyan); background: rgba(8,145,178,0.10); border-left-color: var(--accent-cyan); }
+  .sidebar-nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-badge { margin-left: auto; background: var(--accent-gradient); color: white; font-size: var(--font-size-xs); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-pill); }
+  .sidebar-footer { margin-top: auto; padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--glass-border); }
+  .sidebar-user { display: flex; align-items: center; gap: var(--space-sm); }
+  .sidebar-avatar { width: 36px; height: 36px; border-radius: var(--radius-pill); background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: var(--font-size-sm); }
+  .sidebar-user-name { font-weight: 500; font-size: var(--font-size-sm); }
+  .sidebar-user-role { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* Main */
+  .main { margin-left: var(--sidebar-width); flex: 1; padding: var(--space-xl); }
+
+  /* Breadcrumb */
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-lg); font-size: var(--font-size-sm); }
+  .breadcrumb a { color: var(--text-tertiary); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--accent-cyan); }
+  .breadcrumb-sep { color: var(--text-tertiary); }
+  .breadcrumb-current { color: var(--text-secondary); }
+
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-xl); }
+  .page-title { font-size: var(--font-size-2xl); font-weight: 700; }
+  .page-subtitle { color: var(--text-secondary); font-size: var(--font-size-base); margin-top: var(--space-xs); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: var(--space-sm); padding: 10px 20px; border-radius: var(--radius-md); font-family: var(--font-family); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; transition: all var(--transition-fast); border: none; text-decoration: none; }
+  .btn-primary { background: var(--accent-gradient); color: white; box-shadow: var(--shadow-glow-cyan); }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(8,145,178,0.25); transform: translateY(-1px); }
+  .btn-glass { background: var(--glass-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); color: var(--text-primary); }
+  .btn-glass:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-hover); }
+  .btn-sm { padding: 6px 14px; font-size: var(--font-size-sm); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--radius-pill); font-size: var(--font-size-xs); font-weight: 500; }
+  .badge-cyan { background: rgba(8,145,178,0.12); color: var(--accent-cyan); border: 1px solid rgba(8,145,178,0.18); }
+  .badge-magenta { background: rgba(219,39,119,0.10); color: var(--accent-magenta); border: 1px solid rgba(219,39,119,0.15); }
+  .badge-success { background: rgba(5,150,105,0.12); color: var(--status-success); border: 1px solid rgba(5,150,105,0.18); }
+  .badge-warning { background: rgba(217,119,6,0.12); color: var(--status-warning); border: 1px solid rgba(217,119,6,0.18); }
+  .badge-danger { background: rgba(220,38,38,0.10); color: var(--status-danger); border: 1px solid rgba(220,38,38,0.15); }
+  .badge-info { background: rgba(37,99,235,0.10); color: var(--status-info); border: 1px solid rgba(37,99,235,0.15); }
+  .badge-purple { background: rgba(139,92,246,0.12); color: #7C3AED; border: 1px solid rgba(139,92,246,0.18); }
+
+  /* Glass Card */
+  .glass-card { background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-glass); padding: var(--space-lg); }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); }
+  .card-title { font-size: var(--font-size-md); font-weight: 600; }
+
+  /* Stats Row */
+  .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
+  .stat-card {
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass); padding: var(--space-lg);
+    text-align: center; transition: all var(--transition-base);
+  }
+  .stat-card:hover { background: var(--glass-bg-hover); transform: translateY(-2px); }
+  .stat-value {
+    font-size: var(--font-size-xl); font-weight: 700;
+    background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-xs); }
+
+  /* Filters */
+  .filters-bar {
+    display: flex; align-items: center; gap: var(--space-sm);
+    margin-bottom: var(--space-lg); flex-wrap: wrap;
+  }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: var(--radius-pill);
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    font-size: var(--font-size-sm); font-weight: 500;
+    color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
+  }
+  .filter-chip:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+  .filter-chip.active { background: rgba(8,145,178,0.12); color: var(--accent-cyan); border-color: rgba(8,145,178,0.25); }
+  .filter-divider { width: 1px; height: 24px; background: var(--glass-border); margin: 0 var(--space-sm); }
+  .glass-select {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 6px 30px 6px 14px; font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--text-primary); outline: none; cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='rgba(30,27,75,0.4)' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .search-wrapper { position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 14px; }
+  .search-input {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    padding: 8px 16px 8px 36px; font-family: var(--font-family); font-size: var(--font-size-sm);
+    color: var(--text-primary); outline: none; width: 250px; transition: all var(--transition-fast);
+  }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(8,145,178,0.08); }
+
+  /* Timeline */
+  .timeline-container { position: relative; }
+  .timeline-line {
+    position: absolute; left: 140px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(180deg, var(--accent-cyan), var(--accent-magenta));
+    opacity: 0.3;
+  }
+
+  .timeline-entry {
+    display: flex; gap: var(--space-lg); margin-bottom: var(--space-md);
+    position: relative;
+  }
+
+  .timeline-date {
+    width: 120px; flex-shrink: 0; text-align: right;
+    padding-top: var(--space-md);
+  }
+  .timeline-date-primary { font-size: var(--font-size-sm); font-weight: 600; }
+  .timeline-date-secondary { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  .timeline-dot-wrapper {
+    width: 20px; flex-shrink: 0; display: flex; justify-content: center;
+    padding-top: 18px; position: relative; z-index: 2;
+  }
+  .timeline-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid; flex-shrink: 0;
+  }
+  .timeline-dot.physical { background: rgba(8,145,178,0.25); border-color: var(--accent-cyan); box-shadow: 0 0 8px rgba(8,145,178,0.25); }
+  .timeline-dot.mental { background: rgba(167,139,250,0.3); border-color: #7C3AED; box-shadow: 0 0 8px rgba(167,139,250,0.3); }
+  .timeline-dot.imaging { background: rgba(251,191,36,0.3); border-color: var(--status-warning); box-shadow: 0 0 8px rgba(251,191,36,0.3); }
+  .timeline-dot.surgery { background: rgba(248,113,113,0.3); border-color: var(--status-danger); box-shadow: 0 0 8px rgba(248,113,113,0.3); }
+  .timeline-dot.rx { background: rgba(5,150,105,0.25); border-color: var(--status-success); box-shadow: 0 0 8px rgba(5,150,105,0.25); }
+  .timeline-dot.evaluation { background: rgba(219,39,119,0.20); border-color: var(--accent-magenta); box-shadow: 0 0 8px rgba(219,39,119,0.20); }
+
+  .timeline-card {
+    flex: 1;
+    background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    padding: var(--space-md) var(--space-lg);
+    transition: all var(--transition-base);
+  }
+  .timeline-card:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .timeline-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: var(--space-sm);
+  }
+  .timeline-card-title { font-size: var(--font-size-base); font-weight: 600; }
+  .timeline-card-provider { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-sm); }
+  .timeline-card-body { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
+  .timeline-card-body strong { color: var(--text-primary); font-weight: 500; }
+
+  .timeline-card-footer {
+    display: flex; gap: var(--space-sm); margin-top: var(--space-md);
+    align-items: center; flex-wrap: wrap;
+  }
+  .timeline-card-meta {
+    font-size: var(--font-size-xs); color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* Highlighted entry */
+  .timeline-card.highlight {
+    border-color: rgba(8,145,178,0.25);
+    box-shadow: 0 0 20px rgba(8,145,178,0.08);
+  }
+
+  /* Page number in source */
+  .page-ref {
+    font-size: var(--font-size-xs); color: var(--accent-cyan);
+    font-weight: 500; cursor: pointer;
+  }
+  .page-ref:hover { text-decoration: underline; }
+
+  /* Provider legend */
+  .legend { display: flex; gap: var(--space-lg); margin-bottom: var(--space-lg); flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-sm); color: var(--text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-dot.physical { background: var(--accent-cyan); }
+  .legend-dot.mental { background: #A78BFA; }
+  .legend-dot.imaging { background: var(--status-warning); }
+  .legend-dot.surgery { background: var(--status-danger); }
+  .legend-dot.rx { background: var(--status-success); }
+  .legend-dot.evaluation { background: var(--accent-magenta); }
+
+  /* Year divider */
+  .year-divider {
+    display: flex; align-items: center; gap: var(--space-md);
+    margin: var(--space-xl) 0 var(--space-lg);
+    padding-left: 140px;
+  }
+  .year-divider-label {
+    font-size: var(--font-size-lg); font-weight: 700;
+    background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    flex-shrink: 0;
+  }
+  .year-divider-line { flex: 1; height: 1px; background: var(--glass-border); }
+
+  /* Summary panel */
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); margin-bottom: var(--space-xl); }
+
+  /* Tokens */
+  .tokens-section { margin-top: var(--space-2xl); padding-top: var(--space-xl); border-top: 1px solid var(--glass-border); }
+  .tokens-section h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-lg); background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .tokens-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+  .token-group h3 { font-size: var(--font-size-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: var(--space-md); }
+  .token-row { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) 0; font-size: var(--font-size-sm); }
+  .token-swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(100,100,200,0.15); flex-shrink: 0; }
+  .token-name { color: var(--text-secondary); flex: 1; }
+  .token-value { font-family: 'SF Mono', monospace; font-size: var(--font-size-xs); color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">F</div>
+      <span class="sidebar-brand-name">Favorble</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Main</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item"><a href="dashboard.html"><span class="sidebar-nav-icon">&#9638;</span> Dashboard</a></li>
+        <li class="sidebar-nav-item"><a href="cases-list.html"><span class="sidebar-nav-icon">&#128194;</span> Cases <span class="sidebar-badge">142</span></a></li>
+        <li class="sidebar-nav-item"><a href="case-detail.html"><span class="sidebar-nav-icon">&#128196;</span> Case Detail</a></li>
+        <li class="sidebar-nav-item active"><a href="chronology.html"><span class="sidebar-nav-icon">&#128338;</span> Chronology</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Administration</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item"><a href="admin-integrations.html"><span class="sidebar-nav-icon">&#9881;</span> Integrations</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128101;</span> Team</a></li>
+        <li class="sidebar-nav-item"><a href="#"><span class="sidebar-nav-icon">&#128202;</span> Reports</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">MJ</div>
+        <div>
+          <div class="sidebar-user-name">Maria Johnson</div>
+          <div class="sidebar-user-role">Case Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="breadcrumb">
+      <a href="cases-list.html">Cases</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="case-detail.html">Johnson, Patricia A.</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Medical Chronology</span>
+    </div>
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Medical Chronology</h1>
+        <p class="page-subtitle">Johnson, Patricia A. &middot; SSA-2025-00847 &middot; Alleged Onset: June 3, 2024</p>
+      </div>
+      <div style="display:flex;gap:var(--space-sm);">
+        <button class="btn btn-glass btn-sm">&#128196; Export PDF</button>
+        <button class="btn btn-glass btn-sm">&#128196; Export CSV</button>
+        <button class="btn btn-primary btn-sm">&#129302; AI Summarize</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">847</div>
+        <div class="stat-label">Total Pages</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">34</div>
+        <div class="stat-label">Entries</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">8</div>
+        <div class="stat-label">Providers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">22</div>
+        <div class="stat-label">Months Span</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="font-size:var(--font-size-lg);">Jun 2024</div>
+        <div class="stat-label">Onset Date</div>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Treating Providers</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(100,100,200,0.10);">
+            <div>
+              <div style="font-weight:600;font-size:14px;">Dr. Ravi Patel, MD</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">Primary Care &middot; Dallas Pain & Spine</div>
+            </div>
+            <span class="badge badge-cyan">12 visits</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(100,100,200,0.10);">
+            <div>
+              <div style="font-weight:600;font-size:14px;">Dr. Sarah Kim, MD</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">Orthopedic Surgery &middot; Baylor Scott & White</div>
+            </div>
+            <span class="badge badge-cyan">6 visits</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(100,100,200,0.10);">
+            <div>
+              <div style="font-weight:600;font-size:14px;">Dr. Lisa Martinez, PhD</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">Psychology &middot; North Texas Behavioral Health</div>
+            </div>
+            <span class="badge badge-purple">8 visits</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+            <div>
+              <div style="font-weight:600;font-size:14px;">Dr. Michael Chen, MD</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">Psychiatry &middot; UT Southwestern</div>
+            </div>
+            <span class="badge badge-purple">5 visits</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Key Findings</h2>
+          <span class="badge badge-magenta">AI Generated</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="padding:12px;background:rgba(6,182,212,0.06);border:1px solid rgba(8,145,178,0.08);border-radius:var(--radius-md);">
+            <div style="font-size:12px;font-weight:600;color:var(--accent-cyan);margin-bottom:4px;">Physical RFC Limitations</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Lift/carry max 10 lbs, sit 30 min at a time, stand 15 min, walk 1 block. Cannot bend, stoop, or twist. Needs to alternate positions every 30 min.</div>
+          </div>
+          <div style="padding:12px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.12);border-radius:var(--radius-md);">
+            <div style="font-size:12px;font-weight:600;color:#A78BFA;margin-bottom:4px;">Mental RFC Limitations</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Marked limitations in concentration, persistence, and pace. Moderate limitations in social functioning. Would be off-task 20%+ of workday due to pain and depression.</div>
+          </div>
+          <div style="padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.12);border-radius:var(--radius-md);">
+            <div style="font-size:12px;font-weight:600;color:var(--accent-magenta);margin-bottom:4px;">Grid Rule Consideration</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Claimant age 47 (approaching closely), HS education, past unskilled/semi-skilled work. If limited to sedentary, Grid Rule 201.14 may direct a finding of disabled.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);">
+      <div class="filters-bar" style="margin-bottom:0;">
+        <span style="font-size:var(--font-size-sm);color:var(--text-tertiary);margin-right:8px;">Filter:</span>
+        <div class="filter-chip active">All</div>
+        <div class="filter-chip">Physical</div>
+        <div class="filter-chip">Mental Health</div>
+        <div class="filter-chip">Imaging</div>
+        <div class="filter-chip">Surgery</div>
+        <div class="filter-chip">Medications</div>
+        <div class="filter-chip">Evaluations</div>
+        <div class="filter-divider"></div>
+        <select class="glass-select">
+          <option>All Providers</option>
+          <option>Dr. Patel</option>
+          <option>Dr. Kim</option>
+          <option>Dr. Martinez</option>
+          <option>Dr. Chen</option>
+        </select>
+      </div>
+      <div class="search-wrapper">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" class="search-input" placeholder="Search entries...">
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot physical"></div> Physical / Pain</div>
+      <div class="legend-item"><div class="legend-dot mental"></div> Mental Health</div>
+      <div class="legend-item"><div class="legend-dot imaging"></div> Imaging / Labs</div>
+      <div class="legend-item"><div class="legend-dot surgery"></div> Surgery / Procedure</div>
+      <div class="legend-item"><div class="legend-dot rx"></div> Medications</div>
+      <div class="legend-item"><div class="legend-dot evaluation"></div> CE / RFC Evaluation</div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+
+      <!-- 2026 -->
+      <div class="year-divider">
+        <span class="year-divider-label">2026</span>
+        <div class="year-divider-line"></div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Mar 15</div>
+          <div class="timeline-date-secondary">2026</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot evaluation"></div></div>
+        <div class="timeline-card highlight">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Consultative Examination &mdash; Physical</div>
+            <span class="badge badge-magenta">CE Exam</span>
+          </div>
+          <div class="timeline-card-provider">Dr. James Wilson, MD &middot; SSA-Appointed Examiner</div>
+          <div class="timeline-card-body">
+            <strong>Physical exam findings:</strong> Limited lumbar ROM (flexion 30&deg;, extension 10&deg;). Positive straight leg raise bilaterally at 40&deg;. Decreased grip strength bilateral (15 lbs R, 12 lbs L). Antalgic gait, uses cane. <strong>RFC opinion:</strong> Limited to less than sedentary. Cannot lift more than 10 lbs occasionally. Must alternate sitting/standing every 30 min. Would miss 3+ days/month.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 412-428</span>
+            <span class="timeline-card-meta">Source: CE Report</span>
+            <span class="badge badge-danger" style="margin-left:auto;">Key Evidence</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Mar 10</div>
+          <div class="timeline-date-secondary">2026</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot mental"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Psychiatric Follow-Up</div>
+            <span class="badge badge-purple">Mental</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Michael Chen, MD &middot; UT Southwestern</div>
+          <div class="timeline-card-body">
+            PHQ-9 score: 22 (severe depression). GAF: 45. Reports persistent insomnia, poor concentration, and social withdrawal. Medication adjustment: increased Sertraline to 150mg, added Trazodone 50mg for sleep. <strong>Unable to maintain regular work schedule</strong> due to fatigue and cognitive impairment.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 398-405</span>
+            <span class="timeline-card-meta">Source: Treatment Notes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Feb 22</div>
+          <div class="timeline-date-secondary">2026</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot physical"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Pain Management Follow-Up</div>
+            <span class="badge badge-cyan">Physical</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Ravi Patel, MD &middot; Dallas Pain & Spine</div>
+          <div class="timeline-card-body">
+            Pain level 8/10 despite current regimen. Lumbar epidural injection #3 provided minimal relief (2 weeks). Discussed surgical referral. <strong>Claimant reports inability to sit for more than 20 minutes</strong> or stand for more than 10 minutes. Walking limited to household distances. ADLs significantly impacted.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 382-389</span>
+            <span class="timeline-card-meta">Source: Treatment Notes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Feb 5</div>
+          <div class="timeline-date-secondary">2026</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot rx"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Medication Review</div>
+            <span class="badge badge-success">Rx</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Ravi Patel, MD &middot; Dallas Pain & Spine</div>
+          <div class="timeline-card-body">
+            Current medications: Gabapentin 800mg TID, Meloxicam 15mg daily, Cyclobenzaprine 10mg TID, Sertraline 100mg daily, Hydrocodone 5/325 PRN (limited to 3x daily). Patient reports drowsiness and cognitive side effects from Gabapentin affecting daily activities.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 370-374</span>
+            <span class="timeline-card-meta">Source: Medication Log</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Jan 12</div>
+          <div class="timeline-date-secondary">2026</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot imaging"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">MRI Lumbar Spine (Follow-Up)</div>
+            <span class="badge badge-warning">Imaging</span>
+          </div>
+          <div class="timeline-card-provider">Baylor Scott & White &middot; Radiology Dept.</div>
+          <div class="timeline-card-body">
+            <strong>Findings:</strong> Progression of disc herniation at L4-L5 compared to prior study (Jul 2025). Moderate central canal stenosis. New foraminal narrowing at L5-S1. Mild facet arthropathy L3-L4 through L5-S1. <strong>Impression:</strong> Worsening degenerative disc disease with new nerve root impingement.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 355-360</span>
+            <span class="timeline-card-meta">Source: Radiology Report</span>
+            <span class="badge badge-danger" style="margin-left:auto;">Key Evidence</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2025 -->
+      <div class="year-divider">
+        <span class="year-divider-label">2025</span>
+        <div class="year-divider-line"></div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Nov 20</div>
+          <div class="timeline-date-secondary">2025</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot mental"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Psychological Evaluation</div>
+            <span class="badge badge-purple">Mental</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Lisa Martinez, PhD &middot; North Texas Behavioral Health</div>
+          <div class="timeline-card-body">
+            Comprehensive psychological evaluation. Diagnoses: Major Depressive Disorder, recurrent severe; Generalized Anxiety Disorder; Pain Disorder associated with medical condition. WAIS-IV shows low average processing speed (SS 82). <strong>Marked limitations</strong> in ability to maintain concentration for extended periods. Moderate limitations in social interaction.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 310-335</span>
+            <span class="timeline-card-meta">Source: Psychological Report</span>
+            <span class="badge badge-danger" style="margin-left:auto;">Key Evidence</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Sep 15</div>
+          <div class="timeline-date-secondary">2025</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot surgery"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Epidural Steroid Injection #2</div>
+            <span class="badge badge-danger">Procedure</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Ravi Patel, MD &middot; Dallas Pain & Spine ASC</div>
+          <div class="timeline-card-body">
+            Fluoroscopically guided L4-L5 interlaminar epidural steroid injection. Procedure completed without complication. Patient tolerated well. Follow-up in 4 weeks. Prior injection (Jul 2025) provided approximately 3 weeks of partial relief before pain returned to baseline.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 275-280</span>
+            <span class="timeline-card-meta">Source: Operative Note</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Jul 28</div>
+          <div class="timeline-date-secondary">2025</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot imaging"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">MRI Lumbar Spine (Initial)</div>
+            <span class="badge badge-warning">Imaging</span>
+          </div>
+          <div class="timeline-card-provider">Baylor Scott & White &middot; Radiology Dept.</div>
+          <div class="timeline-card-body">
+            <strong>Findings:</strong> L4-L5 broad-based disc herniation with moderate central canal stenosis. Disc desiccation L3-L4, L4-L5, L5-S1. Mild bilateral foraminal narrowing L4-L5. No fracture or spondylolisthesis.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 245-250</span>
+            <span class="timeline-card-meta">Source: Radiology Report</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-date">
+          <div class="timeline-date-primary">Jun 15</div>
+          <div class="timeline-date-secondary">2025</div>
+        </div>
+        <div class="timeline-dot-wrapper"><div class="timeline-dot physical"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div class="timeline-card-title">Orthopedic Consultation</div>
+            <span class="badge badge-cyan">Physical</span>
+          </div>
+          <div class="timeline-card-provider">Dr. Sarah Kim, MD &middot; Baylor Scott & White Orthopedics</div>
+          <div class="timeline-card-body">
+            Initial orthopedic evaluation. Patient presents with chronic low back pain radiating to bilateral lower extremities. Symptoms worsening since alleged onset (Jun 2024). Positive Waddell signs 1/5. Decreased sensation L5 dermatome bilaterally. Recommended MRI, physical therapy, and pain management referral.
+          </div>
+          <div class="timeline-card-footer">
+            <span class="page-ref">pp. 210-220</span>
+            <span class="timeline-card-meta">Source: Consultation Note</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Design Tokens -->
+    <div class="tokens-section">
+      <h2>Design Tokens &mdash; Glassmorphism</h2>
+      <div class="tokens-grid">
+        <div class="token-group">
+          <h3>Timeline Entry Types</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--accent-cyan);"></div>
+            <span class="token-name">Physical / Pain</span>
+            <span class="token-value">#0891B2</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#A78BFA;"></div>
+            <span class="token-name">Mental Health</span>
+            <span class="token-value">#A78BFA</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--status-warning);"></div>
+            <span class="token-name">Imaging / Labs</span>
+            <span class="token-value">#D97706</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--status-danger);"></div>
+            <span class="token-name">Surgery / Procedure</span>
+            <span class="token-value">#DC2626</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--status-success);"></div>
+            <span class="token-name">Medications</span>
+            <span class="token-value">#059669</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--accent-magenta);"></div>
+            <span class="token-name">CE / RFC Evaluation</span>
+            <span class="token-value">#DB2777</span>
+          </div>
+        </div>
+        <div class="token-group">
+          <h3>Timeline Layout</h3>
+          <div class="token-row"><span class="token-name">Date column width</span><span class="token-value">120px</span></div>
+          <div class="token-row"><span class="token-name">Timeline dot size</span><span class="token-value">12px</span></div>
+          <div class="token-row"><span class="token-name">Timeline line width</span><span class="token-value">2px</span></div>
+          <div class="token-row"><span class="token-name">Card padding</span><span class="token-value">16px 24px</span></div>
+          <div class="token-row"><span class="token-name">Entry gap</span><span class="token-value">16px</span></div>
+        </div>
+        <div class="token-group">
+          <h3>Highlighted States</h3>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--glass-bg);border:1px solid var(--glass-border);"></div>
+            <span class="token-name">Default entry</span>
+            <span class="token-value">standard glass</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--glass-bg);border:1px solid rgba(8,145,178,0.25);box-shadow:0 0 10px rgba(8,145,178,0.08);"></div>
+            <span class="token-name">Highlighted entry</span>
+            <span class="token-value">cyan border + glow</span>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:var(--glass-bg-hover);border:1px solid var(--glass-border-hover);"></div>
+            <span class="token-name">Hover entry</span>
+            <span class="token-value">elevated glass</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

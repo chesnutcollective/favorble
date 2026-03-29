@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
+import { ThemeSwitcher } from "./theme-switcher";
 
 export function UserMenu({ user }: { user: SessionUser }) {
   const { isMobile } = useSidebar();
@@ -33,27 +34,27 @@ export function UserMenu({ user }: { user: SessionUser }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="h-7 w-7 rounded-full">
                 <AvatarImage
                   src={user.avatarUrl || undefined}
                   alt={user.firstName}
                 />
-                <AvatarFallback className="rounded-lg bg-sidebar-primary text-xs text-sidebar-primary-foreground">
+                <AvatarFallback className="rounded-full bg-[#EAEAEA] text-[11px] font-bold text-[#171717]">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
+                <span className="truncate font-semibold text-[#171717]">
                   {user.firstName} {user.lastName}
                 </span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="truncate text-xs text-[#999]">
                   {user.email}
                 </span>
               </div>
               <HugeiconsIcon
                 icon={ArrowUpDownIcon}
                 size={16}
-                className="ml-auto"
+                className="ml-auto text-[#999]"
               />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -65,12 +66,12 @@ export function UserMenu({ user }: { user: SessionUser }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-7 w-7 rounded-full">
                   <AvatarImage
                     src={user.avatarUrl || undefined}
                     alt={user.firstName}
                   />
-                  <AvatarFallback className="rounded-lg bg-sidebar-primary text-xs text-sidebar-primary-foreground">
+                  <AvatarFallback className="rounded-full bg-[#EAEAEA] text-[11px] font-bold text-[#171717]">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -84,6 +85,13 @@ export function UserMenu({ user }: { user: SessionUser }) {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5">
+              <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Theme
+              </span>
+              <ThemeSwitcher />
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <button type="button" className="w-full" onClick={() => logout()}>
