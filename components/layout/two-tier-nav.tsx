@@ -306,6 +306,27 @@ export function TwoTierNav({
             {/* Messages Panel */}
             <MessagesPanel active={visiblePanel === "messages"} />
 
+            {/* Leads Panel */}
+            <LeadsPanel active={visiblePanel === "leads"} />
+
+            {/* Queue Panel */}
+            <QueuePanel active={visiblePanel === "queue"} />
+
+            {/* Calendar Panel */}
+            <CalendarPanel active={visiblePanel === "calendar"} />
+
+            {/* Email Panel */}
+            <EmailPanel active={visiblePanel === "email"} />
+
+            {/* Contacts Panel */}
+            <ContactsPanel active={visiblePanel === "contacts"} />
+
+            {/* Documents Panel */}
+            <DocumentsPanel active={visiblePanel === "documents"} />
+
+            {/* Reports Panel */}
+            <ReportsPanel active={visiblePanel === "reports"} />
+
             {/* Settings Panel */}
             <SettingsPanel
               active={visiblePanel === "settings"}
@@ -316,7 +337,7 @@ export function TwoTierNav({
             {mainNav
               .filter(
                 (item) =>
-                  !["dashboard", "cases", "messages"].includes(item.id),
+                  !["dashboard", "cases", "messages", "leads", "queue", "calendar", "email", "contacts", "documents", "reports"].includes(item.id),
               )
               .map((item) => (
                 <DefaultPanel
@@ -633,6 +654,1001 @@ function SettingsPanel({
           </svg>
         </Link>
       ))}
+    </div>
+  );
+}
+
+function LeadsPanel({ active }: { active: boolean }) {
+  const stages = [
+    { name: "New", count: 5, color: "#10B981" },
+    { name: "Contacted", count: 3, color: "#3B82F6" },
+    { name: "Intake", count: 2, color: "#F59E0B" },
+    { name: "Signed", count: 1, color: "#059669" },
+  ];
+  const maxCount = Math.max(...stages.map((s) => s.count));
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Leads</div>
+
+      <div className="ttn-section-label">Pipeline</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: "0 12px" }}>
+        {stages.map((stage, i) => (
+          <React.Fragment key={stage.name}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "6px 0" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    backgroundColor: stage.color,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: "#1C1C1E", flex: 1 }}>{stage.name}</span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "monospace",
+                    color: "#059669",
+                    border: "1px solid #059669",
+                    borderRadius: 9,
+                    padding: "0 6px",
+                    lineHeight: "18px",
+                  }}
+                >
+                  {stage.count}
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 3,
+                  borderRadius: 2,
+                  backgroundColor: "#F0F0F0",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${(stage.count / maxCount) * 100}%`,
+                    backgroundColor: stage.color,
+                    borderRadius: 2,
+                  }}
+                />
+              </div>
+            </div>
+            {i < stages.length - 1 && (
+              <div
+                style={{
+                  textAlign: "center",
+                  color: "#999",
+                  fontSize: 11,
+                  lineHeight: "14px",
+                }}
+              >
+                ↓
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div
+        style={{
+          fontSize: 11,
+          fontFamily: "monospace",
+          color: "#999",
+          padding: "10px 12px 0",
+        }}
+      >
+        25% conversion
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link
+          href="/leads"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View pipeline →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function QueuePanel({ active }: { active: boolean }) {
+  const tasks = [
+    { title: "Follow up with Martinez on medical records", due: "Today", overdue: true },
+    { title: "File Thompson motion to compel", due: "Today", overdue: true },
+    { title: "Review Chen deposition transcript", due: "Yesterday", overdue: true },
+    { title: "Draft Wilson intake summary", due: "Mar 30", overdue: false },
+    { title: "Schedule Davis hearing prep call", due: "Mar 31", overdue: false },
+  ];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">My Queue</div>
+
+      <div
+        style={{
+          fontSize: 11,
+          color: "#999",
+          padding: "0 12px 8px",
+        }}
+      >
+        12 tasks · <span style={{ color: "#EE0000" }}>3 overdue</span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {tasks.map((task, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              padding: "8px 12px",
+              borderBottom: i < tasks.length - 1 ? "1px solid #F0F0F0" : "none",
+            }}
+          >
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 3,
+                border: "1px solid #E5E7EB",
+                flexShrink: 0,
+                marginTop: 1,
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#1C1C1E",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {task.title}
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontFamily: "monospace",
+                  color: task.overdue ? "#EE0000" : "#999",
+                  marginTop: 2,
+                }}
+              >
+                {task.due}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link
+          href="/queue"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View all tasks →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function CalendarPanel({ active }: { active: boolean }) {
+  const now = new Date();
+  const monthYear = now
+    .toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    .toUpperCase();
+
+  // Get the current week (Sun-Sat) around today
+  const today = now.getDate();
+  const dayOfWeek = now.getDay(); // 0=Sun
+  const weekDays: { label: string; date: number; isToday: boolean }[] = [];
+  for (let i = 0; i < 7; i++) {
+    const diff = i - dayOfWeek;
+    const d = new Date(now);
+    d.setDate(today + diff);
+    weekDays.push({
+      label: ["S", "M", "T", "W", "T", "F", "S"][i],
+      date: d.getDate(),
+      isToday: d.getDate() === today && d.getMonth() === now.getMonth(),
+    });
+  }
+
+  const events = [
+    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669" },
+    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B" },
+    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669" },
+  ];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Calendar</div>
+
+      {/* Mini month display */}
+      <div style={{ padding: "0 12px 8px" }}>
+        <div
+          style={{
+            fontSize: 11,
+            textTransform: "uppercase",
+            color: "#999",
+            marginBottom: 8,
+            letterSpacing: "0.5px",
+          }}
+        >
+          {monthYear}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          {weekDays.map((day, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <span style={{ fontSize: 9, color: "#999" }}>{day.label}</span>
+              <div
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 11,
+                  fontWeight: day.isToday ? 600 : 400,
+                  backgroundColor: day.isToday ? "#059669" : "transparent",
+                  color: day.isToday ? "#fff" : "#999",
+                }}
+              >
+                {day.date}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="ttn-section-label">Today&apos;s Events</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        {events.map((event, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              padding: "8px 12px",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: "monospace",
+                color: "#999",
+                whiteSpace: "nowrap",
+                marginTop: 1,
+                minWidth: 54,
+              }}
+            >
+              {event.time}
+            </span>
+            <div
+              style={{
+                width: 3,
+                alignSelf: "stretch",
+                borderRadius: 2,
+                backgroundColor: event.color,
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: "#1C1C1E" }}>{event.title}</div>
+              <span
+                style={{
+                  display: "inline-block",
+                  fontSize: 9,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  border: `1px solid ${event.color}`,
+                  color: event.color,
+                  borderRadius: 3,
+                  padding: "0 4px",
+                  lineHeight: "16px",
+                  marginTop: 3,
+                }}
+              >
+                {event.type}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link
+          href="/calendar"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View calendar →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function EmailPanel({ active }: { active: boolean }) {
+  const [activeTab, setActiveTab] = useState<"matched" | "unmatched">("matched");
+  const connected = true;
+
+  const matchedEmails = [
+    { initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015", time: "9:14 AM" },
+    { initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987", time: "8:42 AM" },
+    { initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102", time: "Yesterday" },
+    { initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098", time: "Yesterday" },
+  ];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Email</div>
+
+      {/* Connection status */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px 8px" }}>
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            backgroundColor: connected ? "#10B981" : "#9CA3AF",
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: 11, color: connected ? "#10B981" : "#9CA3AF" }}>
+          {connected ? "Outlook Connected" : "Not Connected"}
+        </span>
+      </div>
+
+      {/* Tabs: Matched / Unmatched */}
+      <div style={{ display: "flex", gap: 12, padding: "0 12px 8px", borderBottom: "1px solid #F0F0F0" }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab("matched")}
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: activeTab === "matched" ? "#1C1C1E" : "#999",
+            background: "none",
+            border: "none",
+            borderBottom: activeTab === "matched" ? "2px solid #10B981" : "2px solid transparent",
+            padding: "4px 0",
+            cursor: "pointer",
+          }}
+        >
+          Matched
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("unmatched")}
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: activeTab === "unmatched" ? "#1C1C1E" : "#999",
+            background: "none",
+            border: "none",
+            borderBottom: activeTab === "unmatched" ? "2px solid #10B981" : "2px solid transparent",
+            padding: "4px 0",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          Unmatched
+          <span
+            style={{
+              fontSize: 11,
+              color: "#D97706",
+              border: "1px solid #D97706",
+              borderRadius: 9,
+              padding: "0 6px",
+              lineHeight: "18px",
+              fontFamily: "monospace",
+            }}
+          >
+            3 unmatched
+          </span>
+        </button>
+      </div>
+
+      {/* Email list */}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {activeTab === "matched" &&
+          matchedEmails.map((email, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 8,
+                padding: "8px 12px",
+                borderBottom: i < matchedEmails.length - 1 ? "1px solid #F0F0F0" : "none",
+              }}
+            >
+              <div
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  backgroundColor: "#E5E7EB",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 8,
+                  fontWeight: 600,
+                  color: "#374151",
+                  flexShrink: 0,
+                  marginTop: 1,
+                }}
+              >
+                {email.initials}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#1C1C1E",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {email.subject}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "monospace",
+                      color: "#999",
+                    }}
+                  >
+                    &rarr; {email.caseLink}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "monospace",
+                      color: "#999",
+                    }}
+                  >
+                    {email.time}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        {activeTab === "unmatched" && (
+          <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
+            3 emails need case matching
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link
+          href="/email"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View all email &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ContactsPanel({ active }: { active: boolean }) {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const filters = ["All", "Claimants", "Providers", "Attorneys", "SSA"];
+
+  const contacts = [
+    { initials: "RM", name: "Rosa Martinez", type: "Claimant", cases: 1 },
+    { initials: "DT", name: "Dr. David Thompson", type: "Provider", cases: 3 },
+    { initials: "SC", name: "Sarah Chen, Esq.", type: "Attorney", cases: 2 },
+    { initials: "JW", name: "James Wilson", type: "Claimant", cases: 1 },
+    { initials: "KP", name: "Karen Phillips", type: "SSA", cases: 5 },
+  ];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Contacts</div>
+
+      {/* Type filter pills */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "0 12px 8px" }}>
+        {filters.map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            onClick={() => setActiveFilter(filter)}
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              color: activeFilter === filter ? "#059669" : "#999",
+              backgroundColor: activeFilter === filter ? "#ECFDF5" : "transparent",
+              border: "none",
+              borderRadius: 9,
+              padding: "2px 8px",
+              cursor: "pointer",
+              lineHeight: "18px",
+            }}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      {/* Contact list */}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {contacts.map((contact, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 12px",
+              borderBottom: i < contacts.length - 1 ? "1px solid #F0F0F0" : "none",
+            }}
+          >
+            <div
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                backgroundColor: "#E5E7EB",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 8,
+                fontWeight: 700,
+                color: "#374151",
+                flexShrink: 0,
+              }}
+            >
+              {contact.initials}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: "#1C1C1E" }}>{contact.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 1 }}>
+                <span style={{ fontSize: 10, color: "#999" }}>{contact.type}</span>
+                <span style={{ fontSize: 10, fontFamily: "monospace", color: "#999" }}>
+                  {contact.cases} {contact.cases === 1 ? "case" : "cases"}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer links */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 12px 0" }}>
+        <Link
+          href="/contacts?action=new"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <span style={{ fontSize: 14, lineHeight: 1 }}>+</span> Add contact
+        </Link>
+        <Link
+          href="/contacts"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View all &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function DocumentsPanel({ active }: { active: boolean }) {
+  const [activeCategory, setActiveCategory] = useState<string | null>("Medical Records");
+
+  const categories = [
+    { name: "Medical Records", count: 84 },
+    { name: "SSA Correspondence", count: 52 },
+    { name: "Hearing Notices", count: 28 },
+    { name: "Decisions", count: 15 },
+    { name: "Legal Filings", count: 31 },
+    { name: "Other", count: 37 },
+  ];
+
+  const recentUploads = [
+    { name: "Martinez_MedRecords_031528.pdf", type: "pdf", time: "2h ago" },
+    { name: "Thompson_SSA_Decision.docx", type: "doc", time: "5h ago" },
+    { name: "Chen_Billing_Summary.xlsx", type: "xls", time: "1d ago" },
+  ];
+
+  const fileTypeColors: Record<string, string> = {
+    pdf: "#EF4444",
+    doc: "#3B82F6",
+    xls: "#10B981",
+  };
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Documents</div>
+
+      {/* Stats bar */}
+      <div
+        style={{
+          fontSize: 11,
+          color: "#999",
+          padding: "0 12px 8px",
+        }}
+      >
+        247 documents &middot; 12 pending review
+      </div>
+
+      {/* Category filters */}
+      <div className="ttn-section-label">Categories</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "0 8px" }}>
+        {categories.map((cat) => {
+          const isActive = activeCategory === cat.name;
+          return (
+            <div
+              key={cat.name}
+              onClick={() => setActiveCategory(cat.name)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "5px 8px",
+                borderRadius: 6,
+                cursor: "pointer",
+                backgroundColor: isActive ? "#ECFDF5" : "transparent",
+                transition: "background 0.12s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.backgroundColor = "#F0F0F0";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  color: isActive ? "#059669" : "#555",
+                }}
+              >
+                {cat.name}
+              </span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  color: "#999",
+                }}
+              >
+                {cat.count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Recent uploads */}
+      <div className="ttn-section-label" style={{ marginTop: 12 }}>Recent Uploads</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>
+        {recentUploads.map((file, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "4px 8px",
+              borderRadius: 6,
+              cursor: "pointer",
+              transition: "background 0.12s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#F0F0F0";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            {/* File type icon (colored square) */}
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: 2,
+                backgroundColor: fileTypeColors[file.type] ?? "#999",
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11,
+                color: "#1C1C1E",
+                flex: 1,
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {file.name}
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                color: "#999",
+                flexShrink: 0,
+              }}
+            >
+              {file.time}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer links */}
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 12px 0" }}>
+        <Link
+          href="/documents?action=upload"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          Upload document
+        </Link>
+        <Link
+          href="/documents"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View all &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ReportsPanel({ active }: { active: boolean }) {
+  const reportTypes = [
+    {
+      name: "Cases by Stage",
+      slug: "cases-by-stage",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+          <rect x="1" y="8" width="3" height="5" rx="0.5" fill="#059669" />
+          <rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="#059669" />
+          <rect x="10" y="2" width="3" height="11" rx="0.5" fill="#059669" />
+        </svg>
+      ),
+    },
+    {
+      name: "Team Performance",
+      slug: "team-performance",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Time in Stage",
+      slug: "time-in-stage",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+          <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Case Trends",
+      slug: "case-trends",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+          <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Pipeline Funnel",
+      slug: "pipeline-funnel",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="#059669" style={{ flexShrink: 0 }}>
+          <path d="M1 1h12L9 6v5l-4 2V6L1 1z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Task Completion",
+      slug: "task-completion",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#059669" width="14" height="14" style={{ flexShrink: 0 }}>
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Reports</div>
+
+      {/* Report type list */}
+      <div className="ttn-section-label">Available Reports</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "0 8px" }}>
+        {reportTypes.map((report) => (
+          <Link
+            key={report.slug}
+            href={`/reports?view=${report.slug}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 8px",
+              borderRadius: 6,
+              cursor: "pointer",
+              textDecoration: "none",
+              transition: "background 0.12s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#F0F0F0";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            {report.icon}
+            <span style={{ fontSize: 12, color: "#555", flex: 1 }}>
+              {report.name}
+            </span>
+            <span style={{ fontSize: 12, color: "#CCC" }}>&rsaquo;</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Quick stats */}
+      <div className="ttn-section-label" style={{ marginTop: 12 }}>Quick Stats</div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "0 12px",
+          gap: 8,
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              fontSize: 9,
+              textTransform: "uppercase",
+              color: "#999",
+              letterSpacing: "0.03em",
+              marginBottom: 2,
+            }}
+          >
+            Win Rate
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+              fontWeight: 600,
+              color: "#059669",
+            }}
+          >
+            67%
+          </div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              fontSize: 9,
+              textTransform: "uppercase",
+              color: "#999",
+              letterSpacing: "0.03em",
+              marginBottom: 2,
+            }}
+          >
+            Avg Days
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+              fontWeight: 600,
+              color: "#1C1C1E",
+            }}
+          >
+            142
+          </div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              fontSize: 9,
+              textTransform: "uppercase",
+              color: "#999",
+              letterSpacing: "0.03em",
+              marginBottom: 2,
+            }}
+          >
+            Revenue MTD
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+              fontWeight: 600,
+              color: "#1C1C1E",
+            }}
+          >
+            $45K
+          </div>
+        </div>
+      </div>
+
+      {/* Footer link */}
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link
+          href="/reports"
+          style={{
+            fontSize: 12,
+            color: "#059669",
+            textDecoration: "none",
+          }}
+        >
+          View dashboard &rarr;
+        </Link>
+      </div>
     </div>
   );
 }
