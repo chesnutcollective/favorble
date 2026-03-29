@@ -529,3 +529,65 @@ export async function updateLeadSignatureStatus(
   revalidatePath("/leads");
   return updated;
 }
+
+/**
+ * Update a lead's editable fields.
+ */
+export async function updateLead(
+  id: string,
+  data: {
+    firstName: string;
+    lastName: string;
+    email?: string | null;
+    phone?: string | null;
+    source?: string | null;
+    notes?: string | null;
+  },
+) {
+  const session = await requireSession();
+
+  await db
+    .update(leads)
+    .set({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      source: data.source ?? null,
+      notes: data.notes ?? null,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(leads.id, id),
+        eq(leads.organizationId, session.organizationId),
+      ),
+    );
+
+  logger.info("Lead updated", { leadId: id });
+  revalidatePath(`/leads/${id}`);
+  revalidatePath("/leads");
+}
+
+/**
+ * Soft-delete a lead.
+ */
+export async function deleteLead(id: string) {
+  const session = await requireSession();
+
+  await db
+    .update(leads)
+    .set({
+      deletedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(leads.id, id),
+        eq(leads.organizationId, session.organizationId),
+      ),
+    );
+
+  logger.info("Lead deleted", { leadId: id });
+  revalidatePath("/leads");
+}
