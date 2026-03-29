@@ -84,6 +84,7 @@ export type DocumentSummary = {
     fileName: string;
     fileType: string;
     createdAt: Date;
+    caseNumber: string | null;
   }[];
 };
 
@@ -95,6 +96,8 @@ export type ContactSummary = {
     firstName: string;
     lastName: string;
     contactType: string;
+    email: string | null;
+    phone: string | null;
   }[];
 };
 
@@ -351,6 +354,7 @@ async function getDocumentSummary(
         fileName: documents.fileName,
         fileType: documents.fileType,
         createdAt: documents.createdAt,
+        caseNumber: cases.caseNumber,
       })
       .from(documents)
       .innerJoin(cases, eq(documents.caseId, cases.id))
@@ -414,6 +418,8 @@ async function getContactSummary(
         firstName: contacts.firstName,
         lastName: contacts.lastName,
         contactType: contacts.contactType,
+        email: contacts.email,
+        phone: contacts.phone,
       })
       .from(contacts)
       .where(
@@ -423,7 +429,7 @@ async function getContactSummary(
         ),
       )
       .orderBy(desc(contacts.createdAt))
-      .limit(5),
+      .limit(10),
   ]);
 
   const byTypeCount: Record<string, number> = {};

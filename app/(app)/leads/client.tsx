@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,14 +71,41 @@ function formatRelative(dateStr: string): string {
 
 export function LeadsPipelineClient({
   columns: initialColumns,
+  initialAction,
+  initialStatus,
 }: {
   columns: Column[];
+  initialAction?: string;
+  initialStatus?: string;
 }) {
   const [columns, setColumns] = useState(initialColumns);
   const [isPending, startTransition] = useTransition();
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [newLeadOpen, setNewLeadOpen] = useState(false);
+  const pipelineRef = useRef<HTMLDivElement>(null);
+
+  // Auto-open create dialog when navigating with ?action=new
+  useEffect(() => {
+    if (initialAction === "new") {
+      setNewLeadOpen(true);
+    }
+  }, [initialAction]);
+
+  // Scroll to the matching kanban column when ?status= is set
+  useEffect(() => {
+    if (!initialStatus) return;
+    // Small delay to ensure the DOM has rendered
+    const timer = setTimeout(() => {
+      const col = pipelineRef.current?.querySelector<HTMLElement>(
+        `[data-status="${initialStatus}"]`
+      );
+      if (col) {
+        col.scrollIntoView({ behavior: "smooth", inline: "center" });
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [initialStatus]);
 
   // New lead form state
   const [nlFirstName, setNlFirstName] = useState("");
@@ -304,10 +331,11 @@ export function LeadsPipelineClient({
         }
       />
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div ref={pipelineRef} className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((col) => (
           <div
             key={col.status}
+            data-status={col.status}
             className={`min-w-[280px] max-w-[320px] flex-1 rounded-[6px] border border-[#eaeaea] bg-[#fafafa] p-3 transition-colors duration-200 ${
               dragOverColumn === col.status
                 ? "border-[#999]"

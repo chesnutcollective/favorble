@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef, useEffect, type RefObject } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,14 @@ type EmailQueueClientProps = {
   emails: Email[];
   cases: CaseOption[];
   initialFilter?: string;
+  highlightId?: string;
 };
 
-export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueClientProps) {
+export function EmailQueueClient({ emails, cases, initialFilter, highlightId }: EmailQueueClientProps) {
   const unmatchedRef = useRef<HTMLDivElement>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [activeHighlight, setActiveHighlight] = useState(highlightId);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [caseSearch, setCaseSearch] = useState("");
@@ -97,6 +100,20 @@ export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueCli
     }
   }, [initialFilter]);
 
+  // Scroll to highlighted email when arriving via ?highlight=
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId]);
+
+  // Clear highlight after 3 seconds
+  useEffect(() => {
+    if (!activeHighlight) return;
+    const timer = setTimeout(() => setActiveHighlight(undefined), 3000);
+    return () => clearTimeout(timer);
+  }, [activeHighlight]);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -123,6 +140,8 @@ export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueCli
               key={email.id}
               email={email}
               onAssociate={() => handleAssociateClick(email.id)}
+              isHighlighted={activeHighlight === email.id}
+              highlightRef={email.id === highlightId ? highlightRef : undefined}
             />
           ))}
         </div>
@@ -134,7 +153,12 @@ export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueCli
             Matched Emails
           </h2>
           {matchedEmails.map((email) => (
-            <EmailRow key={email.id} email={email} />
+            <EmailRow
+              key={email.id}
+              email={email}
+              isHighlighted={activeHighlight === email.id}
+              highlightRef={email.id === highlightId ? highlightRef : undefined}
+            />
           ))}
         </div>
       )}
@@ -182,12 +206,19 @@ export function EmailQueueClient({ emails, cases, initialFilter }: EmailQueueCli
 function EmailRow({
   email,
   onAssociate,
+  isHighlighted,
+  highlightRef,
 }: {
   email: Email;
   onAssociate?: () => void;
+  isHighlighted?: boolean;
+  highlightRef?: RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <Card>
+    <Card
+      ref={highlightRef}
+      className={`transition-colors duration-200${isHighlighted ? " ring-2 ring-[#10B981] bg-[#ECFDF5]" : ""}`}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">

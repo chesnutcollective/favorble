@@ -22,6 +22,7 @@ export default async function CasesPage({
   const sortDir = params.sortDir ?? "desc";
   const team = params.team ?? "";
   const assignedTo = params.assignedTo ?? "";
+  const action = params.action ?? "";
 
   let casesResult: Awaited<ReturnType<typeof getCases>> = {
     cases: [],
@@ -88,6 +89,7 @@ export default async function CasesPage({
         initialAssignedTo={assignedTo}
         initialSortBy={sortBy}
         initialSortDir={sortDir as "asc" | "desc"}
+        initialAction={action}
       />
     </div>
   );

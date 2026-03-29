@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default async function QueuePage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; task?: string }>;
 }) {
-  const { tab: initialTab } = await searchParams;
+  const { tab: initialTab, task: highlightTaskId } = await searchParams;
   const session = await requireSession();
   const isManager = session.role === "admin" || session.role === "case_manager";
 
@@ -84,6 +84,7 @@ export default async function QueuePage({
         orgUsers={orgUsers}
         caseStages={caseStages}
         initialTab={initialTab}
+        highlightTaskId={highlightTaskId}
       />
     </div>
   );

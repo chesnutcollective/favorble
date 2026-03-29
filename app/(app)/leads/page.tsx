@@ -14,7 +14,14 @@ const PIPELINE_STATUSES = [
   { key: "contract_signed", label: "Signed" },
 ] as const;
 
-export default async function LeadsPage() {
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const action = params.action ?? "";
+  const status = params.status ?? "";
   let allLeads: Awaited<ReturnType<typeof getLeads>> = [];
   let statusCounts: Awaited<ReturnType<typeof getLeadCountsByStatus>> = [];
 
@@ -49,7 +56,7 @@ export default async function LeadsPage() {
 
   return (
     <div className="space-y-4">
-      <LeadsPipelineClient columns={columns} />
+      <LeadsPipelineClient columns={columns} initialAction={action} initialStatus={status} />
     </div>
   );
 }

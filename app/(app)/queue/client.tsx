@@ -175,6 +175,7 @@ export function QueueClient({
   orgUsers,
   caseStages,
   initialTab,
+  highlightTaskId,
 }: {
   initialTasks: QueueTask[];
   counts: Counts;
@@ -183,6 +184,7 @@ export function QueueClient({
   orgUsers: OrgUser[];
   caseStages: CaseStage[];
   initialTab?: string;
+  highlightTaskId?: string;
 }) {
   const [queueMode, setQueueMode] = useState<QueueMode>("my");
   const [activeTab, setActiveTab] = useState(
@@ -204,6 +206,7 @@ export function QueueClient({
   const [reassignOpen, setReassignOpen] = useState(false);
   const [snoozeCustomOpen, setSnoozeCustomOpen] = useState(false);
   const [snoozeCustomDate, setSnoozeCustomDate] = useState("");
+  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const taskListRef = useRef<HTMLDivElement>(null);
 
@@ -289,6 +292,30 @@ export function QueueClient({
     stageFilter,
     priorityFilter,
   ]);
+
+  // Deep-link: auto-open task detail sheet when highlightTaskId is set
+  useEffect(() => {
+    if (!highlightTaskId) return;
+    // Search across all tasks (not just filtered) to find the target
+    const allTasks: QueueTask[] = [...initialTasks, ...teamTasks];
+    const task = allTasks.find((t) => t.id === highlightTaskId);
+    if (task) {
+      setSelectedTask(task);
+      setHighlightedTaskId(task.id);
+      // Clear highlight ring after 3 seconds
+      const timer = setTimeout(() => setHighlightedTaskId(null), 3000);
+      // Scroll task row into view
+      requestAnimationFrame(() => {
+        const row = taskListRef.current?.querySelector(
+          `[data-task-id="${task.id}"]`,
+        );
+        if (row) {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+      return () => clearTimeout(timer);
+    }
+  }, [highlightTaskId, initialTasks, teamTasks]);
 
   // Group team tasks by assignee
   const groupedTeamTasks = useMemo(() => {
@@ -450,12 +477,14 @@ export function QueueClient({
   function renderTaskRow(task: QueueTask, index: number) {
     const dueDateInfo = getDueDateInfo(task.dueDate);
     const isFocused = index === focusedIndex;
+    const isHighlighted = task.id === highlightedTaskId;
     return (
       <div
         key={task.id}
+        data-task-id={task.id}
         className={`flex items-start gap-3 p-3 hover:bg-accent transition-colors cursor-pointer ${
           isFocused ? "ring-2 ring-primary ring-inset bg-accent/50" : ""
-        }`}
+        } ${isHighlighted ? "ring-2 ring-emerald-500 ring-inset bg-emerald-50 dark:bg-emerald-950/20" : ""}`}
         onClick={() => setSelectedTask(task)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

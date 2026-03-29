@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -141,15 +141,17 @@ const settingsIcon = (
 interface SettingsItem {
   label: string;
   href: string;
+  description: string;
 }
 
 const settingsNav: SettingsItem[] = [
-  { label: "Integrations", href: "/admin/integrations" },
-  { label: "Workflows", href: "/admin/workflows" },
-  { label: "Stages", href: "/admin/stages" },
-  { label: "Fields", href: "/admin/fields" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Templates", href: "/admin/templates" },
+  { label: "General", href: "/admin/settings", description: "Organization and account" },
+  { label: "Users", href: "/admin/users", description: "Manage team access" },
+  { label: "Stages", href: "/admin/stages", description: "Define case progression" },
+  { label: "Fields", href: "/admin/fields", description: "Customize data fields" },
+  { label: "Templates", href: "/admin/templates", description: "Document templates" },
+  { label: "Workflows", href: "/admin/workflows", description: "Automate case actions" },
+  { label: "Integrations", href: "/admin/integrations", description: "Connect external services" },
 ];
 
 /* ─── Determine active rail item from pathname ─── */
@@ -278,7 +280,7 @@ export function TwoTierNav({
 
           {/* Settings gear */}
           <Link
-            href="/admin/integrations"
+            href="/admin/settings"
             className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
             onMouseEnter={() => setHoveredPanel("settings")}
             onMouseLeave={() => setHoveredPanel(null)}
@@ -313,7 +315,7 @@ export function TwoTierNav({
             <LeadsPanel active={visiblePanel === "leads"} />
 
             {/* Queue Panel */}
-            <QueuePanel active={visiblePanel === "queue"} />
+            <QueuePanel active={visiblePanel === "queue"} navData={navData} />
 
             {/* Calendar Panel */}
             <CalendarPanel active={visiblePanel === "calendar"} navData={navData} />
@@ -322,13 +324,13 @@ export function TwoTierNav({
             <EmailPanel active={visiblePanel === "email"} navData={navData} />
 
             {/* Contacts Panel */}
-            <ContactsPanel active={visiblePanel === "contacts"} />
+            <ContactsPanel active={visiblePanel === "contacts"} navData={navData} />
 
             {/* Documents Panel */}
             <DocumentsPanel active={visiblePanel === "documents"} navData={navData} />
 
             {/* Reports Panel */}
-            <ReportsPanel active={visiblePanel === "reports"} />
+            <ReportsPanel active={visiblePanel === "reports"} navData={navData} />
 
             {/* Settings Panel */}
             <SettingsPanel
@@ -531,7 +533,15 @@ function DashboardPanel({
   );
 }
 
-function CasesPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function CasesPanel({
+  active,
+  navData,
+}: { active: boolean; navData?: NavPanelData }) {
+  const searchParams = useSearchParams();
+  const activeStageId = searchParams.get("stage");
+  const currentPathname = usePathname();
+  const isCasesPage = currentPathname === "/cases";
+
   const fallbackStages = [
     { stageId: "intake", stageName: "Intake", count: 8 },
     { stageId: "application", stageName: "Application", count: 12 },
@@ -549,29 +559,95 @@ function CasesPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
         }))
       : fallbackStages;
 
+  const totalCount = stages.reduce((sum, s) => sum + s.count, 0);
   const maxCount = Math.max(...stages.map((s) => s.count), 1);
+  const isAllActive = isCasesPage && !activeStageId;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
       <div className="ttn-panel-header">Cases</div>
 
       <div className="ttn-section-label">By Stage</div>
-      {stages.map((stage) => (
-        <Link
-          href={`/cases?stage=${stage.stageId}`}
-          key={stage.stageId}
-          className="ttn-stage-item"
+
+      {/* All Cases link */}
+      <Link
+        href="/cases"
+        className="ttn-stage-item"
+        style={{
+          borderLeft: isAllActive
+            ? "2px solid #059669"
+            : "2px solid transparent",
+          backgroundColor: isAllActive ? "#ECFDF5" : undefined,
+          paddingLeft: 10,
+        }}
+      >
+        <span
+          className="ttn-stage-name"
+          style={{
+            color: isAllActive ? "#059669" : undefined,
+            fontWeight: isAllActive ? 600 : undefined,
+          }}
         >
-          <span className="ttn-stage-name">{stage.stageName}</span>
-          <div className="ttn-stage-bar-track">
-            <div
-              className="ttn-stage-bar-fill"
-              style={{ width: `${(stage.count / maxCount) * 100}%` }}
-            />
-          </div>
-          <span className="ttn-stage-count">{stage.count}</span>
-        </Link>
-      ))}
+          All Cases
+        </span>
+        <span
+          className="ttn-stage-count"
+          style={{
+            color: isAllActive ? "#059669" : undefined,
+            fontWeight: isAllActive ? 600 : undefined,
+          }}
+        >
+          {totalCount}
+        </span>
+      </Link>
+
+      {stages.map((stage) => {
+        const isStageActive =
+          isCasesPage && activeStageId === stage.stageId;
+        return (
+          <Link
+            href={
+              isStageActive ? "/cases" : `/cases?stage=${stage.stageId}`
+            }
+            key={stage.stageId}
+            className="ttn-stage-item"
+            style={{
+              borderLeft: isStageActive
+                ? "2px solid #059669"
+                : "2px solid transparent",
+              backgroundColor: isStageActive ? "#ECFDF5" : undefined,
+              paddingLeft: 10,
+            }}
+          >
+            <span
+              className="ttn-stage-name"
+              style={{
+                color: isStageActive ? "#059669" : undefined,
+                fontWeight: isStageActive ? 600 : undefined,
+              }}
+            >
+              {stage.stageName}
+            </span>
+            <div className="ttn-stage-bar-track">
+              <div
+                className="ttn-stage-bar-fill"
+                style={{
+                  width: `${(stage.count / maxCount) * 100}%`,
+                }}
+              />
+            </div>
+            <span
+              className="ttn-stage-count"
+              style={{
+                color: isStageActive ? "#059669" : undefined,
+                fontWeight: isStageActive ? 600 : undefined,
+              }}
+            >
+              {stage.count}
+            </span>
+          </Link>
+        );
+      })}
 
       <div className="ttn-pinned-label">
         <svg
@@ -593,7 +669,10 @@ function CasesPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   );
 }
 
-function MessagesPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
+function MessagesPanel({
+  active,
+  navData,
+}: { active: boolean; navData?: NavPanelData }) {
   const msgs = navData?.messageSummary;
   const unreadCount = msgs?.unreadCount ?? 0;
 
@@ -681,15 +760,21 @@ function SettingsPanel({
           key={item.href}
           href={item.href}
           className={`ttn-panel-item${pathname === item.href || pathname.startsWith(item.href + "/") ? " active" : ""}`}
+          style={{ alignItems: "flex-start", paddingTop: 8, paddingBottom: 8 }}
         >
-          <span>{item.label}</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+            <span>{item.label}</span>
+            <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 400, lineHeight: 1.3 }}>
+              {item.description}
+            </span>
+          </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
             width="14"
             height="14"
-            style={{ opacity: 0.4 }}
+            style={{ opacity: 0.4, flexShrink: 0, marginTop: 2 }}
           >
             <path
               fillRule="evenodd"
@@ -751,7 +836,7 @@ function LeadsPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
         {pipelineStages.map((stage, i) => (
           <React.Fragment key={stage.status}>
             <Link
-              href="/leads"
+              href={`/leads?status=${stage.status}`}
               style={{ display: "flex", flexDirection: "column", gap: 4, padding: "6px 0", textDecoration: "none", color: "inherit" }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -903,7 +988,7 @@ function QueuePanel({ active, navData }: { active: boolean; navData?: NavPanelDa
         {displayTasks.map((task, i) => (
           <Link
             key={task.id}
-            href="/queue"
+            href={`/queue?task=${task.id}`}
             style={{
               display: "flex",
               alignItems: "flex-start",
@@ -975,41 +1060,74 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
 
   const today = now.getDate();
   const dayOfWeek = now.getDay();
-  const weekDays: { label: string; date: number; isToday: boolean }[] = [];
+  const weekDays: { label: string; date: number; isToday: boolean; fullDate: string }[] = [];
   for (let i = 0; i < 7; i++) {
     const diff = i - dayOfWeek;
     const d = new Date(now);
     d.setDate(today + diff);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
     weekDays.push({
       label: ["S", "M", "T", "W", "T", "F", "S"][i],
       date: d.getDate(),
       isToday: d.getDate() === today && d.getMonth() === now.getMonth(),
+      fullDate: `${yyyy}-${mm}-${dd}`,
     });
   }
 
   const todayEvents = navData?.todayEvents;
   const hasEvents = todayEvents && todayEvents.length > 0;
+  const eventCount = todayEvents?.length ?? 0;
+  const MAX_DISPLAY_EVENTS = 5;
 
   const fallbackEvents = [
-    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669", href: "/calendar" },
-    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B", href: "/calendar" },
-    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669", href: "/calendar" },
+    { time: "10:00 AM", title: "Martinez Hearing", type: "Hearing", color: "#059669", href: "/calendar", caseName: null as string | null },
+    { time: "1:30 PM", title: "Thompson Filing Deadline", type: "Deadline", color: "#F59E0B", href: "/calendar", caseName: null as string | null },
+    { time: "3:00 PM", title: "Chen Status Conference", type: "Hearing", color: "#059669", href: "/calendar", caseName: null as string | null },
   ];
 
   const events = hasEvents
-    ? todayEvents.slice(0, 3).map((e) => ({
+    ? todayEvents.slice(0, MAX_DISPLAY_EVENTS).map((e) => ({
         id: e.id,
         time: formatEventTime(e.startTime),
         title: e.title,
         type: e.eventType ?? "Event",
         color: getEventColor(e.eventType),
         href: e.caseId ? `/cases/${e.caseId}/calendar` : "/calendar",
+        caseName: e.caseNumber ? `Case #${e.caseNumber}` : null,
       }))
     : null;
 
+  const remainingEvents = eventCount > MAX_DISPLAY_EVENTS ? eventCount - MAX_DISPLAY_EVENTS : 0;
+
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
-      <div className="ttn-panel-header">Calendar</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="ttn-panel-header">Calendar</div>
+        <Link
+          href="/calendar?action=new"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 22,
+            height: 22,
+            borderRadius: "50%",
+            backgroundColor: "#ECFDF5",
+            color: "#059669",
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: "none",
+            lineHeight: 1,
+            marginRight: 12,
+            marginTop: 12,
+          }}
+          title="New event"
+        >
+          +
+        </Link>
+      </div>
 
       <div style={{ padding: "0 12px 8px" }}>
         <div
@@ -1027,7 +1145,7 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
           {weekDays.map((day, i) => (
             <Link
               key={i}
-              href="/calendar"
+              href={`/calendar?date=${day.fullDate}`}
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1075,7 +1193,7 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
         {navData && !hasEvents && (
           <div style={{ padding: "8px 12px", fontSize: 12, color: "#999" }}>
-            No events today
+            No events today &#8212; enjoy the breather
           </div>
         )}
         {(events ?? fallbackEvents).map((event, i) => (
@@ -1115,6 +1233,11 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
               />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, color: "#1C1C1E" }}>{event.title}</div>
+                {event.caseName && (
+                  <div style={{ fontSize: 10, color: "#999", marginTop: 1 }}>
+                    {event.caseName}
+                  </div>
+                )}
                 <span
                   style={{
                     display: "inline-block",
@@ -1135,6 +1258,19 @@ function CalendarPanel({ active, navData }: { active: boolean; navData?: NavPane
             </div>
           </Link>
         ))}
+        {remainingEvents > 0 && (
+          <Link
+            href="/calendar"
+            style={{
+              padding: "6px 12px",
+              fontSize: 11,
+              color: "#999",
+              textDecoration: "none",
+            }}
+          >
+            and {remainingEvents} more event{remainingEvents === 1 ? "" : "s"}
+          </Link>
+        )}
       </div>
 
       <div style={{ padding: "12px 12px 0" }}>
@@ -1160,10 +1296,10 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   const unmatchedCount = emailData?.unmatchedCount ?? 0;
 
   const fallbackEmails = [
-    { initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015" as string | null, caseId: null as string | null, time: "9:14 AM" },
-    { initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987" as string | null, caseId: null as string | null, time: "8:42 AM" },
-    { initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102" as string | null, caseId: null as string | null, time: "Yesterday" },
-    { initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098" as string | null, caseId: null as string | null, time: "Yesterday" },
+    { id: "fb-1", initials: "JM", subject: "RE: Medical records request for Martinez", caseLink: "HS-2026-1015" as string | null, caseId: null as string | null, time: "9:14 AM" },
+    { id: "fb-2", initials: "KT", subject: "Thompson hearing confirmation from ALJ", caseLink: "HS-2026-0987" as string | null, caseId: null as string | null, time: "8:42 AM" },
+    { id: "fb-3", initials: "LD", subject: "Davis CE appointment scheduling", caseLink: "HS-2026-1102" as string | null, caseId: null as string | null, time: "Yesterday" },
+    { id: "fb-4", initials: "RW", subject: "Wilson intake documents received", caseLink: "HS-2026-1098" as string | null, caseId: null as string | null, time: "Yesterday" },
   ];
 
   const realEmails = emailData?.recentEmails && emailData.recentEmails.length > 0
@@ -1238,16 +1374,21 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
           {unmatchedCount > 0 && (
             <span
               style={{
-                fontSize: 11,
-                color: "#D97706",
-                border: "1px solid #D97706",
-                borderRadius: 9,
-                padding: "0 6px",
-                lineHeight: "18px",
-                fontFamily: "monospace",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 9,
+                fontWeight: 700,
+                color: "#fff",
+                backgroundColor: "#DC2626",
+                borderRadius: "50%",
+                minWidth: 16,
+                height: 16,
+                padding: "0 3px",
+                lineHeight: 1,
               }}
             >
-              {unmatchedCount}
+              {unmatchedCount > 99 ? "99+" : unmatchedCount}
             </span>
           )}
         </button>
@@ -1258,8 +1399,8 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
         {activeTab === "matched" &&
           displayEmails.map((email, i) => (
             <Link
-              key={"id" in email ? (email as { id: string }).id : i}
-              href="/email"
+              key={email.id}
+              href={`/email?highlight=${email.id}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <div
@@ -1334,13 +1475,26 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
             </Link>
           ))}
         {activeTab === "unmatched" && (
-          <Link href="/email?filter=unmatched" style={{ textDecoration: "none", color: "inherit" }}>
-            <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
+          <div style={{ padding: "12px" }}>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
               {unmatchedCount > 0
                 ? `${unmatchedCount} email${unmatchedCount === 1 ? "" : "s"} need case matching`
                 : "No unmatched emails"}
             </div>
-          </Link>
+            {unmatchedCount > 0 && (
+              <Link
+                href="/email?filter=unmatched"
+                style={{
+                  fontSize: 12,
+                  color: "#059669",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                }}
+              >
+                Review unmatched &rarr;
+              </Link>
+            )}
+          </div>
         )}
       </div>
 
@@ -1360,7 +1514,7 @@ function EmailPanel({ active, navData }: { active: boolean; navData?: NavPanelDa
   );
 }
 
-function ContactsPanel({ active }: { active: boolean }) {
+function ContactsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
   const router = useRouter();
   const typeMap: Record<string, string> = {
     "All": "",
@@ -1370,16 +1524,40 @@ function ContactsPanel({ active }: { active: boolean }) {
     "SSA": "ssa_office",
     "Experts": "expert",
   };
+  const TYPE_LABELS: Record<string, string> = {
+    claimant: "Claimant",
+    medical_provider: "Provider",
+    attorney: "Attorney",
+    ssa_office: "SSA",
+    expert: "Expert",
+  };
   const [activeFilter, setActiveFilter] = useState("All");
   const filters = ["All", "Claimants", "Providers", "Attorneys", "SSA", "Experts"];
 
-  const contacts = [
-    { initials: "RM", name: "Rosa Martinez", type: "Claimant", cases: 1 },
-    { initials: "DT", name: "Dr. David Thompson", type: "Provider", cases: 3 },
-    { initials: "SC", name: "Sarah Chen, Esq.", type: "Attorney", cases: 2 },
-    { initials: "JW", name: "James Wilson", type: "Claimant", cases: 1 },
-    { initials: "KP", name: "Karen Phillips", type: "SSA", cases: 5 },
+  const fallbackContacts = [
+    { id: "", initials: "RM", name: "Rosa Martinez", type: "claimant", email: null as string | null, phone: null as string | null },
+    { id: "", initials: "DT", name: "Dr. David Thompson", type: "medical_provider", email: null as string | null, phone: null as string | null },
+    { id: "", initials: "SC", name: "Sarah Chen, Esq.", type: "attorney", email: null as string | null, phone: null as string | null },
+    { id: "", initials: "JW", name: "James Wilson", type: "claimant", email: null as string | null, phone: null as string | null },
+    { id: "", initials: "KP", name: "Karen Phillips", type: "ssa_office", email: null as string | null, phone: null as string | null },
   ];
+
+  const recentContacts = navData?.contactSummary?.recentContacts;
+  const allContacts = recentContacts && recentContacts.length > 0
+    ? recentContacts.map((c) => ({
+        id: c.id,
+        initials: getInitials(`${c.firstName} ${c.lastName}`),
+        name: `${c.firstName} ${c.lastName}`,
+        type: c.contactType,
+        email: c.email,
+        phone: c.phone,
+      }))
+    : fallbackContacts;
+
+  const filterTypeValue = typeMap[activeFilter] ?? "";
+  const displayContacts = filterTypeValue
+    ? allContacts.filter((c) => c.type === filterTypeValue)
+    : allContacts;
 
   return (
     <div className={`ttn-panel-content${active ? " active" : ""}`}>
@@ -1415,45 +1593,72 @@ function ContactsPanel({ active }: { active: boolean }) {
 
       {/* Contact list */}
       <div style={{ display: "flex", flexDirection: "column" }}>
-        {contacts.map((contact, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 12px",
-              borderBottom: i < contacts.length - 1 ? "1px solid #F0F0F0" : "none",
-            }}
-          >
-            <div
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                backgroundColor: "#E5E7EB",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 8,
-                fontWeight: 700,
-                color: "#374151",
-                flexShrink: 0,
-              }}
-            >
-              {contact.initials}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: "#1C1C1E" }}>{contact.name}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 1 }}>
-                <span style={{ fontSize: 10, color: "#999" }}>{contact.type}</span>
-                <span style={{ fontSize: 10, fontFamily: "monospace", color: "#999" }}>
-                  {contact.cases} {contact.cases === 1 ? "case" : "cases"}
-                </span>
-              </div>
-            </div>
+        {displayContacts.length === 0 && (
+          <div style={{ padding: "12px", fontSize: 12, color: "#999" }}>
+            No {activeFilter.toLowerCase()} contacts found
           </div>
-        ))}
+        )}
+        {displayContacts.map((contact, i) => {
+          const secondaryInfo = contact.email || contact.phone || null;
+          const contactLink = contact.id ? `/contacts/${contact.id}` : "/contacts";
+          return (
+            <Link
+              key={contact.id || i}
+              href={contactLink}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 12px",
+                  borderBottom: i < displayContacts.length - 1 ? "1px solid #F0F0F0" : "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    backgroundColor: "#E5E7EB",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 8,
+                    fontWeight: 700,
+                    color: "#374151",
+                    flexShrink: 0,
+                  }}
+                >
+                  {contact.initials}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, color: "#1C1C1E" }}>{contact.name}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 1 }}>
+                    <span style={{ fontSize: 10, color: "#999" }}>
+                      {TYPE_LABELS[contact.type] ?? contact.type}
+                    </span>
+                  </div>
+                  {secondaryInfo && (
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "#999",
+                        marginTop: 1,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {secondaryInfo}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Footer links */}
@@ -1487,7 +1692,6 @@ function ContactsPanel({ active }: { active: boolean }) {
 }
 
 function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
-  const router = useRouter();
   const docData = navData?.documentSummary;
 
   const sources = [
@@ -1501,15 +1705,17 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
   ];
 
   const recentUploads = (docData?.recentUploads ?? []).map((u) => ({
+    id: u.id,
     name: u.fileName,
     type: u.fileType?.includes("pdf") ? "pdf" : u.fileType?.includes("doc") ? "doc" : u.fileType?.includes("xls") ? "xls" : "other",
     time: formatRelativeTime(u.createdAt),
+    caseNumber: u.caseNumber ?? null,
   }));
   if (recentUploads.length === 0) {
     recentUploads.push(
-      { name: "Martinez_MedRecords.pdf", type: "pdf", time: "2h ago" },
-      { name: "Thompson_Decision.docx", type: "doc", time: "5h ago" },
-      { name: "Chen_Billing.xlsx", type: "xls", time: "1d ago" },
+      { id: "fallback-1", name: "Martinez_MedRecords.pdf", type: "pdf", time: "2h ago", caseNumber: "HS-2026-1015" },
+      { id: "fallback-2", name: "Thompson_Decision.docx", type: "doc", time: "5h ago", caseNumber: null },
+      { id: "fallback-3", name: "Chen_Billing.xlsx", type: "xls", time: "1d ago", caseNumber: null },
     );
   }
 
@@ -1535,9 +1741,9 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
           const count = docData?.bySourceCount?.[src.key] ?? 0;
           if (count === 0 && !docData) return null;
           return (
-            <div
+            <Link
               key={src.key}
-              onClick={() => router.push(`/documents?source=${src.key}`)}
+              href={`/documents?source=${src.key}`}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1545,6 +1751,8 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
                 padding: "5px 8px",
                 borderRadius: 6,
                 cursor: "pointer",
+                textDecoration: "none",
+                color: "inherit",
                 transition: "background 0.12s ease",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#F0F0F0"; }}
@@ -1554,7 +1762,7 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
               <span style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", color: "#999" }}>
                 {count}
               </span>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -1562,9 +1770,10 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
       {/* Recent uploads */}
       <div className="ttn-section-label" style={{ marginTop: 12 }}>Recent Uploads</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>
-        {recentUploads.map((file, i) => (
-          <div
-            key={i}
+        {recentUploads.map((file) => (
+          <Link
+            key={file.id}
+            href={`/documents?highlight=${file.id}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -1572,6 +1781,8 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
               padding: "4px 8px",
               borderRadius: 6,
               cursor: "pointer",
+              textDecoration: "none",
+              color: "inherit",
               transition: "background 0.12s ease",
             }}
             onMouseEnter={(e) => {
@@ -1591,30 +1802,49 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
                 flexShrink: 0,
               }}
             />
-            <span
+            <div
               style={{
-                fontSize: 11,
-                color: "#1C1C1E",
                 flex: 1,
                 minWidth: 0,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
               }}
             >
-              {file.name}
-            </span>
-            <span
-              style={{
-                fontSize: 10,
-                fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
-                color: "#999",
-                flexShrink: 0,
-              }}
-            >
-              {file.time}
-            </span>
-          </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#1C1C1E",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {file.name}
+              </div>
+              {file.caseNumber && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                    color: "#999",
+                    marginTop: 1,
+                  }}
+                >
+                  {file.caseNumber} &middot; {file.time}
+                </div>
+              )}
+            </div>
+            {!file.caseNumber && (
+              <span
+                style={{
+                  fontSize: 10,
+                  fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+                  color: "#999",
+                  flexShrink: 0,
+                }}
+              >
+                {file.time}
+              </span>
+            )}
+          </Link>
         ))}
       </div>
 
@@ -1645,7 +1875,7 @@ function DocumentsPanel({ active, navData }: { active: boolean; navData?: NavPan
   );
 }
 
-function ReportsPanel({ active }: { active: boolean }) {
+function ReportsPanel({ active, navData }: { active: boolean; navData?: NavPanelData }) {
   const reportTypes = [
     {
       name: "Cases by Stage",
@@ -1737,91 +1967,13 @@ function ReportsPanel({ active }: { active: boolean }) {
             <span style={{ fontSize: 12, color: "#555", flex: 1 }}>
               {report.name}
             </span>
-            <span style={{ fontSize: 12, color: "#CCC" }}>&rsaquo;</span>
+            <span style={{ fontSize: 12, color: "#CCC" }}>&rarr;</span>
           </Link>
         ))}
       </div>
 
-      {/* Quick stats */}
-      <div className="ttn-section-label" style={{ marginTop: 12 }}>Quick Stats</div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "0 12px",
-          gap: 8,
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 9,
-              textTransform: "uppercase",
-              color: "#999",
-              letterSpacing: "0.03em",
-              marginBottom: 2,
-            }}
-          >
-            Win Rate
-          </div>
-          <div
-            style={{
-              fontSize: 16,
-              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
-              fontWeight: 600,
-              color: "#059669",
-            }}
-          >
-            67%
-          </div>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 9,
-              textTransform: "uppercase",
-              color: "#999",
-              letterSpacing: "0.03em",
-              marginBottom: 2,
-            }}
-          >
-            Avg Days
-          </div>
-          <div
-            style={{
-              fontSize: 16,
-              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
-              fontWeight: 600,
-              color: "#1C1C1E",
-            }}
-          >
-            142
-          </div>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 9,
-              textTransform: "uppercase",
-              color: "#999",
-              letterSpacing: "0.03em",
-              marginBottom: 2,
-            }}
-          >
-            Revenue MTD
-          </div>
-          <div
-            style={{
-              fontSize: 16,
-              fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
-              fontWeight: 600,
-              color: "#1C1C1E",
-            }}
-          >
-            $45K
-          </div>
-        </div>
-      </div>
+      {/* Quick stats -- live data from navData */}
+      <ReportsQuickStats navData={navData} />
 
       {/* Footer link */}
       <div style={{ padding: "12px 12px 0" }}>
@@ -1837,6 +1989,82 @@ function ReportsPanel({ active }: { active: boolean }) {
         </Link>
       </div>
     </div>
+  );
+}
+
+function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
+  const activeCases = navData?.stageCounts
+    ? navData.stageCounts.reduce((sum, s) => sum + s.count, 0)
+    : null;
+  const totalLeads = navData?.leadCounts
+    ? navData.leadCounts.reduce((sum, l) => sum + l.count, 0)
+    : null;
+  const signedLeads = navData?.leadCounts
+    ? navData.leadCounts
+        .filter((l) => l.status === "contract_signed")
+        .reduce((sum, l) => sum + l.count, 0)
+    : null;
+  const conversionRate =
+    totalLeads != null && totalLeads > 0 && signedLeads != null
+      ? Math.round((signedLeads / totalLeads) * 100)
+      : null;
+  const openTasks = navData?.taskSummary ? navData.taskSummary.total : null;
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 9,
+    textTransform: "uppercase",
+    color: "#999",
+    letterSpacing: "0.03em",
+    marginBottom: 2,
+  };
+  const valueStyle: React.CSSProperties = {
+    fontSize: 16,
+    fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
+    fontWeight: 600,
+    color: "#1C1C1E",
+  };
+  const boxStyle: React.CSSProperties = {
+    textAlign: "center",
+    flex: 1,
+    padding: "6px 4px",
+    borderRadius: 6,
+    border: "1px solid transparent",
+    textDecoration: "none",
+    transition: "border-color 0.15s ease",
+    cursor: "pointer",
+    display: "block",
+  };
+  const onEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.borderColor = "#D1D5DB";
+  };
+  const onLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.borderColor = "transparent";
+  };
+
+  return (
+    <>
+      <div className="ttn-section-label" style={{ marginTop: 12 }}>Quick Stats</div>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 12px", gap: 8 }}>
+        <Link href="/reports/pipeline-funnel" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+          <div style={labelStyle}>Conversion</div>
+          <div style={{ ...valueStyle, color: "#059669" }}>
+            {conversionRate != null ? `${conversionRate}%` : "--"}
+          </div>
+        </Link>
+        <Link href="/reports/cases-by-stage" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+          <div style={labelStyle}>Active Cases</div>
+          <div style={valueStyle}>
+            {activeCases != null ? activeCases : "--"}
+          </div>
+        </Link>
+        <Link href="/reports/task-completion" style={boxStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+          <div style={labelStyle}>Open Tasks</div>
+          <div style={valueStyle}>
+            {openTasks != null ? openTasks : "--"}
+          </div>
+        </Link>
+      </div>
+    </>
   );
 }
 

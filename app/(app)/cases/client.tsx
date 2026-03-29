@@ -139,6 +139,7 @@ export function CasesListClient({
   initialAssignedTo,
   initialSortBy,
   initialSortDir,
+  initialAction,
 }: {
   cases: CaseRow[];
   total: number;
@@ -152,6 +153,7 @@ export function CasesListClient({
   initialAssignedTo: string;
   initialSortBy: string;
   initialSortDir: "asc" | "desc";
+  initialAction?: string;
 }) {
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
@@ -166,6 +168,14 @@ export function CasesListClient({
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+
+  // Auto-open create dialog when navigating with ?action=new
+  useEffect(() => {
+    if (initialAction === "new") {
+      setNewCaseOpen(true);
+    }
+  }, [initialAction]);
+
   const [bulkStageOpen, setBulkStageOpen] = useState(false);
   const [bulkStageId, setBulkStageId] = useState("");
   const [isPending, startTransition] = useTransition();
