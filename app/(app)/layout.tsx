@@ -1,9 +1,7 @@
 import { requireSession } from "@/lib/auth/session";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { Header } from "@/components/layout/header";
 import { ThemeWrapper } from "@/components/layout/theme-wrapper";
-import { cookies } from "next/headers";
+import { TwoTierNav } from "@/components/layout/two-tier-nav";
+import { Header } from "@/components/layout/header";
 import { getActiveCaseCount } from "@/app/actions/cases";
 
 export default async function AppLayout({
@@ -12,20 +10,17 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const user = await requireSession();
-  const cookieStore = await cookies();
-  const sidebarState = cookieStore.get("sidebar_state")?.value;
-  const defaultOpen = sidebarState !== "false";
   const casesCount = await getActiveCaseCount();
 
   return (
     <ThemeWrapper>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar user={user} casesCount={casesCount} />
-        <SidebarInset>
+      <div className="ttn-app-layout">
+        <TwoTierNav user={user} casesCount={casesCount} />
+        <main className="ttn-main-area">
           <Header />
           <div className="flex-1 overflow-auto p-4 md:p-8">{children}</div>
-        </SidebarInset>
-      </SidebarProvider>
+        </main>
+      </div>
     </ThemeWrapper>
   );
 }

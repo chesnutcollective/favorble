@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble - Charcoal Rail + Emerald Accent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F3F4F6;
+    color: #111;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Tier 1: Icon Rail ── */
+
+  .icon-rail {
+    width: 56px;
+    min-width: 56px;
+    height: 100vh;
+    background: #1C1C1E;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .rail-logo {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .rail-logo span {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFF;
+    letter-spacing: -0.02em;
+  }
+
+  .rail-divider {
+    width: 24px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rail-spacer {
+    flex: 1;
+  }
+
+  .rail-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+    position: relative;
+  }
+
+  .rail-btn svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color 0.15s ease;
+  }
+
+  .rail-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .rail-btn:hover svg {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .rail-btn.active {
+    background: rgba(16, 185, 129, 0.15);
+  }
+
+  .rail-btn.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: #10B981;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .rail-btn.active svg {
+    color: #FFF;
+  }
+
+  .rail-btn .tooltip {
+    display: none;
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #333;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .rail-btn:hover .tooltip {
+    display: block;
+  }
+
+  /* Notification pulse dot */
+  .rail-btn .notif-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    background: #10B981;
+    border-radius: 50%;
+    border: 1.5px solid #1C1C1E;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+    }
+  }
+
+  .rail-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #3A3A3C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.15s ease;
+    position: relative;
+  }
+
+  .rail-avatar:hover {
+    background: #48484A;
+  }
+
+  .rail-avatar span {
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFF;
+  }
+
+  .rail-avatar .status-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    border-radius: 50%;
+    border: 2px solid #1C1C1E;
+  }
+
+  /* ── Tier 2: Label Panel ── */
+
+  .label-panel {
+    width: 184px;
+    min-width: 184px;
+    height: 100vh;
+    background: #FAFAFA;
+    border-right: 1px solid #E5E7EB;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    overflow-y: auto;
+  }
+
+  .panel-content {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px 12px;
+  }
+
+  .panel-content.active {
+    display: flex;
+  }
+
+  .panel-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+
+  .panel-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9CA3AF;
+    margin-bottom: 6px;
+    margin-top: 16px;
+    padding: 0 8px;
+  }
+
+  .panel-section-label:first-of-type {
+    margin-top: 0;
+  }
+
+  .panel-search {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #374151;
+    background: #FFF;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.15s ease;
+  }
+
+  .panel-search::placeholder {
+    color: #9CA3AF;
+  }
+
+  .panel-search:focus {
+    border-color: #10B981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+  }
+
+  .panel-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #6B7280;
+    text-decoration: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.12s ease, background 0.12s ease;
+    line-height: 1.4;
+  }
+
+  .panel-item:hover {
+    color: #374151;
+    background: #F3F4F6;
+  }
+
+  .panel-item.active {
+    color: #059669;
+    font-weight: 500;
+    background: #ECFDF5;
+  }
+
+  .panel-item .badge {
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 10px;
+    color: #10B981;
+    background: transparent;
+    border: 1px solid #10B981;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* ── Dashboard: Quick Actions Grid ── */
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 4px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background: #FFF;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+
+  .quick-action-btn:hover {
+    border-color: #10B981;
+    background: #ECFDF5;
+  }
+
+  .quick-action-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #10B981;
+  }
+
+  .quick-action-btn span {
+    font-size: 10px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .today-number {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: #6B7280;
+  }
+
+  .today-number .num {
+    font-weight: 600;
+    color: #111;
+    font-family: 'Geist Mono', monospace;
+  }
+
+  /* ── Cases: Tabs + Progress ── */
+
+  .case-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .case-tab {
+    flex: 1;
+    padding: 5px 0;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    background: #FFF;
+    border: none;
+    border-right: 1px solid #E5E7EB;
+    cursor: pointer;
+    color: #9CA3AF;
+    font-family: inherit;
+    transition: all 0.12s ease;
+  }
+
+  .case-tab:last-child {
+    border-right: none;
+  }
+
+  .case-tab.active {
+    background: #ECFDF5;
+    color: #059669;
+  }
+
+  .case-tab:hover:not(.active) {
+    background: #F9FAFB;
+    color: #374151;
+  }
+
+  .stage-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: #6B7280;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+
+  .stage-item:hover {
+    background: #F3F4F6;
+  }
+
+  .stage-item .stage-name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .stage-item .stage-count {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    color: #10B981;
+    min-width: 16px;
+    text-align: right;
+  }
+
+  .stage-bar-track {
+    width: 32px;
+    height: 4px;
+    background: #E5E7EB;
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .stage-bar-fill {
+    height: 100%;
+    background: #10B981;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  /* ── Leads: Pipeline Mini-View ── */
+
+  .pipeline-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+
+  .pipeline-step:hover {
+    background: #F3F4F6;
+  }
+
+  .pipeline-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+    flex-shrink: 0;
+  }
+
+  .pipeline-step .step-label {
+    flex: 1;
+    font-size: 12px;
+    color: #374151;
+  }
+
+  .pipeline-step .step-count {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: #10B981;
+    background: transparent;
+    border: 1px solid #10B981;
+    padding: 0 5px;
+    border-radius: 8px;
+    line-height: 1.6;
+  }
+
+  .pipeline-arrow {
+    display: flex;
+    justify-content: center;
+    color: #D1D5DB;
+    font-size: 10px;
+    padding: 0 0 0 12px;
+  }
+
+  .conversion-rate {
+    font-size: 11px;
+    color: #9CA3AF;
+    padding: 6px 8px;
+    margin-top: 4px;
+    border-top: 1px solid #E5E7EB;
+  }
+
+  .conversion-rate strong {
+    color: #10B981;
+    font-weight: 600;
+  }
+
+  /* ── Calendar: Today's Schedule ── */
+
+  .cal-event {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px;
+    border-left: 3px solid #10B981;
+    background: #FFF;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+
+  .cal-event:hover {
+    background: #ECFDF5;
+  }
+
+  .cal-event.warning {
+    border-left-color: #F59E0B;
+  }
+
+  .cal-event .cal-time {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9CA3AF;
+    font-family: 'Geist Mono', monospace;
+  }
+
+  .cal-event .cal-title {
+    font-size: 12px;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .cal-event .cal-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cal-type-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #ECFDF5;
+    color: #059669;
+  }
+
+  .cal-type-badge.deposition {
+    background: #FEF3C7;
+    color: #D97706;
+  }
+
+  .cal-type-badge.court {
+    background: #EDE9FE;
+    color: #7C3AED;
+  }
+
+  .cal-case-link {
+    font-size: 10px;
+    color: #10B981;
+    text-decoration: none;
+  }
+
+  .cal-case-link:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Settings: Toggle Switches ── */
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 8px;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .setting-row:last-child {
+    border-bottom: none;
+  }
+
+  .setting-label {
+    font-size: 12px;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .toggle {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .toggle input {
+    display: none;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: #D1D5DB;
+    border-radius: 9px;
+    transition: background 0.2s ease;
+  }
+
+  .toggle input:checked + .toggle-track {
+    background: #10B981;
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #FFF;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+
+  .toggle input:checked ~ .toggle-thumb {
+    transform: translateX(14px);
+  }
+
+  /* ── Panel Footer ── */
+
+  .panel-footer {
+    padding: 12px 12px;
+    border-top: 1px solid #E5E7EB;
+    margin-top: auto;
+  }
+
+  .panel-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    color: #10B981;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .panel-footer-badge svg {
+    width: 10px;
+    height: 10px;
+    color: #10B981;
+  }
+
+  /* ── Main Content Area ── */
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+    background: #F3F4F6;
+  }
+
+  .main-view {
+    display: none;
+  }
+
+  .main-view.active {
+    display: block;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.02em;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: #6B7280;
+    margin-top: 4px;
+  }
+
+  /* Stats row */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: #6B7280;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-card .change {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 4px;
+  }
+
+  .stat-card .change .up {
+    color: #10B981;
+  }
+
+  .stat-card .change .down {
+    color: #EF4444;
+  }
+
+  /* Content grid */
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .content-card {
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .content-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 16px;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 13px;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-item .desc {
+    color: #374151;
+  }
+
+  .activity-item .time {
+    font-size: 11px;
+    color: #9CA3AF;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  .case-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 13px;
+  }
+
+  .case-row:last-child {
+    border-bottom: none;
+  }
+
+  .case-row .case-name {
+    color: #374151;
+  }
+
+  .case-row .case-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .case-row .case-status.emerald {
+    color: #059669;
+    background: #ECFDF5;
+  }
+
+  .case-row .case-status.amber {
+    color: #D97706;
+    background: #FEF3C7;
+  }
+
+  .case-row .case-status.muted {
+    color: #6B7280;
+    background: #F3F4F6;
+  }
+
+  /* Main stage breakdown */
+
+  .main-stage-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 13px;
+  }
+
+  .main-stage-row:last-child {
+    border-bottom: none;
+  }
+
+  .main-stage-row .stage-label {
+    color: #374151;
+    min-width: 100px;
+  }
+
+  .main-stage-row .stage-bar {
+    flex: 1;
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 3px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+
+  .main-stage-row .stage-bar .fill {
+    height: 100%;
+    background: #10B981;
+    border-radius: 3px;
+  }
+
+  .main-stage-row .stage-num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111;
+    min-width: 20px;
+    text-align: right;
+  }
+
+  /* Pipeline main view */
+
+  .pipeline-main-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .pipeline-main-card .pipe-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #10B981;
+    min-width: 40px;
+    font-family: 'Geist Mono', monospace;
+  }
+
+  .pipeline-main-card .pipe-info {
+    flex: 1;
+  }
+
+  .pipeline-main-card .pipe-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+  }
+
+  .pipeline-main-card .pipe-sub {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: 2px;
+  }
+
+  /* Calendar main view */
+
+  .cal-main-event {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+
+  .cal-main-event .cal-main-time {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    min-width: 60px;
+  }
+
+  .cal-main-event .cal-main-details {
+    flex: 1;
+  }
+
+  .cal-main-event .cal-main-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 4px;
+  }
+
+  .cal-main-event .cal-main-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  /* Settings main view */
+
+  .settings-section {
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .settings-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 16px;
+  }
+
+  .settings-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .settings-main-row:last-child {
+    border-bottom: none;
+  }
+
+  .settings-main-row .sml {
+    font-size: 13px;
+    color: #374151;
+  }
+
+  .settings-main-row .sml-sub {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 2px;
+  }
+
+  .toggle-lg {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-lg input {
+    display: none;
+  }
+
+  .toggle-lg .toggle-track-lg {
+    position: absolute;
+    inset: 0;
+    background: #D1D5DB;
+    border-radius: 11px;
+    transition: background 0.2s ease;
+  }
+
+  .toggle-lg input:checked + .toggle-track-lg {
+    background: #10B981;
+  }
+
+  .toggle-lg .toggle-thumb-lg {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #FFF;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .toggle-lg input:checked ~ .toggle-thumb-lg {
+    transform: translateX(18px);
+  }
+
+  /* ── State indicator ── */
+
+  .state-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 50;
+  }
+
+  .state-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    background: #FFF;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .state-btn:hover {
+    border-color: #10B981;
+    color: #059669;
+  }
+
+  .state-btn.active {
+    background: #1C1C1E;
+    color: #FFF;
+    border-color: #1C1C1E;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .icon-rail,
+    .label-panel {
+      display: none;
+    }
+
+    .main {
+      padding: 24px 20px;
+    }
+
+    .stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .state-indicator {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Tier 1: Icon Rail -->
+  <nav class="icon-rail">
+    <div class="rail-logo"><span>F</span></div>
+
+    <!-- Primary -->
+    <div class="rail-group">
+      <button class="rail-btn active" data-panel="dashboard" onclick="switchPanel('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm12 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 14h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm12 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"/></svg>
+        <span class="tooltip">Dashboard</span>
+      </button>
+      <button class="rail-btn" data-panel="cases" onclick="switchPanel('cases')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z"/></svg>
+        <span class="tooltip">Cases</span>
+      </button>
+      <button class="rail-btn" data-panel="leads" onclick="switchPanel('leads')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <span class="tooltip">Leads</span>
+      </button>
+      <button class="rail-btn" data-panel="calendar" onclick="switchPanel('calendar')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z"/></svg>
+        <span class="tooltip">Calendar</span>
+      </button>
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <!-- Tools -->
+    <div class="rail-group">
+      <button class="rail-btn" data-panel="messages" onclick="switchPanel('messages')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+        <span class="tooltip">Messages</span>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="rail-btn" data-panel="documents" onclick="switchPanel('documents')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
+        <span class="tooltip">Documents</span>
+      </button>
+      <button class="rail-btn" data-panel="contacts" onclick="switchPanel('contacts')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span class="tooltip">Contacts</span>
+      </button>
+      <button class="rail-btn" data-panel="reports" onclick="switchPanel('reports')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
+        <span class="tooltip">Reports</span>
+      </button>
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <!-- Bottom: avatar + settings -->
+    <div class="rail-avatar" title="Jake Klinvex">
+      <span>JK</span>
+      <span class="status-dot"></span>
+    </div>
+    <button class="rail-btn" data-panel="settings" onclick="switchPanel('settings')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+      <span class="tooltip">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Tier 2: Label Panel -->
+  <aside class="label-panel">
+
+    <!-- Dashboard panel -->
+    <div class="panel-content active" data-panel="dashboard">
+      <div class="panel-header">Dashboard</div>
+
+      <div class="panel-section-label">Quick Actions</div>
+      <div class="quick-actions">
+        <button class="quick-action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"/></svg>
+          <span>New Case</span>
+        </button>
+        <button class="quick-action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>New Lead</span>
+        </button>
+        <button class="quick-action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+          <span>Upload Doc</span>
+        </button>
+        <button class="quick-action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm-7-5h5v5h-5v-5z"/></svg>
+          <span>Schedule</span>
+        </button>
+      </div>
+
+      <div class="panel-section-label">Today's Numbers</div>
+      <div class="today-number"><span>New leads</span><span class="num">4</span></div>
+      <div class="today-number"><span>Tasks due</span><span class="num">7</span></div>
+      <div class="today-number"><span>Hearings</span><span class="num">2</span></div>
+      <div class="today-number"><span>Docs pending</span><span class="num">5</span></div>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Cases panel -->
+    <div class="panel-content" data-panel="cases">
+      <div class="panel-header">Cases</div>
+      <input type="text" class="panel-search" placeholder="Search cases...">
+
+      <div class="case-tabs">
+        <button class="case-tab active">All</button>
+        <button class="case-tab">SSDI</button>
+        <button class="case-tab">SSI</button>
+      </div>
+
+      <div class="panel-section-label">By Stage</div>
+      <div class="stage-item">
+        <span class="stage-name">Intake</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:40%"></span></span>
+        <span class="stage-count">8</span>
+      </div>
+      <div class="stage-item">
+        <span class="stage-name">Development</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:60%"></span></span>
+        <span class="stage-count">12</span>
+      </div>
+      <div class="stage-item">
+        <span class="stage-name">Hearing Prep</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:45%"></span></span>
+        <span class="stage-count">9</span>
+      </div>
+      <div class="stage-item">
+        <span class="stage-name">Hearing</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:30%"></span></span>
+        <span class="stage-count">6</span>
+      </div>
+      <div class="stage-item">
+        <span class="stage-name">Decision</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:25%"></span></span>
+        <span class="stage-count">5</span>
+      </div>
+      <div class="stage-item">
+        <span class="stage-name">Appeal</span>
+        <span class="stage-bar-track"><span class="stage-bar-fill" style="width:20%"></span></span>
+        <span class="stage-count">4</span>
+      </div>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Leads panel -->
+    <div class="panel-content" data-panel="leads">
+      <div class="panel-header">Leads</div>
+
+      <div class="panel-section-label">Pipeline</div>
+      <div class="pipeline-flow">
+        <div class="pipeline-step">
+          <span class="pipeline-dot"></span>
+          <span class="step-label">New</span>
+          <span class="step-count">5</span>
+        </div>
+        <div class="pipeline-arrow">&#8595;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-dot" style="opacity:0.8"></span>
+          <span class="step-label">Contacted</span>
+          <span class="step-count">3</span>
+        </div>
+        <div class="pipeline-arrow">&#8595;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-dot" style="opacity:0.6"></span>
+          <span class="step-label">Intake</span>
+          <span class="step-count">2</span>
+        </div>
+        <div class="pipeline-arrow">&#8595;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-dot" style="opacity:0.4"></span>
+          <span class="step-label">Signed</span>
+          <span class="step-count">1</span>
+        </div>
+      </div>
+
+      <div class="conversion-rate">Conversion: <strong>20%</strong> (1 of 5 new)</div>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Calendar panel -->
+    <div class="panel-content" data-panel="calendar">
+      <div class="panel-header">Calendar</div>
+
+      <div class="panel-section-label">Today's Schedule</div>
+      <div class="cal-event">
+        <span class="cal-time">9:00 AM</span>
+        <span class="cal-title">Martinez Initial Review</span>
+        <div class="cal-meta">
+          <span class="cal-type-badge">Meeting</span>
+          <a href="#" class="cal-case-link">Martinez v. State Farm</a>
+        </div>
+      </div>
+      <div class="cal-event warning">
+        <span class="cal-time">1:30 PM</span>
+        <span class="cal-title">Thompson Deposition</span>
+        <div class="cal-meta">
+          <span class="cal-type-badge deposition">Deposition</span>
+          <a href="#" class="cal-case-link">Thompson Estate</a>
+        </div>
+      </div>
+      <div class="cal-event">
+        <span class="cal-time">3:00 PM</span>
+        <span class="cal-title">Chen Status Conference</span>
+        <div class="cal-meta">
+          <span class="cal-type-badge court">Court</span>
+          <a href="#" class="cal-case-link">Chen v. Riverside</a>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Messages panel -->
+    <div class="panel-content" data-panel="messages">
+      <div class="panel-header">Messages</div>
+      <input type="text" class="panel-search" placeholder="Search messages...">
+      <div class="panel-section-label">Inbox</div>
+      <a class="panel-item active" href="#">All Messages <span class="badge">7</span></a>
+      <a class="panel-item" href="#">Unread <span class="badge">3</span></a>
+      <a class="panel-item" href="#">Sent</a>
+      <a class="panel-item" href="#">Archived</a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Documents panel -->
+    <div class="panel-content" data-panel="documents">
+      <div class="panel-header">Documents</div>
+      <input type="text" class="panel-search" placeholder="Search documents...">
+      <div class="panel-section-label">Categories</div>
+      <a class="panel-item active" href="#">All Documents</a>
+      <a class="panel-item" href="#">Medical Records</a>
+      <a class="panel-item" href="#">Legal Briefs</a>
+      <a class="panel-item" href="#">Correspondence</a>
+      <a class="panel-item" href="#">Templates</a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Contacts panel -->
+    <div class="panel-content" data-panel="contacts">
+      <div class="panel-header">Contacts</div>
+      <input type="text" class="panel-search" placeholder="Search contacts...">
+      <div class="panel-section-label">Groups</div>
+      <a class="panel-item active" href="#">All Contacts <span class="badge">238</span></a>
+      <a class="panel-item" href="#">Clients <span class="badge">44</span></a>
+      <a class="panel-item" href="#">Opposing Counsel <span class="badge">31</span></a>
+      <a class="panel-item" href="#">Experts <span class="badge">12</span></a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Reports panel -->
+    <div class="panel-content" data-panel="reports">
+      <div class="panel-header">Reports</div>
+      <div class="panel-section-label">Standard</div>
+      <a class="panel-item active" href="#">Case Summary</a>
+      <a class="panel-item" href="#">Revenue</a>
+      <a class="panel-item" href="#">Pipeline</a>
+      <a class="panel-item" href="#">Staff Performance</a>
+      <div class="panel-section-label">Custom</div>
+      <a class="panel-item" href="#">Monthly Overview</a>
+      <a class="panel-item" href="#">Settlement Tracker</a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+    <!-- Settings panel -->
+    <div class="panel-content" data-panel="settings">
+      <div class="panel-header">Settings</div>
+
+      <div class="panel-section-label">Integrations</div>
+      <div class="setting-row">
+        <span class="setting-label">ERE Sync</span>
+        <label class="toggle">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Email Sync</span>
+        <label class="toggle">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Notifications</span>
+        <label class="toggle">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+
+      <div class="panel-section-label">Account</div>
+      <a class="panel-item" href="#">Profile</a>
+      <a class="panel-item" href="#">Team Members</a>
+      <a class="panel-item" href="#">Billing</a>
+
+      <div class="panel-footer">
+        <span class="panel-footer-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+          Favorble Pro
+        </span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main content area -->
+  <main class="main">
+
+    <!-- Dashboard Main View -->
+    <div class="main-view active" data-view="dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, Jake. Here's your overview for today.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Active Cases</div>
+          <div class="value">44</div>
+          <div class="change"><span class="up">+3</span> this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Open Leads</div>
+          <div class="value">11</div>
+          <div class="change"><span class="up">+4</span> today</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pending Tasks</div>
+          <div class="value">7</div>
+          <div class="change"><span class="down">2</span> overdue</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Hearings This Week</div>
+          <div class="value">3</div>
+          <div class="change">next: tomorrow</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="content-card">
+          <h3>Recent Activity</h3>
+          <div class="activity-item">
+            <span class="desc">Status changed on Martinez v. State Farm</span>
+            <span class="time">12 min ago</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">New document uploaded to Thompson case</span>
+            <span class="time">1 hr ago</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Lead converted: Wilson inquiry</span>
+            <span class="time">2 hr ago</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Deposition scheduled for Chen case</span>
+            <span class="time">3 hr ago</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Email received from opposing counsel</span>
+            <span class="time">Yesterday</span>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Upcoming Deadlines</h3>
+          <div class="case-row">
+            <span class="case-name">Martinez discovery response</span>
+            <span class="case-status amber">Tomorrow</span>
+          </div>
+          <div class="case-row">
+            <span class="case-name">Thompson medical records</span>
+            <span class="case-status emerald">Apr 2</span>
+          </div>
+          <div class="case-row">
+            <span class="case-name">Chen motion to compel</span>
+            <span class="case-status emerald">Apr 5</span>
+          </div>
+          <div class="case-row">
+            <span class="case-name">Davis settlement demand</span>
+            <span class="case-status muted">Apr 10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cases Main View -->
+    <div class="main-view" data-view="cases">
+      <div class="page-header">
+        <h1>Cases</h1>
+        <p>44 active cases across all stages</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total Cases</div>
+          <div class="value">44</div>
+          <div class="change"><span class="up">+3</span> this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">SSDI</div>
+          <div class="value">28</div>
+          <div class="change">64% of total</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">SSI</div>
+          <div class="value">16</div>
+          <div class="change">36% of total</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Days in Stage</div>
+          <div class="value">34</div>
+          <div class="change"><span class="down">-2</span> vs last month</div>
+        </div>
+      </div>
+
+      <div class="content-card" style="margin-bottom: 16px;">
+        <h3>Stage Breakdown</h3>
+        <div class="main-stage-row">
+          <span class="stage-label">Intake</span>
+          <div class="stage-bar"><div class="fill" style="width:18%"></div></div>
+          <span class="stage-num">8</span>
+        </div>
+        <div class="main-stage-row">
+          <span class="stage-label">Development</span>
+          <div class="stage-bar"><div class="fill" style="width:27%"></div></div>
+          <span class="stage-num">12</span>
+        </div>
+        <div class="main-stage-row">
+          <span class="stage-label">Hearing Prep</span>
+          <div class="stage-bar"><div class="fill" style="width:20%"></div></div>
+          <span class="stage-num">9</span>
+        </div>
+        <div class="main-stage-row">
+          <span class="stage-label">Hearing</span>
+          <div class="stage-bar"><div class="fill" style="width:14%"></div></div>
+          <span class="stage-num">6</span>
+        </div>
+        <div class="main-stage-row">
+          <span class="stage-label">Decision</span>
+          <div class="stage-bar"><div class="fill" style="width:11%"></div></div>
+          <span class="stage-num">5</span>
+        </div>
+        <div class="main-stage-row">
+          <span class="stage-label">Appeal</span>
+          <div class="stage-bar"><div class="fill" style="width:9%"></div></div>
+          <span class="stage-num">4</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3>Recent Cases</h3>
+        <div class="case-row">
+          <span class="case-name">Martinez v. State Farm</span>
+          <span class="case-status emerald">Hearing Prep</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Thompson Estate</span>
+          <span class="case-status amber">Development</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Davis Personal Injury</span>
+          <span class="case-status emerald">Hearing</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Chen v. Riverside LLC</span>
+          <span class="case-status muted">Intake</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Wilson Workers' Comp</span>
+          <span class="case-status emerald">Decision</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leads Main View -->
+    <div class="main-view" data-view="leads">
+      <div class="page-header">
+        <h1>Leads</h1>
+        <p>Pipeline overview and conversion tracking</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total Pipeline</div>
+          <div class="value">11</div>
+          <div class="change"><span class="up">+4</span> this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Conversion Rate</div>
+          <div class="value">20%</div>
+          <div class="change"><span class="up">+5%</span> vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Response Time</div>
+          <div class="value">2.4h</div>
+          <div class="change"><span class="up">-0.8h</span> improved</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Signed This Month</div>
+          <div class="value">3</div>
+          <div class="change">target: 5</div>
+        </div>
+      </div>
+
+      <div class="pipeline-main-card">
+        <span class="pipe-num">5</span>
+        <div class="pipe-info">
+          <div class="pipe-label">New Leads</div>
+          <div class="pipe-sub">Awaiting initial contact</div>
+        </div>
+      </div>
+      <div class="pipeline-main-card">
+        <span class="pipe-num">3</span>
+        <div class="pipe-info">
+          <div class="pipe-label">Contacted</div>
+          <div class="pipe-sub">Initial outreach complete</div>
+        </div>
+      </div>
+      <div class="pipeline-main-card">
+        <span class="pipe-num">2</span>
+        <div class="pipe-info">
+          <div class="pipe-label">In Intake</div>
+          <div class="pipe-sub">Gathering case details</div>
+        </div>
+      </div>
+      <div class="pipeline-main-card">
+        <span class="pipe-num">1</span>
+        <div class="pipe-info">
+          <div class="pipe-label">Signed</div>
+          <div class="pipe-sub">Engagement letter executed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Main View -->
+    <div class="main-view" data-view="calendar">
+      <div class="page-header">
+        <h1>Calendar</h1>
+        <p>Today's schedule &mdash; March 28, 2026</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Today's Events</div>
+          <div class="value">3</div>
+          <div class="change">next at 9:00 AM</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">This Week</div>
+          <div class="value">8</div>
+          <div class="change">2 remaining</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Deadlines</div>
+          <div class="value">4</div>
+          <div class="change"><span class="down">1</span> overdue</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Hearings</div>
+          <div class="value">2</div>
+          <div class="change">next week</div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3>Today's Events</h3>
+        <div class="cal-main-event">
+          <span class="cal-main-time">9:00 AM</span>
+          <div class="cal-main-details">
+            <div class="cal-main-title">Martinez Initial Review</div>
+            <div class="cal-main-meta">
+              <span class="cal-type-badge">Meeting</span>
+              <span>Martinez v. State Farm</span>
+            </div>
+          </div>
+        </div>
+        <div class="cal-main-event">
+          <span class="cal-main-time">1:30 PM</span>
+          <div class="cal-main-details">
+            <div class="cal-main-title">Thompson Deposition</div>
+            <div class="cal-main-meta">
+              <span class="cal-type-badge deposition">Deposition</span>
+              <span>Thompson Estate</span>
+            </div>
+          </div>
+        </div>
+        <div class="cal-main-event">
+          <span class="cal-main-time">3:00 PM</span>
+          <div class="cal-main-details">
+            <div class="cal-main-title">Chen Status Conference</div>
+            <div class="cal-main-meta">
+              <span class="cal-type-badge court">Court</span>
+              <span>Chen v. Riverside LLC</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Main View -->
+    <div class="main-view" data-view="settings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Manage integrations and preferences</p>
+      </div>
+
+      <div class="settings-section">
+        <h3>Integrations</h3>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">ERE Sync</div>
+            <div class="sml-sub">Sync electronic records from SSA</div>
+          </div>
+          <label class="toggle-lg">
+            <input type="checkbox" checked>
+            <span class="toggle-track-lg"></span>
+            <span class="toggle-thumb-lg"></span>
+          </label>
+        </div>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">Email Sync</div>
+            <div class="sml-sub">Auto-link emails to cases</div>
+          </div>
+          <label class="toggle-lg">
+            <input type="checkbox" checked>
+            <span class="toggle-track-lg"></span>
+            <span class="toggle-thumb-lg"></span>
+          </label>
+        </div>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">Notifications</div>
+            <div class="sml-sub">Desktop and email alerts</div>
+          </div>
+          <label class="toggle-lg">
+            <input type="checkbox" checked>
+            <span class="toggle-track-lg"></span>
+            <span class="toggle-thumb-lg"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Account</h3>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">Profile</div>
+            <div class="sml-sub">Name, email, and avatar</div>
+          </div>
+        </div>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">Team Members</div>
+            <div class="sml-sub">4 active members</div>
+          </div>
+        </div>
+        <div class="settings-main-row">
+          <div>
+            <div class="sml">Billing</div>
+            <div class="sml-sub">Pro plan, renews Apr 15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generic fallback for non-detailed panels -->
+    <div class="main-view" data-view="messages">
+      <div class="page-header">
+        <h1>Messages</h1>
+        <p>7 messages, 3 unread</p>
+      </div>
+      <div class="content-card">
+        <h3>Recent Messages</h3>
+        <div class="activity-item">
+          <span class="desc">Sarah Chen re: Thompson medical records</span>
+          <span class="time">10 min ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Judge Morrison's clerk re: Chen hearing</span>
+          <span class="time">1 hr ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Dr. Patel re: Martinez RFC evaluation</span>
+          <span class="time">3 hr ago</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-view" data-view="documents">
+      <div class="page-header">
+        <h1>Documents</h1>
+        <p>All case documents and templates</p>
+      </div>
+      <div class="content-card">
+        <h3>Recently Uploaded</h3>
+        <div class="activity-item">
+          <span class="desc">Thompson_MedicalRecords_2026.pdf</span>
+          <span class="time">1 hr ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Martinez_DiscoveryResponse_Draft.docx</span>
+          <span class="time">Yesterday</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Chen_MotionToCompel.pdf</span>
+          <span class="time">2 days ago</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-view" data-view="contacts">
+      <div class="page-header">
+        <h1>Contacts</h1>
+        <p>238 contacts across all groups</p>
+      </div>
+      <div class="content-card">
+        <h3>Recent Contacts</h3>
+        <div class="case-row">
+          <span class="case-name">Sarah Chen, Esq.</span>
+          <span class="case-status emerald">Client</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Dr. Michael Patel</span>
+          <span class="case-status muted">Expert</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Judge A. Morrison</span>
+          <span class="case-status amber">Court</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-view" data-view="reports">
+      <div class="page-header">
+        <h1>Reports</h1>
+        <p>Case analytics and performance metrics</p>
+      </div>
+      <div class="content-grid">
+        <div class="content-card">
+          <h3>Case Summary</h3>
+          <div class="activity-item">
+            <span class="desc">Active cases</span>
+            <span class="time">44</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Cases closed this month</span>
+            <span class="time">6</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Average case duration</span>
+            <span class="time">142 days</span>
+          </div>
+        </div>
+        <div class="content-card">
+          <h3>Revenue</h3>
+          <div class="activity-item">
+            <span class="desc">This month</span>
+            <span class="time">$34,200</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">Last month</span>
+            <span class="time">$28,600</span>
+          </div>
+          <div class="activity-item">
+            <span class="desc">YTD</span>
+            <span class="time">$198,400</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- State switcher buttons -->
+<div class="state-indicator">
+  <button class="state-btn active" onclick="switchPanel('dashboard')">Dashboard</button>
+  <button class="state-btn" onclick="switchPanel('cases')">Cases</button>
+  <button class="state-btn" onclick="switchPanel('leads')">Leads</button>
+  <button class="state-btn" onclick="switchPanel('calendar')">Calendar</button>
+  <button class="state-btn" onclick="switchPanel('settings')">Settings</button>
+</div>
+
+<script>
+  function switchPanel(panelName) {
+    // Update rail buttons
+    document.querySelectorAll('.rail-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-panel') === panelName) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Update panel content (Tier 2)
+    document.querySelectorAll('.panel-content').forEach(function(panel) {
+      panel.classList.remove('active');
+      if (panel.getAttribute('data-panel') === panelName) {
+        panel.classList.add('active');
+      }
+    });
+
+    // Update main content area
+    document.querySelectorAll('.main-view').forEach(function(view) {
+      view.classList.remove('active');
+      if (view.getAttribute('data-view') === panelName) {
+        view.classList.add('active');
+      }
+    });
+
+    // Update state indicator buttons
+    document.querySelectorAll('.state-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.textContent.trim().toLowerCase() === panelName.toLowerCase()) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  // Panel item click handling (within Tier 2)
+  document.querySelectorAll('.panel-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      var panel = this.closest('.panel-content');
+      panel.querySelectorAll('.panel-item').forEach(function(i) {
+        i.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+
+  // Case tabs click handling
+  document.querySelectorAll('.case-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.case-tab').forEach(function(t) {
+        t.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble - Warm Slate Rail + Violet Accent (05d)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F5F5F7;
+    color: #1a1a2e;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Tier 1: Icon Rail ── */
+
+  .icon-rail {
+    width: 60px;
+    min-width: 60px;
+    height: 100vh;
+    background: #1E1B2E;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .rail-logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .rail-logo span {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFF;
+    letter-spacing: -0.02em;
+  }
+
+  .rail-divider {
+    width: 28px;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rail-group.top { flex: 1; }
+  .rail-group.bottom { padding-bottom: 8px; }
+
+  .rail-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .rail-icon svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.15s ease;
+  }
+
+  /* Duotone icon styling: main shape 40% opacity, accent at 100% violet */
+  .rail-icon .icon-base {
+    fill: rgba(255,255,255,0.4);
+    transition: all 0.15s ease;
+  }
+  .rail-icon .icon-accent {
+    fill: #A78BFA;
+    transition: all 0.15s ease;
+  }
+
+  .rail-icon:hover {
+    background: rgba(124,58,237,0.15);
+  }
+  .rail-icon:hover .icon-base {
+    fill: rgba(255,255,255,0.7);
+  }
+
+  .rail-icon.active {
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    box-shadow: 0 0 12px rgba(124,58,237,0.3);
+  }
+  .rail-icon.active .icon-base,
+  .rail-icon.active .icon-accent {
+    fill: #FFF;
+  }
+
+  /* Notification badge on rail icon */
+  .rail-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    background: #7C3AED;
+    color: #FFF;
+    font-size: 9px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 1px 4px rgba(124,58,237,0.4);
+    line-height: 1;
+  }
+
+  /* Rail avatar */
+  .rail-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #7C3AED;
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2D2945;
+    margin-top: 4px;
+  }
+
+  .rail-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .rail-avatar .avatar-initials {
+    font-size: 12px;
+    font-weight: 600;
+    color: #A78BFA;
+  }
+
+  .rail-avatar .online-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    background: #22C55E;
+    border-radius: 50%;
+    border: 2px solid #1E1B2E;
+  }
+
+  /* ── Tier 2: Side Panel ── */
+
+  .side-panel {
+    width: 184px;
+    min-width: 184px;
+    height: 100vh;
+    background: #FAFAFF;
+    border-right: 1px solid #E8E5F0;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 18px 16px 12px;
+    flex-shrink: 0;
+  }
+
+  .panel-wordmark {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1E1B2E;
+    letter-spacing: -0.03em;
+  }
+
+  .panel-wordmark .accent {
+    color: #7C3AED;
+  }
+
+  .panel-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9490A8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 12px 16px 6px;
+    flex-shrink: 0;
+  }
+
+  .panel-content-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel-view {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    overflow-y: auto;
+    padding: 0 10px;
+  }
+
+  .panel-view.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .panel-view::-webkit-scrollbar {
+    width: 3px;
+  }
+  .panel-view::-webkit-scrollbar-thumb {
+    background: #D4D0E0;
+    border-radius: 3px;
+  }
+
+  .panel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #4A4660;
+    transition: all 0.12s ease;
+  }
+
+  .panel-item:hover {
+    background: #F0EDF8;
+    color: #1E1B2E;
+  }
+
+  .panel-item.active {
+    background: #F5F3FF;
+    color: #7C3AED;
+    font-weight: 500;
+  }
+
+  /* Violet dot bullets */
+  .panel-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #C4B5FD;
+    flex-shrink: 0;
+  }
+
+  .panel-item.active .panel-dot {
+    background: #7C3AED;
+  }
+
+  .panel-item-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Count badges */
+  .panel-badge {
+    min-width: 18px;
+    height: 18px;
+    background: #7C3AED;
+    color: #FFF;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    box-shadow: 0 1px 3px rgba(124,58,237,0.25);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  /* Panel bottom CTA */
+  .panel-bottom {
+    padding: 12px 14px 16px;
+    flex-shrink: 0;
+    border-top: 1px solid #E8E5F0;
+  }
+
+  .upgrade-btn {
+    width: 100%;
+    padding: 8px 0;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    color: #FFF;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+  }
+
+  .upgrade-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+  }
+
+  /* ── Main Content Area ── */
+
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .main-view {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  .main-view.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .main-view h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E1B2E;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .main-view .subtitle {
+    font-size: 13px;
+    color: #7A7592;
+    margin-bottom: 24px;
+  }
+
+  /* ── Dashboard View ── */
+
+  .greeting {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1E1B2E;
+    letter-spacing: -0.03em;
+    margin-bottom: 2px;
+  }
+
+  .greeting-sub {
+    font-size: 13px;
+    color: #7A7592;
+    margin-bottom: 28px;
+  }
+
+  .priority-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9490A8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .priority-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #FFF;
+    border: 1px solid #E8E5F0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .priority-card:hover {
+    border-color: #C4B5FD;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+  }
+
+  .priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .priority-dot.urgent { background: #EF4444; }
+  .priority-dot.warning { background: #F59E0B; }
+  .priority-dot.info { background: #7C3AED; }
+
+  .priority-text {
+    flex: 1;
+  }
+
+  .priority-text strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E1B2E;
+    display: block;
+  }
+
+  .priority-text span {
+    font-size: 11px;
+    color: #7A7592;
+  }
+
+  .priority-time {
+    font-size: 11px;
+    color: #9490A8;
+    flex-shrink: 0;
+  }
+
+  .quick-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .action-btn {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    font-family: inherit;
+  }
+
+  .action-btn.primary {
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    color: #FFF;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+  }
+
+  .action-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+  }
+
+  .action-btn.outlined {
+    background: #FFF;
+    color: #7C3AED;
+    border: 1.5px solid #C4B5FD;
+  }
+
+  .action-btn.outlined:hover {
+    background: #F5F3FF;
+    border-color: #7C3AED;
+  }
+
+  /* ── Cases View ── */
+
+  .cases-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #E8E5F0;
+    margin-bottom: 20px;
+  }
+
+  .cases-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #7A7592;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+  }
+
+  .cases-tab:hover {
+    color: #1E1B2E;
+  }
+
+  .cases-tab.active {
+    color: #7C3AED;
+    border-bottom-color: #7C3AED;
+    font-weight: 600;
+  }
+
+  .cases-tab .tab-count {
+    font-size: 11px;
+    color: #9490A8;
+    margin-left: 4px;
+  }
+
+  .cases-tab.active .tab-count {
+    color: #A78BFA;
+  }
+
+  .stage-pills {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stage-pill {
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stage-pill.intake { background: #F3E8FF; color: #7C3AED; }
+  .stage-pill.discovery { background: #FEF3C7; color: #92400E; }
+  .stage-pill.litigation { background: #DBEAFE; color: #1E40AF; }
+  .stage-pill.settled { background: #D1FAE5; color: #065F46; }
+
+  .case-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFF;
+    border: 1px solid #E8E5F0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .case-card:hover {
+    border-color: #C4B5FD;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+  }
+
+  .case-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .case-status-dot.active-case { background: #22C55E; }
+  .case-status-dot.pending { background: #F59E0B; }
+  .case-status-dot.review { background: #7C3AED; }
+
+  .case-info {
+    flex: 1;
+  }
+
+  .case-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E1B2E;
+  }
+
+  .case-meta {
+    font-size: 11px;
+    color: #7A7592;
+    margin-top: 2px;
+  }
+
+  .case-stage-label {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── Messages View ── */
+
+  .conversation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    margin-bottom: 4px;
+  }
+
+  .conversation-item:hover {
+    background: #F5F3FF;
+  }
+
+  .conversation-item.unread {
+    background: #FAFAFF;
+  }
+
+  .conv-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFF;
+    flex-shrink: 0;
+  }
+
+  .conv-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .conv-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3px;
+  }
+
+  .conv-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E1B2E;
+  }
+
+  .conv-time {
+    font-size: 10px;
+    color: #9490A8;
+    flex-shrink: 0;
+  }
+
+  .conv-preview {
+    font-size: 12px;
+    color: #7A7592;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .unread .conv-name {
+    color: #7C3AED;
+  }
+
+  .unread .conv-preview {
+    color: #4A4660;
+    font-weight: 500;
+  }
+
+  .conv-unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7C3AED;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* ── Documents View ── */
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #FFF;
+    border: 1px solid #E8E5F0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .doc-item:hover {
+    border-color: #C4B5FD;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+  }
+
+  .doc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .doc-icon.pdf { background: #FEE2E2; color: #DC2626; }
+  .doc-icon.doc { background: #DBEAFE; color: #2563EB; }
+  .doc-icon.xls { background: #D1FAE5; color: #059669; }
+
+  .doc-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .doc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E1B2E;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-meta {
+    font-size: 11px;
+    color: #7A7592;
+    margin-top: 2px;
+  }
+
+  .doc-meta a {
+    color: #7C3AED;
+    text-decoration: none;
+  }
+
+  .doc-meta a:hover {
+    text-decoration: underline;
+  }
+
+  .doc-time {
+    font-size: 11px;
+    color: #9490A8;
+    flex-shrink: 0;
+  }
+
+  /* ── Leads View ── */
+
+  .funnel-container {
+    margin-top: 8px;
+  }
+
+  .funnel-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .funnel-label {
+    width: 80px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4A4660;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .funnel-bar-container {
+    flex: 1;
+    height: 32px;
+    background: #F0EDF8;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .funnel-bar {
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFF;
+    transition: width 0.4s ease;
+  }
+
+  .funnel-bar.leads { background: linear-gradient(90deg, #7C3AED, #A78BFA); width: 100%; }
+  .funnel-bar.qualified { background: linear-gradient(90deg, #6D28D9, #8B5CF6); width: 60%; }
+  .funnel-bar.proposal { background: linear-gradient(90deg, #5B21B6, #7C3AED); width: 42%; }
+  .funnel-bar.signed { background: linear-gradient(90deg, #4C1D95, #6D28D9); width: 25%; }
+
+  .funnel-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: #7A7592;
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .funnel-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .funnel-stat-card {
+    background: #FFF;
+    border: 1px solid #E8E5F0;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .funnel-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #7C3AED;
+  }
+
+  .funnel-stat-label {
+    font-size: 11px;
+    color: #7A7592;
+    margin-top: 2px;
+  }
+
+  /* ── Utility ── */
+
+  .text-violet { color: #7C3AED; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Tier 1: Icon Rail ── -->
+  <nav class="icon-rail">
+    <div class="rail-logo">
+      <span>F</span>
+    </div>
+    <div class="rail-divider"></div>
+
+    <div class="rail-group top">
+      <!-- Dashboard -->
+      <div class="rail-icon active" data-view="dashboard" title="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect class="icon-base" x="3" y="3" width="8" height="8" rx="2"/>
+          <rect class="icon-accent" x="13" y="3" width="8" height="4" rx="1.5"/>
+          <rect class="icon-base" x="13" y="9" width="8" height="2" rx="1"/>
+          <rect class="icon-base" x="3" y="13" width="8" height="4" rx="1.5"/>
+          <rect class="icon-accent" x="3" y="19" width="8" height="2" rx="1"/>
+          <rect class="icon-base" x="13" y="13" width="8" height="8" rx="2"/>
+        </svg>
+      </div>
+
+      <!-- Cases -->
+      <div class="rail-icon" data-view="cases" title="Cases">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path class="icon-base" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/>
+          <path class="icon-accent" d="M8 4v2h8V4" stroke-width="0"/>
+          <rect class="icon-accent" x="7" y="9" width="10" height="1.5" rx="0.75"/>
+          <rect class="icon-base" x="7" y="12.5" width="7" height="1.5" rx="0.75"/>
+          <rect class="icon-base" x="7" y="16" width="5" height="1.5" rx="0.75"/>
+        </svg>
+        <span class="rail-badge">44</span>
+      </div>
+
+      <!-- Messages -->
+      <div class="rail-icon" data-view="messages" title="Messages">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path class="icon-base" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2H8l-4 3V6z"/>
+          <circle class="icon-accent" cx="8.5" cy="10.5" r="1"/>
+          <circle class="icon-accent" cx="12" cy="10.5" r="1"/>
+          <circle class="icon-accent" cx="15.5" cy="10.5" r="1"/>
+        </svg>
+        <span class="rail-badge">3</span>
+      </div>
+
+      <!-- Documents -->
+      <div class="rail-icon" data-view="documents" title="Documents">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path class="icon-base" d="M6 3h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+          <path class="icon-accent" d="M14 3v4a2 2 0 002 2h4"/>
+          <rect class="icon-base" x="8" y="12" width="8" height="1.5" rx="0.75"/>
+          <rect class="icon-base" x="8" y="15.5" width="5" height="1.5" rx="0.75"/>
+        </svg>
+      </div>
+
+      <!-- Leads -->
+      <div class="rail-icon" data-view="leads" title="Leads">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path class="icon-base" d="M12 2L3 7v7c0 5 4 8.5 9 10 5-1.5 9-5 9-10V7l-9-5z"/>
+          <path class="icon-accent" d="M12 6l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4l2-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <div class="rail-group bottom">
+      <!-- Settings -->
+      <div class="rail-icon" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle class="icon-base" cx="12" cy="12" r="3"/>
+          <path class="icon-accent" d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="rail-avatar">
+        <span class="avatar-initials">JK</span>
+        <span class="online-dot"></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Tier 2: Side Panel ── -->
+  <aside class="side-panel">
+    <div class="panel-header">
+      <div class="panel-wordmark">Favor<span class="accent">ble</span></div>
+    </div>
+
+    <div class="panel-content-wrapper">
+      <!-- Dashboard Panel -->
+      <div class="panel-view active" data-panel="dashboard">
+        <div class="panel-section-title">Overview</div>
+        <div class="panel-item active">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Home</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Analytics</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Calendar</span>
+        </div>
+        <div class="panel-section-title">Quick Access</div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Recent Cases</span>
+          <span class="panel-badge">5</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Deadlines</span>
+          <span class="panel-badge">2</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Tasks</span>
+          <span class="panel-badge">8</span>
+        </div>
+      </div>
+
+      <!-- Cases Panel -->
+      <div class="panel-view" data-panel="cases">
+        <div class="panel-section-title">Case Management</div>
+        <div class="panel-item active">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">All Cases</span>
+          <span class="panel-badge">44</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">My Cases</span>
+          <span class="panel-badge">12</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Starred</span>
+          <span class="panel-badge">5</span>
+        </div>
+        <div class="panel-section-title">Stages</div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Intake</span>
+          <span class="panel-badge">8</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Discovery</span>
+          <span class="panel-badge">14</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Litigation</span>
+          <span class="panel-badge">16</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Settled</span>
+          <span class="panel-badge">6</span>
+        </div>
+      </div>
+
+      <!-- Messages Panel -->
+      <div class="panel-view" data-panel="messages">
+        <div class="panel-section-title">Conversations</div>
+        <div class="panel-item active">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">All Messages</span>
+          <span class="panel-badge">3</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Unread</span>
+          <span class="panel-badge">3</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Sent</span>
+        </div>
+        <div class="panel-section-title">Channels</div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Client Portal</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Team Chat</span>
+        </div>
+      </div>
+
+      <!-- Documents Panel -->
+      <div class="panel-view" data-panel="documents">
+        <div class="panel-section-title">Files</div>
+        <div class="panel-item active">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Recent Uploads</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">All Documents</span>
+          <span class="panel-badge">128</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Templates</span>
+          <span class="panel-badge">9</span>
+        </div>
+        <div class="panel-section-title">Categories</div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Pleadings</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Contracts</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Evidence</span>
+        </div>
+      </div>
+
+      <!-- Leads Panel -->
+      <div class="panel-view" data-panel="leads">
+        <div class="panel-section-title">Pipeline</div>
+        <div class="panel-item active">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Funnel Overview</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">All Leads</span>
+          <span class="panel-badge">32</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">New This Week</span>
+          <span class="panel-badge">7</span>
+        </div>
+        <div class="panel-section-title">Sources</div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Referrals</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Website</span>
+        </div>
+        <div class="panel-item">
+          <span class="panel-dot"></span>
+          <span class="panel-item-label">Advertising</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-bottom">
+      <button class="upgrade-btn">Upgrade to Pro</button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <!-- Dashboard -->
+    <div class="main-view active" data-main="dashboard">
+      <div class="greeting">Good morning, Jake</div>
+      <div class="greeting-sub">Saturday, March 28 &mdash; 3 items need your attention</div>
+
+      <div class="priority-section-title">Priority Items</div>
+
+      <div class="priority-card">
+        <span class="priority-dot urgent"></span>
+        <div class="priority-text">
+          <strong>Thompson v. Meridian Corp</strong>
+          <span>Filing deadline in 2 days &mdash; Motion to Compel</span>
+        </div>
+        <span class="priority-time">Mar 30</span>
+      </div>
+
+      <div class="priority-card">
+        <span class="priority-dot warning"></span>
+        <div class="priority-text">
+          <strong>Client intake: Sarah Chen</strong>
+          <span>New consultation request &mdash; Personal Injury</span>
+        </div>
+        <span class="priority-time">Today</span>
+      </div>
+
+      <div class="priority-card">
+        <span class="priority-dot info"></span>
+        <div class="priority-text">
+          <strong>Garcia Estate settlement review</strong>
+          <span>Opposing counsel sent revised terms</span>
+        </div>
+        <span class="priority-time">Yesterday</span>
+      </div>
+
+      <div class="quick-actions">
+        <button class="action-btn primary">+ New Case</button>
+        <button class="action-btn outlined">+ New Lead</button>
+      </div>
+    </div>
+
+    <!-- Cases -->
+    <div class="main-view" data-main="cases">
+      <h1>Cases</h1>
+      <div class="subtitle">Manage and track all active matters</div>
+
+      <div class="cases-tabs">
+        <button class="cases-tab active">All <span class="tab-count">(44)</span></button>
+        <button class="cases-tab">My Cases <span class="tab-count">(12)</span></button>
+        <button class="cases-tab">Starred <span class="tab-count">(5)</span></button>
+      </div>
+
+      <div class="stage-pills">
+        <span class="stage-pill intake">Intake <strong>8</strong></span>
+        <span class="stage-pill discovery">Discovery <strong>14</strong></span>
+        <span class="stage-pill litigation">Litigation <strong>16</strong></span>
+        <span class="stage-pill settled">Settled <strong>6</strong></span>
+      </div>
+
+      <div class="case-card">
+        <span class="case-status-dot active-case"></span>
+        <div class="case-info">
+          <div class="case-name">Thompson v. Meridian Corp</div>
+          <div class="case-meta">Civil Litigation &bull; Filed Jan 15, 2026</div>
+        </div>
+        <span class="case-stage-label stage-pill litigation">Litigation</span>
+      </div>
+
+      <div class="case-card">
+        <span class="case-status-dot pending"></span>
+        <div class="case-info">
+          <div class="case-name">Garcia Estate Planning</div>
+          <div class="case-meta">Estate &bull; Opened Mar 2, 2026</div>
+        </div>
+        <span class="case-stage-label stage-pill discovery">Discovery</span>
+      </div>
+
+      <div class="case-card">
+        <span class="case-status-dot active-case"></span>
+        <div class="case-info">
+          <div class="case-name">Patel v. Stonebridge Insurance</div>
+          <div class="case-meta">Personal Injury &bull; Filed Feb 10, 2026</div>
+        </div>
+        <span class="case-stage-label stage-pill litigation">Litigation</span>
+      </div>
+
+      <div class="case-card">
+        <span class="case-status-dot review"></span>
+        <div class="case-info">
+          <div class="case-name">Nguyen Business Formation</div>
+          <div class="case-meta">Corporate &bull; Opened Mar 20, 2026</div>
+        </div>
+        <span class="case-stage-label stage-pill intake">Intake</span>
+      </div>
+
+      <div class="case-card">
+        <span class="case-status-dot active-case"></span>
+        <div class="case-info">
+          <div class="case-name">Robinson Custody Modification</div>
+          <div class="case-meta">Family Law &bull; Filed Dec 8, 2025</div>
+        </div>
+        <span class="case-stage-label stage-pill settled">Settled</span>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="main-view" data-main="messages">
+      <h1>Messages</h1>
+      <div class="subtitle">4 conversations, 3 unread</div>
+
+      <div class="conversation-item unread">
+        <div class="conv-avatar" style="background: linear-gradient(135deg, #7C3AED, #A78BFA);">SC</div>
+        <div class="conv-body">
+          <div class="conv-header">
+            <span class="conv-name">Sarah Chen</span>
+            <span class="conv-time">10:32 AM</span>
+          </div>
+          <div class="conv-preview">Hi, I wanted to follow up on my consultation request from yesterday. When would be a good time...</div>
+        </div>
+        <span class="conv-unread-dot"></span>
+      </div>
+
+      <div class="conversation-item unread">
+        <div class="conv-avatar" style="background: linear-gradient(135deg, #6D28D9, #8B5CF6);">MT</div>
+        <div class="conv-body">
+          <div class="conv-header">
+            <span class="conv-name">Marcus Thompson</span>
+            <span class="conv-time">9:15 AM</span>
+          </div>
+          <div class="conv-preview">Just received the updated motion draft. I have a few comments on section 3 regarding the...</div>
+        </div>
+        <span class="conv-unread-dot"></span>
+      </div>
+
+      <div class="conversation-item unread">
+        <div class="conv-avatar" style="background: linear-gradient(135deg, #5B21B6, #7C3AED);">LG</div>
+        <div class="conv-body">
+          <div class="conv-header">
+            <span class="conv-name">Lisa Garcia</span>
+            <span class="conv-time">Yesterday</span>
+          </div>
+          <div class="conv-preview">The revised settlement terms look reasonable. Can we schedule a call to discuss the...</div>
+        </div>
+        <span class="conv-unread-dot"></span>
+      </div>
+
+      <div class="conversation-item">
+        <div class="conv-avatar" style="background: #9490A8;">RP</div>
+        <div class="conv-body">
+          <div class="conv-header">
+            <span class="conv-name">Raj Patel</span>
+            <span class="conv-time">Mar 25</span>
+          </div>
+          <div class="conv-preview">Thank you for the update on the insurance claim. I'll review the documents and get back to you.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="main-view" data-main="documents">
+      <h1>Documents</h1>
+      <div class="subtitle">Recent uploads and file management</div>
+
+      <div class="doc-item">
+        <div class="doc-icon pdf">PDF</div>
+        <div class="doc-info">
+          <div class="doc-name">Motion_to_Compel_Thompson_v3.pdf</div>
+          <div class="doc-meta">Linked to <a href="#">Thompson v. Meridian Corp</a></div>
+        </div>
+        <span class="doc-time">2 hours ago</span>
+      </div>
+
+      <div class="doc-item">
+        <div class="doc-icon doc">DOC</div>
+        <div class="doc-info">
+          <div class="doc-name">Client_Intake_Form_Chen.docx</div>
+          <div class="doc-meta">Linked to <a href="#">Sarah Chen Consultation</a></div>
+        </div>
+        <span class="doc-time">Yesterday</span>
+      </div>
+
+      <div class="doc-item">
+        <div class="doc-icon pdf">PDF</div>
+        <div class="doc-info">
+          <div class="doc-name">Settlement_Agreement_Garcia_Rev2.pdf</div>
+          <div class="doc-meta">Linked to <a href="#">Garcia Estate Planning</a></div>
+        </div>
+        <span class="doc-time">Mar 26</span>
+      </div>
+
+      <div class="doc-item">
+        <div class="doc-icon doc">DOC</div>
+        <div class="doc-info">
+          <div class="doc-name">Insurance_Claim_Summary_Patel.docx</div>
+          <div class="doc-meta">Linked to <a href="#">Patel v. Stonebridge Insurance</a></div>
+        </div>
+        <span class="doc-time">Mar 25</span>
+      </div>
+
+      <div class="doc-item">
+        <div class="doc-icon xls">XLS</div>
+        <div class="doc-info">
+          <div class="doc-name">Billing_Summary_Q1_2026.xlsx</div>
+          <div class="doc-meta">Internal &mdash; Accounting</div>
+        </div>
+        <span class="doc-time">Mar 24</span>
+      </div>
+
+      <div class="doc-item">
+        <div class="doc-icon pdf">PDF</div>
+        <div class="doc-info">
+          <div class="doc-name">Nguyen_Articles_of_Incorporation.pdf</div>
+          <div class="doc-meta">Linked to <a href="#">Nguyen Business Formation</a></div>
+        </div>
+        <span class="doc-time">Mar 22</span>
+      </div>
+    </div>
+
+    <!-- Leads -->
+    <div class="main-view" data-main="leads">
+      <h1>Lead Pipeline</h1>
+      <div class="subtitle">Conversion funnel and lead tracking</div>
+
+      <div class="funnel-container">
+        <div class="funnel-row">
+          <span class="funnel-label">Leads</span>
+          <div class="funnel-bar-container">
+            <div class="funnel-bar leads">32</div>
+          </div>
+          <span class="funnel-pct">100%</span>
+        </div>
+
+        <div class="funnel-row">
+          <span class="funnel-label">Qualified</span>
+          <div class="funnel-bar-container">
+            <div class="funnel-bar qualified">19</div>
+          </div>
+          <span class="funnel-pct">60%</span>
+        </div>
+
+        <div class="funnel-row">
+          <span class="funnel-label">Proposal</span>
+          <div class="funnel-bar-container">
+            <div class="funnel-bar proposal">13</div>
+          </div>
+          <span class="funnel-pct">42%</span>
+        </div>
+
+        <div class="funnel-row">
+          <span class="funnel-label">Signed</span>
+          <div class="funnel-bar-container">
+            <div class="funnel-bar signed">8</div>
+          </div>
+          <span class="funnel-pct">25%</span>
+        </div>
+      </div>
+
+      <div class="funnel-stats">
+        <div class="funnel-stat-card">
+          <div class="funnel-stat-value">32</div>
+          <div class="funnel-stat-label">Total Leads</div>
+        </div>
+        <div class="funnel-stat-card">
+          <div class="funnel-stat-value">60%</div>
+          <div class="funnel-stat-label">Qualification Rate</div>
+        </div>
+        <div class="funnel-stat-card">
+          <div class="funnel-stat-value">25%</div>
+          <div class="funnel-stat-label">Close Rate</div>
+        </div>
+        <div class="funnel-stat-card">
+          <div class="funnel-stat-value">7</div>
+          <div class="funnel-stat-label">New This Week</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const railIcons = document.querySelectorAll('.rail-icon[data-view]');
+  const panelViews = document.querySelectorAll('.panel-view');
+  const mainViews = document.querySelectorAll('.main-view');
+
+  railIcons.forEach(icon => {
+    icon.addEventListener('click', () => {
+      const view = icon.dataset.view;
+
+      // Update rail active state
+      railIcons.forEach(i => i.classList.remove('active'));
+      icon.classList.add('active');
+
+      // Update panel view with fade transition
+      panelViews.forEach(p => p.classList.remove('active'));
+      const targetPanel = document.querySelector(`.panel-view[data-panel="${view}"]`);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      // Update main view with fade transition
+      mainViews.forEach(m => m.classList.remove('active'));
+      const targetMain = document.querySelector(`.main-view[data-main="${view}"]`);
+      if (targetMain) targetMain.classList.add('active');
+    });
+  });
+
+  // Tab switching within Cases view
+  const casesTabs = document.querySelectorAll('.cases-tab');
+  casesTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      casesTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Panel item click handling
+  const panelItems = document.querySelectorAll('.panel-item');
+  panelItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const parent = item.closest('.panel-view');
+      if (parent) {
+        parent.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

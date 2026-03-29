@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble - Gradient Rail + Glass Panel Nav</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #FAFAFA;
+    color: #111;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Tier 1: Gradient Icon Rail ── */
+
+  .icon-rail {
+    width: 56px;
+    min-width: 56px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    user-select: none;
+    z-index: 10;
+    position: relative;
+  }
+
+  .rail-logo {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .rail-logo span {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.03em;
+  }
+
+  .rail-divider {
+    width: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rail-spacer {
+    flex: 1;
+  }
+
+  .rail-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .rail-btn svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.45);
+    transition: color 0.15s ease;
+  }
+
+  .rail-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .rail-btn:hover svg {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .rail-btn.active {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .rail-btn.active svg {
+    color: #FFF;
+  }
+
+  /* Active indicator: thin white bar on left edge with glow */
+  .rail-btn.active::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 24px;
+    background: #FFF;
+    border-radius: 1px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5), 0 0 12px rgba(255, 255, 255, 0.2);
+  }
+
+  .rail-btn .tooltip {
+    display: none;
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1E293B;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .rail-btn:hover .tooltip {
+    display: block;
+  }
+
+  /* Notification dot on rail button */
+  .rail-btn .notif-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    background: #0EA5E9;
+    border-radius: 50%;
+    animation: notifPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes notifPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+    50% { box-shadow: 0 0 6px 2px rgba(14, 165, 233, 0.3); }
+  }
+
+  .rail-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.15s ease;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .rail-avatar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .rail-avatar span {
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFF;
+  }
+
+  /* ── Tier 2: Glass Panel ── */
+
+  .label-panel {
+    width: 184px;
+    min-width: 184px;
+    height: 100vh;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .panel-content {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px 16px 0 16px;
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+
+  .panel-content.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .panel-content.fade-in {
+    opacity: 1;
+  }
+
+  .panel-header-area {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, #DDD, transparent) 1;
+  }
+
+  .panel-brand {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0F172A;
+    letter-spacing: -0.02em;
+  }
+
+  .panel-view-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .panel-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #999;
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .panel-section-label:first-of-type {
+    margin-top: 0;
+  }
+
+  /* Gradient section dividers */
+  .panel-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #DDD, transparent);
+    margin: 12px 0;
+  }
+
+  .panel-search {
+    width: 100%;
+    height: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #333;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    outline: none;
+    margin-bottom: 12px;
+    transition: all 0.15s ease;
+  }
+
+  .panel-search::placeholder {
+    color: #BBB;
+  }
+
+  .panel-search:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+  }
+
+  .panel-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    line-height: 1.4;
+    position: relative;
+  }
+
+  .panel-item:hover {
+    color: #333;
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .panel-item.active {
+    color: #0F172A;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.04);
+    padding-left: 14px;
+  }
+
+  /* Active item left accent bar */
+  .panel-item.active::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 16px;
+    background: #0F172A;
+    border-radius: 1px;
+  }
+
+  /* Glass pill badges */
+  .panel-item .badge {
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 10px;
+    color: #555;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 400;
+  }
+
+  /* Sky blue notification badge */
+  .panel-item .badge-notif {
+    font-family: 'Geist Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 10px;
+    color: #FFF;
+    background: #0EA5E9;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* ── Panel-specific: Glass stat cards ── */
+
+  .glass-stat-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .glass-stat-card:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-stat-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .glass-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0F172A;
+    letter-spacing: -0.02em;
+  }
+
+  .glass-stat-change {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  .glass-stat-change .up { color: #10B981; }
+  .glass-stat-change .down { color: #EF4444; }
+
+  /* Quick actions row */
+  .quick-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .quick-action-btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    color: #555;
+    background: rgba(0, 0, 0, 0.04);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    text-align: center;
+  }
+
+  .quick-action-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #0F172A;
+  }
+
+  /* ── Panel-specific: Filter chips ── */
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .filter-chip {
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .filter-chip:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #333;
+  }
+
+  .filter-chip.active {
+    background: #0F172A;
+    color: #FFF;
+    border-color: #0F172A;
+  }
+
+  .filter-chip .chip-count {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-left: 2px;
+  }
+
+  /* ── Panel-specific: Case cards ── */
+
+  .case-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .case-card:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .case-card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0F172A;
+    margin-bottom: 2px;
+  }
+
+  .case-card-meta {
+    font-size: 11px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .case-card-stage {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .case-card-stage.intake { color: #0EA5E9; background: rgba(14, 165, 233, 0.1); }
+  .case-card-stage.negotiation { color: #F59E0B; background: rgba(245, 158, 11, 0.1); }
+  .case-card-stage.litigation { color: #EF4444; background: rgba(239, 68, 68, 0.1); }
+
+  /* ── Panel-specific: Calendar events ── */
+
+  .calendar-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0F172A;
+    margin-bottom: 8px;
+    margin-top: 4px;
+  }
+
+  .event-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .event-card:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .event-time {
+    font-size: 10px;
+    font-weight: 500;
+    color: #888;
+    margin-bottom: 2px;
+  }
+
+  .event-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0F172A;
+    margin-bottom: 3px;
+  }
+
+  .event-type-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .event-type-badge.meeting { color: #0EA5E9; background: rgba(14, 165, 233, 0.1); }
+  .event-type-badge.hearing { color: #EF4444; background: rgba(239, 68, 68, 0.1); }
+  .event-type-badge.deadline { color: #F59E0B; background: rgba(245, 158, 11, 0.1); }
+  .event-type-badge.deposition { color: #8B5CF6; background: rgba(139, 92, 246, 0.1); }
+
+  /* ── Panel-specific: Messages ── */
+
+  .message-item {
+    display: flex;
+    gap: 8px;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    position: relative;
+  }
+
+  .message-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .message-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .message-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0F172A;
+    margin-bottom: 1px;
+  }
+
+  .message-preview {
+    font-size: 11px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message-unread-badge {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: #FFF;
+    background: #0EA5E9;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .message-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent);
+    margin: 2px 0;
+  }
+
+  /* ── Panel-specific: Settings ── */
+
+  .settings-item {
+    padding: 10px 0;
+    cursor: pointer;
+  }
+
+  .settings-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .settings-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #0F172A;
+  }
+
+  .settings-item-desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* Toggle switch */
+  .toggle-switch {
+    width: 32px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on {
+    background: #0EA5E9;
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #FFF;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+
+  .toggle-switch.on::after {
+    transform: translateX(14px);
+  }
+
+  .settings-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #DDD, transparent);
+  }
+
+  /* ── Panel footer / user card ── */
+
+  .panel-footer {
+    padding: 12px 16px;
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent) 1;
+    margin-top: auto;
+  }
+
+  .panel-user-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-user-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: #0F172A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #FFF;
+  }
+
+  .panel-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .panel-user-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0F172A;
+  }
+
+  .panel-user-role {
+    font-size: 10px;
+    color: #888;
+  }
+
+  .panel-user-link {
+    font-size: 10px;
+    color: #0EA5E9;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.12s ease;
+  }
+
+  .panel-user-link:hover {
+    color: #0284C7;
+  }
+
+  /* ── Main content ── */
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.02em;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* Stats row */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-card .change {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .stat-card .change .up { color: #10B981; }
+  .stat-card .change .down { color: #EF4444; }
+
+  /* Content grid */
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .content-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .content-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 16px;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-item .desc {
+    color: #444;
+  }
+
+  .activity-item .time {
+    font-size: 11px;
+    color: #BBB;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  .case-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+  }
+
+  .case-row:last-child {
+    border-bottom: none;
+  }
+
+  .case-row .case-name {
+    color: #444;
+  }
+
+  .case-row .case-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .case-row .case-status.active { color: #10B981; background: #F0FDF4; }
+  .case-row .case-status.review { color: #F59E0B; background: #FFFBEB; }
+  .case-row .case-status.pending { color: #888; background: #F5F5F5; }
+
+  /* ── State indicator ── */
+
+  .state-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 50;
+  }
+
+  .state-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #EAEAEA;
+    background: #FFF;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .state-btn:hover {
+    border-color: #CCC;
+    color: #333;
+  }
+
+  .state-btn.active {
+    background: #0F172A;
+    color: #FFF;
+    border-color: #0F172A;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .icon-rail,
+    .label-panel {
+      display: none;
+    }
+
+    .main {
+      padding: 24px 20px;
+    }
+
+    .stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .state-indicator {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Tier 1: Gradient Icon Rail -->
+  <nav class="icon-rail">
+    <div class="rail-logo"><span>F</span></div>
+
+    <!-- Primary -->
+    <div class="rail-group">
+      <button class="rail-btn active" data-panel="dashboard" onclick="switchPanel('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="tooltip">Dashboard</span>
+      </button>
+      <button class="rail-btn" data-panel="cases" onclick="switchPanel('cases')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span class="tooltip">Cases</span>
+      </button>
+      <button class="rail-btn" data-panel="calendar" onclick="switchPanel('calendar')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="tooltip">Calendar</span>
+      </button>
+      <button class="rail-btn" data-panel="messages" onclick="switchPanel('messages')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="tooltip">Messages</span>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <!-- Tools -->
+    <div class="rail-group">
+      <button class="rail-btn" data-panel="settings" onclick="switchPanel('settings')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="tooltip">Settings</span>
+      </button>
+    </div>
+
+    <div class="rail-spacer"></div>
+
+    <!-- Bottom: avatar -->
+    <div class="rail-avatar" title="Jake Klinvex"><span>JK</span></div>
+  </nav>
+
+  <!-- Tier 2: Glass Panel -->
+  <aside class="label-panel">
+
+    <!-- Dashboard panel -->
+    <div class="panel-content active" data-panel="dashboard">
+      <div class="panel-header-area">
+        <div class="panel-brand">Favorble</div>
+        <div class="panel-view-title">Overview</div>
+      </div>
+
+      <div class="glass-stat-card">
+        <div class="glass-stat-label">Active Cases</div>
+        <div class="glass-stat-value">44</div>
+        <div class="glass-stat-change"><span class="up">+3 this week</span></div>
+      </div>
+      <div class="glass-stat-card">
+        <div class="glass-stat-label">Win Rate</div>
+        <div class="glass-stat-value">87%</div>
+        <div class="glass-stat-change"><span class="up">+2.1%</span></div>
+      </div>
+      <div class="glass-stat-card">
+        <div class="glass-stat-label">Revenue</div>
+        <div class="glass-stat-value">$1.2M</div>
+        <div class="glass-stat-change"><span class="up">+12% YTD</span></div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="panel-section-label">Quick Actions</div>
+      <div class="quick-actions">
+        <button class="quick-action-btn">+ Case</button>
+        <button class="quick-action-btn">+ Event</button>
+        <button class="quick-action-btn">Search</button>
+      </div>
+
+      <div class="panel-footer">
+        <div class="panel-user-card">
+          <div class="panel-user-avatar">JK</div>
+          <div class="panel-user-info">
+            <div class="panel-user-name">Jake Klinvex</div>
+            <div class="panel-user-role">Partner</div>
+          </div>
+        </div>
+        <a class="panel-user-link" style="margin-top: 6px; display: inline-block;">View Profile</a>
+      </div>
+    </div>
+
+    <!-- Cases panel -->
+    <div class="panel-content" data-panel="cases">
+      <div class="panel-header-area">
+        <div class="panel-brand">Favorble</div>
+        <div class="panel-view-title">Cases</div>
+      </div>
+
+      <input type="text" class="panel-search" placeholder="Search cases...">
+
+      <div class="filter-chips">
+        <button class="filter-chip active">All <span class="chip-count">44</span></button>
+        <button class="filter-chip">Intake <span class="chip-count">8</span></button>
+        <button class="filter-chip">Negotiation <span class="chip-count">9</span></button>
+        <button class="filter-chip">Litigation <span class="chip-count">6</span></button>
+        <button class="filter-chip">Settled <span class="chip-count">5</span></button>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="panel-section-label">Recent</div>
+      <div class="case-card">
+        <div class="case-card-title">Martinez v. State Farm</div>
+        <div class="case-card-meta">
+          <span>Updated 12m ago</span>
+          <span class="case-card-stage intake">Intake</span>
+        </div>
+      </div>
+      <div class="case-card">
+        <div class="case-card-title">Thompson Estate</div>
+        <div class="case-card-meta">
+          <span>Updated 1h ago</span>
+          <span class="case-card-stage negotiation">Negotiation</span>
+        </div>
+      </div>
+      <div class="case-card">
+        <div class="case-card-title">Chen v. Riverside LLC</div>
+        <div class="case-card-meta">
+          <span>Updated 3h ago</span>
+          <span class="case-card-stage litigation">Litigation</span>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <div class="panel-user-card">
+          <div class="panel-user-avatar">JK</div>
+          <div class="panel-user-info">
+            <div class="panel-user-name">Jake Klinvex</div>
+            <div class="panel-user-role">Partner</div>
+          </div>
+        </div>
+        <a class="panel-user-link" style="margin-top: 6px; display: inline-block;">View Profile</a>
+      </div>
+    </div>
+
+    <!-- Calendar panel -->
+    <div class="panel-content" data-panel="calendar">
+      <div class="panel-header-area">
+        <div class="panel-brand">Favorble</div>
+        <div class="panel-view-title">Calendar</div>
+      </div>
+
+      <div class="calendar-section-title">Today</div>
+      <div class="event-card">
+        <div class="event-time">9:00 AM</div>
+        <div class="event-title">Martinez Deposition Prep</div>
+        <span class="event-type-badge meeting">Meeting</span>
+      </div>
+      <div class="event-card">
+        <div class="event-time">1:30 PM</div>
+        <div class="event-title">Thompson Hearing</div>
+        <span class="event-type-badge hearing">Hearing</span>
+      </div>
+      <div class="event-card">
+        <div class="event-time">4:00 PM</div>
+        <div class="event-title">Filing Deadline - Chen</div>
+        <span class="event-type-badge deadline">Deadline</span>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="calendar-section-title">Tomorrow</div>
+      <div class="event-card">
+        <div class="event-time">10:00 AM</div>
+        <div class="event-title">Davis Deposition</div>
+        <span class="event-type-badge deposition">Deposition</span>
+      </div>
+      <div class="event-card">
+        <div class="event-time">2:00 PM</div>
+        <div class="event-title">Team Standup</div>
+        <span class="event-type-badge meeting">Meeting</span>
+      </div>
+
+      <div class="panel-footer">
+        <div class="panel-user-card">
+          <div class="panel-user-avatar">JK</div>
+          <div class="panel-user-info">
+            <div class="panel-user-name">Jake Klinvex</div>
+            <div class="panel-user-role">Partner</div>
+          </div>
+        </div>
+        <a class="panel-user-link" style="margin-top: 6px; display: inline-block;">View Profile</a>
+      </div>
+    </div>
+
+    <!-- Messages panel -->
+    <div class="panel-content" data-panel="messages">
+      <div class="panel-header-area">
+        <div class="panel-brand">Favorble</div>
+        <div class="panel-view-title">Messages</div>
+      </div>
+
+      <input type="text" class="panel-search" placeholder="Search messages...">
+
+      <div class="message-item">
+        <div class="message-avatar">SM</div>
+        <div class="message-body">
+          <div class="message-name">Sarah Mitchell</div>
+          <div class="message-preview">Updated the Martinez filing docs...</div>
+        </div>
+        <span class="message-unread-badge">2</span>
+      </div>
+      <div class="message-divider"></div>
+      <div class="message-item">
+        <div class="message-avatar">RP</div>
+        <div class="message-body">
+          <div class="message-name">Robert Park</div>
+          <div class="message-preview">Deposition transcript is ready for...</div>
+        </div>
+        <span class="message-unread-badge">1</span>
+      </div>
+      <div class="message-divider"></div>
+      <div class="message-item">
+        <div class="message-avatar">LC</div>
+        <div class="message-body">
+          <div class="message-name">Lisa Chen</div>
+          <div class="message-preview">Can we reschedule Thursday's call?</div>
+        </div>
+      </div>
+      <div class="message-divider"></div>
+      <div class="message-item">
+        <div class="message-avatar">TD</div>
+        <div class="message-body">
+          <div class="message-name">Tom Davis</div>
+          <div class="message-preview">Settlement offer came in at $45K...</div>
+        </div>
+      </div>
+      <div class="message-divider"></div>
+      <div class="message-item">
+        <div class="message-avatar">AW</div>
+        <div class="message-body">
+          <div class="message-name">Amy Walsh</div>
+          <div class="message-preview">New intake form submitted for...</div>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <div class="panel-user-card">
+          <div class="panel-user-avatar">JK</div>
+          <div class="panel-user-info">
+            <div class="panel-user-name">Jake Klinvex</div>
+            <div class="panel-user-role">Partner</div>
+          </div>
+        </div>
+        <a class="panel-user-link" style="margin-top: 6px; display: inline-block;">View Profile</a>
+      </div>
+    </div>
+
+    <!-- Settings panel -->
+    <div class="panel-content" data-panel="settings">
+      <div class="panel-header-area">
+        <div class="panel-brand">Favorble</div>
+        <div class="panel-view-title">Settings</div>
+      </div>
+
+      <div class="settings-item">
+        <div class="settings-item-header">
+          <div class="settings-item-title">Notifications</div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item-desc">Email and push notifications for case updates</div>
+      </div>
+      <div class="settings-divider"></div>
+
+      <div class="settings-item">
+        <div class="settings-item-header">
+          <div class="settings-item-title">Dark Mode</div>
+          <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item-desc">Switch to dark color scheme</div>
+      </div>
+      <div class="settings-divider"></div>
+
+      <div class="settings-item">
+        <div class="settings-item-header">
+          <div class="settings-item-title">Auto-Save</div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item-desc">Automatically save drafts every 30 seconds</div>
+      </div>
+      <div class="settings-divider"></div>
+
+      <div class="settings-item">
+        <div class="settings-item-header">
+          <div class="settings-item-title">Two-Factor Auth</div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item-desc">Require 2FA for sign-in</div>
+      </div>
+      <div class="settings-divider"></div>
+
+      <div class="settings-item">
+        <div class="settings-item-header">
+          <div class="settings-item-title">Calendar Sync</div>
+          <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item-desc">Sync events with Google Calendar</div>
+      </div>
+
+      <div class="panel-footer">
+        <div class="panel-user-card">
+          <div class="panel-user-avatar">JK</div>
+          <div class="panel-user-info">
+            <div class="panel-user-name">Jake Klinvex</div>
+            <div class="panel-user-role">Partner</div>
+          </div>
+        </div>
+        <a class="panel-user-link" style="margin-top: 6px; display: inline-block;">View Profile</a>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main content area -->
+  <main class="main">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <p>Welcome back, Jake. Here's your firm at a glance.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Active Cases</div>
+        <div class="value">44</div>
+        <div class="change"><span class="up">+3</span> this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pending Tasks</div>
+        <div class="value">12</div>
+        <div class="change"><span class="down">+2</span> overdue</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Win Rate</div>
+        <div class="value">87%</div>
+        <div class="change"><span class="up">+2.1%</span> vs last quarter</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Revenue YTD</div>
+        <div class="value">$1.2M</div>
+        <div class="change"><span class="up">+12%</span> vs last year</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="content-card">
+        <h3>Recent Activity</h3>
+        <div class="activity-item">
+          <span class="desc">Martinez filing submitted</span>
+          <span class="time">12m ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Thompson estate docs uploaded</span>
+          <span class="time">1h ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Davis deposition scheduled</span>
+          <span class="time">3h ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="desc">Chen discovery response filed</span>
+          <span class="time">Yesterday</span>
+        </div>
+      </div>
+      <div class="content-card">
+        <h3>Priority Cases</h3>
+        <div class="case-row">
+          <span class="case-name">Martinez v. State Farm</span>
+          <span class="case-status active">Active</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Thompson Estate</span>
+          <span class="case-status review">Review</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Chen v. Riverside LLC</span>
+          <span class="case-status active">Active</span>
+        </div>
+        <div class="case-row">
+          <span class="case-name">Davis Personal Injury</span>
+          <span class="case-status pending">Pending</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- View state indicator -->
+<div class="state-indicator">
+  <button class="state-btn active" onclick="switchPanel('dashboard')">Dashboard</button>
+  <button class="state-btn" onclick="switchPanel('cases')">Cases</button>
+  <button class="state-btn" onclick="switchPanel('calendar')">Calendar</button>
+  <button class="state-btn" onclick="switchPanel('messages')">Messages</button>
+  <button class="state-btn" onclick="switchPanel('settings')">Settings</button>
+</div>
+
+<script>
+  function switchPanel(name) {
+    // Update rail buttons
+    document.querySelectorAll('.rail-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.panel === name);
+    });
+
+    // Crossfade panel content
+    const panels = document.querySelectorAll('.panel-content');
+    panels.forEach(panel => {
+      if (panel.dataset.panel === name) {
+        // Show and fade in
+        panel.style.display = 'flex';
+        panel.style.opacity = '0';
+        // Force reflow for transition
+        panel.offsetHeight;
+        requestAnimationFrame(() => {
+          panel.style.opacity = '1';
+        });
+        panel.classList.add('active');
+      } else {
+        panel.classList.remove('active');
+        panel.style.opacity = '0';
+        panel.style.display = 'none';
+      }
+    });
+
+    // Update state indicator buttons
+    document.querySelectorAll('.state-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent === name.charAt(0).toUpperCase() + name.slice(1));
+    });
+
+    // Update main content header
+    const headers = {
+      dashboard: { title: 'Dashboard', desc: 'Welcome back, Jake. Here\'s your firm at a glance.' },
+      cases: { title: 'Cases', desc: '44 active cases across all stages.' },
+      calendar: { title: 'Calendar', desc: 'Your schedule for today and upcoming events.' },
+      messages: { title: 'Messages', desc: '3 unread conversations.' },
+      settings: { title: 'Settings', desc: 'Manage your account and preferences.' }
+    };
+
+    const header = headers[name];
+    if (header) {
+      document.querySelector('.page-header h1').textContent = header.title;
+      document.querySelector('.page-header p').textContent = header.desc;
+    }
+  }
+
+  // Filter chip toggle
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // Initialize with dashboard active
+  switchPanel('dashboard');
+</script>
+</body>
+</html>
