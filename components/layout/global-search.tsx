@@ -60,38 +60,69 @@ interface CommandItem {
 }
 
 interface APISearchResults {
-  cases: Array<{
-    id: string;
-    caseNumber: string;
-    status: string;
-    stageName: string | null;
-    claimantName: string | null;
-  }>;
-  contacts: Array<{
-    id: string;
-    name: string;
-    email: string | null;
-    contactType: string;
-  }>;
-  tasks: Array<{
-    id: string;
-    title: string;
-    status: string;
-    caseId: string;
-  }>;
-  leads?: Array<{
-    id: string;
-    name: string;
-    status: string;
-    source: string | null;
-  }>;
-  documents?: Array<{
-    id: string;
-    fileName: string;
-    category: string | null;
-    caseNumber: string | null;
-  }>;
-  topHit?: SearchResultItem;
+  results: {
+    cases: Array<{
+      id: string;
+      caseNumber: string;
+      status: string;
+      stageName: string | null;
+      stageColor: string | null;
+      claimantName: string | null;
+      assignedToName: string | null;
+      updatedAt: string;
+    }>;
+    contacts: Array<{
+      id: string;
+      fullName: string;
+      email: string | null;
+      phone: string | null;
+      contactType: string;
+    }>;
+    tasks: Array<{
+      id: string;
+      title: string;
+      status: string;
+      priority: string | null;
+      dueDate: string | null;
+      caseId: string;
+      caseNumber: string | null;
+    }>;
+    leads: Array<{
+      id: string;
+      fullName: string;
+      status: string;
+      source: string | null;
+      createdAt: string;
+    }>;
+    documents: Array<{
+      id: string;
+      fileName: string;
+      fileType: string | null;
+      category: string | null;
+      source: string | null;
+      caseId: string | null;
+      caseNumber: string | null;
+      createdAt: string;
+    }>;
+    events: Array<{
+      id: string;
+      title: string;
+      eventType: string | null;
+      startDate: string;
+      caseId: string | null;
+      caseNumber: string | null;
+    }>;
+    messages: Array<{
+      id: string;
+      subject: string | null;
+      body: string | null;
+      type: string | null;
+      caseId: string | null;
+      caseNumber: string | null;
+      createdAt: string;
+    }>;
+  };
+  topHit: { type: string; data: Record<string, unknown>; score: number } | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -373,10 +404,15 @@ function saveRecent(item: Omit<RecentItem, "timestamp">) {
   }
 }
 
+function fmtStatus(s: string | null | undefined): string {
+  return s ? s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+}
+
 function transformAPIResults(data: APISearchResults): SearchResultItem[] {
   const items: SearchResultItem[] = [];
+  const r = data.results;
 
-  for (const c of data.cases ?? []) {
+  for (const c of r.cases ?? []) {
     items.push({
       id: c.id,
       type: "case",
@@ -389,93 +425,110 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
         Claimant: c.claimantName,
         "Case #": c.caseNumber,
         Stage: c.stageName,
-        Status: c.status
-          ? c.status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-          : null,
+        "Assigned To": c.assignedToName,
       },
     });
   }
 
-  for (const c of data.contacts ?? []) {
+  for (const c of r.contacts ?? []) {
     items.push({
       id: c.id,
       type: "contact",
-      title: c.name,
-      subtitle: [formatContactType(c.contactType), c.email]
-        .filter(Boolean)
-        .join(" \u00B7 "),
+      title: c.fullName,
+      subtitle: [formatContactType(c.contactType), c.email].filter(Boolean).join(" \u00B7 "),
       href: `/contacts/${c.id}`,
       metadata: formatContactType(c.contactType),
       preview: {
-        Name: c.name,
+        Name: c.fullName,
         Type: formatContactType(c.contactType),
         Email: c.email,
+        Phone: c.phone,
       },
     });
   }
 
-  for (const t of data.tasks ?? []) {
+  for (const t of r.tasks ?? []) {
     items.push({
       id: t.id,
       type: "task",
       title: t.title,
-      subtitle: `${t.status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`,
-      href: `/cases/${t.caseId}/tasks`,
-      badge: t.status,
-      badgeColor:
-        t.status === "completed"
-          ? "#10B981"
-          : t.status === "blocked"
-            ? "#EF4444"
-            : "#6B7280",
+      subtitle: [fmtStatus(t.status), t.caseNumber ? `Case ${t.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      href: t.caseId ? `/cases/${t.caseId}/tasks` : "/queue",
+      badge: fmtStatus(t.status),
+      badgeColor: t.status === "completed" ? "#10B981" : t.status === "blocked" ? "#EF4444" : "#6B7280",
       preview: {
         Title: t.title,
-        Status: t.status
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase()),
+        Status: fmtStatus(t.status),
+        Priority: fmtStatus(t.priority),
+        "Due Date": t.dueDate ? new Date(t.dueDate).toLocaleDateString() : null,
+        Case: t.caseNumber,
       },
     });
   }
 
-  for (const l of data.leads ?? []) {
+  for (const l of r.leads ?? []) {
     items.push({
       id: l.id,
       type: "lead",
-      title: l.name,
-      subtitle: [
-        l.status?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        l.source,
-      ]
-        .filter(Boolean)
-        .join(" \u00B7 "),
+      title: l.fullName,
+      subtitle: [fmtStatus(l.status), l.source].filter(Boolean).join(" \u00B7 "),
       href: `/leads/${l.id}`,
-      badge: l.status
-        ?.replace(/_/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase()),
+      badge: fmtStatus(l.status),
       badgeColor: statusColor(l.status),
       preview: {
-        Name: l.name,
-        Status: l.status
-          ?.replace(/_/g, " ")
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
+        Name: l.fullName,
+        Status: fmtStatus(l.status),
         Source: l.source,
       },
     });
   }
 
-  for (const d of data.documents ?? []) {
+  for (const d of r.documents ?? []) {
     items.push({
       id: d.id,
       type: "document",
       title: d.fileName,
-      subtitle: [d.category, d.caseNumber ? `Case ${d.caseNumber}` : null]
-        .filter(Boolean)
-        .join(" \u00B7 "),
-      href: `/documents/${d.id}`,
+      subtitle: [d.category, d.caseNumber ? `Case ${d.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      href: d.caseId ? `/cases/${d.caseId}/documents` : "/documents",
       preview: {
         File: d.fileName,
         Category: d.category,
+        Source: d.source,
         Case: d.caseNumber,
+      },
+    });
+  }
+
+  for (const e of r.events ?? []) {
+    items.push({
+      id: e.id,
+      type: "event",
+      title: e.title,
+      subtitle: [fmtStatus(e.eventType), e.caseNumber ? `Case ${e.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      href: e.caseId ? `/cases/${e.caseId}/calendar` : "/calendar",
+      badge: fmtStatus(e.eventType),
+      badgeColor: e.eventType === "hearing" ? "#10B981" : "#6B7280",
+      preview: {
+        Event: e.title,
+        Type: fmtStatus(e.eventType),
+        Date: new Date(e.startDate).toLocaleDateString(),
+        Case: e.caseNumber,
+      },
+    });
+  }
+
+  for (const m of r.messages ?? []) {
+    items.push({
+      id: m.id,
+      type: "message",
+      title: m.subject ?? "(No subject)",
+      subtitle: [fmtStatus(m.type), m.caseNumber ? `Case ${m.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      href: m.caseId ? `/messages?highlight=${m.id}` : "/messages",
+      preview: {
+        Subject: m.subject,
+        Type: fmtStatus(m.type),
+        Case: m.caseNumber,
+        Preview: m.body?.slice(0, 100),
       },
     });
   }
@@ -659,7 +712,8 @@ export function GlobalSearch() {
     try {
       const res = await fetch("/api/search?q=*&limit=12");
       if (res.ok) {
-        const data: APISearchResults = await res.json();
+        const raw = await res.json();
+        const data: APISearchResults = raw.results ? raw : { results: raw, topHit: null };
         setSuggestions(transformAPIResults(data));
       }
     } catch {
@@ -696,10 +750,27 @@ export function GlobalSearch() {
       }
       const res = await fetch(`/api/search?${params.toString()}`);
       if (res.ok) {
-        const data: APISearchResults = await res.json();
+        const raw = await res.json();
+        // Handle both old format {cases:[]} and new {results:{cases:[]}}
+        const data: APISearchResults = raw.results ? raw : { results: raw, topHit: raw.topHit ?? null };
         const items = transformAPIResults(data);
         setResults(items);
-        setTopHit(data.topHit ?? null);
+        // Transform topHit if present
+        if (data.topHit?.data) {
+          const th = data.topHit;
+          const thType = th.type as ResultType;
+          const thData = th.data as Record<string, string>;
+          const thItem: SearchResultItem = {
+            id: thData.id ?? "",
+            type: thType,
+            title: thData.claimantName ?? thData.fullName ?? thData.title ?? thData.fileName ?? thData.subject ?? "",
+            subtitle: thData.caseNumber ?? thData.contactType ?? "",
+            href: thType === "case" ? `/cases/${thData.id}` : thType === "contact" ? `/contacts/${thData.id}` : "/",
+          };
+          setTopHit(thItem);
+        } else {
+          setTopHit(null);
+        }
         setSelectedIndex(0);
       }
     } catch {
