@@ -106,6 +106,14 @@ export const cases = pgTable(
 			withTimezone: true,
 		}),
 
+		// ERE integration
+		ereLastScrapeAt: timestamp("ere_last_scrape_at", { withTimezone: true }),
+		ereLastScrapeStatus: text("ere_last_scrape_status"),
+		chronologyGeneratedAt: timestamp("chronology_generated_at", {
+			withTimezone: true,
+		}),
+		chronologyEntryCount: integer("chronology_entry_count"),
+
 		// Case Status integration
 		caseStatusExternalId: text("case_status_external_id"),
 

@@ -23,7 +23,7 @@ export type DocumentItem = {
   fileType: string;
   fileSizeBytes: number | null;
   category: string | null;
-  source: "upload" | "template" | "chronicle" | "case_status" | "email" | "esignature";
+  source: "upload" | "template" | "chronicle" | "case_status" | "email" | "esignature" | "ere";
   createdAt: string;
   createdByName?: string;
 };
@@ -44,6 +44,7 @@ const SOURCE_LABELS: Record<string, { label: string; icon: IconSvgElement }> = {
   case_status: { label: "Client Upload", icon: UserIcon },
   email: { label: "Email", icon: File01Icon },
   esignature: { label: "eSignature", icon: File01Icon },
+  ere: { label: "ERE", icon: GlobeIcon },
 };
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -53,6 +54,7 @@ const SOURCE_COLORS: Record<string, string> = {
   case_status: "bg-green-100 text-green-700",
   email: "bg-amber-100 text-amber-700",
   esignature: "bg-indigo-100 text-indigo-700",
+  ere: "bg-blue-100 text-blue-700",
 };
 
 export function DocumentList({

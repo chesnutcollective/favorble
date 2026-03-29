@@ -13,6 +13,7 @@ const tabs = [
 	{ label: "Tasks", segment: "tasks" },
 	{ label: "Calendar", segment: "calendar" },
 	{ label: "SSA Data", segment: "ssa" },
+	{ label: "Chronology", segment: "chronology" },
 ];
 
 export function CaseTabNav({ caseId }: { caseId: string }) {

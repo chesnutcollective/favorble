@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { GlobeIcon, Message01Icon, Mail01Icon, WebhookIcon, LinkSquare02Icon } from "@hugeicons/core-free-icons";
+import { GlobeIcon, Message01Icon, Mail01Icon, WebhookIcon, LinkSquare02Icon, FileSearchIcon } from "@hugeicons/core-free-icons";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 import * as outlookClient from "@/lib/integrations/outlook";
+import { getEreCredentials } from "@/app/actions/ere";
 
 export const metadata: Metadata = {
   title: "Integrations",
@@ -20,6 +21,7 @@ type IntegrationCardProps = {
   status: string;
   details: string[];
   docsUrl?: string;
+  manageUrl?: string;
 };
 
 function IntegrationCard({
@@ -30,6 +32,7 @@ function IntegrationCard({
   status,
   details,
   docsUrl,
+  manageUrl,
 }: IntegrationCardProps) {
   return (
     <Card>
@@ -62,22 +65,39 @@ function IntegrationCard({
           ))}
         </div>
 
-        {docsUrl && (
-          <Button variant="outline" size="sm" className="mt-4" asChild>
-            <a href={docsUrl} target="_blank" rel="noopener noreferrer">
-              <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="mr-1.5" />
-              Documentation
-            </a>
-          </Button>
-        )}
+        <div className="mt-4 flex items-center gap-2">
+          {manageUrl && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={manageUrl}>
+                Manage
+              </a>
+            </Button>
+          )}
+          {docsUrl && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={docsUrl} target="_blank" rel="noopener noreferrer">
+                <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="mr-1.5" />
+                Documentation
+              </a>
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-export default function IntegrationsPage() {
+export default async function IntegrationsPage() {
   const caseStatusConfigured = caseStatusClient.isConfigured();
   const outlookConfigured = outlookClient.isConfigured();
+
+  let ereConfigured = false;
+  try {
+    const ereCreds = await getEreCredentials();
+    ereConfigured = ereCreds.length > 0;
+  } catch {
+    // DB unavailable
+  }
 
   return (
     <div className="space-y-6">
@@ -98,6 +118,26 @@ export default function IntegrationsPage() {
             "Webhook endpoint available at /api/webhooks/chronicle",
             "Full API integration pending Chronicle vendor API availability.",
           ]}
+        />
+
+        <IntegrationCard
+          name="ERE (Electronic Records Express)"
+          description="Direct SSA document scraping and retrieval"
+          icon={<HugeiconsIcon icon={FileSearchIcon} size={20} color="rgb(37 99 235)" />}
+          isConfigured={ereConfigured}
+          status={ereConfigured ? "Configured" : "Not configured"}
+          details={
+            ereConfigured
+              ? [
+                  "SSA Login.gov credentials are configured and encrypted.",
+                  "Automated document scraping is available for cases with SSA claim numbers.",
+                ]
+              : [
+                  "Add your SSA Login.gov credentials to enable direct document retrieval.",
+                  "Credentials are encrypted at rest with AES-256-GCM.",
+                ]
+          }
+          manageUrl="/admin/integrations/ere"
         />
 
         <IntegrationCard

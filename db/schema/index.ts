@@ -11,3 +11,6 @@ export * from "./documents";
 export * from "./communications";
 export * from "./calendar";
 export * from "./audit";
+export * from "./ere";
+export * from "./document-processing";
+export * from "./medical-chronology";

@@ -1,13 +1,16 @@
 import { requireSession } from "@/lib/auth/session";
 import { db } from "@/db/drizzle";
-import { cases } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { cases, documents, ereCredentials, ereJobs } from "@/db/schema";
+import { documentProcessingResults } from "@/db/schema";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LinkSquare02Icon, GlobeIcon } from "@hugeicons/core-free-icons";
+import { EreScrapingCard } from "@/components/ere/ere-scraping-card";
+import { EreDocumentsFeed } from "@/components/ere/ere-documents-feed";
 
 async function fetchCaseSsaData(caseId: string) {
   const result = await db
@@ -23,10 +26,98 @@ async function fetchCaseSsaData(caseId: string) {
       dateLastInsured: cases.dateLastInsured,
       hearingOffice: cases.hearingOffice,
       adminLawJudge: cases.adminLawJudge,
+      organizationId: cases.organizationId,
     })
     .from(cases)
     .where(eq(cases.id, caseId));
   return result[0];
+}
+
+async function fetchEreData(caseId: string, organizationId: string) {
+  // Get the first active credential for this org (for the Sync Now button)
+  const creds = await db
+    .select({ id: ereCredentials.id })
+    .from(ereCredentials)
+    .where(
+      and(
+        eq(ereCredentials.organizationId, organizationId),
+        eq(ereCredentials.isActive, true),
+      ),
+    )
+    .limit(1);
+
+  const credentialId = creds[0]?.id ?? null;
+
+  // Get ERE jobs for this case
+  const jobs = await db
+    .select({
+      id: ereJobs.id,
+      jobType: ereJobs.jobType,
+      status: ereJobs.status,
+      documentsFound: ereJobs.documentsFound,
+      documentsDownloaded: ereJobs.documentsDownloaded,
+      errorMessage: ereJobs.errorMessage,
+      startedAt: ereJobs.startedAt,
+      completedAt: ereJobs.completedAt,
+      createdAt: ereJobs.createdAt,
+    })
+    .from(ereJobs)
+    .where(eq(ereJobs.caseId, caseId))
+    .orderBy(desc(ereJobs.createdAt))
+    .limit(10);
+
+  // Get ERE documents for this case
+  const ereDocs = await db
+    .select({
+      id: documents.id,
+      fileName: documents.fileName,
+      category: documents.category,
+      createdAt: documents.createdAt,
+    })
+    .from(documents)
+    .where(
+      and(
+        eq(documents.caseId, caseId),
+        eq(documents.source, "ere"),
+        isNull(documents.deletedAt),
+      ),
+    )
+    .orderBy(desc(documents.createdAt));
+
+  // Get processing status for each ERE document
+  const docsWithProcessing = await Promise.all(
+    ereDocs.map(async (doc) => {
+      const [procResult] = await db
+        .select({ status: documentProcessingResults.status })
+        .from(documentProcessingResults)
+        .where(eq(documentProcessingResults.documentId, doc.id))
+        .limit(1);
+
+      return {
+        id: doc.id,
+        fileName: doc.fileName,
+        category: doc.category,
+        processingStatus: procResult?.status ?? null,
+        createdAt: doc.createdAt.toISOString(),
+      };
+    }),
+  );
+
+  return {
+    credentialId,
+    jobs: jobs.map((j) => ({
+      id: j.id,
+      jobType: j.jobType,
+      status: j.status,
+      documentsFound: j.documentsFound,
+      documentsDownloaded: j.documentsDownloaded,
+      errorMessage: j.errorMessage,
+      startedAt: j.startedAt?.toISOString() ?? null,
+      completedAt: j.completedAt?.toISOString() ?? null,
+      createdAt: j.createdAt.toISOString(),
+    })),
+    documents: docsWithProcessing,
+  };
 }
 
 export default async function CaseSsaPage({
@@ -47,6 +138,13 @@ export default async function CaseSsaPage({
 
   if (!caseData) {
     return <div>Case not found</div>;
+  }
+
+  let ereData: Awaited<ReturnType<typeof fetchEreData>> | null = null;
+  try {
+    ereData = await fetchEreData(caseId, caseData.organizationId);
+  } catch {
+    // ERE data unavailable
   }
 
   const hasChronicle = caseData.chronicleUrl || caseData.chronicleClaimantId;
@@ -169,6 +267,16 @@ export default async function CaseSsaPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* ERE Monitoring */}
+      <EreScrapingCard
+        caseId={caseId}
+        credentialId={ereData?.credentialId ?? null}
+        jobs={ereData?.jobs ?? []}
+      />
+
+      {/* ERE Documents */}
+      <EreDocumentsFeed documents={ereData?.documents ?? []} />
     </div>
   );
 }

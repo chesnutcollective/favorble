@@ -64,6 +64,7 @@ export const documentSourceEnum = pgEnum("document_source", [
 	"case_status",
 	"email",
 	"esignature",
+	"ere",
 ]);
 
 export const signatureStatusEnum = pgEnum("signature_status", [
@@ -117,4 +118,47 @@ export const calendarEventTypeEnum = pgEnum("calendar_event_type", [
 	"appointment",
 	"follow_up",
 	"reminder",
+]);
+
+export const ereJobStatusEnum = pgEnum("ere_job_status", [
+	"pending",
+	"running",
+	"completed",
+	"failed",
+	"cancelled",
+]);
+
+export const ereJobTypeEnum = pgEnum("ere_job_type", [
+	"full_scrape",
+	"incremental_sync",
+	"document_download",
+	"status_check",
+]);
+
+export const documentProcessingStatusEnum = pgEnum(
+	"document_processing_status",
+	["pending", "extracting", "classifying", "completed", "failed"],
+);
+
+export const medicalEntryTypeEnum = pgEnum("medical_entry_type", [
+	"office_visit",
+	"hospitalization",
+	"emergency",
+	"lab_result",
+	"imaging",
+	"mental_health",
+	"physical_therapy",
+	"surgery",
+	"prescription",
+	"diagnosis",
+	"functional_assessment",
+	"other",
+]);
+
+export const exhibitPacketStatusEnum = pgEnum("exhibit_packet_status", [
+	"draft",
+	"building",
+	"ready",
+	"submitted",
+	"failed",
 ]);
