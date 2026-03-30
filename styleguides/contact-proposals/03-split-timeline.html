@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — SSA Office Nashville</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT + CHARCOAL/EMERALD SIDEBAR
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar */
+    --sidebar-bg:     #1A1A1A;
+    --sidebar-hover:  #2A2A2A;
+    --sidebar-active: #333333;
+    --sidebar-text:   #A0A0A0;
+    --sidebar-text-active: #FFFFFF;
+    --sidebar-border: #2E2E2E;
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Accent */
+    --accent-black:   #000000;
+    --accent-emerald: #10B981;
+    --accent-emerald-light: #D1FAE5;
+    --accent-emerald-dark: #059669;
+    --accent-blue:    #0070F3;
+    --accent-blue-light: #DBEAFE;
+    --accent-amber:   #F5A623;
+    --accent-amber-light: #FEF3C7;
+    --accent-red:     #EE0000;
+    --accent-red-light: #FEE2E2;
+    --accent-gray:    #6B7280;
+    --accent-gray-light: #F3F4F6;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing scale */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+    --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT — SIDEBAR + SPLIT PANEL
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR — charcoal + emerald */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    border-right: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 26px;
+    height: 26px;
+    background: var(--accent-emerald);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-brand .logo svg {
+    width: 14px;
+    height: 14px;
+    fill: white;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--sidebar-text-active);
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #555;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-active);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-active);
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-active);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-active);
+  }
+
+  /* ============================================================
+     SPLIT PANEL
+     ============================================================ */
+  .split-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* LEFT INFO PANEL — 40% */
+  .left-panel {
+    width: 40%;
+    min-width: 360px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--bg-card);
+  }
+
+  .left-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+  .left-panel::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 3px;
+  }
+
+  .panel-header {
+    padding: var(--sp-6) var(--sp-6) var(--sp-5);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
+  }
+
+  .panel-header-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-1);
+  }
+
+  .panel-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+    color: var(--text-primary);
+  }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--accent-emerald-light);
+    color: var(--accent-emerald-dark);
+    border-radius: 4px;
+  }
+
+  .panel-section {
+    padding: var(--sp-5) var(--sp-6);
+  }
+
+  .panel-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 var(--sp-6);
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-4);
+  }
+
+  /* Info rows */
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+    font-size: 13px;
+  }
+
+  .info-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .info-label {
+    color: var(--text-tertiary);
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+
+  .info-value {
+    color: var(--text-primary);
+  }
+
+  /* Key Personnel */
+  .personnel-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3);
+    border-radius: var(--radius);
+    margin-bottom: var(--sp-2);
+    background: var(--bg-card-alt);
+  }
+
+  .personnel-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .personnel-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .personnel-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .personnel-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .personnel-role {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .personnel-stat {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent-emerald-dark);
+    background: var(--accent-emerald-light);
+    padding: 1px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .stat-card {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-card-alt);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-1);
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .stat-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: var(--sp-2);
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .stat-bar-fill.emerald { background: var(--accent-emerald); }
+  .stat-bar-fill.blue { background: var(--accent-blue); }
+  .stat-bar-fill.amber { background: var(--accent-amber); }
+  .stat-bar-fill.red { background: var(--accent-red); }
+
+  /* Associated cases */
+  .case-list {
+    list-style: none;
+  }
+
+  .case-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-3);
+    border-radius: var(--radius);
+    margin-bottom: 2px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .case-item:hover {
+    background: var(--bg-hover);
+  }
+
+  .case-number {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-blue);
+    font-weight: 500;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  .case-claimant {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 400;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .case-stage {
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .stage-hearing {
+    background: var(--accent-emerald-light);
+    color: var(--accent-emerald-dark);
+  }
+
+  .stage-review {
+    background: var(--accent-blue-light);
+    color: var(--accent-blue);
+  }
+
+  .stage-pending {
+    background: var(--accent-amber-light);
+    color: #92400E;
+  }
+
+  .stage-decided {
+    background: var(--accent-gray-light);
+    color: var(--accent-gray);
+  }
+
+  .case-alj {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* ============================================================
+     RIGHT PANEL — TIMELINE (60%)
+     ============================================================ */
+  .right-panel {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-root);
+  }
+
+  .right-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+  .right-panel::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 3px;
+  }
+
+  .timeline-header {
+    padding: var(--sp-6) var(--sp-6) var(--sp-4);
+    position: sticky;
+    top: 0;
+    background: var(--bg-root);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .timeline-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+    margin-bottom: var(--sp-3);
+  }
+
+  /* Filter chips */
+  .filter-chips {
+    display: flex;
+    gap: var(--sp-2);
+  }
+
+  .filter-chip {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+  }
+
+  .filter-chip:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  .filter-chip.active {
+    background: var(--text-primary);
+    color: white;
+    border-color: var(--text-primary);
+  }
+
+  /* Timeline */
+  .timeline {
+    padding: var(--sp-6) var(--sp-6) var(--sp-8);
+    position: relative;
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 128px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-entry {
+    display: flex;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+    position: relative;
+  }
+
+  .timeline-entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-date {
+    width: 108px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 2px;
+  }
+
+  .timeline-date-day {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .timeline-date-time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .timeline-dot-col {
+    width: 16px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 5px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-root);
+    box-shadow: 0 0 0 2px var(--border);
+    flex-shrink: 0;
+  }
+
+  .timeline-dot.hearing {
+    background: var(--accent-emerald);
+    box-shadow: 0 0 0 2px var(--accent-emerald);
+  }
+
+  .timeline-dot.filing {
+    background: var(--accent-blue);
+    box-shadow: 0 0 0 2px var(--accent-blue);
+  }
+
+  .timeline-dot.correspondence {
+    background: var(--accent-gray);
+    box-shadow: 0 0 0 2px var(--accent-gray);
+  }
+
+  .timeline-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .timeline-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .timeline-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .timeline-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--sp-1);
+  }
+
+  .timeline-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: var(--sp-2);
+    line-height: 1.5;
+  }
+
+  .timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 12px;
+  }
+
+  .timeline-case-link {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-blue);
+    cursor: pointer;
+    padding: 1px 6px;
+    background: var(--accent-blue-light);
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .timeline-case-link:hover {
+    text-decoration: underline;
+  }
+
+  .timeline-user {
+    color: var(--text-tertiary);
+    font-size: 12px;
+  }
+
+  .timeline-type-tag {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .tag-hearing {
+    background: var(--accent-emerald-light);
+    color: var(--accent-emerald-dark);
+  }
+
+  .tag-filing {
+    background: var(--accent-blue-light);
+    color: var(--accent-blue);
+  }
+
+  .tag-correspondence {
+    background: var(--accent-gray-light);
+    color: var(--accent-gray);
+  }
+
+  /* Hidden entries during filtering */
+  .timeline-entry.hidden {
+    display: none;
+  }
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+  .text-mono {
+    font-family: var(--font-mono);
+  }
+
+  .dot-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .dot-emerald { background: var(--accent-emerald); }
+  .dot-blue { background: var(--accent-blue); }
+  .dot-amber { background: var(--accent-amber); }
+  .dot-red { background: var(--accent-red); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ============================================================
+       SIDEBAR — charcoal + emerald
+       ============================================================ -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9634;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128203;</span> Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#128101;</span> Contacts
+        <span class="badge">312</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Manage</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128202;</span> Reports
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">JK</div>
+      <span>Jake Klinvex</span>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       SPLIT CONTAINER
+       ============================================================ -->
+  <div class="split-container">
+
+    <!-- LEFT PANEL — 40% — Contact Info -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="panel-header-row">
+          <h1>SSA Office Nashville</h1>
+        </div>
+        <span class="type-badge">
+          <span class="dot-indicator dot-emerald"></span>
+          SSA Office
+        </span>
+      </div>
+
+      <!-- Office Info -->
+      <div class="panel-section">
+        <div class="section-title">Office Information</div>
+        <div class="info-row">
+          <span class="info-icon">&#128205;</span>
+          <span class="info-label">Address</span>
+          <span class="info-value">801 Broadway, Suite 400<br>Nashville, TN 37203</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">&#128222;</span>
+          <span class="info-label">Phone</span>
+          <span class="info-value">(615) 736-5113</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">&#128424;</span>
+          <span class="info-label">Fax</span>
+          <span class="info-value">(615) 736-7498</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">&#128336;</span>
+          <span class="info-label">Hours</span>
+          <span class="info-value">Mon &ndash; Fri, 8:00 AM &ndash; 4:30 PM</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">&#127758;</span>
+          <span class="info-label">Region</span>
+          <span class="info-value">Southeast</span>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Key Personnel -->
+      <div class="panel-section">
+        <div class="section-title">Key Personnel</div>
+        <div class="personnel-item">
+          <div class="personnel-avatar">RW</div>
+          <div class="personnel-info">
+            <div class="personnel-name">Robert Williams</div>
+            <div class="personnel-role">Office Director</div>
+          </div>
+        </div>
+        <div class="personnel-item">
+          <div class="personnel-avatar">SM</div>
+          <div class="personnel-info">
+            <div class="personnel-name">Hon. Sandra Martinez</div>
+            <div class="personnel-role">Chief ALJ</div>
+          </div>
+          <span class="personnel-stat">62% approval</span>
+        </div>
+        <div class="personnel-item">
+          <div class="personnel-avatar">LJ</div>
+          <div class="personnel-info">
+            <div class="personnel-name">Lisa Johnson</div>
+            <div class="personnel-role">Staff Contact</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Office Statistics -->
+      <div class="panel-section">
+        <div class="section-title">Office Statistics</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Active Cases</div>
+            <div class="stat-value">12</div>
+            <div class="stat-bar"><div class="stat-bar-fill emerald" style="width: 48%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg. Time to Hearing</div>
+            <div class="stat-value">186<span style="font-size: 12px; color: var(--text-tertiary); font-weight: 400; margin-left: 2px;">days</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill amber" style="width: 62%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Approval Rate</div>
+            <div class="stat-value">58%</div>
+            <div class="stat-bar"><div class="stat-bar-fill blue" style="width: 58%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Hearings</div>
+            <div class="stat-value">4</div>
+            <div class="stat-bar"><div class="stat-bar-fill red" style="width: 33%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Associated Cases -->
+      <div class="panel-section">
+        <div class="section-title">Associated Cases</div>
+        <ul class="case-list">
+          <li class="case-item">
+            <span class="case-number">HS-2026-1003</span>
+            <span class="case-claimant">James Williams</span>
+            <span class="case-stage stage-hearing">Hearing</span>
+            <span class="case-alj">ALJ Martinez</span>
+          </li>
+          <li class="case-item">
+            <span class="case-number">HS-2026-0987</span>
+            <span class="case-claimant">Maria Garcia</span>
+            <span class="case-stage stage-decided">Decided</span>
+            <span class="case-alj">ALJ Martinez</span>
+          </li>
+          <li class="case-item">
+            <span class="case-number">HS-2026-0954</span>
+            <span class="case-claimant">David Thompson</span>
+            <span class="case-stage stage-review">Review</span>
+            <span class="case-alj">ALJ Porter</span>
+          </li>
+          <li class="case-item">
+            <span class="case-number">HS-2026-0921</span>
+            <span class="case-claimant">Sarah Brown</span>
+            <span class="case-stage stage-pending">Pending</span>
+            <span class="case-alj">ALJ Martinez</span>
+          </li>
+          <li class="case-item">
+            <span class="case-number">HS-2026-0898</span>
+            <span class="case-claimant">Michael Davis</span>
+            <span class="case-stage stage-review">Review</span>
+            <span class="case-alj">ALJ Chen</span>
+          </li>
+          <li class="case-item">
+            <span class="case-number">HS-2025-1247</span>
+            <span class="case-claimant">Angela Robinson</span>
+            <span class="case-stage stage-decided">Decided</span>
+            <span class="case-alj">ALJ Porter</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL — 60% — Activity Timeline -->
+    <div class="right-panel">
+      <div class="timeline-header">
+        <h2>Activity Timeline</h2>
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="hearing">Hearings</button>
+          <button class="filter-chip" data-filter="filing">Filings</button>
+          <button class="filter-chip" data-filter="correspondence">Correspondence</button>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <!-- Entry 1 -->
+        <div class="timeline-entry" data-type="hearing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Mar 26, 2026</div>
+            <div class="timeline-date-time">2:15 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot hearing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Hearing scheduled for Williams case</div>
+              <div class="timeline-desc">Initial hearing set for April 14, 2026 at 10:00 AM. ALJ Martinez presiding. Claimant and representative confirmed attendance.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-hearing">Hearing</span>
+                <span class="timeline-case-link">HS-2026-1003</span>
+                <span class="timeline-user">Logged by Sarah Chen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 2 -->
+        <div class="timeline-entry" data-type="filing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Mar 22, 2026</div>
+            <div class="timeline-date-time">11:42 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot filing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Medical records submitted for Thompson case</div>
+              <div class="timeline-desc">Updated medical evidence from Dr. Patterson (orthopedics) and Dr. Liu (neurology) submitted. 47 pages total.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-filing">Filing</span>
+                <span class="timeline-case-link">HS-2026-0954</span>
+                <span class="timeline-user">Logged by Jake Klinvex</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 3 -->
+        <div class="timeline-entry" data-type="hearing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Mar 18, 2026</div>
+            <div class="timeline-date-time">4:30 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot hearing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Decision received: Favorable &mdash; Garcia case</div>
+              <div class="timeline-desc">Fully favorable decision issued by ALJ Martinez. Benefits approved effective September 2025. Written decision mailed to claimant.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-hearing">Hearing</span>
+                <span class="timeline-case-link">HS-2026-0987</span>
+                <span class="timeline-user">Logged by Sarah Chen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 4 -->
+        <div class="timeline-entry" data-type="correspondence">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Mar 12, 2026</div>
+            <div class="timeline-date-time">9:05 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot correspondence"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Acknowledgment letter sent for Davis reconsideration</div>
+              <div class="timeline-desc">SSA acknowledgment of reconsideration request received. Estimated processing time: 60&ndash;90 days.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-correspondence">Correspondence</span>
+                <span class="timeline-case-link">HS-2026-0898</span>
+                <span class="timeline-user">Logged by Lisa Johnson</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 5 -->
+        <div class="timeline-entry" data-type="filing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Mar 5, 2026</div>
+            <div class="timeline-date-time">1:20 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot filing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Reconsideration filed for Davis case</div>
+              <div class="timeline-desc">Request for reconsideration filed after initial denial. Additional medical evidence from treating physician included with submission.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-filing">Filing</span>
+                <span class="timeline-case-link">HS-2026-0898</span>
+                <span class="timeline-user">Logged by Jake Klinvex</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 6 -->
+        <div class="timeline-entry" data-type="hearing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Feb 27, 2026</div>
+            <div class="timeline-date-time">3:45 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot hearing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Hearing postponed &mdash; Brown case</div>
+              <div class="timeline-desc">Hearing originally set for March 3 postponed due to ALJ scheduling conflict. Rescheduled to March 24, 2026.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-hearing">Hearing</span>
+                <span class="timeline-case-link">HS-2026-0921</span>
+                <span class="timeline-user">Logged by Sarah Chen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 7 -->
+        <div class="timeline-entry" data-type="correspondence">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Feb 20, 2026</div>
+            <div class="timeline-date-time">10:30 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot correspondence"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Pre-hearing brief submitted for Williams case</div>
+              <div class="timeline-desc">Claimant representative submitted 12-page pre-hearing brief outlining medical evidence and vocational limitations.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-correspondence">Correspondence</span>
+                <span class="timeline-case-link">HS-2026-1003</span>
+                <span class="timeline-user">Logged by Jake Klinvex</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 8 -->
+        <div class="timeline-entry" data-type="filing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Feb 10, 2026</div>
+            <div class="timeline-date-time">8:55 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot filing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Disability report updated for Brown case</div>
+              <div class="timeline-desc">Function report (SSA-3373) and work history report (SSA-3369) filed. Claimant reports worsening condition since initial application.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-filing">Filing</span>
+                <span class="timeline-case-link">HS-2026-0921</span>
+                <span class="timeline-user">Logged by Sarah Chen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 9 -->
+        <div class="timeline-entry" data-type="hearing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Jan 28, 2026</div>
+            <div class="timeline-date-time">11:00 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot hearing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Hearing held for Garcia case</div>
+              <div class="timeline-desc">Video hearing conducted. Claimant testified for 35 minutes. Vocational expert Dr. Patel provided testimony. ALJ Martinez took case under advisement.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-hearing">Hearing</span>
+                <span class="timeline-case-link">HS-2026-0987</span>
+                <span class="timeline-user">Logged by Sarah Chen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 10 -->
+        <div class="timeline-entry" data-type="correspondence">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Jan 15, 2026</div>
+            <div class="timeline-date-time">2:00 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot correspondence"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Notice of hearing mailed for Garcia case</div>
+              <div class="timeline-desc">Official notice of hearing mailed to claimant and representative. Hearing date: January 28, 2026 at 11:00 AM via video teleconference.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-correspondence">Correspondence</span>
+                <span class="timeline-case-link">HS-2026-0987</span>
+                <span class="timeline-user">Logged by Lisa Johnson</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 11 -->
+        <div class="timeline-entry" data-type="filing">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Dec 18, 2025</div>
+            <div class="timeline-date-time">3:10 PM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot filing"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Appeal filed for Robinson case</div>
+              <div class="timeline-desc">Request for hearing filed after reconsideration denial. Case assigned to ALJ Porter. Estimated 5&ndash;7 month wait for hearing date.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-filing">Filing</span>
+                <span class="timeline-case-link">HS-2025-1247</span>
+                <span class="timeline-user">Logged by Jake Klinvex</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 12 -->
+        <div class="timeline-entry" data-type="correspondence">
+          <div class="timeline-date">
+            <div class="timeline-date-day">Oct 3, 2025</div>
+            <div class="timeline-date-time">9:30 AM</div>
+          </div>
+          <div class="timeline-dot-col">
+            <div class="timeline-dot correspondence"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-card">
+              <div class="timeline-title">Denial letter received for Robinson case</div>
+              <div class="timeline-desc">Initial denial received from DDS. Denial based on insufficient medical evidence of disability. 60-day appeal window begins.</div>
+              <div class="timeline-meta">
+                <span class="timeline-type-tag tag-correspondence">Correspondence</span>
+                <span class="timeline-case-link">HS-2025-1247</span>
+                <span class="timeline-user">Logged by Lisa Johnson</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Filter chip interactivity
+  const chips = document.querySelectorAll('.filter-chip');
+  const entries = document.querySelectorAll('.timeline-entry');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      // Update active chip
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      const filter = chip.getAttribute('data-filter');
+
+      entries.forEach(entry => {
+        if (filter === 'all' || entry.getAttribute('data-type') === filter) {
+          entry.classList.remove('hidden');
+        } else {
+          entry.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

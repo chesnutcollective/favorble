@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Contact: David Bernstein, Esq.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Vercel Light + Charcoal/Emerald Sidebar
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar — charcoal + emerald */
+    --sidebar-bg:     #1A1A1A;
+    --sidebar-hover:  #2A2A2A;
+    --sidebar-active: #242424;
+    --sidebar-text:   #A0A0A0;
+    --sidebar-text-active: #FFFFFF;
+    --sidebar-border: #2E2E2E;
+    --sidebar-accent: #10B981;
+    --sidebar-accent-glow: rgba(16,185,129,0.12);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Accent */
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #10B981;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    /* Transitions */
+    --transition:     150ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — Charcoal + Emerald
+     ============================================================ */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    border-right: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-4);
+    margin-bottom: var(--sp-5);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .sidebar-brand .logo {
+    width: 22px;
+    height: 22px;
+    background: var(--sidebar-accent);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 12px var(--sidebar-accent-glow);
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--sidebar-text-active);
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-5);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-4);
+    margin-bottom: var(--sp-1);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 5px var(--sp-4);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: all var(--transition);
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-active);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-active);
+    background: var(--sidebar-active);
+    border-left-color: var(--sidebar-accent);
+  }
+
+  .sidebar-link .icon {
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    opacity: 0.5;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-4);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 12px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--sidebar-text-active);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-5) var(--sp-6);
+  }
+
+  /* ============================================================
+     CONTACT HEADER
+     ============================================================ */
+  .contact-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+    padding-bottom: var(--sp-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .contact-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1A1A1A, #333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFF;
+    flex-shrink: 0;
+  }
+
+  .contact-info h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--sidebar-accent-glow);
+    color: #059669;
+    border-radius: 10px;
+    border: 1px solid rgba(16,185,129,0.2);
+    letter-spacing: 0.02em;
+  }
+
+  .contact-firm {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .contact-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .icon-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .icon-btn.accent:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: 5px 12px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .btn:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     STAT STRIP
+     ============================================================ */
+  .stat-strip {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: var(--sp-4);
+    overflow: hidden;
+  }
+
+  .stat-item {
+    flex: 1;
+    background: var(--bg-card);
+    padding: var(--sp-3) var(--sp-3);
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .stat-value.green { color: var(--accent-green); }
+
+  /* ============================================================
+     3-COLUMN GRID
+     ============================================================ */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  /* ============================================================
+     CARDS — Compact
+     ============================================================ */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .card-header {
+    padding: var(--sp-2) var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    background: var(--bg-card-alt);
+  }
+
+  .card-body {
+    padding: var(--sp-3);
+  }
+
+  /* Detail rows */
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .detail-row:last-child { border-bottom: none; }
+
+  .detail-label {
+    color: var(--text-tertiary);
+    font-size: 11px;
+  }
+
+  .detail-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .detail-value a {
+    color: var(--accent-blue);
+  }
+
+  .detail-value a:hover {
+    text-decoration: underline;
+  }
+
+  /* Case rows */
+  .case-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: var(--sp-2);
+    align-items: center;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .case-row:last-child { border-bottom: none; }
+
+  .case-number {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-blue);
+  }
+
+  .case-claimant {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .case-stage {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.active { background: var(--accent-green); }
+  .status-dot.pending { background: var(--accent-amber); }
+  .status-dot.review { background: var(--accent-blue); }
+
+  /* Activity items */
+  .activity-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-2);
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-time {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    min-width: 42px;
+  }
+
+  .activity-text {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Task items */
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+
+  .task-check {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1.5px solid var(--border-hover);
+    flex-shrink: 0;
+  }
+
+  .task-text {
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .task-due {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .task-due.overdue { color: var(--accent-red); }
+
+  /* Correspondence */
+  .corr-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .corr-item:last-child { border-bottom: none; }
+
+  .corr-arrow {
+    font-size: 13px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .corr-arrow.inbound { color: var(--accent-blue); }
+  .corr-arrow.outbound { color: var(--accent-green); }
+
+  .corr-subject {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .corr-date {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* Document items */
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .doc-item:last-child { border-bottom: none; }
+
+  .doc-type-badge {
+    display: inline-flex;
+    padding: 1px 5px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .doc-type-badge.pdf { background: #FEE2E2; color: #B91C1C; }
+  .doc-type-badge.docx { background: #DBEAFE; color: #1D4ED8; }
+  .doc-type-badge.xlsx { background: #D1FAE5; color: #065F46; }
+  .doc-type-badge.msg { background: #FEF3C7; color: #92400E; }
+
+  .doc-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .doc-date {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* Upcoming items */
+  .upcoming-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #F5F5F5;
+  }
+
+  .upcoming-item:last-child { border-bottom: none; }
+
+  .upcoming-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .upcoming-icon.hearing { background: #FEF3C7; color: #92400E; }
+  .upcoming-icon.meeting { background: #DBEAFE; color: #1D4ED8; }
+
+  .upcoming-text {
+    color: var(--text-primary);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .upcoming-date {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     MINI BAR CHART
+     ============================================================ */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sp-2);
+    height: 48px;
+    padding-top: var(--sp-2);
+  }
+
+  .mini-chart-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .mini-chart-fill {
+    width: 100%;
+    background: var(--accent-green);
+    border-radius: 2px 2px 0 0;
+    min-height: 4px;
+    opacity: 0.8;
+    transition: opacity var(--transition);
+  }
+
+  .mini-chart-bar:hover .mini-chart-fill { opacity: 1; }
+
+  .mini-chart-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  .mini-chart-val {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ============================================================
+     OUTCOME BAR — Full Width Bottom
+     ============================================================ */
+  .full-width-card {
+    margin-top: 0;
+  }
+
+  .outcome-bar-container {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .outcome-bar {
+    display: flex;
+    flex: 1;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  .outcome-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: #FFF;
+    transition: opacity var(--transition);
+  }
+
+  .outcome-segment:hover { opacity: 0.85; }
+
+  .outcome-segment.favorable { background: var(--accent-green); }
+  .outcome-segment.unfavorable { background: var(--accent-red); }
+  .outcome-segment.remand { background: var(--accent-amber); color: #000; }
+
+  .outcome-legend {
+    display: flex;
+    gap: var(--sp-4);
+    flex-shrink: 0;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-dot.favorable { background: var(--accent-green); }
+  .legend-dot.unfavorable { background: var(--accent-red); }
+  .legend-dot.remand { background: var(--accent-amber); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============================================================
+       SIDEBAR — Charcoal + Emerald
+       ============================================================ -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo"></div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </span>
+        Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+        </span>
+        Cases
+        <span class="badge">24</span>
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </span>
+        Contacts
+        <span class="badge">86</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Manage</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </span>
+        Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </span>
+        Messages
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        Reports
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </span>
+        Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">JK</div>
+      <span>Jake Klinvex</span>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="main">
+    <!-- CONTACT HEADER -->
+    <div class="contact-header">
+      <div class="contact-header-left">
+        <div class="contact-avatar">DB</div>
+        <div class="contact-info">
+          <h1>
+            David Bernstein, Esq.
+            <span class="type-badge">Attorney</span>
+          </h1>
+          <div class="contact-firm">Bernstein &amp; Associates</div>
+        </div>
+      </div>
+      <div class="contact-header-right">
+        <a href="tel:+15551234567" class="icon-btn accent" title="Phone">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </a>
+        <a href="mailto:dbernstein@bernsteinlaw.com" class="icon-btn accent" title="Email">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+        <button class="btn">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+        <button class="icon-btn" title="More">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-label">Referred Cases</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value">4</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value green">75%</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Avg Settlement</div>
+        <div class="stat-value">$42K</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Last Contact</div>
+        <div class="stat-value">3d</div>
+      </div>
+    </div>
+
+    <!-- 3-COLUMN GRID -->
+    <div class="grid-3">
+
+      <!-- COLUMN 1: Contact & Professional Info -->
+      <div class="grid-col">
+
+        <!-- Contact Details -->
+        <div class="card">
+          <div class="card-header">Contact Details</div>
+          <div class="card-body">
+            <div class="detail-row">
+              <span class="detail-label">Email</span>
+              <span class="detail-value"><a href="mailto:dbernstein@bernsteinlaw.com">dbernstein@bernsteinlaw.com</a></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Phone</span>
+              <span class="detail-value">(555) 123-4567</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Fax</span>
+              <span class="detail-value">(555) 123-4568</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Address</span>
+              <span class="detail-value">1200 Main St, Ste 400, Dallas TX</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional -->
+        <div class="card">
+          <div class="card-header">Professional</div>
+          <div class="card-body">
+            <div class="detail-row">
+              <span class="detail-label">Bar Number</span>
+              <span class="detail-value" style="font-family: var(--font-mono); font-size: 11px;">TX-24058391</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Firm</span>
+              <span class="detail-value">Bernstein & Associates</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Specialty</span>
+              <span class="detail-value">SSD</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Years Licensed</span>
+              <span class="detail-value">15</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral Source Stats -->
+        <div class="card">
+          <div class="card-header">Referral Source Stats</div>
+          <div class="card-body">
+            <div style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px;">Cases referred by year</div>
+            <div class="mini-chart">
+              <div class="mini-chart-bar">
+                <div class="mini-chart-val">3</div>
+                <div class="mini-chart-fill" style="height: 20px;"></div>
+                <div class="mini-chart-label">2024</div>
+              </div>
+              <div class="mini-chart-bar">
+                <div class="mini-chart-val">5</div>
+                <div class="mini-chart-fill" style="height: 34px;"></div>
+                <div class="mini-chart-label">2025</div>
+              </div>
+              <div class="mini-chart-bar">
+                <div class="mini-chart-val">4</div>
+                <div class="mini-chart-fill" style="height: 27px;"></div>
+                <div class="mini-chart-label">2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN 2: Cases & Activity -->
+      <div class="grid-col">
+
+        <!-- Active Cases -->
+        <div class="card">
+          <div class="card-header">Active Cases</div>
+          <div class="card-body">
+            <div class="case-row">
+              <span class="case-number">26-0142</span>
+              <span class="case-claimant">Martinez, R.</span>
+              <span class="case-stage">Hearing</span>
+              <span class="status-dot active"></span>
+            </div>
+            <div class="case-row">
+              <span class="case-number">26-0098</span>
+              <span class="case-claimant">Thompson, L.</span>
+              <span class="case-stage">Development</span>
+              <span class="status-dot active"></span>
+            </div>
+            <div class="case-row">
+              <span class="case-number">25-0871</span>
+              <span class="case-claimant">Nguyen, P.</span>
+              <span class="case-stage">Appeals</span>
+              <span class="status-dot pending"></span>
+            </div>
+            <div class="case-row">
+              <span class="case-number">25-0764</span>
+              <span class="case-claimant">Davis, C.</span>
+              <span class="case-stage">Review</span>
+              <span class="status-dot review"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">Recent Activity</div>
+          <div class="card-body">
+            <div class="activity-item">
+              <span class="activity-time">3d ago</span>
+              <span class="activity-text">Called re: Martinez hearing prep</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">5d ago</span>
+              <span class="activity-text">Sent Thompson medical records request</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">1w ago</span>
+              <span class="activity-text">Received Nguyen appeal brief</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">1w ago</span>
+              <span class="activity-text">Referred new claimant (Davis, C.)</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">2w ago</span>
+              <span class="activity-text">Meeting: quarterly case review</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Tasks -->
+        <div class="card">
+          <div class="card-header">Pending Tasks</div>
+          <div class="card-body">
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Send Martinez hearing exhibit list</span>
+              <span class="task-due overdue">Mar 27</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Review Thompson RFC form</span>
+              <span class="task-due">Mar 31</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-text">Follow up on Nguyen AC status</span>
+              <span class="task-due">Apr 4</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN 3: Communication & Docs -->
+      <div class="grid-col">
+
+        <!-- Recent Correspondence -->
+        <div class="card">
+          <div class="card-header">Recent Correspondence</div>
+          <div class="card-body">
+            <div class="corr-item">
+              <span class="corr-arrow inbound">&larr;</span>
+              <span class="corr-subject">Re: Martinez hearing schedule</span>
+              <span class="corr-date">Mar 25</span>
+            </div>
+            <div class="corr-item">
+              <span class="corr-arrow outbound">&rarr;</span>
+              <span class="corr-subject">Thompson records request</span>
+              <span class="corr-date">Mar 23</span>
+            </div>
+            <div class="corr-item">
+              <span class="corr-arrow inbound">&larr;</span>
+              <span class="corr-subject">Nguyen appeal brief attached</span>
+              <span class="corr-date">Mar 21</span>
+            </div>
+            <div class="corr-item">
+              <span class="corr-arrow outbound">&rarr;</span>
+              <span class="corr-subject">Davis case intake confirmation</span>
+              <span class="corr-date">Mar 19</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shared Documents -->
+        <div class="card">
+          <div class="card-header">Shared Documents</div>
+          <div class="card-body">
+            <div class="doc-item">
+              <span class="doc-type-badge pdf">PDF</span>
+              <span class="doc-name">Martinez_Exhibit_List_v2.pdf</span>
+              <span class="doc-date">Mar 25</span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-type-badge docx">DOCX</span>
+              <span class="doc-name">Thompson_RFC_Draft.docx</span>
+              <span class="doc-date">Mar 22</span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-type-badge pdf">PDF</span>
+              <span class="doc-name">Nguyen_Appeal_Brief.pdf</span>
+              <span class="doc-date">Mar 21</span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-type-badge xlsx">XLSX</span>
+              <span class="doc-name">Referral_Tracking_Q1_2026.xlsx</span>
+              <span class="doc-date">Mar 15</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="card">
+          <div class="card-header">Upcoming</div>
+          <div class="card-body">
+            <div class="upcoming-item">
+              <div class="upcoming-icon hearing">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <span class="upcoming-text">Martinez Hearing — ALJ Wilson</span>
+              <span class="upcoming-date">Apr 8</span>
+            </div>
+            <div class="upcoming-item">
+              <div class="upcoming-icon meeting">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <span class="upcoming-text">Quarterly Review Meeting</span>
+              <span class="upcoming-date">Apr 15</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ROW: Case Outcome History -->
+    <div class="card full-width-card">
+      <div class="card-header">Case Outcome History</div>
+      <div class="card-body">
+        <div class="outcome-bar-container">
+          <div class="outcome-bar">
+            <div class="outcome-segment favorable" style="flex: 9;">9</div>
+            <div class="outcome-segment unfavorable" style="flex: 2;">2</div>
+            <div class="outcome-segment remand" style="flex: 1;">1</div>
+          </div>
+          <div class="outcome-legend">
+            <div class="legend-item">
+              <div class="legend-dot favorable"></div>
+              <span>Favorable (9)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot unfavorable"></div>
+              <span>Unfavorable (2)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot remand"></div>
+              <span>Remand (1)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

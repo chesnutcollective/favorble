@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — David Bernstein, Esq.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Vercel Light + Charcoal/Emerald Sidebar
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar (charcoal + emerald) */
+    --sidebar-bg:     #1A1D23;
+    --sidebar-hover:  #25282F;
+    --sidebar-active: #2A2E36;
+    --sidebar-text:   #A1A1AA;
+    --sidebar-text-h: #FAFAFA;
+    --sidebar-border: rgba(255,255,255,0.08);
+
+    /* Emerald */
+    --emerald:        #10B981;
+    --emerald-light:  #34D399;
+    --emerald-dark:   #059669;
+    --emerald-bg:     rgba(16,185,129,0.10);
+    --emerald-bg-s:   rgba(16,185,129,0.15);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Semantic */
+    --blue:           #0070F3;
+    --blue-bg:        rgba(0,112,243,0.08);
+    --amber:          #F5A623;
+    --amber-bg:       rgba(245,166,35,0.10);
+    --red:            #EE0000;
+    --red-bg:         rgba(238,0,0,0.08);
+    --green:          #00C853;
+    --green-bg:       rgba(0,200,83,0.10);
+    --gray-bg:        #F0F0F0;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — Charcoal + Emerald
+     ============================================================ */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #022C22;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--sidebar-text-h);
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+    padding: 0 var(--sp-3);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-2);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 7px var(--sp-2);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-h);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  /* ============================================================
+     HERO HEADER — Sticky with gradient bg
+     ============================================================ */
+  .hero {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, #FAFAFA 0%, #F0FDF4 100%);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow var(--transition);
+  }
+
+  .hero.scrolled {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+
+  .hero-avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    border-radius: 50%;
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .hero-detail {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .hero-contact-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    flex-wrap: wrap;
+  }
+
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .contact-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .contact-pill .pill-icon {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+    padding-top: 6px;
+  }
+
+  .btn-emerald {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--emerald);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-emerald:hover {
+    background: var(--emerald-dark);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     CONTENT
+     ============================================================ */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8);
+    padding-bottom: 120px;
+  }
+
+  /* BIO */
+  .bio-section {
+    margin-bottom: var(--sp-8);
+    padding: var(--sp-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .bio-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .bio-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: var(--sp-10);
+    scroll-margin-top: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-6);
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    line-height: 1.2;
+  }
+
+  .stat-value.emerald { color: var(--emerald-dark); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  /* MINI BAR CHART */
+  .bar-chart {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+  }
+
+  .bar-chart-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--sp-4);
+  }
+
+  .bar-chart-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .bar-label {
+    width: 40px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    text-align: right;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--bg-card-alt);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald), var(--emerald-light));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    transition: width 600ms ease;
+  }
+
+  .bar-fill-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .bar-count {
+    width: 28px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+  }
+
+  /* CARD GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .case-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .case-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+  }
+
+  .case-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--sp-2);
+  }
+
+  .case-claimant {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .case-number {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .case-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: var(--sp-1);
+  }
+
+  .case-relationship {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: var(--sp-2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .case-relationship .rel-icon {
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .status-hearing {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .status-review {
+    background: var(--amber-bg);
+    color: #B97A04;
+  }
+
+  .status-initial {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .status-recon {
+    background: rgba(168,85,247,0.10);
+    color: #7C3AED;
+  }
+
+  /* OUTCOME BAR */
+  .outcome-bar-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+    margin-bottom: var(--sp-4);
+  }
+
+  .outcome-bar-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--sp-3);
+  }
+
+  .outcome-bar {
+    display: flex;
+    height: 32px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  .outcome-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+    transition: opacity var(--transition);
+  }
+
+  .outcome-segment:hover {
+    opacity: 0.85;
+  }
+
+  .outcome-favorable { background: var(--emerald); }
+  .outcome-unfavorable { background: var(--red); }
+  .outcome-remand { background: var(--amber); }
+
+  .outcome-legend {
+    display: flex;
+    gap: var(--sp-5);
+    margin-top: var(--sp-3);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .legend-dot.favorable { background: var(--emerald); }
+  .legend-dot.unfavorable { background: var(--red); }
+  .legend-dot.remand { background: var(--amber); }
+
+  /* RESOLVED CASE LIST */
+  .resolved-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .resolved-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+  }
+
+  .resolved-item:hover {
+    border-color: var(--border-hover);
+  }
+
+  .resolved-claimant {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .resolved-case-num {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+  }
+
+  .outcome-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .outcome-won {
+    background: var(--green-bg);
+    color: var(--emerald-dark);
+  }
+
+  .outcome-lost {
+    background: var(--red-bg);
+    color: var(--red);
+  }
+
+  .outcome-remand-badge {
+    background: var(--amber-bg);
+    color: #B97A04;
+  }
+
+  .resolved-amount {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    min-width: 70px;
+    text-align: right;
+  }
+
+  /* DETAIL CARDS (Professional Details) */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .detail-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+  }
+
+  .detail-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--sp-4);
+    padding-bottom: var(--sp-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--sp-2) 0;
+    font-size: 13px;
+  }
+
+  .detail-row + .detail-row {
+    border-top: 1px solid var(--bg-card-alt);
+  }
+
+  .detail-label {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    margin-right: var(--sp-3);
+  }
+
+  .detail-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .detail-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .detail-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .status-pill-active {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    border-color: rgba(16,185,129,0.2);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  /* COMMUNICATION HISTORY */
+  .comm-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .comm-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+  }
+
+  .comm-item:hover {
+    border-color: var(--border-hover);
+  }
+
+  .comm-direction {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .comm-outbound {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .comm-inbound {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .comm-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .comm-subject {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .comm-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+
+  .comm-type {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .comm-type-email {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .comm-type-phone {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  .comm-case-link {
+    font-size: 11px;
+    color: var(--emerald);
+    white-space: nowrap;
+  }
+
+  .comm-case-link:hover {
+    text-decoration: underline;
+  }
+
+  /* NOTES */
+  .note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .note-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .note-author {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .note-timestamp {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .note-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    padding-left: calc(28px + var(--sp-3));
+  }
+
+  .note-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-3) var(--sp-4);
+    margin-top: var(--sp-2);
+    transition: border-color var(--transition);
+  }
+
+  .note-input-wrapper:focus-within {
+    border-color: var(--emerald);
+  }
+
+  .note-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .note-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .btn-save {
+    padding: 5px 14px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-save:hover {
+    background: var(--emerald-bg-s);
+    border-color: rgba(16,185,129,0.35);
+  }
+
+  /* ============================================================
+     SECTION DIVIDER
+     ============================================================ */
+  .section + .section {
+    border-top: 1px solid var(--border);
+    padding-top: var(--sp-8);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ========================================================
+       SIDEBAR — Charcoal + Emerald
+       ======================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">F</div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9711;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9634;</span> Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Directory</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128101;</span> Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#129657;</span> Providers
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#9878;</span> Attorneys
+        <span class="badge">8</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#127971;</span> Organizations
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SJ</div>
+      <span>Sarah Johnson</span>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       MAIN CONTENT
+       ======================================================== -->
+  <main class="main" id="main">
+    <!-- HERO HEADER -->
+    <div class="hero" id="hero">
+      <div class="hero-inner">
+        <div class="hero-avatar">DB</div>
+        <div class="hero-info">
+          <h1 class="hero-name">David Bernstein, Esq.</h1>
+          <div class="hero-subtitle">Attorney &mdash; Bernstein &amp; Associates</div>
+          <div class="hero-detail">Nashville, TN &mdash; Licensed since 2008</div>
+          <div class="hero-contact-row">
+            <a class="contact-pill" href="mailto:david.bernstein@lawfirm.com">
+              <span class="pill-icon">&#9993;</span> david.bernstein@lawfirm.com
+            </a>
+            <a class="contact-pill" href="tel:+12055899412">
+              <span class="pill-icon">&#9742;</span> (205) 589-9412
+            </a>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-emerald">&#9993; Send Email</button>
+          <button class="btn-outline">&#9998; Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content">
+      <!-- BIO -->
+      <div class="bio-section">
+        <p class="bio-text">
+          <strong>David Bernstein</strong> is a referring attorney who has sent <strong>12 cases</strong> to the firm since 2024. He practices personal injury and workers' compensation law, and refers disability cases that arise during his PI cases. His referrals have resulted in <strong>9 favorable outcomes</strong> and an average past-due benefit of <strong>$42,000</strong>.
+        </p>
+      </div>
+
+      <!-- SECTION 1: Referral Performance -->
+      <div class="section" id="performance">
+        <div class="section-header">
+          <div class="section-title">
+            Referral Performance
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Cases Referred</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value emerald">75%</div>
+            <div class="stat-label">Win Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$42K</div>
+            <div class="stat-label">Avg Settlement</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Active Cases</div>
+          </div>
+        </div>
+
+        <!-- Referral Trend Bar Chart -->
+        <div class="bar-chart">
+          <div class="bar-chart-title">Referral Trend</div>
+          <div class="bar-chart-rows">
+            <div class="bar-row">
+              <div class="bar-label">2024</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 60%;"><span class="bar-fill-text">3</span></div>
+              </div>
+              <div class="bar-count">3</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">2025</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 100%;"><span class="bar-fill-text">5</span></div>
+              </div>
+              <div class="bar-count">5</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">2026</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: 80%;"><span class="bar-fill-text">4</span></div>
+              </div>
+              <div class="bar-count">4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Active Cases -->
+      <div class="section" id="active-cases">
+        <div class="section-header">
+          <div class="section-title">
+            Active Cases <span class="section-count">4</span>
+          </div>
+        </div>
+        <div class="card-grid">
+          <!-- Case 1 -->
+          <div class="case-card">
+            <div class="case-card-header">
+              <div>
+                <div class="case-claimant">Margaret Sullivan</div>
+                <div class="case-number">Case #25-0312</div>
+              </div>
+              <span class="status-badge status-hearing">Hearing</span>
+            </div>
+            <div class="case-meta">Last activity: Mar 18, 2026</div>
+            <div class="case-relationship"><span class="rel-icon">&#9878;</span> Referring Attorney</div>
+          </div>
+          <!-- Case 2 -->
+          <div class="case-card">
+            <div class="case-card-header">
+              <div>
+                <div class="case-claimant">Raymond Torres</div>
+                <div class="case-number">Case #26-0045</div>
+              </div>
+              <span class="status-badge status-initial">Initial</span>
+            </div>
+            <div class="case-meta">Last activity: Mar 22, 2026</div>
+            <div class="case-relationship"><span class="rel-icon">&#9878;</span> Referring Attorney</div>
+          </div>
+          <!-- Case 3 -->
+          <div class="case-card">
+            <div class="case-card-header">
+              <div>
+                <div class="case-claimant">Denise Watkins</div>
+                <div class="case-number">Case #26-0078</div>
+              </div>
+              <span class="status-badge status-recon">Reconsideration</span>
+            </div>
+            <div class="case-meta">Last activity: Mar 10, 2026</div>
+            <div class="case-relationship"><span class="rel-icon">&#9878;</span> Referring Attorney</div>
+          </div>
+          <!-- Case 4 -->
+          <div class="case-card">
+            <div class="case-card-header">
+              <div>
+                <div class="case-claimant">Carlos Mendez</div>
+                <div class="case-number">Case #26-0102</div>
+              </div>
+              <span class="status-badge status-review">Under Review</span>
+            </div>
+            <div class="case-meta">Last activity: Mar 25, 2026</div>
+            <div class="case-relationship"><span class="rel-icon">&#9878;</span> Referring Attorney</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Case Outcomes -->
+      <div class="section" id="outcomes">
+        <div class="section-header">
+          <div class="section-title">
+            Case Outcomes <span class="section-count">12</span>
+          </div>
+        </div>
+
+        <!-- Outcome Bar -->
+        <div class="outcome-bar-container">
+          <div class="outcome-bar-label">Outcome Distribution</div>
+          <div class="outcome-bar">
+            <div class="outcome-segment outcome-favorable" style="flex: 9;" title="9 Favorable">9 Favorable</div>
+            <div class="outcome-segment outcome-unfavorable" style="flex: 2;" title="2 Unfavorable">2</div>
+            <div class="outcome-segment outcome-remand" style="flex: 1;" title="1 Remand">1</div>
+          </div>
+          <div class="outcome-legend">
+            <div class="legend-item"><span class="legend-dot favorable"></span> Favorable (9)</div>
+            <div class="legend-item"><span class="legend-dot unfavorable"></span> Unfavorable (2)</div>
+            <div class="legend-item"><span class="legend-dot remand"></span> Remand (1)</div>
+          </div>
+        </div>
+
+        <!-- Resolved Cases List -->
+        <div class="resolved-list">
+          <div class="resolved-item">
+            <div class="resolved-claimant">Linda Hargrove</div>
+            <div class="resolved-case-num">#24-0089</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$48,200</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Thomas Reed</div>
+            <div class="resolved-case-num">#24-0114</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$36,800</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Sandra Hutchins</div>
+            <div class="resolved-case-num">#24-0156</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$51,400</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Gregory Nolan</div>
+            <div class="resolved-case-num">#24-0201</div>
+            <span class="outcome-badge outcome-lost">Unfavorable</span>
+            <div class="resolved-amount">&mdash;</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Patricia Daniels</div>
+            <div class="resolved-case-num">#25-0023</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$39,600</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">James Whitfield</div>
+            <div class="resolved-case-num">#25-0087</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$44,100</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Angela Price</div>
+            <div class="resolved-case-num">#25-0134</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$38,500</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Robert Vance</div>
+            <div class="resolved-case-num">#25-0178</div>
+            <span class="outcome-badge outcome-remand-badge">Remand</span>
+            <div class="resolved-amount">&mdash;</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Donna Kessler</div>
+            <div class="resolved-case-num">#25-0212</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$42,300</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Wayne Mitchell</div>
+            <div class="resolved-case-num">#25-0254</div>
+            <span class="outcome-badge outcome-lost">Unfavorable</span>
+            <div class="resolved-amount">&mdash;</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Barbara Jennings</div>
+            <div class="resolved-case-num">#25-0289</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$45,700</div>
+          </div>
+          <div class="resolved-item">
+            <div class="resolved-claimant">Keith Foreman</div>
+            <div class="resolved-case-num">#25-0301</div>
+            <span class="outcome-badge outcome-won">Favorable</span>
+            <div class="resolved-amount">$31,400</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Professional Details -->
+      <div class="section" id="details">
+        <div class="section-header">
+          <div class="section-title">
+            Professional Details
+          </div>
+        </div>
+        <div class="detail-grid">
+          <!-- Card 1: Attorney Info -->
+          <div class="detail-card">
+            <div class="detail-card-title">Attorney Information</div>
+            <div class="detail-row">
+              <div class="detail-label">Bar Number</div>
+              <div class="detail-value">TN-028451</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Firm</div>
+              <div class="detail-value">Bernstein &amp; Associates</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Practice Areas</div>
+              <div class="detail-value">
+                <div class="detail-pills">
+                  <span class="detail-pill">Personal Injury</span>
+                  <span class="detail-pill">Workers' Comp</span>
+                  <span class="detail-pill">Disability Referrals</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Office Address</div>
+              <div class="detail-value">412 Commerce St, Ste 300<br>Nashville, TN 37219</div>
+            </div>
+          </div>
+          <!-- Card 2: Relationship Details -->
+          <div class="detail-card">
+            <div class="detail-card-title">Referral Relationship</div>
+            <div class="detail-row">
+              <div class="detail-label">Fee Arrangement</div>
+              <div class="detail-value">25% co-counsel split</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Referral Agreement</div>
+              <div class="detail-value"><span class="status-pill-active">Active</span></div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Preferred Contact</div>
+              <div class="detail-value">Email</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">First Referral</div>
+              <div class="detail-value">Feb 2024</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Communication History -->
+      <div class="section" id="communications">
+        <div class="section-header">
+          <div class="section-title">
+            Communication History <span class="section-count">5</span>
+          </div>
+        </div>
+        <div class="comm-list">
+          <!-- Comm 1 -->
+          <div class="comm-item">
+            <div class="comm-direction comm-outbound">&rarr;</div>
+            <div class="comm-info">
+              <div class="comm-subject">Sullivan hearing date confirmed — Apr 14</div>
+              <div class="comm-meta">Mar 25, 2026</div>
+            </div>
+            <span class="comm-type comm-type-email">Email</span>
+            <a class="comm-case-link" href="#">#25-0312 &rarr;</a>
+          </div>
+          <!-- Comm 2 -->
+          <div class="comm-item">
+            <div class="comm-direction comm-inbound">&larr;</div>
+            <div class="comm-info">
+              <div class="comm-subject">New referral: Carlos Mendez (workers' comp injury)</div>
+              <div class="comm-meta">Mar 19, 2026</div>
+            </div>
+            <span class="comm-type comm-type-email">Email</span>
+            <a class="comm-case-link" href="#">#26-0102 &rarr;</a>
+          </div>
+          <!-- Comm 3 -->
+          <div class="comm-item">
+            <div class="comm-direction comm-outbound">&rarr;</div>
+            <div class="comm-info">
+              <div class="comm-subject">Call re: Watkins reconsideration strategy</div>
+              <div class="comm-meta">Mar 12, 2026 &middot; 18 min</div>
+            </div>
+            <span class="comm-type comm-type-phone">Phone</span>
+            <a class="comm-case-link" href="#">#26-0078 &rarr;</a>
+          </div>
+          <!-- Comm 4 -->
+          <div class="comm-item">
+            <div class="comm-direction comm-inbound">&larr;</div>
+            <div class="comm-info">
+              <div class="comm-subject">Torres medical records forwarded</div>
+              <div class="comm-meta">Mar 5, 2026</div>
+            </div>
+            <span class="comm-type comm-type-email">Email</span>
+            <a class="comm-case-link" href="#">#26-0045 &rarr;</a>
+          </div>
+          <!-- Comm 5 -->
+          <div class="comm-item">
+            <div class="comm-direction comm-outbound">&rarr;</div>
+            <div class="comm-info">
+              <div class="comm-subject">Call re: February referral pipeline check-in</div>
+              <div class="comm-meta">Feb 21, 2026 &middot; 12 min</div>
+            </div>
+            <span class="comm-type comm-type-phone">Phone</span>
+            <a class="comm-case-link" href="#" style="visibility:hidden;">&nbsp;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: Contact Notes -->
+      <div class="section" id="notes">
+        <div class="section-header">
+          <div class="section-title">
+            Contact Notes <span class="section-count">3</span>
+          </div>
+        </div>
+
+        <!-- Note 1 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#0070F3;">SJ</div>
+            <div class="note-author">Sarah Johnson</div>
+            <div class="note-timestamp">Mar 25, 2026 at 3:40 PM</div>
+          </div>
+          <div class="note-body">
+            Spoke with David about the Sullivan hearing prep. He will send over the PI settlement docs we need to show prior earnings. He mentioned he has two more potential referrals coming in April.
+          </div>
+        </div>
+
+        <!-- Note 2 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#8B5CF6;">ML</div>
+            <div class="note-author">Mike Lawson</div>
+            <div class="note-timestamp">Mar 12, 2026 at 11:15 AM</div>
+          </div>
+          <div class="note-body">
+            Discussed Watkins reconsideration with David. He agrees we should supplement with additional treating source evidence before resubmitting. He will follow up with his client to gather updated medical records from the orthopedist.
+          </div>
+        </div>
+
+        <!-- Note 3 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#F59E0B;">KR</div>
+            <div class="note-author">Karen Rodriguez</div>
+            <div class="note-timestamp">Feb 14, 2026 at 1:20 PM</div>
+          </div>
+          <div class="note-body">
+            Renewed the referral agreement with Bernstein &amp; Associates for 2026. Same 25% co-counsel split. David confirmed he is happy with case outcomes and turnaround time. Wants to explore referring more workers' comp overflow cases.
+          </div>
+        </div>
+
+        <!-- Add note input -->
+        <div class="note-input-wrapper">
+          <input class="note-input" type="text" placeholder="Add a note...">
+          <button class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Scroll behaviors
+     ============================================================ -->
+<script>
+(function() {
+  var main = document.getElementById('main');
+  var hero = document.getElementById('hero');
+
+  // Add subtle shadow to hero on scroll
+  main.addEventListener('scroll', function() {
+    if (main.scrollTop > 20) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  });
+
+  // Case card click handler
+  document.querySelectorAll('.case-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Resolved item click handler
+  document.querySelectorAll('.resolved-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      item.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        item.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Communication item click handler
+  document.querySelectorAll('.comm-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      item.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        item.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Note save button
+  var saveBtn = document.querySelector('.btn-save');
+  var noteInput = document.querySelector('.note-input');
+  if (saveBtn && noteInput) {
+    saveBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        saveBtn.textContent = 'Saved';
+        saveBtn.style.background = 'var(--emerald)';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.borderColor = 'var(--emerald)';
+        setTimeout(function() {
+          saveBtn.textContent = 'Save';
+          saveBtn.style.background = '';
+          saveBtn.style.color = '';
+          saveBtn.style.borderColor = '';
+          noteInput.value = '';
+        }, 1200);
+      }
+    });
+
+    noteInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        saveBtn.click();
+      }
+    });
+  }
+
+  // Animate bar chart fills on load
+  var fills = document.querySelectorAll('.bar-fill');
+  fills.forEach(function(fill) {
+    var targetWidth = fill.style.width;
+    fill.style.width = '0%';
+    setTimeout(function() {
+      fill.style.width = targetWidth;
+    }, 200);
+  });
+})();
+</script>
+</body>
+</html>

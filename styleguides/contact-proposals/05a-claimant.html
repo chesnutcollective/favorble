@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Jessica Anderson (Claimant)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Vercel Light + Charcoal/Emerald Sidebar
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar (charcoal + emerald) */
+    --sidebar-bg:     #1A1D23;
+    --sidebar-hover:  #25282F;
+    --sidebar-active: #2A2E36;
+    --sidebar-text:   #A1A1AA;
+    --sidebar-text-h: #FAFAFA;
+    --sidebar-border: rgba(255,255,255,0.08);
+
+    /* Emerald */
+    --emerald:        #10B981;
+    --emerald-light:  #34D399;
+    --emerald-dark:   #059669;
+    --emerald-bg:     rgba(16,185,129,0.10);
+    --emerald-bg-s:   rgba(16,185,129,0.15);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Semantic */
+    --blue:           #0070F3;
+    --blue-bg:        rgba(0,112,243,0.08);
+    --amber:          #F5A623;
+    --amber-bg:       rgba(245,166,35,0.10);
+    --red:            #EE0000;
+    --red-bg:         rgba(238,0,0,0.08);
+    --green:          #00C853;
+    --green-bg:       rgba(0,200,83,0.10);
+    --gray-bg:        #F0F0F0;
+    --purple:         #8B5CF6;
+    --purple-bg:      rgba(168,85,247,0.10);
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — Charcoal + Emerald
+     ============================================================ */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #022C22;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--sidebar-text-h);
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+    padding: 0 var(--sp-3);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-2);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 7px var(--sp-2);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-h);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  /* ============================================================
+     HERO HEADER — Sticky with gradient bg
+     ============================================================ */
+  .hero {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, #FAFAFA 0%, #F0FDF4 100%);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow var(--transition);
+  }
+
+  .hero.scrolled {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+
+  .hero-avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    border-radius: 50%;
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .hero-contact-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    flex-wrap: wrap;
+  }
+
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .contact-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .contact-pill .pill-icon {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+    padding-top: 6px;
+  }
+
+  .btn-emerald {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--emerald);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-emerald:hover {
+    background: var(--emerald-dark);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     CONTENT
+     ============================================================ */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8);
+    padding-bottom: 120px;
+  }
+
+  /* BIO */
+  .bio-section {
+    margin-bottom: var(--sp-8);
+    padding: var(--sp-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .bio-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .bio-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: var(--sp-10);
+    scroll-margin-top: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* KEY FACTS GRID */
+  .key-facts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .key-fact {
+    padding: var(--sp-4) var(--sp-5);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .key-fact:nth-child(odd) {
+    border-right: 1px solid var(--border);
+  }
+
+  .key-fact:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .key-fact-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .key-fact-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .key-fact-value .age-note {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .status-active {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .status-pending {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  /* DIAGNOSIS PILLS */
+  .diagnosis-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  .diagnosis-pill {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .diagnosis-pill .icd-code {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    background: var(--bg-hover);
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* MEDICATION TABLE */
+  .med-table {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border-collapse: collapse;
+  }
+
+  .med-table thead {
+    background: var(--bg-card-alt);
+  }
+
+  .med-table th {
+    padding: var(--sp-3) var(--sp-4);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .med-table td {
+    padding: var(--sp-3) var(--sp-4);
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .med-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .med-table td.med-name {
+    font-weight: 500;
+  }
+
+  .med-table td.med-dosage {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .med-table td.med-prescriber {
+    color: var(--text-secondary);
+  }
+
+  /* PROVIDER CARDS */
+  .provider-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .provider-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .provider-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+  }
+
+  .provider-card-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: var(--sp-3);
+  }
+
+  .provider-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .provider-card-specialty {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+
+  .provider-card-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* RFC CARDS */
+  .rfc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+    margin-bottom: var(--sp-3);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+  }
+
+  .rfc-type-indicator {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .rfc-type-physical {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .rfc-type-mental {
+    background: var(--purple-bg);
+    color: var(--purple);
+  }
+
+  .rfc-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rfc-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .rfc-summary {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .rfc-source {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: var(--sp-6);
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+
+  .timeline-entry {
+    position: relative;
+    padding: var(--sp-2) 0;
+    padding-left: var(--sp-3);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -21px;
+    top: 12px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-root);
+  }
+
+  .timeline-dot.filed { background: var(--blue); }
+  .timeline-dot.denied { background: var(--red); }
+  .timeline-dot.onset { background: var(--amber); }
+  .timeline-dot.hearing { background: var(--emerald); }
+  .timeline-dot.upcoming {
+    background: var(--emerald);
+    box-shadow: 0 0 0 4px var(--emerald-bg);
+  }
+
+  .timeline-date {
+    min-width: 90px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    padding-top: 2px;
+  }
+
+  .timeline-content {
+    flex: 1;
+  }
+
+  .timeline-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .timeline-label .timeline-type {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+
+  .type-upcoming {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .timeline-summary {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .timeline-entry.highlight {
+    background: var(--emerald-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-3);
+    margin-left: -4px;
+  }
+
+  /* DOCUMENTS GRID */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .doc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .doc-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .doc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: var(--sp-3);
+  }
+
+  .doc-icon-medical { background: var(--blue-bg); color: var(--blue); }
+  .doc-icon-ssa { background: var(--amber-bg); color: var(--amber); }
+  .doc-icon-rfc { background: var(--green-bg); color: var(--emerald-dark); }
+  .doc-icon-denial { background: var(--red-bg); color: var(--red); }
+  .doc-icon-brief { background: var(--purple-bg); color: var(--purple); }
+
+  .doc-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .doc-case-link {
+    font-size: 11px;
+    color: var(--emerald);
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .doc-case-link:hover {
+    text-decoration: underline;
+  }
+
+  /* NOTES */
+  .note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .note-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .note-author {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .note-timestamp {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .note-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    padding-left: calc(28px + var(--sp-3));
+  }
+
+  .note-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-3) var(--sp-4);
+    margin-top: var(--sp-2);
+    transition: border-color var(--transition);
+  }
+
+  .note-input-wrapper:focus-within {
+    border-color: var(--emerald);
+  }
+
+  .note-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .note-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .btn-save {
+    padding: 5px 14px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-save:hover {
+    background: var(--emerald-bg-s);
+    border-color: rgba(16,185,129,0.35);
+  }
+
+  /* SUBSECTION LABEL */
+  .subsection-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: var(--sp-6) 0 var(--sp-3);
+  }
+
+  .subsection-label:first-of-type {
+    margin-top: 0;
+  }
+
+  /* ============================================================
+     SECTION DIVIDER
+     ============================================================ */
+  .section + .section {
+    border-top: 1px solid var(--border);
+    padding-top: var(--sp-8);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ========================================================
+       SIDEBAR — Charcoal + Emerald
+       ======================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">F</div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9711;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9634;</span> Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Directory</div>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#128101;</span> Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#129657;</span> Providers
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#127971;</span> Organizations
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9878;</span> SSA Offices
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SJ</div>
+      <span>Sarah Johnson</span>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       MAIN CONTENT
+       ======================================================== -->
+  <main class="main" id="main">
+    <!-- HERO HEADER -->
+    <div class="hero" id="hero">
+      <div class="hero-inner">
+        <div class="hero-avatar">JA</div>
+        <div class="hero-info">
+          <h1 class="hero-name">Jessica Anderson</h1>
+          <div class="hero-subtitle">Claimant &mdash; Social Security Disability</div>
+          <div class="hero-contact-row">
+            <a class="contact-pill" href="mailto:jessica.anderson45@yahoo.com">
+              <span class="pill-icon">&#9993;</span> jessica.anderson45@yahoo.com
+            </a>
+            <a class="contact-pill" href="tel:+18622662914">
+              <span class="pill-icon">&#9742;</span> (862) 266-2914
+            </a>
+            <span class="contact-pill" style="cursor:default;">
+              <span class="pill-icon">&#128205;</span> Nashville, TN
+            </span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-emerald">&#9993; Send Message</button>
+          <button class="btn-outline">&#9998; Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content">
+      <!-- BIO -->
+      <div class="bio-section">
+        <p class="bio-text">
+          <strong>Jessica Anderson</strong> filed for SSDI benefits on <strong>March 15, 2024</strong> with an alleged onset date of <strong>January 10, 2023</strong>. Her primary impairments include fibromyalgia, major depressive disorder, and chronic lumbar pain. Her case is currently at the ALJ hearing level, with a hearing scheduled for <strong>May 12, 2026</strong> before <strong>Judge Sandra Martinez</strong>.
+        </p>
+      </div>
+
+      <!-- SECTION 1: Case Summary -->
+      <div class="section" id="case-summary">
+        <div class="section-header">
+          <div class="section-title">Case Summary</div>
+        </div>
+        <div class="key-facts-grid">
+          <div class="key-fact">
+            <span class="key-fact-label">Date of Birth</span>
+            <span class="key-fact-value">04/15/1978 <span class="age-note">(Age 48)</span></span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">SSN (last 4)</span>
+            <span class="key-fact-value" style="font-family:var(--font-mono);">&#8226;&#8226;&#8226;&#8226;6789</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">SSA Claim #</span>
+            <span class="key-fact-value" style="font-family:var(--font-mono);">1234-56-7890</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Alleged Onset Date</span>
+            <span class="key-fact-value">01/10/2023</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Date Last Insured</span>
+            <span class="key-fact-value">12/31/2025</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Application Type</span>
+            <span class="key-fact-value">SSDI</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Current Stage</span>
+            <span class="key-fact-value"><span class="status-badge status-active">ALJ Hearing</span></span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Assigned Attorney</span>
+            <span class="key-fact-value">Sarah Chen, Esq.</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Case Manager</span>
+            <span class="key-fact-value">Lisa Rodriguez</span>
+          </div>
+          <div class="key-fact">
+            <span class="key-fact-label">Case #</span>
+            <span class="key-fact-value" style="font-family:var(--font-mono);">HS-2026-1001</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Medical Profile -->
+      <div class="section" id="medical-profile">
+        <div class="section-header">
+          <div class="section-title">Medical Profile</div>
+        </div>
+
+        <div class="subsection-label">Diagnoses</div>
+        <div class="diagnosis-pills" style="margin-bottom: var(--sp-6);">
+          <span class="diagnosis-pill">Fibromyalgia <span class="icd-code">M79.7</span></span>
+          <span class="diagnosis-pill">Major Depressive Disorder <span class="icd-code">F33.1</span></span>
+          <span class="diagnosis-pill">Chronic Lumbar Pain <span class="icd-code">M54.5</span></span>
+        </div>
+
+        <div class="subsection-label">Current Medications</div>
+        <table class="med-table" style="margin-bottom: var(--sp-6);">
+          <thead>
+            <tr>
+              <th>Medication</th>
+              <th>Dosage</th>
+              <th>Frequency</th>
+              <th>Prescriber</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="med-name">Lyrica (Pregabalin)</td>
+              <td class="med-dosage">150mg</td>
+              <td>Twice daily</td>
+              <td class="med-prescriber">Dr. James Patel</td>
+            </tr>
+            <tr>
+              <td class="med-name">Cymbalta (Duloxetine)</td>
+              <td class="med-dosage">60mg</td>
+              <td>Once daily</td>
+              <td class="med-prescriber">Dr. Karen Liu</td>
+            </tr>
+            <tr>
+              <td class="med-name">Tramadol</td>
+              <td class="med-dosage">50mg</td>
+              <td>As needed</td>
+              <td class="med-prescriber">Dr. Angela Freeman</td>
+            </tr>
+            <tr>
+              <td class="med-name">Flexeril (Cyclobenzaprine)</td>
+              <td class="med-dosage">10mg</td>
+              <td>At bedtime</td>
+              <td class="med-prescriber">Dr. Angela Freeman</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-label">Treating Physicians</div>
+        <div class="provider-grid">
+          <div class="provider-card">
+            <div class="provider-card-avatar" style="background: var(--blue);">JP</div>
+            <div class="provider-card-name">Dr. James Patel</div>
+            <div class="provider-card-specialty">Rheumatology &mdash; Nashville Medical</div>
+            <div class="provider-card-meta">Last visit: Mar 2026</div>
+          </div>
+          <div class="provider-card">
+            <div class="provider-card-avatar" style="background: var(--emerald);">AF</div>
+            <div class="provider-card-name">Dr. Angela Freeman</div>
+            <div class="provider-card-specialty">Internal Medicine</div>
+            <div class="provider-card-meta">Last visit: Feb 2026</div>
+          </div>
+          <div class="provider-card">
+            <div class="provider-card-avatar" style="background: var(--purple);">KL</div>
+            <div class="provider-card-name">Dr. Karen Liu</div>
+            <div class="provider-card-specialty">Psychiatry</div>
+            <div class="provider-card-meta">Last visit: Mar 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: RFC & Functional Limitations -->
+      <div class="section" id="rfc">
+        <div class="section-header">
+          <div class="section-title">RFC &amp; Functional Limitations</div>
+        </div>
+
+        <div class="rfc-card">
+          <div class="rfc-type-indicator rfc-type-physical">&#9878;</div>
+          <div class="rfc-info">
+            <div class="rfc-label">Physical RFC</div>
+            <div class="rfc-summary">Can lift/carry 10 lbs occasionally, stand/walk 2 hours in 8-hour day, sit 6 hours with position changes every 30 minutes.</div>
+          </div>
+        </div>
+
+        <div class="rfc-card">
+          <div class="rfc-type-indicator rfc-type-mental">&#9881;</div>
+          <div class="rfc-info">
+            <div class="rfc-label">Mental RFC</div>
+            <div class="rfc-summary">Moderate limitations in concentration, persistence, and pace. Can perform simple, routine tasks with limited public interaction.</div>
+          </div>
+        </div>
+
+        <div class="rfc-source">
+          Source: Treating physician RFC &mdash; Dr. Patel, dated 02/15/2026
+        </div>
+      </div>
+
+      <!-- SECTION 4: Case Timeline -->
+      <div class="section" id="timeline">
+        <div class="section-header">
+          <div class="section-title">
+            Case Timeline <span class="section-count">8</span>
+          </div>
+        </div>
+        <div class="timeline">
+          <!-- Entry 1 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot onset"></div>
+            <div class="timeline-date">01/10/2023</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Alleged onset of disability</div>
+              <div class="timeline-summary">Claimant reports inability to maintain full-time employment due to impairments</div>
+            </div>
+          </div>
+          <!-- Entry 2 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot filed"></div>
+            <div class="timeline-date">03/15/2024</div>
+            <div class="timeline-content">
+              <div class="timeline-label">SSDI application filed</div>
+              <div class="timeline-summary">Application submitted to SSA with supporting medical documentation</div>
+            </div>
+          </div>
+          <!-- Entry 3 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot denied"></div>
+            <div class="timeline-date">06/20/2024</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Initial denial received</div>
+              <div class="timeline-summary">SSA determined claimant capable of performing past relevant work</div>
+            </div>
+          </div>
+          <!-- Entry 4 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot filed"></div>
+            <div class="timeline-date">08/15/2024</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Reconsideration filed</div>
+              <div class="timeline-summary">Request for reconsideration with additional medical evidence submitted</div>
+            </div>
+          </div>
+          <!-- Entry 5 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot denied"></div>
+            <div class="timeline-date">11/10/2024</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Reconsideration denial received</div>
+              <div class="timeline-summary">Denial upheld at reconsideration level</div>
+            </div>
+          </div>
+          <!-- Entry 6 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot filed"></div>
+            <div class="timeline-date">01/05/2025</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Request for hearing filed</div>
+              <div class="timeline-summary">Request submitted to ODAR for ALJ hearing</div>
+            </div>
+          </div>
+          <!-- Entry 7 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot hearing"></div>
+            <div class="timeline-date">09/15/2025</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Hearing scheduled &mdash; Judge Martinez</div>
+              <div class="timeline-summary">Notice of hearing received, assigned to ALJ Sandra Martinez</div>
+            </div>
+          </div>
+          <!-- Entry 8 -->
+          <div class="timeline-entry highlight">
+            <div class="timeline-dot upcoming"></div>
+            <div class="timeline-date">05/12/2026</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Hearing date <span class="timeline-type type-upcoming">UPCOMING</span></div>
+              <div class="timeline-summary">ALJ hearing before Judge Sandra Martinez &mdash; Nashville ODAR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Documents -->
+      <div class="section" id="documents">
+        <div class="section-header">
+          <div class="section-title">
+            Documents <span class="section-count">8</span>
+          </div>
+        </div>
+        <div class="doc-grid">
+          <!-- Doc 1 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-medical">&#128196;</div>
+            <div class="doc-name">Medical Records &mdash; Dr. Patel</div>
+            <div class="doc-meta">Mar 2026 &middot; 42 pages</div>
+            <a class="doc-case-link" href="#">View records &rarr;</a>
+          </div>
+          <!-- Doc 2 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-medical">&#128196;</div>
+            <div class="doc-name">Medical Records &mdash; Dr. Freeman</div>
+            <div class="doc-meta">Feb 2026 &middot; 28 pages</div>
+            <a class="doc-case-link" href="#">View records &rarr;</a>
+          </div>
+          <!-- Doc 3 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-medical">&#128196;</div>
+            <div class="doc-name">Psychiatric Records &mdash; Dr. Liu</div>
+            <div class="doc-meta">Mar 2026 &middot; 18 pages</div>
+            <a class="doc-case-link" href="#">View records &rarr;</a>
+          </div>
+          <!-- Doc 4 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-ssa">&#128203;</div>
+            <div class="doc-name">SSA-3368 (Work History)</div>
+            <div class="doc-meta">Mar 2024 &middot; 6 pages</div>
+            <a class="doc-case-link" href="#">View form &rarr;</a>
+          </div>
+          <!-- Doc 5 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-rfc">&#9878;</div>
+            <div class="doc-name">Physical RFC Form &mdash; Dr. Patel</div>
+            <div class="doc-meta">Feb 2026 &middot; 4 pages</div>
+            <a class="doc-case-link" href="#">View form &rarr;</a>
+          </div>
+          <!-- Doc 6 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-rfc">&#9878;</div>
+            <div class="doc-name">Mental RFC Form &mdash; Dr. Liu</div>
+            <div class="doc-meta">Feb 2026 &middot; 3 pages</div>
+            <a class="doc-case-link" href="#">View form &rarr;</a>
+          </div>
+          <!-- Doc 7 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-denial">&#10006;</div>
+            <div class="doc-name">Initial Denial Notice</div>
+            <div class="doc-meta">Jun 2024 &middot; 3 pages</div>
+            <a class="doc-case-link" href="#">View notice &rarr;</a>
+          </div>
+          <!-- Doc 8 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-brief">&#128221;</div>
+            <div class="doc-name">Pre-Hearing Brief</div>
+            <div class="doc-meta">Apr 2026 &middot; 12 pages</div>
+            <a class="doc-case-link" href="#">View brief &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: Contact Notes -->
+      <div class="section" id="notes">
+        <div class="section-header">
+          <div class="section-title">
+            Contact Notes <span class="section-count">3</span>
+          </div>
+        </div>
+
+        <!-- Note 1 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#0070F3;">SC</div>
+            <div class="note-author">Sarah Chen</div>
+            <div class="note-timestamp">Mar 25, 2026 at 3:10 PM</div>
+          </div>
+          <div class="note-body">
+            Spoke with Jessica regarding hearing preparation. Reviewed expected questions from the ALJ and vocational expert. She is anxious but understands the process. Reminded her to bring photo ID and arrive 30 minutes early on May 12.
+          </div>
+        </div>
+
+        <!-- Note 2 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#8B5CF6;">LR</div>
+            <div class="note-author">Lisa Rodriguez</div>
+            <div class="note-timestamp">Mar 18, 2026 at 11:20 AM</div>
+          </div>
+          <div class="note-body">
+            Received updated treatment records from Dr. Patel and Dr. Liu. Both sets have been uploaded to the case file and submitted to ODAR as supplemental evidence. Pre-hearing brief is being finalized.
+          </div>
+        </div>
+
+        <!-- Note 3 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#F59E0B;">SC</div>
+            <div class="note-author">Sarah Chen</div>
+            <div class="note-timestamp">Feb 20, 2026 at 2:45 PM</div>
+          </div>
+          <div class="note-body">
+            Contacted Dr. Patel's office to request a treating physician RFC form. Office confirmed it will be completed within 2 weeks. Also followed up with Dr. Liu for a mental RFC — she will have it ready by end of month.
+          </div>
+        </div>
+
+        <!-- Add note input -->
+        <div class="note-input-wrapper">
+          <input class="note-input" type="text" placeholder="Add a note...">
+          <button class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Scroll behaviors
+     ============================================================ -->
+<script>
+(function() {
+  var main = document.getElementById('main');
+  var hero = document.getElementById('hero');
+
+  // Add subtle shadow to hero on scroll
+  main.addEventListener('scroll', function() {
+    if (main.scrollTop > 20) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  });
+
+  // Smooth scroll to section on nav click
+  document.querySelectorAll('[data-scroll-to]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.getElementById(el.getAttribute('data-scroll-to'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Intersection Observer for active section tracking
+  var sections = document.querySelectorAll('.section[id]');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.getAttribute('id');
+        document.querySelectorAll('.section-nav-link').forEach(function(link) {
+          link.classList.toggle('active', link.getAttribute('data-scroll-to') === id);
+        });
+      }
+    });
+  }, {
+    root: main,
+    rootMargin: '-20% 0px -60% 0px',
+    threshold: 0
+  });
+
+  sections.forEach(function(s) { observer.observe(s); });
+
+  // Provider card click handler
+  document.querySelectorAll('.provider-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Document card click handler
+  document.querySelectorAll('.doc-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Note save button
+  var saveBtn = document.querySelector('.btn-save');
+  var noteInput = document.querySelector('.note-input');
+  if (saveBtn && noteInput) {
+    saveBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        saveBtn.textContent = 'Saved';
+        saveBtn.style.background = 'var(--emerald)';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.borderColor = 'var(--emerald)';
+        setTimeout(function() {
+          saveBtn.textContent = 'Save';
+          saveBtn.style.background = '';
+          saveBtn.style.color = '';
+          saveBtn.style.borderColor = '';
+          noteInput.value = '';
+        }, 1200);
+      }
+    });
+
+    noteInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        saveBtn.click();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

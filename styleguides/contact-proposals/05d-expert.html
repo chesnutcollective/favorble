@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dr. William Harrison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Vercel Light + Charcoal/Emerald Sidebar
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar (charcoal + emerald) */
+    --sidebar-bg:     #1A1D23;
+    --sidebar-hover:  #25282F;
+    --sidebar-active: #2A2E36;
+    --sidebar-text:   #A1A1AA;
+    --sidebar-text-h: #FAFAFA;
+    --sidebar-border: rgba(255,255,255,0.08);
+
+    /* Emerald */
+    --emerald:        #10B981;
+    --emerald-light:  #34D399;
+    --emerald-dark:   #059669;
+    --emerald-bg:     rgba(16,185,129,0.10);
+    --emerald-bg-s:   rgba(16,185,129,0.15);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Semantic */
+    --blue:           #0070F3;
+    --blue-bg:        rgba(0,112,243,0.08);
+    --amber:          #F5A623;
+    --amber-bg:       rgba(245,166,35,0.10);
+    --red:            #EE0000;
+    --red-bg:         rgba(238,0,0,0.08);
+    --green:          #00C853;
+    --green-bg:       rgba(0,200,83,0.10);
+    --gray-bg:        #F0F0F0;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — Charcoal + Emerald
+     ============================================================ */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #022C22;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--sidebar-text-h);
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+    padding: 0 var(--sp-3);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-2);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 7px var(--sp-2);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-h);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  /* ============================================================
+     HERO HEADER — Sticky with gradient bg
+     ============================================================ */
+  .hero {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, #FAFAFA 0%, #F0FDF4 100%);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow var(--transition);
+  }
+
+  .hero.scrolled {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+
+  .hero-avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    border-radius: 50%;
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .hero-specialty {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .hero-practice {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .hero-contact-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    flex-wrap: wrap;
+  }
+
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .contact-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .contact-pill .pill-icon {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+    padding-top: 6px;
+  }
+
+  .btn-emerald {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--emerald);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-emerald:hover {
+    background: var(--emerald-dark);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     CONTENT
+     ============================================================ */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8);
+    padding-bottom: 120px;
+  }
+
+  /* BIO */
+  .bio-section {
+    margin-bottom: var(--sp-8);
+    padding: var(--sp-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .bio-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .bio-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: var(--sp-10);
+    scroll-margin-top: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .stat-value .stat-sub {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-left: 2px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  /* HEARING CARDS */
+  .hearing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .hearing-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .hearing-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--sp-2);
+  }
+
+  .hearing-claimant {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .hearing-case {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .hearing-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-2);
+  }
+
+  .hearing-testimony {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: var(--sp-3);
+    background: var(--bg-card-alt);
+    border-radius: var(--radius);
+    margin-top: var(--sp-2);
+  }
+
+  .hearing-testimony-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .outcome-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .outcome-favorable {
+    background: var(--green-bg);
+    color: var(--emerald-dark);
+  }
+
+  .outcome-unfavorable {
+    background: var(--red-bg);
+    color: var(--red);
+  }
+
+  .outcome-pending {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  /* QUALIFICATIONS */
+  .qual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .qual-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+  }
+
+  .qual-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-3);
+  }
+
+  .qual-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: var(--sp-2);
+    line-height: 1.5;
+  }
+
+  .qual-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .qual-bullet {
+    color: var(--emerald);
+    font-size: 10px;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .qual-item-detail {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* DOT TABLE */
+  .dot-table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .dot-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .dot-table thead {
+    background: var(--bg-card-alt);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot-table th {
+    padding: var(--sp-3) var(--sp-4);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    text-align: left;
+  }
+
+  .dot-table td {
+    padding: var(--sp-3) var(--sp-4);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .dot-table tr:hover td {
+    background: var(--bg-hover);
+  }
+
+  .dot-code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blue);
+  }
+
+  .freq-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .freq-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--emerald-bg);
+    position: relative;
+    flex: 1;
+    max-width: 60px;
+  }
+
+  .freq-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--emerald);
+  }
+
+  .freq-count {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    min-width: 16px;
+  }
+
+  /* FEE SCHEDULE */
+  .fee-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .fee-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+  }
+
+  .fee-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+
+  .fee-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  .fee-amount .fee-unit {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+  }
+
+  .fee-note {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .availability-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+  }
+
+  .availability-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: var(--sp-2) 0;
+  }
+
+  .availability-row:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .availability-icon {
+    font-size: 14px;
+    opacity: 0.5;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .availability-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 160px;
+  }
+
+  /* NOTES */
+  .note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .note-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .note-author {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .note-timestamp {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .note-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    padding-left: calc(28px + var(--sp-3));
+  }
+
+  .note-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-3) var(--sp-4);
+    margin-top: var(--sp-2);
+    transition: border-color var(--transition);
+  }
+
+  .note-input-wrapper:focus-within {
+    border-color: var(--emerald);
+  }
+
+  .note-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .note-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .btn-save {
+    padding: 5px 14px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-save:hover {
+    background: var(--emerald-bg-s);
+    border-color: rgba(16,185,129,0.35);
+  }
+
+  /* ============================================================
+     SECTION DIVIDER
+     ============================================================ */
+  .section + .section {
+    border-top: 1px solid var(--border);
+    padding-top: var(--sp-8);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ========================================================
+       SIDEBAR — Charcoal + Emerald
+       ======================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">F</div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9711;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9634;</span> Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Directory</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128101;</span> Claimants
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#129657;</span> Providers
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#9878;</span> Experts
+        <span class="badge">5</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#127971;</span> Organizations
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9878;</span> SSA Offices
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SJ</div>
+      <span>Sarah Johnson</span>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       MAIN CONTENT
+       ======================================================== -->
+  <main class="main" id="main">
+    <!-- HERO HEADER -->
+    <div class="hero" id="hero">
+      <div class="hero-inner">
+        <div class="hero-avatar">WH</div>
+        <div class="hero-info">
+          <h1 class="hero-name">Dr. William Harrison, Ph.D.</h1>
+          <div class="hero-specialty">Vocational Expert &mdash; Certified Rehabilitation Counselor</div>
+          <div class="hero-practice">Licensed in TN, KY, AL</div>
+          <div class="hero-contact-row">
+            <a class="contact-pill" href="mailto:harrison@vocationalexperts.com">
+              <span class="pill-icon">&#9993;</span> harrison@vocationalexperts.com
+            </a>
+            <a class="contact-pill" href="tel:+16155558234">
+              <span class="pill-icon">&#9742;</span> (615) 555-8234
+            </a>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-emerald">&#128197; Schedule Consultation</button>
+          <button class="btn-outline">&#9998; Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content">
+      <!-- BIO -->
+      <div class="bio-section">
+        <p class="bio-text">
+          <strong>Dr. Harrison</strong> has testified as a vocational expert in <strong>8 hearings</strong> for the firm.
+          He holds a Ph.D. in Rehabilitation Counseling and has 20 years of experience in vocational assessment.
+          His testimony has been cited in <strong>6 favorable decisions</strong>.
+          He typically charges <strong>$450/hour</strong> for testimony and <strong>$200/hour</strong> for report preparation.
+        </p>
+      </div>
+
+      <!-- SECTION 1: Testimony Performance -->
+      <div class="section" id="performance">
+        <div class="section-header">
+          <div class="section-title">Testimony Performance</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Hearings Testified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">6 <span class="stat-sub">75%</span></div>
+            <div class="stat-label">Favorable Outcomes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$1,800</div>
+            <div class="stat-label">Avg Fee</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">3<span class="stat-sub">days</span></div>
+            <div class="stat-label">Response Time</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Recent Testimony -->
+      <div class="section" id="testimony">
+        <div class="section-header">
+          <div class="section-title">
+            Recent Testimony <span class="section-count">5</span>
+          </div>
+        </div>
+
+        <!-- Hearing 1 -->
+        <div class="hearing-card">
+          <div class="hearing-card-header">
+            <div>
+              <div class="hearing-claimant">Maria Gonzalez</div>
+              <div class="hearing-case">Case #24-0187</div>
+            </div>
+            <span class="outcome-badge outcome-favorable">Favorable</span>
+          </div>
+          <div class="hearing-meta">Hearing: Nov 18, 2025 &middot; ALJ Patricia Thornton</div>
+          <div class="hearing-testimony">
+            <div class="hearing-testimony-label">Key Testimony</div>
+            DOT codes cited: 209.587-010 (Addresser), 249.587-018 (Document Preparer). Opined sedentary exertional level with sit/stand option. Identified 3 jobs in the national economy consistent with RFC.
+          </div>
+        </div>
+
+        <!-- Hearing 2 -->
+        <div class="hearing-card">
+          <div class="hearing-card-header">
+            <div>
+              <div class="hearing-claimant">James Washington</div>
+              <div class="hearing-case">Case #24-0213</div>
+            </div>
+            <span class="outcome-badge outcome-favorable">Favorable</span>
+          </div>
+          <div class="hearing-meta">Hearing: Jan 14, 2026 &middot; ALJ Robert Caldwell</div>
+          <div class="hearing-testimony">
+            <div class="hearing-testimony-label">Key Testimony</div>
+            DOT codes cited: 237.367-018 (Telephone Quotation Clerk), 205.367-014 (Credit Clerk). Opined sedentary exertional level. No sit/stand option needed. Transferable skills from prior insurance work identified.
+          </div>
+        </div>
+
+        <!-- Hearing 3 -->
+        <div class="hearing-card">
+          <div class="hearing-card-header">
+            <div>
+              <div class="hearing-claimant">Robert Chen</div>
+              <div class="hearing-case">Case #24-0298</div>
+            </div>
+            <span class="outcome-badge outcome-favorable">Favorable</span>
+          </div>
+          <div class="hearing-meta">Hearing: Feb 20, 2026 &middot; ALJ David Kim</div>
+          <div class="hearing-testimony">
+            <div class="hearing-testimony-label">Key Testimony</div>
+            DOT codes cited: 209.587-010 (Addresser), 734.687-018 (Ampoule Sealer). Opined sedentary exertional level with sit/stand option. Additional limitations on bending and lifting reduced occupational base significantly.
+          </div>
+        </div>
+
+        <!-- Hearing 4 -->
+        <div class="hearing-card">
+          <div class="hearing-card-header">
+            <div>
+              <div class="hearing-claimant">Linda Baker</div>
+              <div class="hearing-case">Case #25-0041</div>
+            </div>
+            <span class="outcome-badge outcome-unfavorable">Unfavorable</span>
+          </div>
+          <div class="hearing-meta">Hearing: Mar 5, 2026 &middot; ALJ Margaret Sullivan</div>
+          <div class="hearing-testimony">
+            <div class="hearing-testimony-label">Key Testimony</div>
+            DOT codes cited: 249.587-018 (Document Preparer), 726.684-110 (Final Assembler). Opined light exertional level. No sit/stand option required. ALJ found claimant capable of light work despite VE acknowledging manipulative limitations.
+          </div>
+        </div>
+
+        <!-- Hearing 5 -->
+        <div class="hearing-card">
+          <div class="hearing-card-header">
+            <div>
+              <div class="hearing-claimant">Patricia Moore</div>
+              <div class="hearing-case">Case #24-0156</div>
+            </div>
+            <span class="outcome-badge outcome-pending">Pending</span>
+          </div>
+          <div class="hearing-meta">Hearing: Mar 22, 2026 &middot; ALJ Robert Caldwell</div>
+          <div class="hearing-testimony">
+            <div class="hearing-testimony-label">Key Testimony</div>
+            DOT codes cited: 209.587-010 (Addresser), 237.367-018 (Telephone Quotation Clerk). Opined sedentary exertional level with sit/stand option. Noted erosion of occupational base due to joint instability and need for unscheduled breaks.
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Expertise & Qualifications -->
+      <div class="section" id="qualifications">
+        <div class="section-header">
+          <div class="section-title">Expertise &amp; Qualifications</div>
+        </div>
+        <div class="qual-grid">
+          <!-- Specialties -->
+          <div class="qual-card">
+            <div class="qual-card-title">Specialties</div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              Sedentary / Light work analysis
+            </div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              Transferable skills assessment
+            </div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              Labor market surveys
+            </div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              Earning capacity evaluation
+            </div>
+          </div>
+          <!-- Education -->
+          <div class="qual-card">
+            <div class="qual-card-title">Education</div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              <div>
+                Ph.D. Rehabilitation Counseling
+                <div class="qual-item-detail">Vanderbilt University</div>
+              </div>
+            </div>
+          </div>
+          <!-- Certifications -->
+          <div class="qual-card">
+            <div class="qual-card-title">Certifications</div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              <div>
+                CRC
+                <div class="qual-item-detail">Certified Rehabilitation Counselor</div>
+              </div>
+            </div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              <div>
+                CVE
+                <div class="qual-item-detail">Certified Vocational Evaluator</div>
+              </div>
+            </div>
+          </div>
+          <!-- Publications -->
+          <div class="qual-card">
+            <div class="qual-card-title">Publications</div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              <div>
+                "Vocational Assessment in Social Security Disability Claims"
+                <div class="qual-item-detail">Journal of Rehabilitation, 2022</div>
+              </div>
+            </div>
+            <div class="qual-item">
+              <span class="qual-bullet">&#9679;</span>
+              <div>
+                "Labor Market Analysis for Sedentary Occupations: A 10-Year Review"
+                <div class="qual-item-detail">Rehabilitation Counseling Bulletin, 2024</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Common VE Opinions -->
+      <div class="section" id="ve-opinions">
+        <div class="section-header">
+          <div class="section-title">
+            Common VE Opinions <span class="section-count">6</span>
+          </div>
+        </div>
+        <div class="dot-table-wrapper">
+          <table class="dot-table">
+            <thead>
+              <tr>
+                <th>DOT Code</th>
+                <th>Job Title</th>
+                <th>Exertional Level</th>
+                <th>SVP</th>
+                <th>Frequency Cited</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="dot-code">209.587-010</span></td>
+                <td>Addresser</td>
+                <td>Sedentary</td>
+                <td>2</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:100%"></div></div>
+                    <span class="freq-count">6</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="dot-code">249.587-018</span></td>
+                <td>Document Preparer</td>
+                <td>Sedentary</td>
+                <td>2</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:67%"></div></div>
+                    <span class="freq-count">4</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="dot-code">237.367-018</span></td>
+                <td>Telephone Quotation Clerk</td>
+                <td>Sedentary</td>
+                <td>2</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:50%"></div></div>
+                    <span class="freq-count">3</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="dot-code">205.367-014</span></td>
+                <td>Credit Clerk</td>
+                <td>Sedentary</td>
+                <td>4</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:33%"></div></div>
+                    <span class="freq-count">2</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="dot-code">734.687-018</span></td>
+                <td>Ampoule Sealer</td>
+                <td>Light</td>
+                <td>2</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:33%"></div></div>
+                    <span class="freq-count">2</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="dot-code">726.684-110</span></td>
+                <td>Final Assembler</td>
+                <td>Light</td>
+                <td>2</td>
+                <td>
+                  <div class="freq-bar-wrapper">
+                    <div class="freq-bar"><div class="freq-bar-fill" style="width:17%"></div></div>
+                    <span class="freq-count">1</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Fee Schedule & Availability -->
+      <div class="section" id="fees">
+        <div class="section-header">
+          <div class="section-title">Fee Schedule &amp; Availability</div>
+        </div>
+        <div class="fee-grid">
+          <div class="fee-card">
+            <div class="fee-label">Testimony</div>
+            <div class="fee-amount">$450 <span class="fee-unit">/hour</span></div>
+            <div class="fee-note">4-hour minimum</div>
+          </div>
+          <div class="fee-card">
+            <div class="fee-label">Report Preparation</div>
+            <div class="fee-amount">$200 <span class="fee-unit">/hour</span></div>
+          </div>
+          <div class="fee-card">
+            <div class="fee-label">Deposition</div>
+            <div class="fee-amount">$500 <span class="fee-unit">/hour</span></div>
+          </div>
+          <div class="fee-card">
+            <div class="fee-label">Avg Total per Hearing</div>
+            <div class="fee-amount">$1,800</div>
+          </div>
+        </div>
+        <div class="availability-card">
+          <div class="availability-row">
+            <span class="availability-icon">&#128197;</span>
+            <span class="availability-label">Availability</span>
+            <span>Typically available within 2&ndash;3 weeks of request</span>
+          </div>
+          <div class="availability-row">
+            <span class="availability-icon">&#128222;</span>
+            <span class="availability-label">Preferred Hearing Format</span>
+            <span>In-person and telephone</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: Notes -->
+      <div class="section" id="notes">
+        <div class="section-header">
+          <div class="section-title">
+            Notes <span class="section-count">3</span>
+          </div>
+        </div>
+
+        <!-- Note 1 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#0070F3;">SJ</div>
+            <div class="note-author">Sarah Johnson</div>
+            <div class="note-timestamp">Mar 24, 2026 at 9:45 AM</div>
+          </div>
+          <div class="note-body">
+            Dr. Harrison confirmed availability for the Moore hearing on March 22. He reviewed the RFC and vocational history in advance. Very well-prepared &mdash; cited specific DOT codes within the first hypothetical. Recommend continuing to use for sedentary/light cases.
+          </div>
+        </div>
+
+        <!-- Note 2 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#8B5CF6;">ML</div>
+            <div class="note-author">Mike Lawson</div>
+            <div class="note-timestamp">Feb 25, 2026 at 3:20 PM</div>
+          </div>
+          <div class="note-body">
+            Spoke with Dr. Harrison regarding the Chen case. He noted that the combination of back impairment and radiculopathy would significantly erode the sedentary occupational base, especially with a sit/stand option. He was willing to testify to that erosion on the record.
+          </div>
+        </div>
+
+        <!-- Note 3 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#F59E0B;">KR</div>
+            <div class="note-author">Karen Rodriguez</div>
+            <div class="note-timestamp">Jan 8, 2026 at 11:10 AM</div>
+          </div>
+          <div class="note-body">
+            Sent Dr. Harrison the Washington vocational history and RFC for review. He responded within 2 days with preliminary job numbers. His invoices are always prompt and itemized. Office manager (Lisa) handles scheduling &mdash; best to call between 9&ndash;11 AM.
+          </div>
+        </div>
+
+        <!-- Add note input -->
+        <div class="note-input-wrapper">
+          <input class="note-input" type="text" placeholder="Add a note...">
+          <button class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Scroll behaviors
+     ============================================================ -->
+<script>
+(function() {
+  var main = document.getElementById('main');
+  var hero = document.getElementById('hero');
+
+  // Add subtle shadow to hero on scroll
+  main.addEventListener('scroll', function() {
+    if (main.scrollTop > 20) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  });
+
+  // Hearing card click handler
+  document.querySelectorAll('.hearing-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Note save button
+  var saveBtn = document.querySelector('.btn-save');
+  var noteInput = document.querySelector('.note-input');
+  if (saveBtn && noteInput) {
+    saveBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        saveBtn.textContent = 'Saved';
+        saveBtn.style.background = 'var(--emerald)';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.borderColor = 'var(--emerald)';
+        setTimeout(function() {
+          saveBtn.textContent = 'Save';
+          saveBtn.style.background = '';
+          saveBtn.style.color = '';
+          saveBtn.style.borderColor = '';
+          noteInput.value = '';
+        }, 1200);
+      }
+    });
+
+    noteInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        saveBtn.click();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

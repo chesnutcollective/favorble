@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dr. Angela Freeman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Vercel Light + Charcoal/Emerald Sidebar
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar (charcoal + emerald) */
+    --sidebar-bg:     #1A1D23;
+    --sidebar-hover:  #25282F;
+    --sidebar-active: #2A2E36;
+    --sidebar-text:   #A1A1AA;
+    --sidebar-text-h: #FAFAFA;
+    --sidebar-border: rgba(255,255,255,0.08);
+
+    /* Emerald */
+    --emerald:        #10B981;
+    --emerald-light:  #34D399;
+    --emerald-dark:   #059669;
+    --emerald-bg:     rgba(16,185,129,0.10);
+    --emerald-bg-s:   rgba(16,185,129,0.15);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Semantic */
+    --blue:           #0070F3;
+    --blue-bg:        rgba(0,112,243,0.08);
+    --amber:          #F5A623;
+    --amber-bg:       rgba(245,166,35,0.10);
+    --red:            #EE0000;
+    --red-bg:         rgba(238,0,0,0.08);
+    --green:          #00C853;
+    --green-bg:       rgba(0,200,83,0.10);
+    --gray-bg:        #F0F0F0;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+    --radius-xl:      12px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — Charcoal + Emerald
+     ============================================================ */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #022C22;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--sidebar-text-h);
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-6);
+    padding: 0 var(--sp-3);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-2);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 7px var(--sp-2);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-h);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  /* ============================================================
+     HERO HEADER — Sticky with gradient bg
+     ============================================================ */
+  .hero {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, #FAFAFA 0%, #F0FDF4 100%);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow var(--transition);
+  }
+
+  .hero.scrolled {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+
+  .hero-avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    border-radius: 50%;
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .hero-specialty {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .hero-practice {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .hero-contact-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    flex-wrap: wrap;
+  }
+
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .contact-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .contact-pill .pill-icon {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+    padding-top: 6px;
+  }
+
+  .btn-emerald {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--emerald);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-emerald:hover {
+    background: var(--emerald-dark);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  /* ============================================================
+     SECTION NAV (scroll anchors)
+     ============================================================ */
+  .section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 19;
+    background: rgba(250,250,250,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    display: none; /* shown after hero becomes sticky */
+  }
+
+  .section-nav.visible {
+    display: block;
+  }
+
+  .section-nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 var(--sp-8);
+    display: flex;
+    gap: 0;
+  }
+
+  .section-nav-link {
+    padding: var(--sp-3) var(--sp-4);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+
+  .section-nav-link:hover {
+    color: var(--text-secondary);
+  }
+
+  .section-nav-link.active {
+    color: var(--emerald-dark);
+    border-bottom-color: var(--emerald);
+  }
+
+  /* ============================================================
+     CONTENT
+     ============================================================ */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--sp-8);
+    padding-bottom: 120px;
+  }
+
+  /* BIO */
+  .bio-section {
+    margin-bottom: var(--sp-8);
+    padding: var(--sp-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .bio-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .bio-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: var(--sp-10);
+    scroll-margin-top: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* CARD GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .patient-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .patient-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+  }
+
+  .patient-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--sp-2);
+  }
+
+  .patient-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .patient-case {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .status-active {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .status-discharged {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  .diagnosis-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: var(--sp-2) 0;
+  }
+
+  .diagnosis-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .patient-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* OPINION CARDS */
+  .opinion-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    transition: all var(--transition);
+  }
+
+  .opinion-card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .opinion-type-indicator {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .opinion-type-physical {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .opinion-type-mental {
+    background: rgba(168,85,247,0.10);
+    color: #8B5CF6;
+  }
+
+  .opinion-type-ce {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+
+  .opinion-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .opinion-patient {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .opinion-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .opinion-conclusion {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .outcome-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .outcome-won {
+    background: var(--green-bg);
+    color: var(--emerald-dark);
+  }
+
+  .outcome-pending {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  .subsection-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: var(--sp-6) 0 var(--sp-3);
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: var(--sp-6);
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+
+  .timeline-entry {
+    position: relative;
+    padding: var(--sp-2) 0;
+    padding-left: var(--sp-3);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -21px;
+    top: 12px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-root);
+  }
+
+  .timeline-dot.office { background: var(--blue); }
+  .timeline-dot.procedure { background: var(--emerald); }
+  .timeline-dot.lab { background: #999; }
+
+  .timeline-date {
+    min-width: 80px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    padding-top: 2px;
+  }
+
+  .timeline-content {
+    flex: 1;
+  }
+
+  .timeline-patient {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .timeline-type {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+
+  .type-office {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .type-procedure {
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+  }
+
+  .type-lab {
+    background: var(--gray-bg);
+    color: var(--text-tertiary);
+  }
+
+  .timeline-summary {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* DOCUMENTS GRID */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--sp-3);
+  }
+
+  .doc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .doc-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .doc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: var(--sp-3);
+  }
+
+  .doc-icon-notes { background: var(--blue-bg); color: var(--blue); }
+  .doc-icon-lab { background: var(--green-bg); color: var(--emerald-dark); }
+  .doc-icon-imaging { background: rgba(168,85,247,0.10); color: #8B5CF6; }
+  .doc-icon-rfc { background: var(--amber-bg); color: var(--amber); }
+
+  .doc-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .doc-case-link {
+    font-size: 11px;
+    color: var(--emerald);
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .doc-case-link:hover {
+    text-decoration: underline;
+  }
+
+  /* NOTES */
+  .note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
+  }
+
+  .note-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .note-author {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .note-timestamp {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .note-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    padding-left: calc(28px + var(--sp-3));
+  }
+
+  .note-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-3) var(--sp-4);
+    margin-top: var(--sp-2);
+    transition: border-color var(--transition);
+  }
+
+  .note-input-wrapper:focus-within {
+    border-color: var(--emerald);
+  }
+
+  .note-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .note-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .btn-save {
+    padding: 5px 14px;
+    background: var(--emerald-bg);
+    color: var(--emerald-dark);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-save:hover {
+    background: var(--emerald-bg-s);
+    border-color: rgba(16,185,129,0.35);
+  }
+
+  /* ============================================================
+     SECTION DIVIDER
+     ============================================================ */
+  .section + .section {
+    border-top: 1px solid var(--border);
+    padding-top: var(--sp-8);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ========================================================
+       SIDEBAR — Charcoal + Emerald
+       ======================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">F</div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9711;</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9634;</span> Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Directory</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128101;</span> Claimants
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">&#129657;</span> Providers
+        <span class="badge">23</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#127971;</span> Organizations
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9878;</span> SSA Offices
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#128196;</span> Documents
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SJ</div>
+      <span>Sarah Johnson</span>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       MAIN CONTENT
+       ======================================================== -->
+  <main class="main" id="main">
+    <!-- HERO HEADER -->
+    <div class="hero" id="hero">
+      <div class="hero-inner">
+        <div class="hero-avatar">AF</div>
+        <div class="hero-info">
+          <h1 class="hero-name">Dr. Angela Freeman, MD</h1>
+          <div class="hero-specialty">Internal Medicine &mdash; Board Certified</div>
+          <div class="hero-practice">Nashville Medical Associates</div>
+          <div class="hero-contact-row">
+            <a class="contact-pill" href="mailto:afreeman@nashvillemedical.com">
+              <span class="pill-icon">&#9993;</span> afreeman@nashvillemedical.com
+            </a>
+            <a class="contact-pill" href="tel:+16155551247">
+              <span class="pill-icon">&#9742;</span> (615) 555-1247
+            </a>
+            <span class="contact-pill" style="cursor:default;">
+              <span class="pill-icon">&#128205;</span> Nashville, TN
+            </span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-emerald">&#9993; Send Email</button>
+          <button class="btn-outline">&#9998; Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content">
+      <!-- BIO -->
+      <div class="bio-section">
+        <p class="bio-text">
+          <strong>Dr. Freeman</strong> has been the treating physician for <strong>6 Favorble cases</strong> since 2024.
+          She specializes in internal medicine with a focus on chronic pain and fibromyalgia management.
+          Her RFC opinions have supported <strong>4 favorable decisions</strong>.
+        </p>
+      </div>
+
+      <!-- SECTION 1: Patient Overview -->
+      <div class="section" id="patients">
+        <div class="section-header">
+          <div class="section-title">
+            Patient Overview <span class="section-count">6</span>
+          </div>
+        </div>
+        <div class="card-grid">
+          <!-- Patient 1 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">Maria Gonzalez</div>
+                <div class="patient-case">Case #24-0187</div>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">Fibromyalgia</span>
+              <span class="diagnosis-pill">Chronic Fatigue</span>
+            </div>
+            <div class="patient-meta">Last visit: Mar 12, 2026</div>
+          </div>
+          <!-- Patient 2 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">James Washington</div>
+                <div class="patient-case">Case #24-0213</div>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">Type 2 Diabetes</span>
+              <span class="diagnosis-pill">Neuropathy</span>
+            </div>
+            <div class="patient-meta">Last visit: Mar 8, 2026</div>
+          </div>
+          <!-- Patient 3 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">Patricia Moore</div>
+                <div class="patient-case">Case #24-0156</div>
+              </div>
+              <span class="status-badge status-discharged">Discharged</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">Lupus (SLE)</span>
+              <span class="diagnosis-pill">Joint Pain</span>
+            </div>
+            <div class="patient-meta">Last visit: Jan 22, 2026</div>
+          </div>
+          <!-- Patient 4 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">Robert Chen</div>
+                <div class="patient-case">Case #24-0298</div>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">Chronic Back Pain</span>
+              <span class="diagnosis-pill">Radiculopathy</span>
+            </div>
+            <div class="patient-meta">Last visit: Mar 20, 2026</div>
+          </div>
+          <!-- Patient 5 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">Linda Baker</div>
+                <div class="patient-case">Case #25-0041</div>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">Rheumatoid Arthritis</span>
+            </div>
+            <div class="patient-meta">Last visit: Mar 15, 2026</div>
+          </div>
+          <!-- Patient 6 -->
+          <div class="patient-card">
+            <div class="patient-card-header">
+              <div>
+                <div class="patient-name">David Thompson</div>
+                <div class="patient-case">Case #25-0067</div>
+              </div>
+              <span class="status-badge status-discharged">Discharged</span>
+            </div>
+            <div class="diagnosis-pills">
+              <span class="diagnosis-pill">COPD</span>
+              <span class="diagnosis-pill">Sleep Apnea</span>
+            </div>
+            <div class="patient-meta">Last visit: Feb 3, 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Medical Opinions & Evidence -->
+      <div class="section" id="opinions">
+        <div class="section-header">
+          <div class="section-title">
+            Medical Opinions &amp; Evidence <span class="section-count">6</span>
+          </div>
+        </div>
+
+        <div class="subsection-label">RFC Assessments</div>
+
+        <!-- RFC 1 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-physical">&#9878;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">Maria Gonzalez</div>
+            <div class="opinion-meta">Physical RFC &middot; Nov 14, 2025</div>
+            <div class="opinion-conclusion">"Patient limited to sedentary work with frequent position changes. Supports disability."</div>
+          </div>
+          <span class="outcome-badge outcome-won">Case Won</span>
+        </div>
+        <!-- RFC 2 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-physical">&#9878;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">Patricia Moore</div>
+            <div class="opinion-meta">Physical RFC &middot; Sep 22, 2025</div>
+            <div class="opinion-conclusion">"Claimant cannot perform even sedentary work due to joint instability. Supports disability."</div>
+          </div>
+          <span class="outcome-badge outcome-won">Case Won</span>
+        </div>
+        <!-- RFC 3 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-mental">&#9881;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">James Washington</div>
+            <div class="opinion-meta">Mental RFC &middot; Jan 10, 2026</div>
+            <div class="opinion-conclusion">"Moderate limitations in concentration due to pain and medication side effects. Supports disability."</div>
+          </div>
+          <span class="outcome-badge outcome-pending">Pending</span>
+        </div>
+        <!-- RFC 4 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-physical">&#9878;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">Robert Chen</div>
+            <div class="opinion-meta">Physical RFC &middot; Feb 28, 2026</div>
+            <div class="opinion-conclusion">"Patient can perform light work with limitations on bending and lifting. Does not support disability at this time."</div>
+          </div>
+          <span class="outcome-badge outcome-pending">Pending</span>
+        </div>
+
+        <div class="subsection-label">CE Reports</div>
+
+        <!-- CE 1 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-ce">&#128196;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">David Thompson</div>
+            <div class="opinion-meta">Consultative Examination &middot; Dec 5, 2025</div>
+            <div class="opinion-conclusion">"Pulmonary function test results consistent with moderate COPD. Supports disability."</div>
+          </div>
+          <span class="outcome-badge outcome-won">Case Won</span>
+        </div>
+        <!-- CE 2 -->
+        <div class="opinion-card">
+          <div class="opinion-type-indicator opinion-type-ce">&#128196;</div>
+          <div class="opinion-info">
+            <div class="opinion-patient">Linda Baker</div>
+            <div class="opinion-meta">Consultative Examination &middot; Mar 1, 2026</div>
+            <div class="opinion-conclusion">"Significant joint deformity observed. Range of motion severely limited in bilateral hands."</div>
+          </div>
+          <span class="outcome-badge outcome-won">Case Won</span>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Treatment Timeline -->
+      <div class="section" id="timeline">
+        <div class="section-header">
+          <div class="section-title">
+            Treatment Timeline <span class="section-count">8</span>
+          </div>
+        </div>
+        <div class="timeline">
+          <!-- Entry 1 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot office"></div>
+            <div class="timeline-date">Mar 20</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">Robert Chen <span class="timeline-type type-office">Office Visit</span></div>
+              <div class="timeline-summary">Follow-up for lumbar radiculopathy. Discussed MRI results and adjusted pain management plan.</div>
+            </div>
+          </div>
+          <!-- Entry 2 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot lab"></div>
+            <div class="timeline-date">Mar 15</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">Linda Baker <span class="timeline-type type-lab">Lab Work</span></div>
+              <div class="timeline-summary">Rheumatoid factor and CRP levels. Results elevated, confirming active disease.</div>
+            </div>
+          </div>
+          <!-- Entry 3 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot office"></div>
+            <div class="timeline-date">Mar 12</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">Maria Gonzalez <span class="timeline-type type-office">Office Visit</span></div>
+              <div class="timeline-summary">Quarterly fibromyalgia assessment. Symptom severity stable, continuing current medications.</div>
+            </div>
+          </div>
+          <!-- Entry 4 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot office"></div>
+            <div class="timeline-date">Mar 8</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">James Washington <span class="timeline-type type-office">Office Visit</span></div>
+              <div class="timeline-summary">Diabetes management review. A1C improved to 7.2. Neuropathy symptoms persist.</div>
+            </div>
+          </div>
+          <!-- Entry 5 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot procedure"></div>
+            <div class="timeline-date">Feb 22</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">Robert Chen <span class="timeline-type type-procedure">Procedure</span></div>
+              <div class="timeline-summary">Lumbar epidural steroid injection (L4-L5). Patient tolerated well, follow-up in 4 weeks.</div>
+            </div>
+          </div>
+          <!-- Entry 6 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot lab"></div>
+            <div class="timeline-date">Feb 10</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">David Thompson <span class="timeline-type type-lab">Lab Work</span></div>
+              <div class="timeline-summary">Pulmonary function test and arterial blood gas. FEV1 at 52% predicted.</div>
+            </div>
+          </div>
+          <!-- Entry 7 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot office"></div>
+            <div class="timeline-date">Feb 3</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">David Thompson <span class="timeline-type type-office">Office Visit</span></div>
+              <div class="timeline-summary">Final visit before discharge. Referred to pulmonology for ongoing management.</div>
+            </div>
+          </div>
+          <!-- Entry 8 -->
+          <div class="timeline-entry">
+            <div class="timeline-dot procedure"></div>
+            <div class="timeline-date">Jan 28</div>
+            <div class="timeline-content">
+              <div class="timeline-patient">Patricia Moore <span class="timeline-type type-procedure">Procedure</span></div>
+              <div class="timeline-summary">Joint aspiration, bilateral knees. Fluid analysis consistent with lupus arthritis.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Documents -->
+      <div class="section" id="documents">
+        <div class="section-header">
+          <div class="section-title">
+            Documents <span class="section-count">6</span>
+          </div>
+        </div>
+        <div class="doc-grid">
+          <!-- Doc 1 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-notes">&#128196;</div>
+            <div class="doc-name">Treatment Notes - Gonzalez</div>
+            <div class="doc-meta">Mar 12, 2026 &middot; 4 pages</div>
+            <a class="doc-case-link" href="#">Case #24-0187 &rarr;</a>
+          </div>
+          <!-- Doc 2 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-lab">&#9879;</div>
+            <div class="doc-name">Lab Results - Baker (CRP Panel)</div>
+            <div class="doc-meta">Mar 15, 2026 &middot; 2 pages</div>
+            <a class="doc-case-link" href="#">Case #25-0041 &rarr;</a>
+          </div>
+          <!-- Doc 3 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-imaging">&#128248;</div>
+            <div class="doc-name">MRI Lumbar Spine - Chen</div>
+            <div class="doc-meta">Feb 18, 2026 &middot; 6 pages</div>
+            <a class="doc-case-link" href="#">Case #24-0298 &rarr;</a>
+          </div>
+          <!-- Doc 4 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-rfc">&#128203;</div>
+            <div class="doc-name">Physical RFC Form - Chen</div>
+            <div class="doc-meta">Feb 28, 2026 &middot; 3 pages</div>
+            <a class="doc-case-link" href="#">Case #24-0298 &rarr;</a>
+          </div>
+          <!-- Doc 5 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-notes">&#128196;</div>
+            <div class="doc-name">Treatment Notes - Washington</div>
+            <div class="doc-meta">Mar 8, 2026 &middot; 3 pages</div>
+            <a class="doc-case-link" href="#">Case #24-0213 &rarr;</a>
+          </div>
+          <!-- Doc 6 -->
+          <div class="doc-card">
+            <div class="doc-icon doc-icon-rfc">&#128203;</div>
+            <div class="doc-name">Physical RFC Form - Gonzalez</div>
+            <div class="doc-meta">Nov 14, 2025 &middot; 3 pages</div>
+            <a class="doc-case-link" href="#">Case #24-0187 &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Contact Notes -->
+      <div class="section" id="notes">
+        <div class="section-header">
+          <div class="section-title">
+            Contact Notes <span class="section-count">3</span>
+          </div>
+        </div>
+
+        <!-- Note 1 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#0070F3;">SJ</div>
+            <div class="note-author">Sarah Johnson</div>
+            <div class="note-timestamp">Mar 22, 2026 at 2:15 PM</div>
+          </div>
+          <div class="note-body">
+            Called Dr. Freeman's office to request updated treatment notes for the Gonzalez case. Spoke with office manager — records will be faxed by end of week.
+          </div>
+        </div>
+
+        <!-- Note 2 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#8B5CF6;">ML</div>
+            <div class="note-author">Mike Lawson</div>
+            <div class="note-timestamp">Mar 10, 2026 at 10:42 AM</div>
+          </div>
+          <div class="note-body">
+            Dr. Freeman confirmed she is willing to provide a supplemental RFC opinion for the Washington case. She asked for a list of specific functional limitations we need addressed.
+          </div>
+        </div>
+
+        <!-- Note 3 -->
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-avatar" style="background:#F59E0B;">KR</div>
+            <div class="note-author">Karen Rodriguez</div>
+            <div class="note-timestamp">Feb 14, 2026 at 4:30 PM</div>
+          </div>
+          <div class="note-body">
+            Met with Dr. Freeman at Nashville Medical Associates regarding the Chen case. She reviewed the imaging and agrees the findings support significant functional limitations. Will complete RFC form within 2 weeks.
+          </div>
+        </div>
+
+        <!-- Add note input -->
+        <div class="note-input-wrapper">
+          <input class="note-input" type="text" placeholder="Add a note...">
+          <button class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Scroll behaviors
+     ============================================================ -->
+<script>
+(function() {
+  const main = document.getElementById('main');
+  const hero = document.getElementById('hero');
+
+  // Add subtle shadow to hero on scroll
+  main.addEventListener('scroll', function() {
+    if (main.scrollTop > 20) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  });
+
+  // Smooth scroll to section on nav click (if section nav is used)
+  document.querySelectorAll('[data-scroll-to]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.getElementById(el.getAttribute('data-scroll-to'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Intersection Observer for active section tracking
+  var sections = document.querySelectorAll('.section[id]');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        // Could be used for section nav highlighting
+        var id = entry.target.getAttribute('id');
+        document.querySelectorAll('.section-nav-link').forEach(function(link) {
+          link.classList.toggle('active', link.getAttribute('data-scroll-to') === id);
+        });
+      }
+    });
+  }, {
+    root: main,
+    rootMargin: '-20% 0px -60% 0px',
+    threshold: 0
+  });
+
+  sections.forEach(function(s) { observer.observe(s); });
+
+  // Patient card click handler
+  document.querySelectorAll('.patient-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Document card click handler
+  document.querySelectorAll('.doc-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      card.style.borderColor = 'var(--emerald)';
+      setTimeout(function() {
+        card.style.borderColor = '';
+      }, 300);
+    });
+  });
+
+  // Note save button
+  var saveBtn = document.querySelector('.btn-save');
+  var noteInput = document.querySelector('.note-input');
+  if (saveBtn && noteInput) {
+    saveBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        // Flash feedback
+        saveBtn.textContent = 'Saved';
+        saveBtn.style.background = 'var(--emerald)';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.borderColor = 'var(--emerald)';
+        setTimeout(function() {
+          saveBtn.textContent = 'Save';
+          saveBtn.style.background = '';
+          saveBtn.style.color = '';
+          saveBtn.style.borderColor = '';
+          noteInput.value = '';
+        }, 1200);
+      }
+    });
+
+    noteInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        saveBtn.click();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

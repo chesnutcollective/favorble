@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorble — Dr. James Patel — Contact (Card Grid)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — VERCEL LIGHT + CHARCOAL EMERALD SIDEBAR
+     ============================================================ */
+  :root {
+    /* Surface */
+    --bg-root:        #FAFAFA;
+    --bg-card:        #FFFFFF;
+    --bg-card-alt:    #F7F7F7;
+    --bg-hover:       #F0F0F0;
+    --bg-input:       #FFFFFF;
+
+    /* Sidebar — charcoal + emerald */
+    --sidebar-bg:     #1A1D23;
+    --sidebar-hover:  #24282F;
+    --sidebar-active: #2A2F37;
+    --sidebar-text:   #9CA3AF;
+    --sidebar-text-h: #E5E7EB;
+    --sidebar-border: rgba(255,255,255,0.06);
+    --emerald:        #10B981;
+    --emerald-light:  #34D399;
+    --emerald-dark:   #059669;
+    --emerald-glow:   rgba(16,185,129,0.15);
+
+    /* Border */
+    --border:         #EAEAEA;
+    --border-hover:   #CCCCCC;
+    --border-focus:   #888888;
+
+    /* Text */
+    --text-primary:   #171717;
+    --text-secondary: #666666;
+    --text-tertiary:  #999999;
+
+    /* Accent */
+    --accent-black:   #000000;
+    --accent-blue:    #0070F3;
+    --accent-green:   #00C853;
+    --accent-amber:   #F5A623;
+    --accent-red:     #EE0000;
+
+    /* Typography */
+    --font-sans:      'Geist', system-ui, -apple-system, sans-serif;
+    --font-mono:      'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+    /* Radius */
+    --radius:         6px;
+    --radius-sm:      4px;
+    --radius-lg:      8px;
+
+    /* Transitions */
+    --transition:     200ms ease;
+
+    /* Spacing */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-8: 32px;
+    --sp-10: 40px;
+    --sp-12: 48px;
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ============================================================
+     SIDEBAR — CHARCOAL + EMERALD
+     ============================================================ */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4) 0;
+    border-right: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .sidebar-brand .logo {
+    width: 26px;
+    height: 26px;
+    background: var(--emerald);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-brand .logo svg {
+    width: 14px;
+    height: 14px;
+    fill: white;
+  }
+
+  .sidebar-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: #FFFFFF;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--sp-5);
+  }
+
+  .sidebar-section-label {
+    padding: 0 var(--sp-5);
+    margin-bottom: var(--sp-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-5);
+    font-size: 13px;
+    color: var(--sidebar-text);
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-h);
+    background: var(--sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    color: var(--emerald-light);
+    background: var(--sidebar-active);
+    border-right: 2px solid var(--emerald);
+  }
+
+  .sidebar-link .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .sidebar-link.active .icon { opacity: 1; }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--emerald-light);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    padding: var(--sp-3) var(--sp-5);
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 13px;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sidebar-text-h);
+  }
+
+  /* ============================================================
+     MAIN CONTENT
+     ============================================================ */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     HEADER BAR — STICKY TOP
+     ============================================================ */
+  .header-bar {
+    display: flex;
+    align-items: center;
+    padding: var(--sp-4) var(--sp-8);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    min-height: 64px;
+    gap: var(--sp-4);
+    flex-shrink: 0;
+  }
+
+  .header-back {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: color var(--transition);
+    white-space: nowrap;
+  }
+
+  .header-back:hover {
+    color: var(--text-primary);
+  }
+
+  .header-back svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 var(--sp-2);
+  }
+
+  .header-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .header-name {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--emerald-glow);
+    color: var(--emerald-dark);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    width: fit-content;
+    margin-top: 2px;
+  }
+
+  .header-badge svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--sp-2);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 7px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-primary {
+    background: var(--accent-black);
+    color: #FFFFFF;
+    border-color: var(--accent-black);
+  }
+
+  .btn-primary:hover {
+    background: #333333;
+    border-color: #333333;
+  }
+
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+    padding: 7px 8px;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .btn-emerald {
+    background: var(--emerald);
+    color: #FFFFFF;
+    border-color: var(--emerald-dark);
+  }
+
+  .btn-emerald:hover {
+    background: var(--emerald-dark);
+  }
+
+  /* ============================================================
+     CARD GRID AREA
+     ============================================================ */
+  .card-grid-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-6) var(--sp-8) var(--sp-12);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-5);
+    max-width: 1200px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-5);
+    transition: border-color var(--transition);
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .card-full {
+    grid-column: span 2;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-4);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .card-action {
+    font-size: 12px;
+    color: var(--accent-blue);
+    cursor: pointer;
+    transition: color var(--transition);
+  }
+
+  .card-action:hover {
+    color: #005BC4;
+  }
+
+  /* ============================================================
+     CARD 1: CONTACT INFORMATION
+     ============================================================ */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-4) var(--sp-6);
+  }
+
+  .info-field {}
+
+  .info-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .info-value a {
+    color: var(--accent-blue);
+  }
+
+  .info-value a:hover {
+    text-decoration: underline;
+  }
+
+  /* ============================================================
+     CARD 2: QUICK STATS
+     ============================================================ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-4);
+  }
+
+  .stat-item {
+    padding: var(--sp-3);
+    background: var(--bg-card-alt);
+    border-radius: var(--radius);
+  }
+
+  .stat-number {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    font-feature-settings: "tnum";
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    margin-top: var(--sp-1);
+  }
+
+  .stat-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .stat-sublabel {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+     CARD 3: ASSOCIATED CASES TABLE
+     ============================================================ */
+  .compact-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .compact-table th {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    padding: var(--sp-2) var(--sp-3);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compact-table td {
+    font-size: 13px;
+    padding: var(--sp-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .compact-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .compact-table tbody tr {
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .compact-table tbody tr:hover {
+    background: var(--bg-hover);
+  }
+
+  .case-link {
+    color: var(--accent-blue);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .stage-badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .stage-active {
+    background: rgba(0,200,83,0.1);
+    color: #00A854;
+  }
+
+  .stage-review {
+    background: rgba(245,166,35,0.1);
+    color: #D48A07;
+  }
+
+  .stage-discovery {
+    background: rgba(0,112,243,0.1);
+    color: var(--accent-blue);
+  }
+
+  .stage-closed {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+  }
+
+  /* ============================================================
+     CARD 4: RECENT DOCUMENTS
+     ============================================================ */
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-item:last-child {
+    border-bottom: none;
+  }
+
+  .doc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .doc-icon svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-secondary);
+  }
+
+  .doc-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .doc-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .doc-meta a {
+    color: var(--accent-blue);
+  }
+
+  /* ============================================================
+     CARD 5: UPCOMING APPOINTMENTS
+     ============================================================ */
+  .appt-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--border);
+    padding-left: var(--sp-3);
+    border-left: 3px solid transparent;
+  }
+
+  .appt-item:last-child {
+    border-bottom: none;
+  }
+
+  .appt-item.appt-office { border-left-color: var(--accent-blue); }
+  .appt-item.appt-followup { border-left-color: var(--emerald); }
+  .appt-item.appt-exam { border-left-color: var(--accent-amber); }
+
+  .appt-info {
+    flex: 1;
+  }
+
+  .appt-patient {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .appt-type {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .appt-date {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     CARD 6: MEDICAL CHRONOLOGY ENTRIES
+     ============================================================ */
+  .chrono-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+
+  .chrono-filter select {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    padding: 4px 24px 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+
+  .chrono-filter label {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .chrono-entry {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chrono-entry:last-child {
+    border-bottom: none;
+  }
+
+  .chrono-date {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    padding-top: 1px;
+  }
+
+  .chrono-content {}
+
+  .chrono-patient {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent-blue);
+    margin-bottom: 2px;
+  }
+
+  .chrono-summary {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .chrono-dx {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+     CARD 7: COMMUNICATION LOG
+     ============================================================ */
+  .comm-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comm-item:last-child {
+    border-bottom: none;
+  }
+
+  .comm-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .comm-details { flex: 1; }
+
+  .comm-subject {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .comm-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .comm-direction {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ============================================================
+     CARD 8: NOTES
+     ============================================================ */
+  .note-item {
+    padding: var(--sp-3);
+    background: var(--bg-card-alt);
+    border-radius: var(--radius);
+    margin-bottom: var(--sp-3);
+  }
+
+  .note-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .note-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  .note-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-top: var(--sp-2);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .note-author {
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .notes-add {
+    margin-top: var(--sp-3);
+  }
+
+  /* ============================================================
+     DROPDOWN (three dots)
+     ============================================================ */
+  .dropdown-wrapper {
+    position: relative;
+  }
+
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-width: 160px;
+    z-index: 100;
+    padding: 4px;
+  }
+
+  .dropdown-wrapper.open .dropdown-menu {
+    display: block;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .dropdown-item:hover {
+    background: var(--bg-hover);
+  }
+
+  .dropdown-item svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-secondary);
+  }
+
+  .dropdown-item.danger {
+    color: var(--accent-red);
+  }
+
+  .dropdown-item.danger svg {
+    color: var(--accent-red);
+  }
+
+  .dropdown-sep {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  /* ============================================================
+     SCROLLBAR
+     ============================================================ */
+  .card-grid-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .card-grid-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .card-grid-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .card-grid-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========================================
+       SIDEBAR — CHARCOAL + EMERALD
+       ======================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span>Favorble</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </span>
+        Dashboard
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        Cases
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link active" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span>
+        Contacts
+        <span class="badge">312</span>
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        Calendar
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </span>
+        Documents
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
+        Chronology
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        Reports
+      </a>
+      <a class="sidebar-link" href="#">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        Settings
+      </a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-user">
+      <div class="avatar">SK</div>
+      Sarah Kim
+    </div>
+  </aside>
+
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <div class="main">
+
+    <!-- HEADER BAR -->
+    <div class="header-bar">
+      <a class="header-back" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Contacts
+      </a>
+
+      <div class="header-divider"></div>
+
+      <div class="header-identity">
+        <div class="header-avatar">JP</div>
+        <div class="header-info">
+          <div class="header-name">Dr. James Patel</div>
+          <div class="header-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Medical Provider
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
+        </button>
+        <button class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+        <div class="dropdown-wrapper" id="moreDropdown">
+          <button class="btn btn-ghost" onclick="document.getElementById('moreDropdown').classList.toggle('open')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <div class="dropdown-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Duplicate
+            </div>
+            <div class="dropdown-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export vCard
+            </div>
+            <div class="dropdown-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Merge Contact
+            </div>
+            <div class="dropdown-sep"></div>
+            <div class="dropdown-item danger">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Delete Contact
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD GRID -->
+    <div class="card-grid-wrapper">
+      <div class="card-grid">
+
+        <!-- ============================
+             CARD 1: Contact Information
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Contact Information</div>
+          </div>
+          <div class="info-grid">
+            <div class="info-field">
+              <div class="info-label">Email</div>
+              <div class="info-value"><a href="mailto:j.patel@nashvillemedical.com">j.patel@nashvillemedical.com</a></div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Phone</div>
+              <div class="info-value">(615) 555-0142</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Fax</div>
+              <div class="info-value">(615) 555-0143</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Address</div>
+              <div class="info-value">2100 Church St, Ste 400<br>Nashville, TN 37203</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Specialty</div>
+              <div class="info-value">Rheumatology</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Practice</div>
+              <div class="info-value">Nashville Medical Associates</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">NPI #</div>
+              <div class="info-value" style="font-family: var(--font-mono); font-size: 12px;">1234567890</div>
+            </div>
+            <div class="info-field">
+              <div class="info-label">Provider Type</div>
+              <div class="info-value">Treating Physician</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 2: Quick Stats
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Stats</div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">8</div>
+              <div class="stat-label">Patients (Cases)</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">24</div>
+              <div class="stat-label">Documents Authored</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-date">Mar 15, 2026</div>
+              <div class="stat-label">Last Appointment</div>
+              <div class="stat-sublabel">12 days ago</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-date">Apr 22, 2026</div>
+              <div class="stat-label">Next Appointment</div>
+              <div class="stat-sublabel">in 25 days</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 3: Associated Cases (full width)
+             ============================ -->
+        <div class="card card-full">
+          <div class="card-header">
+            <div class="card-title">Associated Cases</div>
+            <div class="card-action">View all &rarr;</div>
+          </div>
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Case #</th>
+                <th>Relationship</th>
+                <th>Stage</th>
+                <th>Last Visit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Margaret Sullivan</td>
+                <td><span class="case-link">CS-2024-0891</span></td>
+                <td>Treating Physician</td>
+                <td><span class="stage-badge stage-active">Active</span></td>
+                <td>Mar 15, 2026</td>
+              </tr>
+              <tr>
+                <td>Robert Chen</td>
+                <td><span class="case-link">CS-2024-1102</span></td>
+                <td>Treating Physician</td>
+                <td><span class="stage-badge stage-active">Active</span></td>
+                <td>Mar 10, 2026</td>
+              </tr>
+              <tr>
+                <td>Diana Kowalski</td>
+                <td><span class="case-link">CS-2025-0044</span></td>
+                <td>Consulting Specialist</td>
+                <td><span class="stage-badge stage-discovery">Discovery</span></td>
+                <td>Feb 28, 2026</td>
+              </tr>
+              <tr>
+                <td>Thomas Wright</td>
+                <td><span class="case-link">CS-2024-0567</span></td>
+                <td>Treating Physician</td>
+                <td><span class="stage-badge stage-review">In Review</span></td>
+                <td>Feb 14, 2026</td>
+              </tr>
+              <tr>
+                <td>Angela Morales</td>
+                <td><span class="case-link">CS-2023-1890</span></td>
+                <td>Treating Physician</td>
+                <td><span class="stage-badge stage-closed">Settled</span></td>
+                <td>Jan 30, 2026</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ============================
+             CARD 4: Recent Documents
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Documents</div>
+            <div class="card-action">View all &rarr;</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="doc-details">
+              <div class="doc-name">Progress Notes - Sullivan, Margaret</div>
+              <div class="doc-meta">Mar 15, 2026 &middot; <a href="#">CS-2024-0891</a></div>
+            </div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="doc-details">
+              <div class="doc-name">Rheumatology Consult Report - Chen, Robert</div>
+              <div class="doc-meta">Mar 10, 2026 &middot; <a href="#">CS-2024-1102</a></div>
+            </div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="doc-details">
+              <div class="doc-name">Lab Results - ANA Panel - Kowalski, Diana</div>
+              <div class="doc-meta">Feb 28, 2026 &middot; <a href="#">CS-2025-0044</a></div>
+            </div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="doc-details">
+              <div class="doc-name">IME Rebuttal Report - Wright, Thomas</div>
+              <div class="doc-meta">Feb 14, 2026 &middot; <a href="#">CS-2024-0567</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 5: Upcoming Appointments
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Upcoming Appointments</div>
+          </div>
+          <div class="appt-item appt-office">
+            <div class="appt-info">
+              <div class="appt-patient">Margaret Sullivan</div>
+              <div class="appt-type">Office Visit</div>
+            </div>
+            <div class="appt-date">Apr 22, 2026</div>
+          </div>
+          <div class="appt-item appt-followup">
+            <div class="appt-info">
+              <div class="appt-patient">Robert Chen</div>
+              <div class="appt-type">Follow-up</div>
+            </div>
+            <div class="appt-date">Apr 29, 2026</div>
+          </div>
+          <div class="appt-item appt-exam">
+            <div class="appt-info">
+              <div class="appt-patient">Diana Kowalski</div>
+              <div class="appt-type">CE Exam</div>
+            </div>
+            <div class="appt-date">May 06, 2026</div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 6: Medical Chronology Entries (full width)
+             ============================ -->
+        <div class="card card-full">
+          <div class="card-header">
+            <div class="card-title">Medical Chronology Entries</div>
+            <div class="chrono-filter">
+              <label>Filter by patient:</label>
+              <select>
+                <option>All Patients</option>
+                <option>Margaret Sullivan</option>
+                <option>Robert Chen</option>
+                <option>Diana Kowalski</option>
+                <option>Thomas Wright</option>
+                <option>Angela Morales</option>
+              </select>
+            </div>
+          </div>
+          <div class="chrono-entry">
+            <div class="chrono-date">Mar 15, 2026</div>
+            <div class="chrono-content">
+              <div class="chrono-patient">Margaret Sullivan</div>
+              <div class="chrono-summary">Follow-up evaluation for rheumatoid arthritis. Patient reports decreased joint stiffness with current medication regimen. Bilateral hand X-rays ordered.</div>
+              <div class="chrono-dx">Dx: Rheumatoid arthritis, seropositive (M05.79)</div>
+            </div>
+          </div>
+          <div class="chrono-entry">
+            <div class="chrono-date">Mar 10, 2026</div>
+            <div class="chrono-content">
+              <div class="chrono-patient">Robert Chen</div>
+              <div class="chrono-summary">Initial rheumatology consultation. Presenting with symmetric polyarthralgia and elevated inflammatory markers. Started methotrexate 15mg weekly.</div>
+              <div class="chrono-dx">Dx: Inflammatory polyarthropathy, unspecified (M06.9)</div>
+            </div>
+          </div>
+          <div class="chrono-entry">
+            <div class="chrono-date">Feb 28, 2026</div>
+            <div class="chrono-content">
+              <div class="chrono-patient">Diana Kowalski</div>
+              <div class="chrono-summary">Reviewed ANA panel results. Positive ANA 1:640, speckled pattern. Recommended additional testing for lupus antibodies. Patient counseled on findings.</div>
+              <div class="chrono-dx">Dx: Positive ANA, evaluation for SLE (R76.0)</div>
+            </div>
+          </div>
+          <div class="chrono-entry">
+            <div class="chrono-date">Feb 14, 2026</div>
+            <div class="chrono-content">
+              <div class="chrono-patient">Thomas Wright</div>
+              <div class="chrono-summary">Prepared rebuttal to IME report disputing causation. Documented objective findings supporting work-related inflammatory arthritis diagnosis.</div>
+              <div class="chrono-dx">Dx: Other reactive arthropathies (M02.89)</div>
+            </div>
+          </div>
+          <div class="chrono-entry">
+            <div class="chrono-date">Jan 30, 2026</div>
+            <div class="chrono-content">
+              <div class="chrono-patient">Angela Morales</div>
+              <div class="chrono-summary">Final progress note for case settlement. Patient at maximum medical improvement. Permanent impairment rating provided per AMA Guides.</div>
+              <div class="chrono-dx">Dx: Psoriatic arthritis, multiple sites (L40.59)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 7: Communication Log
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Communication Log</div>
+            <div class="card-action">View all &rarr;</div>
+          </div>
+          <div class="comm-item">
+            <div class="comm-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="comm-details">
+              <div class="comm-subject">RE: Sullivan records request</div>
+              <div class="comm-meta"><span class="comm-direction">Received</span> &middot; Mar 18, 2026 &middot; CS-2024-0891</div>
+            </div>
+          </div>
+          <div class="comm-item">
+            <div class="comm-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </div>
+            <div class="comm-details">
+              <div class="comm-subject">Deposition scheduling - Wright case</div>
+              <div class="comm-meta"><span class="comm-direction">Sent</span> &middot; Mar 12, 2026 &middot; CS-2024-0567</div>
+            </div>
+          </div>
+          <div class="comm-item">
+            <div class="comm-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="comm-details">
+              <div class="comm-subject">Medical records subpoena - Kowalski</div>
+              <div class="comm-meta"><span class="comm-direction">Sent</span> &middot; Feb 20, 2026 &middot; CS-2025-0044</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================
+             CARD 8: Notes
+             ============================ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Notes</div>
+          </div>
+          <div class="note-item">
+            <div class="note-text">Dr. Patel prefers correspondence via fax for medical records. Office staff (contact: Lisa, ext. 204) handles scheduling for depositions. Typically available Tuesday and Thursday afternoons.</div>
+            <div class="note-footer">
+              <span class="note-author">Sarah Kim</span>
+              &middot;
+              Mar 20, 2026 at 2:15 PM
+            </div>
+          </div>
+          <div class="note-item">
+            <div class="note-text">Board certified in rheumatology and internal medicine. Fellowship at Vanderbilt. Has testified as expert witness in 3 previous cases for our firm -- always well-prepared and credible.</div>
+            <div class="note-footer">
+              <span class="note-author">David Park</span>
+              &middot;
+              Jan 08, 2026 at 10:42 AM
+            </div>
+          </div>
+          <div class="notes-add">
+            <button class="btn btn-secondary btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add note
+            </button>
+          </div>
+        </div>
+
+      </div><!-- .card-grid -->
+    </div><!-- .card-grid-wrapper -->
+
+  </div><!-- .main -->
+
+</div><!-- .app -->
+
+<script>
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    var dropdown = document.getElementById('moreDropdown');
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+</script>
+
+</body>
+</html>
