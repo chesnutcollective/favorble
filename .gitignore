@@ -1,36 +1,10 @@
-# Dependencies
+# Generated directories (recreated by npm install / next build)
 node_modules/
-
-# Next.js
 .next/
 out/
-
-# Build
 dist/
-
-# Environment
-.env
-.env.local
-.env.*.local
+.vercel/output/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-
-# TypeScript
-*.tsbuildinfo
-
-# Vercel
-.vercel
-
-# Cursor scratchpad
-.cursor/scratchpad/
-
-CLAUDE.local.md
-
-supabase/.temp/
-.env*.local
