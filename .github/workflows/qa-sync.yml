@@ -1,0 +1,105 @@
+name: QA Sync — Fingerprint
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'db/**'
+      - 'lib/**'
+
+jobs:
+  fingerprint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract code fingerprint
+        id: fingerprint
+        run: |
+          # Extract routes from page.tsx files
+          ROUTES=$(find app -name "page.tsx" -not -path "*/api/*" | sort | while read f; do
+            # Convert file path to URL route
+            route=$(echo "$f" \
+              | sed 's|^app/||' \
+              | sed 's|/page\.tsx$||' \
+              | sed 's|([^)]*)\/||g' \
+              | sed 's|\[([^]]*)\]|:\1|g' \
+              | sed 's|^|/|')
+            echo "{\"path\":\"$route\",\"file\":\"$f\"}"
+          done | jq -s '.')
+
+          # Extract server action files
+          ACTIONS=$(find app/actions -name "*.ts" -not -name "*.test.*" 2>/dev/null | sort | while read f; do
+            name=$(basename "$f" .ts)
+            echo "{\"name\":\"$name\",\"file\":\"$f\"}"
+          done | jq -s '.')
+
+          # Extract component files
+          COMPONENTS=$(find components -name "*.tsx" -not -name "*.test.*" 2>/dev/null | sort | while read f; do
+            basename "$f" .tsx
+          done | jq -R -s 'split("\n") | map(select(. != ""))')
+
+          # Extract DB schema tables (from Drizzle schema files)
+          TABLES="[]"
+          if [ -d db/schema ]; then
+            TABLES=$(grep -rhoP '(?<=export const )\w+(?= =)' db/schema/*.ts 2>/dev/null \
+              | jq -R -s 'split("\n") | map(select(. != ""))' || echo "[]")
+          fi
+
+          # Build fingerprint JSON
+          FINGERPRINT=$(jq -n \
+            --argjson routes "$ROUTES" \
+            --argjson actions "$ACTIONS" \
+            --argjson components "$COMPONENTS" \
+            --argjson schemaTables "$TABLES" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg commitSha "${{ github.sha }}" \
+            '{
+              routes: $routes,
+              actions: $actions,
+              components: $components,
+              schemaTables: $schemaTables,
+              schemaEnums: [],
+              timestamp: $timestamp,
+              commitSha: $commitSha
+            }')
+
+          # Write to file to avoid shell escaping issues
+          echo "$FINGERPRINT" > /tmp/fingerprint.json
+
+      - name: Post fingerprint to Collab QA Sync
+        env:
+          QA_SYNC_SECRET: ${{ secrets.QA_SYNC_SECRET }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg clientSlug "hogansmith" \
+            --arg appSlug "favorble" \
+            --arg repo "jakekklinvex/favorble" \
+            --arg commitSha "${{ github.sha }}" \
+            --slurpfile fingerprint /tmp/fingerprint.json \
+            '{
+              clientSlug: $clientSlug,
+              appSlug: $appSlug,
+              repo: $repo,
+              fingerprint: $fingerprint[0],
+              commitSha: $commitSha
+            }')
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://collab.preview.gloo.us/api/qa-sync/fingerprint" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${QA_SYNC_SECRET}" \
+            -d "$PAYLOAD")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response ($HTTP_CODE): $BODY"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::QA Sync API returned HTTP $HTTP_CODE"
+            exit 1
+          fi
