@@ -1,91 +1,93 @@
 import "server-only";
-import { createClient } from "@/db/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 export type SessionUser = {
-  id: string;
-  organizationId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-  role: string;
-  team: string | null;
+	id: string;
+	organizationId: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	avatarUrl: string | null;
+	role: string;
+	team: string | null;
 };
 
-// Demo user — try to load the real admin from DB, fall back to hardcoded
-let _cachedDemoUser: SessionUser | null = null;
+async function findOrCreateUser(
+	clerkUserId: string,
+): Promise<SessionUser | null> {
+	// Look up user by Clerk auth ID
+	const [existingUser] = await db
+		.select({
+			id: users.id,
+			organizationId: users.organizationId,
+			email: users.email,
+			firstName: users.firstName,
+			lastName: users.lastName,
+			avatarUrl: users.avatarUrl,
+			role: users.role,
+			team: users.team,
+		})
+		.from(users)
+		.where(eq(users.authUserId, clerkUserId))
+		.limit(1);
 
-async function getDemoUser(): Promise<SessionUser> {
-  if (_cachedDemoUser) return _cachedDemoUser;
-  try {
-    const [adminUser] = await db
-      .select({
-        id: users.id,
-        organizationId: users.organizationId,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        avatarUrl: users.avatarUrl,
-        role: users.role,
-        team: users.team,
-      })
-      .from(users)
-      .where(eq(users.role, "admin"))
-      .limit(1);
-    if (adminUser) {
-      _cachedDemoUser = adminUser;
-      return adminUser;
-    }
-  } catch {
-    // DB unavailable
-  }
-  // Last resort: try raw SQL to avoid ORM initialization issues
-  try {
-    const pg = (await import("postgres")).default;
-    const connStr = process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
-    if (connStr) {
-      const sql = pg(connStr, { prepare: false, max: 1 });
-      const rows =
-        await sql`SELECT id, organization_id, email, first_name, last_name, avatar_url, role, team FROM users WHERE role = 'admin' LIMIT 1`;
-      await sql.end();
-      if (rows[0]) {
-        const r = rows[0];
-        _cachedDemoUser = {
-          id: r.id,
-          organizationId: r.organization_id,
-          email: r.email,
-          firstName: r.first_name,
-          lastName: r.last_name,
-          avatarUrl: r.avatar_url,
-          role: r.role,
-          team: r.team,
-        };
-        return _cachedDemoUser;
-      }
-    }
-  } catch {
-    // truly unavailable
-  }
-  return {
-    id: "demo-user",
-    organizationId: "demo-org",
-    email: "admin@hogansmith.com",
-    firstName: "Jake",
-    lastName: "Admin",
-    avatarUrl: null,
-    role: "admin",
-    team: "administration",
-  };
+	if (existingUser) return existingUser;
+
+	// User signed in via Clerk but doesn't exist in our DB yet.
+	// Try to match by email from Clerk profile.
+	const clerkUser = await currentUser();
+	if (!clerkUser?.emailAddresses?.[0]?.emailAddress) return null;
+
+	const email = clerkUser.emailAddresses[0].emailAddress;
+	const [matchedByEmail] = await db
+		.select({
+			id: users.id,
+			organizationId: users.organizationId,
+			email: users.email,
+			firstName: users.firstName,
+			lastName: users.lastName,
+			avatarUrl: users.avatarUrl,
+			role: users.role,
+			team: users.team,
+			authUserId: users.authUserId,
+		})
+		.from(users)
+		.where(eq(users.email, email))
+		.limit(1);
+
+	if (matchedByEmail) {
+		// Link Clerk user to existing DB user
+		if (!matchedByEmail.authUserId) {
+			await db
+				.update(users)
+				.set({ authUserId: clerkUserId })
+				.where(eq(users.id, matchedByEmail.id));
+		}
+		return matchedByEmail;
+	}
+
+	return null;
 }
 
 export async function getSession(): Promise<SessionUser | null> {
-  return getDemoUser();
+	const { userId } = await auth();
+	if (!userId) return null;
+
+	try {
+		return await findOrCreateUser(userId);
+	} catch {
+		return null;
+	}
 }
 
 export async function requireSession(): Promise<SessionUser> {
-  return getDemoUser();
+	const session = await getSession();
+	if (!session) {
+		redirect("/login");
+	}
+	return session;
 }

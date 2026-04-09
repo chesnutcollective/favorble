@@ -1,20 +1,19 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export async function middleware(_request: NextRequest) {
-  // Auth disabled for demo — all routes are public
-  return NextResponse.next();
-}
+const isPublicRoute = createRouteMatcher([
+	"/login(.*)",
+	"/sign-up(.*)",
+	"/api/webhooks(.*)",
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+	if (!isPublicRoute(request)) {
+		await auth.protect();
+	}
+});
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico, sitemap.xml, robots.txt
-     * - public files (images, etc.)
-     * - api routes (handled separately)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+	matcher: [
+		"/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+	],
 };
