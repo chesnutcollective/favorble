@@ -1,3 +1,4 @@
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { healthRoutes } from "./routes/health.js";
 import { jobRoutes } from "./routes/jobs.js";
@@ -12,7 +13,4 @@ app.route("/api/sessions", sessionRoutes);
 const port = parseInt(process.env.PORT || "3000");
 console.log(`ere-orchestrator starting on port ${port}`);
 
-export default {
-  port,
-  fetch: app.fetch,
-};
+serve({ fetch: app.fetch, port });
