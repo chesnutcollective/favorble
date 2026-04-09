@@ -42,9 +42,10 @@ jobRoutes.post("/", async (c) => {
     }
 
     const validJobTypes: JobType[] = [
-      "ere_pull",
-      "ere_status_check",
-      "ere_submit",
+      "full_scrape",
+      "incremental_sync",
+      "document_download",
+      "status_check",
     ];
     if (!validJobTypes.includes(body.jobType)) {
       return c.json(

@@ -1,6 +1,10 @@
 import postgres from "postgres";
 
-export type JobType = "ere_pull" | "ere_status_check" | "ere_submit";
+export type JobType =
+	| "full_scrape"
+	| "incremental_sync"
+	| "document_download"
+	| "status_check";
 export type JobStatus =
   | "pending"
   | "running"

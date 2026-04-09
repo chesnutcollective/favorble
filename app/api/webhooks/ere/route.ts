@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
-import { ereJobs, ereCredentials, documents, cases } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  ereJobs,
+  ereCredentials,
+  documents,
+  cases,
+  scrapedCaseData,
+} from "@/db/schema";
+import { eq, and, isNull } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -127,6 +134,56 @@ export async function POST(request: NextRequest) {
               updatedAt: new Date(),
             })
             .where(eq(cases.id, job.caseId));
+
+          // Insert scraped data if present
+          if (body.scrapedData) {
+            const [jobRow] = await db
+              .select({ organizationId: ereJobs.organizationId })
+              .from(ereJobs)
+              .where(eq(ereJobs.id, body.jobId))
+              .limit(1);
+
+            if (jobRow) {
+              await db.insert(scrapedCaseData).values({
+                organizationId: jobRow.organizationId,
+                caseId: job.caseId,
+                ereJobId: body.jobId,
+                claimStatus: body.scrapedData.claimStatus ?? null,
+                hearingDate: body.scrapedData.hearingDate
+                  ? new Date(body.scrapedData.hearingDate)
+                  : null,
+                hearingOffice: body.scrapedData.hearingOffice ?? null,
+                adminLawJudge: body.scrapedData.adminLawJudge ?? null,
+                documentsOnFile: body.scrapedData.documentsOnFile ?? null,
+                rawData: body.scrapedData,
+              });
+
+              // Reconcile: fill empty case fields from scraped data (additive only)
+              await db
+                .update(cases)
+                .set({
+                  hearingOffice: sql`COALESCE(${cases.hearingOffice}, ${body.scrapedData.hearingOffice ?? null})`,
+                  adminLawJudge: sql`COALESCE(${cases.adminLawJudge}, ${body.scrapedData.adminLawJudge ?? null})`,
+                  updatedAt: new Date(),
+                })
+                .where(eq(cases.id, job.caseId));
+
+              // Mark scraped data as reconciled
+              await db
+                .update(scrapedCaseData)
+                .set({ reconciledAt: new Date() })
+                .where(
+                  and(
+                    eq(scrapedCaseData.caseId, job.caseId),
+                    isNull(scrapedCaseData.reconciledAt),
+                  ),
+                );
+
+              logger.info("Scraped data reconciled", {
+                caseId: job.caseId,
+              });
+            }
+          }
 
           logger.info("Case ERE status updated", {
             caseId: job.caseId,

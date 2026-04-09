@@ -1,7 +1,13 @@
 import { requireSession } from "@/lib/auth/session";
 import { db } from "@/db/drizzle";
-import { cases, documents, ereCredentials, ereJobs } from "@/db/schema";
-import { documentProcessingResults } from "@/db/schema";
+import {
+  cases,
+  documents,
+  ereCredentials,
+  ereJobs,
+  scrapedCaseData,
+  documentProcessingResults,
+} from "@/db/schema";
 import { eq, and, desc, isNull } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +37,24 @@ async function fetchCaseSsaData(caseId: string) {
     .from(cases)
     .where(eq(cases.id, caseId));
   return result[0];
+}
+
+async function fetchLatestScrape(caseId: string) {
+  const [row] = await db
+    .select({
+      claimStatus: scrapedCaseData.claimStatus,
+      hearingDate: scrapedCaseData.hearingDate,
+      hearingOffice: scrapedCaseData.hearingOffice,
+      adminLawJudge: scrapedCaseData.adminLawJudge,
+      documentsOnFile: scrapedCaseData.documentsOnFile,
+      reconciledAt: scrapedCaseData.reconciledAt,
+      createdAt: scrapedCaseData.createdAt,
+    })
+    .from(scrapedCaseData)
+    .where(eq(scrapedCaseData.caseId, caseId))
+    .orderBy(desc(scrapedCaseData.createdAt))
+    .limit(1);
+  return row ?? null;
 }
 
 async function fetchEreData(caseId: string, organizationId: string) {
@@ -141,8 +165,10 @@ export default async function CaseSsaPage({
   }
 
   let ereData: Awaited<ReturnType<typeof fetchEreData>> | null = null;
+  let latestScrape: Awaited<ReturnType<typeof fetchLatestScrape>> | null = null;
   try {
     ereData = await fetchEreData(caseId, caseData.organizationId);
+    latestScrape = await fetchLatestScrape(caseId);
   } catch {
     // ERE data unavailable
   }
@@ -266,6 +292,58 @@ export default async function CaseSsaPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Scraped SSA Data (from ERE) */}
+      {latestScrape && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-medium text-foreground">
+                  SSA Data (from ERE)
+                </h3>
+                <p className="text-sm text-[#666]">
+                  Last scraped{" "}
+                  {latestScrape.createdAt.toLocaleDateString()}
+                </p>
+              </div>
+              {latestScrape.reconciledAt ? (
+                <Badge variant="outline">Reconciled</Badge>
+              ) : (
+                <Badge variant="secondary">Pending reconciliation</Badge>
+              )}
+            </div>
+            <div className="grid gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-b [&>*]:border-border/40 [&>*:nth-last-child(-n+3)]:border-b-0">
+              <InfoItem
+                label="Claim Status"
+                value={latestScrape.claimStatus}
+              />
+              <InfoItem
+                label="Hearing Date"
+                value={
+                  latestScrape.hearingDate
+                    ? latestScrape.hearingDate.toLocaleDateString()
+                    : null
+                }
+              />
+              <InfoItem
+                label="Hearing Office"
+                value={latestScrape.hearingOffice}
+              />
+              <InfoItem
+                label="Administrative Law Judge"
+                value={latestScrape.adminLawJudge}
+              />
+              <InfoItem
+                label="Documents on File"
+                value={
+                  latestScrape.documentsOnFile?.toString() ?? null
+                }
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ERE Monitoring */}
       <EreScrapingCard
