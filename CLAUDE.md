@@ -55,8 +55,8 @@ hogansmith/
 ### Tech Stack
 - **Framework**: Next.js 15 with App Router
 - **UI**: React 19, shadcn/ui, Tailwind CSS v4
-- **Database**: PostgreSQL, Drizzle ORM
-- **Auth**: Simple cookie-based authentication
+- **Database**: PostgreSQL (Railway), Drizzle ORM
+- **Auth**: Clerk
 - **Testing**: Vitest
 - **Linting**: ESLint
 - **Formatting**: Biome
@@ -69,11 +69,34 @@ hogansmith/
 - **Services Layer**: Keep database access in service modules instead of route handlers or UI components.
 - **Formatting**: Use Biome formatting; do not mix with Prettier.
 
+## Deployment
+
+### Environments
+| Environment | URL | Git Branch | Database |
+|---|---|---|---|
+| **Production** | https://favorble.vercel.app | `main` | Railway production (`mainline.proxy.rlwy.net:43373`) |
+| **Staging** | https://staging-favorble.vercel.app | `staging` | Railway staging (`switchback.proxy.rlwy.net:19378`) |
+
+- **Vercel** hosts the Next.js frontend (team: `chestnutcollective`)
+- **Railway** hosts PostgreSQL (with pgvector), Redis, and background services
+- **Clerk** handles authentication
+- Push to `main` → auto-deploys to production
+- Push to `staging` → auto-deploys to staging
+- Push to any other branch → preview deploy using staging database
+
+### Infrastructure
+- **Railway project**: `favorble` (account: `systems@chesnutcollective.com`)
+- **GitHub repo**: `chesnutcollective/favorble`
+- **Vercel team**: `chestnutcollective`
+
 ## Environment Variables
 
 Required (stored in `.env.local`):
-- No auth env vars required for simple auth
-- `DATABASE_URL` - PostgreSQL connection string (required when database is enabled)
+- `DATABASE_URL` - Railway PostgreSQL connection string
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- `CLERK_SECRET_KEY` - Clerk secret key
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL` - Sign-in route (`/login`)
+- `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` - Post-login redirect (`/dashboard`)
 - `NEXT_PUBLIC_POSTHOG_KEY` - PostHog analytics (optional)
 
 ## Pull Request Workflow
