@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -367,8 +368,18 @@ export function TwoTierNav({
         {/* ── Tier 1: Icon Rail ── */}
         <nav className="ttn-rail">
           {/* Logo */}
-          <Link href="/dashboard" className="ttn-logo">
-            <span>F</span>
+          <Link
+            href="/dashboard"
+            className="ttn-logo"
+            aria-label="Hogan Smith — Dashboard"
+          >
+            <Image
+              src="/hogansmith-mark.svg"
+              alt="Hogan Smith"
+              width={30}
+              height={30}
+              priority
+            />
           </Link>
 
           {/* Main nav icons */}

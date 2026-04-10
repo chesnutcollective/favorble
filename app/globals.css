@@ -263,8 +263,8 @@
 .ttn-logo {
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #263c94 0%, #1f3280 100%);
   border-radius: 8px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -273,15 +273,11 @@
   text-decoration: none;
 }
 
-.ttn-logo span {
-  font-size: 15px;
-  font-weight: 700;
-  color: #FFF;
-  letter-spacing: -0.02em;
-}
-
-[data-skin="apple"] .ttn-logo {
-  background: linear-gradient(135deg, #007AFF 0%, #0055D4 100%);
+.ttn-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* Rail group & spacer */
