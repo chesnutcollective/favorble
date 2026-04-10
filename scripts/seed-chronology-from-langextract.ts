@@ -170,7 +170,7 @@ async function main() {
 					extracted_text = ${text.slice(0, 50000)},
 					document_category = 'medical_record',
 					provider_name = ${provider?.extraction_text || null},
-					ai_classification = ${sql.json({ model: result.model, mock: result.mock, extractions })},
+					ai_classification = ${sql.json({ model: result.model, mock: result.mock, extractions } as any)},
 					ai_confidence = 80,
 					processing_time_ms = ${Date.now() - startTime},
 					updated_at = now()
