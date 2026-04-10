@@ -374,10 +374,10 @@ export function TwoTierNav({
             aria-label="Hogan Smith — Dashboard"
           >
             <Image
-              src="/hogansmith-mark.svg"
-              alt="Hogan Smith"
-              width={30}
-              height={30}
+              src="/hogansmith-badge.png"
+              alt="Hogan Smith Law"
+              width={88}
+              height={64}
               priority
             />
           </Link>

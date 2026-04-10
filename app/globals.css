@@ -261,9 +261,9 @@
 
 /* Logo */
 .ttn-logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 44px;
+  height: 32px;
+  border-radius: 6px;
   overflow: hidden;
   display: flex;
   align-items: center;
