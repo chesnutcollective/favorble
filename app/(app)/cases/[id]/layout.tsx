@@ -70,9 +70,9 @@ export default async function CaseDetailLayout({
       {/* Case Header */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 space-y-3">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate">
                 {caseData.claimant
                   ? `${caseData.claimant.firstName} ${caseData.claimant.lastName}`
                   : "Unknown Claimant"}
@@ -117,7 +117,7 @@ export default async function CaseDetailLayout({
               );
             })}
           </div>
-          <div className="flex gap-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] sm:text-xs text-muted-foreground">
             {caseData.stageGroups.map((group, i) => (
               <span
                 key={group.id}

@@ -219,12 +219,12 @@ export function ImportWizard() {
   return (
     <div className="space-y-6">
       {/* Step indicator */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
         {STEPS.map((step, i) => (
-          <div key={step.key} className="flex items-center gap-2">
-            {i > 0 && <div className="h-px w-8 bg-border" />}
+          <div key={step.key} className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {i > 0 && <div className="h-px w-4 sm:w-8 bg-border" />}
             <div
-              className={`flex items-center gap-2 text-sm ${
+              className={`flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm ${
                 i === currentStepIndex
                   ? "text-primary font-medium"
                   : i < currentStepIndex
@@ -243,7 +243,9 @@ export function ImportWizard() {
               >
                 {i < currentStepIndex ? "\u2713" : i + 1}
               </span>
-              {step.label}
+              <span className={i === currentStepIndex ? "inline" : "hidden sm:inline"}>
+                {step.label}
+              </span>
             </div>
           </div>
         ))}
@@ -257,7 +259,7 @@ export function ImportWizard() {
           </CardHeader>
           <CardContent>
             <div
-              className="border-2 border-dashed border-border rounded-lg p-12 text-center cursor-pointer hover:border-primary/50 transition-colors"
+              className="border-2 border-dashed border-border rounded-lg p-6 sm:p-12 text-center cursor-pointer hover:border-primary/50 transition-colors"
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
@@ -318,13 +320,15 @@ export function ImportWizard() {
               {mappings.map((mapping) => (
                 <div
                   key={mapping.csvColumn}
-                  className="flex items-center gap-4"
+                  className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4"
                 >
-                  <div className="w-1/3 text-sm font-medium truncate">
+                  <div className="w-full sm:w-1/3 text-sm font-medium truncate">
                     {mapping.csvColumn}
                   </div>
-                  <div className="text-muted-foreground">&#8594;</div>
-                  <div className="w-1/2">
+                  <div className="hidden sm:block text-muted-foreground">
+                    &#8594;
+                  </div>
+                  <div className="w-full sm:w-1/2">
                     <Select
                       value={mapping.caseFlowField || "__skip__"}
                       onValueChange={(val) =>

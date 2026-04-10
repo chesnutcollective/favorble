@@ -20,7 +20,7 @@ export default function LoginPage() {
 					"linear-gradient(160deg, #0f1923 0%, #162a3a 25%, #1a3345 45%, #14292e 65%, #101c26 85%, #0b1218 100%)",
 				].join(", "),
 				backgroundAttachment: "fixed",
-				padding: 20,
+				padding: "clamp(12px, 5vw, 20px)",
 			}}
 		>
 			<SignIn
@@ -30,7 +30,7 @@ export default function LoginPage() {
 					elements: {
 						rootBox: {
 							width: "100%",
-							maxWidth: 400,
+							maxWidth: "min(400px, 100%)",
 						},
 						card: {
 							background: "rgba(255, 255, 255, 0.85)",

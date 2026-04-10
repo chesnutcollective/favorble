@@ -582,8 +582,8 @@ export function QueueClient({
         </Tabs>
       )}
 
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="-mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto">
           <TabsList>
             <TabsTrigger value="all">All {counts.all}</TabsTrigger>
             <TabsTrigger value="overdue" className="text-red-600">
@@ -602,10 +602,10 @@ export function QueueClient({
           </TabsList>
         </Tabs>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           {/* Stage filter */}
           <Select value={stageFilter} onValueChange={setStageFilter}>
-            <SelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-full sm:w-[160px]">
               <SelectValue placeholder="Stage..." />
             </SelectTrigger>
             <SelectContent>
@@ -620,7 +620,7 @@ export function QueueClient({
 
           {/* Priority filter */}
           <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px]">
               <SelectValue placeholder="Priority..." />
             </SelectTrigger>
             <SelectContent>
@@ -637,7 +637,7 @@ export function QueueClient({
             value={sortField}
             onValueChange={(v) => setSortField(v as SortField)}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>

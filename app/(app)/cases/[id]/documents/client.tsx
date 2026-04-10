@@ -138,18 +138,24 @@ export function CaseDocumentsClient({
         title="Documents"
         description="Case documents from all sources."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {templates.length > 0 && (
               <Button
                 onClick={() => setShowTemplateDialog(true)}
                 size="sm"
                 variant="outline"
+                className="flex-1 sm:flex-none"
               >
                 <HugeiconsIcon icon={File01Icon} size={16} className="mr-1" />
-                Generate from Template
+                <span className="hidden sm:inline">Generate from Template</span>
+                <span className="sm:hidden">Template</span>
               </Button>
             )}
-            <Button onClick={() => setShowUpload(!showUpload)} size="sm">
+            <Button
+              onClick={() => setShowUpload(!showUpload)}
+              size="sm"
+              className="flex-1 sm:flex-none"
+            >
               <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
               Upload
             </Button>
@@ -177,7 +183,10 @@ export function CaseDocumentsClient({
           if (!open) setPreviewDoc(null);
         }}
       >
-        <SheetContent side="right" className="w-[600px] p-0 sm:max-w-[600px]">
+        <SheetContent
+          side="right"
+          className="w-full p-0 sm:w-[600px] sm:max-w-[600px]"
+        >
           {previewDoc && (
             <DocumentPreview
               fileName={previewDoc.fileName}

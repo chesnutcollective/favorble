@@ -26,7 +26,7 @@ export default async function AppLayout({
         </Suspense>
         <main className="ttn-main-area">
           <Header />
-          <div className="flex-1 overflow-auto p-4 md:p-8">
+          <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-8">
             <PageTransition>{children}</PageTransition>
           </div>
         </main>

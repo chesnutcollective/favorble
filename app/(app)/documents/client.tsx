@@ -71,7 +71,10 @@ export function GlobalDocumentsClient({
           if (!open) setPreviewDoc(null);
         }}
       >
-        <SheetContent side="right" className="w-[600px] p-0 sm:max-w-[600px]">
+        <SheetContent
+          side="right"
+          className="w-full p-0 sm:w-[600px] sm:max-w-[600px]"
+        >
           {previewDoc && (
             <DocumentPreview
               fileName={previewDoc.fileName}

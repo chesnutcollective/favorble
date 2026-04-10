@@ -932,6 +932,17 @@
   .ttn-main-area {
     margin-left: 0 !important;
   }
+
+  :root {
+    --sidebar-w: 0px;
+  }
+}
+
+/* ── Mobile: prevent horizontal page overflow ── */
+@media (max-width: 640px) {
+  html, body {
+    overflow-x: hidden;
+  }
 }
 
 /* ── Print: hide nav ── */

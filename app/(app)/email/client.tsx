@@ -236,8 +236,8 @@ function EmailRow({
       ref={highlightRef}
       className={`transition-colors duration-200${isHighlighted ? " ring-2 ring-[#1d72b8] bg-[#e6f1fa]" : ""}`}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Badge
@@ -279,12 +279,16 @@ function EmailRow({
                 {email.body}
               </p>
             )}
-            <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-              {email.fromAddress && <span>From: {email.fromAddress}</span>}
-              {email.toAddress && <span>To: {email.toAddress}</span>}
+            <div className="mt-1 flex flex-col sm:flex-row sm:items-center sm:gap-3 text-xs text-muted-foreground">
+              {email.fromAddress && (
+                <span className="truncate">From: {email.fromAddress}</span>
+              )}
+              {email.toAddress && (
+                <span className="truncate">To: {email.toAddress}</span>
+              )}
             </div>
           </div>
-          <span className="shrink-0 text-xs text-muted-foreground">
+          <span className="sm:shrink-0 text-xs text-muted-foreground">
             {new Date(email.createdAt).toLocaleString()}
           </span>
         </div>

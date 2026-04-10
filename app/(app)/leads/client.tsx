@@ -257,7 +257,7 @@ export function LeadsPipelineClient({
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="nl-first">First Name</Label>
                     <Input
@@ -331,12 +331,15 @@ export function LeadsPipelineClient({
         }
       />
 
-      <div ref={pipelineRef} className="flex gap-4 overflow-x-auto pb-4">
+      <div
+        ref={pipelineRef}
+        className="flex flex-col gap-4 md:flex-row md:overflow-x-auto pb-4 -mx-1 px-1"
+      >
         {columns.map((col) => (
           <div
             key={col.status}
             data-status={col.status}
-            className={`min-w-[280px] max-w-[320px] flex-1 rounded-[6px] border border-[#eaeaea] bg-[#fafafa] p-3 transition-colors duration-200 ${
+            className={`w-full md:min-w-[280px] md:max-w-[320px] md:flex-1 rounded-[6px] border border-[#eaeaea] bg-[#fafafa] p-3 transition-colors duration-200 ${
               dragOverColumn === col.status ? "border-[#999]" : ""
             }`}
             onDragOver={(e) => handleDragOver(e, col.status)}
