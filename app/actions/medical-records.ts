@@ -17,9 +17,10 @@ import { logger } from "@/lib/logger/server";
 
 /**
  * The five color-coded Medical Records teams. These are UI labels — they
- * are stored in cases.mrTeamColor as free-form text.
+ * are stored in cases.mrTeamColor as free-form text. Kept non-exported
+ * because "use server" files can only export async functions (Next 16+).
  */
-export const MR_TEAM_COLORS = [
+const MR_TEAM_COLORS = [
   "blue",
   "orange",
   "green",

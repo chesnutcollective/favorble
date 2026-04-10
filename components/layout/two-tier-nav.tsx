@@ -323,6 +323,11 @@ const settingsNav: SettingsItem[] = [
     href: "/admin/integrations",
     description: "Connect external services",
   },
+  {
+    label: "Audit Logs",
+    href: "/admin/audit-logs",
+    description: "Search system event history",
+  },
 ];
 
 /* ─── Determine active rail item from pathname ─── */
