@@ -328,6 +328,11 @@ const settingsNav: SettingsItem[] = [
     href: "/admin/audit-logs",
     description: "Search system event history",
   },
+  {
+    label: "AI Review",
+    href: "/admin/ai-review",
+    description: "Verify AI-extracted data",
+  },
 ];
 
 /* ─── Determine active rail item from pathname ─── */

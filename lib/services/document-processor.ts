@@ -13,6 +13,19 @@ import {
 	groupExtractions,
 	type ExtractionType,
 } from "@/lib/integrations/langextract";
+import { logPhiModification } from "@/lib/services/hipaa-audit";
+import { PDFParse } from "pdf-parse";
+
+/** Max characters of extracted text we'll pass downstream to an LLM. */
+export const MAX_EXTRACTED_CHARS = 200_000;
+
+export type ExtractedDocumentText = {
+	text: string;
+	fileSize: number;
+	totalChars: number;
+	pageCount?: number;
+	source: "http-pdf" | "http-text" | "data-url-pdf" | "data-url-text" | "fallback";
+};
 
 type ProcessOptions = {
 	documentId: string;
@@ -67,10 +80,14 @@ export async function processDocument({
 	const startTime = Date.now();
 
 	try {
-		// For now we use the file name + any text content available.
-		// Once PDF text extraction is wired in (services/document-text-extractor),
-		// this will pull the actual document text.
-		const documentText = await loadDocumentText(doc.storagePath, doc.fileName);
+		// Pull text from the document source (PDF parse, text URL, or data URL).
+		// Falls back to the filename when nothing else works so the pipeline can
+		// still log a structured failure.
+		const extracted = await loadDocumentTextWithFallback(
+			doc.storagePath,
+			doc.fileName,
+		);
+		const documentText = extracted.text;
 
 		if (!documentText || documentText.length < 10) {
 			await db
@@ -152,6 +169,24 @@ export async function processDocument({
 			elapsedMs: result.elapsed_ms,
 		});
 
+		// HIPAA: processing a medical document creates PHI-containing rows.
+		// Log once per completed processing run as a modification event.
+		await logPhiModification({
+			organizationId,
+			userId: null,
+			entityType: "document",
+			entityId: documentId,
+			caseId: doc.caseId,
+			operation: "create",
+			severity: "info",
+			action: "phi_create.document_processed",
+			metadata: {
+				extractionType,
+				extractionCount: result.extractions.length,
+				processingId: processing.id,
+			},
+		});
+
 		return { success: true, processingId: processing.id };
 	} catch (error) {
 		logger.error("Document processing failed", { documentId, error });
@@ -173,30 +208,211 @@ export async function processDocument({
 }
 
 /**
- * Load document text. Currently a stub that returns the filename.
- * TODO: implement PDF text extraction (pdf-parse) and S3/Bucket fetch.
+ * Truncate a string to at most MAX_EXTRACTED_CHARS characters so we never
+ * send a giant document body to an LLM by accident.
  */
-async function loadDocumentText(
+function truncateForLLM(text: string): string {
+	if (text.length <= MAX_EXTRACTED_CHARS) return text;
+	return `${text.slice(0, MAX_EXTRACTED_CHARS)}\n\n[...truncated at ${MAX_EXTRACTED_CHARS} chars]`;
+}
+
+/**
+ * Parse a PDF buffer with pdf-parse (v2.x class-based API).
+ * Returns both the concatenated text and the page count.
+ */
+async function parsePdfBuffer(
+	buffer: ArrayBuffer | Uint8Array,
+): Promise<{ text: string; pageCount: number }> {
+	const data =
+		buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+	const parser = new PDFParse({ data });
+	try {
+		const result = await parser.getText();
+		return {
+			text: result.text ?? "",
+			pageCount: result.total ?? result.pages?.length ?? 0,
+		};
+	} finally {
+		await parser.destroy().catch(() => {});
+	}
+}
+
+/**
+ * Extract text from a document's storagePath.
+ *
+ * Supports:
+ * - http(s):// URLs (PDF or text/plain)
+ * - data:... URLs (base64 PDFs or text)
+ * - .txt file URLs
+ *
+ * Returns null on unrecoverable failure. Callers should handle gracefully.
+ * Text is truncated to MAX_EXTRACTED_CHARS for LLM safety.
+ */
+export async function loadDocumentText(
 	storagePath: string,
 	fileName: string,
-): Promise<string> {
-	// For development/demo: if storagePath is a data URL or text URL, fetch it
-	if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) {
+): Promise<ExtractedDocumentText | null> {
+	const lowerPath = storagePath.toLowerCase();
+	const lowerName = fileName.toLowerCase();
+
+	// 1. data: URLs (base64-encoded PDFs or text)
+	if (storagePath.startsWith("data:")) {
 		try {
-			const response = await fetch(storagePath);
-			if (response.ok) {
-				const contentType = response.headers.get("content-type") || "";
-				if (contentType.includes("text/") || contentType.includes("json")) {
-					return await response.text();
-				}
+			const commaIdx = storagePath.indexOf(",");
+			if (commaIdx === -1) return null;
+			const meta = storagePath.slice(5, commaIdx); // strip "data:"
+			const payload = storagePath.slice(commaIdx + 1);
+			const isBase64 = meta.includes(";base64");
+			const mimeType = meta.split(";")[0] || "";
+			const isPdf =
+				mimeType === "application/pdf" ||
+				mimeType === "application/x-pdf" ||
+				lowerName.endsWith(".pdf");
+
+			if (isPdf) {
+				const buffer = Buffer.from(
+					payload,
+					isBase64 ? "base64" : "utf-8",
+				);
+				const { text, pageCount } = await parsePdfBuffer(buffer);
+				const truncated = truncateForLLM(text);
+				logger.info("PDF text extracted (data URL)", {
+					fileName,
+					fileSize: buffer.byteLength,
+					totalChars: truncated.length,
+					pageCount,
+				});
+				return {
+					text: truncated,
+					fileSize: buffer.byteLength,
+					totalChars: truncated.length,
+					pageCount,
+					source: "data-url-pdf",
+				};
 			}
-		} catch {
-			// fall through to filename
+
+			// Treat anything else as text
+			const raw = isBase64
+				? Buffer.from(payload, "base64").toString("utf-8")
+				: decodeURIComponent(payload);
+			const truncated = truncateForLLM(raw);
+			return {
+				text: truncated,
+				fileSize: Buffer.byteLength(raw, "utf-8"),
+				totalChars: truncated.length,
+				source: "data-url-text",
+			};
+		} catch (error) {
+			logger.error("Failed to parse data URL document", { fileName, error });
+			return null;
 		}
 	}
-	// Fallback: return the filename as a minimal placeholder so processing
-	// can complete (caller will mark as failed if too short).
-	return fileName;
+
+	// 2. http(s):// URLs
+	if (lowerPath.startsWith("http://") || lowerPath.startsWith("https://")) {
+		try {
+			const response = await fetch(storagePath);
+			if (!response.ok) {
+				logger.warn("Document fetch returned non-OK", {
+					fileName,
+					status: response.status,
+				});
+				return null;
+			}
+
+			const contentType = (
+				response.headers.get("content-type") || ""
+			).toLowerCase();
+
+			// Text-y content types
+			if (
+				contentType.includes("text/") ||
+				contentType.includes("application/json") ||
+				lowerPath.endsWith(".txt") ||
+				lowerName.endsWith(".txt")
+			) {
+				const raw = await response.text();
+				const truncated = truncateForLLM(raw);
+				logger.info("Text document fetched", {
+					fileName,
+					fileSize: Buffer.byteLength(raw, "utf-8"),
+					totalChars: truncated.length,
+				});
+				return {
+					text: truncated,
+					fileSize: Buffer.byteLength(raw, "utf-8"),
+					totalChars: truncated.length,
+					source: "http-text",
+				};
+			}
+
+			// PDF (by content-type or extension)
+			const isPdf =
+				contentType.includes("application/pdf") ||
+				contentType.includes("application/x-pdf") ||
+				lowerPath.endsWith(".pdf") ||
+				lowerName.endsWith(".pdf");
+
+			if (isPdf) {
+				const arrayBuffer = await response.arrayBuffer();
+				const { text, pageCount } = await parsePdfBuffer(arrayBuffer);
+				const truncated = truncateForLLM(text);
+				logger.info("PDF text extracted", {
+					fileName,
+					fileSize: arrayBuffer.byteLength,
+					totalChars: truncated.length,
+					pageCount,
+				});
+				return {
+					text: truncated,
+					fileSize: arrayBuffer.byteLength,
+					totalChars: truncated.length,
+					pageCount,
+					source: "http-pdf",
+				};
+			}
+
+			// Unknown binary — give up, caller will log.
+			logger.warn("Unsupported document content-type", {
+				fileName,
+				contentType,
+			});
+			return null;
+		} catch (error) {
+			logger.error("Document fetch/parse failed", { fileName, error });
+			return null;
+		}
+	}
+
+	// 3. Pending / local storage placeholder — nothing to extract yet.
+	return null;
+}
+
+/**
+ * Try PDF parsing first; if that fails, fall back to extension-based detection
+ * (treat .txt as text, anything else returns a filename-only stub so the
+ * pipeline can still log a structured failure upstream).
+ */
+export async function loadDocumentTextWithFallback(
+	storagePath: string,
+	fileName: string,
+): Promise<ExtractedDocumentText> {
+	const extracted = await loadDocumentText(storagePath, fileName);
+	if (extracted && extracted.text && extracted.text.trim().length > 0) {
+		return extracted;
+	}
+
+	logger.warn("Falling back to filename-only document text", {
+		fileName,
+		storagePath: storagePath.slice(0, 120),
+	});
+
+	return {
+		text: fileName,
+		fileSize: Buffer.byteLength(fileName, "utf-8"),
+		totalChars: fileName.length,
+		source: "fallback",
+	};
 }
 
 function parseDate(text: string): Date | null {

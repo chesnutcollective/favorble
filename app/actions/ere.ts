@@ -7,6 +7,7 @@ import { encrypt } from "@/lib/encryption";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import { logPhiAccess } from "@/lib/services/hipaa-audit";
 
 /**
  * Create an ERE credential (encrypted at rest).
@@ -148,6 +149,19 @@ export async function submitEreScrapeJob(data: {
 
     if (cred) {
       const credentials = decryptCredentials(cred);
+      // HIPAA: ERE credential decryption accesses PHI-adjacent secrets.
+      await logPhiAccess({
+        organizationId: session.organizationId,
+        userId: session.id,
+        entityType: "ere_credential",
+        entityId: data.credentialId,
+        caseId: data.caseId,
+        fieldsAccessed: ["ere_credentials"],
+        reason: "ERE scrape job dispatch",
+        severity: "warning",
+        action: "phi_access.ere_credential_decrypt",
+        metadata: { jobId: job.id, jobType: job.jobType },
+      });
       await submitScrapeJob({
         credentials,
         ssaClaimNumber: caseRow.ssaClaimNumber ?? "",
@@ -246,6 +260,18 @@ export async function testEreCredential(credentialId: string) {
     .limit(1);
 
   if (!credential) throw new Error("Credential not found");
+
+  // HIPAA: test action reads the encrypted credential record.
+  await logPhiAccess({
+    organizationId: session.organizationId,
+    userId: session.id,
+    entityType: "ere_credential",
+    entityId: credentialId,
+    fieldsAccessed: ["ere_credentials"],
+    reason: "ERE credential test",
+    severity: "info",
+    action: "phi_access.ere_credential_test",
+  });
 
   try {
     // Attempt a health check via the scraper service

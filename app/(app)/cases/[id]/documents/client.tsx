@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useCallback, useTransition } from "react";
+import { toast } from "sonner";
 import {
   DocumentList,
   type DocumentItem,
@@ -18,6 +20,7 @@ import {
   getDocumentUrl,
   deleteDocument,
 } from "@/app/actions/documents";
+import { triggerLangExtract } from "@/app/actions/extract";
 
 type Template = {
   id: string;
@@ -54,6 +57,7 @@ export function CaseDocumentsClient({
   templates,
   caseData,
 }: CaseDocumentsClientProps) {
+  const router = useRouter();
   const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
   const [showUpload, setShowUpload] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<{
@@ -63,6 +67,8 @@ export function CaseDocumentsClient({
   } | null>(null);
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   const handleUpload = useCallback(
     async (files: File[], category?: string) => {
@@ -127,6 +133,36 @@ export function CaseDocumentsClient({
     }
   }, []);
 
+  const handleReprocess = useCallback(
+    async (doc: DocumentItem) => {
+      setReprocessingId(doc.id);
+      const extractionType = pickExtractionType(doc);
+      const loadingToast = toast.loading(
+        `Reprocessing "${doc.fileName}" with AI...`,
+      );
+      try {
+        const result = await triggerLangExtract(doc.id, extractionType);
+        toast.dismiss(loadingToast);
+        if (result.success) {
+          toast.success(`"${doc.fileName}" reprocessed successfully`);
+          startTransition(() => {
+            router.refresh();
+          });
+        } else {
+          toast.error(result.error || "Reprocessing failed");
+        }
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error(
+          error instanceof Error ? error.message : "Reprocessing failed",
+        );
+      } finally {
+        setReprocessingId(null);
+      }
+    },
+    [router],
+  );
+
   const handleTemplateGenerated = useCallback((doc: DocumentItem) => {
     setDocuments((prev) => [doc, ...prev]);
     setShowTemplateDialog(false);
@@ -172,6 +208,8 @@ export function CaseDocumentsClient({
         onPreview={handlePreview}
         onDownload={handleDownload}
         onDelete={handleDelete}
+        onReprocess={handleReprocess}
+        reprocessingId={reprocessingId}
         sourceFilter={sourceFilter}
         onSourceFilterChange={setSourceFilter}
       />
@@ -211,4 +249,37 @@ export function CaseDocumentsClient({
       />
     </div>
   );
+}
+
+type ExtractionType =
+  | "medical_record"
+  | "status_report"
+  | "decision_letter"
+  | "efolder_classification";
+
+/**
+ * Guess the best LangExtract extraction type from a document's filename,
+ * category, and source. Mirrors the ERE webhook's filename heuristics so
+ * manual reprocess matches the automatic path.
+ */
+function pickExtractionType(doc: DocumentItem): ExtractionType {
+  const name = doc.fileName.toLowerCase();
+  const category = (doc.category ?? "").toLowerCase();
+
+  if (
+    name.includes("decision") ||
+    name.includes("favorable") ||
+    name.includes("denial") ||
+    category.includes("decision")
+  ) {
+    return "decision_letter";
+  }
+  if (
+    name.includes("status") ||
+    name.includes("report") ||
+    category.includes("status")
+  ) {
+    return "status_report";
+  }
+  return "medical_record";
 }

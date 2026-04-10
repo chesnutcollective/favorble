@@ -12,6 +12,7 @@ import {
   Upload01Icon,
   GlobeIcon,
   UserIcon,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { formatFileSize, getFileIconType } from "@/lib/storage/client";
@@ -40,6 +41,8 @@ type DocumentListProps = {
   onPreview: (doc: DocumentItem) => void;
   onDownload: (doc: DocumentItem) => void;
   onDelete?: (doc: DocumentItem) => void;
+  onReprocess?: (doc: DocumentItem) => void;
+  reprocessingId?: string | null;
   sourceFilter?: string | null;
   onSourceFilterChange?: (source: string | null) => void;
 };
@@ -59,6 +62,8 @@ export function DocumentList({
   onPreview,
   onDownload,
   onDelete,
+  onReprocess,
+  reprocessingId,
   sourceFilter,
   onSourceFilterChange,
 }: DocumentListProps) {
@@ -199,6 +204,26 @@ export function DocumentList({
                         >
                           <HugeiconsIcon icon={Download01Icon} size={16} />
                         </Button>
+                        {onReprocess && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onReprocess(doc)}
+                            disabled={reprocessingId === doc.id}
+                            title="Reprocess with AI"
+                            className="text-[#263c94] hover:text-[#263c94] disabled:opacity-50"
+                          >
+                            <HugeiconsIcon
+                              icon={SparklesIcon}
+                              size={16}
+                              className={
+                                reprocessingId === doc.id
+                                  ? "animate-pulse"
+                                  : undefined
+                              }
+                            />
+                          </Button>
+                        )}
                         {onDelete && (
                           <div className="relative">
                             <Button

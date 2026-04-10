@@ -9,7 +9,9 @@ export type ExtractionType =
 	| "medical_record"
 	| "status_report"
 	| "decision_letter"
-	| "efolder_classification";
+	| "efolder_classification"
+	| "phi_sheet_draft"
+	| "appeal_brief";
 
 export type Extraction = {
 	extraction_class: string;
@@ -45,7 +47,7 @@ export async function extractFromDocument(
 		return null;
 	}
 
-	const endpoint = `${LANGEXTRACT_URL}/extract/${extractionType.replace("_", "-")}`;
+	const endpoint = `${LANGEXTRACT_URL}/extract/${extractionType.replaceAll("_", "-")}`;
 
 	try {
 		const response = await fetch(endpoint, {
@@ -68,6 +70,63 @@ export async function extractFromDocument(
 		logger.error("LangExtract request error", { error });
 		return null;
 	}
+}
+
+/**
+ * Extract medical record fields (providers, encounters, diagnoses, meds).
+ */
+export async function extractMedicalRecord(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "medical_record");
+}
+
+/**
+ * Extract SSA status report fields (hearing, ALJ, exhibits on file).
+ */
+export async function extractStatusReport(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "status_report");
+}
+
+/**
+ * Extract SSA decision letter fields (decision type, RFC, severe impairments,
+ * listing match, past relevant work, reasoning).
+ */
+export async function extractDecisionLetter(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "decision_letter");
+}
+
+/**
+ * Classify an ERE / e-folder document into a Favorble document type.
+ */
+export async function extractEfolderClassification(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "efolder_classification");
+}
+
+/**
+ * Draft a Pre-Hearing Intelligence sheet from the assembled record.
+ * Returns richly-grounded structured fields writers can refine.
+ */
+export async function extractPhiSheetDraft(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "phi_sheet_draft");
+}
+
+/**
+ * Extract Appeals Council / Federal Court brief skeleton fields
+ * (caption, ALJ decision date, issues, errors, relief requested).
+ */
+export async function extractAppealBrief(
+	documentText: string,
+): Promise<ExtractResponse | null> {
+	return extractFromDocument(documentText, "appeal_brief");
 }
 
 /**
