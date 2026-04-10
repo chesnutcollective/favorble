@@ -5,7 +5,6 @@ import { requireSession } from "@/lib/auth/session";
 import { getInvoiceById } from "@/app/actions/billing";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -15,17 +14,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 import {
-  ArrowLeft01Icon,
-  Mail01Icon,
-  CheckmarkCircle01Icon,
-  FileDownloadIcon,
-} from "@hugeicons/core-free-icons";
+  AddLineItemDialog,
+  ImportUnbilledTimeButton,
+  InvoiceHeaderActions,
+} from "@/components/billing/invoice-detail-actions";
+import { COLORS } from "@/lib/design-tokens";
 
 export const metadata: Metadata = { title: "Invoice" };
 export const dynamic = "force-dynamic";
-
-const PRIMARY = "#263c94";
 
 function formatCurrency(cents: number) {
   return new Intl.NumberFormat("en-US", {
@@ -48,6 +46,12 @@ export default async function InvoiceDetailPage({
     ? `${invoice.clientFirstName} ${invoice.clientLastName}`
     : "No client";
 
+  const outstandingCents = Math.max(
+    invoice.totalCents - invoice.amountPaidCents,
+    0,
+  );
+  const isEditable = invoice.status !== "paid" && invoice.status !== "void";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-xs">
@@ -64,32 +68,37 @@ export default async function InvoiceDetailPage({
         title={invoice.invoiceNumber}
         description={`${clientName}${invoice.caseNumber ? ` · Case ${invoice.caseNumber}` : ""}`}
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <HugeiconsIcon icon={FileDownloadIcon} size={14} />
-              Download PDF
-            </Button>
-            <Button variant="outline" size="sm">
-              <HugeiconsIcon icon={Mail01Icon} size={14} />
-              Send
-            </Button>
-            <Button size="sm" style={{ backgroundColor: PRIMARY }}>
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />
-              Mark Paid
-            </Button>
-          </div>
+          <InvoiceHeaderActions
+            invoiceId={invoice.id}
+            status={invoice.status}
+            outstandingCents={outstandingCents}
+            defaultSendEmail={invoice.sentToEmail}
+          />
         }
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
           <CardContent className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <h2 className="text-sm font-semibold">Line Items</h2>
+              <div className="flex items-center gap-2">
+                {invoice.caseId && (
+                  <ImportUnbilledTimeButton
+                    invoiceId={invoice.id}
+                    disabled={!isEditable}
+                  />
+                )}
+                <AddLineItemDialog
+                  invoiceId={invoice.id}
+                  disabled={!isEditable}
+                />
+              </div>
             </div>
             {invoice.lineItems.length === 0 ? (
               <p className="text-xs text-[#666] py-6 text-center">
-                No line items yet. Coming soon — full invoice builder.
+                No line items yet. Use "Add Line Item" or "Import Unbilled Time"
+                to get started.
               </p>
             ) : (
               <Table>
@@ -148,7 +157,7 @@ export default async function InvoiceDetailPage({
               </div>
               <div
                 className="flex justify-between text-[11px] pt-1"
-                style={{ color: PRIMARY }}
+                style={{ color: COLORS.brand }}
               >
                 <span>Amount paid</span>
                 <span className="tabular-nums">

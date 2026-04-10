@@ -10,6 +10,7 @@ import {
   users,
   cases,
   contacts,
+  leads,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -23,6 +24,7 @@ import {
   sum,
   isNull,
   isNotNull,
+  inArray,
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
@@ -292,6 +294,236 @@ export async function markInvoicePaid(
   revalidatePath("/billing");
   revalidatePath("/billing/invoices");
   revalidatePath(`/billing/invoices/${id}`);
+}
+
+// ---------- Invoice Line Items ----------
+
+async function recomputeInvoiceTotals(invoiceId: string) {
+  const items = await db
+    .select({
+      total: sum(invoiceLineItems.totalCents),
+    })
+    .from(invoiceLineItems)
+    .where(eq(invoiceLineItems.invoiceId, invoiceId));
+
+  const subtotal = Number(items[0]?.total ?? 0);
+  // For now: tax is 0; future enhancement could pull from org settings
+  const tax = 0;
+  const total = subtotal + tax;
+
+  await db
+    .update(invoices)
+    .set({
+      subtotalCents: subtotal,
+      taxCents: tax,
+      totalCents: total,
+      updatedAt: new Date(),
+    })
+    .where(eq(invoices.id, invoiceId));
+}
+
+export async function addInvoiceLineItem(input: {
+  invoiceId: string;
+  type?: "time" | "expense" | "fee" | "other";
+  description: string;
+  quantity?: number;
+  unitPriceCents: number;
+}) {
+  const session = await requireSession();
+
+  // Verify invoice belongs to org
+  const [inv] = await db
+    .select({ id: invoices.id, status: invoices.status })
+    .from(invoices)
+    .where(
+      and(
+        eq(invoices.id, input.invoiceId),
+        eq(invoices.organizationId, session.organizationId),
+      ),
+    )
+    .limit(1);
+  if (!inv) throw new Error("Invoice not found");
+  if (inv.status === "paid" || inv.status === "void") {
+    throw new Error("Cannot add line items to a paid or voided invoice");
+  }
+
+  const quantity = input.quantity ?? 1;
+  const totalCents = Math.round(quantity * input.unitPriceCents);
+
+  await db.insert(invoiceLineItems).values({
+    invoiceId: input.invoiceId,
+    type: input.type ?? "other",
+    description: input.description,
+    quantity: quantity.toString(),
+    unitPriceCents: input.unitPriceCents,
+    totalCents,
+  });
+
+  await recomputeInvoiceTotals(input.invoiceId);
+  revalidatePath(`/billing/invoices/${input.invoiceId}`);
+  revalidatePath("/billing/invoices");
+}
+
+export async function addUnbilledTimeToInvoice(input: {
+  invoiceId: string;
+  caseId?: string;
+}) {
+  const session = await requireSession();
+
+  // Verify invoice + grab caseId fallback
+  const [inv] = await db
+    .select({
+      id: invoices.id,
+      caseId: invoices.caseId,
+      status: invoices.status,
+    })
+    .from(invoices)
+    .where(
+      and(
+        eq(invoices.id, input.invoiceId),
+        eq(invoices.organizationId, session.organizationId),
+      ),
+    )
+    .limit(1);
+  if (!inv) throw new Error("Invoice not found");
+  if (inv.status === "paid" || inv.status === "void") {
+    throw new Error("Cannot add time to a paid or voided invoice");
+  }
+
+  const targetCaseId = input.caseId ?? inv.caseId;
+  if (!targetCaseId) {
+    throw new Error("No case selected — cannot import time entries");
+  }
+
+  const unbilled = await db
+    .select({
+      id: timeEntries.id,
+      description: timeEntries.description,
+      durationMinutes: timeEntries.durationMinutes,
+      hourlyRate: timeEntries.hourlyRate,
+    })
+    .from(timeEntries)
+    .where(
+      and(
+        eq(timeEntries.organizationId, session.organizationId),
+        eq(timeEntries.caseId, targetCaseId),
+        eq(timeEntries.billable, true),
+        isNull(timeEntries.invoiceId),
+      ),
+    );
+
+  if (unbilled.length === 0) {
+    return { imported: 0, totalCents: 0 };
+  }
+
+  let imported = 0;
+  let totalCents = 0;
+
+  for (const t of unbilled) {
+    const hours = t.durationMinutes / 60;
+    const rate = Number(t.hourlyRate ?? "0");
+    const lineTotal = Math.round(hours * rate * 100); // cents
+    const unitPrice = Math.round(rate * 100);
+
+    await db.insert(invoiceLineItems).values({
+      invoiceId: input.invoiceId,
+      type: "time",
+      description: t.description,
+      quantity: hours.toFixed(3),
+      unitPriceCents: unitPrice,
+      totalCents: lineTotal,
+      sourceTimeEntryId: t.id,
+    });
+
+    await db
+      .update(timeEntries)
+      .set({ billedAt: new Date(), invoiceId: input.invoiceId })
+      .where(eq(timeEntries.id, t.id));
+
+    imported++;
+    totalCents += lineTotal;
+  }
+
+  await recomputeInvoiceTotals(input.invoiceId);
+  revalidatePath(`/billing/invoices/${input.invoiceId}`);
+  revalidatePath("/billing/invoices");
+  revalidatePath("/billing/time");
+  return { imported, totalCents };
+}
+
+export async function sendInvoice(input: {
+  id: string;
+  email: string;
+}) {
+  const session = await requireSession();
+
+  await db
+    .update(invoices)
+    .set({
+      status: "sent",
+      sentAt: new Date(),
+      sentToEmail: input.email,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(invoices.id, input.id),
+        eq(invoices.organizationId, session.organizationId),
+      ),
+    );
+
+  revalidatePath("/billing/invoices");
+  revalidatePath(`/billing/invoices/${input.id}`);
+}
+
+// ---------- Pickers ----------
+
+export async function getCasePicker() {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({
+        id: cases.id,
+        caseNumber: cases.caseNumber,
+        clientFirstName: leads.firstName,
+        clientLastName: leads.lastName,
+      })
+      .from(cases)
+      .leftJoin(leads, eq(cases.leadId, leads.id))
+      .where(eq(cases.organizationId, session.organizationId))
+      .orderBy(desc(cases.createdAt))
+      .limit(200);
+    return rows;
+  } catch (err) {
+    logger.error("getCasePicker failed", { error: err });
+    return [];
+  }
+}
+
+export async function getClientPicker() {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        email: contacts.email,
+      })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.organizationId, session.organizationId),
+          eq(contacts.contactType, "client"),
+        ),
+      )
+      .orderBy(contacts.lastName, contacts.firstName)
+      .limit(200);
+    return rows;
+  } catch (err) {
+    logger.error("getClientPicker failed", { error: err });
+    return [];
+  }
 }
 
 // ---------- Metrics ----------

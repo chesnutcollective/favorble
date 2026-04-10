@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth/session";
-import { getTimeEntries } from "@/app/actions/billing";
+import { getCasePicker, getTimeEntries } from "@/app/actions/billing";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -15,18 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Clock01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import { Clock01Icon } from "@hugeicons/core-free-icons";
+import { NewTimeEntryDialog } from "@/components/billing/new-time-entry-dialog";
 
 export const metadata: Metadata = { title: "Time Entries" };
 export const dynamic = "force-dynamic";
 
-const PRIMARY = "#263c94";
-
 export default async function TimePage() {
   await requireSession();
 
-  const entries = await getTimeEntries().catch(() => []);
+  const [entries, cases] = await Promise.all([
+    getTimeEntries().catch(() => []),
+    getCasePicker().catch(() => []),
+  ]);
   const totalMinutes = entries.reduce(
     (sum, e) => sum + (e.durationMinutes ?? 0),
     0,
@@ -40,12 +40,7 @@ export default async function TimePage() {
       <PageHeader
         title="Time Entries"
         description="Track billable and non-billable hours across cases."
-        actions={
-          <Button size="sm" style={{ backgroundColor: PRIMARY }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={14} />
-            New Time Entry
-          </Button>
-        }
+        actions={<NewTimeEntryDialog cases={cases} />}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -72,7 +67,7 @@ export default async function TimePage() {
             <EmptyState
               icon={Clock01Icon}
               title="No time entries yet"
-              description="Log your first time entry to start tracking billable hours. Coming soon — full time entry form."
+              description="Log your first time entry using the New Time Entry button above."
             />
           ) : (
             <Table>

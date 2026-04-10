@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/auth/session";
-import { getInvoices } from "@/app/actions/billing";
+import {
+  getCasePicker,
+  getClientPicker,
+  getInvoices,
+} from "@/app/actions/billing";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -16,8 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Invoice01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import { Invoice01Icon } from "@hugeicons/core-free-icons";
+import { NewInvoiceDialog } from "@/components/billing/new-invoice-dialog";
 
 export const metadata: Metadata = { title: "Invoices" };
 export const dynamic = "force-dynamic";
@@ -50,9 +52,11 @@ export default async function InvoicesPage({
   const params = await searchParams;
   const statusFilter = (params.status ?? "") as "" | Status;
 
-  const invoices = await getInvoices(
-    statusFilter ? { status: statusFilter } : {},
-  ).catch(() => []);
+  const [invoices, cases, clients] = await Promise.all([
+    getInvoices(statusFilter ? { status: statusFilter } : {}).catch(() => []),
+    getCasePicker().catch(() => []),
+    getClientPicker().catch(() => []),
+  ]);
 
   const outstanding = invoices
     .filter((i) => i.status === "sent" || i.status === "overdue")
@@ -74,12 +78,7 @@ export default async function InvoicesPage({
       <PageHeader
         title="Invoices"
         description="Billable invoices for clients and cases."
-        actions={
-          <Button size="sm" style={{ backgroundColor: PRIMARY }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={14} />
-            New Invoice
-          </Button>
-        }
+        actions={<NewInvoiceDialog cases={cases} clients={clients} />}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -124,7 +123,7 @@ export default async function InvoicesPage({
             <EmptyState
               icon={Invoice01Icon}
               title="No invoices yet"
-              description="Create your first invoice to start billing clients. Coming soon — full invoice builder."
+              description="Create your first invoice with the New Invoice button above."
             />
           ) : (
             <Table>

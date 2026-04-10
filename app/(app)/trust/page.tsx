@@ -4,18 +4,15 @@ import {
   getTrustAccounts,
   getTrustTransactions,
 } from "@/app/actions/trust";
+import { getCasePicker } from "@/app/actions/billing";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RecordTransactionDialog } from "@/components/trust/record-transaction-dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  SafeIcon,
-  PlusSignIcon,
-  BankIcon,
-} from "@hugeicons/core-free-icons";
+import { SafeIcon, BankIcon } from "@hugeicons/core-free-icons";
 
 export const metadata: Metadata = { title: "Trust Accounting" };
 export const dynamic = "force-dynamic";
@@ -32,7 +29,10 @@ function formatCurrency(cents: number) {
 export default async function TrustPage() {
   await requireSession();
 
-  const accounts = await getTrustAccounts().catch(() => []);
+  const [accounts, cases] = await Promise.all([
+    getTrustAccounts().catch(() => []),
+    getCasePicker().catch(() => []),
+  ]);
   const totalBalance = accounts.reduce((sum, a) => sum + a.balanceCents, 0);
 
   // Fetch recent transactions from all accounts
@@ -56,10 +56,7 @@ export default async function TrustPage() {
         title="Trust Accounting"
         description="IOLTA trust accounts, deposits, withdrawals, and reconciliation."
         actions={
-          <Button size="sm" style={{ backgroundColor: PRIMARY }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={14} />
-            Record Transaction
-          </Button>
+          <RecordTransactionDialog accounts={accounts} cases={cases} />
         }
       />
 
