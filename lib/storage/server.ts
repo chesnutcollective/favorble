@@ -1,6 +1,11 @@
 import "server-only";
 
 import { createClient } from "@/db/server";
+import {
+  RAILWAY_STORAGE_PREFIX,
+  getRailwaySignedUrl,
+  uploadRailwayDocument,
+} from "./railway-bucket";
 
 const DOCUMENTS_BUCKET = "documents";
 const TEMPLATES_BUCKET = "document-templates";
@@ -121,13 +126,53 @@ export async function uploadTemplate(
 }
 
 /**
+ * Upload a document buffer to the default document storage backend.
+ * Currently routes to the Railway S3-compatible bucket when configured
+ * (staging/prod) and falls back to Supabase Storage otherwise (local dev).
+ */
+export async function uploadDocumentToDefaultBackend(
+  organizationId: string,
+  caseId: string,
+  fileName: string,
+  buffer: Buffer | Uint8Array,
+  contentType: string,
+): Promise<{ storagePath: string }> {
+  if (process.env.RAILWAY_BUCKET_NAME) {
+    const { storagePath } = await uploadRailwayDocument(
+      organizationId,
+      caseId,
+      fileName,
+      buffer,
+      contentType,
+    );
+    return { storagePath };
+  }
+  const result = await uploadDocumentBuffer(
+    organizationId,
+    caseId,
+    fileName,
+    buffer,
+    contentType,
+  );
+  return { storagePath: result.path };
+}
+
+/**
  * Generate a signed URL for downloading a document.
  * Default expiry: 1 hour (3600 seconds).
+ *
+ * Routes based on the storage_path prefix:
+ *   railway://...  → Railway S3 bucket
+ *   anything else → Supabase Storage
  */
 export async function getDocumentSignedUrl(
   storagePath: string,
   expiresIn = 3600,
 ): Promise<string> {
+  if (storagePath.startsWith(RAILWAY_STORAGE_PREFIX)) {
+    return getRailwaySignedUrl(storagePath, expiresIn);
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase.storage
