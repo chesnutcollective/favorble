@@ -1,3 +1,13 @@
+/**
+ * Mail Processing workspace — PHYSICAL mail handling for Mail Clerks.
+ *
+ * This page is for scanning, categorizing, and tracking paper mail
+ * (inbound documents received by post and outbound certified/FedEx/UPS
+ * shipments). It is intentionally separate from the Email workspace.
+ *
+ * For ELECTRONIC email (Outlook integration, auto-association with
+ * cases), see `/email` (`app/(app)/email/page.tsx`).
+ */
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import {
@@ -8,6 +18,8 @@ import { MailWorkspaceClient } from "./client";
 
 export const metadata: Metadata = {
   title: "Mail Processing",
+  description:
+    "Process incoming and outgoing physical mail — scan, categorize, attach to cases, and track certified shipments.",
 };
 
 export default async function MailPage() {
@@ -26,8 +38,8 @@ export default async function MailPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Mail Processing"
-        description="Scan, search, attach, and track physical mail for all cases."
+        title="Physical Mail"
+        description="Process incoming and outgoing physical mail — scan, categorize, attach to cases, and track certified shipments. For Outlook email, see Email."
       />
       <MailWorkspaceClient
         initialInbound={inbound}

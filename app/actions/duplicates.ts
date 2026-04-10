@@ -13,7 +13,7 @@ import {
   type DuplicateInput,
   type DuplicateLeadMatch,
   type DuplicateContactMatch,
-} from "@/lib/services/duplicate-detection";
+} from "@/lib/services/lead-dedup";
 
 /**
  * Debounced duplicate check called from the lead creation form.

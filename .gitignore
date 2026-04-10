@@ -8,3 +8,9 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+.vercel
+
+# Local-only scraped data — NEVER commit (contains PHI)
+.local-seed/
+chronicle-scrape/
+*.chronicle.json

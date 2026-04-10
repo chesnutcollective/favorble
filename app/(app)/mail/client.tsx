@@ -54,13 +54,14 @@ import {
   type OutboundMailItem,
   type OutboundMailType,
 } from "@/app/actions/mail";
+import { COLORS } from "@/lib/design-tokens";
 
 // Design tokens --------------------------------------------------------------
-const BRAND = "#263c94";
-const STATUS_OK = "#1d72b8";
-const STATUS_WARN = "#cf8a00";
-const STATUS_URGENT = "#d1453b";
-const BRAND_SOFT = "rgba(38,60,148,0.08)";
+const BRAND = COLORS.brand;
+const STATUS_OK = COLORS.ok;
+const STATUS_WARN = COLORS.warn;
+const STATUS_URGENT = COLORS.bad;
+const BRAND_SOFT = COLORS.brandSubtle;
 
 const CATEGORY_LABELS: Record<MailCategory, string> = {
   medical_record: "Medical Record",

@@ -1,5 +1,7 @@
 "use client";
 
+import { COLORS } from "@/lib/design-tokens";
+
 interface ActivitySectionProps {
   recentActivity: Array<{
     id: string;
@@ -33,7 +35,7 @@ interface ActivitySectionProps {
 
 const AVATAR_COLORS = [
   "#0070F3",
-  "#1d72b8",
+  COLORS.ok,
   "#F5A623",
   "#EE0000",
   "#7928CA",
@@ -314,7 +316,7 @@ function RecentDecisions({
                 {isFavorable && decision.pastDueBenefits > 0 && (
                   <div>
                     <span className="text-[11px] text-[#999]">Benefits</span>{" "}
-                    <strong className="font-mono" style={{ color: "#1d72b8" }}>
+                    <strong className="font-mono" style={{ color: COLORS.ok }}>
                       {formatCurrency(decision.pastDueBenefits)}
                     </strong>
                   </div>
@@ -417,7 +419,7 @@ function DocumentProcessingQueue({
     { label: "Received", count: data.received, color: "#F5A623" },
     { label: "OCR\u2019d", count: data.ocrd, color: "#0070F3" },
     { label: "Classified", count: data.classified, color: "#7928CA" },
-    { label: "Reviewed", count: data.reviewed, color: "#1d72b8" },
+    { label: "Reviewed", count: data.reviewed, color: COLORS.ok },
   ];
 
   const total = stages.reduce((sum, s) => sum + s.count, 0);
@@ -467,7 +469,7 @@ function DocumentProcessingQueue({
               className="h-full rounded-full transition-[width] duration-[600ms] ease-out"
               style={{
                 width: `${Math.round((data.reviewed / total) * 100)}%`,
-                background: "#1d72b8",
+                background: COLORS.ok,
               }}
             />
           )}

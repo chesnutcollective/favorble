@@ -35,8 +35,9 @@ export type ImportResult = {
   errors: string[];
 };
 
-// CASFLOW_FIELDS moved to `@/lib/import/fields` because "use server" files
-// can only export async functions in Next.js 16+.
+// Note: CSV field mapping constants previously lived in `@/lib/import/fields`
+// (split out because "use server" files can only export async functions in
+// Next.js 16+). The import wizard UI has since been removed.
 
 /**
  * Parse CSV content into an array of row objects.

@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { customFieldDefinitions, customFieldValues } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -82,18 +82,32 @@ export async function updateCaseFieldValues(
 ) {
   const session = await requireSession();
 
-  for (const fv of fieldValues) {
-    const existing = await db
-      .select({ id: customFieldValues.id })
-      .from(customFieldValues)
-      .where(
-        and(
-          eq(customFieldValues.caseId, caseId),
-          eq(customFieldValues.fieldDefinitionId, fv.fieldDefinitionId),
-        ),
-      )
-      .limit(1);
+  if (fieldValues.length === 0) {
+    revalidatePath(`/cases/${caseId}`);
+    return;
+  }
 
+  // Batch fetch all existing rows for these field definitions in one query,
+  // then build a Map for O(1) lookup instead of per-row SELECTs.
+  const definitionIds = fieldValues.map((fv) => fv.fieldDefinitionId);
+  const existingRows = await db
+    .select({
+      id: customFieldValues.id,
+      fieldDefinitionId: customFieldValues.fieldDefinitionId,
+    })
+    .from(customFieldValues)
+    .where(
+      and(
+        eq(customFieldValues.caseId, caseId),
+        inArray(customFieldValues.fieldDefinitionId, definitionIds),
+      ),
+    );
+
+  const existingByDefId = new Map(
+    existingRows.map((row) => [row.fieldDefinitionId, row.id]),
+  );
+
+  for (const fv of fieldValues) {
     const valueData = {
       textValue: fv.textValue ?? null,
       numberValue: fv.numberValue ?? null,
@@ -104,11 +118,12 @@ export async function updateCaseFieldValues(
       updatedBy: session.id,
     };
 
-    if (existing.length > 0) {
+    const existingId = existingByDefId.get(fv.fieldDefinitionId);
+    if (existingId) {
       await db
         .update(customFieldValues)
         .set(valueData)
-        .where(eq(customFieldValues.id, existing[0].id));
+        .where(eq(customFieldValues.id, existingId));
     } else {
       await db.insert(customFieldValues).values({
         caseId,

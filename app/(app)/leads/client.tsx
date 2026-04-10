@@ -28,7 +28,7 @@ import {
   searchDuplicateLeads,
 } from "@/app/actions/leads";
 import { checkLeadDuplicates } from "@/app/actions/duplicates";
-import type { DuplicateLeadMatch } from "@/lib/services/duplicate-detection";
+import type { DuplicateLeadMatch } from "@/lib/services/lead-dedup";
 import {
   t as tIntake,
   tf as tfIntake,
@@ -93,7 +93,9 @@ type DuplicateMatchClient = {
     | "exact_email"
     | "exact_phone"
     | "name_and_dob"
+    | "name_and_email_domain"
     | "name_and_city"
+    | "fuzzy_name_and_area_code"
     | "phonetic_name";
   lead: {
     id: string;
@@ -133,8 +135,12 @@ function describeReason(reason: DuplicateMatchClient["matchReason"]): string {
       return "Exact phone match";
     case "name_and_dob":
       return "Same name + DOB";
+    case "name_and_email_domain":
+      return "Same name + email domain";
     case "name_and_city":
       return "Same name + city";
+    case "fuzzy_name_and_area_code":
+      return "Similar name + area code";
     case "phonetic_name":
       return "Phonetic name match";
   }
@@ -678,10 +684,10 @@ export function LeadsPipelineClient({
                                 {m.name}
                               </div>
                               <div className="text-[#666] truncate">
-                                {m.status} ·{" "}
+                                {m.lead.status} ·{" "}
                                 {tf("daysAgo", { count: m.daysAgo })} ·{" "}
                                 {tf("confidence", {
-                                  percent: Math.round(m.confidence * 100),
+                                  percent: m.matchScore,
                                 })}
                               </div>
                             </div>
@@ -699,32 +705,20 @@ export function LeadsPipelineClient({
                                     ...prev,
                                     {
                                       leadId: m.leadId,
-                                      matchScore: Math.round(
-                                        m.confidence * 100,
-                                      ),
-                                      matchReason:
-                                        m.matchReasons.includes("exact_email")
-                                          ? "exact_email"
-                                          : m.matchReasons.includes(
-                                                "exact_phone",
-                                              )
-                                            ? "exact_phone"
-                                            : m.matchReasons.includes(
-                                                  "name_and_dob",
-                                                )
-                                              ? "name_and_dob"
-                                              : "phonetic_name",
+                                      matchScore: m.matchScore,
+                                      matchReason: m.matchReason,
                                       lead: {
-                                        id: m.leadId,
-                                        firstName: m.name.split(" ")[0] ?? "",
-                                        lastName:
-                                          m.name.split(" ").slice(1).join(" ") ??
-                                          "",
-                                        email: m.email,
-                                        phone: m.phone,
-                                        createdAt: new Date().toISOString(),
-                                        pipelineStage: null,
-                                        status: m.status,
+                                        id: m.lead.id,
+                                        firstName: m.lead.firstName,
+                                        lastName: m.lead.lastName,
+                                        email: m.lead.email,
+                                        phone: m.lead.phone,
+                                        createdAt:
+                                          m.lead.createdAt instanceof Date
+                                            ? m.lead.createdAt.toISOString()
+                                            : m.lead.createdAt,
+                                        pipelineStage: m.lead.pipelineStage,
+                                        status: m.lead.status,
                                       },
                                     },
                                   ]);

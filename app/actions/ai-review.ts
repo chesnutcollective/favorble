@@ -499,7 +499,7 @@ export async function getAiReviewStats(): Promise<AiReviewStats> {
   }
 }
 
-async function fetchEntryForAudit(entryId: string, organizationId: string) {
+async function getEntryForAudit(entryId: string, organizationId: string) {
   const [row] = await db
     .select({
       id: medicalChronologyEntries.id,
@@ -529,7 +529,7 @@ async function fetchEntryForAudit(entryId: string, organizationId: string) {
 export async function approveExtraction(entryId: string) {
   const session = await requireSession();
 
-  const existing = await fetchEntryForAudit(entryId, session.organizationId);
+  const existing = await getEntryForAudit(entryId, session.organizationId);
   if (!existing) throw new Error("Extraction entry not found");
 
   await db
@@ -567,7 +567,7 @@ export async function approveExtraction(entryId: string) {
 export async function rejectExtraction(entryId: string, reason?: string) {
   const session = await requireSession();
 
-  const existing = await fetchEntryForAudit(entryId, session.organizationId);
+  const existing = await getEntryForAudit(entryId, session.organizationId);
   if (!existing) throw new Error("Extraction entry not found");
 
   const prevMetadata =
@@ -633,7 +633,7 @@ export async function editExtraction(
 ) {
   const session = await requireSession();
 
-  const existing = await fetchEntryForAudit(entryId, session.organizationId);
+  const existing = await getEntryForAudit(entryId, session.organizationId);
   if (!existing) throw new Error("Extraction entry not found");
 
   const setClause: Record<string, unknown> = {
