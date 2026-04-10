@@ -10,6 +10,11 @@ dist/
 Thumbs.db
 .vercel
 
+# Env files — NEVER commit (contain secrets). Only .env.example is tracked.
+.env
+.env.*
+!.env.example
+
 # Local-only scraped data — NEVER commit (contains PHI)
 .local-seed/
 chronicle-scrape/
