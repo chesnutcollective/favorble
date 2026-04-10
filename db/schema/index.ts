@@ -14,3 +14,5 @@ export * from "./audit";
 export * from "./ere";
 export * from "./document-processing";
 export * from "./medical-chronology";
+export * from "./medical-records";
+export * from "./mail";

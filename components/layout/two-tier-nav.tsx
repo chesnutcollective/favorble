@@ -188,6 +188,86 @@ const mainNav: RailItem[] = [
       </svg>
     ),
   },
+  {
+    id: "hearings",
+    label: "Hearings",
+    href: "/hearings",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+      </svg>
+    ),
+  },
+  {
+    id: "filing",
+    label: "Filing",
+    href: "/filing",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM7 18v-2h7v2H7zm10-4H7v-2h10v2zm-4-7V3.5L18.5 9H13z" />
+      </svg>
+    ),
+  },
+  {
+    id: "phi-writer",
+    label: "PHI Writer",
+    href: "/phi-writer",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+      </svg>
+    ),
+  },
+  {
+    id: "medical-records",
+    label: "Medical Records",
+    href: "/medical-records",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M19 3H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 11h-3v3h-2v-3H9v-2h3V9h2v3h3v2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "mail",
+    label: "Mail",
+    href: "/mail",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M22 4H2v16h20V4zm-2 4-8 5-8-5V6l8 5 8-5v2z" />
+      </svg>
+    ),
+  },
 ];
 
 const settingsIcon = (
