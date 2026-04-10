@@ -9,6 +9,56 @@ import { logger } from "@/lib/logger/server";
  * - Automated email association with cases (REQ-012)
  * - Calendar sync for hearings (REQ-010)
  *
+ * ============================================================================
+ * AZURE AD SETUP GUIDE
+ * ============================================================================
+ *
+ * 1. REGISTER AN APP in Azure AD (Entra ID):
+ *    - Go to https://portal.azure.com → Azure Active Directory → App registrations
+ *    - Click "New registration"
+ *    - Name: "Favorble - Microsoft Graph Integration"
+ *    - Supported account types: "Accounts in this organizational directory only"
+ *      (Single tenant — the firm's Azure AD tenant)
+ *    - Redirect URI: not needed (this uses client_credentials flow, no user login)
+ *    - Click "Register"
+ *
+ * 2. COLLECT CREDENTIALS:
+ *    - Application (client) ID → MICROSOFT_CLIENT_ID
+ *    - Directory (tenant) ID  → MICROSOFT_TENANT_ID
+ *    - Go to "Certificates & secrets" → "New client secret"
+ *      - Description: "Favorble production"
+ *      - Expiry: 24 months (set a calendar reminder to rotate)
+ *      - Copy the secret Value → MICROSOFT_CLIENT_SECRET
+ *
+ * 3. CONFIGURE API PERMISSIONS (Application permissions, NOT delegated):
+ *    - Go to "API permissions" → "Add a permission" → "Microsoft Graph"
+ *    - Select "Application permissions" (app-only, no user context)
+ *    - Add the following:
+ *      • Calendars.ReadWrite  — create/read/update calendar events for any user
+ *      • Mail.Read            — search emails across user mailboxes
+ *    - Click "Grant admin consent for [tenant]" (requires Global Admin)
+ *
+ * 4. ENVIRONMENT VARIABLES (set in Vercel / .env.local):
+ *    - MICROSOFT_CLIENT_ID     — Application (client) ID from step 2
+ *    - MICROSOFT_CLIENT_SECRET — Client secret value from step 2
+ *    - MICROSOFT_TENANT_ID     — Directory (tenant) ID from step 2
+ *
+ * 5. AUTH FLOW:
+ *    This module uses the OAuth 2.0 Client Credentials flow (app-only).
+ *    No user login or redirect URI is needed. The app authenticates
+ *    directly with Azure AD and gets a token scoped to the tenant.
+ *    The token endpoint is:
+ *      POST https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token
+ *
+ * 6. SECURITY NOTES:
+ *    - Client credentials grant the app access to ALL user mailboxes and
+ *      calendars in the tenant. Use Application Access Policies in Exchange
+ *      Online to restrict to specific mailboxes if needed.
+ *    - Rotate the client secret before expiry (set a reminder).
+ *    - Never commit secrets to source control.
+ *
+ * ============================================================================
+ *
  * Requires Microsoft Graph API credentials:
  * - MICROSOFT_CLIENT_ID
  * - MICROSOFT_CLIENT_SECRET

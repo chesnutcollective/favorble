@@ -16,6 +16,25 @@ import { logger } from "@/lib/logger/server";
  * The Pizza Tracker maps to Favorble's stage groups:
  * - Stage groups have `clientVisibleName` and `clientVisibleDescription`
  * - When a case changes stage groups, Case Status should be notified
+ *
+ * ─── SETUP INSTRUCTIONS ───
+ *
+ * Environment variables required:
+ *   CASE_STATUS_API_URL    — Base URL for the CaseStatus API (default: https://api.casestatus.com)
+ *   CASE_STATUS_API_KEY    — API key issued by CaseStatus for this firm
+ *   CASE_STATUS_WEBHOOK_SECRET — HMAC secret for verifying inbound webhook signatures
+ *
+ * CaseStatus admin configuration:
+ *   1. In the CaseStatus admin dashboard, add a webhook endpoint pointing to:
+ *        https://<your-favorble-domain>/api/webhooks/case-status
+ *      Subscribe to events: message.received, document.uploaded, status.updated
+ *   2. Copy the webhook signing secret and set it as CASE_STATUS_WEBHOOK_SECRET.
+ *   3. Generate an API key for outbound access (messaging, stage updates)
+ *      and set it as CASE_STATUS_API_KEY.
+ *   4. Verify the integration by sending a test webhook from the CaseStatus dashboard
+ *      and confirming it appears in the Favorble logs.
+ *
+ * ──────────────────────────
  */
 
 type CaseStatusConfig = {
