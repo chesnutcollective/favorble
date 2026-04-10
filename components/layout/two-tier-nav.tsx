@@ -16,6 +16,8 @@ import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
 import { ThemeSwitcher } from "./theme-switcher";
+import { ViewAsMenu } from "./view-as-menu";
+import type { PersonaId } from "@/lib/personas/config";
 
 /* ─── Rail nav items ─── */
 
@@ -385,16 +387,16 @@ const settingsNav: SettingsItem[] = [
 
 /* ─── Determine active rail item from pathname ─── */
 
-function getActiveRailId(pathname: string): string {
+function getActiveRailId(pathname: string, items: RailItem[]): string {
   if (pathname.startsWith("/admin")) return "settings";
-  for (const item of mainNav) {
+  for (const item of items) {
     if (item.id === "dashboard") {
       if (pathname === "/dashboard" || pathname === "/") return "dashboard";
       continue;
     }
     if (pathname.startsWith(item.href)) return item.id;
   }
-  return "dashboard";
+  return items[0]?.id ?? "dashboard";
 }
 
 /* ─── Component ─── */
@@ -403,13 +405,54 @@ export function TwoTierNav({
   user,
   casesCount,
   navData,
+  personaNav,
+  isAdmin,
+  currentPersonaId,
+  isViewingAs,
 }: {
   user: SessionUser;
   casesCount?: number;
   navData?: NavPanelData;
+  /**
+   * Ordered list of rail item IDs this persona is allowed to see.
+   * Items not in this list are hidden. Ordering follows this array.
+   */
+  personaNav: string[];
+  /**
+   * True when the real signed-in actor is an admin. Controls whether the
+   * settings gear and "View as" menu render — independent of the currently
+   * previewed persona so admins keep their controls while viewing as others.
+   */
+  isAdmin: boolean;
+  /** The effective persona currently driving the UI (for view-as highlighting). */
+  currentPersonaId: PersonaId;
+  /** True when the admin is actively previewing another persona. */
+  isViewingAs: boolean;
 }) {
   const pathname = usePathname();
-  const activeRailId = getActiveRailId(pathname);
+
+  // Build a persona-scoped rail in the persona's preferred order.
+  // Items not in personaNav are hidden. Unknown IDs are silently skipped.
+  const railItemsById = React.useMemo(() => {
+    const map = new Map<string, RailItem>();
+    for (const item of mainNav) map.set(item.id, item);
+    return map;
+  }, []);
+  const visibleRailItems = React.useMemo(() => {
+    const out: RailItem[] = [];
+    const seen = new Set<string>();
+    for (const id of personaNav) {
+      if (seen.has(id)) continue;
+      const item = railItemsById.get(id);
+      if (item) {
+        out.push(item);
+        seen.add(id);
+      }
+    }
+    return out;
+  }, [personaNav, railItemsById]);
+
+  const activeRailId = getActiveRailId(pathname, visibleRailItems);
   const visiblePanel = activeRailId;
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
@@ -442,7 +485,7 @@ export function TwoTierNav({
 
           {/* Main nav icons */}
           <div className="ttn-rail-group">
-            {mainNav.map((item) => {
+            {visibleRailItems.map((item) => {
               const active = isRailActive(item);
               return (
                 <Link
@@ -501,6 +544,15 @@ export function TwoTierNav({
                 </span>
                 <ThemeSwitcher />
               </div>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <ViewAsMenu
+                    currentPersonaId={currentPersonaId}
+                    isViewingAs={isViewingAs}
+                  />
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <button
@@ -514,14 +566,16 @@ export function TwoTierNav({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Settings gear */}
-          <Link
-            href="/admin/settings"
-            className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
-            title="Settings"
-          >
-            {settingsIcon}
-          </Link>
+          {/* Settings gear — only shown to admins (actor, not previewed persona) */}
+          {isAdmin && (
+            <Link
+              href="/admin/settings"
+              className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
+              title="Settings"
+            >
+              {settingsIcon}
+            </Link>
+          )}
         </nav>
 
         {/* ── Tier 2: Context Panel ── */}
@@ -615,7 +669,7 @@ export function TwoTierNav({
             <MailPanel active={visiblePanel === "mail"} navData={navData} />
 
             {/* Default panels for any remaining items */}
-            {mainNav
+            {visibleRailItems
               .filter(
                 (item) =>
                   ![
