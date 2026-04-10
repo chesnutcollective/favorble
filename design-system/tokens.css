@@ -18,6 +18,22 @@
    ========================================================================== */
 
 :root {
+  /* --- Hogan Smith Brand Palette --- */
+  --color-brand-50: #eef1fa;
+  --color-brand-100: #dde3f5;
+  --color-brand-200: #bcc7eb;
+  --color-brand-300: #8f9fd8;
+  --color-brand-400: #5c72c0;
+  --color-brand-500: #3a52ad;
+  --color-brand-600: #263c94;
+  --color-brand-700: #1f3280;
+  --color-brand-800: #18286a;
+  --color-brand-900: #111d54;
+  --color-status-ok: #1d72b8;
+  --color-status-ok-hover: #185f9b;
+  --color-status-ok-subtle: rgba(29,114,184,0.08);
+  --color-status-ok-muted: rgba(29,114,184,0.14);
+
   /* --- Color: Backgrounds (warm off-whites) --- */
   --bg-base:          #FAF8F5;    /* warm linen base                     */
   --bg-raised:        #FFFFFF;    /* pure white for cards / raised panels */

@@ -83,12 +83,12 @@ export function MessagesPanel({
               alignItems: "center",
               justifyContent: "space-between",
               fontSize: 13,
-              color: isActive ? "#059669" : "#6B7280",
+              color: isActive ? "#185f9b" : "#6B7280",
               fontWeight: isActive ? 500 : 400,
               padding: "6px 8px",
               borderRadius: 6,
               cursor: "pointer",
-              background: isActive ? "#ECFDF5" : "transparent",
+              background: isActive ? "#e6f1fa" : "transparent",
               transition: "color 0.12s ease, background 0.12s ease",
               lineHeight: 1.4,
             }}
@@ -111,9 +111,9 @@ export function MessagesPanel({
                 style={{
                   fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   fontSize: 10,
-                  color: "#10B981",
+                  color: "#1d72b8",
                   background: "transparent",
-                  border: "1px solid #10B981",
+                  border: "1px solid #1d72b8",
                   padding: "1px 6px",
                   borderRadius: 10,
                   fontWeight: 500,
@@ -167,14 +167,14 @@ export function MessagesPanel({
               width: 20,
               height: 20,
               borderRadius: "50%",
-              background: msg.unread ? "#ECFDF5" : "#E5E7EB",
+              background: msg.unread ? "#e6f1fa" : "#E5E7EB",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
               fontSize: 9,
               fontWeight: 600,
-              color: msg.unread ? "#059669" : "#6B7280",
+              color: msg.unread ? "#185f9b" : "#6B7280",
             }}
           >
             {msg.initials}
@@ -212,7 +212,7 @@ export function MessagesPanel({
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: "#10B981",
+                  background: "#1d72b8",
                   flexShrink: 0,
                 }}
               />

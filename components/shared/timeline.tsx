@@ -31,8 +31,8 @@ type TimelineProps = {
 
 const EVENT_COLORS: Record<string, string> = {
   stage_changed: "bg-[#0070F3]",
-  task_created: "bg-[#00C853]",
-  task_completed: "bg-[#00C853]",
+  task_created: "bg-[#1d72b8]",
+  task_completed: "bg-[#1d72b8]",
   document_uploaded: "bg-[#666]",
   document_deleted: "bg-[#EE0000]",
   note_added: "bg-[#666]",
@@ -44,7 +44,7 @@ const EVENT_COLORS: Record<string, string> = {
   email_sent: "bg-[#0070F3]",
   assignment_changed: "bg-[#666]",
   case_created: "bg-[#0070F3]",
-  workflow_executed: "bg-[#00C853]",
+  workflow_executed: "bg-[#1d72b8]",
 };
 
 function formatRelativeTime(timestamp: string): string {

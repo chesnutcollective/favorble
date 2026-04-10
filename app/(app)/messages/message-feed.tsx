@@ -157,7 +157,7 @@ export function MessageFeed({
                 <Card
                   key={msg.id}
                   ref={msg.id === highlightId ? highlightRef : undefined}
-                  className={`border-[#eaeaea] transition-colors duration-200 hover:border-[#999]${isHighlighted ? " ring-2 ring-[#10B981] bg-[#ECFDF5]" : ""}`}
+                  className={`border-[#eaeaea] transition-colors duration-200 hover:border-[#999]${isHighlighted ? " ring-2 ring-[#1d72b8] bg-[#e6f1fa]" : ""}`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">

@@ -133,9 +133,9 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
   const size = "h-12 w-12";
   const colors: Record<string, string> = {
     pdf: "text-red-500",
-    image: "text-green-500",
+    image: "text-sky-500",
     doc: "text-primary",
-    spreadsheet: "text-emerald-600",
+    spreadsheet: "text-sky-600",
     text: "text-muted-foreground",
     unknown: "text-muted-foreground",
   };

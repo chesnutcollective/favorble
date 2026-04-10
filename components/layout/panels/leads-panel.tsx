@@ -12,10 +12,10 @@ export interface LeadsPanelProps {
 }
 
 const defaultPipeline: PipelineStage[] = [
-  { name: "New", count: 5, color: "#10B981" },
+  { name: "New", count: 5, color: "#1d72b8" },
   { name: "Contacted", count: 3, color: "#3B82F6" },
   { name: "Intake", count: 2, color: "#F59E0B" },
-  { name: "Signed", count: 1, color: "#059669" },
+  { name: "Signed", count: 1, color: "#185f9b" },
 ];
 
 export function LeadsPanel({
@@ -85,9 +85,9 @@ export function LeadsPanel({
                   fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
                   fontSize: 11,
                   fontWeight: 600,
-                  color: "#10B981",
+                  color: "#1d72b8",
                   background: "transparent",
-                  border: "1px solid #10B981",
+                  border: "1px solid #1d72b8",
                   padding: "0 5px",
                   borderRadius: 8,
                   lineHeight: 1.6,
@@ -149,7 +149,7 @@ export function LeadsPanel({
         }}
       >
         Conversion:{" "}
-        <strong style={{ color: "#10B981", fontWeight: 600 }}>
+        <strong style={{ color: "#1d72b8", fontWeight: 600 }}>
           {conversionRate}
         </strong>{" "}
         this month

@@ -41,7 +41,7 @@ export function DefaultPanel({
           href={href}
           style={{
             fontSize: 12,
-            color: "#10B981",
+            color: "#1d72b8",
             textDecoration: "none",
             padding: "0 8px",
             marginBottom: 12,
@@ -51,10 +51,10 @@ export function DefaultPanel({
             transition: "color 0.12s ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#059669";
+            e.currentTarget.style.color = "#185f9b";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#10B981";
+            e.currentTarget.style.color = "#1d72b8";
           }}
         >
           View all &rarr;

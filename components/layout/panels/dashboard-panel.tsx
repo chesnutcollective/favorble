@@ -50,7 +50,7 @@ const defaultActivity: ActivityItem[] = [
 ];
 
 const dotColors: Record<string, string> = {
-  green: "#10B981",
+  green: "#1d72b8",
   blue: "#3B82F6",
   amber: "#F59E0B",
   red: "#EF4444",
@@ -155,7 +155,7 @@ export function DashboardPanel({
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: dotColors[item.color] ?? "#10B981",
+                background: dotColors[item.color] ?? "#1d72b8",
                 flexShrink: 0,
                 marginTop: 5,
               }}
@@ -209,11 +209,11 @@ function QuickActionButton({
         padding: "10px 4px",
         border: primary ? "none" : "1px solid #E5E7EB",
         borderRadius: 6,
-        background: primary ? "#10B981" : "#FFF",
+        background: primary ? "#1d72b8" : "#FFF",
         cursor: "pointer",
         fontFamily: "inherit",
         transition: "all 0.15s ease",
-        color: primary ? "#FFF" : "#10B981",
+        color: primary ? "#FFF" : "#1d72b8",
       }}
       onMouseEnter={(e) => {
         if (!primary) {

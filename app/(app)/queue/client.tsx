@@ -493,7 +493,7 @@ export function QueueClient({
         data-task-id={task.id}
         className={`flex items-start gap-3 p-3 hover:bg-accent transition-colors cursor-pointer ${
           isFocused ? "ring-2 ring-primary ring-inset bg-accent/50" : ""
-        } ${isHighlighted ? "ring-2 ring-emerald-500 ring-inset bg-emerald-50 dark:bg-emerald-950/20" : ""}`}
+        } ${isHighlighted ? "ring-2 ring-sky-500 ring-inset bg-sky-50 dark:bg-sky-950/20" : ""}`}
         onClick={() => setSelectedTask(task)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -682,7 +682,7 @@ export function QueueClient({
             style={{ animation: "emptyStateIn 0.3s ease-out" }}
           >
             <div
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(43,138,62,0.08)]"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(29,114,184,0.08)]"
               style={{
                 animation: "emptyStateIconPulse 3s ease-in-out infinite",
               }}
@@ -690,7 +690,7 @@ export function QueueClient({
               <HugeiconsIcon
                 icon={CheckmarkCircle01Icon}
                 size={28}
-                className="text-[#2b8a3e]"
+                className="text-[#1d72b8]"
               />
             </div>
             <h3 className="mt-4 text-sm font-medium text-foreground">

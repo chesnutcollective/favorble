@@ -41,7 +41,7 @@ function getDotColor(action: string): string {
       return "bg-[#0070F3]"; // blue — new items
     case "update":
     case "transition":
-      return "bg-[#00C853]"; // green — completions/transitions
+      return "bg-[#1d72b8]"; // green — completions/transitions
     case "delete":
       return "bg-[#F5A623]"; // amber — warnings
     default:

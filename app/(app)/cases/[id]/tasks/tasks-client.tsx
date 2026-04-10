@@ -50,7 +50,7 @@ export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
           className="flex flex-col items-center justify-center py-8 text-center"
           style={{ animation: "emptyStateIn 0.3s ease-out" }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(43,138,62,0.08)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(29,114,184,0.08)]">
             <Checkbox className="pointer-events-none opacity-60" />
           </div>
           <p className="mt-2 text-sm font-medium text-foreground">

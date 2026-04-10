@@ -57,7 +57,7 @@ const MONTH_LABELS = [
 ];
 
 const COLORS = {
-  green: "#00C853",
+  green: "#1d72b8",
   amber: "#F5A623",
   red: "#EE0000",
   blue: "#0070F3",

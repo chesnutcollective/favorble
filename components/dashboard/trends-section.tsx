@@ -53,14 +53,14 @@ function xPositions(count: number, left: number, right: number): number[] {
 
 /** Determine sparkline stroke color based on rate thresholds */
 function sparklineColor(rate: number): string {
-  if (rate >= 80) return "#00C853";
+  if (rate >= 80) return "#1d72b8";
   if (rate >= 60) return "#F5A623";
   return "#EE0000";
 }
 
 /** Determine rate text color class */
 function rateColorClass(rate: number): string {
-  if (rate >= 80) return "text-[#00C853]";
+  if (rate >= 80) return "text-[#1d72b8]";
   if (rate >= 60) return "text-[#F5A623]";
   return "text-[#EE0000]";
 }
@@ -135,8 +135,8 @@ function CaseVolumeTrend({
               <stop offset="100%" stopColor="#0070F3" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="cvgClosed" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00C853" stopOpacity={0.12} />
-              <stop offset="100%" stopColor="#00C853" stopOpacity={0} />
+              <stop offset="0%" stopColor="#1d72b8" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="#1d72b8" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -225,7 +225,7 @@ function CaseVolumeTrend({
           {/* Closed line */}
           <polyline
             fill="none"
-            stroke="#00C853"
+            stroke="#1d72b8"
             strokeWidth={2}
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -249,7 +249,7 @@ function CaseVolumeTrend({
               cx={xs[i]}
               cy={toY(d.closed)}
               r={2.5}
-              fill="#00C853"
+              fill="#1d72b8"
             />
           ))}
         </svg>
@@ -262,7 +262,7 @@ function CaseVolumeTrend({
           Opened
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-[#666]">
-          <div className="w-2 h-2 rounded-full bg-[#00C853]" />
+          <div className="w-2 h-2 rounded-full bg-[#1d72b8]" />
           Closed
         </div>
       </div>
@@ -449,7 +449,7 @@ function WeeklyVelocity({
 
   const metrics = [
     { key: "opened" as const, label: "Opened", color: "#0070F3" },
-    { key: "closed" as const, label: "Closed", color: "#00C853" },
+    { key: "closed" as const, label: "Closed", color: "#1d72b8" },
     { key: "tasksCompleted" as const, label: "Tasks", color: "#F5A623" },
     { key: "docsProcessed" as const, label: "Docs", color: "#999999" },
   ];

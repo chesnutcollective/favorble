@@ -91,7 +91,7 @@ const STATUS_DOT_COLORS: Record<string, string> = {
   intake_in_progress: "#8B5CF6",
   contract_sent: "#F59E0B",
   contract_signed: "#22C55E",
-  converted: "#10B981",
+  converted: "#1d72b8",
   declined: "#EF4444",
   unresponsive: "#9CA3AF",
   disqualified: "#9CA3AF",
@@ -407,10 +407,10 @@ export function LeadDetailClient({
               <div className="flex items-center flex-1">
                 <div
                   className="h-[2px] flex-1 -mt-4"
-                  style={{ backgroundColor: "#10B981" }}
+                  style={{ backgroundColor: "#1d72b8" }}
                 />
                 <div className="flex flex-col items-center flex-1">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-bold bg-[#10B981] text-white">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-bold bg-[#1d72b8] text-white">
                     <svg
                       width="12"
                       height="12"
@@ -426,7 +426,7 @@ export function LeadDetailClient({
                       />
                     </svg>
                   </div>
-                  <p className="text-[10px] mt-1.5 text-center font-semibold text-[#10B981]">
+                  <p className="text-[10px] mt-1.5 text-center font-semibold text-[#1d72b8]">
                     Converted
                   </p>
                 </div>

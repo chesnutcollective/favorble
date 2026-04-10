@@ -358,7 +358,7 @@ function stageBadgeColor(stage: string): string {
   const lower = stage.toLowerCase();
   if (lower.includes("closed") || lower.includes("denied")) return "#EF4444";
   if (lower.includes("hearing") || lower.includes("review")) return "#F59E0B";
-  if (lower.includes("approved") || lower.includes("won")) return "#10B981";
+  if (lower.includes("approved") || lower.includes("won")) return "#1d72b8";
   return "#6B7280";
 }
 
@@ -371,7 +371,7 @@ function statusColor(status: string): string {
     lower === "completed" ||
     lower === "contract_signed"
   )
-    return "#10B981";
+    return "#1d72b8";
   if (lower === "declined" || lower === "disqualified") return "#EF4444";
   return "#6B7280";
 }
@@ -455,7 +455,7 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       subtitle: [fmtStatus(t.status), t.caseNumber ? `Case ${t.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
       href: t.caseId ? `/cases/${t.caseId}/tasks` : "/queue",
       badge: fmtStatus(t.status),
-      badgeColor: t.status === "completed" ? "#10B981" : t.status === "blocked" ? "#EF4444" : "#6B7280",
+      badgeColor: t.status === "completed" ? "#1d72b8" : t.status === "blocked" ? "#EF4444" : "#6B7280",
       preview: {
         Title: t.title,
         Status: fmtStatus(t.status),
@@ -507,7 +507,7 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       subtitle: [fmtStatus(e.eventType), e.caseNumber ? `Case ${e.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
       href: e.caseId ? `/cases/${e.caseId}/calendar` : "/calendar",
       badge: fmtStatus(e.eventType),
-      badgeColor: e.eventType === "hearing" ? "#10B981" : "#6B7280",
+      badgeColor: e.eventType === "hearing" ? "#1d72b8" : "#6B7280",
       preview: {
         Event: e.title,
         Type: fmtStatus(e.eventType),

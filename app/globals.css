@@ -10,6 +10,22 @@
    ============================================ */
 
 :root {
+	/* ── Hogan Smith Brand Palette ── */
+	--color-brand-50: #eef1fa;
+	--color-brand-100: #dde3f5;
+	--color-brand-200: #bcc7eb;
+	--color-brand-300: #8f9fd8;
+	--color-brand-400: #5c72c0;
+	--color-brand-500: #3a52ad;
+	--color-brand-600: #263c94;
+	--color-brand-700: #1f3280;
+	--color-brand-800: #18286a;
+	--color-brand-900: #111d54;
+	--color-status-ok: #1d72b8;
+	--color-status-ok-hover: #185f9b;
+	--color-status-ok-subtle: rgba(29,114,184,0.08);
+	--color-status-ok-muted: rgba(29,114,184,0.14);
+
 	/* ── Surfaces ── */
 	--bg-root: #FAFAFA;
 	--bg-card: #FFFFFF;
@@ -30,13 +46,13 @@
 	/* ── Accent ── */
 	--accent-black: #000000;
 	--accent-blue: #0070F3;
-	--accent-green: #00C853;
+	--accent-green: #1d72b8;
 	--accent-amber: #F5A623;
 	--accent-red: #EE0000;
 
 	/* ── Semantic ── */
 	--urgent: #EE0000;
-	--success: #00C853;
+	--success: #1d72b8;
 	--warning: #F5A623;
 	--info: #0070F3;
 
@@ -45,8 +61,8 @@
 
 	/* ── Nav (Two-Tier) ── */
 	--nav-rail-bg: #1C1C1E;
-	--nav-accent: #10B981;
-	--nav-accent-subtle: rgba(16,185,129,0.15);
+	--nav-accent: #263c94;
+	--nav-accent-subtle: rgba(38,60,148,0.15);
 
 	/* ── Layout ── */
 	--sidebar-w: 264px; /* 12px pad + 56px rail + 184px panel + 12px gap */
@@ -110,13 +126,13 @@
 	/* ── Accent ── */
 	--accent-black: #1D1D1F;
 	--accent-blue: #007AFF;
-	--accent-green: #34C759;
+	--accent-green: #1d72b8;
 	--accent-amber: #FF9F0A;
 	--accent-red: #FF3B30;
 
 	/* ── Semantic ── */
 	--urgent: #FF3B30;
-	--success: #34C759;
+	--success: #1d72b8;
 	--warning: #FF9F0A;
 	--info: #007AFF;
 
@@ -186,13 +202,13 @@
 
 /* ── Keyframes ── */
 @keyframes ttn-icon-glow {
-  0%, 100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
+  0%, 100% { box-shadow: 0 0 12px rgba(38, 60, 148, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(38, 60, 148, 0.6); }
 }
 
 @keyframes ttn-pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(38, 60, 148, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(38, 60, 148, 0); }
 }
 
 /* ── App layout ── */
@@ -247,7 +263,7 @@
 .ttn-logo {
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #263c94 0%, #1f3280 100%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -320,7 +336,7 @@
 
 /* Active rail button */
 .ttn-rail-btn.active {
-  background: var(--nav-accent-subtle, rgba(16, 185, 129, 0.15));
+  background: var(--nav-accent-subtle, rgba(38, 60, 148, 0.15));
   color: #FFF;
   animation: ttn-icon-glow 2s ease-in-out infinite;
 }
@@ -333,7 +349,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 20px;
-  background: var(--nav-accent, #10B981);
+  background: var(--nav-accent, #263c94);
   border-radius: 0 2px 2px 0;
 }
 
@@ -344,7 +360,7 @@
   right: 6px;
   width: 7px;
   height: 7px;
-  background: #10B981;
+  background: #263c94;
   border-radius: 50%;
   border: 1.5px solid #1C1C1E;
   animation: ttn-pulse-glow 2s ease-in-out infinite;
@@ -387,13 +403,13 @@
   right: -1px;
   width: 8px;
   height: 8px;
-  background: #10B981;
+  background: #1d72b8;
   border-radius: 50%;
   border: 2px solid #1C1C1E;
 }
 
 [data-skin="apple"] .ttn-status-dot {
-  background: #34C759;
+  background: #1d72b8;
 }
 
 /* ── Tier 2: Context Panel (184px) ── */
@@ -524,9 +540,9 @@
 }
 
 .ttn-panel-item.active {
-  color: #059669;
+  color: #185f9b;
   font-weight: 500;
-  background: #ECFDF5;
+  background: #e6f1fa;
 }
 
 [data-skin="apple"] .ttn-panel-item.active {
@@ -558,12 +574,12 @@
 }
 
 .ttn-quick-action-btn:hover {
-  border-color: #10B981;
-  background: #ECFDF5;
+  border-color: #263c94;
+  background: #e6f1fa;
 }
 
 .ttn-quick-action-btn svg {
-  color: #10B981;
+  color: #263c94;
 }
 
 .ttn-quick-action-btn span {
@@ -618,7 +634,7 @@
   margin-top: 5px;
 }
 
-.ttn-activity-dot.green { background: #10B981; }
+.ttn-activity-dot.green { background: #1d72b8; }
 .ttn-activity-dot.blue { background: #3B82F6; }
 .ttn-activity-dot.amber { background: #F59E0B; }
 .ttn-activity-dot.red { background: #EF4444; }
@@ -672,8 +688,8 @@
 }
 
 .ttn-case-tab.active {
-  background: #ECFDF5;
-  color: #059669;
+  background: #e6f1fa;
+  color: #185f9b;
 }
 
 .ttn-case-tab:hover:not(.active) {
@@ -709,7 +725,7 @@
   font-family: var(--font-mono, 'Geist Mono', monospace);
   font-size: 10px;
   font-weight: 500;
-  color: #10B981;
+  color: #263c94;
   min-width: 16px;
   text-align: right;
 }
@@ -725,7 +741,7 @@
 
 .ttn-stage-bar-fill {
   height: 100%;
-  background: #10B981;
+  background: #263c94;
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -795,17 +811,17 @@
 }
 
 .ttn-msg-folder.active {
-  color: #059669;
+  color: #185f9b;
   font-weight: 500;
-  background: #ECFDF5;
+  background: #e6f1fa;
 }
 
 .ttn-folder-count {
   font-family: var(--font-mono, 'Geist Mono', monospace);
   font-size: 10px;
-  color: #10B981;
+  color: #1d72b8;
   background: transparent;
-  border: 1px solid #10B981;
+  border: 1px solid #1d72b8;
   padding: 1px 6px;
   border-radius: 10px;
   font-weight: 500;
@@ -843,8 +859,8 @@
 }
 
 .ttn-msg-avatar.unread {
-  background: #ECFDF5;
-  color: #059669;
+  background: #e6f1fa;
+  color: #185f9b;
 }
 
 .ttn-msg-body {
@@ -896,15 +912,15 @@
   font-family: var(--font-mono, 'SF Mono', monospace);
   font-size: 10px;
   font-weight: 500;
-  color: #10B981;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #1d72b8;
+  background: rgba(29, 114, 184, 0.08);
+  border: 1px solid rgba(29, 114, 184, 0.2);
   padding: 3px 8px;
   border-radius: 4px;
 }
 
 .ttn-panel-footer-badge svg {
-  color: #10B981;
+  color: #1d72b8;
 }
 
 /* ── Mobile: hide sidebar ── */
@@ -976,6 +992,22 @@
 	--color-success: var(--success);
 	--color-warning: var(--warning);
 	--color-info: var(--info);
+
+	/* ── Hogan Smith brand scale (Tailwind utilities: bg-brand-600 etc.) ── */
+	--color-brand-50: var(--color-brand-50);
+	--color-brand-100: var(--color-brand-100);
+	--color-brand-200: var(--color-brand-200);
+	--color-brand-300: var(--color-brand-300);
+	--color-brand-400: var(--color-brand-400);
+	--color-brand-500: var(--color-brand-500);
+	--color-brand-600: var(--color-brand-600);
+	--color-brand-700: var(--color-brand-700);
+	--color-brand-800: var(--color-brand-800);
+	--color-brand-900: var(--color-brand-900);
+	--color-status-ok: var(--color-status-ok);
+	--color-status-ok-hover: var(--color-status-ok-hover);
+	--color-status-ok-subtle: var(--color-status-ok-subtle);
+	--color-status-ok-muted: var(--color-status-ok-muted);
 }
 
 @layer base {

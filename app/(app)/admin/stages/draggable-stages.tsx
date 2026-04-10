@@ -134,7 +134,7 @@ export function DraggableStageList({
               {stage.isInitial && (
                 <Badge
                   variant="outline"
-                  className="text-xs text-green-600 border-green-300"
+                  className="text-xs text-sky-600 border-sky-300"
                 >
                   Initial
                 </Badge>

@@ -238,7 +238,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       label: "Win Rate %",
       value: "67%",
       trend: { value: 3, label: "vs prior" },
-      sparkColor: "#00C853",
+      sparkColor: "#1d72b8",
       sparkPath: "M0,26 L8,22 L16,24 L24,20 L32,16 L40,18 L48,12 L56,10 L64,8",
     },
     {
@@ -329,7 +329,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const appealsLevels: AppealsLevel[] = [
     { label: "Initial App", pct: 33, color: "#0070F3" },
     { label: "Reconsideration", pct: 15, color: "#F5A623" },
-    { label: "ALJ Hearing", pct: 52, color: "#00C853" },
+    { label: "ALJ Hearing", pct: 52, color: "#1d72b8" },
     { label: "Appeals Council", pct: 12, color: "#7928CA" },
     { label: "Federal Court", pct: 8, color: "#EE0000" },
   ];

@@ -81,7 +81,7 @@ function DashboardStatCard({
           {value}
         </div>
         <div className="text-[12px] font-mono mt-1">
-          <span className={isPositive ? "text-[#00C853]" : "text-[#EE0000]"}>
+          <span className={isPositive ? "text-[#1d72b8]" : "text-[#EE0000]"}>
             {isPositive ? "+" : ""}
             {trend.value}
             {trend.label === "vs prior" ? "%" : ""}
@@ -237,7 +237,7 @@ function WinRateDonut({ data }: { data: DashboardData["winRate"] }) {
             cy="70"
             r="56"
             fill="none"
-            stroke="#00C853"
+            stroke="#1d72b8"
             strokeWidth="12"
             strokeDasharray={`${wonDash} ${circumference}`}
             strokeDashoffset={-circumference * 0.25}
@@ -265,7 +265,7 @@ function WinRateDonut({ data }: { data: DashboardData["winRate"] }) {
         </svg>
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-[12px] font-mono text-[#666]">
-            <div className="w-[10px] h-[10px] rounded-sm bg-[#00C853]" />
+            <div className="w-[10px] h-[10px] rounded-sm bg-[#1d72b8]" />
             Won: {data.won}
           </div>
           <div className="flex items-center gap-2 text-[12px] font-mono text-[#666]">

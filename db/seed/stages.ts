@@ -23,7 +23,7 @@ export const defaultStageGroups = [
   },
   {
     name: "Application",
-    color: "#10B981",
+    color: "#1d72b8",
     clientVisibleName: "Application in Progress",
     clientVisibleDescription:
       "Your disability application is being prepared and filed with the Social Security Administration.",

@@ -33,7 +33,7 @@ interface ActivitySectionProps {
 
 const AVATAR_COLORS = [
   "#0070F3",
-  "#00C853",
+  "#1d72b8",
   "#F5A623",
   "#EE0000",
   "#7928CA",
@@ -265,7 +265,7 @@ function RecentDecisions({
             decision.outcome.toLowerCase() === "remanded";
 
           const borderClass = isFavorable
-            ? "border-l-[3px] border-l-[#00C853]"
+            ? "border-l-[3px] border-l-[#1d72b8]"
             : isUnfavorable
               ? "border-l-[3px] border-l-[#EE0000]"
               : "border-l-[3px] border-l-[#F5A623]";
@@ -314,7 +314,7 @@ function RecentDecisions({
                 {isFavorable && decision.pastDueBenefits > 0 && (
                   <div>
                     <span className="text-[11px] text-[#999]">Benefits</span>{" "}
-                    <strong className="font-mono" style={{ color: "#00C853" }}>
+                    <strong className="font-mono" style={{ color: "#1d72b8" }}>
                       {formatCurrency(decision.pastDueBenefits)}
                     </strong>
                   </div>
@@ -417,7 +417,7 @@ function DocumentProcessingQueue({
     { label: "Received", count: data.received, color: "#F5A623" },
     { label: "OCR\u2019d", count: data.ocrd, color: "#0070F3" },
     { label: "Classified", count: data.classified, color: "#7928CA" },
-    { label: "Reviewed", count: data.reviewed, color: "#00C853" },
+    { label: "Reviewed", count: data.reviewed, color: "#1d72b8" },
   ];
 
   const total = stages.reduce((sum, s) => sum + s.count, 0);
@@ -467,7 +467,7 @@ function DocumentProcessingQueue({
               className="h-full rounded-full transition-[width] duration-[600ms] ease-out"
               style={{
                 width: `${Math.round((data.reviewed / total) * 100)}%`,
-                background: "#00C853",
+                background: "#1d72b8",
               }}
             />
           )}

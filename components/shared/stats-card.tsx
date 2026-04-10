@@ -35,7 +35,7 @@ export function StatsCard({
         <p className="mt-2 text-xs font-mono text-[#666]">
           <span
             className={cn(
-              trend.value >= 0 ? "text-[#00C853]" : "text-[#EE0000]",
+              trend.value >= 0 ? "text-[#1d72b8]" : "text-[#EE0000]",
             )}
           >
             {trend.value >= 0 ? "+" : ""}

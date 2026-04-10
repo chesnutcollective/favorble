@@ -70,7 +70,7 @@ export function MessageThread({
           className="flex flex-col items-center justify-center py-10 text-center"
           style={{ animation: "emptyStateIn 0.3s ease-out" }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(59,89,152,0.08)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(38,60,148,0.08)]">
             <svg
               width="20"
               height="20"
@@ -80,7 +80,7 @@ export function MessageThread({
               strokeWidth={1.5}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-[#3b5998]"
+              className="text-[#263c94]"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>

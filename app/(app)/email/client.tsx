@@ -234,7 +234,7 @@ function EmailRow({
   return (
     <Card
       ref={highlightRef}
-      className={`transition-colors duration-200${isHighlighted ? " ring-2 ring-[#10B981] bg-[#ECFDF5]" : ""}`}
+      className={`transition-colors duration-200${isHighlighted ? " ring-2 ring-[#1d72b8] bg-[#e6f1fa]" : ""}`}
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
@@ -244,7 +244,7 @@ function EmailRow({
                 variant="outline"
                 className={
                   email.type === "email_inbound"
-                    ? "border-green-300 text-green-700"
+                    ? "border-sky-300 text-sky-700"
                     : "border-blue-300 text-blue-700"
                 }
               >

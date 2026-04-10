@@ -20,8 +20,8 @@ const ENTRY_TYPE_COLORS: Record<string, { dot: string; label: string }> = {
     label: "border border-[#EAEAEA] text-[#EE0000]",
   },
   lab_result: {
-    dot: "bg-[#00C853]",
-    label: "border border-[#EAEAEA] text-[#00C853]",
+    dot: "bg-[#1d72b8]",
+    label: "border border-[#EAEAEA] text-[#1d72b8]",
   },
   imaging: {
     dot: "bg-[#0070F3]",
@@ -40,8 +40,8 @@ const ENTRY_TYPE_COLORS: Record<string, { dot: string; label: string }> = {
     label: "border border-[#EAEAEA] text-[#EE0000]",
   },
   prescription: {
-    dot: "bg-[#00C853]",
-    label: "border border-[#EAEAEA] text-[#00C853]",
+    dot: "bg-[#1d72b8]",
+    label: "border border-[#EAEAEA] text-[#1d72b8]",
   },
   diagnosis: {
     dot: "bg-[#666]",
@@ -147,7 +147,7 @@ export function ChronologyTimeline({
                       {entry.isVerified && (
                         <Badge
                           variant="outline"
-                          className="text-xs text-[#00C853] border-[#EAEAEA]"
+                          className="text-xs text-[#1d72b8] border-[#EAEAEA]"
                         >
                           Verified
                         </Badge>

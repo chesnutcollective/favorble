@@ -9,7 +9,7 @@ import { Calendar01Icon } from "@hugeicons/core-free-icons";
 const EVENT_TYPE_COLORS: Record<string, string> = {
   hearing: "text-primary border-blue-300",
   deadline: "text-red-600 border-red-300",
-  appointment: "text-green-600 border-green-300",
+  appointment: "text-sky-600 border-sky-300",
   follow_up: "text-amber-600 border-amber-300",
   reminder: "text-muted-foreground border-border",
 };

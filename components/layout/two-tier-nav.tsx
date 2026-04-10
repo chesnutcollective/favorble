@@ -521,7 +521,7 @@ function getInitials(str: string | null): string {
 function getEventColor(eventType: string | null): string {
   switch (eventType) {
     case "hearing":
-      return "#059669";
+      return "#185f9b";
     case "deadline":
       return "#F59E0B";
     case "consultation":
@@ -529,7 +529,7 @@ function getEventColor(eventType: string | null): string {
     case "meeting":
       return "#8B5CF6";
     default:
-      return "#059669";
+      return "#185f9b";
   }
 }
 
@@ -697,16 +697,16 @@ function CasesPanel({
         className="ttn-stage-item"
         style={{
           borderLeft: isAllActive
-            ? "2px solid #059669"
+            ? "2px solid #185f9b"
             : "2px solid transparent",
-          backgroundColor: isAllActive ? "#ECFDF5" : undefined,
+          backgroundColor: isAllActive ? "#e6f1fa" : undefined,
           paddingLeft: 10,
         }}
       >
         <span
           className="ttn-stage-name"
           style={{
-            color: isAllActive ? "#059669" : undefined,
+            color: isAllActive ? "#185f9b" : undefined,
             fontWeight: isAllActive ? 600 : undefined,
           }}
         >
@@ -715,7 +715,7 @@ function CasesPanel({
         <span
           className="ttn-stage-count"
           style={{
-            color: isAllActive ? "#059669" : undefined,
+            color: isAllActive ? "#185f9b" : undefined,
             fontWeight: isAllActive ? 600 : undefined,
           }}
         >
@@ -732,16 +732,16 @@ function CasesPanel({
             className="ttn-stage-item"
             style={{
               borderLeft: isStageActive
-                ? "2px solid #059669"
+                ? "2px solid #185f9b"
                 : "2px solid transparent",
-              backgroundColor: isStageActive ? "#ECFDF5" : undefined,
+              backgroundColor: isStageActive ? "#e6f1fa" : undefined,
               paddingLeft: 10,
             }}
           >
             <span
               className="ttn-stage-name"
               style={{
-                color: isStageActive ? "#059669" : undefined,
+                color: isStageActive ? "#185f9b" : undefined,
                 fontWeight: isStageActive ? 600 : undefined,
               }}
             >
@@ -758,7 +758,7 @@ function CasesPanel({
             <span
               className="ttn-stage-count"
               style={{
-                color: isStageActive ? "#059669" : undefined,
+                color: isStageActive ? "#185f9b" : undefined,
                 fontWeight: isStageActive ? 600 : undefined,
               }}
             >
@@ -970,11 +970,11 @@ function LeadsPanel({
   navData?: NavPanelData;
 }) {
   const STAGE_COLORS: Record<string, string> = {
-    new: "#10B981",
+    new: "#1d72b8",
     contacted: "#3B82F6",
     intake_in_progress: "#F59E0B",
     contract_sent: "#8B5CF6",
-    contract_signed: "#059669",
+    contract_signed: "#185f9b",
   };
   const PIPELINE_ORDER = [
     "new",
@@ -1058,8 +1058,8 @@ function LeadsPanel({
                   style={{
                     fontSize: 10,
                     fontFamily: "monospace",
-                    color: "#059669",
-                    border: "1px solid #059669",
+                    color: "#185f9b",
+                    border: "1px solid #185f9b",
                     borderRadius: 9,
                     padding: "0 6px",
                     lineHeight: "18px",
@@ -1118,7 +1118,7 @@ function LeadsPanel({
           href="/leads"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -1295,7 +1295,7 @@ function QueuePanel({
           href="/queue"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -1351,7 +1351,7 @@ function CalendarPanel({
       time: "10:00 AM",
       title: "Martinez Hearing",
       type: "Hearing",
-      color: "#059669",
+      color: "#185f9b",
       href: "/calendar",
       caseName: null as string | null,
     },
@@ -1367,7 +1367,7 @@ function CalendarPanel({
       time: "3:00 PM",
       title: "Chen Status Conference",
       type: "Hearing",
-      color: "#059669",
+      color: "#185f9b",
       href: "/calendar",
       caseName: null as string | null,
     },
@@ -1407,8 +1407,8 @@ function CalendarPanel({
             width: 22,
             height: 22,
             borderRadius: "50%",
-            backgroundColor: "#ECFDF5",
-            color: "#059669",
+            backgroundColor: "#e6f1fa",
+            color: "#185f9b",
             fontSize: 14,
             fontWeight: 600,
             textDecoration: "none",
@@ -1459,7 +1459,7 @@ function CalendarPanel({
                   justifyContent: "center",
                   fontSize: 11,
                   fontWeight: day.isToday ? 600 : 400,
-                  backgroundColor: day.isToday ? "#059669" : "transparent",
+                  backgroundColor: day.isToday ? "#185f9b" : "transparent",
                   color: day.isToday ? "#fff" : "#999",
                 }}
               >
@@ -1473,7 +1473,7 @@ function CalendarPanel({
                     width: 4,
                     height: 4,
                     borderRadius: "50%",
-                    backgroundColor: "#059669",
+                    backgroundColor: "#185f9b",
                   }}
                 />
               )}
@@ -1573,7 +1573,7 @@ function CalendarPanel({
           href="/calendar"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -1665,12 +1665,12 @@ function EmailPanel({
             width: 6,
             height: 6,
             borderRadius: "50%",
-            backgroundColor: connected ? "#10B981" : "#9CA3AF",
+            backgroundColor: connected ? "#1d72b8" : "#9CA3AF",
             flexShrink: 0,
           }}
         />
         <span
-          style={{ fontSize: 11, color: connected ? "#10B981" : "#9CA3AF" }}
+          style={{ fontSize: 11, color: connected ? "#1d72b8" : "#9CA3AF" }}
         >
           {connected ? "Outlook Connected" : "Not Connected"}
         </span>
@@ -1696,7 +1696,7 @@ function EmailPanel({
             border: "none",
             borderBottom:
               activeTab === "matched"
-                ? "2px solid #10B981"
+                ? "2px solid #1d72b8"
                 : "2px solid transparent",
             padding: "4px 0",
             cursor: "pointer",
@@ -1715,7 +1715,7 @@ function EmailPanel({
             border: "none",
             borderBottom:
               activeTab === "unmatched"
-                ? "2px solid #10B981"
+                ? "2px solid #1d72b8"
                 : "2px solid transparent",
             padding: "4px 0",
             cursor: "pointer",
@@ -1816,7 +1816,7 @@ function EmailPanel({
                         {email.caseId ? (
                           <Link
                             href={`/cases/${email.caseId}`}
-                            style={{ color: "#059669", textDecoration: "none" }}
+                            style={{ color: "#185f9b", textDecoration: "none" }}
                             onClick={(ev) => ev.stopPropagation()}
                           >
                             &rarr; {email.caseLink}
@@ -1852,7 +1852,7 @@ function EmailPanel({
                 href="/email?filter=unmatched"
                 style={{
                   fontSize: 12,
-                  color: "#059669",
+                  color: "#185f9b",
                   textDecoration: "none",
                   fontWeight: 500,
                 }}
@@ -1871,7 +1871,7 @@ function EmailPanel({
           }
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -2003,9 +2003,9 @@ function ContactsPanel({
             style={{
               fontSize: 10,
               fontWeight: 500,
-              color: activeFilter === filter ? "#059669" : "#999",
+              color: activeFilter === filter ? "#185f9b" : "#999",
               backgroundColor:
-                activeFilter === filter ? "#ECFDF5" : "transparent",
+                activeFilter === filter ? "#e6f1fa" : "transparent",
               border: "none",
               borderRadius: 9,
               padding: "2px 8px",
@@ -2115,7 +2115,7 @@ function ContactsPanel({
           href="/contacts?action=new"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
             display: "flex",
             alignItems: "center",
@@ -2128,7 +2128,7 @@ function ContactsPanel({
           href="/contacts"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -2200,7 +2200,7 @@ function DocumentsPanel({
   const fileTypeColors: Record<string, string> = {
     pdf: "#EF4444",
     doc: "#3B82F6",
-    xls: "#10B981",
+    xls: "#1d72b8",
   };
 
   return (
@@ -2364,7 +2364,7 @@ function DocumentsPanel({
           href="/documents"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -2374,7 +2374,7 @@ function DocumentsPanel({
           href="/documents"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -2404,9 +2404,9 @@ function ReportsPanel({
           fill="none"
           style={{ flexShrink: 0 }}
         >
-          <rect x="1" y="8" width="3" height="5" rx="0.5" fill="#059669" />
-          <rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="#059669" />
-          <rect x="10" y="2" width="3" height="11" rx="0.5" fill="#059669" />
+          <rect x="1" y="8" width="3" height="5" rx="0.5" fill="#185f9b" />
+          <rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="#185f9b" />
+          <rect x="10" y="2" width="3" height="11" rx="0.5" fill="#185f9b" />
         </svg>
       ),
     },
@@ -2417,7 +2417,7 @@ function ReportsPanel({
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill="#059669"
+          fill="#185f9b"
           width="14"
           height="14"
           style={{ flexShrink: 0 }}
@@ -2433,7 +2433,7 @@ function ReportsPanel({
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill="#059669"
+          fill="#185f9b"
           width="14"
           height="14"
           style={{ flexShrink: 0 }}
@@ -2449,7 +2449,7 @@ function ReportsPanel({
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill="#059669"
+          fill="#185f9b"
           width="14"
           height="14"
           style={{ flexShrink: 0 }}
@@ -2466,7 +2466,7 @@ function ReportsPanel({
           width="14"
           height="14"
           viewBox="0 0 14 14"
-          fill="#059669"
+          fill="#185f9b"
           style={{ flexShrink: 0 }}
         >
           <path d="M1 1h12L9 6v5l-4 2V6L1 1z" />
@@ -2480,7 +2480,7 @@ function ReportsPanel({
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill="#059669"
+          fill="#185f9b"
           width="14"
           height="14"
           style={{ flexShrink: 0 }}
@@ -2544,7 +2544,7 @@ function ReportsPanel({
           href="/reports"
           style={{
             fontSize: 12,
-            color: "#059669",
+            color: "#185f9b",
             textDecoration: "none",
           }}
         >
@@ -2624,7 +2624,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
           onMouseLeave={onLeave}
         >
           <div style={labelStyle}>Conversion</div>
-          <div style={{ ...valueStyle, color: "#059669" }}>
+          <div style={{ ...valueStyle, color: "#185f9b" }}>
             {conversionRate != null ? `${conversionRate}%` : "--"}
           </div>
         </Link>

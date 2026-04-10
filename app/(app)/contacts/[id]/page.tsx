@@ -270,7 +270,7 @@ function getFileTypeColor(fileType: string) {
   if (ft.includes("doc") || ft.includes("docx"))
     return { bg: "rgba(0,112,243,0.08)", color: "#0070F3", label: "DOC" };
   if (ft.includes("xls") || ft.includes("xlsx") || ft.includes("csv"))
-    return { bg: "rgba(0,200,83,0.10)", color: "#059669", label: "XLS" };
+    return { bg: "rgba(29,114,184,0.10)", color: "#185f9b", label: "XLS" };
   if (
     ft.includes("png") ||
     ft.includes("jpg") ||
@@ -282,7 +282,7 @@ function getFileTypeColor(fileType: string) {
 }
 
 function getActivityColor(action: string) {
-  if (action.includes("create") || action.includes("add")) return "#10B981";
+  if (action.includes("create") || action.includes("add")) return "#1d72b8";
   if (action.includes("update") || action.includes("edit")) return "#0070F3";
   if (action.includes("delete") || action.includes("remove")) return "#EE0000";
   if (action.includes("assign")) return "#F5A623";
@@ -597,7 +597,7 @@ export default async function ContactDetailPage({
                   alignItems: "center",
                   gap: 6,
                   padding: "8px 18px",
-                  background: "#10B981",
+                  background: "#1d72b8",
                   color: "#FFFFFF",
                   fontSize: 13,
                   fontWeight: 500,
@@ -694,8 +694,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",
@@ -708,7 +708,7 @@ export default async function ContactDetailPage({
                 href="/cases"
                 style={{
                   fontSize: 13,
-                  color: "#10B981",
+                  color: "#1d72b8",
                   textDecoration: "none",
                 }}
               >
@@ -784,9 +784,9 @@ export default async function ContactDetailPage({
                             borderRadius: 999,
                             background:
                               c.status === "active"
-                                ? "rgba(16,185,129,0.10)"
+                                ? "rgba(29,114,184,0.10)"
                                 : "#F0F0F0",
-                            color: c.status === "active" ? "#059669" : "#999",
+                            color: c.status === "active" ? "#185f9b" : "#999",
                             whiteSpace: "nowrap",
                           }}
                         >
@@ -864,8 +864,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",
@@ -878,7 +878,7 @@ export default async function ContactDetailPage({
                 href="/calendar"
                 style={{
                   fontSize: 13,
-                  color: "#10B981",
+                  color: "#1d72b8",
                   textDecoration: "none",
                 }}
               >
@@ -913,8 +913,8 @@ export default async function ContactDetailPage({
                       width: 10,
                       height: 10,
                       borderRadius: "50%",
-                      background: "#10B981",
-                      boxShadow: "0 0 0 4px rgba(16,185,129,0.10)",
+                      background: "#1d72b8",
+                      boxShadow: "0 0 0 4px rgba(29,114,184,0.10)",
                       flexShrink: 0,
                     }}
                   />
@@ -952,8 +952,8 @@ export default async function ContactDetailPage({
                       fontWeight: 500,
                       padding: "1px 7px",
                       borderRadius: 999,
-                      background: "rgba(16,185,129,0.10)",
-                      color: "#059669",
+                      background: "rgba(29,114,184,0.10)",
+                      color: "#185f9b",
                     }}
                   >
                     {formatType(ev.eventType)}
@@ -963,7 +963,7 @@ export default async function ContactDetailPage({
                       href={`/cases/${ev.caseId}`}
                       style={{
                         fontSize: 11,
-                        color: "#10B981",
+                        color: "#1d72b8",
                         textDecoration: "none",
                       }}
                     >
@@ -1008,8 +1008,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",
@@ -1022,7 +1022,7 @@ export default async function ContactDetailPage({
                 href="/documents"
                 style={{
                   fontSize: 13,
-                  color: "#10B981",
+                  color: "#1d72b8",
                   textDecoration: "none",
                 }}
               >
@@ -1089,7 +1089,7 @@ export default async function ContactDetailPage({
                         href={`/cases/${doc.caseId}`}
                         style={{
                           fontSize: 11,
-                          color: "#10B981",
+                          color: "#1d72b8",
                           textDecoration: "none",
                           marginTop: 4,
                           display: "inline-block",
@@ -1137,8 +1137,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",
@@ -1177,7 +1177,7 @@ export default async function ContactDetailPage({
                     <span
                       style={{
                         fontSize: 14,
-                        color: isOutbound ? "#10B981" : "#0070F3",
+                        color: isOutbound ? "#1d72b8" : "#0070F3",
                         fontWeight: 600,
                         minWidth: 20,
                         paddingTop: 1,
@@ -1231,7 +1231,7 @@ export default async function ContactDetailPage({
                           href={`/cases/${comm.caseId}`}
                           style={{
                             fontSize: 11,
-                            color: "#10B981",
+                            color: "#1d72b8",
                             textDecoration: "none",
                           }}
                         >
@@ -1278,8 +1278,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",
@@ -1314,7 +1314,7 @@ export default async function ContactDetailPage({
                   entry.entryType === "office_visit"
                     ? "#0070F3"
                     : entry.entryType === "surgery"
-                      ? "#10B981"
+                      ? "#1d72b8"
                       : entry.entryType === "hospitalization"
                         ? "#EE0000"
                         : "#999";
@@ -1374,13 +1374,13 @@ export default async function ContactDetailPage({
                             entry.entryType === "office_visit"
                               ? "rgba(0,112,243,0.08)"
                               : entry.entryType === "surgery"
-                                ? "rgba(16,185,129,0.10)"
+                                ? "rgba(29,114,184,0.10)"
                                 : "#F0F0F0",
                           color:
                             entry.entryType === "office_visit"
                               ? "#0070F3"
                               : entry.entryType === "surgery"
-                                ? "#059669"
+                                ? "#185f9b"
                                 : "#999",
                         }}
                       >
@@ -1392,7 +1392,7 @@ export default async function ContactDetailPage({
                         href={`/cases/${entry.caseId}`}
                         style={{
                           fontSize: 11,
-                          color: "#10B981",
+                          color: "#1d72b8",
                           textDecoration: "none",
                           flexShrink: 0,
                         }}
@@ -1439,8 +1439,8 @@ export default async function ContactDetailPage({
                     height: 22,
                     padding: "0 7px",
                     borderRadius: 999,
-                    background: "rgba(16,185,129,0.10)",
-                    color: "#059669",
+                    background: "rgba(29,114,184,0.10)",
+                    color: "#185f9b",
                     fontSize: 12,
                     fontWeight: 600,
                     fontFamily: "var(--font-mono, monospace)",

@@ -31,7 +31,7 @@ function getMaxCount(items: EvidenceSectionProps["rfcLimitations"]): number {
 }
 
 function prepColor(progress: number): string {
-  if (progress >= 70) return "#00C853";
+  if (progress >= 70) return "#1d72b8";
   if (progress >= 40) return "#F5A623";
   return "#EE0000";
 }
@@ -190,7 +190,7 @@ function CeOutcomesDonut({
             cy="70"
             r="50"
             fill="none"
-            stroke="#00C853"
+            stroke="#1d72b8"
             strokeWidth="14"
             strokeDasharray={`${supportiveLen} ${circumference}`}
             strokeLinecap="round"
@@ -249,7 +249,7 @@ function CeOutcomesDonut({
           <div className="flex items-center gap-2 text-xs font-mono text-[#666]">
             <div
               className="w-2.5 h-2.5 rounded-sm"
-              style={{ background: "#00C853" }}
+              style={{ background: "#1d72b8" }}
             />
             Supportive: {supportivePct}%
           </div>
@@ -307,7 +307,7 @@ function VocationalExpertTable({
             const pct = Math.round((row.frequency / maxFreq) * 100);
             const barColor =
               pct >= 60
-                ? "#00C853"
+                ? "#1d72b8"
                 : pct >= 40
                   ? "#0070F3"
                   : "rgba(238, 0, 0, 0.7)";
@@ -434,7 +434,7 @@ function ClientSatisfactionGauge({
             cy="60"
             r="48"
             fill="none"
-            stroke="#00C853"
+            stroke="#1d72b8"
             strokeWidth="10"
             strokeDasharray={`${arcLen} ${circumference}`}
             strokeLinecap="round"
@@ -466,7 +466,7 @@ function ClientSatisfactionGauge({
         <div className="flex flex-col gap-3">
           <div
             className="flex items-center gap-2 text-xs font-mono"
-            style={{ color: trendPositive ? "#00C853" : "#EE0000" }}
+            style={{ color: trendPositive ? "#1d72b8" : "#EE0000" }}
           >
             {trendPositive ? "\u2191" : "\u2193"} {trendPositive ? "+" : ""}
             {trend} vs last quarter

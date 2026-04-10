@@ -21,9 +21,9 @@ export interface CalendarPanelProps {
 }
 
 const typeStyles: Record<string, { bg: string; color: string }> = {
-  Hearing: { bg: "#ECFDF5", color: "#059669" },
-  CE: { bg: "#ECFDF5", color: "#059669" },
-  Consult: { bg: "#ECFDF5", color: "#059669" },
+  Hearing: { bg: "#e6f1fa", color: "#185f9b" },
+  CE: { bg: "#e6f1fa", color: "#185f9b" },
+  Consult: { bg: "#e6f1fa", color: "#185f9b" },
   Deadline: { bg: "#FEF3C7", color: "#D97706" },
   Deposition: { bg: "#FEF3C7", color: "#D97706" },
   Court: { bg: "#EDE9FE", color: "#7C3AED" },
@@ -84,7 +84,7 @@ export function CalendarPanel({ events = defaultEvents }: CalendarPanelProps) {
               flexDirection: "column",
               gap: 3,
               padding: 8,
-              borderLeft: `3px solid ${isWarning ? "#F59E0B" : "#10B981"}`,
+              borderLeft: `3px solid ${isWarning ? "#F59E0B" : "#1d72b8"}`,
               background: "#FFF",
               borderRadius: "0 6px 6px 0",
               marginBottom: 8,
@@ -92,7 +92,7 @@ export function CalendarPanel({ events = defaultEvents }: CalendarPanelProps) {
               transition: "background 0.12s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ECFDF5";
+              e.currentTarget.style.background = "#e6f1fa";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#FFF";

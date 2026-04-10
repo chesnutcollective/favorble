@@ -63,11 +63,11 @@ export function CasesPanel({
               fontSize: 11,
               fontWeight: 600,
               textAlign: "center",
-              background: activeTab === tab ? "#ECFDF5" : "#FFF",
+              background: activeTab === tab ? "#e6f1fa" : "#FFF",
               border: "none",
               borderRight: i < tabs.length - 1 ? "1px solid #E5E7EB" : "none",
               cursor: "pointer",
-              color: activeTab === tab ? "#059669" : "#999",
+              color: activeTab === tab ? "#185f9b" : "#999",
               fontFamily: "inherit",
               transition: "all 0.12s ease",
             }}
@@ -127,7 +127,7 @@ export function CasesPanel({
               style={{
                 height: "100%",
                 width: `${stage.percentage}%`,
-                background: "#10B981",
+                background: "#1d72b8",
                 borderRadius: 2,
                 transition: "width 0.3s ease",
               }}
@@ -138,7 +138,7 @@ export function CasesPanel({
               fontFamily: "'Geist Mono', 'SF Mono', 'Menlo', monospace",
               fontSize: 12,
               fontWeight: 500,
-              color: "#10B981",
+              color: "#1d72b8",
               minWidth: 16,
               textAlign: "right",
             }}
@@ -198,7 +198,7 @@ export function CasesPanel({
             e.currentTarget.style.color = "#6B7280";
           }}
         >
-          <span style={{ color: "#10B981", fontSize: 11, flexShrink: 0 }}>
+          <span style={{ color: "#1d72b8", fontSize: 11, flexShrink: 0 }}>
             &#9733;
           </span>
           <span style={{ flex: 1, minWidth: 0, fontSize: 12 }}>{c.name}</span>

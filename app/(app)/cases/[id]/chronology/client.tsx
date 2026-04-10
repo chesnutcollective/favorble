@@ -131,7 +131,7 @@ const ENTRY_TYPE_COLORS: Record<string, string> = {
   office_visit: "bg-blue-100 text-blue-800",
   hospitalization: "bg-red-100 text-red-800",
   emergency: "bg-orange-100 text-orange-800",
-  lab_result: "bg-green-100 text-green-800",
+  lab_result: "bg-sky-100 text-sky-800",
   imaging: "bg-purple-100 text-purple-800",
   mental_health: "bg-indigo-100 text-indigo-800",
   physical_therapy: "bg-cyan-100 text-cyan-800",
