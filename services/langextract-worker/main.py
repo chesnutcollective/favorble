@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from extractors import (
     EXTRACTION_TYPES,
@@ -118,8 +118,13 @@ class ExtractionItem(BaseModel):
     extraction_class: str
     extraction_text: str
     char_interval: Optional[CharInterval] = None
-    attributes: Dict[str, Any] = Field(default_factory=dict)
+    attributes: Optional[Dict[str, Any]] = None
     alignment_status: Optional[str] = None
+
+    @field_validator("attributes", mode="before")
+    @classmethod
+    def _coerce_attributes(cls, v):
+        return v if v is not None else {}
 
 
 class ExtractResponse(BaseModel):
