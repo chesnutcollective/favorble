@@ -271,8 +271,7 @@ export function TwoTierNav({
 }) {
   const pathname = usePathname();
   const activeRailId = getActiveRailId(pathname);
-  const [hoveredPanel, setHoveredPanel] = useState<string | null>(null);
-  const visiblePanel = hoveredPanel ?? activeRailId;
+  const visiblePanel = activeRailId;
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
@@ -301,8 +300,6 @@ export function TwoTierNav({
                   key={item.id}
                   href={item.href}
                   className={`ttn-rail-btn${active ? " active" : ""}`}
-                  onMouseEnter={() => setHoveredPanel(item.id)}
-                  onMouseLeave={() => setHoveredPanel(null)}
                   title={item.label}
                 >
                   {item.icon}
@@ -372,8 +369,6 @@ export function TwoTierNav({
           <Link
             href="/admin/settings"
             className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
-            onMouseEnter={() => setHoveredPanel("settings")}
-            onMouseLeave={() => setHoveredPanel(null)}
             title="Settings"
           >
             {settingsIcon}
