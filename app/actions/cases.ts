@@ -119,48 +119,46 @@ export async function getCases(
       .where(and(...conditions)),
   ]);
 
-  // Get primary contacts for these cases
+  // Get primary contacts and assignments in parallel instead of serially so
+  // the case list page pays one round-trip instead of two.
   const caseIds = caseRows.map((c) => c.id);
-  const primaryContacts =
+  const [primaryContacts, assignments] =
     caseIds.length > 0
-      ? await db
-          .select({
-            caseId: caseContacts.caseId,
-            firstName: contacts.firstName,
-            lastName: contacts.lastName,
-            relationship: caseContacts.relationship,
-          })
-          .from(caseContacts)
-          .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
-          .where(
-            and(
-              inArray(caseContacts.caseId, caseIds),
-              eq(caseContacts.isPrimary, true),
+      ? await Promise.all([
+          db
+            .select({
+              caseId: caseContacts.caseId,
+              firstName: contacts.firstName,
+              lastName: contacts.lastName,
+              relationship: caseContacts.relationship,
+            })
+            .from(caseContacts)
+            .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+            .where(
+              and(
+                inArray(caseContacts.caseId, caseIds),
+                eq(caseContacts.isPrimary, true),
+              ),
             ),
-          )
-      : [];
-
-  // Get primary assignments for these cases
-  const assignments =
-    caseIds.length > 0
-      ? await db
-          .select({
-            caseId: caseAssignments.caseId,
-            userId: caseAssignments.userId,
-            role: caseAssignments.role,
-            firstName: users.firstName,
-            lastName: users.lastName,
-          })
-          .from(caseAssignments)
-          .innerJoin(users, eq(caseAssignments.userId, users.id))
-          .where(
-            and(
-              inArray(caseAssignments.caseId, caseIds),
-              eq(caseAssignments.isPrimary, true),
-              isNull(caseAssignments.unassignedAt),
+          db
+            .select({
+              caseId: caseAssignments.caseId,
+              userId: caseAssignments.userId,
+              role: caseAssignments.role,
+              firstName: users.firstName,
+              lastName: users.lastName,
+            })
+            .from(caseAssignments)
+            .innerJoin(users, eq(caseAssignments.userId, users.id))
+            .where(
+              and(
+                inArray(caseAssignments.caseId, caseIds),
+                eq(caseAssignments.isPrimary, true),
+                isNull(caseAssignments.unassignedAt),
+              ),
             ),
-          )
-      : [];
+        ])
+      : [[], []];
 
   // Prefer claimant contacts; fall back to any primary contact
   const contactMap = new Map<string, { firstName: string; lastName: string }>();

@@ -13,6 +13,8 @@ import {
   contacts,
   communications,
   users,
+  outboundMail,
+  rfcRequests,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -130,6 +132,41 @@ export type EmailSummary = {
   }[];
 };
 
+export type HearingsSummary = {
+  next48hCount: number;
+  next7dCount: number;
+  next30dCount: number;
+  mrBlocking14dCount: number;
+};
+
+export type FilingSummary = {
+  readyToSubmit: number;
+  bundlesReady: number;
+  submittedThisWeek: number;
+};
+
+export type PhiWriterSummary = {
+  myAssigned: number;
+  myInProgress: number;
+  dueThisWeek: number;
+  unassigned: number;
+};
+
+export type MedicalRecordsSummary = {
+  urgentBlocking14d: number;
+  rfcRequested: number;
+  rfcAwaiting: number;
+  rfcReceived: number;
+  teamWorkload: { color: string; count: number }[];
+};
+
+export type MailSummary = {
+  pendingInbound: number;
+  inTransit: number;
+  certifiedInTransit: number;
+  unmatched: number;
+};
+
 export type NavPanelData = {
   stageCounts: StageCounts[];
   taskSummary: TaskSummary;
@@ -140,6 +177,11 @@ export type NavPanelData = {
   contactSummary: ContactSummary;
   messageSummary: MessageSummary;
   emailSummary: EmailSummary;
+  hearingsSummary: HearingsSummary;
+  filingSummary: FilingSummary;
+  phiWriterSummary: PhiWriterSummary;
+  medicalRecordsSummary: MedicalRecordsSummary;
+  mailSummary: MailSummary;
 };
 
 /* ─── Sub-queries ─── */
@@ -552,6 +594,326 @@ async function getEmailSummary(organizationId: string): Promise<EmailSummary> {
   };
 }
 
+async function getHearingsSummary(
+  organizationId: string,
+): Promise<HearingsSummary> {
+  const now = new Date();
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const in30d = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const in14d = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const [n48, n7, n30, mrBlocking] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in48h),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in7d),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in30d),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          gte(cases.hearingDate, now),
+          lte(cases.hearingDate, in14d),
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      ),
+  ]);
+
+  return {
+    next48hCount: n48[0]?.count ?? 0,
+    next7dCount: n7[0]?.count ?? 0,
+    next30dCount: n30[0]?.count ?? 0,
+    mrBlocking14dCount: mrBlocking[0]?.count ?? 0,
+  };
+}
+
+async function getFilingSummary(
+  organizationId: string,
+): Promise<FilingSummary> {
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // "Ready to submit" and "bundles ready" proxy via stage group name until
+  // a dedicated filing_status column exists. Stage groups with "filing" or
+  // "ready" in their name are treated as ready-to-submit.
+  const [ready, bundles, submittedThisWeek] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .innerJoin(
+        caseStageGroups,
+        eq(caseStages.stageGroupId, caseStageGroups.id),
+      )
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`LOWER(${caseStageGroups.name}) LIKE '%ready%' OR LOWER(${caseStages.name}) LIKE '%ready to file%' OR LOWER(${caseStages.name}) LIKE '%ready to submit%'`,
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`LOWER(${caseStages.name}) LIKE '%bundle%' OR LOWER(${caseStages.name}) LIKE '%packet%' OR LOWER(${caseStages.name}) LIKE '%review%'`,
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          isNull(cases.deletedAt),
+          gte(cases.updatedAt, weekAgo),
+          sql`LOWER(${caseStages.name}) LIKE '%submitted%' OR LOWER(${caseStages.name}) LIKE '%filed%'`,
+        ),
+      ),
+  ]);
+
+  return {
+    readyToSubmit: ready[0]?.count ?? 0,
+    bundlesReady: bundles[0]?.count ?? 0,
+    submittedThisWeek: submittedThisWeek[0]?.count ?? 0,
+  };
+}
+
+async function getPhiWriterSummary(
+  organizationId: string,
+  userId: string,
+): Promise<PhiWriterSummary> {
+  const now = new Date();
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const [myAssigned, myInProgress, dueThisWeek, unassigned] = await Promise.all(
+    [
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            eq(cases.phiSheetWriterId, userId),
+            sql`${cases.phiSheetStatus} IN ('assigned','in_progress')`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            eq(cases.phiSheetWriterId, userId),
+            eq(cases.phiSheetStatus, "in_progress"),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            gte(cases.hearingDate, now),
+            lte(cases.hearingDate, in7d),
+            sql`${cases.phiSheetStatus} IS DISTINCT FROM 'complete'`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            gte(cases.hearingDate, now),
+            sql`(${cases.phiSheetStatus} = 'unassigned' OR ${cases.phiSheetStatus} IS NULL)`,
+          ),
+        ),
+    ],
+  );
+
+  return {
+    myAssigned: myAssigned[0]?.count ?? 0,
+    myInProgress: myInProgress[0]?.count ?? 0,
+    dueThisWeek: dueThisWeek[0]?.count ?? 0,
+    unassigned: unassigned[0]?.count ?? 0,
+  };
+}
+
+async function getMedicalRecordsSummary(
+  organizationId: string,
+): Promise<MedicalRecordsSummary> {
+  const now = new Date();
+  const in14d = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const [urgent, rfcCounts, teamWorkload] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          gte(cases.hearingDate, now),
+          lte(cases.hearingDate, in14d),
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      ),
+    db
+      .select({
+        status: rfcRequests.status,
+        count: count(),
+      })
+      .from(rfcRequests)
+      .where(eq(rfcRequests.organizationId, organizationId))
+      .groupBy(rfcRequests.status),
+    db
+      .select({
+        color: cases.mrTeamColor,
+        count: count(),
+      })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`${cases.mrTeamColor} IS NOT NULL`,
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      )
+      .groupBy(cases.mrTeamColor),
+  ]);
+
+  let rfcRequested = 0;
+  let rfcAwaiting = 0;
+  let rfcReceived = 0;
+  for (const row of rfcCounts) {
+    if (row.status === "requested") rfcAwaiting = row.count;
+    if (row.status === "received") rfcReceived = row.count;
+    if (row.status === "not_requested") rfcRequested = row.count;
+  }
+
+  return {
+    urgentBlocking14d: urgent[0]?.count ?? 0,
+    rfcRequested,
+    rfcAwaiting,
+    rfcReceived,
+    teamWorkload: teamWorkload
+      .filter((r): r is { color: string; count: number } => r.color !== null)
+      .map((r) => ({ color: r.color, count: r.count })),
+  };
+}
+
+async function getMailSummary(
+  organizationId: string,
+): Promise<MailSummary> {
+  const [pendingInbound, inTransit, certifiedInTransit, unmatched] =
+    await Promise.all([
+      // Inbound mail: documents tagged 'mail' (match heuristic until a
+      // dedicated inbound_mail table exists).
+      db
+        .select({ count: count() })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+            sql`'mail' = ANY(${documents.tags})`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(outboundMail)
+        .where(
+          and(
+            eq(outboundMail.organizationId, organizationId),
+            isNull(outboundMail.deliveredAt),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(outboundMail)
+        .where(
+          and(
+            eq(outboundMail.organizationId, organizationId),
+            isNull(outboundMail.deliveredAt),
+            eq(outboundMail.mailType, "certified"),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(documents)
+        .where(
+          and(
+            isNull(documents.deletedAt),
+            isNull(documents.caseId),
+            sql`'mail' = ANY(${documents.tags})`,
+          ),
+        ),
+    ]);
+
+  return {
+    pendingInbound: pendingInbound[0]?.count ?? 0,
+    inTransit: inTransit[0]?.count ?? 0,
+    certifiedInTransit: certifiedInTransit[0]?.count ?? 0,
+    unmatched: unmatched[0]?.count ?? 0,
+  };
+}
+
 /* ─── Main aggregator ─── */
 
 export async function getNavPanelData(): Promise<NavPanelData> {
@@ -569,6 +931,11 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     contactSummary,
     messageSummary,
     emailSummary,
+    hearingsSummary,
+    filingSummary,
+    phiWriterSummary,
+    medicalRecordsSummary,
+    mailSummary,
   ] = await Promise.all([
     getStageCounts(orgId).catch((): StageCounts[] => []),
     getTaskSummary(userId).catch(
@@ -612,6 +979,46 @@ export async function getNavPanelData(): Promise<NavPanelData> {
         recentEmails: [],
       }),
     ),
+    getHearingsSummary(orgId).catch(
+      (): HearingsSummary => ({
+        next48hCount: 0,
+        next7dCount: 0,
+        next30dCount: 0,
+        mrBlocking14dCount: 0,
+      }),
+    ),
+    getFilingSummary(orgId).catch(
+      (): FilingSummary => ({
+        readyToSubmit: 0,
+        bundlesReady: 0,
+        submittedThisWeek: 0,
+      }),
+    ),
+    getPhiWriterSummary(orgId, userId).catch(
+      (): PhiWriterSummary => ({
+        myAssigned: 0,
+        myInProgress: 0,
+        dueThisWeek: 0,
+        unassigned: 0,
+      }),
+    ),
+    getMedicalRecordsSummary(orgId).catch(
+      (): MedicalRecordsSummary => ({
+        urgentBlocking14d: 0,
+        rfcRequested: 0,
+        rfcAwaiting: 0,
+        rfcReceived: 0,
+        teamWorkload: [],
+      }),
+    ),
+    getMailSummary(orgId).catch(
+      (): MailSummary => ({
+        pendingInbound: 0,
+        inTransit: 0,
+        certifiedInTransit: 0,
+        unmatched: 0,
+      }),
+    ),
   ]);
 
   return {
@@ -624,5 +1031,10 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     contactSummary,
     messageSummary,
     emailSummary,
+    hearingsSummary,
+    filingSummary,
+    phiWriterSummary,
+    medicalRecordsSummary,
+    mailSummary,
   };
 }

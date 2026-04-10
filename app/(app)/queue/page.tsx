@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "My Queue",
 };
 
+// The queue is per-user, per-request — never statically cacheable. Force
+// dynamic rendering so Next.js short-circuits the static optimization attempt.
+export const dynamic = "force-dynamic";
+
 export default async function QueuePage({
   searchParams,
 }: {

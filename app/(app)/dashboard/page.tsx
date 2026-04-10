@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Dashboard",
 };
 
+// Per-user dashboard — always dynamic.
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   await requireSession();
 

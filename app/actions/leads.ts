@@ -11,12 +11,164 @@ import {
   customFieldValues,
   leadSignatureRequests,
   users,
+  auditLog,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { executeStageWorkflows } from "@/lib/workflow-engine";
 import { eq, and, isNull, desc, count, asc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import {
+  DEFAULT_PIPELINE_STAGE_ID,
+  getStageById,
+  PIPELINE_STAGES,
+} from "@/lib/services/lead-pipeline-config";
+import {
+  findDuplicateLeads,
+  hasHighConfidenceDuplicate,
+  type DuplicateMatch,
+} from "@/lib/services/lead-dedup";
+
+/**
+ * Full list of pipeline statuses the DB enum accepts. Keep in sync with
+ * `leadStatusEnum` in `db/schema/enums.ts` and the migration that adds new
+ * values.
+ */
+export type LeadStatus =
+  // Initial contact
+  | "new"
+  | "received_inquiry"
+  | "voicemail_left"
+  | "email_sent"
+  | "text_sent"
+  | "contacted"
+  // Qualifying
+  | "qualifying"
+  | "interested"
+  | "not_interested"
+  | "wrong_number"
+  | "do_not_contact"
+  | "language_barrier"
+  // Intake scheduling
+  | "intake_scheduled"
+  | "intake_no_show"
+  | "intake_rescheduled"
+  | "intake_in_progress"
+  | "intake_complete"
+  // Conflict check
+  | "conflict_pending"
+  | "conflict_cleared"
+  | "conflict_blocked"
+  // Contract
+  | "contract_drafting"
+  | "contract_sent"
+  | "contract_followup"
+  | "contract_signed"
+  | "contract_declined"
+  // Conversion
+  | "converted"
+  | "converted_full_rep"
+  | "converted_consult_only"
+  // Decline reasons
+  | "declined"
+  | "declined_age"
+  | "declined_capacity"
+  | "declined_outside_state"
+  | "declined_already_repd"
+  | "declined_other"
+  // Other
+  | "unresponsive"
+  | "disqualified"
+  | "referred_out"
+  | "on_hold";
+
+/**
+ * All lead pipeline statuses, grouped by category. Drives the kanban column
+ * layout and the `getLeadStatusCategory` helper below. Keep the ordering in
+ * sync with `leadStatusEnum` in `db/schema/enums.ts`.
+ */
+export const LEAD_STATUS_GROUPS = {
+  initial: [
+    "new",
+    "received_inquiry",
+    "voicemail_left",
+    "email_sent",
+    "text_sent",
+    "contacted",
+  ],
+  qualifying: [
+    "qualifying",
+    "interested",
+    "not_interested",
+    "wrong_number",
+    "do_not_contact",
+    "language_barrier",
+  ],
+  intake: [
+    "intake_scheduled",
+    "intake_no_show",
+    "intake_rescheduled",
+    "intake_in_progress",
+    "intake_complete",
+  ],
+  conflict: ["conflict_pending", "conflict_cleared", "conflict_blocked"],
+  contract: [
+    "contract_drafting",
+    "contract_sent",
+    "contract_followup",
+    "contract_signed",
+    "contract_declined",
+  ],
+  conversion: ["converted", "converted_full_rep", "converted_consult_only"],
+  decline: [
+    "declined",
+    "declined_age",
+    "declined_capacity",
+    "declined_outside_state",
+    "declined_already_repd",
+    "declined_other",
+  ],
+  other: ["unresponsive", "disqualified", "referred_out", "on_hold"],
+} as const satisfies Record<string, readonly LeadStatus[]>;
+
+export type LeadStatusCategory = keyof typeof LEAD_STATUS_GROUPS;
+
+export const ALL_LEAD_STATUSES: readonly LeadStatus[] = Object.values(
+  LEAD_STATUS_GROUPS,
+).flat() as readonly LeadStatus[];
+
+/**
+ * Subtle color hint for each category. Uses the Favorble brand palette:
+ * brand #263c94, status blue #1d72b8, amber #cf8a00, red #d1453b.
+ * The page/client can use these to tint pills and column headers.
+ */
+export const LEAD_STATUS_CATEGORY_COLORS: Record<
+  LeadStatusCategory,
+  { label: string; color: string; tone: string }
+> = {
+  initial: { label: "Initial Contact", color: "#6b7280", tone: "gray" },
+  qualifying: { label: "Qualifying", color: "#1d72b8", tone: "blue" },
+  intake: { label: "Intake", color: "#263c94", tone: "brand" },
+  conflict: { label: "Conflict Check", color: "#cf8a00", tone: "amber" },
+  contract: { label: "Contract", color: "#5aa8d9", tone: "lightblue" },
+  conversion: { label: "Conversion", color: "#1d72b8", tone: "green" },
+  decline: { label: "Declined", color: "#d1453b", tone: "red" },
+  other: { label: "Other", color: "#6b7280", tone: "gray" },
+};
+
+/**
+ * Return the category a given lead status belongs to. Unknown statuses fall
+ * back to "other" so the kanban always has a home for them.
+ */
+export function getLeadStatusCategory(status: string): LeadStatusCategory {
+  for (const [category, statuses] of Object.entries(LEAD_STATUS_GROUPS) as [
+    LeadStatusCategory,
+    readonly string[],
+  ][]) {
+    if (statuses.includes(status)) return category;
+  }
+  return "other";
+}
 
 /**
  * Get leads grouped by status for the kanban board.
@@ -29,22 +181,7 @@ export async function getLeads(statusFilter?: string) {
   ];
 
   if (statusFilter) {
-    conditions.push(
-      eq(
-        leads.status,
-        statusFilter as
-          | "new"
-          | "contacted"
-          | "intake_scheduled"
-          | "intake_in_progress"
-          | "contract_sent"
-          | "contract_signed"
-          | "converted"
-          | "declined"
-          | "unresponsive"
-          | "disqualified",
-      ),
-    );
+    conditions.push(eq(leads.status, statusFilter as LeadStatus));
   }
 
   const result = await db
@@ -88,7 +225,13 @@ async function findRoundRobinAssignee(
         leadCount: sql<number>`coalesce((
 					select count(*) from leads
 					where leads.assigned_to_id = ${users.id}
-						and leads.status not in ('converted', 'declined', 'unresponsive', 'disqualified')
+						and leads.status not in (
+							'converted', 'converted_full_rep', 'converted_consult_only',
+							'declined', 'declined_age', 'declined_capacity',
+							'declined_outside_state', 'declined_already_repd', 'declined_other',
+							'unresponsive', 'disqualified', 'referred_out',
+							'not_interested', 'do_not_contact', 'wrong_number'
+						)
 						and leads.deleted_at is null
 				), 0)`.as("lead_count"),
       })
@@ -110,7 +253,24 @@ async function findRoundRobinAssignee(
 }
 
 /**
- * Create a new lead with round-robin assignment.
+ * Result from createLead. Either the lead was created, or we detected
+ * a high-confidence duplicate and need user confirmation.
+ */
+export type CreateLeadResult =
+  | {
+      status: "created";
+      lead: typeof leads.$inferSelect;
+      duplicatesAcknowledged: boolean;
+    }
+  | {
+      status: "duplicate_suspected";
+      duplicates: DuplicateMatch[];
+    };
+
+/**
+ * Create a new lead with round-robin assignment and duplicate detection.
+ * Pass `forceCreate: true` to bypass the duplicate check after the user
+ * has acknowledged the warning.
  */
 export async function createLead(data: {
   firstName: string;
@@ -119,11 +279,66 @@ export async function createLead(data: {
   phone?: string;
   source?: string;
   notes?: string;
-}) {
+  dob?: string;
+  city?: string;
+  forceCreate?: boolean;
+  /**
+   * Preferred intake language ("en" or "es"). Stored in `intakeData.language`
+   * so downstream follow-ups can be delivered in the claimant's language.
+   */
+  language?: "en" | "es";
+}): Promise<CreateLeadResult> {
   const session = await requireSession();
+
+  // Check for duplicates before creating.
+  const duplicates = await findDuplicateLeads({
+    email: data.email,
+    phone: data.phone,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    dob: data.dob,
+    city: data.city,
+  });
+
+  if (duplicates.length > 0) {
+    // Audit any duplicate detection run
+    try {
+      await db.insert(auditLog).values({
+        organizationId: session.organizationId,
+        userId: session.id,
+        entityType: "lead",
+        entityId: duplicates[0].leadId,
+        action: "duplicate_check",
+        metadata: {
+          candidateCount: duplicates.length,
+          topScore: duplicates[0].matchScore,
+          topReason: duplicates[0].matchReason,
+          inputEmail: data.email ?? null,
+          inputPhone: data.phone ?? null,
+          inputName: `${data.firstName} ${data.lastName}`,
+          acknowledged: Boolean(data.forceCreate),
+        },
+      });
+    } catch (err) {
+      logger.warn("Failed to write duplicate_check audit log", { err });
+    }
+  }
+
+  if (
+    !data.forceCreate &&
+    duplicates.length > 0 &&
+    hasHighConfidenceDuplicate(duplicates)
+  ) {
+    return { status: "duplicate_suspected", duplicates };
+  }
 
   // Auto-assign via round-robin
   const assignedToId = await findRoundRobinAssignee(session.organizationId);
+
+  const defaultStage = getStageById(DEFAULT_PIPELINE_STAGE_ID);
+
+  const intakeData: Record<string, unknown> = {};
+  if (data.language) intakeData.language = data.language;
 
   const [lead] = await db
     .insert(leads)
@@ -137,32 +352,45 @@ export async function createLead(data: {
       notes: data.notes,
       assignedToId,
       createdBy: session.id,
+      pipelineStage: defaultStage?.id ?? DEFAULT_PIPELINE_STAGE_ID,
+      pipelineStageGroup: defaultStage?.group ?? "NEW_LEADS",
+      pipelineStageOrder: defaultStage?.order ?? 1,
+      intakeData,
+      metadata:
+        duplicates.length > 0
+          ? {
+              duplicate_warning_acknowledged: Boolean(data.forceCreate),
+              duplicate_match_count: duplicates.length,
+              duplicate_top_score: duplicates[0].matchScore,
+            }
+          : {},
     })
     .returning();
 
-  logger.info("Lead created", { leadId: lead.id, assignedToId });
+  logger.info("Lead created", {
+    leadId: lead.id,
+    assignedToId,
+    duplicatesAcknowledged: Boolean(data.forceCreate),
+  });
   revalidatePath("/leads");
-  return lead;
+  return {
+    status: "created",
+    lead,
+    duplicatesAcknowledged: Boolean(data.forceCreate),
+  };
 }
 
 /**
  * Update a lead's status (for kanban drag-and-drop).
  */
 export async function updateLeadStatus(id: string, status: string) {
+  if (!(ALL_LEAD_STATUSES as readonly string[]).includes(status)) {
+    throw new Error(`Unknown lead status: ${status}`);
+  }
   await db
     .update(leads)
     .set({
-      status: status as
-        | "new"
-        | "contacted"
-        | "intake_scheduled"
-        | "intake_in_progress"
-        | "contract_sent"
-        | "contract_signed"
-        | "converted"
-        | "declined"
-        | "unresponsive"
-        | "disqualified",
+      status: status as LeadStatus,
       updatedAt: new Date(),
     })
     .where(eq(leads.id, id));
@@ -410,9 +638,14 @@ export async function convertLeadToCase(
 }
 
 /**
- * Get lead counts by status for the pipeline header.
+ * Get lead counts by status for the pipeline header. Returns every status
+ * defined in `ALL_LEAD_STATUSES`, padding with zero-count entries for
+ * statuses that currently have no leads. This keeps the kanban stable even
+ * when pipelines are sparsely populated.
  */
-export async function getLeadCountsByStatus() {
+export async function getLeadCountsByStatus(): Promise<
+  { status: LeadStatus; count: number }[]
+> {
   const session = await requireSession();
   const result = await db
     .select({
@@ -428,7 +661,14 @@ export async function getLeadCountsByStatus() {
     )
     .groupBy(leads.status);
 
-  return result;
+  const countsByStatus = new Map<string, number>(
+    result.map((r) => [r.status, r.count]),
+  );
+
+  return ALL_LEAD_STATUSES.map((status) => ({
+    status,
+    count: countsByStatus.get(status) ?? 0,
+  }));
 }
 
 // ─── eSignature placeholder ────────────────────────────────────────────
@@ -466,11 +706,12 @@ export async function sendLeadContract(
     .where(eq(leads.id, leadId))
     .limit(1);
 
-  const earlyStatuses = [
-    "new",
-    "contacted",
-    "intake_scheduled",
-    "intake_in_progress",
+  const earlyStatuses: LeadStatus[] = [
+    ...LEAD_STATUS_GROUPS.initial,
+    ...LEAD_STATUS_GROUPS.qualifying,
+    ...LEAD_STATUS_GROUPS.intake,
+    ...LEAD_STATUS_GROUPS.conflict,
+    "contract_drafting",
   ];
   if (lead && earlyStatuses.includes(lead.status)) {
     await db
@@ -567,6 +808,141 @@ export async function updateLead(
   logger.info("Lead updated", { leadId: id });
   revalidatePath(`/leads/${id}`);
   revalidatePath("/leads");
+}
+
+/**
+ * Update a lead's pipeline stage (30+ stage pipeline).
+ * Also syncs the legacy status enum column when there's a direct mapping.
+ */
+export async function updateLeadStage(leadId: string, stageId: string) {
+  const session = await requireSession();
+
+  const stage = getStageById(stageId);
+  if (!stage) {
+    throw new Error(`Unknown pipeline stage: ${stageId}`);
+  }
+
+  // Map rich pipeline stages back to the legacy enum where possible so
+  // existing status filters keep working.
+  const legacyStatusMap: Record<string, string> = {
+    new_inquiry: "new",
+    web_form_submitted: "new",
+    phone_call_received: "new",
+    walk_in: "new",
+    referral_received: "new",
+    marketing_lead: "new",
+    initial_qualifying: "contacted",
+    call_attempted_1: "contacted",
+    call_attempted_2: "contacted",
+    call_attempted_3: "contacted",
+    voicemail_left: "contacted",
+    no_answer: "contacted",
+    wrong_number: "unresponsive",
+    intake_scheduled: "intake_scheduled",
+    intake_rescheduled: "intake_scheduled",
+    intake_in_progress: "intake_in_progress",
+    intake_complete: "intake_in_progress",
+    awaiting_documents: "intake_in_progress",
+    documents_received: "intake_in_progress",
+    conflict_check_pending: "intake_in_progress",
+    conflict_check_cleared: "intake_in_progress",
+    contract_sent: "contract_sent",
+    contract_signed: "contract_signed",
+    retainer_paid: "contract_signed",
+    declined_by_firm: "declined",
+    declined_by_client: "declined",
+    could_not_reach: "unresponsive",
+    converting_to_case: "contract_signed",
+    converted: "converted",
+    disqualified: "disqualified",
+    duplicate: "disqualified",
+    spanish_routed: "disqualified",
+    out_of_state: "disqualified",
+  };
+
+  const legacyStatus = legacyStatusMap[stageId];
+
+  await db
+    .update(leads)
+    .set({
+      pipelineStage: stage.id,
+      pipelineStageGroup: stage.group,
+      pipelineStageOrder: stage.order,
+      ...(legacyStatus
+        ? {
+            status: legacyStatus as LeadStatus,
+          }
+        : {}),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(leads.id, leadId),
+        eq(leads.organizationId, session.organizationId),
+      ),
+    );
+
+  try {
+    await db.insert(auditLog).values({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "lead",
+      entityId: leadId,
+      action: "pipeline_stage_updated",
+      metadata: { stageId, group: stage.group },
+    });
+  } catch (err) {
+    logger.warn("Failed to write pipeline_stage_updated audit log", { err });
+  }
+
+  logger.info("Lead pipeline stage updated", { leadId, stageId });
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
+}
+
+/**
+ * Return all active leads grouped by their pipeline stage. Every known stage
+ * (from the pipeline config) is returned, even if empty.
+ */
+export async function getLeadsByStage(): Promise<Map<string, typeof leads.$inferSelect[]>> {
+  const session = await requireSession();
+
+  const rows = await db
+    .select()
+    .from(leads)
+    .where(
+      and(
+        eq(leads.organizationId, session.organizationId),
+        isNull(leads.deletedAt),
+      ),
+    )
+    .orderBy(desc(leads.createdAt));
+
+  const map = new Map<string, typeof leads.$inferSelect[]>();
+  for (const stage of PIPELINE_STAGES) {
+    map.set(stage.id, []);
+  }
+  for (const row of rows) {
+    const stageId = row.pipelineStage ?? DEFAULT_PIPELINE_STAGE_ID;
+    if (!map.has(stageId)) map.set(stageId, []);
+    map.get(stageId)?.push(row);
+  }
+  return map;
+}
+
+/**
+ * Server action wrapper around findDuplicateLeads so the client can call it
+ * directly from the "Find Duplicates" dialog.
+ */
+export async function searchDuplicateLeads(input: {
+  email?: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  dob?: string;
+  city?: string;
+}): Promise<DuplicateMatch[]> {
+  return findDuplicateLeads(input);
 }
 
 /**

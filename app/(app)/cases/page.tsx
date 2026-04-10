@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Cases",
 };
 
+// Org-scoped list with per-request filters — always dynamic.
+export const dynamic = "force-dynamic";
+
 export default async function CasesPage({
   searchParams,
 }: {

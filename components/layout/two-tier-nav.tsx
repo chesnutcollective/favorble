@@ -539,7 +539,34 @@ export function TwoTierNav({
               pathname={pathname}
             />
 
-            {/* Default panels for remaining items */}
+            {/* Hearings Panel */}
+            <HearingsPanel
+              active={visiblePanel === "hearings"}
+              navData={navData}
+            />
+
+            {/* Filing Panel */}
+            <FilingPanel
+              active={visiblePanel === "filing"}
+              navData={navData}
+            />
+
+            {/* PHI Writer Panel */}
+            <PhiWriterPanel
+              active={visiblePanel === "phi-writer"}
+              navData={navData}
+            />
+
+            {/* Medical Records Panel */}
+            <MedicalRecordsPanel
+              active={visiblePanel === "medical-records"}
+              navData={navData}
+            />
+
+            {/* Mail Panel */}
+            <MailPanel active={visiblePanel === "mail"} navData={navData} />
+
+            {/* Default panels for any remaining items */}
             {mainNav
               .filter(
                 (item) =>
@@ -554,6 +581,11 @@ export function TwoTierNav({
                     "contacts",
                     "documents",
                     "reports",
+                    "hearings",
+                    "filing",
+                    "phi-writer",
+                    "medical-records",
+                    "mail",
                   ].includes(item.id),
               )
               .map((item) => (
@@ -2751,6 +2783,394 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
         </Link>
       </div>
     </>
+  );
+}
+
+/* ─── Shared panel primitives for the new counter-driven panels ─── */
+
+const panelCounterRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "8px 12px",
+  borderBottom: "1px solid #F0F0F0",
+  textDecoration: "none",
+  color: "inherit",
+  fontSize: 12,
+};
+
+const panelCounterLabelStyle: React.CSSProperties = {
+  color: "#1C1C1E",
+};
+
+const panelCounterValueStyle: React.CSSProperties = {
+  fontFamily: "monospace",
+  fontSize: 12,
+  color: "#185f9b",
+  fontWeight: 600,
+};
+
+const panelSubHeaderStyle: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 600,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "#999",
+  padding: "10px 12px 4px",
+};
+
+const panelFooterLinkStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "#185f9b",
+  textDecoration: "none",
+};
+
+function PanelCounterRow({
+  href,
+  label,
+  value,
+  tone = "default",
+  sublabel,
+}: {
+  href: string;
+  label: string;
+  value: number;
+  tone?: "default" | "urgent" | "success" | "warn";
+  sublabel?: string;
+}) {
+  const toneColor =
+    tone === "urgent"
+      ? "#EE0000"
+      : tone === "warn"
+        ? "#F59E0B"
+        : tone === "success"
+          ? "#1d72b8"
+          : "#185f9b";
+  return (
+    <Link href={href} style={panelCounterRowStyle}>
+      <span style={panelCounterLabelStyle}>
+        {label}
+        {sublabel && (
+          <span
+            style={{
+              display: "block",
+              fontSize: 10,
+              color: "#999",
+              fontFamily: "monospace",
+              marginTop: 2,
+            }}
+          >
+            {sublabel}
+          </span>
+        )}
+      </span>
+      <span style={{ ...panelCounterValueStyle, color: toneColor }}>
+        {value}
+      </span>
+    </Link>
+  );
+}
+
+/* ─── Hearings ─── */
+
+function HearingsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.hearingsSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Hearings</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.next30dCount ?? 0} upcoming &middot; next 30d
+      </div>
+
+      <PanelCounterRow
+        href="/hearings?window=48h"
+        label="Next 48 hours"
+        value={s?.next48hCount ?? 0}
+        tone={s && s.next48hCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/hearings?window=7d"
+        label="This week"
+        value={s?.next7dCount ?? 0}
+      />
+      <PanelCounterRow
+        href="/hearings?window=30d&mrIncomplete=1"
+        label="MR blocking"
+        sublabel="< 14d, MR incomplete"
+        value={s?.mrBlocking14dCount ?? 0}
+        tone={s && s.mrBlocking14dCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/hearings" style={panelFooterLinkStyle}>
+          View all hearings &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Filing ─── */
+
+function FilingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.filingSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Filing</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Submission lifecycle
+      </div>
+
+      <PanelCounterRow
+        href="/filing?status=ready"
+        label="Ready to submit"
+        value={s?.readyToSubmit ?? 0}
+        tone={s && s.readyToSubmit > 0 ? "success" : "default"}
+      />
+      <PanelCounterRow
+        href="/filing?status=bundles"
+        label="Bundles for review"
+        value={s?.bundlesReady ?? 0}
+        tone={s && s.bundlesReady > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/filing?status=submitted"
+        label="Submitted this week"
+        value={s?.submittedThisWeek ?? 0}
+      />
+
+      <div style={panelSubHeaderStyle}>Statutory Clocks</div>
+      <div
+        style={{
+          fontSize: 11,
+          color: "#999",
+          padding: "0 12px 8px",
+          fontFamily: "monospace",
+        }}
+      >
+        Loaded on open &mdash; coming soon
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/filing" style={panelFooterLinkStyle}>
+          View filing queue &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PHI Writer ─── */
+
+function PhiWriterPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.phiWriterSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">PHI Writer</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.myAssigned ?? 0} mine &middot; {s?.myInProgress ?? 0} in progress
+      </div>
+
+      <PanelCounterRow
+        href="/phi-writer?assignedTo=me"
+        label="My queue"
+        value={s?.myAssigned ?? 0}
+      />
+      <PanelCounterRow
+        href="/phi-writer?urgency=week"
+        label="Due this week"
+        value={s?.dueThisWeek ?? 0}
+        tone={s && s.dueThisWeek > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/phi-writer?status=unassigned"
+        label="Unassigned"
+        value={s?.unassigned ?? 0}
+        tone={s && s.unassigned > 0 ? "urgent" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/phi-writer" style={panelFooterLinkStyle}>
+          Open PHI Writer &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Medical Records ─── */
+
+const TEAM_PILL_STYLES: Record<
+  string,
+  { bg: string; fg: string; label: string }
+> = {
+  blue: { bg: "rgba(59,130,246,0.12)", fg: "#2563eb", label: "Blue" },
+  orange: { bg: "rgba(249,115,22,0.12)", fg: "#ea580c", label: "Orange" },
+  green: { bg: "rgba(29,114,184,0.12)", fg: "#1d72b8", label: "Green" },
+  yellow: { bg: "rgba(245,158,11,0.14)", fg: "#b45309", label: "Yellow" },
+  purple: { bg: "rgba(139,92,246,0.12)", fg: "#7c3aed", label: "Purple" },
+};
+
+function MedicalRecordsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.medicalRecordsSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Medical Records</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Records blocking hearings
+      </div>
+
+      <PanelCounterRow
+        href="/medical-records?urgent=1"
+        label="Urgent (< 14d)"
+        value={s?.urgentBlocking14d ?? 0}
+        tone={s && s.urgentBlocking14d > 0 ? "urgent" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>RFC Pipeline</div>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          padding: "4px 12px 10px",
+          fontSize: 10,
+          fontFamily: "monospace",
+        }}
+      >
+        <Link
+          href="/medical-records?tab=rfc&status=not_requested"
+          style={{ textDecoration: "none", color: "#999" }}
+        >
+          Req {s?.rfcRequested ?? 0}
+        </Link>
+        <Link
+          href="/medical-records?tab=rfc&status=requested"
+          style={{ textDecoration: "none", color: "#F59E0B" }}
+        >
+          Await {s?.rfcAwaiting ?? 0}
+        </Link>
+        <Link
+          href="/medical-records?tab=rfc&status=received"
+          style={{ textDecoration: "none", color: "#1d72b8" }}
+        >
+          Recv {s?.rfcReceived ?? 0}
+        </Link>
+      </div>
+
+      <div style={panelSubHeaderStyle}>Team Workload</div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 4,
+          padding: "0 12px 8px",
+        }}
+      >
+        {(s?.teamWorkload ?? []).map((team) => {
+          const style = TEAM_PILL_STYLES[team.color];
+          if (!style) return null;
+          return (
+            <Link
+              key={team.color}
+              href={`/medical-records?tab=workload&team=${team.color}`}
+              style={{
+                backgroundColor: style.bg,
+                color: style.fg,
+                padding: "3px 8px",
+                borderRadius: 10,
+                fontSize: 10,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              {style.label} {team.count}
+            </Link>
+          );
+        })}
+        {(!s?.teamWorkload || s.teamWorkload.length === 0) && (
+          <span style={{ fontSize: 10, color: "#999" }}>No team cases</span>
+        )}
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/medical-records" style={panelFooterLinkStyle}>
+          Open Medical Records &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Mail ─── */
+
+function MailPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.mailSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Mail</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Postal intake &middot; tracking
+      </div>
+
+      <PanelCounterRow
+        href="/mail?tab=inbound&status=pending"
+        label="Pending inbox"
+        value={s?.pendingInbound ?? 0}
+        tone={s && s.pendingInbound > 5 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/mail?tab=inbound&unmatched=1"
+        label="Unmatched"
+        value={s?.unmatched ?? 0}
+        tone={s && s.unmatched > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/mail?tab=outbound&status=in_transit"
+        label="In transit"
+        sublabel={
+          s && s.certifiedInTransit > 0
+            ? `${s.certifiedInTransit} certified`
+            : undefined
+        }
+        value={s?.inTransit ?? 0}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/mail" style={panelFooterLinkStyle}>
+          Open mail inbox &rarr;
+        </Link>
+      </div>
+    </div>
   );
 }
 

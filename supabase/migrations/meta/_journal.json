@@ -22,6 +22,13 @@
       "when": 1775846300495,
       "tag": "0002_blushing_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775848463546,
+      "tag": "0003_demonic_robin_chapel",
+      "breakpoints": true
     }
   ]
 }

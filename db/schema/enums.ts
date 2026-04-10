@@ -21,17 +21,57 @@ export const teamEnum = pgEnum("team", [
   "administration",
 ]);
 
+// Lead pipeline statuses — expanded to mirror MyCase intake workflow.
+// Grouped by category for the kanban view. Keep categorization in sync with
+// `getLeadStatusCategory` in `app/actions/leads.ts` and the
+// `LEAD_STATUS_CATEGORIES` config in `app/(app)/leads/page.tsx`.
 export const leadStatusEnum = pgEnum("lead_status", [
+  // Initial contact
   "new",
+  "received_inquiry",
+  "voicemail_left",
+  "email_sent",
+  "text_sent",
   "contacted",
+  // Qualifying
+  "qualifying",
+  "interested",
+  "not_interested",
+  "wrong_number",
+  "do_not_contact",
+  "language_barrier",
+  // Intake scheduling
   "intake_scheduled",
+  "intake_no_show",
+  "intake_rescheduled",
   "intake_in_progress",
+  "intake_complete",
+  // Conflict check
+  "conflict_pending",
+  "conflict_cleared",
+  "conflict_blocked",
+  // Contract
+  "contract_drafting",
   "contract_sent",
+  "contract_followup",
   "contract_signed",
+  "contract_declined",
+  // Conversion
   "converted",
+  "converted_full_rep",
+  "converted_consult_only",
+  // Decline reasons
   "declined",
+  "declined_age",
+  "declined_capacity",
+  "declined_outside_state",
+  "declined_already_repd",
+  "declined_other",
+  // Other
   "unresponsive",
   "disqualified",
+  "referred_out",
+  "on_hold",
 ]);
 
 export const caseStatusEnum = pgEnum("case_status", [
