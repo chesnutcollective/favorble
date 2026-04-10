@@ -1,72 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger/server";
-import { db } from "@/db/drizzle";
-import { documents, documentProcessingResults } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
 import { requireSession } from "@/lib/auth/session";
+import { processDocument } from "@/lib/services/document-processor";
 
 type RouteContext = { params: Promise<{ documentId: string }> };
 
 /**
  * POST /api/documents/[documentId]/process — Trigger document processing.
+ * Sends the document through LangExtract and saves structured results.
  */
-export async function POST(_request: NextRequest, context: RouteContext) {
+export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const session = await requireSession();
     const { documentId } = await context.params;
 
-    // Verify the document exists and belongs to the user's organization
-    const [doc] = await db
-      .select({
-        id: documents.id,
-        caseId: documents.caseId,
-        organizationId: documents.organizationId,
-        fileName: documents.fileName,
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.id, documentId),
-          eq(documents.organizationId, session.organizationId),
-        ),
-      )
-      .limit(1);
+    const url = new URL(request.url);
+    const extractionType = (url.searchParams.get("type") ??
+      "medical_record") as
+      | "medical_record"
+      | "status_report"
+      | "decision_letter"
+      | "efolder_classification";
 
-    if (!doc) {
+    const result = await processDocument({
+      documentId,
+      organizationId: session.organizationId,
+      extractionType,
+    });
+
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Document not found" },
-        { status: 404 },
+        { error: result.error ?? "Processing failed", processingId: result.processingId },
+        { status: 500 },
       );
     }
 
-    // Create a processing result record in "pending" state
-    const [processingResult] = await db
-      .insert(documentProcessingResults)
-      .values({
-        organizationId: session.organizationId,
-        documentId,
-        caseId: doc.caseId,
-        status: "pending",
-      })
-      .returning({ id: documentProcessingResults.id });
-
-    logger.info("Document processing triggered", {
-      documentId,
-      processingId: processingResult.id,
-      fileName: doc.fileName,
-    });
-
-    // TODO: Trigger actual document processing pipeline
-    // This would typically enqueue a background job that:
-    // 1. Extracts text (OCR if needed)
-    // 2. Classifies document type
-    // 3. Identifies provider, treatment dates, etc.
-    // 4. Updates the processing result with extracted data
-    // 5. Generates medical chronology entries
-
     return NextResponse.json({
       success: true,
-      processingId: processingResult.id,
+      processingId: result.processingId,
     });
   } catch (error) {
     logger.error("Document processing trigger error", { error });

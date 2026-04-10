@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
+import { processDocument } from "@/lib/services/document-processor";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -227,33 +228,51 @@ export async function POST(request: NextRequest) {
           body.mimeType ??
           "application/pdf";
 
-        await db.insert(documents).values({
-          organizationId: job.organizationId,
-          caseId: job.caseId,
-          fileName,
-          fileType,
-          fileSizeBytes: body.fileSize ?? body.size ?? null,
-          storagePath:
-            body.downloadUrl ??
-            body.url ??
-            `pending/ere/${body.documentId ?? body.id ?? "unknown"}`,
-          source: "ere",
-          sourceExternalId: body.documentId ?? body.id ?? null,
-          category: body.category ?? body.documentType ?? null,
-          description: body.description ?? null,
-          metadata: {
-            rawEvent: eventType,
-            jobId: body.jobId,
-            downloadUrl: body.downloadUrl ?? body.url ?? null,
-            documentType: body.documentType ?? null,
-            receivedAt: new Date().toISOString(),
-          },
-        });
+        const [insertedDoc] = await db
+          .insert(documents)
+          .values({
+            organizationId: job.organizationId,
+            caseId: job.caseId,
+            fileName,
+            fileType,
+            fileSizeBytes: body.fileSize ?? body.size ?? null,
+            storagePath:
+              body.downloadUrl ??
+              body.url ??
+              `pending/ere/${body.documentId ?? body.id ?? "unknown"}`,
+            source: "ere",
+            sourceExternalId: body.documentId ?? body.id ?? null,
+            category: body.category ?? body.documentType ?? null,
+            description: body.description ?? null,
+            metadata: {
+              rawEvent: eventType,
+              jobId: body.jobId,
+              downloadUrl: body.downloadUrl ?? body.url ?? null,
+              documentType: body.documentType ?? null,
+              receivedAt: new Date().toISOString(),
+            },
+          })
+          .returning({ id: documents.id });
 
         logger.info("ERE document persisted", {
           caseId: job.caseId,
           fileName,
         });
+
+        // Fire-and-forget: send to LangExtract for structured extraction.
+        // Don't await — webhook should respond fast.
+        if (insertedDoc) {
+          processDocument({
+            documentId: insertedDoc.id,
+            organizationId: job.organizationId,
+            extractionType: "medical_record",
+          }).catch((err) => {
+            logger.error("LangExtract processing failed", {
+              documentId: insertedDoc.id,
+              error: err,
+            });
+          });
+        }
         break;
       }
 
