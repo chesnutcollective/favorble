@@ -1,0 +1,103 @@
+{
+  "name": "Daily Digest (Overdue Tasks → Email)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Weekdays 8am ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://staging-favorble.vercel.app/api/reports/overdue-tasks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Sync-Token",
+              "value": "={{ $env.FAVORBLE_SYNC_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-overdue",
+      "name": "Fetch Overdue Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "byUser",
+        "options": {}
+      },
+      "id": "split-by-user",
+      "name": "Group by Assignee",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build digest email body for each user\nconst items = $input.all();\nreturn items.map(item => {\n  const { user, tasks } = item.json;\n  const taskList = tasks.map(t => `• ${t.title} (case ${t.caseNumber}, due ${t.dueDate})`).join('\\n');\n  return {\n    json: {\n      to: user.email,\n      subject: `${tasks.length} overdue task${tasks.length === 1 ? '' : 's'} — Favorble`,\n      body: `Hi ${user.firstName},\\n\\nYou have ${tasks.length} overdue task${tasks.length === 1 ? '' : 's'}:\\n\\n${taskList}\\n\\nView your queue: https://staging-favorble.vercel.app/my-queue`,\n    }\n  };\n});"
+      },
+      "id": "build-email",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://staging-favorble.vercel.app/api/notifications/email",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.to, subject: $json.subject, body: $json.body }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Sync-Token",
+              "value": "={{ $env.FAVORBLE_SYNC_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send via Favorble",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Weekdays 8am ET": {
+      "main": [[{ "node": "Fetch Overdue Tasks", "type": "main", "index": 0 }]]
+    },
+    "Fetch Overdue Tasks": {
+      "main": [[{ "node": "Group by Assignee", "type": "main", "index": 0 }]]
+    },
+    "Group by Assignee": {
+      "main": [[{ "node": "Build Email", "type": "main", "index": 0 }]]
+    },
+    "Build Email": {
+      "main": [[{ "node": "Send via Favorble", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

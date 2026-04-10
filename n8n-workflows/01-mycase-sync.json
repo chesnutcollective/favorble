@@ -1,0 +1,102 @@
+{
+  "name": "MyCase → Favorble Incremental Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Track last sync time using n8n's static workflow data\nconst staticData = $getWorkflowStaticData('global');\nconst now = new Date().toISOString();\nconst since = staticData.lastSync || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();\nstaticData.lastSync = now;\nreturn [{ json: { since, now } }];"
+      },
+      "id": "get-since",
+      "name": "Get Since Timestamp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.mycase.com/v2/cases",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "updated_since",
+              "value": "={{ $json.since }}"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.MYCASE_API_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-cases",
+      "name": "Fetch Updated Cases",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://staging-favorble.vercel.app/api/sync/mycase",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ entityType: 'cases', records: $json.cases || $json.data || [] }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Sync-Token",
+              "value": "={{ $env.FAVORBLE_SYNC_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "post-to-favorble",
+      "name": "Upsert to Favorble",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Every 15 min": {
+      "main": [[{ "node": "Get Since Timestamp", "type": "main", "index": 0 }]]
+    },
+    "Get Since Timestamp": {
+      "main": [[{ "node": "Fetch Updated Cases", "type": "main", "index": 0 }]]
+    },
+    "Fetch Updated Cases": {
+      "main": [[{ "node": "Upsert to Favorble", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

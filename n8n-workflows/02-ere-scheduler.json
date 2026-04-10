@@ -1,0 +1,99 @@
+{
+  "name": "ERE Scrape Scheduler (Active Hearings)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 2 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://staging-favorble.vercel.app/api/cases/active-hearings",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "withinDays",
+              "value": "30"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Sync-Token",
+              "value": "={{ $env.FAVORBLE_SYNC_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-active",
+      "name": "Get Cases with Hearings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "cases",
+        "options": {}
+      },
+      "id": "split-cases",
+      "name": "Split Cases",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://ere-orchestrator-staging.up.railway.app/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: 'status_check', caseId: $json.id, ssaClaimNumber: $json.ssaClaimNumber, priority: 'normal' }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.ORCHESTRATOR_API_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "submit-job",
+      "name": "Submit ERE Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Every 2 hours": {
+      "main": [[{ "node": "Get Cases with Hearings", "type": "main", "index": 0 }]]
+    },
+    "Get Cases with Hearings": {
+      "main": [[{ "node": "Split Cases", "type": "main", "index": 0 }]]
+    },
+    "Split Cases": {
+      "main": [[{ "node": "Submit ERE Job", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
