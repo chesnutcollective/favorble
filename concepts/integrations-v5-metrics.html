@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Systems Dashboard — Favorble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8;
+  --surface:#ffffff;
+  --surface-0:#F8F9FC;
+  --surface-hover:rgba(59,89,152,0.04);
+  --text-1:#18181a;
+  --text-2:#52525e;
+  --text-3:#8b8b97;
+  --text-4:#c4c4ce;
+  --text-label:#6e6e80;
+  --border-subtle:rgba(59,89,152,0.08);
+  --border-default:rgba(59,89,152,0.13);
+  --border-strong:rgba(59,89,152,0.20);
+  --accent:#3b5998;
+  --accent-subtle:rgba(59,89,152,0.08);
+  --red:#d1453b;
+  --red-subtle:rgba(209,69,59,0.08);
+  --red-row:rgba(209,69,59,0.05);
+  --amber:#cf8a00;
+  --amber-subtle:rgba(207,138,0,0.08);
+  --green:#2b8a3e;
+  --green-subtle:rgba(43,138,62,0.08);
+  --radius:10px;
+  --radius-sm:6px;
+  --shadow-card:inset 0 1px 0 rgba(255,255,255,0.85),0 1px 3px rgba(59,89,152,0.06),0 1px 2px rgba(0,0,0,0.03);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text-1);
+  font-size:13px;
+  line-height:1.48;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"calt" 1,"kern" 1;
+  font-variant-numeric:tabular-nums lining-nums;
+  padding:24px 28px 60px;
+  min-height:100vh;
+}
+
+.mono{font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums lining-nums}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:22px;padding-bottom:16px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.topbar-left{display:flex;align-items:baseline;gap:18px}
+.topbar h1{
+  font-size:20px;font-weight:600;letter-spacing:-0.035em;color:var(--text-1);
+}
+.breadcrumb{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);
+  letter-spacing:0.02em;
+}
+.breadcrumb span{color:var(--text-4);padding:0 4px}
+
+.time-range{
+  display:flex;background:var(--surface);border:1px solid var(--border-default);
+  border-radius:var(--radius-sm);padding:2px;
+}
+.time-range button{
+  background:transparent;border:0;padding:5px 12px;font:inherit;font-size:11px;
+  color:var(--text-2);cursor:pointer;border-radius:4px;font-weight:500;
+  font-family:'DM Mono',monospace;letter-spacing:0.01em;
+}
+.time-range button.active{background:var(--accent-subtle);color:var(--accent)}
+
+.topbar-right{display:flex;align-items:center;gap:12px}
+.env-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;background:var(--amber-subtle);color:var(--amber);
+  border-radius:99px;font-size:10.5px;font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.env-pill::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 0 3px rgba(207,138,0,0.2);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.last-updated{
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-3);
+  display:flex;align-items:center;gap:6px;
+}
+.last-updated::before{
+  content:'';width:5px;height:5px;border-radius:50%;background:var(--green);
+  animation:pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== HERO METRICS ===== */
+.hero-metrics{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:14px;
+}
+.metric-card{
+  background:var(--surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius);
+  padding:16px 18px 14px;
+  box-shadow:var(--shadow-card);
+  position:relative;
+  overflow:hidden;
+  min-height:128px;
+  display:flex;flex-direction:column;
+}
+.metric-label{
+  font-size:10px;font-weight:600;letter-spacing:0.075em;text-transform:uppercase;
+  color:var(--text-label);
+}
+.metric-value{
+  font-family:'DM Mono',monospace;
+  font-size:42px;font-weight:500;letter-spacing:-0.035em;
+  color:var(--text-1);
+  line-height:1.0;margin-top:10px;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.metric-value .unit{
+  font-size:16px;color:var(--text-3);font-weight:400;margin-left:3px;
+}
+.metric-value .sub{
+  font-size:22px;color:var(--text-3);font-weight:400;
+}
+.metric-sub{
+  font-size:11px;color:var(--text-3);margin-top:6px;
+  font-family:'DM Mono',monospace;
+}
+.metric-sub.red{color:var(--red)}
+.metric-sub.green{color:var(--green)}
+.metric-sparkline{
+  margin-top:auto;padding-top:10px;
+  height:34px;
+}
+.metric-sparkline svg{width:100%;height:100%;display:block}
+
+.trend-up{color:var(--green)}
+.trend-down{color:var(--red)}
+.trend-flat{color:var(--text-3)}
+
+/* ===== SECONDARY METRICS ===== */
+.secondary-group{
+  background:var(--surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius);
+  padding:14px 16px 16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-card);
+}
+.secondary-group-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;padding-bottom:10px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.secondary-group-title{
+  font-size:11px;font-weight:600;letter-spacing:0.075em;
+  text-transform:uppercase;color:var(--text-label);
+}
+.secondary-group-meta{
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-3);
+}
+.secondary-metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+.mini-metric{
+  padding:10px 12px 12px;
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-sm);
+  background:var(--surface-0);
+  min-height:92px;
+  display:flex;flex-direction:column;
+}
+.mini-metric-label{
+  font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--text-3);
+}
+.mini-metric-value{
+  font-family:'DM Mono',monospace;
+  font-size:26px;font-weight:500;letter-spacing:-0.03em;
+  color:var(--text-1);line-height:1;margin-top:6px;
+}
+.mini-metric-value.red{color:var(--red)}
+.mini-metric-value.green{color:var(--green)}
+.mini-metric-value.amber{color:var(--amber)}
+.mini-metric-value.muted{color:var(--text-4)}
+.mini-metric-spark{margin-top:auto;height:22px;padding-top:6px}
+.mini-metric-spark svg{width:100%;height:100%;display:block}
+
+/* ===== SERVICES TABLE ===== */
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-card);
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border-subtle);
+}
+.panel-title{
+  font-size:12px;font-weight:600;letter-spacing:-0.01em;color:var(--text-1);
+  display:flex;align-items:center;gap:10px;
+}
+.panel-title .count-chip{
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  background:var(--accent-subtle);color:var(--accent);
+  padding:2px 7px;border-radius:99px;letter-spacing:0.02em;
+}
+.panel-meta{
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-3);
+  display:flex;gap:14px;
+}
+.panel-meta strong{font-weight:500;color:var(--text-1)}
+
+.svc-table{
+  width:100%;border-collapse:collapse;font-size:12px;
+}
+.svc-table thead th{
+  font-size:9.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--text-3);text-align:left;padding:8px 14px;
+  border-bottom:1px solid var(--border-subtle);
+  background:var(--surface-0);
+  white-space:nowrap;
+}
+.svc-table thead th.num{text-align:right}
+.svc-table tbody td{
+  padding:9px 14px;border-bottom:1px solid var(--border-subtle);
+  font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-2);
+  vertical-align:middle;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.svc-table tbody tr:last-child td{border-bottom:0}
+.svc-table tbody tr:hover{background:var(--surface-hover)}
+.svc-table td.num{text-align:right}
+.svc-table td.svc-name{
+  font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;
+  color:var(--text-1);letter-spacing:-0.005em;
+}
+
+.row-crashed{background:var(--red-row)}
+.row-crashed:hover{background:rgba(209,69,59,0.09)!important}
+.row-crashed td.svc-name{color:var(--red);font-weight:600}
+.row-crashed td{color:var(--red)}
+
+.row-external td.svc-name{color:var(--text-2)}
+.row-external td{color:var(--text-4)}
+
+.status-dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  vertical-align:middle;margin-right:2px;
+}
+.status-dot.green{background:var(--green);box-shadow:0 0 0 3px rgba(43,138,62,0.15)}
+.status-dot.red{background:var(--red);box-shadow:0 0 0 3px rgba(209,69,59,0.15)}
+.status-dot.amber{background:var(--amber);box-shadow:0 0 0 3px rgba(207,138,0,0.15)}
+.status-dot.gray{background:var(--text-4);box-shadow:0 0 0 3px rgba(139,139,151,0.12)}
+
+.gauge{
+  display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:flex-end;
+}
+.gauge-bar{
+  width:46px;height:4px;background:var(--border-subtle);border-radius:2px;
+  overflow:hidden;position:relative;
+}
+.gauge-fill{
+  position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:2px;
+}
+.gauge-fill.green{background:var(--green)}
+.gauge-fill.amber{background:var(--amber)}
+.gauge-fill.red{background:var(--red)}
+.gauge-val{min-width:30px;text-align:right}
+
+.svc-region{color:var(--text-3);font-size:10.5px;letter-spacing:0.01em}
+.svc-uptime{color:var(--text-2)}
+
+/* ===== INTEGRATIONS CHECKLIST ===== */
+.integrations-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  padding:6px 0;
+}
+.integration-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 18px;
+  border-bottom:1px solid var(--border-subtle);
+  font-size:12px;
+}
+.integration-item:nth-child(3n)::after{content:none}
+.integration-icon{
+  width:14px;height:14px;flex-shrink:0;display:inline-flex;
+  align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:600;
+}
+.integration-icon.live{
+  background:var(--green);color:#fff;border-radius:50%;
+  box-shadow:0 0 0 3px rgba(43,138,62,0.15);
+}
+.integration-icon.degraded{
+  color:var(--red);font-size:13px;
+}
+.integration-icon.placeholder{
+  background:var(--amber);color:#fff;border-radius:50%;
+  box-shadow:0 0 0 3px rgba(207,138,0,0.15);
+}
+.integration-icon.not-started{
+  background:transparent;border:1.5px solid var(--text-4);border-radius:50%;
+}
+.integration-name{
+  font-family:'DM Sans',sans-serif;font-weight:500;color:var(--text-1);
+  font-size:12.5px;letter-spacing:-0.005em;flex:1;
+}
+.integration-state{
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.07em;
+  color:var(--text-3);
+}
+.integration-state.live{color:var(--green)}
+.integration-state.degraded{color:var(--red)}
+.integration-state.placeholder{color:var(--amber)}
+
+/* ===== BOTTOM GRID ===== */
+.bottom-grid{
+  display:grid;grid-template-columns:2fr 1fr;gap:14px;
+}
+
+/* ===== LEGEND ===== */
+.legend{
+  display:flex;gap:18px;padding:10px 18px;
+  border-top:1px solid var(--border-subtle);
+  background:var(--surface-0);
+  font-size:10.5px;color:var(--text-3);
+  font-family:'DM Mono',monospace;letter-spacing:0.02em;
+}
+.legend-item{display:flex;align-items:center;gap:6px}
+
+/* ===== FOOTER META ===== */
+.footer-meta{
+  margin-top:20px;padding-top:14px;border-top:1px solid var(--border-subtle);
+  display:flex;justify-content:space-between;
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-4);
+  letter-spacing:0.02em;
+}
+
+/* SVG grid lines */
+.grid-line{stroke:var(--border-subtle);stroke-width:0.5;stroke-dasharray:2,2}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Systems Dashboard</h1>
+    <div class="breadcrumb">admin<span>/</span>integrations<span>/</span>overview</div>
+    <div class="time-range">
+      <button>1h</button>
+      <button>6h</button>
+      <button class="active">24h</button>
+      <button>7d</button>
+      <button>30d</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="env-pill">Staging</span>
+    <span class="last-updated mono">Updated 2s ago &middot; 13:47:22 UTC</span>
+  </div>
+</div>
+
+<!-- ============ HERO METRICS ============ -->
+<div class="hero-metrics">
+
+  <div class="metric-card">
+    <div class="metric-label">System Health</div>
+    <div class="metric-value">13<span class="sub">/15</span></div>
+    <div class="metric-sub">services up &middot; 2 degraded</div>
+    <div class="metric-sparkline">
+      <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradHealth" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#2b8a3e" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#2b8a3e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,8 L10,8 L20,8 L30,8 L40,8 L50,8 L60,9 L70,8 L80,8 L90,8 L100,8 L110,8 L120,8 L130,8 L140,9 L150,28 L160,28 L170,28 L180,22 L190,22 L200,22 L210,22 L220,22 L230,22 L240,22"
+          fill="none" stroke="#2b8a3e" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M0,8 L10,8 L20,8 L30,8 L40,8 L50,8 L60,9 L70,8 L80,8 L90,8 L100,8 L110,8 L120,8 L130,8 L140,9 L150,28 L160,28 L170,28 L180,22 L190,22 L200,22 L210,22 L220,22 L230,22 L240,22 L240,40 L0,40 Z"
+          fill="url(#gradHealth)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-label">Cases Processed</div>
+    <div class="metric-value">50</div>
+    <div class="metric-sub red">0 from real sources</div>
+    <div class="metric-sparkline">
+      <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradCases" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#3b5998" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#3b5998" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,30 L10,28 L20,25 L30,22 L40,24 L50,20 L60,18 L70,20 L80,16 L90,14 L100,18 L110,12 L120,14 L130,10 L140,12 L150,8 L160,10 L170,6 L180,8 L190,10 L200,8 L210,6 L220,8 L230,6 L240,4"
+          fill="none" stroke="#3b5998" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M0,30 L10,28 L20,25 L30,22 L40,24 L50,20 L60,18 L70,20 L80,16 L90,14 L100,18 L110,12 L120,14 L130,10 L140,12 L150,8 L160,10 L170,6 L180,8 L190,10 L200,8 L210,6 L220,8 L230,6 L240,4 L240,40 L0,40 Z"
+          fill="url(#gradCases)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-label">AI Extractions</div>
+    <div class="metric-value">1</div>
+    <div class="metric-sub">last 24h &middot; 2 failed</div>
+    <div class="metric-sparkline">
+      <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradAi" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#cf8a00" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#cf8a00" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,34 L10,34 L20,34 L30,34 L40,34 L50,34 L60,34 L70,34 L80,34 L90,34 L100,34 L110,34 L120,34 L130,34 L140,34 L150,6 L160,20 L170,34 L180,34 L190,34 L200,34 L210,34 L220,34 L230,34 L240,34"
+          fill="none" stroke="#cf8a00" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M0,34 L10,34 L20,34 L30,34 L40,34 L50,34 L60,34 L70,34 L80,34 L90,34 L100,34 L110,34 L120,34 L130,34 L140,34 L150,6 L160,20 L170,34 L180,34 L190,34 L200,34 L210,34 L220,34 L230,34 L240,34 L240,40 L0,40 Z"
+          fill="url(#gradAi)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-label">Workflow Runs</div>
+    <div class="metric-value">1<span class="sub"> /19</span></div>
+    <div class="metric-sub">workflows active</div>
+    <div class="metric-sparkline">
+      <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradWf" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#8b8b97" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#8b8b97" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,34 L10,34 L20,34 L30,34 L40,34 L50,34 L60,34 L70,34 L80,34 L90,34 L100,34 L110,34 L120,34 L130,24 L140,34 L150,34 L160,34 L170,34 L180,34 L190,34 L200,34 L210,34 L220,34 L230,34 L240,34"
+          fill="none" stroke="#8b8b97" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M0,34 L10,34 L20,34 L30,34 L40,34 L50,34 L60,34 L70,34 L80,34 L90,34 L100,34 L110,34 L120,34 L130,24 L140,34 L150,34 L160,34 L170,34 L180,34 L190,34 L200,34 L210,34 L220,34 L230,34 L240,34 L240,40 L0,40 Z"
+          fill="url(#gradWf)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-label">Avg Response</div>
+    <div class="metric-value">124<span class="unit">ms</span></div>
+    <div class="metric-sub green">p99 stable &middot; -4ms</div>
+    <div class="metric-sparkline">
+      <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradRt" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#2b8a3e" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#2b8a3e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,18 L10,20 L20,17 L30,19 L40,18 L50,16 L60,19 L70,17 L80,18 L90,20 L100,18 L110,16 L120,19 L130,17 L140,18 L150,20 L160,17 L170,19 L180,18 L190,17 L200,19 L210,18 L220,17 L230,18 L240,19"
+          fill="none" stroke="#2b8a3e" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M0,18 L10,20 L20,17 L30,19 L40,18 L50,16 L60,19 L70,17 L80,18 L90,20 L100,18 L110,16 L120,19 L130,17 L140,18 L150,20 L160,17 L170,19 L180,18 L190,17 L200,19 L210,18 L220,17 L230,18 L240,19 L240,40 L0,40 Z"
+          fill="url(#gradRt)"/>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ SECONDARY — ERE PIPELINE ============ -->
+<div class="secondary-group">
+  <div class="secondary-group-header">
+    <div class="secondary-group-title">ERE Scraping Pipeline</div>
+    <div class="secondary-group-meta">scope: gov.ere &middot; region us-east4 &middot; last run <strong style="color:var(--red)">—</strong></div>
+  </div>
+  <div class="secondary-metrics">
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">ERE Credentials</div>
+      <div class="mini-metric-value red">0</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <line x1="0" y1="16" x2="160" y2="16" stroke="#d1453b" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">ERE Jobs Today</div>
+      <div class="mini-metric-value muted">0</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <line x1="0" y1="16" x2="160" y2="16" stroke="#c4c4ce" stroke-width="1.5" stroke-dasharray="2,3"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">Docs Scraped</div>
+      <div class="mini-metric-value muted">0</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <line x1="0" y1="16" x2="160" y2="16" stroke="#c4c4ce" stroke-width="1.5" stroke-dasharray="2,3"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">Scrape Success</div>
+      <div class="mini-metric-value muted">—</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <text x="80" y="14" text-anchor="middle" font-family="DM Mono" font-size="8" fill="#c4c4ce">no data</text>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ SECONDARY — AI PROCESSING ============ -->
+<div class="secondary-group">
+  <div class="secondary-group-header">
+    <div class="secondary-group-title">AI Processing &middot; LangExtract</div>
+    <div class="secondary-group-meta">model: gemini-2.0-flash &middot; success rate <strong style="color:var(--red)">33.3%</strong></div>
+  </div>
+  <div class="secondary-metrics">
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">LangExtract Calls</div>
+      <div class="mini-metric-value">3</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <path d="M0,18 L8,18 L16,18 L24,18 L32,18 L40,18 L48,18 L56,18 L64,18 L72,18 L80,4 L88,18 L96,18 L104,18 L112,18 L120,10 L128,18 L136,18 L144,18 L152,6 L160,18"
+            fill="none" stroke="#3b5998" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">Successful</div>
+      <div class="mini-metric-value green">1</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <path d="M0,18 L20,18 L40,18 L60,18 L80,18 L100,18 L120,18 L140,4 L160,18"
+            fill="none" stroke="#2b8a3e" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">Failed</div>
+      <div class="mini-metric-value red">2</div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <path d="M0,18 L20,18 L40,18 L60,6 L80,18 L100,18 L120,18 L140,8 L160,18"
+            fill="none" stroke="#d1453b" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mini-metric">
+      <div class="mini-metric-label">Avg Processing</div>
+      <div class="mini-metric-value">3.1<span style="font-size:14px;color:var(--text-3)">s</span></div>
+      <div class="mini-metric-spark">
+        <svg viewBox="0 0 160 20" preserveAspectRatio="none">
+          <path d="M0,12 L16,10 L32,13 L48,11 L64,9 L80,12 L96,10 L112,13 L128,11 L144,9 L160,12"
+            fill="none" stroke="#3b5998" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ SERVICES TABLE ============ -->
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">
+      Service Health
+      <span class="count-chip">9 SERVICES</span>
+    </div>
+    <div class="panel-meta">
+      <span><strong>8</strong> healthy</span>
+      <span><strong style="color:var(--red)">1</strong> crashed</span>
+      <span>refresh <strong>15s</strong></span>
+    </div>
+  </div>
+  <table class="svc-table">
+    <thead>
+      <tr>
+        <th style="width:28px"></th>
+        <th>Service</th>
+        <th>Region</th>
+        <th>Uptime</th>
+        <th class="num">CPU</th>
+        <th class="num">Memory</th>
+        <th class="num">Req/min</th>
+        <th class="num">Error Rate</th>
+        <th style="width:90px">Activity</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">ere-orchestrator</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">15h 23m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill green" style="width:2%"></div></div><span class="gauge-val">2%</span></div>
+        </td>
+        <td class="num">45 MB</td>
+        <td class="num">0.2</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,14 L5,12 L10,14 L15,13 L20,14 L25,12 L30,14 L35,13 L40,12 L45,14 L50,13 L55,14 L60,12 L65,14 L70,13 L75,12 L80,14" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">langextract-worker</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">12h 41m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill green" style="width:1%"></div></div><span class="gauge-val">1%</span></div>
+        </td>
+        <td class="num">89 MB</td>
+        <td class="num">0.1</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,15 L10,15 L20,15 L30,4 L40,15 L50,15 L60,15 L70,8 L80,15" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">n8n</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">15h 10m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill green" style="width:3%"></div></div><span class="gauge-val">3%</span></div>
+        </td>
+        <td class="num">124 MB</td>
+        <td class="num">0.0</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,14 L10,14 L20,13 L30,14 L40,14 L50,13 L60,14 L70,14 L80,14" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">postgres</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">18h 05m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill amber" style="width:4%"></div></div><span class="gauge-val">4%</span></div>
+        </td>
+        <td class="num">256 MB</td>
+        <td class="num">15.0</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,10 L5,8 L10,9 L15,6 L20,10 L25,8 L30,11 L35,7 L40,9 L45,6 L50,8 L55,10 L60,7 L65,9 L70,8 L75,6 L80,10" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">redis</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">18h 05m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill green" style="width:0%"></div></div><span class="gauge-val">0%</span></div>
+        </td>
+        <td class="num">12 MB</td>
+        <td class="num">0.0</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,15 L10,15 L20,15 L30,15 L40,15 L50,15 L60,15 L70,15 L80,15" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">ere-browser</td>
+        <td class="svc-region">us-east4</td>
+        <td class="svc-uptime">15h 20m</td>
+        <td class="num">
+          <div class="gauge"><div class="gauge-bar"><div class="gauge-fill green" style="width:0%"></div></div><span class="gauge-val">0%</span></div>
+        </td>
+        <td class="num">32 MB</td>
+        <td class="num">0.0</td>
+        <td class="num">0.00%</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,15 L10,15 L20,15 L30,15 L40,15 L50,15 L60,15 L70,15 L80,15" fill="none" stroke="#2b8a3e" stroke-width="1.2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr class="row-crashed">
+        <td><span class="status-dot red"></span></td>
+        <td class="svc-name">ere-cron</td>
+        <td class="svc-region" style="color:var(--red)">us-east4</td>
+        <td class="svc-uptime"><strong>CRASHED</strong> 15h ago</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num"><strong>100.0%</strong></td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <path d="M0,4 L5,4 L10,4 L15,4 L20,16 L25,16 L30,16 L35,16 L40,16 L45,16 L50,16 L55,16 L60,16 L65,16 L70,16 L75,16 L80,16" fill="none" stroke="#d1453b" stroke-width="1.4"/>
+            <circle cx="18" cy="16" r="2" fill="#d1453b"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr class="row-external">
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">vercel</td>
+        <td class="svc-region">global &middot; iad1</td>
+        <td class="svc-uptime">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <line x1="0" y1="9" x2="80" y2="9" stroke="#c4c4ce" stroke-width="1" stroke-dasharray="2,2"/>
+          </svg>
+        </td>
+      </tr>
+
+      <tr class="row-external">
+        <td><span class="status-dot green"></span></td>
+        <td class="svc-name">clerk</td>
+        <td class="svc-region">cloud</td>
+        <td class="svc-uptime">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td>
+          <svg viewBox="0 0 80 18" preserveAspectRatio="none" style="width:80px;height:18px;display:block">
+            <line x1="0" y1="9" x2="80" y2="9" stroke="#c4c4ce" stroke-width="1" stroke-dasharray="2,2"/>
+          </svg>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <div class="legend">
+    <div class="legend-item"><span class="status-dot green" style="width:7px;height:7px;box-shadow:none"></span> healthy</div>
+    <div class="legend-item"><span class="status-dot amber" style="width:7px;height:7px;box-shadow:none"></span> degraded</div>
+    <div class="legend-item"><span class="status-dot red" style="width:7px;height:7px;box-shadow:none"></span> crashed</div>
+    <div class="legend-item">scrape interval: 15s</div>
+    <div class="legend-item" style="margin-left:auto">metrics window: 24h</div>
+  </div>
+</div>
+
+<!-- ============ INTEGRATIONS CHECKLIST ============ -->
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">
+      Integration Status
+      <span class="count-chip">15 TOTAL</span>
+    </div>
+    <div class="panel-meta">
+      <span><strong style="color:var(--green)">1</strong> live</span>
+      <span><strong style="color:var(--amber)">6</strong> placeholder</span>
+      <span><strong style="color:var(--text-3)">8</strong> not configured</span>
+    </div>
+  </div>
+
+  <div class="integrations-grid">
+
+    <div class="integration-item">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">MyCase</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">CaseStatus</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">Outlook</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">Gmail</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">Twilio SMS</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">DocuSign</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+
+    <div class="integration-item">
+      <span class="integration-icon placeholder">!</span>
+      <span class="integration-name">Dropbox</span>
+      <span class="integration-state placeholder">Placeholder</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon live">&#10003;</span>
+      <span class="integration-name">ERE SSA</span>
+      <span class="integration-state live">Live</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Lexis+</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+
+    <div class="integration-item">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Westlaw</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Zoom</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+    <div class="integration-item">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Google Calendar</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+
+    <div class="integration-item" style="border-bottom:0">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Slack</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+    <div class="integration-item" style="border-bottom:0">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">QuickBooks</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+    <div class="integration-item" style="border-bottom:0">
+      <span class="integration-icon not-started"></span>
+      <span class="integration-name">Stripe</span>
+      <span class="integration-state">Not Configured</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ FOOTER META ============ -->
+<div class="footer-meta">
+  <div>favorble &middot; admin/integrations &middot; build 2026.04.08-a7f3c21</div>
+  <div>scrape 13:47:22 UTC &middot; next 13:47:37 UTC &middot; retention 30d</div>
+</div>
+
+</body>
+</html>

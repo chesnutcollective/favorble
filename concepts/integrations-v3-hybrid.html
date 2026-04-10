@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrations & Systems — Favorble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8;
+  --surface-0:#F8F9FC;
+  --surface-1:rgba(248,249,252,0.82);
+  --surface-hover:rgba(59,89,152,0.04);
+  --surface-active:rgba(59,89,152,0.08);
+  --text-1:#18181a;
+  --text-2:#52525e;
+  --text-3:#8b8b97;
+  --text-4:#c4c4ce;
+  --text-label:#6e6e80;
+  --border-subtle:rgba(59,89,152,0.08);
+  --border-default:rgba(59,89,152,0.13);
+  --border-strong:rgba(59,89,152,0.20);
+  --accent:#3b5998;
+  --accent-hover:#2d4a85;
+  --accent-subtle:rgba(59,89,152,0.08);
+  --accent-muted:rgba(59,89,152,0.14);
+  --red:#d1453b;
+  --red-subtle:rgba(209,69,59,0.08);
+  --red-strong:rgba(209,69,59,0.14);
+  --amber:#cf8a00;
+  --amber-subtle:rgba(207,138,0,0.09);
+  --green:#2b8a3e;
+  --green-subtle:rgba(43,138,62,0.09);
+  --blue:#3b5998;
+  --blue-subtle:rgba(59,89,152,0.08);
+  --shadow-xs:0 1px 2px rgba(59,89,152,0.06);
+  --shadow-sm:0 1px 3px rgba(59,89,152,0.07),0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md:0 4px 12px rgba(59,89,152,0.09),0 1px 3px rgba(0,0,0,0.03);
+  --shadow-card:inset 0 1px 0 rgba(255,255,255,0.85),inset 1px 0 0 rgba(255,255,255,0.5),0 1px 3px rgba(59,89,152,0.06),0 1px 2px rgba(0,0,0,0.03);
+  --duration:150ms;
+  --ease:cubic-bezier(0.25,0.1,0.25,1);
+}
+
+@keyframes fade-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(0.88)}}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(43,138,62,0.35)}70%{box-shadow:0 0 0 6px rgba(43,138,62,0)}100%{box-shadow:0 0 0 0 rgba(43,138,62,0)}}
+@keyframes slide-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{
+  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+  color:var(--text-1);
+  font-size:13.5px;
+  line-height:1.48;
+  font-optical-sizing:auto;
+  font-feature-settings:"calt" 1,"kern" 1;
+  -webkit-font-smoothing:antialiased;
+  padding:28px 40px 80px;
+  max-width:1320px;
+  margin:0 auto;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(59,89,152,0.14);border-radius:3px}
+
+/* HEADER */
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:28px;animation:fade-up 320ms var(--ease) both}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-0.035em;color:var(--text-1);margin-bottom:3px}
+.page-desc{font-size:13px;color:var(--text-3)}
+.page-actions{display:flex;align-items:center;gap:10px}
+.last-refreshed{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:0.01em;display:flex;align-items:center;gap:6px}
+.last-refreshed::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse-dot 2s ease-in-out infinite}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;font-size:13px;font-weight:500;font-family:inherit;border:1px solid var(--border-default);border-radius:7px;background:var(--surface-0);color:var(--text-1);cursor:pointer;transition:all var(--duration) var(--ease);height:32px;text-decoration:none}
+.btn:hover{box-shadow:0 0 0 1px var(--border-strong);background:var(--surface-0);border-color:var(--border-strong)}
+.btn:active{transform:translateY(1px) scale(0.985)}
+.btn-primary{background:linear-gradient(180deg,#4a6baa 0%,var(--accent) 100%);color:#fff;border:none;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),var(--shadow-xs)}
+.btn-primary:hover{background:linear-gradient(180deg,#3f5f9e 0%,var(--accent-hover) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),var(--shadow-sm);border:none}
+.btn-danger-solid{background:linear-gradient(180deg,#e05a50 0%,var(--red) 100%);color:#fff;border:none;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),var(--shadow-xs)}
+.btn-danger-solid:hover{background:linear-gradient(180deg,#d14e44 0%,#b83b32 100%);border:none}
+.btn-sm{height:28px;padding:0 11px;font-size:12px;border-radius:6px}
+.btn svg{width:14px;height:14px}
+
+/* SELECT */
+.env-select{appearance:none;height:32px;padding:0 30px 0 11px;font-size:12.5px;font-weight:500;font-family:inherit;border:1px solid var(--border-default);border-radius:7px;background:var(--surface-0) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238b8b97' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") right 10px center no-repeat;color:var(--text-1);cursor:pointer;outline:none}
+.env-select:hover{border-color:var(--border-strong)}
+
+/* LABELS */
+.section-label{font-size:10.5px;font-weight:600;letter-spacing:0.065em;text-transform:uppercase;color:var(--text-label);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.section-label .count{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-3);background:var(--surface-active);padding:1px 7px;border-radius:10px;letter-spacing:0.02em}
+
+/* SECTIONS */
+section{margin-bottom:36px;animation:fade-up 320ms var(--ease) both}
+section:nth-child(2){animation-delay:40ms}
+section:nth-child(3){animation-delay:80ms}
+section:nth-child(4){animation-delay:120ms}
+section:nth-child(5){animation-delay:160ms}
+
+/* ============ CRASH BANNER ============ */
+.crash-banner{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  background:linear-gradient(180deg,rgba(209,69,59,0.11) 0%,rgba(209,69,59,0.06) 100%);
+  border:1px solid rgba(209,69,59,0.22);
+  border-radius:10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.5),0 1px 3px rgba(209,69,59,0.08);
+  margin-bottom:20px;
+  animation:slide-in 280ms var(--ease) both;
+}
+.crash-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--red);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 1px 3px rgba(209,69,59,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.crash-icon svg{width:17px;height:17px}
+.crash-body{flex:1;min-width:0}
+.crash-title{font-size:13.5px;font-weight:600;color:var(--red);letter-spacing:-0.01em}
+.crash-sub{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.crash-sub code{font-family:'DM Mono',monospace;font-size:11.5px;background:rgba(209,69,59,0.10);color:var(--red);padding:1px 6px;border-radius:4px}
+.crash-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* ============ PROGRESS STRIP ============ */
+.progress-strip{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 18px;
+  background:var(--surface-0);
+  border:1px solid var(--border-subtle);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  margin-bottom:20px;
+}
+.progress-label{font-size:12px;color:var(--text-2);font-weight:500;flex-shrink:0}
+.progress-label strong{color:var(--text-1);font-weight:600}
+.progress-bar{
+  flex:1;height:6px;background:var(--surface-active);border-radius:3px;overflow:hidden;position:relative;
+  box-shadow:inset 0 1px 2px rgba(59,89,152,0.08);
+}
+.progress-fill{
+  height:100%;width:53.3%;
+  background:linear-gradient(90deg,var(--accent) 0%,#5b7bc0 100%);
+  border-radius:3px;
+  box-shadow:0 0 8px rgba(59,89,152,0.3);
+  position:relative;
+}
+.progress-fill::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:#fff;opacity:0.6;
+}
+.progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:0.02em;flex-shrink:0;min-width:40px;text-align:right}
+
+/* ============ ATTENTION GRID ============ */
+.attention-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.attn-card{
+  background:var(--surface-0);
+  border:1px solid var(--border-subtle);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+  transition:transform 220ms var(--ease),box-shadow var(--duration) var(--ease);
+}
+.attn-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.attn-card.crashed{background:linear-gradient(180deg,rgba(209,69,59,0.04) 0%,var(--surface-0) 60%);border-color:rgba(209,69,59,0.18)}
+.attn-card.degraded{background:linear-gradient(180deg,rgba(207,138,0,0.04) 0%,var(--surface-0) 60%);border-color:rgba(207,138,0,0.18)}
+.attn-head{display:flex;align-items:center;gap:10px}
+.attn-icon{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-active);color:var(--text-2);flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.attn-icon svg{width:16px;height:16px}
+.attn-icon.crashed{background:var(--red-subtle);color:var(--red)}
+.attn-icon.degraded{background:var(--amber-subtle);color:var(--amber)}
+.attn-icon.placeholder{background:var(--surface-active);color:var(--text-3)}
+.attn-name{font-size:13.5px;font-weight:600;letter-spacing:-0.015em;color:var(--text-1);flex:1;min-width:0}
+.attn-pill{
+  font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:4px;
+  background:var(--surface-active);color:var(--text-3);
+  flex-shrink:0;
+}
+.attn-pill.red{background:var(--red-subtle);color:var(--red)}
+.attn-pill.amber{background:var(--amber-subtle);color:var(--amber)}
+.attn-pill.gray{background:var(--surface-active);color:var(--text-3)}
+.attn-desc{font-size:12px;color:var(--text-2);line-height:1.5;min-height:34px}
+.attn-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.attn-meta{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-4);letter-spacing:0.02em}
+
+/* ============ METRIC STRIP (accent stat cards) ============ */
+.metric-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.metric{
+  border:none;box-shadow:none;
+  background:var(--accent-subtle);
+  border-radius:10px;
+  padding:16px 16px 14px;
+  position:relative;
+  overflow:hidden;
+  min-height:98px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:transform 220ms var(--ease);
+}
+.metric:hover{transform:translateY(-2px)}
+.metric.amber{background:var(--amber-subtle)}
+.metric.green{background:var(--green-subtle)}
+.metric-label{
+  font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--text-label);
+}
+.metric-val{
+  font-size:32px;font-weight:600;letter-spacing:-0.04em;line-height:0.95;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:var(--accent);
+  margin-top:6px;
+}
+.metric.amber .metric-val{color:var(--amber)}
+.metric.green .metric-val{color:var(--green)}
+.metric-sub{font-size:11px;color:var(--text-3);margin-top:5px;font-weight:450}
+.metric-sub .warn{color:var(--amber);font-weight:550}
+.metric-sub .good{color:var(--green);font-weight:550}
+
+/* ============ HEALTHY SERVICES ============ */
+.healthy-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.svc-card{
+  background:var(--surface-0);
+  border:1px solid var(--border-subtle);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  padding:13px 15px 12px;
+  transition:transform 220ms var(--ease),box-shadow var(--duration) var(--ease);
+  position:relative;
+}
+.svc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.svc-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.svc-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);flex-shrink:0;
+  position:relative;
+  animation:pulse-ring 2.2s ease-out infinite;
+}
+.svc-dot::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:var(--green);
+  animation:pulse-dot 2.2s ease-in-out infinite;
+}
+.svc-name{font-size:13px;font-weight:600;letter-spacing:-0.015em;color:var(--text-1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svc-desc{font-size:11.5px;color:var(--text-3);line-height:1.4;margin-bottom:8px;min-height:32px}
+.svc-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-top:8px;border-top:1px solid var(--border-subtle)}
+.svc-time{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-4);letter-spacing:0.01em}
+.svc-view{font-size:11.5px;font-weight:500;color:var(--accent);text-decoration:none;transition:color var(--duration) var(--ease)}
+.svc-view:hover{color:var(--accent-hover)}
+.svc-view::after{content:' →';opacity:0.7}
+
+/* Responsive tweaks */
+@media (max-width:1100px){
+  .metric-strip{grid-template-columns:repeat(3,1fr)}
+  .healthy-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:720px){
+  body{padding:20px}
+  .metric-strip{grid-template-columns:repeat(2,1fr)}
+  .healthy-grid{grid-template-columns:repeat(2,1fr)}
+  .page-head{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- =============== HEADER =============== -->
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Integrations & Systems</h1>
+    <p class="page-desc">Real-time status of all Favorble infrastructure</p>
+  </div>
+  <div class="page-actions">
+    <span class="last-refreshed">Updated 12s ago</span>
+    <select class="env-select" aria-label="Environment">
+      <option>Staging</option>
+      <option>Production</option>
+    </select>
+    <button class="btn">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.5 2v3h-3"/></svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<!-- =============== SECTION 1: CRASH BANNER =============== -->
+<div class="crash-banner" role="alert">
+  <div class="crash-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5 1.5 17h17L10 2.5Z"/><path d="M10 8v4"/><circle cx="10" cy="14.5" r="0.6" fill="currentColor"/></svg>
+  </div>
+  <div class="crash-body">
+    <div class="crash-title">ere-cron service has been crashed for 15 hours</div>
+    <div class="crash-sub">Scheduled ERE jobs are not running. Last healthy ping: <code>2026-04-07 22:14 UTC</code></div>
+  </div>
+  <div class="crash-actions">
+    <button class="btn btn-sm">Restart</button>
+    <button class="btn btn-sm btn-danger-solid">View Logs</button>
+  </div>
+</div>
+
+<!-- =============== SECTION 1: NEEDS ATTENTION =============== -->
+<section>
+  <div class="section-label">
+    Needs Attention
+    <span class="count">4</span>
+  </div>
+
+  <div class="progress-strip">
+    <span class="progress-label"><strong>8 / 15</strong> integrations live</span>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <span class="progress-pct">53%</span>
+  </div>
+
+  <div class="attention-grid">
+
+    <!-- ere-cron CRASHED -->
+    <div class="attn-card crashed">
+      <div class="attn-head">
+        <div class="attn-icon crashed">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5M8 11h.01"/></svg>
+        </div>
+        <div class="attn-name">ere-cron</div>
+        <div class="attn-pill red">Crashed</div>
+      </div>
+      <div class="attn-desc">Scheduler that triggers ERE orchestrator runs. Blocked for 15h — no credentials loaded.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">exit 137 · OOM</span>
+        <button class="btn btn-sm btn-danger-solid">View Logs</button>
+      </div>
+    </div>
+
+    <!-- MyCase PLACEHOLDER -->
+    <div class="attn-card">
+      <div class="attn-head">
+        <div class="attn-icon placeholder">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6h12M6 9h4"/></svg>
+        </div>
+        <div class="attn-name">MyCase</div>
+        <div class="attn-pill gray">Placeholder</div>
+      </div>
+      <div class="attn-desc">Case management sync. API scaffolding in place, awaiting credentials and field mapping.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">not configured</span>
+        <button class="btn btn-sm btn-primary">Set Up</button>
+      </div>
+    </div>
+
+    <!-- CaseStatus PLACEHOLDER -->
+    <div class="attn-card">
+      <div class="attn-head">
+        <div class="attn-icon placeholder">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l3 3 7-7"/></svg>
+        </div>
+        <div class="attn-name">CaseStatus</div>
+        <div class="attn-pill gray">Placeholder</div>
+      </div>
+      <div class="attn-desc">Client portal status updates. Needs tenant token and webhook endpoint registered.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">not configured</span>
+        <button class="btn btn-sm btn-primary">Set Up</button>
+      </div>
+    </div>
+
+    <!-- Outlook PLACEHOLDER -->
+    <div class="attn-card">
+      <div class="attn-head">
+        <div class="attn-icon placeholder">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="m2 5 6 4 6-4"/></svg>
+        </div>
+        <div class="attn-name">Outlook</div>
+        <div class="attn-pill gray">Placeholder</div>
+      </div>
+      <div class="attn-desc">Email ingestion via Microsoft Graph. OAuth app registered, consent flow pending.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">not configured</span>
+        <button class="btn btn-sm btn-primary">Set Up</button>
+      </div>
+    </div>
+
+    <!-- ERE Credentials DEGRADED -->
+    <div class="attn-card degraded">
+      <div class="attn-head">
+        <div class="attn-icon degraded">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+        </div>
+        <div class="attn-name">ERE Credentials</div>
+        <div class="attn-pill amber">Degraded</div>
+      </div>
+      <div class="attn-desc">0 credentials stored in vault. Blocks all ERE jobs. Cron will crash-loop until resolved.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">0 / ∞ stored</span>
+        <button class="btn btn-sm btn-primary">Fix</button>
+      </div>
+    </div>
+
+    <!-- n8n Workflows DEGRADED -->
+    <div class="attn-card degraded">
+      <div class="attn-head">
+        <div class="attn-icon degraded">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="4" r="1.8"/><circle cx="12" cy="12" r="1.8"/><path d="M5.8 8h4.4M5.8 8 10.2 4M5.8 8l4.4 4"/></svg>
+        </div>
+        <div class="attn-name">n8n Workflows</div>
+        <div class="attn-pill amber">Degraded</div>
+      </div>
+      <div class="attn-desc">19 workflows imported, 0 active. Activate at least one to begin processing automations.</div>
+      <div class="attn-foot">
+        <span class="attn-meta">19 total · 0 active</span>
+        <button class="btn btn-sm">Activate</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =============== SECTION 2: METRIC STRIP =============== -->
+<section>
+  <div class="section-label">
+    Live Metrics
+    <span class="count">staging</span>
+  </div>
+  <div class="metric-strip">
+
+    <div class="metric">
+      <div class="metric-label">Cases</div>
+      <div>
+        <div class="metric-val">50</div>
+        <div class="metric-sub">total in database</div>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Contacts</div>
+      <div>
+        <div class="metric-val">65</div>
+        <div class="metric-sub">claimants, staff, providers</div>
+      </div>
+    </div>
+
+    <div class="metric amber">
+      <div class="metric-label">ERE Jobs Run</div>
+      <div>
+        <div class="metric-val">0</div>
+        <div class="metric-sub"><span class="warn">cron crashed · no runs</span></div>
+      </div>
+    </div>
+
+    <div class="metric green">
+      <div class="metric-label">AI Extractions</div>
+      <div>
+        <div class="metric-val">1</div>
+        <div class="metric-sub"><span class="good">Gemini 2.5 Flash · OK</span></div>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Workflows</div>
+      <div>
+        <div class="metric-val">19</div>
+        <div class="metric-sub"><span class="warn">0 active</span></div>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Tasks</div>
+      <div>
+        <div class="metric-val">200</div>
+        <div class="metric-sub">queued & completed</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =============== SECTION 3: HEALTHY SERVICES =============== -->
+<section>
+  <div class="section-label">
+    Live & Healthy
+    <span class="count">8</span>
+  </div>
+  <div class="healthy-grid">
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">Railway Postgres</div>
+      </div>
+      <div class="svc-desc">Primary database. Drizzle ORM, 50 cases, 65 contacts.</div>
+      <div class="svc-foot">
+        <span class="svc-time">12s ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">Redis</div>
+      </div>
+      <div class="svc-desc">Job queue and session cache. Backing BullMQ and rate limiters.</div>
+      <div class="svc-foot">
+        <span class="svc-time">4s ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">Vercel</div>
+      </div>
+      <div class="svc-desc">Next.js app hosting. Preview deploys and production routing.</div>
+      <div class="svc-foot">
+        <span class="svc-time">2m ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">Clerk</div>
+      </div>
+      <div class="svc-desc">Authentication and user management. SSO and session tokens.</div>
+      <div class="svc-foot">
+        <span class="svc-time">38s ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">ERE Orchestrator</div>
+      </div>
+      <div class="svc-desc">Job dispatcher. Healthy, waiting for cron triggers and credentials.</div>
+      <div class="svc-foot">
+        <span class="svc-time">1m ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">ERE Browser</div>
+      </div>
+      <div class="svc-desc">Playwright worker pool for portal automation. Idle, ready.</div>
+      <div class="svc-foot">
+        <span class="svc-time">47s ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">LangExtract Worker</div>
+      </div>
+      <div class="svc-desc">Medical chronology extraction. 1 entry processed via Gemini 2.5 Flash.</div>
+      <div class="svc-foot">
+        <span class="svc-time">6m ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-head">
+        <span class="svc-dot"></span>
+        <div class="svc-name">n8n Platform</div>
+      </div>
+      <div class="svc-desc">Automation engine. Online with 19 workflows loaded (inactive).</div>
+      <div class="svc-foot">
+        <span class="svc-time">22s ago</span>
+        <a href="#" class="svc-view">View</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

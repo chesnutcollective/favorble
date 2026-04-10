@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Systems & Integrations — Favorble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8;
+  --surface-0:#F8F9FC;
+  --surface-card:#ffffff;
+  --surface-hover:rgba(59,89,152,0.04);
+  --text-1:#18181a;
+  --text-2:#52525e;
+  --text-3:#8b8b97;
+  --text-4:#c4c4ce;
+  --text-label:#6e6e80;
+  --border-subtle:rgba(59,89,152,0.08);
+  --border-default:rgba(59,89,152,0.13);
+  --border-strong:rgba(59,89,152,0.20);
+  --accent:#3b5998;
+  --accent-hover:#2d4a85;
+  --accent-subtle:rgba(59,89,152,0.08);
+  --red:#d1453b;
+  --red-subtle:rgba(209,69,59,0.08);
+  --amber:#cf8a00;
+  --amber-subtle:rgba(207,138,0,0.08);
+  --green:#2b8a3e;
+  --green-subtle:rgba(43,138,62,0.08);
+  --gray:#8b8b97;
+  --gray-subtle:rgba(139,139,151,0.09);
+  --shadow-card:inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 3px rgba(59,89,152,0.06);
+  --shadow-card-hover:inset 0 1px 0 rgba(255,255,255,0.9), 0 8px 24px rgba(59,89,152,0.10), 0 2px 6px rgba(59,89,152,0.06);
+  --duration:180ms;
+  --ease:cubic-bezier(0.25,0.1,0.25,1);
+}
+
+@keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html,body{background:var(--bg);color:var(--text-1)}
+body{
+  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+  font-size:13.5px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"calt" 1,"kern" 1;
+  font-optical-sizing:auto;
+  min-height:100vh;
+  padding:48px 24px 96px;
+}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(59,89,152,0.14);border-radius:4px}
+::selection{background:var(--accent-subtle);color:var(--text-1)}
+
+/* PAGE CONTAINER */
+.page{
+  max-width:720px;
+  margin:0 auto;
+}
+
+/* HEADER */
+.header{
+  margin-bottom:32px;
+  animation:fade-up 340ms var(--ease) both;
+}
+.header-kicker{
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  margin-bottom:8px;
+  font-family:'DM Mono',monospace;
+}
+.header-title{
+  font-size:30px;
+  font-weight:600;
+  letter-spacing:-0.035em;
+  color:var(--text-1);
+  margin-bottom:6px;
+  line-height:1.15;
+}
+.header-sub{
+  font-size:14.5px;
+  color:var(--text-2);
+  max-width:560px;
+  line-height:1.55;
+}
+
+/* FILTER CHIPS */
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:40px;
+  padding-bottom:24px;
+  border-bottom:1px solid var(--border-subtle);
+  animation:fade-up 400ms var(--ease) both;
+  animation-delay:60ms;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 13px;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--text-2);
+  background:var(--surface-card);
+  border:1px solid var(--border-subtle);
+  border-radius:999px;
+  cursor:pointer;
+  transition:all var(--duration) var(--ease);
+  box-shadow:var(--shadow-card);
+}
+.chip:hover{
+  color:var(--text-1);
+  border-color:var(--border-default);
+  transform:translateY(-1px);
+}
+.chip.active{
+  background:linear-gradient(180deg,#4a6baa 0%,var(--accent) 100%);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 3px rgba(59,89,152,0.12);
+}
+.chip-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  padding:0 5px;
+  height:17px;
+  font-size:10.5px;
+  font-weight:600;
+  font-family:'DM Mono',monospace;
+  background:var(--surface-hover);
+  color:var(--text-3);
+  border-radius:999px;
+  line-height:1;
+}
+.chip.active .chip-count{
+  background:rgba(255,255,255,0.22);
+  color:#fff;
+}
+
+/* STREAM */
+.stream{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* SECTION DIVIDER */
+.section-label{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:22px 0 4px;
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-label);
+  font-family:'DM Mono',monospace;
+}
+.section-label:first-child{margin-top:0}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border-subtle);
+}
+.section-label .dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+}
+.section-label.crit .dot{background:var(--red);box-shadow:0 0 0 3px var(--red-subtle)}
+.section-label.setup .dot{background:var(--amber);box-shadow:0 0 0 3px var(--amber-subtle)}
+.section-label.live .dot{background:var(--green);box-shadow:0 0 0 3px var(--green-subtle)}
+.section-label.idle .dot{background:var(--gray);box-shadow:0 0 0 3px var(--gray-subtle)}
+
+/* CARD */
+.card{
+  position:relative;
+  background:var(--surface-card);
+  border:1px solid var(--border-subtle);
+  border-radius:10px;
+  padding:22px 26px 20px 30px;
+  box-shadow:var(--shadow-card);
+  transition:transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease);
+  overflow:hidden;
+  animation:fade-up 420ms var(--ease) both;
+}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-card-hover);
+  border-color:var(--border-default);
+}
+.card::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:var(--gray);
+}
+.card.crit::before{background:linear-gradient(180deg,#e05a50 0%,var(--red) 100%)}
+.card.setup::before{background:linear-gradient(180deg,#e09a10 0%,var(--amber) 100%)}
+.card.live::before{background:linear-gradient(180deg,#3ba04d 0%,var(--green) 100%)}
+.card.idle::before{background:linear-gradient(180deg,#a8a8b2 0%,var(--gray) 100%)}
+
+/* animation stagger */
+.card:nth-child(odd){animation-delay:80ms}
+.card:nth-child(even){animation-delay:120ms}
+
+/* CARD TOP ROW */
+.card-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:6px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 9px 3px 8px;
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  border-radius:999px;
+  font-family:'DM Mono',monospace;
+  white-space:nowrap;
+}
+.badge .bdot{
+  width:6px;height:6px;border-radius:50%;
+}
+.badge.crit{background:var(--red-subtle);color:var(--red)}
+.badge.crit .bdot{background:var(--red);animation:pulse-red 1.6s ease-in-out infinite}
+.badge.setup{background:var(--amber-subtle);color:var(--amber)}
+.badge.setup .bdot{background:var(--amber)}
+.badge.live{background:var(--green-subtle);color:var(--green)}
+.badge.live .bdot{background:var(--green)}
+.badge.idle{background:var(--gray-subtle);color:var(--text-2)}
+.badge.idle .bdot{background:var(--gray)}
+
+@keyframes pulse-red{
+  0%,100%{box-shadow:0 0 0 0 rgba(209,69,59,0.55)}
+  50%{box-shadow:0 0 0 5px rgba(209,69,59,0)}
+}
+
+.card-title{
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:-0.022em;
+  color:var(--text-1);
+  flex:1;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.menu-btn{
+  width:28px;
+  height:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:none;
+  background:transparent;
+  color:var(--text-3);
+  border-radius:6px;
+  cursor:pointer;
+  transition:all var(--duration) var(--ease);
+  flex-shrink:0;
+  font-size:16px;
+  letter-spacing:1px;
+}
+.menu-btn:hover{
+  background:var(--surface-hover);
+  color:var(--text-1);
+}
+
+/* TAGLINE */
+.tagline{
+  font-size:13.5px;
+  color:var(--text-3);
+  margin-bottom:18px;
+  line-height:1.5;
+}
+
+/* STATUS BLOCK */
+.status-block{
+  margin:0 0 18px;
+  padding:14px 16px;
+  background:var(--surface-0);
+  border:1px solid var(--border-subtle);
+  border-radius:8px;
+}
+.card.crit .status-block{
+  background:rgba(209,69,59,0.035);
+  border-color:rgba(209,69,59,0.18);
+}
+.card.setup .status-block{
+  background:rgba(207,138,0,0.035);
+  border-color:rgba(207,138,0,0.18);
+}
+.status-label{
+  display:block;
+  font-size:9.5px;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  margin-bottom:5px;
+  font-family:'DM Mono',monospace;
+}
+.status-text{
+  font-size:13px;
+  color:var(--text-2);
+  line-height:1.55;
+}
+.status-text strong{
+  color:var(--text-1);
+  font-weight:600;
+}
+
+/* ACTIONS */
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:7px 15px;
+  font-size:12.5px;
+  font-weight:500;
+  font-family:inherit;
+  border:1px solid var(--border-subtle);
+  border-radius:7px;
+  background:var(--surface-card);
+  color:var(--text-1);
+  cursor:pointer;
+  transition:all var(--duration) var(--ease);
+  white-space:nowrap;
+  box-shadow:var(--shadow-card);
+  height:32px;
+}
+.btn:hover{
+  border-color:var(--border-default);
+  transform:translateY(-1px);
+}
+.btn:active{transform:translateY(0)}
+.btn-primary{
+  background:linear-gradient(180deg,#4a6baa 0%,var(--accent) 100%);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 3px rgba(59,89,152,0.12);
+}
+.btn-primary:hover{
+  background:linear-gradient(180deg,#3f5f9e 0%,var(--accent-hover) 100%);
+}
+.btn-danger{
+  background:linear-gradient(180deg,#dc5a50 0%,var(--red) 100%);
+  color:#fff;
+  border-color:var(--red);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 3px rgba(209,69,59,0.15);
+}
+.btn-danger:hover{
+  background:linear-gradient(180deg,#c94137 0%,#b83a31 100%);
+}
+.btn-ghost{
+  background:transparent;
+  border-color:transparent;
+  box-shadow:none;
+  color:var(--text-2);
+}
+.btn-ghost:hover{
+  background:var(--surface-hover);
+  color:var(--text-1);
+  border-color:transparent;
+  transform:none;
+}
+
+/* FOOTER */
+.card-footer{
+  padding-top:14px;
+  border-top:1px dashed var(--border-subtle);
+  font-size:11px;
+  color:var(--text-3);
+  font-family:'DM Mono',monospace;
+  letter-spacing:0.02em;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.card-footer .sep{
+  width:3px;height:3px;border-radius:50%;background:var(--text-4);flex-shrink:0;
+}
+
+/* PAGE FOOTER */
+.page-footer{
+  margin-top:56px;
+  text-align:center;
+  font-size:11px;
+  color:var(--text-4);
+  font-family:'DM Mono',monospace;
+  letter-spacing:0.05em;
+}
+
+@media (max-width:640px){
+  body{padding:32px 16px 64px}
+  .header-title{font-size:24px}
+  .card{padding:20px 20px 18px 24px}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-kicker">/admin/integrations</div>
+    <h1 class="header-title">Systems &amp; Integrations</h1>
+    <p class="header-sub">A live view of every service, worker, and outbound connection powering Favorble. Cards are ordered by urgency — fix the top of the stream first.</p>
+  </header>
+
+  <!-- FILTER CHIPS -->
+  <nav class="chips" aria-label="Status filter">
+    <button class="chip active">All <span class="chip-count">15</span></button>
+    <button class="chip">Issues <span class="chip-count">1</span></button>
+    <button class="chip">Setup <span class="chip-count">4</span></button>
+    <button class="chip">Live <span class="chip-count">8</span></button>
+    <button class="chip">Not Started <span class="chip-count">2</span></button>
+  </nav>
+
+  <!-- STREAM -->
+  <div class="stream">
+
+    <!-- =========================================== -->
+    <!-- CRITICAL -->
+    <!-- =========================================== -->
+    <div class="section-label crit"><span class="dot"></span>Critical · needs attention</div>
+
+    <!-- 1. ere-cron -->
+    <article class="card crit">
+      <div class="card-top">
+        <span class="badge crit"><span class="bdot"></span>Crashed</span>
+        <h2 class="card-title">ere-cron</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Scheduled ERE scrape triggers — fires background jobs against the orchestrator on a cron schedule.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text">The cron service has <strong>failed to start for 15 hours</strong>. Internal DNS resolution to <strong>ere-orchestrator</strong> is failing — Railway private networking cannot resolve the upstream host.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger">Restart service</button>
+        <button class="btn">View logs</button>
+      </div>
+      <div class="card-footer">
+        <span>last_restart 15h 08m ago</span>
+        <span class="sep"></span>
+        <span>exit_code 137</span>
+        <span class="sep"></span>
+        <span>region us-east-1</span>
+      </div>
+    </article>
+
+    <!-- =========================================== -->
+    <!-- NEEDS SETUP -->
+    <!-- =========================================== -->
+    <div class="section-label setup"><span class="dot"></span>Needs setup · waiting on you</div>
+
+    <!-- 2. MyCase API -->
+    <article class="card setup">
+      <div class="card-top">
+        <span class="badge setup"><span class="bdot"></span>Not configured</span>
+        <h2 class="card-title">MyCase API</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Case management sync — pulls cases, contacts, documents, and notes from MyCase into Favorble.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>32,384 cases</strong> waiting to be imported. Needs an API key from <strong>MyCase → Settings → Integrations</strong>. Full backfill takes about 40 minutes once connected.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Set up →</button>
+        <button class="btn btn-ghost">Read docs</button>
+      </div>
+      <div class="card-footer">
+        <span>awaiting_credentials</span>
+        <span class="sep"></span>
+        <span>est_backfill 40m</span>
+      </div>
+    </article>
+
+    <!-- 3. CaseStatus -->
+    <article class="card setup">
+      <div class="card-top">
+        <span class="badge setup"><span class="bdot"></span>Placeholder</span>
+        <h2 class="card-title">CaseStatus</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Client messaging bridge — two-way SMS and app notifications synced to the CaseStatus client portal.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text">API key is still set to <strong>&ldquo;pending-from-casestatus&rdquo;</strong>. <strong>28,700 clients</strong> are waiting to be linked. No messages are being delivered until this is replaced with a real key.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Add credentials →</button>
+        <button class="btn btn-ghost">Contact vendor</button>
+      </div>
+      <div class="card-footer">
+        <span>key_state placeholder</span>
+        <span class="sep"></span>
+        <span>clients_pending 28,700</span>
+      </div>
+    </article>
+
+    <!-- 4. Microsoft Outlook -->
+    <article class="card setup">
+      <div class="card-top">
+        <span class="badge setup"><span class="bdot"></span>Placeholder</span>
+        <h2 class="card-title">Microsoft Outlook</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Calendar &amp; email sync — hearings, appointments, and case correspondence across every attorney mailbox.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Azure AD app registration</strong> required before Graph API access can be granted. <strong>37 attorneys</strong>&apos; calendars are waiting to sync.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Configure →</button>
+        <button class="btn btn-ghost">Azure setup guide</button>
+      </div>
+      <div class="card-footer">
+        <span>tenant_id unset</span>
+        <span class="sep"></span>
+        <span>scopes Calendars.Read, Mail.Read</span>
+      </div>
+    </article>
+
+    <!-- 5. ERE Credentials -->
+    <article class="card setup">
+      <div class="card-top">
+        <span class="badge setup"><span class="bdot"></span>0 stored</span>
+        <h2 class="card-title">ERE Credentials</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">SSA Login.gov scraper credentials — the identities ERE uses to impersonate staff and pull claim records.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text">ERE infrastructure is running but <strong>no credentials are stored</strong>. Add at least one Login.gov account to begin scraping. Credentials are encrypted at rest with envelope AES-256.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Add credentials →</button>
+        <button class="btn btn-ghost">Security notes</button>
+      </div>
+      <div class="card-footer">
+        <span>vault_entries 0</span>
+        <span class="sep"></span>
+        <span>kms envelope_aes256</span>
+      </div>
+    </article>
+
+    <!-- =========================================== -->
+    <!-- LIVE -->
+    <!-- =========================================== -->
+    <div class="section-label live"><span class="dot"></span>Live · running normally</div>
+
+    <!-- 6. LangExtract Worker -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">LangExtract Worker</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">AI document extraction — pulls structured fields out of medical records, SSA forms, and legal PDFs.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Gemini 2.5 Flash</strong>, live mode. Last extraction: <strong>3.1s</strong> (Psychiatric Evaluation PDF, 14 pages, 32 fields).</p>
+      </div>
+      <div class="actions">
+        <button class="btn">Run test</button>
+        <button class="btn btn-ghost">View logs</button>
+      </div>
+      <div class="card-footer">
+        <span>model gemini-2.5-flash</span>
+        <span class="sep"></span>
+        <span>p95 4.2s</span>
+        <span class="sep"></span>
+        <span>last_ok 2m ago</span>
+      </div>
+    </article>
+
+    <!-- 7. ERE Orchestrator -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">ERE Orchestrator</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Job queue and scraper dispatcher — hands work to the browser pool and tracks retries.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text">Uptime <strong>15h 23m</strong>. <strong>0 jobs processed</strong> (waiting on credentials to start the first scrape). Queue is drained, all workers idle.</p>
+      </div>
+      <div class="actions">
+        <button class="btn">View API</button>
+        <button class="btn btn-ghost">Health check</button>
+      </div>
+      <div class="card-footer">
+        <span>uptime 15h 23m</span>
+        <span class="sep"></span>
+        <span>queue 0</span>
+        <span class="sep"></span>
+        <span>workers 4 idle</span>
+      </div>
+    </article>
+
+    <!-- 8. ERE Browser -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">ERE Browser</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Headless Playwright scraper — logs into SSA.gov portals and captures case data session-by-session.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Ready to scrape.</strong> Browser pool initialized with 4 Chromium instances. No active sessions.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost">View logs</button>
+      </div>
+      <div class="card-footer">
+        <span>engine playwright</span>
+        <span class="sep"></span>
+        <span>pool 4/4 ready</span>
+      </div>
+    </article>
+
+    <!-- 9. n8n Platform -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">n8n Platform</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Workflow automation — the visual automation layer for routing data between services.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>19 workflows deployed.</strong> 0 active (all inactive by default). Toggle workflows individually once their upstream credentials are wired.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Open n8n</button>
+      </div>
+      <div class="card-footer">
+        <span>workflows 19</span>
+        <span class="sep"></span>
+        <span>active 0</span>
+      </div>
+    </article>
+
+    <!-- 10. Railway Postgres -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">Railway Postgres</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Primary database — the source of truth for cases, contacts, tasks, and audit logs.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text">Staging db <strong>switchback.proxy.rlwy.net</strong>. <strong>60+ tables</strong>, 7 users, 50 cases seeded. Connection pool healthy.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Open Drizzle Studio</button>
+        <button class="btn btn-ghost">View schema</button>
+      </div>
+      <div class="card-footer">
+        <span>env staging</span>
+        <span class="sep"></span>
+        <span>tables 60+</span>
+        <span class="sep"></span>
+        <span>ping 4ms</span>
+      </div>
+    </article>
+
+    <!-- 11. Redis -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">Redis</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Cache &amp; queues — session storage, rate limit counters, and BullMQ job queues.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Internal service.</strong> Not exposed publicly. Memory usage and keyspace within expected range.</p>
+      </div>
+      <div class="actions">
+        <button class="btn">View stats</button>
+      </div>
+      <div class="card-footer">
+        <span>mode internal</span>
+        <span class="sep"></span>
+        <span>keyspace 2.1k keys</span>
+      </div>
+    </article>
+
+    <!-- 12. Vercel -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy</span>
+        <h2 class="card-title">Vercel</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Web hosting &amp; CDN — edge delivery for the Favorble web app and API routes.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Production deploy ready, 8m ago.</strong> Edge cache warm, no active incidents on the Vercel status page.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Open dashboard</button>
+      </div>
+      <div class="card-footer">
+        <span>last_deploy 8m ago</span>
+        <span class="sep"></span>
+        <span>commit 0ad5289</span>
+      </div>
+    </article>
+
+    <!-- 13. Clerk Auth -->
+    <article class="card live">
+      <div class="card-top">
+        <span class="badge live"><span class="bdot"></span>Healthy · test mode</span>
+        <h2 class="card-title">Clerk Auth</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">User authentication — sign-in, sessions, MFA, and organization membership.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>7 users, test keys active.</strong> Rotate to production keys before go-live so real attorney accounts can sign in without test-mode banners.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Upgrade to prod</button>
+        <button class="btn btn-ghost">View users</button>
+      </div>
+      <div class="card-footer">
+        <span>users 7</span>
+        <span class="sep"></span>
+        <span>keys pk_test_***</span>
+        <span class="sep"></span>
+        <span>env test</span>
+      </div>
+    </article>
+
+    <!-- =========================================== -->
+    <!-- NOT STARTED -->
+    <!-- =========================================== -->
+    <div class="section-label idle"><span class="dot"></span>Not started · backlog</div>
+
+    <!-- 14. Chronicle -->
+    <article class="card idle">
+      <div class="card-top">
+        <span class="badge idle"><span class="bdot"></span>Not started</span>
+        <h2 class="card-title">Chronicle</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">SSA data sync (vendor API) — historically the connector used to pull SSA claim history.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Deep linking only.</strong> Chronicle has no public API; <strong>ERE replaces this capability</strong> end-to-end. No work planned unless ERE scraping is blocked.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+      <div class="card-footer">
+        <span>mode deep_link</span>
+        <span class="sep"></span>
+        <span>replaced_by ere</span>
+      </div>
+    </article>
+
+    <!-- 15. Bitrix24/Mailchimp -->
+    <article class="card idle">
+      <div class="card-top">
+        <span class="badge idle"><span class="bdot"></span>Not started</span>
+        <h2 class="card-title">Bitrix24 / Mailchimp</h2>
+        <button class="menu-btn" aria-label="More options">•••</button>
+      </div>
+      <p class="tagline">Lead CRM &amp; marketing — intake pipelines, drip sequences, and nurture automations for prospects.</p>
+      <div class="status-block">
+        <span class="status-label">Status</span>
+        <p class="status-text"><strong>Lower priority.</strong> Phase 4 of the roadmap — not required for the attorney-facing MVP. Revisit after MyCase and Outlook are live.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost">Skip for now</button>
+        <button class="btn btn-ghost">Roadmap</button>
+      </div>
+      <div class="card-footer">
+        <span>phase 4</span>
+        <span class="sep"></span>
+        <span>owner growth_team</span>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- PAGE FOOTER -->
+  <footer class="page-footer">
+    favorble · systems overview · synced 12s ago
+  </footer>
+
+</div>
+
+<script>
+  // Filter chips — visual only
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrations & Systems — Favorble Operations Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;--surface:#F8F9FC;
+  --text-1:#18181a;--text-2:#52525e;--text-3:#8b8b97;--text-4:#c4c4ce;--text-label:#6e6e80;
+  --border-subtle:rgba(59,89,152,0.08);--border-default:rgba(59,89,152,0.13);--border-strong:rgba(59,89,152,0.20);
+  --accent:#3b5998;--accent-hover:#2d4a85;--accent-subtle:rgba(59,89,152,0.08);
+  --green:#2b8a3e;--green-subtle:rgba(43,138,62,0.10);
+  --amber:#cf8a00;--amber-subtle:rgba(207,138,0,0.10);
+  --red:#d1453b;--red-subtle:rgba(209,69,59,0.10);
+  --shadow-card:inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 3px rgba(59,89,152,0.06);
+  --shadow-card-hover:inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 14px rgba(59,89,152,0.10);
+  --mono:'DM Mono','SF Mono',Menlo,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+  background:var(--bg);
+  background-image:
+    linear-gradient(rgba(59,89,152,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,89,152,0.025) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--text-1);
+  font-size:13px;line-height:1.48;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"calt" 1,"kern" 1;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(59,89,152,0.18);border-radius:3px}
+
+/* ANIMATIONS */
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 currentColor,0 0 0 0 currentColor}50%{box-shadow:0 0 0 3px transparent,0 0 6px 1px currentColor}}
+@keyframes pulse-ring{0%{transform:scale(0.8);opacity:0.9}100%{transform:scale(2.2);opacity:0}}
+@keyframes fade-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{50%{opacity:0.35}}
+@keyframes ticker{0%,90%{opacity:1}95%{opacity:0.4}100%{opacity:1}}
+
+/* LAYOUT */
+.app{max-width:1480px;margin:0 auto;padding:20px 24px 40px}
+
+/* HEADER */
+.topbar{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border-default);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  margin-bottom:12px;
+}
+.topbar-brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.topbar-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-3);display:flex;align-items:center;gap:8px}
+.topbar-eyebrow::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;display:inline-block}
+.topbar-title{font-size:21px;font-weight:600;letter-spacing:-0.035em;color:var(--text-1);line-height:1.1}
+.topbar-spacer{flex:1}
+.topbar-meta{display:flex;align-items:center;gap:18px;font-size:12px;color:var(--text-2);font-family:var(--mono)}
+.topbar-meta-item{display:flex;align-items:center;gap:7px}
+.topbar-meta-label{font-size:9.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);font-family:'DM Sans',sans-serif;font-weight:600}
+.live-indicator{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--green-subtle);border:1px solid rgba(43,138,62,0.25);border-radius:20px;font-size:10.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--green)}
+.live-dot{position:relative;width:7px;height:7px;background:var(--green);border-radius:50%;color:var(--green)}
+.live-dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:currentColor;animation:pulse-ring 1.8s ease-out infinite}
+.refresh-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border:1px solid var(--border-default);border-radius:7px;font-size:12px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all 150ms}
+.refresh-btn:hover{border-color:var(--border-strong);color:var(--text-1);box-shadow:var(--shadow-card)}
+.refresh-icon{width:12px;height:12px;display:inline-block}
+
+/* ALERT BANNER */
+.alert-banner{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px;
+  background:linear-gradient(180deg, rgba(209,69,59,0.05) 0%, rgba(209,69,59,0.08) 100%);
+  border:1px solid rgba(209,69,59,0.28);
+  border-left:3px solid var(--red);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  margin-bottom:12px;
+  animation:fade-up 300ms ease both;
+}
+.alert-icon{
+  width:28px;height:28px;flex-shrink:0;
+  background:var(--red);color:#fff;
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;font-size:14px;
+  box-shadow:0 0 0 3px rgba(209,69,59,0.18);
+}
+.alert-body{flex:1;min-width:0}
+.alert-title{font-size:13px;font-weight:600;color:#8a2a22;letter-spacing:-0.01em}
+.alert-desc{font-size:12px;color:#8a2a22;opacity:0.82;margin-top:2px;font-family:var(--mono)}
+.alert-actions{display:flex;gap:8px}
+.btn-danger{padding:6px 12px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-danger:hover{background:#b83a31}
+.btn-ghost{padding:6px 12px;background:#fff;border:1px solid rgba(209,69,59,0.3);color:#8a2a22;border-radius:6px;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-ghost:hover{background:rgba(209,69,59,0.04)}
+
+/* COUNTER STRIP */
+.counter-strip{
+  display:grid;
+  grid-template-columns:repeat(8, 1fr);
+  gap:1px;
+  background:var(--border-default);
+  border:1px solid var(--border-default);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.counter{
+  background:var(--surface);
+  padding:12px 14px;
+  display:flex;flex-direction:column;gap:4px;
+  transition:background 150ms;
+}
+.counter:hover{background:#fff}
+.counter-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3)}
+.counter-value{font-size:19px;font-weight:600;letter-spacing:-0.035em;color:var(--text-1);font-variant-numeric:tabular-nums;line-height:1;display:flex;align-items:baseline;gap:5px}
+.counter-delta{font-size:10px;font-weight:500;font-family:var(--mono)}
+.counter-delta.up{color:var(--green)}
+.counter-delta.down{color:var(--red)}
+.counter-delta.neutral{color:var(--text-3)}
+.counter.warn .counter-value{color:var(--amber)}
+.counter.bad .counter-value{color:var(--red)}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:12px;margin-bottom:12px}
+
+/* SECTION CARD */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border-default);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  overflow:hidden;
+}
+.card-header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border-subtle);
+  background:linear-gradient(180deg,rgba(255,255,255,0.5),transparent);
+}
+.card-title{font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-label)}
+.card-meta{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+.card-spacer{flex:1}
+.card-tag{font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.card-tag.green{background:var(--green-subtle);color:var(--green)}
+.card-tag.amber{background:var(--amber-subtle);color:var(--amber)}
+.card-tag.red{background:var(--red-subtle);color:var(--red)}
+.card-tag.neutral{background:var(--accent-subtle);color:var(--accent)}
+
+/* SERVICES GRID */
+.services-body{padding:12px}
+.services-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:8px}
+.svc{
+  background:#fff;
+  border:1px solid var(--border-subtle);
+  border-radius:8px;
+  padding:11px 12px;
+  display:flex;flex-direction:column;gap:8px;
+  transition:all 150ms;
+  position:relative;
+  overflow:hidden;
+}
+.svc:hover{border-color:var(--border-strong);box-shadow:var(--shadow-card-hover);transform:translateY(-1px)}
+.svc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--text-4)}
+.svc.ok::before{background:var(--green)}
+.svc.warn::before{background:var(--amber)}
+.svc.bad::before{background:var(--red)}
+
+.svc-head{display:flex;align-items:center;gap:9px}
+.status-dot{position:relative;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.ok{background:var(--green);color:var(--green);box-shadow:0 0 0 2px rgba(43,138,62,0.18)}
+.status-dot.warn{background:var(--amber);color:var(--amber);box-shadow:0 0 0 2px rgba(207,138,0,0.18)}
+.status-dot.bad{background:var(--red);color:var(--red);box-shadow:0 0 0 2px rgba(209,69,59,0.18)}
+.status-dot.off{background:var(--text-4);box-shadow:0 0 0 2px rgba(196,196,206,0.3)}
+.status-dot.ok::after,.status-dot.warn::after,.status-dot.bad::after{
+  content:'';position:absolute;inset:0;border-radius:50%;background:currentColor;
+  animation:pulse-ring 2s ease-out infinite;
+}
+.svc-name{font-size:12.5px;font-weight:600;letter-spacing:-0.01em;color:var(--text-1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svc-env{font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:1.5px 5px;border-radius:3px;background:var(--accent-subtle);color:var(--accent);font-family:var(--mono)}
+.svc-meta{display:flex;gap:14px;font-size:10.5px;color:var(--text-3);font-family:var(--mono)}
+.svc-meta-item{display:flex;align-items:center;gap:4px}
+.svc-meta-label{color:var(--text-4);font-size:9px;text-transform:uppercase;letter-spacing:0.05em}
+.svc-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px dashed var(--border-subtle)}
+.svc-health{font-size:10.5px;color:var(--text-2);font-family:var(--mono)}
+.svc-health.bad{color:var(--red);font-weight:500}
+.svc-health.warn{color:var(--amber);font-weight:500}
+.svc-run{font-size:10.5px;font-weight:500;padding:4px 9px;background:#fff;border:1px solid var(--border-default);border-radius:5px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all 120ms;display:inline-flex;align-items:center;gap:4px}
+.svc-run:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-subtle)}
+.svc-run.danger{color:var(--red);border-color:rgba(209,69,59,0.3)}
+.svc-run.danger:hover{background:var(--red-subtle);border-color:var(--red)}
+
+/* ACTIVITY FEED */
+.feed-body{padding:4px 0;max-height:720px;overflow-y:auto}
+.feed-item{
+  display:flex;gap:10px;
+  padding:9px 16px 9px 14px;
+  border-left:2px solid transparent;
+  transition:background 120ms;
+  position:relative;
+}
+.feed-item:hover{background:rgba(59,89,152,0.025)}
+.feed-item+.feed-item{border-top:1px solid var(--border-subtle)}
+.feed-item.ok{border-left-color:var(--green)}
+.feed-item.bad{border-left-color:var(--red);background:rgba(209,69,59,0.02)}
+.feed-item.warn{border-left-color:var(--amber)}
+.feed-item.info{border-left-color:var(--accent)}
+.feed-time{font-family:var(--mono);font-size:10.5px;color:var(--text-3);flex-shrink:0;padding-top:2px;min-width:40px}
+.feed-icon{
+  width:18px;height:18px;flex-shrink:0;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;margin-top:1px;
+}
+.feed-icon.ok{background:var(--green-subtle);color:var(--green)}
+.feed-icon.bad{background:var(--red-subtle);color:var(--red)}
+.feed-icon.warn{background:var(--amber-subtle);color:var(--amber)}
+.feed-icon.info{background:var(--accent-subtle);color:var(--accent)}
+.feed-content{flex:1;min-width:0}
+.feed-line{font-size:12px;color:var(--text-1);line-height:1.4}
+.feed-line strong{font-weight:600}
+.feed-line code{font-family:var(--mono);font-size:11px;background:var(--accent-subtle);color:var(--accent);padding:1px 5px;border-radius:3px}
+.feed-sub{font-size:10.5px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
+.feed-sub.bad{color:var(--red)}
+
+/* BOTTOM ROW */
+.bottom-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+
+/* WORKFLOWS */
+.wf-body{padding:10px 16px 14px}
+.wf-summary{display:flex;align-items:center;gap:14px;padding-bottom:11px;margin-bottom:10px;border-bottom:1px solid var(--border-subtle)}
+.wf-big-num{font-size:26px;font-weight:600;letter-spacing:-0.04em;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums}
+.wf-big-num .sub{font-size:14px;color:var(--text-3);font-weight:500}
+.wf-summary-text{flex:1}
+.wf-summary-title{font-size:12.5px;font-weight:600;color:var(--text-1)}
+.wf-summary-desc{font-size:11px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
+.wf-enable-all{font-size:11px;padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-weight:500;cursor:pointer;font-family:inherit}
+.wf-enable-all:hover{background:var(--accent-hover)}
+
+.wf-list{display:flex;flex-direction:column;gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);border-radius:7px;overflow:hidden}
+.wf-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:#fff;font-size:11.5px}
+.wf-item:hover{background:rgba(59,89,152,0.02)}
+.wf-name{flex:1;color:var(--text-1);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-triggers{font-size:10px;color:var(--text-3);font-family:var(--mono);padding:1.5px 6px;background:var(--accent-subtle);border-radius:3px}
+.wf-last{font-size:10px;color:var(--text-3);font-family:var(--mono)}
+.toggle{position:relative;width:26px;height:14px;background:var(--text-4);border-radius:8px;cursor:pointer;transition:background 150ms;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;background:#fff;border-radius:50%;transition:left 150ms;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.toggle.on{background:var(--green)}
+.toggle.on::after{left:14px}
+
+/* QUEUES */
+.q-body{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.q-item{padding:10px 12px;background:#fff;border:1px solid var(--border-subtle);border-radius:7px}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.q-name{font-size:12px;font-weight:600;color:var(--text-1);flex:1}
+.q-count{font-size:10.5px;color:var(--text-3);font-family:var(--mono)}
+.q-bar{height:5px;background:var(--accent-subtle);border-radius:3px;overflow:hidden;display:flex;gap:1px}
+.q-bar-seg{height:100%;background:var(--accent);transition:width 300ms}
+.q-bar-seg.running{background:var(--green);animation:blink 1.6s ease-in-out infinite}
+.q-bar-seg.pending{background:var(--amber)}
+.q-bar-seg.failed{background:var(--red)}
+.q-stats{display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--text-3);font-family:var(--mono)}
+.q-stats .running{color:var(--green);font-weight:500}
+.q-stats .pending{color:var(--amber);font-weight:500}
+.q-stats .failed{color:var(--red);font-weight:500}
+.q-stats .done{color:var(--text-2)}
+
+/* FOOTER */
+.footer-bar{
+  display:flex;align-items:center;gap:16px;
+  padding:10px 16px;
+  background:var(--surface);
+  border:1px solid var(--border-default);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  margin-top:12px;
+  font-size:11px;
+  color:var(--text-3);
+  font-family:var(--mono);
+}
+.footer-bar .spacer{flex:1}
+.footer-item{display:inline-flex;align-items:center;gap:6px}
+.footer-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse-ring 2s ease-out infinite;color:var(--green)}
+
+/* UTILS */
+.mono{font-family:var(--mono)}
+.hr-vert{width:1px;height:20px;background:var(--border-default)}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-eyebrow">Favorble · Admin · Operations Cockpit</div>
+      <div class="topbar-title">Integrations &amp; Systems</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-meta">
+      <div class="topbar-meta-item">
+        <span class="topbar-meta-label">ENV</span>
+        <span>staging</span>
+      </div>
+      <div class="hr-vert"></div>
+      <div class="topbar-meta-item">
+        <span class="topbar-meta-label">REGION</span>
+        <span>us-east-1</span>
+      </div>
+      <div class="hr-vert"></div>
+      <div class="topbar-meta-item">
+        <span class="topbar-meta-label">UTC</span>
+        <span id="clock">2026-04-08 14:03:27</span>
+      </div>
+    </div>
+    <div class="live-indicator"><span class="live-dot"></span>Live</div>
+    <button class="refresh-btn" title="Refresh">
+      <svg class="refresh-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 8A5.5 5.5 0 1 1 12.5 4.5"/><path d="M13 2v3h-3"/></svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- ============ ALERT BANNER ============ -->
+  <div class="alert-banner">
+    <div class="alert-icon">!</div>
+    <div class="alert-body">
+      <div class="alert-title">1 service degraded · ere-cron has crashed on Railway (exit code 1)</div>
+      <div class="alert-desc">Last successful run: 2026-04-08 13:47:02 UTC · 4 consecutive failures · fetch timeout after 30000ms</div>
+    </div>
+    <div class="alert-actions">
+      <button class="btn-ghost">View logs</button>
+      <button class="btn-danger">Restart service</button>
+    </div>
+  </div>
+
+  <!-- ============ COUNTER STRIP ============ -->
+  <div class="counter-strip">
+    <div class="counter">
+      <div class="counter-label">Cases synced today</div>
+      <div class="counter-value">523 <span class="counter-delta up">+47</span></div>
+    </div>
+    <div class="counter">
+      <div class="counter-label">Extractions</div>
+      <div class="counter-value">1,204 <span class="counter-delta up">+12</span></div>
+    </div>
+    <div class="counter warn">
+      <div class="counter-label">Workflows up</div>
+      <div class="counter-value">0<span style="font-size:13px;color:var(--text-3);font-weight:500">/19</span></div>
+    </div>
+    <div class="counter">
+      <div class="counter-label">Docs processed</div>
+      <div class="counter-value">3 <span class="counter-delta neutral">of 4</span></div>
+    </div>
+    <div class="counter bad">
+      <div class="counter-label">Failures (24h)</div>
+      <div class="counter-value">7 <span class="counter-delta down">+5</span></div>
+    </div>
+    <div class="counter">
+      <div class="counter-label">p50 latency</div>
+      <div class="counter-value">182<span style="font-size:12px;color:var(--text-3)">ms</span></div>
+    </div>
+    <div class="counter">
+      <div class="counter-label">API calls/min</div>
+      <div class="counter-value">41.2</div>
+    </div>
+    <div class="counter">
+      <div class="counter-label">DB connections</div>
+      <div class="counter-value">14<span style="font-size:12px;color:var(--text-3)">/60</span></div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN GRID ============ -->
+  <div class="main-grid">
+
+    <!-- LEFT: SERVICES HEALTH -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">Service Health</span>
+        <span class="card-meta">· 13 services monitored</span>
+        <div class="card-spacer"></div>
+        <span class="card-tag green">10 OK</span>
+        <span class="card-tag amber">2 WARN</span>
+        <span class="card-tag red">1 DOWN</span>
+      </div>
+      <div class="services-body">
+        <div class="services-grid">
+
+          <!-- ere-orchestrator -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">ere-orchestrator</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CPU</span> 12%</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> 184MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">UP</span> 4d 11h</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">200 OK · 38ms avg</span>
+              <button class="svc-run">Run now</button>
+            </div>
+          </div>
+
+          <!-- ere-browser -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">ere-browser</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CPU</span> 8%</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> 412MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">UP</span> 4d 11h</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">Playwright ready · chromium 124</span>
+              <button class="svc-run">Open</button>
+            </div>
+          </div>
+
+          <!-- ere-cron - CRASHED -->
+          <div class="svc bad">
+            <div class="svc-head">
+              <span class="status-dot bad"></span>
+              <span class="svc-name">ere-cron</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CPU</span> —</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> —</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">UP</span> crashed</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health bad">exit 1 · fetch timeout 30s</span>
+              <button class="svc-run danger">Restart</button>
+            </div>
+          </div>
+
+          <!-- langextract-worker -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">langextract-worker</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CPU</span> 22%</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> 318MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MODEL</span> gemini-2.5-flash</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">mock_mode=false · 1 extraction today</span>
+              <button class="svc-run">Test</button>
+            </div>
+          </div>
+
+          <!-- n8n -->
+          <div class="svc warn">
+            <div class="svc-head">
+              <span class="status-dot warn"></span>
+              <span class="svc-name">n8n</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CPU</span> 4%</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> 256MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">WF</span> 0/19 active</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health warn">No workflows enabled</span>
+              <button class="svc-run">Open UI</button>
+            </div>
+          </div>
+
+          <!-- Postgres -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">Postgres (Supabase)</span>
+              <span class="svc-env">db</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">CONN</span> 14/60</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">SIZE</span> 312MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">p99</span> 14ms</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">50 cases · 65 contacts · 200 tasks</span>
+              <button class="svc-run">Studio</button>
+            </div>
+          </div>
+
+          <!-- Redis -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">Redis</span>
+              <span class="svc-env">railway</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">KEYS</span> 1,284</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">MEM</span> 18MB</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">OPS</span> 320/s</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">BullMQ · 3 queues</span>
+              <button class="svc-run">Flush</button>
+            </div>
+          </div>
+
+          <!-- Vercel -->
+          <div class="svc ok">
+            <div class="svc-head">
+              <span class="status-dot ok"></span>
+              <span class="svc-name">Vercel (hogansmith)</span>
+              <span class="svc-env">web</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">DEPLOY</span> Ready</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">SHA</span> 0ad5289</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">BUILD</span> 42s</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">main · 12 min ago · Jake K.</span>
+              <button class="svc-run">Rollback</button>
+            </div>
+          </div>
+
+          <!-- Clerk -->
+          <div class="svc warn">
+            <div class="svc-head">
+              <span class="status-dot warn"></span>
+              <span class="svc-name">Clerk Auth</span>
+              <span class="svc-env">auth</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">MODE</span> test</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">USERS</span> 7</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">SESSIONS</span> 3</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health warn">pk_test_… keys in use</span>
+              <button class="svc-run">Dashboard</button>
+            </div>
+          </div>
+
+          <!-- ERE Credentials -->
+          <div class="svc warn">
+            <div class="svc-head">
+              <span class="status-dot warn"></span>
+              <span class="svc-name">ERE Credentials Vault</span>
+              <span class="svc-env">vault</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">STORED</span> 0</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">ROT</span> n/a</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">KMS</span> ok</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health warn">No credentials stored — ERE disabled</span>
+              <button class="svc-run">Add</button>
+            </div>
+          </div>
+
+          <!-- MyCase -->
+          <div class="svc">
+            <div class="svc-head">
+              <span class="status-dot off"></span>
+              <span class="svc-name">MyCase</span>
+              <span class="svc-env">saas</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">STATE</span> not configured</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">OAUTH</span> —</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">Placeholder · set MYCASE_API_KEY</span>
+              <button class="svc-run">Connect</button>
+            </div>
+          </div>
+
+          <!-- CaseStatus -->
+          <div class="svc">
+            <div class="svc-head">
+              <span class="status-dot off"></span>
+              <span class="svc-name">CaseStatus</span>
+              <span class="svc-env">saas</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">STATE</span> placeholder</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">API</span> stubbed</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">Mock client active</span>
+              <button class="svc-run">Setup</button>
+            </div>
+          </div>
+
+          <!-- Outlook -->
+          <div class="svc">
+            <div class="svc-head">
+              <span class="status-dot off"></span>
+              <span class="svc-name">Outlook / MS Graph</span>
+              <span class="svc-env">email</span>
+            </div>
+            <div class="svc-meta">
+              <span class="svc-meta-item"><span class="svc-meta-label">STATE</span> placeholder</span>
+              <span class="svc-meta-item"><span class="svc-meta-label">TENANT</span> —</span>
+            </div>
+            <div class="svc-footer">
+              <span class="svc-health">No tenant linked</span>
+              <button class="svc-run">Link</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: ACTIVITY FEED -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">Recent Activity</span>
+        <span class="card-meta">· last 10 events</span>
+        <div class="card-spacer"></div>
+        <span class="live-indicator"><span class="live-dot"></span>Streaming</span>
+      </div>
+      <div class="feed-body">
+
+        <div class="feed-item ok">
+          <span class="feed-time">14:03</span>
+          <span class="feed-icon ok">LE</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>LangExtract</strong> extracted <strong>5 fields</strong> from <code>Psychiatric_Evaluation.pdf</code></div>
+            <div class="feed-sub">case_id=cs_a91f · model=gemini-2.5-flash · 3.1s · 412 tokens</div>
+          </div>
+        </div>
+
+        <div class="feed-item bad">
+          <span class="feed-time">14:01</span>
+          <span class="feed-icon bad">!</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>ere-cron</strong> failed · <code>fetch timeout</code></div>
+            <div class="feed-sub bad">Error: FetchError: network timeout at https://portal.ere.ca.gov — attempt 4/4</div>
+          </div>
+        </div>
+
+        <div class="feed-item warn">
+          <span class="feed-time">13:58</span>
+          <span class="feed-icon warn">n8</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>n8n</strong> workflow <code>MyCase Sync</code> skipped (placeholder / inactive)</div>
+            <div class="feed-sub">workflow_id=wf_8f2 · 0 nodes executed</div>
+          </div>
+        </div>
+
+        <div class="feed-item info">
+          <span class="feed-time">13:45</span>
+          <span class="feed-icon info">CL</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>Clerk</strong> user sign-in · <code>admin@hogansmith.com</code></div>
+            <div class="feed-sub">session=sess_2N… · ip=73.12.x.x · ua=Chrome 124 macOS</div>
+          </div>
+        </div>
+
+        <div class="feed-item bad">
+          <span class="feed-time">13:32</span>
+          <span class="feed-icon bad">DP</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>Document processing</strong> <code>Medical_Records_Primary.pdf</code> <span style="color:var(--red);font-weight:600">FAILED</span></div>
+            <div class="feed-sub bad">ERE returned 401 invalid_credentials — vault empty</div>
+          </div>
+        </div>
+
+        <div class="feed-item ok">
+          <span class="feed-time">13:28</span>
+          <span class="feed-icon ok">DB</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>Postgres</strong> daily snapshot completed · 312MB</div>
+            <div class="feed-sub">retention=14d · encrypted · region us-east-1</div>
+          </div>
+        </div>
+
+        <div class="feed-item info">
+          <span class="feed-time">13:17</span>
+          <span class="feed-icon info">VC</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>Vercel</strong> deployment <code>0ad5289</code> Ready · 42s build</div>
+            <div class="feed-sub">chore: stop gitignoring env, config, and Claude files · Jake K.</div>
+          </div>
+        </div>
+
+        <div class="feed-item ok">
+          <span class="feed-time">13:02</span>
+          <span class="feed-icon ok">LE</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>LangExtract</strong> extracted <strong>12 fields</strong> from <code>Consultation_Notes.pdf</code></div>
+            <div class="feed-sub">case_id=cs_77b2 · 4.8s · 892 tokens</div>
+          </div>
+        </div>
+
+        <div class="feed-item warn">
+          <span class="feed-time">12:49</span>
+          <span class="feed-icon warn">ER</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>ere-orchestrator</strong> retry scheduled for case <code>cs_33ea</code></div>
+            <div class="feed-sub">backoff=60s · attempt 2/5</div>
+          </div>
+        </div>
+
+        <div class="feed-item ok">
+          <span class="feed-time">12:31</span>
+          <span class="feed-icon ok">RD</span>
+          <div class="feed-content">
+            <div class="feed-line"><strong>Redis</strong> queue drained · <code>doc-processing</code> 14 jobs completed</div>
+            <div class="feed-sub">avg 1.8s/job · 0 failures</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ BOTTOM ROW ============ -->
+  <div class="bottom-grid">
+
+    <!-- WORKFLOWS -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">n8n Workflows</span>
+        <span class="card-meta">· 19 total</span>
+        <div class="card-spacer"></div>
+        <span class="card-tag amber">0 active</span>
+      </div>
+      <div class="wf-body">
+        <div class="wf-summary">
+          <div class="wf-big-num">0<span class="sub">/19</span></div>
+          <div class="wf-summary-text">
+            <div class="wf-summary-title">No workflows enabled in staging</div>
+            <div class="wf-summary-desc">All 19 imported from production export · awaiting review</div>
+          </div>
+          <button class="wf-enable-all">Enable all</button>
+        </div>
+        <div class="wf-list">
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">MyCase Sync — Case Intake</span>
+            <span class="wf-triggers">webhook</span>
+            <span class="wf-last">last run 4d ago</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">Document Processing Pipeline</span>
+            <span class="wf-triggers">queue</span>
+            <span class="wf-last">last run 4d ago</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">ERE Medical Records Fetcher</span>
+            <span class="wf-triggers">cron 30m</span>
+            <span class="wf-last">never</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">Contact Deduplication</span>
+            <span class="wf-triggers">cron 6h</span>
+            <span class="wf-last">last run 5d ago</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">LangExtract · Chronology Builder</span>
+            <span class="wf-triggers">queue</span>
+            <span class="wf-last">last run 3h ago</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">Outlook Email Ingestion</span>
+            <span class="wf-triggers">imap</span>
+            <span class="wf-last">never</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">Daily Digest → Slack</span>
+            <span class="wf-triggers">cron 24h</span>
+            <span class="wf-last">last run 2d ago</span>
+          </div>
+          <div class="wf-item">
+            <div class="toggle"></div>
+            <span class="wf-name">Case Status Poller</span>
+            <span class="wf-triggers">cron 1h</span>
+            <span class="wf-last">last run 5d ago</span>
+          </div>
+          <div class="wf-item" style="opacity:0.75">
+            <div class="toggle"></div>
+            <span class="wf-name">+ 11 more workflows</span>
+            <span class="wf-triggers">mixed</span>
+            <span class="wf-last">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUEUES -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">Queue Depths</span>
+        <span class="card-meta">· BullMQ · Redis</span>
+        <div class="card-spacer"></div>
+        <span class="live-indicator"><span class="live-dot"></span>Live</span>
+      </div>
+      <div class="q-body">
+
+        <div class="q-item">
+          <div class="q-head">
+            <span class="q-name">langextract</span>
+            <span class="q-count">6 jobs</span>
+          </div>
+          <div class="q-bar">
+            <div class="q-bar-seg running" style="width:33%"></div>
+            <div class="q-bar-seg pending" style="width:67%"></div>
+          </div>
+          <div class="q-stats">
+            <span class="running">2 running</span>
+            <span class="pending">4 pending</span>
+            <span class="failed">0 failed</span>
+            <span class="done">· 1,204 completed</span>
+          </div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-head">
+            <span class="q-name">doc-processing</span>
+            <span class="q-count">4 jobs</span>
+          </div>
+          <div class="q-bar">
+            <div class="q-bar-seg running" style="width:25%"></div>
+            <div class="q-bar-seg pending" style="width:50%"></div>
+            <div class="q-bar-seg failed" style="width:25%"></div>
+          </div>
+          <div class="q-stats">
+            <span class="running">1 running</span>
+            <span class="pending">2 pending</span>
+            <span class="failed">1 failed</span>
+            <span class="done">· 97 completed</span>
+          </div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-head">
+            <span class="q-name">ere-fetch</span>
+            <span class="q-count">11 jobs</span>
+          </div>
+          <div class="q-bar">
+            <div class="q-bar-seg failed" style="width:64%"></div>
+            <div class="q-bar-seg pending" style="width:36%"></div>
+          </div>
+          <div class="q-stats">
+            <span class="running">0 running</span>
+            <span class="pending">4 pending</span>
+            <span class="failed">7 failed</span>
+            <span class="done">· blocked by ere-cron</span>
+          </div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-head">
+            <span class="q-name">email-ingest</span>
+            <span class="q-count">0 jobs</span>
+          </div>
+          <div class="q-bar">
+            <div class="q-bar-seg" style="width:0%"></div>
+          </div>
+          <div class="q-stats">
+            <span class="done">idle · Outlook not linked</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="footer-bar">
+    <span class="footer-item"><span class="footer-dot"></span>Auto-refresh ON · every 5s</span>
+    <span>Last updated: <span id="since">2s</span> ago</span>
+    <span>Fingerprint: <span style="color:var(--text-2)">0ad5289</span></span>
+    <div class="spacer"></div>
+    <span>DB: 50 cases · 65 contacts · 200 tasks · 100 documents · 7 users · 1 chronology · 3 processing results</span>
+    <span style="color:var(--text-2)">build 0ad5289 · node 22.11 · pg 15.4</span>
+  </div>
+
+</div>
+
+<script>
+  // Tiny live clock + "last updated" ticker (cosmetic only)
+  (function(){
+    const pad=n=>String(n).padStart(2,'0');
+    const clock=document.getElementById('clock');
+    const since=document.getElementById('since');
+    let secs=2;
+    function tick(){
+      const d=new Date();
+      if(clock) clock.textContent =
+        d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())+' '+
+        pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+':'+pad(d.getUTCSeconds());
+      secs=(secs+1)%6;
+      if(since) since.textContent = secs+'s';
+    }
+    tick();setInterval(tick,1000);
+  })();
+</script>
+</body>
+</html>
