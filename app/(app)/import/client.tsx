@@ -23,12 +23,12 @@ import {
   parseCSV,
   detectDuplicates,
   bulkCreateCases,
-  CASFLOW_FIELDS,
   type ParsedRow,
   type FieldMapping,
   type DuplicateCheck,
   type ImportResult,
 } from "@/app/actions/import";
+import { CASFLOW_FIELDS } from "@/lib/import/fields";
 
 type Step = "upload" | "map" | "preview" | "import";
 

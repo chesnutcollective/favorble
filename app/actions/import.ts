@@ -35,36 +35,8 @@ export type ImportResult = {
   errors: string[];
 };
 
-/**
- * Available CaseFlow fields that CSV columns can map to.
- */
-export const CASFLOW_FIELDS = [
-  { value: "firstName", label: "First Name", group: "Contact" },
-  { value: "lastName", label: "Last Name", group: "Contact" },
-  { value: "email", label: "Email", group: "Contact" },
-  { value: "phone", label: "Phone", group: "Contact" },
-  { value: "address", label: "Address", group: "Contact" },
-  { value: "city", label: "City", group: "Contact" },
-  { value: "state", label: "State", group: "Contact" },
-  { value: "zip", label: "ZIP Code", group: "Contact" },
-  { value: "dateOfBirth", label: "Date of Birth", group: "Case" },
-  { value: "ssaClaimNumber", label: "SSA Claim Number", group: "Case" },
-  { value: "ssaOffice", label: "SSA Office", group: "Case" },
-  {
-    value: "applicationTypePrimary",
-    label: "Application Type (Primary)",
-    group: "Case",
-  },
-  {
-    value: "applicationTypeSecondary",
-    label: "Application Type (Secondary)",
-    group: "Case",
-  },
-  { value: "allegedOnsetDate", label: "Alleged Onset Date", group: "Case" },
-  { value: "dateLastInsured", label: "Date Last Insured", group: "Case" },
-  { value: "hearingOffice", label: "Hearing Office", group: "Case" },
-  { value: "adminLawJudge", label: "Admin Law Judge", group: "Case" },
-] as const;
+// CASFLOW_FIELDS moved to `@/lib/import/fields` because "use server" files
+// can only export async functions in Next.js 16+.
 
 /**
  * Parse CSV content into an array of row objects.
