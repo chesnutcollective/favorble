@@ -15,6 +15,13 @@
       "when": 1774742446377,
       "tag": "0001_smooth_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775846300495,
+      "tag": "0002_blushing_galactus",
+      "breakpoints": true
     }
   ]
 }
