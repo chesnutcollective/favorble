@@ -361,10 +361,13 @@ export function IntegrationsCockpit({ status }: { status: IntegrationsStatus }) 
 								{status.counts.processingResults}
 							</div>
 						</div>
-						<div className="cp-counter warn">
+						<div
+							className={`cp-counter ${status.n8n.active === 0 ? "warn" : ""}`}
+						>
 							<div className="cp-counter-label">Workflows up</div>
 							<div className="cp-counter-val">
-								0<span className="cp-counter-unit">/19</span>
+								{status.n8n.active}
+								<span className="cp-counter-unit">/{status.n8n.total}</span>
 							</div>
 						</div>
 						<div className="cp-counter">
@@ -421,86 +424,48 @@ export function IntegrationsCockpit({ status }: { status: IntegrationsStatus }) 
 								</span>
 							</div>
 							<div className="cp-feed-body">
-								<div className="cp-feed-item bad">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon bad">!</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>ere-cron</strong> service has crashed on Railway
-										</div>
-										<div className="cp-feed-sub bad">
-											exit code 1 · fetch timeout 30000ms · 4 consecutive
-											failures
-										</div>
-									</div>
-								</div>
-								<div className="cp-feed-item ok">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon ok">LE</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>LangExtract</strong> processed{" "}
-											<strong>{status.counts.processingResults}</strong>{" "}
-											document(s) · <code>gemini-2.5-flash</code>
-										</div>
-										<div className="cp-feed-sub">
-											{status.counts.chronology} chronology entries generated
+								{status.activity.length === 0 && (
+									<div className="cp-feed-item info">
+										<span className="cp-feed-time">—</span>
+										<span className="cp-feed-icon info">··</span>
+										<div className="cp-feed-content">
+											<div className="cp-feed-line">No recent activity</div>
+											<div className="cp-feed-sub">
+												Events will appear here once jobs run
+											</div>
 										</div>
 									</div>
-								</div>
-								<div className="cp-feed-item warn">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon warn">n8</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>n8n</strong> 19 workflows registered ·{" "}
-											<code>0 active</code>
+								)}
+								{status.activity.map((item) => {
+									const ts = new Date(item.timestamp);
+									const now = Date.now();
+									const diffMs = now - ts.getTime();
+									let timeLabel: string;
+									if (diffMs < 60_000) timeLabel = "now";
+									else if (diffMs < 3_600_000)
+										timeLabel = `${Math.floor(diffMs / 60_000)}m`;
+									else if (diffMs < 86_400_000)
+										timeLabel = `${Math.floor(diffMs / 3_600_000)}h`;
+									else timeLabel = `${Math.floor(diffMs / 86_400_000)}d`;
+									return (
+										<div key={item.id} className={`cp-feed-item ${item.status}`}>
+											<span className="cp-feed-time">{timeLabel}</span>
+											<span className={`cp-feed-icon ${item.status}`}>
+												{item.iconLabel}
+											</span>
+											<div className="cp-feed-content">
+												<div className="cp-feed-line">{item.message}</div>
+												{item.detail && (
+													<div
+														className={`cp-feed-sub ${item.status === "bad" ? "bad" : ""}`}
+													>
+														{item.detail}
+													</div>
+												)}
+											</div>
 										</div>
-										<div className="cp-feed-sub">
-											All workflows in placeholder or inactive state
-										</div>
-									</div>
-								</div>
-								<div className="cp-feed-item info">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon info">DB</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>Postgres</strong> healthy ·{" "}
-											<code>pg 18 + pgvector</code>
-										</div>
-										<div className="cp-feed-sub">
-											{status.counts.cases} cases · {status.counts.contacts}{" "}
-											contacts · {status.counts.tasks} tasks
-										</div>
-									</div>
-								</div>
-								<div className="cp-feed-item warn">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon warn">ER</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>ERE Credentials Vault</strong> is empty ·{" "}
-											<code>0 stored</code>
-										</div>
-										<div className="cp-feed-sub">
-											ERE pipeline blocked until first credential is added
-										</div>
-									</div>
-								</div>
-								<div className="cp-feed-item ok">
-									<span className="cp-feed-time">now</span>
-									<span className="cp-feed-icon ok">CL</span>
-									<div className="cp-feed-content">
-										<div className="cp-feed-line">
-											<strong>Clerk</strong> · {status.counts.users} user(s)
-											registered
-										</div>
-										<div className="cp-feed-sub">
-											test mode · pk_test_ keys active
-										</div>
-									</div>
-								</div>
+									);
+								})}
 							</div>
 						</section>
 					</div>
@@ -510,21 +475,38 @@ export function IntegrationsCockpit({ status }: { status: IntegrationsStatus }) 
 						<section className="cp-card">
 							<div className="cp-card-header">
 								<span className="cp-card-title">n8n Workflows</span>
-								<span className="cp-card-meta">· 19 total</span>
+								<span className="cp-card-meta">
+									· {status.n8n.total} total
+								</span>
 								<div className="cp-card-spacer" />
-								<span className="cp-tag amber">0 active</span>
+								<span
+									className={`cp-tag ${status.n8n.active === 0 ? "amber" : "green"}`}
+								>
+									{status.n8n.active} active
+								</span>
+								{status.n8n.placeholders > 0 && (
+									<span className="cp-tag neutral">
+										{status.n8n.placeholders} TODO
+									</span>
+								)}
 							</div>
 							<div className="cp-wf-body">
 								<div className="cp-wf-summary">
 									<div className="cp-wf-big">
-										0<span className="sub">/19</span>
+										{status.n8n.active}
+										<span className="sub">/{status.n8n.total}</span>
 									</div>
 									<div className="cp-wf-st">
 										<div className="cp-wf-st-title">
-											No workflows enabled in staging
+											{!status.n8n.reachable
+												? "n8n unreachable"
+												: status.n8n.active === 0
+													? "No workflows enabled"
+													: `${status.n8n.active} workflow(s) running`}
 										</div>
 										<div className="cp-wf-st-desc">
-											5 scaffolded + 14 placeholder · awaiting review
+											{status.n8n.total - status.n8n.placeholders} scaffolded +{" "}
+											{status.n8n.placeholders} placeholder
 										</div>
 									</div>
 									<a
@@ -537,24 +519,42 @@ export function IntegrationsCockpit({ status }: { status: IntegrationsStatus }) 
 									</a>
 								</div>
 								<div className="cp-wf-list">
-									{[
-										{ name: "MyCase → Favorble Incremental Sync", trig: "cron 15m" },
-										{ name: "ERE Scrape Scheduler (Active Hearings)", trig: "cron 2h" },
-										{ name: "CaseStatus → Favorble Message Router", trig: "webhook" },
-										{ name: "Lead Intake (Website Form)", trig: "webhook" },
-										{ name: "Daily Digest (Overdue Tasks)", trig: "cron 8am" },
-										{ name: "[TODO] LangExtract Document Pipeline", trig: "queue" },
-										{ name: "[TODO] AI Response Generation", trig: "webhook" },
-										{ name: "[TODO] Pre-Hearing PHI Memo Writer", trig: "cron 7d" },
-										{ name: "+ 11 more workflows", trig: "mixed" },
-									].map((wf) => (
-										<div key={wf.name} className="cp-wf-item">
-											<div className="cp-toggle" />
-											<span className="cp-wf-name">{wf.name}</span>
-											<span className="cp-wf-trig">{wf.trig}</span>
-											<span className="cp-wf-last">never</span>
+									{status.n8n.workflows.length === 0 && (
+										<div className="cp-wf-item">
+											<span className="cp-wf-name">
+												No workflows returned by n8n API
+											</span>
 										</div>
-									))}
+									)}
+									{status.n8n.workflows.slice(0, 9).map((wf) => {
+										let lastLabel = "never";
+										if (wf.lastExecution) {
+											const diff = Date.now() - new Date(wf.lastExecution).getTime();
+											if (diff < 3_600_000)
+												lastLabel = `${Math.floor(diff / 60_000)}m ago`;
+											else if (diff < 86_400_000)
+												lastLabel = `${Math.floor(diff / 3_600_000)}h ago`;
+											else lastLabel = `${Math.floor(diff / 86_400_000)}d ago`;
+										}
+										return (
+											<div key={wf.id} className="cp-wf-item">
+												<div className={`cp-toggle ${wf.active ? "on" : ""}`} />
+												<span className="cp-wf-name">{wf.name}</span>
+												<span className="cp-wf-trig">{wf.trigger}</span>
+												<span className="cp-wf-last">{lastLabel}</span>
+											</div>
+										);
+									})}
+									{status.n8n.workflows.length > 9 && (
+										<div className="cp-wf-item" style={{ opacity: 0.7 }}>
+											<div className="cp-toggle" />
+											<span className="cp-wf-name">
+												+ {status.n8n.workflows.length - 9} more workflows
+											</span>
+											<span className="cp-wf-trig">mixed</span>
+											<span className="cp-wf-last">—</span>
+										</div>
+									)}
 								</div>
 							</div>
 						</section>
