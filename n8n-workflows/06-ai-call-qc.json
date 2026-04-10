@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] AI Call QC",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Call QC\n\n**Trigger:** Webhook from CallTools when a call recording is ready.\n\n**TODO:**\n1. Download recording from CallTools\n2. Transcribe via Whisper / Deepgram\n3. Analyze transcript with Claude (tone, compliance, script adherence)\n4. Flag issues and write QC report to Favorble\n5. Notify supervisor on critical flags",
+        "height": 320,
+        "width": 420
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calltools-qc",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "CallTools Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 460],
+      "webhookId": "calltools-qc"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement AI Call QC\n// 1. Fetch recording URL from $json.body\n// 2. Transcribe\n// 3. Run Claude QC analysis\n// 4. Post to Favorble /api/qc/call\nreturn [{ json: { todo: 'implement ai call qc', payload: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 460]
+    }
+  ],
+  "connections": {
+    "CallTools Webhook": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] AI Appeal Filing on Denial",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Appeal Filing on Denial\n\n**Trigger:** SSA decision event with status = denied (webhook from ERE watcher or sync job).\n\n**TODO:**\n1. Pull case file, medical records, and denial letter\n2. Extract denial reasons with LangExtract\n3. Draft appeal brief with Claude using firm template\n4. Queue for attorney review in Favorble\n5. Schedule deadline reminder (60 days)",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ssa-denial",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "SSA Denial Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "ssa-denial"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement appeal filing automation\n// 1. Load case context from Favorble\n// 2. Gather medical evidence\n// 3. Draft appeal with Claude\n// 4. Queue for review\nreturn [{ json: { todo: 'implement ai appeal filing', denial: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "SSA Denial Webhook": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

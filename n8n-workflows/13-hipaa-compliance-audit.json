@@ -1,0 +1,52 @@
+{
+  "name": "[TODO] HIPAA Compliance Audit",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## HIPAA Compliance Audit\n\n**Trigger:** Daily schedule.\n\n**TODO:**\n1. Pull audit logs from Favorble + MyCase + n8n\n2. Check for unauthorized PHI access, missing BAAs, stale permissions\n3. Generate compliance report with Claude\n4. Store report to compliance bucket\n5. Email compliance officer with summary + exceptions",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement HIPAA compliance audit\n// 1. Fetch audit logs\n// 2. Review for violations\n// 3. Generate report\nreturn [{ json: { todo: 'implement hipaa audit' } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Daily": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

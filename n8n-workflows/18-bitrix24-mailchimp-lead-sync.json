@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] Bitrix24 -> Mailchimp Lead Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Bitrix24 -> Mailchimp Lead Sync\n\n**Trigger:** Webhook from Bitrix24 when a new lead is created.\n\n**TODO:**\n1. Receive Bitrix lead payload\n2. Normalize contact fields (name, email, phone, source, stage)\n3. Add to Mailchimp audience with merge fields + tags\n4. Subscribe to nurture drip based on lead stage\n5. Write sync status back to Favorble",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bitrix-lead",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Bitrix Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "bitrix-lead"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Sync Bitrix lead to Mailchimp\n// 1. Normalize fields\n// 2. POST to Mailchimp /lists/{id}/members\n// 3. Assign tags\nreturn [{ json: { todo: 'implement bitrix to mailchimp sync', lead: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Bitrix Lead": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

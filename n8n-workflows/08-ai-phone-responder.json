@@ -1,0 +1,64 @@
+{
+  "name": "[TODO] AI Phone Responder",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Phone Responder\n\n**Trigger:** Webhook from VOIP (CallTools / Twilio) when a call comes in outside business hours or all agents busy.\n\n**TODO:**\n1. Classify call intent (new lead, existing client, status check)\n2. Generate voice response with Claude + TTS\n3. Collect callback info or route to voicemail\n4. Create task in Favorble for follow-up",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "voip-responder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "VOIP Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "voip-responder"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement AI phone responder\n// 1. Classify intent from $json.body\n// 2. Generate response text\n// 3. Return TwiML / CallTools response\nreturn [{ json: { todo: 'implement phone responder', call: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'todo' } }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 480]
+    }
+  ],
+  "connections": {
+    "VOIP Webhook": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    },
+    "TODO: Implement": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

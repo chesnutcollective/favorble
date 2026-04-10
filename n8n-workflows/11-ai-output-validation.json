@@ -1,0 +1,64 @@
+{
+  "name": "[TODO] AI Output Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Output Validation\n\n**Trigger:** Called as a sub-workflow from other AI automations (webhook entry).\n\n**TODO:**\n1. Accept AI-generated content + metadata\n2. Check for PHI leakage, hallucinated citations, policy violations\n3. Score confidence with validator LLM\n4. Return pass/fail + reasons to caller\n5. Log rejects for human review",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-validate",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Validation Entry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "ai-validate"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement AI output validation\n// 1. Read content from $json.body.content\n// 2. Run PHI scan, citation check, policy check\n// 3. Return { valid: bool, reasons: [] }\nreturn [{ json: { valid: false, todo: 'implement validation', reasons: ['not yet implemented'] } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 480]
+    }
+  ],
+  "connections": {
+    "Validation Entry": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    },
+    "TODO: Implement": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "[TODO] Pre-Hearing PHI Memo Writer",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Pre-Hearing PHI Memo Writer\n\n**Trigger:** Daily schedule — find hearings 7 days out.\n\n**TODO:**\n1. Query Favorble for upcoming hearings (7 days)\n2. Assemble case data: medical records, work history, treating sources\n3. Generate pre-hearing memo with Claude (PHI-safe prompt)\n4. Save memo to case file in MyCase and Favorble\n5. Notify attorney",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement pre-hearing memo writer\n// 1. Find hearings 7 days out\n// 2. Gather case data\n// 3. Call Claude to generate memo\n// 4. Save to MyCase\nreturn [{ json: { todo: 'implement pre-hearing memo' } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Daily": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

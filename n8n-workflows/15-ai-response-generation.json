@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] AI Response Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Response Generation\n\n**Trigger:** Webhook from CaseStatus when an inbound client message arrives.\n\n**TODO:**\n1. Load case context (status, stage, recent activity) from Favorble\n2. Generate reply draft with Claude using firm voice guide\n3. Run through AI Output Validation sub-workflow\n4. Queue draft for human review in Favorble inbox\n5. Do NOT auto-send without approval",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "casestatus-draft",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "CaseStatus Inbound",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "casestatus-draft"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Generate reply draft with Claude\n// 1. Load case context\n// 2. Call Claude with firm style guide\n// 3. Validate output\n// 4. Queue draft for review\nreturn [{ json: { todo: 'implement response generation', message: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "CaseStatus Inbound": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

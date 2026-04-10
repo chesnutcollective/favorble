@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] MyCase <-> CallTools Recording Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## MyCase <-> CallTools Recording Sync\n\n**Trigger:** Webhook from CallTools when a new recording is ready.\n\n**TODO:**\n1. Match call to case via phone number + contact lookup in Favorble\n2. Download recording file from CallTools\n3. Upload recording to MyCase as case document\n4. Link recording to case timeline in Favorble\n5. Tag with call direction + duration",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calltools-recording",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Recording Ready",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "calltools-recording"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Sync recording to MyCase\n// 1. Match phone number to case\n// 2. Download recording\n// 3. Upload to MyCase\n// 4. Link in Favorble\nreturn [{ json: { todo: 'implement recording sync', recording: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Recording Ready": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

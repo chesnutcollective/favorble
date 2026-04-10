@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] Automatic Case Documentation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Automatic Case Documentation\n\n**Trigger:** Webhook for any case event (status change, message, document, call, task).\n\n**TODO:**\n1. Receive case event payload\n2. Format into standardized audit log entry\n3. Insert into Favorble case_audit_log table\n4. Also push to MyCase as a case note if significant\n5. Maintain immutable trail for compliance",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "case-event",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Case Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "case-event"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Insert audit log entry\n// 1. Normalize event payload\n// 2. POST to Favorble /api/audit/case-event\n// 3. Optionally push to MyCase\nreturn [{ json: { todo: 'implement case documentation', event: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Case Event": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "[TODO] Google Drive Document Watcher",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Google Drive Document Watcher\n\n**Trigger:** Google Drive file added to watched folder (use Drive Trigger node once credentials are wired).\n\n**TODO:**\n1. Detect new file in watched folder\n2. Parse filename for case ID / client name\n3. Download file content\n4. Upload to matching case in Favorble + MyCase\n5. Move processed file to archive subfolder",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 min (placeholder)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Replace with Google Drive Trigger node once credentials exist\n// 1. List new files in watched folder\n// 2. Match filename to case\n// 3. Import to Favorble + MyCase\n// 4. Move to archive\nreturn [{ json: { todo: 'implement google drive watcher' } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Every 15 min (placeholder)": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "[TODO] AI Automation Health Check",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Automation Health Check\n\n**Trigger:** Daily schedule.\n\n**TODO:**\n1. Query n8n API for all workflow executions in last 24h\n2. Identify failures, timeouts, and stuck workflows\n3. Summarize with Claude\n4. Post report to Slack #ops channel\n5. Page on-call if critical workflow is down",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement automation health check\n// 1. Fetch executions from n8n API\n// 2. Analyze failures\n// 3. Post summary to Slack\nreturn [{ json: { todo: 'implement health check' } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Daily": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

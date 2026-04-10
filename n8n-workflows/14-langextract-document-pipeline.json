@@ -1,0 +1,49 @@
+{
+  "name": "[TODO] LangExtract Document Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## LangExtract Document Pipeline\n\n**Trigger:** Webhook fired when an ERE document is downloaded.\n\n**TODO:**\n1. Receive document metadata + storage path\n2. Send to langextract-worker service for structured extraction\n3. Parse structured data (dates, providers, diagnoses, medications)\n4. Save to Favorble document_extractions table\n5. Link extraction back to case file",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ere-document-ready",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "ERE Document Ready",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 480],
+      "webhookId": "ere-document-ready"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Send to langextract-worker\n// 1. Read document path from $json.body\n// 2. POST to langextract-worker service\n// 3. Receive structured data\n// 4. Save to Favorble\nreturn [{ json: { todo: 'call langextract-worker', document: $json.body || {} } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "ERE Document Ready": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "[TODO] Disability.info Content Creation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Disability.info Content Creation\n\n**Trigger:** Weekly schedule (Mondays).\n\n**TODO:**\n1. Generate topic ideas from SSA news + recent case trends\n2. Draft articles with Claude following firm style guide\n3. Run through AI Output Validation\n4. Queue drafts in Favorble CMS for editorial review\n5. Notify content team",
+        "height": 340,
+        "width": 440
+      },
+      "id": "sticky-doc",
+      "name": "Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [120, 80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 7
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Implement content creation pipeline\n// 1. Generate topic ideas\n// 2. Draft articles with Claude\n// 3. Queue for review\nreturn [{ json: { todo: 'implement content creation' } }];"
+      },
+      "id": "todo-code",
+      "name": "TODO: Implement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    }
+  ],
+  "connections": {
+    "Weekly": {
+      "main": [[{ "node": "TODO: Implement", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
