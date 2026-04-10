@@ -5,6 +5,8 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
+const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
+
 export type SessionUser = {
 	id: string;
 	organizationId: string;
@@ -15,6 +17,44 @@ export type SessionUser = {
 	role: string;
 	team: string | null;
 };
+
+let _cachedDemoUser: SessionUser | null = null;
+
+async function getDemoUser(): Promise<SessionUser | null> {
+	if (_cachedDemoUser) return _cachedDemoUser;
+	try {
+		const [adminUser] = await db
+			.select({
+				id: users.id,
+				organizationId: users.organizationId,
+				email: users.email,
+				firstName: users.firstName,
+				lastName: users.lastName,
+				avatarUrl: users.avatarUrl,
+				role: users.role,
+				team: users.team,
+			})
+			.from(users)
+			.where(eq(users.role, "admin"))
+			.limit(1);
+		if (adminUser) {
+			_cachedDemoUser = adminUser;
+			return adminUser;
+		}
+	} catch {
+		// DB unavailable
+	}
+	return {
+		id: "demo-user",
+		organizationId: "demo-org",
+		email: "admin@hogansmith.com",
+		firstName: "Demo",
+		lastName: "Admin",
+		avatarUrl: null,
+		role: "admin",
+		team: "administration",
+	};
+}
 
 async function findOrCreateUser(
 	clerkUserId: string,
@@ -74,6 +114,9 @@ async function findOrCreateUser(
 }
 
 export async function getSession(): Promise<SessionUser | null> {
+	if (!AUTH_ENABLED) {
+		return getDemoUser();
+	}
 	const { userId } = await auth();
 	if (!userId) return null;
 
@@ -87,7 +130,11 @@ export async function getSession(): Promise<SessionUser | null> {
 export async function requireSession(): Promise<SessionUser> {
 	const session = await getSession();
 	if (!session) {
-		redirect("/login");
+		if (AUTH_ENABLED) {
+			redirect("/login");
+		}
+		// Should never reach here when auth is disabled — getDemoUser always returns
+		throw new Error("Failed to load session");
 	}
 	return session;
 }
