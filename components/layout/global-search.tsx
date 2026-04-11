@@ -1,5 +1,22 @@
 "use client";
 
+/**
+ * ⚠️ DEPRECATED — DO NOT USE FOR NEW WORK.
+ *
+ * This file is the old ILIKE-based global search component, kept in
+ * the tree for one release cycle as a fallback during the rollout of
+ * the new polymorphic search system.
+ *
+ * The replacement is `components/search/command-palette.tsx`, which
+ * backs onto `/api/search/v2` and the `search_documents` table.
+ * See `docs/search/README.md` for the full picture.
+ *
+ * The header switched to <CommandPalette/> in commit 2d79b7e.
+ * This component has no import sites as of that commit. It will be
+ * deleted in a follow-on cleanup PR — see
+ * `docs/search/runbook.md § Deleting the old GlobalSearch`.
+ */
+
 import {
   useCallback,
   useEffect,
