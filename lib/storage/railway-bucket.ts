@@ -31,28 +31,29 @@ export {
   parseRailwayStoragePath,
 };
 
-export const RAILWAY_BUCKET_CONFIGURED = railwayBucketConfigured();
-
-const ENDPOINT = process.env.RAILWAY_BUCKET_ENDPOINT;
-const REGION = process.env.RAILWAY_BUCKET_REGION ?? "auto";
-const BUCKET = process.env.RAILWAY_BUCKET_NAME;
-const ACCESS_KEY_ID = process.env.RAILWAY_BUCKET_ACCESS_KEY_ID;
-const SECRET_ACCESS_KEY = process.env.RAILWAY_BUCKET_SECRET_ACCESS_KEY;
+/**
+ * Lazy getter so callers that run dotenv.config() after the module is
+ * imported (e.g. CLI scripts) still see the env vars. Reading at module
+ * load time would capture undefined values before dotenv runs.
+ */
+export function isRailwayBucketConfigured(): boolean {
+  return railwayBucketConfigured();
+}
 
 let client: S3Client | null = null;
 function getClient(): S3Client {
-  if (!RAILWAY_BUCKET_CONFIGURED) {
+  if (!railwayBucketConfigured()) {
     throw new Error(
       "Railway bucket env vars missing (RAILWAY_BUCKET_ENDPOINT, _NAME, _ACCESS_KEY_ID, _SECRET_ACCESS_KEY)",
     );
   }
   if (!client) {
     client = new S3Client({
-      endpoint: ENDPOINT,
-      region: REGION,
+      endpoint: process.env.RAILWAY_BUCKET_ENDPOINT,
+      region: process.env.RAILWAY_BUCKET_REGION ?? "auto",
       credentials: {
-        accessKeyId: ACCESS_KEY_ID as string,
-        secretAccessKey: SECRET_ACCESS_KEY as string,
+        accessKeyId: process.env.RAILWAY_BUCKET_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.RAILWAY_BUCKET_SECRET_ACCESS_KEY as string,
       },
       forcePathStyle: false,
     });
@@ -73,7 +74,7 @@ export async function uploadRailwayDocument(
 ): Promise<{ storagePath: string; key: string }> {
   const key = buildRailwayDocumentKey(organizationId, caseId, fileName);
   const input: PutObjectCommandInput = {
-    Bucket: BUCKET as string,
+    Bucket: process.env.RAILWAY_BUCKET_NAME as string,
     Key: key,
     Body: buffer,
     ContentType: contentType,
@@ -81,7 +82,10 @@ export async function uploadRailwayDocument(
   };
   await getClient().send(new PutObjectCommand(input));
   return {
-    storagePath: buildRailwayStoragePath(BUCKET as string, key),
+    storagePath: buildRailwayStoragePath(
+      process.env.RAILWAY_BUCKET_NAME as string,
+      key,
+    ),
     key,
   };
 }
@@ -103,7 +107,7 @@ export async function getRailwaySignedUrl(
     key = storagePathOrKey;
   }
   const command = new GetObjectCommand({
-    Bucket: BUCKET as string,
+    Bucket: process.env.RAILWAY_BUCKET_NAME as string,
     Key: key,
   });
   return getSignedUrl(getClient(), command, { expiresIn: expiresInSeconds });

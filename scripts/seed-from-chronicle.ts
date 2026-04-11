@@ -39,6 +39,15 @@
  *
  * Run:
  *   CONFIRM_PHI_STAGING=yes pnpm tsx scripts/seed-from-chronicle.ts --yes-staging
+ *
+ * IMPORTANT: this script does NOT invoke the LangExtract pipeline after
+ * loading the PDFs. To generate document_processing_results and medical
+ * chronology entries from the real uploaded PDFs, run the follow-up
+ * script after this one completes:
+ *
+ *   env $(cat .env.local | grep -v '^#' | xargs) \
+ *     NODE_OPTIONS="--conditions=react-server" \
+ *     pnpm tsx scripts/process-chronicle-pdfs.ts
  */
 
 import { config } from "dotenv";

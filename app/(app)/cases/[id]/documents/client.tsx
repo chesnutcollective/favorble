@@ -111,14 +111,18 @@ export function CaseDocumentsClient({
         fileType: doc.fileType,
         signedUrl: result.url,
       });
+      return;
     }
+    toast.error(result.error ?? "Could not open document");
   }, []);
 
   const handleDownload = useCallback(async (doc: DocumentItem) => {
     const result = await getDocumentUrl(doc.id);
     if (result.url) {
       window.open(result.url, "_blank");
+      return;
     }
+    toast.error(result.error ?? "Could not download document");
   }, []);
 
   const handleDelete = useCallback(async (doc: DocumentItem) => {

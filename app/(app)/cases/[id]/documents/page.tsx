@@ -45,6 +45,7 @@ export default async function CaseDocumentsPage({
         category: d.category,
         source: d.source,
         createdAt: d.createdAt.toISOString(),
+        isMetadataOnly: d.storagePath.startsWith("chronicle://"),
       }))}
       templates={templates.map((t) => ({
         id: t.id,

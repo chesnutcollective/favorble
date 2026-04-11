@@ -104,6 +104,10 @@ export async function uploadDocumentAction(formData: FormData) {
 
 /**
  * Get a signed URL for downloading/previewing a document.
+ *
+ * Returns a structured error when the document is a metadata-only stub
+ * (e.g. `chronicle://...`) or when signing fails, so the client can render
+ * a user-visible message instead of silently swallowing the failure.
  */
 export async function getDocumentUrl(documentId: string) {
   const [doc] = await db
@@ -115,8 +119,31 @@ export async function getDocumentUrl(documentId: string) {
     return { error: "Document not found" };
   }
 
-  const signedUrl = await getSignedUrl(doc.storagePath);
-  return { url: signedUrl };
+  // Chronicle-imported stubs have a `chronicle://` storage path and no real
+  // file attached. Surface a clear message so the UI can show a stub state.
+  if (doc.storagePath.startsWith("chronicle://")) {
+    return {
+      error:
+        "This document is a metadata stub from the Chronicle import. The underlying PDF wasn't downloaded.",
+    };
+  }
+
+  try {
+    const signedUrl = await getSignedUrl(doc.storagePath);
+    return { url: signedUrl };
+  } catch (err) {
+    logger.error("getDocumentUrl signing failed", {
+      documentId,
+      storagePath: doc.storagePath,
+      error: err,
+    });
+    return {
+      error:
+        err instanceof Error
+          ? `Could not open document: ${err.message}`
+          : "Could not open document",
+    };
+  }
 }
 
 /**

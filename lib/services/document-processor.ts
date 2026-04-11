@@ -15,6 +15,10 @@ import {
 } from "@/lib/integrations/langextract";
 import { logPhiModification } from "@/lib/services/hipaa-audit";
 import { PDFParse } from "pdf-parse";
+import {
+	RAILWAY_STORAGE_PREFIX,
+	getRailwaySignedUrl,
+} from "@/lib/storage/railway-bucket";
 
 /** Max characters of extracted text we'll pass downstream to an LLM. */
 export const MAX_EXTRACTED_CHARS = 200_000;
@@ -24,7 +28,14 @@ export type ExtractedDocumentText = {
 	fileSize: number;
 	totalChars: number;
 	pageCount?: number;
-	source: "http-pdf" | "http-text" | "data-url-pdf" | "data-url-text" | "fallback";
+	source:
+		| "http-pdf"
+		| "http-text"
+		| "data-url-pdf"
+		| "data-url-text"
+		| "railway-pdf"
+		| "railway-text"
+		| "fallback";
 };
 
 type ProcessOptions = {
@@ -254,6 +265,30 @@ export async function loadDocumentText(
 ): Promise<ExtractedDocumentText | null> {
 	const lowerPath = storagePath.toLowerCase();
 	const lowerName = fileName.toLowerCase();
+
+	// 0. railway:// storage paths — sign and recurse through the http path
+	if (storagePath.startsWith(RAILWAY_STORAGE_PREFIX)) {
+		try {
+			const signedUrl = await getRailwaySignedUrl(storagePath, 600);
+			const result = await loadDocumentText(signedUrl, fileName);
+			if (!result) return null;
+			// Relabel the source so callers can tell it came from Railway.
+			if (result.source === "http-pdf") {
+				return { ...result, source: "railway-pdf" };
+			}
+			if (result.source === "http-text") {
+				return { ...result, source: "railway-text" };
+			}
+			return result;
+		} catch (err) {
+			logger.error("Railway storage fetch failed", {
+				fileName,
+				storagePath: storagePath.slice(0, 120),
+				error: err,
+			});
+			return null;
+		}
+	}
 
 	// 1. data: URLs (base64-encoded PDFs or text)
 	if (storagePath.startsWith("data:")) {
