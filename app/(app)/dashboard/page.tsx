@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, count, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
+  sql,
+} from "drizzle-orm";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowRight01Icon,
+  BinocularsIcon,
   CheckmarkCircle01Icon,
   DashboardSquare01Icon,
   Folder01Icon,
@@ -39,11 +50,19 @@ import {
   cases,
   ereCredentials,
   leads,
+  performanceSnapshots,
   tasks,
 } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
+import { Sparkline } from "@/components/charts/sparkline";
+import {
+  computeCompositeScore,
+  evaluateMetric,
+  getRoleMetricPack,
+  type RoleMetricDefinition,
+} from "@/lib/services/role-metrics";
 import { logger } from "@/lib/logger/server";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -71,6 +90,7 @@ const NAV_ICONS: Record<string, unknown> = {
   Invoice01Icon,
   SafeIcon,
   BubbleChatIcon,
+  BinocularsIcon,
 };
 
 // ---------------------------------------------------------------------------
@@ -83,6 +103,151 @@ type KpiValue = {
 };
 
 const FALLBACK_KPI: KpiValue = { value: "—" };
+
+// ---------------------------------------------------------------------------
+// Per-role metric block (SM-5)
+// ---------------------------------------------------------------------------
+
+type MetricCardData = {
+  metric: RoleMetricDefinition;
+  currentValue: number | null;
+  sparkline: number[];
+  band: null | "warn" | "critical";
+};
+
+type RoleMetricBlockData = {
+  personaLabel: string;
+  metrics: MetricCardData[];
+  compositeScore: number | null;
+  hasSnapshotData: boolean;
+};
+
+async function loadRoleMetricBlock(
+  personaId: string,
+  userId: string,
+): Promise<RoleMetricBlockData> {
+  const pack = getRoleMetricPack(personaId);
+  if (pack.metrics.length === 0) {
+    return {
+      personaLabel: pack.label,
+      metrics: [],
+      compositeScore: null,
+      hasSnapshotData: false,
+    };
+  }
+
+  const metricKeys = pack.metrics.map((m) => m.metricKey);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+
+  let rows: Array<{
+    metricKey: string;
+    value: string | number;
+    periodStart: Date;
+  }> = [];
+
+  try {
+    rows = await db
+      .select({
+        metricKey: performanceSnapshots.metricKey,
+        value: performanceSnapshots.value,
+        periodStart: performanceSnapshots.periodStart,
+      })
+      .from(performanceSnapshots)
+      .where(
+        and(
+          eq(performanceSnapshots.userId, userId),
+          inArray(performanceSnapshots.metricKey, metricKeys),
+          gte(performanceSnapshots.periodStart, sevenDaysAgo),
+        ),
+      )
+      .orderBy(asc(performanceSnapshots.periodStart));
+  } catch (error) {
+    logger.error("Failed to load role metric snapshots", {
+      personaId,
+      error,
+    });
+  }
+
+  const byKey = new Map<string, number[]>();
+  for (const r of rows) {
+    const arr = byKey.get(r.metricKey) ?? [];
+    arr.push(Number(r.value));
+    byKey.set(r.metricKey, arr);
+  }
+
+  const metricCards: MetricCardData[] = pack.metrics.map((metric) => {
+    const series = byKey.get(metric.metricKey) ?? [];
+    const current =
+      series.length > 0 ? series[series.length - 1] : null;
+    const band =
+      current !== null ? evaluateMetric(metric, current) : null;
+    return {
+      metric,
+      currentValue: current,
+      sparkline: series,
+      band,
+    };
+  });
+
+  const valueMap: Record<string, number> = {};
+  for (const card of metricCards) {
+    if (card.currentValue !== null) {
+      valueMap[card.metric.metricKey] = card.currentValue;
+    }
+  }
+  const hasSnapshotData = Object.keys(valueMap).length > 0;
+  const compositeScore = hasSnapshotData
+    ? computeCompositeScore(personaId, valueMap)
+    : null;
+
+  return {
+    personaLabel: pack.label,
+    metrics: metricCards,
+    compositeScore,
+    hasSnapshotData,
+  };
+}
+
+function formatMetricValue(
+  metric: RoleMetricDefinition,
+  value: number | null,
+): string {
+  if (value === null || Number.isNaN(value)) return "—";
+  switch (metric.unit) {
+    case "percent":
+      return `${Math.round(value * 10) / 10}%`;
+    case "hours":
+      return `${Math.round(value * 10) / 10}h`;
+    case "minutes":
+      return `${Math.round(value)}m`;
+    case "days":
+      return `${Math.round(value * 10) / 10}d`;
+    case "currency":
+      return `$${Math.round(value).toLocaleString("en-US")}`;
+    case "count":
+    default:
+      return `${Math.round(value * 100) / 100}`;
+  }
+}
+
+function formatTargetValue(metric: RoleMetricDefinition): string {
+  const suffix =
+    metric.direction === "higher_is_better" ? "≥" : "≤";
+  const val = formatMetricValue(metric, metric.targetValue);
+  return `Target ${suffix} ${val}`;
+}
+
+function bandColor(band: null | "warn" | "critical"): string {
+  if (band === "critical") return COLORS.bad;
+  if (band === "warn") return COLORS.warn;
+  return COLORS.ok;
+}
+
+function bandSubtle(band: null | "warn" | "critical"): string {
+  if (band === "critical") return COLORS.badSubtle;
+  if (band === "warn") return COLORS.warnSubtle;
+  return COLORS.okSubtle;
+}
 
 async function computePrimaryKpi(
   personaId: string,
@@ -319,6 +484,12 @@ export default async function DashboardPage() {
   const { actor, config, isViewingAs, personaId } = persona;
 
   const kpi = await computePrimaryKpi(personaId, actor.organizationId);
+  let metricBlock: RoleMetricBlockData | null = null;
+  try {
+    metricBlock = await loadRoleMetricBlock(personaId, actor.id);
+  } catch (error) {
+    logger.error("Failed to load role metric block", { personaId, error });
+  }
 
   // Build the quick-link cards from the persona's nav order, skipping the
   // dashboard entry itself and falling back to the universal items if
@@ -412,6 +583,112 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Full per-role metric block (SM-5) */}
+      {metricBlock && metricBlock.metrics.length > 0 && (
+        <div>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2
+              className="text-[13px] font-semibold uppercase tracking-[0.06em]"
+              style={{ color: COLORS.text2 }}
+            >
+              {metricBlock.personaLabel} Metrics
+            </h2>
+            {metricBlock.compositeScore !== null && (
+              <div
+                className="text-[12px] font-medium"
+                style={{ color: COLORS.text2 }}
+              >
+                Composite score:{" "}
+                <span
+                  className="text-[20px] font-semibold ml-1"
+                  style={{ color: COLORS.text1 }}
+                >
+                  {metricBlock.compositeScore}
+                </span>
+                <span
+                  className="text-[11px] ml-1"
+                  style={{ color: COLORS.text3 }}
+                >
+                  / 100
+                </span>
+              </div>
+            )}
+          </div>
+          {!metricBlock.hasSnapshotData && (
+            <Card className="mb-3">
+              <CardContent className="p-4">
+                <p
+                  className="text-[12px]"
+                  style={{ color: COLORS.text2 }}
+                >
+                  No performance snapshot data yet. Metrics will populate once
+                  the nightly rollup has recorded at least one day of activity
+                  for your account.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {metricBlock.metrics.map((card) => {
+              const accent = bandColor(card.band);
+              const subtle = bandSubtle(card.band);
+              return (
+                <Card key={card.metric.metricKey}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className="text-[12px] font-medium truncate"
+                          style={{ color: COLORS.text2 }}
+                        >
+                          {card.metric.label}
+                        </p>
+                        <p
+                          className="text-[10px] mt-0.5"
+                          style={{ color: COLORS.text3 }}
+                        >
+                          {formatTargetValue(card.metric)}
+                        </p>
+                      </div>
+                      <div
+                        className="shrink-0 rounded-[4px] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em]"
+                        style={{
+                          backgroundColor: subtle,
+                          color: accent,
+                        }}
+                      >
+                        {card.band === "critical"
+                          ? "Critical"
+                          : card.band === "warn"
+                            ? "Warn"
+                            : "Healthy"}
+                      </div>
+                    </div>
+                    <div className="flex items-end justify-between gap-3">
+                      <div
+                        className="text-[28px] font-semibold leading-none"
+                        style={{ color: COLORS.text1 }}
+                      >
+                        {formatMetricValue(
+                          card.metric,
+                          card.currentValue,
+                        )}
+                      </div>
+                      <div style={{ color: accent }}>
+                        <Sparkline
+                          data={card.sparkline}
+                          stroke={accent}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Quick-link cards — the persona's primary workspaces */}
       {navItems.length > 0 && (

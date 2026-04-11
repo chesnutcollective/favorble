@@ -5,6 +5,22 @@
     {
       "path": "/api/cron/ingest-retry",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/escalate-overdue",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/coaching-scan",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/risk-scan",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/compliance-scan",
+      "schedule": "30 3 * * *"
     }
   ]
 }

@@ -34,6 +34,27 @@ export const NAV_ITEM_REGISTRY: Record<string, NavItemMeta> = {
     description: "Firm overview and welcome screen",
     iconName: "DashboardSquare01Icon",
   },
+  supervisor: {
+    id: "supervisor",
+    label: "Supervisor",
+    href: "/admin/supervisor",
+    description: "Monitor team performance, workload, and case risk",
+    iconName: "BinocularsIcon",
+  },
+  coaching: {
+    id: "coaching",
+    label: "Coaching",
+    href: "/coaching",
+    description: "Open coaching flags, training gaps, and AI-drafted conversations",
+    iconName: "Megaphone01Icon",
+  },
+  drafts: {
+    id: "drafts",
+    label: "AI Drafts",
+    href: "/drafts",
+    description: "Review and approve AI-drafted letters, messages, and filings",
+    iconName: "File01Icon",
+  },
   cases: {
     id: "cases",
     label: "Cases",

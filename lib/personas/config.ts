@@ -70,6 +70,9 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     // Admin sees everything — they manage the whole app
     nav: [
       "dashboard",
+      "supervisor",
+      "coaching",
+      "drafts",
       "cases",
       "leads",
       "queue",
@@ -249,6 +252,9 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     defaultRoute: "/dashboard/exec",
     nav: [
       "dashboard",
+      "supervisor",
+      "coaching",
+      "drafts",
       "cases",
       "reports",
       "hearings",
