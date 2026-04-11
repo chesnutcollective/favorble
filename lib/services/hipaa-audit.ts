@@ -67,6 +67,51 @@ export type LogExtractionReviewParams = BaseParams & {
   metadata?: Record<string, unknown>;
 };
 
+/**
+ * Communication lifecycle events (message sent/received/read/draft approved).
+ * Threaded into the case activity timeline so every touchpoint on a case is
+ * recorded in one place. Feeds CM-5.
+ */
+export type LogCommunicationEventParams = {
+  organizationId: string;
+  /** Who caused the event. Null for inbound webhook events we didn't initiate. */
+  actorUserId?: string | null;
+  caseId: string;
+  communicationId: string;
+  direction: "inbound" | "outbound";
+  /** e.g. "case_status", "email", "sms", "message", "phone". */
+  method: string;
+  /**
+   * Override the action verb. Defaults to
+   * `communication_received` / `communication_sent` based on direction.
+   */
+  action?:
+    | "communication_received"
+    | "communication_sent"
+    | "communication_read"
+    | "communication_draft_approved"
+    | "communication_draft_rejected";
+  metadata?: Record<string, unknown>;
+  ipAddress?: string | null;
+};
+
+/** AI draft lifecycle events (create/approve/reject/send). */
+export type LogAiDraftEventParams = {
+  organizationId: string;
+  actorUserId?: string | null;
+  caseId?: string | null;
+  draftId: string;
+  draftType: string;
+  action:
+    | "ai_draft_created"
+    | "ai_draft_updated"
+    | "ai_draft_approved"
+    | "ai_draft_rejected"
+    | "ai_draft_sent"
+    | "ai_draft_error";
+  metadata?: Record<string, unknown>;
+};
+
 function serialize(value: unknown): Record<string, unknown> {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as Record<string, unknown>;
@@ -190,6 +235,67 @@ export async function logExtractionReview(
     action: `ai_review_${params.decision}`,
     metadata,
     ipAddress: params.ipAddress,
+  });
+}
+
+/**
+ * Log a communication lifecycle event (inbound/outbound message, read, draft
+ * approval, etc.). Writes to the audit log with the communication row as the
+ * entity so the case activity timeline can thread it next to stage
+ * transitions, notes, and tasks.
+ *
+ * Best-effort — the audit helper swallows errors so communication flows
+ * never get blocked.
+ */
+export async function logCommunicationEvent(
+  params: LogCommunicationEventParams,
+): Promise<void> {
+  const action =
+    params.action ??
+    (params.direction === "inbound"
+      ? "communication_received"
+      : "communication_sent");
+
+  const metadata: Record<string, unknown> = {
+    category: "communication",
+    direction: params.direction,
+    method: params.method,
+    caseId: params.caseId,
+    ...(params.metadata ?? {}),
+  };
+
+  await insertAuditRow({
+    organizationId: params.organizationId,
+    userId: params.actorUserId ?? null,
+    entityType: "communication",
+    entityId: params.communicationId,
+    action,
+    metadata,
+    ipAddress: params.ipAddress,
+  });
+}
+
+/**
+ * Log an AI draft lifecycle event. Writes with the draft row as the entity
+ * so reviewers can reconstruct who generated / edited / approved each draft.
+ */
+export async function logAiDraftEvent(
+  params: LogAiDraftEventParams,
+): Promise<void> {
+  const metadata: Record<string, unknown> = {
+    category: "ai_draft",
+    draftType: params.draftType,
+    caseId: params.caseId ?? null,
+    ...(params.metadata ?? {}),
+  };
+
+  await insertAuditRow({
+    organizationId: params.organizationId,
+    userId: params.actorUserId ?? null,
+    entityType: "ai_draft",
+    entityId: params.draftId,
+    action: params.action,
+    metadata,
   });
 }
 

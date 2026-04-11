@@ -45,6 +45,13 @@ const EVENT_COLORS: Record<string, string> = {
   assignment_changed: "bg-[#666]",
   case_created: "bg-[#0070F3]",
   workflow_executed: "bg-[#1d72b8]",
+  ai_draft_draft_ready: "bg-[#7b5fe6]",
+  ai_draft_in_review: "bg-[#7b5fe6]",
+  ai_draft_approved: "bg-[#10B981]",
+  ai_draft_sent: "bg-[#10B981]",
+  ai_draft_rejected: "bg-[#EE0000]",
+  ai_draft_error: "bg-[#EE0000]",
+  ai_draft_generating: "bg-[#7b5fe6]",
 };
 
 function formatRelativeTime(timestamp: string): string {

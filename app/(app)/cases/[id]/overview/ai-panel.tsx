@@ -15,10 +15,16 @@ import {
   draftCommunication,
 } from "@/app/actions/ai";
 
+type DraftResult = {
+  draft: string;
+  disclaimer: string;
+  contextSignals: string[];
+};
+
 type AIResult = {
   summary: string | null;
   suggestions: string | null;
-  draft: string | null;
+  draft: DraftResult | null;
 };
 
 type LoadingState = {
@@ -75,7 +81,7 @@ export function AIPanel({ caseId }: { caseId: string }) {
 
   const handleCopyDraft = useCallback(async () => {
     if (!results.draft) return;
-    await navigator.clipboard.writeText(results.draft);
+    await navigator.clipboard.writeText(results.draft.draft);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [results.draft]);
@@ -183,9 +189,24 @@ export function AIPanel({ caseId }: { caseId: string }) {
               )}
               {results.draft && !loading.draft && (
                 <div className="space-y-2">
+                  {results.draft.contextSignals.length > 0 && (
+                    <div className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground">
+                      <p className="font-medium text-foreground mb-1">
+                        AI saw in this case file:
+                      </p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        {results.draft.contextSignals.map((signal) => (
+                          <li key={signal}>{signal}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="rounded-md bg-muted p-3 text-sm whitespace-pre-wrap">
-                    {results.draft}
+                    {results.draft.draft}
                   </div>
+                  <p className="text-[11px] text-muted-foreground italic">
+                    {results.draft.disclaimer}
+                  </p>
                   <Button
                     variant="secondary"
                     size="sm"
