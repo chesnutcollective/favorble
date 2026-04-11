@@ -413,11 +413,17 @@ function hrefFor(
       const caseId = typeof f.case_id === "string" ? f.case_id : null;
       const docId = typeof f.document_id === "string" ? f.document_id : null;
       const page = typeof f.page_number === "number" ? f.page_number : undefined;
-      const pageQs = page ? `?page=${page}` : "";
       if (caseId && docId) {
-        return `/cases/${caseId}/documents${pageQs}`;
+        const qs = new URLSearchParams({ doc: docId });
+        if (page) qs.set("page", String(page));
+        return `/cases/${caseId}/documents?${qs.toString()}`;
       }
-      return `/documents${pageQs}`;
+      if (docId) {
+        const qs = new URLSearchParams({ doc: docId });
+        if (page) qs.set("page", String(page));
+        return `/documents?${qs.toString()}`;
+      }
+      return "/documents";
     }
     case "chronology_entry": {
       const caseId = typeof f.case_id === "string" ? f.case_id : null;

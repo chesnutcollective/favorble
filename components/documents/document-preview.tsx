@@ -17,6 +17,12 @@ type DocumentPreviewProps = {
   fileType: string;
   signedUrl: string;
   onClose: () => void;
+  /**
+   * 1-based PDF page number to jump to on open. Passed through as
+   * `#page=N` — the standard PDF open parameter that every major
+   * browser's built-in PDF viewer honors. Ignored for non-PDFs.
+   */
+  initialPage?: number;
 };
 
 export function DocumentPreview({
@@ -24,6 +30,7 @@ export function DocumentPreview({
   fileType,
   signedUrl,
   onClose,
+  initialPage,
 }: DocumentPreviewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const canPreview = isPreviewable(fileType);
@@ -68,7 +75,11 @@ export function DocumentPreview({
           <>
             {fileType === "application/pdf" && (
               <iframe
-                src={signedUrl}
+                src={
+                  initialPage && initialPage > 0
+                    ? `${signedUrl}#page=${initialPage}`
+                    : signedUrl
+                }
                 className={cn(
                   "h-full w-full rounded border border-border bg-white",
                   isLoading && "hidden",
