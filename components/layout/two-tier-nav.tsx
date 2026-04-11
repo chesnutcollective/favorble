@@ -668,8 +668,25 @@ export function TwoTierNav({
             {/* Mail Panel */}
             <MailPanel active={visiblePanel === "mail"} navData={navData} />
 
-            {/* Default panels for items without a custom panel
-                (billing, trust, team-chat currently fall through here). */}
+            {/* Billing Panel */}
+            <BillingPanel
+              active={visiblePanel === "billing"}
+              navData={navData}
+            />
+
+            {/* Trust Panel */}
+            <TrustPanel
+              active={visiblePanel === "trust"}
+              navData={navData}
+            />
+
+            {/* Team Chat Panel */}
+            <TeamChatPanel
+              active={visiblePanel === "team-chat"}
+              navData={navData}
+            />
+
+            {/* Default panels for any remaining items without a custom panel */}
             {visibleRailItems
               .filter(
                 (item) =>
@@ -689,6 +706,9 @@ export function TwoTierNav({
                     "phi-writer",
                     "medical-records",
                     "mail",
+                    "billing",
+                    "trust",
+                    "team-chat",
                   ].includes(item.id),
               )
               .map((item) => (
