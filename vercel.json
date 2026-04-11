@@ -1,4 +1,10 @@
 {
   "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/ingest-retry",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }
