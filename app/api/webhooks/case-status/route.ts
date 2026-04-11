@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
-import { communications, documents, cases, caseStages } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+  communications,
+  documents,
+  cases,
+  caseStages,
+  tasks,
+} from "@/db/schema";
+import { eq, and, isNull } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
+import { logCommunicationEvent } from "@/lib/services/hipaa-audit";
+import { enqueueCommunicationAnalysis } from "@/lib/services/sentiment";
+import {
+  extractActionItemsFromMessage,
+  classifyClientConfirmationReply,
+} from "@/lib/services/message-intake";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -121,25 +134,88 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        await db.insert(communications).values({
-          organizationId: resolved.organizationId,
-          caseId: resolved.caseId,
-          type: "message_inbound",
-          direction: "inbound",
-          body: body.content ?? body.body ?? null,
-          fromAddress: body.from ?? body.sender ?? null,
-          subject: body.subject ?? null,
-          externalMessageId: body.messageId ?? body.id ?? null,
-          sourceSystem: "case_status",
-          metadata: {
-            rawEvent: eventType,
-            receivedAt: new Date().toISOString(),
-          },
-        });
+        const [insertedComm] = await db
+          .insert(communications)
+          .values({
+            organizationId: resolved.organizationId,
+            caseId: resolved.caseId,
+            type: "message_inbound",
+            direction: "inbound",
+            body: body.content ?? body.body ?? null,
+            fromAddress: body.from ?? body.sender ?? null,
+            subject: body.subject ?? null,
+            externalMessageId: body.messageId ?? body.id ?? null,
+            sourceSystem: "case_status",
+            metadata: {
+              rawEvent: eventType,
+              receivedAt: new Date().toISOString(),
+            },
+          })
+          .returning({ id: communications.id });
 
         logger.info("Case Status message persisted", {
           caseId: resolved.caseId,
         });
+
+        // CM-5: audit the inbound message so it threads into the case
+        // activity timeline. No actor — this is a system-triggered event.
+        if (insertedComm) {
+          await logCommunicationEvent({
+            organizationId: resolved.organizationId,
+            actorUserId: null,
+            caseId: resolved.caseId,
+            communicationId: insertedComm.id,
+            direction: "inbound",
+            method: "case_status",
+            metadata: {
+              externalMessageId: body.messageId ?? body.id ?? null,
+              from: body.from ?? body.sender ?? null,
+            },
+          });
+        }
+
+        // QA-3: run sentiment analysis after the webhook has responded so
+        // the LLM call doesn't block the upstream case-status system.
+        if (insertedComm) {
+          enqueueCommunicationAnalysis({
+            communicationId: insertedComm.id,
+          });
+        }
+
+        // CM-3: extract action items from the inbound message, and if
+        // the case has any outstanding `pending_client_confirmation`
+        // tasks, classify this reply as a yes/no/unclear answer first
+        // so we can update the task state. Both run via after() so we
+        // never block the webhook ack.
+        if (insertedComm) {
+          const commId = insertedComm.id;
+          const caseId = resolved.caseId;
+          after(async () => {
+            try {
+              const [pendingTask] = await db
+                .select({ id: tasks.id })
+                .from(tasks)
+                .where(
+                  and(
+                    eq(tasks.caseId, caseId),
+                    eq(tasks.status, "pending_client_confirmation"),
+                    isNull(tasks.deletedAt),
+                  ),
+                )
+                .limit(1);
+
+              if (pendingTask) {
+                await classifyClientConfirmationReply(commId);
+              }
+              await extractActionItemsFromMessage(commId);
+            } catch (err) {
+              logger.error("case-status message intake failed", {
+                commId,
+                error: err instanceof Error ? err.message : String(err),
+              });
+            }
+          });
+        }
         break;
       }
 

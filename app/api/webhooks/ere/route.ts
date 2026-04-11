@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import {
@@ -11,6 +12,9 @@ import {
 import { eq, and, isNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
+import { recordSupervisorEvent } from "@/lib/services/supervisor-events";
+import { handleSupervisorEvent } from "@/lib/services/event-router";
+import { executeEventWorkflows } from "@/lib/workflow-engine";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -145,14 +149,29 @@ export async function POST(request: NextRequest) {
               .limit(1);
 
             if (jobRow) {
+              // Snapshot prior case state so we can detect NEW hearing
+              // dates and NEW decisions (SA-2 / SA-5 triggers).
+              const [priorCase] = await db
+                .select({
+                  hearingDate: cases.hearingDate,
+                  status: cases.status,
+                })
+                .from(cases)
+                .where(eq(cases.id, job.caseId))
+                .limit(1);
+
+              const incomingHearingDate = body.scrapedData.hearingDate
+                ? new Date(body.scrapedData.hearingDate)
+                : null;
+              const incomingClaimStatus =
+                (body.scrapedData.claimStatus as string | null) ?? null;
+
               await db.insert(scrapedCaseData).values({
                 organizationId: jobRow.organizationId,
                 caseId: job.caseId,
                 ereJobId: body.jobId,
-                claimStatus: body.scrapedData.claimStatus ?? null,
-                hearingDate: body.scrapedData.hearingDate
-                  ? new Date(body.scrapedData.hearingDate)
-                  : null,
+                claimStatus: incomingClaimStatus,
+                hearingDate: incomingHearingDate,
                 hearingOffice: body.scrapedData.hearingOffice ?? null,
                 adminLawJudge: body.scrapedData.adminLawJudge ?? null,
                 documentsOnFile: body.scrapedData.documentsOnFile ?? null,
@@ -165,9 +184,124 @@ export async function POST(request: NextRequest) {
                 .set({
                   hearingOffice: sql`COALESCE(${cases.hearingOffice}, ${body.scrapedData.hearingOffice ?? null})`,
                   adminLawJudge: sql`COALESCE(${cases.adminLawJudge}, ${body.scrapedData.adminLawJudge ?? null})`,
+                  hearingDate: sql`COALESCE(${cases.hearingDate}, ${incomingHearingDate})`,
                   updatedAt: new Date(),
                 })
                 .where(eq(cases.id, job.caseId));
+
+              // --- Supervisor event detection (SA-2 / SA-5) ---
+              const prevHearingMs =
+                priorCase?.hearingDate?.getTime() ?? null;
+              const newHearingMs = incomingHearingDate?.getTime() ?? null;
+              const isNewHearing =
+                newHearingMs !== null && prevHearingMs !== newHearingMs;
+
+              if (isNewHearing) {
+                const eventId = await recordSupervisorEvent({
+                  organizationId: jobRow.organizationId,
+                  caseId: job.caseId,
+                  eventType: "hearing_scheduled",
+                  summary: `Hearing scheduled for ${incomingHearingDate?.toISOString().split("T")[0] ?? "unknown date"}`,
+                  payload: {
+                    source: "ere_scrape",
+                    jobId: body.jobId,
+                    scrapedData: body.scrapedData,
+                  },
+                });
+                if (eventId) {
+                  const eventCaseId = job.caseId;
+                  const eventOrgId = jobRow.organizationId;
+                  const eventTriggerDate = incomingHearingDate ?? new Date();
+                  after(async () => {
+                    try {
+                      await handleSupervisorEvent(eventId);
+                      await executeEventWorkflows({
+                        eventType: "hearing_scheduled",
+                        caseId: eventCaseId,
+                        organizationId: eventOrgId,
+                        sourceEventId: eventId,
+                        triggerDate: eventTriggerDate,
+                      });
+                    } catch (err) {
+                      logger.error("ere hearing_scheduled handler failed", {
+                        eventId,
+                        error:
+                          err instanceof Error ? err.message : String(err),
+                      });
+                    }
+                  });
+                }
+              }
+
+              // Decision detection
+              const statusNorm = (incomingClaimStatus ?? "").toLowerCase();
+              const prevStatus = (priorCase?.status ?? "").toLowerCase();
+              const isFavorable =
+                statusNorm.includes("favorable") &&
+                !statusNorm.includes("unfavorable");
+              const isUnfavorable = statusNorm.includes("unfavorable");
+              const isDenial =
+                statusNorm.includes("denial") ||
+                statusNorm.includes("denied");
+              const statusChanged = statusNorm && statusNorm !== prevStatus;
+
+              const fireDecisionEvent = async (
+                decisionType:
+                  | "favorable_decision"
+                  | "unfavorable_decision"
+                  | "denial_received",
+                summary: string,
+              ) => {
+                const eventId = await recordSupervisorEvent({
+                  organizationId: jobRow.organizationId,
+                  caseId: job.caseId,
+                  eventType: decisionType,
+                  summary,
+                  payload: {
+                    source: "ere_scrape",
+                    jobId: body.jobId,
+                    scrapedData: body.scrapedData,
+                  },
+                });
+                if (eventId) {
+                  const eventCaseId = job.caseId;
+                  const eventOrgId = jobRow.organizationId;
+                  after(async () => {
+                    try {
+                      await handleSupervisorEvent(eventId);
+                      await executeEventWorkflows({
+                        eventType: decisionType,
+                        caseId: eventCaseId,
+                        organizationId: eventOrgId,
+                        sourceEventId: eventId,
+                      });
+                    } catch (err) {
+                      logger.error(`ere ${decisionType} handler failed`, {
+                        eventId,
+                        error:
+                          err instanceof Error ? err.message : String(err),
+                      });
+                    }
+                  });
+                }
+              };
+
+              if (statusChanged && isFavorable) {
+                await fireDecisionEvent(
+                  "favorable_decision",
+                  "Favorable decision received from SSA",
+                );
+              } else if (statusChanged && isUnfavorable) {
+                await fireDecisionEvent(
+                  "unfavorable_decision",
+                  "Unfavorable decision received from SSA",
+                );
+              } else if (statusChanged && isDenial) {
+                await fireDecisionEvent(
+                  "denial_received",
+                  "Denial received from SSA",
+                );
+              }
 
               // Mark scraped data as reconciled
               await db

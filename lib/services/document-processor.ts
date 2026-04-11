@@ -14,6 +14,7 @@ import {
 	type ExtractionType,
 } from "@/lib/integrations/langextract";
 import { logPhiModification } from "@/lib/services/hipaa-audit";
+import { autoLinkContactsFromExtraction } from "@/lib/services/contact-autolink";
 import { PDFParse } from "pdf-parse";
 import {
 	RAILWAY_STORAGE_PREFIX,
@@ -173,6 +174,10 @@ export async function processDocument({
 				grouped,
 			});
 		}
+
+		// SA-6: auto-populate contacts (providers, judges, representatives)
+		// from any extraction set. Best-effort — swallows its own errors.
+		await autoLinkContactsFromExtraction(documentId);
 
 		logger.info("Document processed", {
 			documentId,
