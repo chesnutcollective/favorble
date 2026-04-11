@@ -40,6 +40,18 @@ const REPORTS = [
     description: "Completed, pending, and overdue task breakdown.",
     icon: "✅",
   },
+  {
+    id: "win-rates",
+    title: "Win Rate Analytics",
+    description: "Hearing outcomes by rep, ALJ, office, and hearing type.",
+    icon: "🏆",
+  },
+  {
+    id: "alj-stats",
+    title: "ALJ Analytics",
+    description: "Every ALJ encountered with outcome patterns and trends.",
+    icon: "⚖️",
+  },
 ] as const;
 
 export function ReportNavigationTiles() {

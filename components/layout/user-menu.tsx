@@ -19,9 +19,21 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
+import type { PersonaId } from "@/lib/personas/config";
 import { ThemeSwitcher } from "./theme-switcher";
+import { ViewAsMenu } from "./view-as-menu";
 
-export function UserMenu({ user }: { user: SessionUser }) {
+export function UserMenu({
+  user,
+  isAdmin = false,
+  currentPersonaId,
+  isViewingAs = false,
+}: {
+  user: SessionUser;
+  isAdmin?: boolean;
+  currentPersonaId?: PersonaId;
+  isViewingAs?: boolean;
+}) {
   const { isMobile } = useSidebar();
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
@@ -92,6 +104,15 @@ export function UserMenu({ user }: { user: SessionUser }) {
               </span>
               <ThemeSwitcher />
             </div>
+            {isAdmin && currentPersonaId && (
+              <>
+                <DropdownMenuSeparator />
+                <ViewAsMenu
+                  currentPersonaId={currentPersonaId}
+                  isViewingAs={isViewingAs}
+                />
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <button type="button" className="w-full" onClick={() => logout()}>

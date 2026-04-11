@@ -27,6 +27,7 @@ import {
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import { logPhiAccess, shouldAudit } from "@/lib/services/hipaa-audit";
 
 export type CaseFilters = {
   search?: string;
@@ -118,48 +119,46 @@ export async function getCases(
       .where(and(...conditions)),
   ]);
 
-  // Get primary contacts for these cases
+  // Get primary contacts and assignments in parallel instead of serially so
+  // the case list page pays one round-trip instead of two.
   const caseIds = caseRows.map((c) => c.id);
-  const primaryContacts =
+  const [primaryContacts, assignments] =
     caseIds.length > 0
-      ? await db
-          .select({
-            caseId: caseContacts.caseId,
-            firstName: contacts.firstName,
-            lastName: contacts.lastName,
-            relationship: caseContacts.relationship,
-          })
-          .from(caseContacts)
-          .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
-          .where(
-            and(
-              inArray(caseContacts.caseId, caseIds),
-              eq(caseContacts.isPrimary, true),
+      ? await Promise.all([
+          db
+            .select({
+              caseId: caseContacts.caseId,
+              firstName: contacts.firstName,
+              lastName: contacts.lastName,
+              relationship: caseContacts.relationship,
+            })
+            .from(caseContacts)
+            .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+            .where(
+              and(
+                inArray(caseContacts.caseId, caseIds),
+                eq(caseContacts.isPrimary, true),
+              ),
             ),
-          )
-      : [];
-
-  // Get primary assignments for these cases
-  const assignments =
-    caseIds.length > 0
-      ? await db
-          .select({
-            caseId: caseAssignments.caseId,
-            userId: caseAssignments.userId,
-            role: caseAssignments.role,
-            firstName: users.firstName,
-            lastName: users.lastName,
-          })
-          .from(caseAssignments)
-          .innerJoin(users, eq(caseAssignments.userId, users.id))
-          .where(
-            and(
-              inArray(caseAssignments.caseId, caseIds),
-              eq(caseAssignments.isPrimary, true),
-              isNull(caseAssignments.unassignedAt),
+          db
+            .select({
+              caseId: caseAssignments.caseId,
+              userId: caseAssignments.userId,
+              role: caseAssignments.role,
+              firstName: users.firstName,
+              lastName: users.lastName,
+            })
+            .from(caseAssignments)
+            .innerJoin(users, eq(caseAssignments.userId, users.id))
+            .where(
+              and(
+                inArray(caseAssignments.caseId, caseIds),
+                eq(caseAssignments.isPrimary, true),
+                isNull(caseAssignments.unassignedAt),
+              ),
             ),
-          )
-      : [];
+        ])
+      : [[], []];
 
   // Prefer claimant contacts; fall back to any primary contact
   const contactMap = new Map<string, { firstName: string; lastName: string }>();
@@ -300,6 +299,28 @@ export async function getCaseById(id: string) {
     .from(caseStageGroups)
     .where(eq(caseStageGroups.organizationId, session.organizationId))
     .orderBy(asc(caseStageGroups.displayOrder));
+
+  // HIPAA: record that this user viewed a case detail view containing PHI.
+  // Debounced per (user, case) to avoid flooding on rapid refreshes.
+  const phiFields: string[] = [];
+  if (caseRow.ssnEncrypted) phiFields.push("ssnEncrypted");
+  if (caseRow.dateOfBirth) phiFields.push("dateOfBirth");
+  if (caseRow.ssaClaimNumber) phiFields.push("ssaClaimNumber");
+  if (phiFields.length > 0) {
+    const dedupeKey = `case_view:${session.id}:${id}`;
+    if (shouldAudit(dedupeKey)) {
+      await logPhiAccess({
+        organizationId: session.organizationId,
+        userId: session.id,
+        entityType: "case",
+        entityId: id,
+        caseId: id,
+        fieldsAccessed: phiFields,
+        reason: "case detail view",
+        severity: "info",
+      });
+    }
+  }
 
   return {
     ...caseRow,
@@ -718,6 +739,18 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
   try {
     const { decrypt, formatSSN } = await import("@/lib/encryption");
     const raw = decrypt(caseRow.ssnEncrypted);
+    // HIPAA: SSN reveal is always logged (never debounced).
+    await logPhiAccess({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "case",
+      entityId: caseId,
+      caseId,
+      fieldsAccessed: ["ssn_full"],
+      reason: "SSN reveal",
+      severity: "warning",
+      action: "phi_access.ssn_reveal",
+    });
     return formatSSN(raw);
   } catch (err) {
     logger.error("Failed to decrypt SSN", { caseId, error: err });

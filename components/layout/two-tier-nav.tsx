@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -15,6 +16,8 @@ import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
 import { ThemeSwitcher } from "./theme-switcher";
+import { ViewAsMenu } from "./view-as-menu";
+import type { PersonaId } from "@/lib/personas/config";
 
 /* ─── Rail nav items ─── */
 
@@ -188,6 +191,134 @@ const mainNav: RailItem[] = [
       </svg>
     ),
   },
+  {
+    id: "hearings",
+    label: "Hearings",
+    href: "/hearings",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+      </svg>
+    ),
+  },
+  {
+    id: "filing",
+    label: "Filing",
+    href: "/filing",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM7 18v-2h7v2H7zm10-4H7v-2h10v2zm-4-7V3.5L18.5 9H13z" />
+      </svg>
+    ),
+  },
+  {
+    id: "phi-writer",
+    label: "PHI Writer",
+    href: "/phi-writer",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+      </svg>
+    ),
+  },
+  {
+    id: "medical-records",
+    label: "Medical Records",
+    href: "/medical-records",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M19 3H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 11h-3v3h-2v-3H9v-2h3V9h2v3h3v2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "mail",
+    label: "Mail",
+    href: "/mail",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M22 4H2v16h20V4zm-2 4-8 5-8-5V6l8 5 8-5v2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "billing",
+    label: "Billing",
+    href: "/billing",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+      </svg>
+    ),
+  },
+  {
+    id: "trust",
+    label: "Trust",
+    href: "/trust",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+      </svg>
+    ),
+  },
+  {
+    id: "team-chat",
+    label: "Team Chat",
+    href: "/team-chat",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+      </svg>
+    ),
+  },
 ];
 
 const settingsIcon = (
@@ -242,20 +373,30 @@ const settingsNav: SettingsItem[] = [
     href: "/admin/integrations",
     description: "Connect external services",
   },
+  {
+    label: "Audit Logs",
+    href: "/admin/audit-logs",
+    description: "Search system event history",
+  },
+  {
+    label: "AI Review",
+    href: "/admin/ai-review",
+    description: "Verify AI-extracted data",
+  },
 ];
 
 /* ─── Determine active rail item from pathname ─── */
 
-function getActiveRailId(pathname: string): string {
+function getActiveRailId(pathname: string, items: RailItem[]): string {
   if (pathname.startsWith("/admin")) return "settings";
-  for (const item of mainNav) {
+  for (const item of items) {
     if (item.id === "dashboard") {
       if (pathname === "/dashboard" || pathname === "/") return "dashboard";
       continue;
     }
     if (pathname.startsWith(item.href)) return item.id;
   }
-  return "dashboard";
+  return items[0]?.id ?? "dashboard";
 }
 
 /* ─── Component ─── */
@@ -264,13 +405,54 @@ export function TwoTierNav({
   user,
   casesCount,
   navData,
+  personaNav,
+  isAdmin,
+  currentPersonaId,
+  isViewingAs,
 }: {
   user: SessionUser;
   casesCount?: number;
   navData?: NavPanelData;
+  /**
+   * Ordered list of rail item IDs this persona is allowed to see.
+   * Items not in this list are hidden. Ordering follows this array.
+   */
+  personaNav: string[];
+  /**
+   * True when the real signed-in actor is an admin. Controls whether the
+   * settings gear and "View as" menu render — independent of the currently
+   * previewed persona so admins keep their controls while viewing as others.
+   */
+  isAdmin: boolean;
+  /** The effective persona currently driving the UI (for view-as highlighting). */
+  currentPersonaId: PersonaId;
+  /** True when the admin is actively previewing another persona. */
+  isViewingAs: boolean;
 }) {
   const pathname = usePathname();
-  const activeRailId = getActiveRailId(pathname);
+
+  // Build a persona-scoped rail in the persona's preferred order.
+  // Items not in personaNav are hidden. Unknown IDs are silently skipped.
+  const railItemsById = React.useMemo(() => {
+    const map = new Map<string, RailItem>();
+    for (const item of mainNav) map.set(item.id, item);
+    return map;
+  }, []);
+  const visibleRailItems = React.useMemo(() => {
+    const out: RailItem[] = [];
+    const seen = new Set<string>();
+    for (const id of personaNav) {
+      if (seen.has(id)) continue;
+      const item = railItemsById.get(id);
+      if (item) {
+        out.push(item);
+        seen.add(id);
+      }
+    }
+    return out;
+  }, [personaNav, railItemsById]);
+
+  const activeRailId = getActiveRailId(pathname, visibleRailItems);
   const visiblePanel = activeRailId;
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
@@ -287,13 +469,23 @@ export function TwoTierNav({
         {/* ── Tier 1: Icon Rail ── */}
         <nav className="ttn-rail">
           {/* Logo */}
-          <Link href="/dashboard" className="ttn-logo">
-            <span>F</span>
+          <Link
+            href="/dashboard"
+            className="ttn-logo"
+            aria-label="Hogan Smith — Dashboard"
+          >
+            <Image
+              src="/hogansmith-badge.png"
+              alt="Hogan Smith Law"
+              width={88}
+              height={64}
+              priority
+            />
           </Link>
 
           {/* Main nav icons */}
           <div className="ttn-rail-group">
-            {mainNav.map((item) => {
+            {visibleRailItems.map((item) => {
               const active = isRailActive(item);
               return (
                 <Link
@@ -352,6 +544,15 @@ export function TwoTierNav({
                 </span>
                 <ThemeSwitcher />
               </div>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <ViewAsMenu
+                    currentPersonaId={currentPersonaId}
+                    isViewingAs={isViewingAs}
+                  />
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <button
@@ -365,14 +566,16 @@ export function TwoTierNav({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Settings gear */}
-          <Link
-            href="/admin/settings"
-            className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
-            title="Settings"
-          >
-            {settingsIcon}
-          </Link>
+          {/* Settings gear — only shown to admins (actor, not previewed persona) */}
+          {isAdmin && (
+            <Link
+              href="/admin/settings"
+              className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
+              title="Settings"
+            >
+              {settingsIcon}
+            </Link>
+          )}
         </nav>
 
         {/* ── Tier 2: Context Panel ── */}
@@ -438,8 +641,53 @@ export function TwoTierNav({
               pathname={pathname}
             />
 
-            {/* Default panels for remaining items */}
-            {mainNav
+            {/* Hearings Panel */}
+            <HearingsPanel
+              active={visiblePanel === "hearings"}
+              navData={navData}
+            />
+
+            {/* Filing Panel */}
+            <FilingPanel
+              active={visiblePanel === "filing"}
+              navData={navData}
+            />
+
+            {/* PHI Writer Panel */}
+            <PhiWriterPanel
+              active={visiblePanel === "phi-writer"}
+              navData={navData}
+            />
+
+            {/* Medical Records Panel */}
+            <MedicalRecordsPanel
+              active={visiblePanel === "medical-records"}
+              navData={navData}
+            />
+
+            {/* Mail Panel */}
+            <MailPanel active={visiblePanel === "mail"} navData={navData} />
+
+            {/* Billing Panel */}
+            <BillingPanel
+              active={visiblePanel === "billing"}
+              navData={navData}
+            />
+
+            {/* Trust Panel */}
+            <TrustPanel
+              active={visiblePanel === "trust"}
+              navData={navData}
+            />
+
+            {/* Team Chat Panel */}
+            <TeamChatPanel
+              active={visiblePanel === "team-chat"}
+              navData={navData}
+            />
+
+            {/* Default panels for any remaining items without a custom panel */}
+            {visibleRailItems
               .filter(
                 (item) =>
                   ![
@@ -453,6 +701,14 @@ export function TwoTierNav({
                     "contacts",
                     "documents",
                     "reports",
+                    "hearings",
+                    "filing",
+                    "phi-writer",
+                    "medical-records",
+                    "mail",
+                    "billing",
+                    "trust",
+                    "team-chat",
                   ].includes(item.id),
               )
               .map((item) => (
@@ -2650,6 +2906,587 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
         </Link>
       </div>
     </>
+  );
+}
+
+/* ─── Shared panel primitives for the new counter-driven panels ─── */
+
+const panelCounterRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "8px 12px",
+  borderBottom: "1px solid #F0F0F0",
+  textDecoration: "none",
+  color: "inherit",
+  fontSize: 12,
+};
+
+const panelCounterLabelStyle: React.CSSProperties = {
+  color: "#1C1C1E",
+};
+
+const panelCounterValueStyle: React.CSSProperties = {
+  fontFamily: "monospace",
+  fontSize: 12,
+  color: "#185f9b",
+  fontWeight: 600,
+};
+
+const panelSubHeaderStyle: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 600,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "#999",
+  padding: "10px 12px 4px",
+};
+
+const panelFooterLinkStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "#185f9b",
+  textDecoration: "none",
+};
+
+function PanelCounterRow({
+  href,
+  label,
+  value,
+  tone = "default",
+  sublabel,
+}: {
+  href: string;
+  label: string;
+  value: number | string;
+  tone?: "default" | "urgent" | "success" | "warn";
+  sublabel?: string;
+}) {
+  const toneColor =
+    tone === "urgent"
+      ? "#EE0000"
+      : tone === "warn"
+        ? "#F59E0B"
+        : tone === "success"
+          ? "#1d72b8"
+          : "#185f9b";
+  return (
+    <Link href={href} style={panelCounterRowStyle}>
+      <span style={panelCounterLabelStyle}>
+        {label}
+        {sublabel && (
+          <span
+            style={{
+              display: "block",
+              fontSize: 10,
+              color: "#999",
+              fontFamily: "monospace",
+              marginTop: 2,
+            }}
+          >
+            {sublabel}
+          </span>
+        )}
+      </span>
+      <span style={{ ...panelCounterValueStyle, color: toneColor }}>
+        {value}
+      </span>
+    </Link>
+  );
+}
+
+/* ─── Hearings ─── */
+
+function HearingsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.hearingsSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Hearings</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.next30dCount ?? 0} upcoming &middot; next 30d
+      </div>
+
+      <PanelCounterRow
+        href="/hearings?window=48h"
+        label="Next 48 hours"
+        value={s?.next48hCount ?? 0}
+        tone={s && s.next48hCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/hearings?window=7d"
+        label="This week"
+        value={s?.next7dCount ?? 0}
+      />
+      <PanelCounterRow
+        href="/hearings?window=30d&mrIncomplete=1"
+        label="MR blocking"
+        sublabel="< 14d, MR incomplete"
+        value={s?.mrBlocking14dCount ?? 0}
+        tone={s && s.mrBlocking14dCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/hearings" style={panelFooterLinkStyle}>
+          View all hearings &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Filing ─── */
+
+function FilingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.filingSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Filing</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Submission lifecycle
+      </div>
+
+      <PanelCounterRow
+        href="/filing?status=ready"
+        label="Ready to submit"
+        value={s?.readyToSubmit ?? 0}
+        tone={s && s.readyToSubmit > 0 ? "success" : "default"}
+      />
+      <PanelCounterRow
+        href="/filing?status=bundles"
+        label="Bundles for review"
+        value={s?.bundlesReady ?? 0}
+        tone={s && s.bundlesReady > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/filing?status=submitted"
+        label="Submitted this week"
+        value={s?.submittedThisWeek ?? 0}
+      />
+
+      <div style={panelSubHeaderStyle}>Statutory Clocks</div>
+      <div
+        style={{
+          fontSize: 11,
+          color: "#999",
+          padding: "0 12px 8px",
+          fontFamily: "monospace",
+        }}
+      >
+        Loaded on open &mdash; coming soon
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/filing" style={panelFooterLinkStyle}>
+          View filing queue &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PHI Writer ─── */
+
+function PhiWriterPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.phiWriterSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">PHI Writer</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.myAssigned ?? 0} mine &middot; {s?.myInProgress ?? 0} in progress
+      </div>
+
+      <PanelCounterRow
+        href="/phi-writer?assignedTo=me"
+        label="My queue"
+        value={s?.myAssigned ?? 0}
+      />
+      <PanelCounterRow
+        href="/phi-writer?urgency=week"
+        label="Due this week"
+        value={s?.dueThisWeek ?? 0}
+        tone={s && s.dueThisWeek > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/phi-writer?status=unassigned"
+        label="Unassigned"
+        value={s?.unassigned ?? 0}
+        tone={s && s.unassigned > 0 ? "urgent" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/phi-writer" style={panelFooterLinkStyle}>
+          Open PHI Writer &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Medical Records ─── */
+
+const TEAM_PILL_STYLES: Record<
+  string,
+  { bg: string; fg: string; label: string }
+> = {
+  blue: { bg: "rgba(59,130,246,0.12)", fg: "#2563eb", label: "Blue" },
+  orange: { bg: "rgba(249,115,22,0.12)", fg: "#ea580c", label: "Orange" },
+  green: { bg: "rgba(29,114,184,0.12)", fg: "#1d72b8", label: "Green" },
+  yellow: { bg: "rgba(245,158,11,0.14)", fg: "#b45309", label: "Yellow" },
+  purple: { bg: "rgba(139,92,246,0.12)", fg: "#7c3aed", label: "Purple" },
+};
+
+function MedicalRecordsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.medicalRecordsSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Medical Records</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Records blocking hearings
+      </div>
+
+      <PanelCounterRow
+        href="/medical-records?urgent=1"
+        label="Urgent (< 14d)"
+        value={s?.urgentBlocking14d ?? 0}
+        tone={s && s.urgentBlocking14d > 0 ? "urgent" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>RFC Pipeline</div>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          padding: "4px 12px 10px",
+          fontSize: 10,
+          fontFamily: "monospace",
+        }}
+      >
+        <Link
+          href="/medical-records?tab=rfc&status=not_requested"
+          style={{ textDecoration: "none", color: "#999" }}
+        >
+          Req {s?.rfcRequested ?? 0}
+        </Link>
+        <Link
+          href="/medical-records?tab=rfc&status=requested"
+          style={{ textDecoration: "none", color: "#F59E0B" }}
+        >
+          Await {s?.rfcAwaiting ?? 0}
+        </Link>
+        <Link
+          href="/medical-records?tab=rfc&status=received"
+          style={{ textDecoration: "none", color: "#1d72b8" }}
+        >
+          Recv {s?.rfcReceived ?? 0}
+        </Link>
+      </div>
+
+      <div style={panelSubHeaderStyle}>Team Workload</div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 4,
+          padding: "0 12px 8px",
+        }}
+      >
+        {(s?.teamWorkload ?? []).map((team) => {
+          const style = TEAM_PILL_STYLES[team.color];
+          if (!style) return null;
+          return (
+            <Link
+              key={team.color}
+              href={`/medical-records?tab=workload&team=${team.color}`}
+              style={{
+                backgroundColor: style.bg,
+                color: style.fg,
+                padding: "3px 8px",
+                borderRadius: 10,
+                fontSize: 10,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              {style.label} {team.count}
+            </Link>
+          );
+        })}
+        {(!s?.teamWorkload || s.teamWorkload.length === 0) && (
+          <span style={{ fontSize: 10, color: "#999" }}>No team cases</span>
+        )}
+      </div>
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/medical-records" style={panelFooterLinkStyle}>
+          Open Medical Records &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Mail ─── */
+
+function MailPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.mailSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Mail</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Postal intake &middot; tracking
+      </div>
+
+      <PanelCounterRow
+        href="/mail?tab=inbound&status=pending"
+        label="Pending inbox"
+        value={s?.pendingInbound ?? 0}
+        tone={s && s.pendingInbound > 5 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/mail?tab=inbound&unmatched=1"
+        label="Unmatched"
+        value={s?.unmatched ?? 0}
+        tone={s && s.unmatched > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/mail?tab=outbound&status=in_transit"
+        label="In transit"
+        sublabel={
+          s && s.certifiedInTransit > 0
+            ? `${s.certifiedInTransit} certified`
+            : undefined
+        }
+        value={s?.inTransit ?? 0}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/mail" style={panelFooterLinkStyle}>
+          Open mail inbox &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Billing ─── */
+
+function formatCents(cents: number): string {
+  const dollars = cents / 100;
+  if (Math.abs(dollars) >= 10000) {
+    return `$${(dollars / 1000).toFixed(1)}k`;
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(dollars);
+}
+
+function BillingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.billingSummary;
+  const unbilledHours = ((s?.unbilledMinutes ?? 0) / 60).toFixed(1);
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Billing</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Money to capture
+      </div>
+
+      <PanelCounterRow
+        href="/billing/invoices"
+        label="Outstanding"
+        sublabel={
+          s && s.overdueCount > 0
+            ? `${s.overdueCount} overdue`
+            : s
+              ? `${s.outstandingCount} invoice${s.outstandingCount === 1 ? "" : "s"}`
+              : undefined
+        }
+        value={formatCents(s?.outstandingCents ?? 0)}
+        tone={s && s.overdueCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/billing/time"
+        label="Unbilled time"
+        sublabel={
+          s ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}` : undefined
+        }
+        value={`${unbilledHours}h`}
+      />
+      <PanelCounterRow
+        href="/billing"
+        label="Unbilled expenses"
+        sublabel={
+          s ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}` : undefined
+        }
+        value={formatCents(s?.unbilledExpenseCents ?? 0)}
+      />
+      <PanelCounterRow
+        href="/billing/invoices"
+        label="Draft invoices"
+        value={s?.draftInvoiceCount ?? 0}
+        tone={s && s.draftInvoiceCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/billing" style={panelFooterLinkStyle}>
+          View all billing &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Trust ─── */
+
+function TrustPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.trustSummary;
+  const reconTone =
+    s && s.oldestUnreconciledDays != null && s.oldestUnreconciledDays > 30
+      ? "urgent"
+      : s && s.unreconciledCount > 0
+        ? "warn"
+        : "default";
+  const lastTone =
+    s && s.daysSinceLastReconciled != null && s.daysSinceLastReconciled > 30
+      ? "urgent"
+      : s && s.daysSinceLastReconciled != null && s.daysSinceLastReconciled > 14
+        ? "warn"
+        : "default";
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div
+        className="ttn-panel-header"
+        style={{ display: "flex", alignItems: "center", gap: 6 }}
+      >
+        <span>Trust</span>
+        {s?.hasNegativeBalance && (
+          <span
+            title="Negative account balance"
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              backgroundColor: "#EE0000",
+              display: "inline-block",
+            }}
+          />
+        )}
+      </div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {formatCents(s?.totalBalanceCents ?? 0)} &middot;{" "}
+        {s?.accountCount ?? 0} account{s?.accountCount === 1 ? "" : "s"}
+      </div>
+
+      <PanelCounterRow
+        href="/trust"
+        label="Pending reconciliation"
+        sublabel={
+          s?.oldestUnreconciledDays != null && s.unreconciledCount > 0
+            ? `${s.oldestUnreconciledDays}d oldest`
+            : undefined
+        }
+        value={s?.unreconciledCount ?? 0}
+        tone={reconTone}
+      />
+      <PanelCounterRow
+        href="/trust"
+        label="Last reconciled"
+        value={
+          s?.daysSinceLastReconciled != null
+            ? `${s.daysSinceLastReconciled}d ago`
+            : "never"
+        }
+        tone={lastTone}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/trust" style={panelFooterLinkStyle}>
+          Open trust accounting &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Team Chat ─── */
+
+function TeamChatPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.teamChatSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Team Chat</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Internal staff only
+      </div>
+
+      <PanelCounterRow
+        href="/team-chat"
+        label="Mentions"
+        sublabel="@you"
+        value={s?.mentionCount ?? 0}
+        tone={s && s.mentionCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/team-chat"
+        label="Direct messages"
+        value={s?.dmUnreadCount ?? 0}
+        tone={s && s.dmUnreadCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/team-chat" style={panelFooterLinkStyle}>
+          Open team chat &rarr;
+        </Link>
+      </div>
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@ import {
   timestamp,
   jsonb,
   index,
+  integer,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
 import { users } from "./users";
@@ -22,12 +23,19 @@ export const leads = pgTable(
     email: text("email"),
     phone: text("phone"),
     status: leadStatusEnum("status").notNull().default("new"),
+    // Extended 30+ stage pipeline (free-form, managed via lead-pipeline-config.ts)
+    // We keep the existing status enum for backward compatibility and add these
+    // free-form text columns to support the richer MyCase-style pipeline.
+    pipelineStage: text("pipeline_stage"),
+    pipelineStageGroup: text("pipeline_stage_group"),
+    pipelineStageOrder: integer("pipeline_stage_order"),
     source: text("source").default("website"),
     sourceData: jsonb("source_data").default({}),
     assignedToId: uuid("assigned_to_id").references(() => users.id),
     convertedToCaseId: uuid("converted_to_case_id"),
     convertedAt: timestamp("converted_at", { withTimezone: true }),
     intakeData: jsonb("intake_data").default({}),
+    metadata: jsonb("metadata").default({}),
     lastContactedAt: timestamp("last_contacted_at", { withTimezone: true }),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -43,6 +51,10 @@ export const leads = pgTable(
     index("idx_leads_org_status").on(table.organizationId, table.status),
     index("idx_leads_assigned").on(table.assignedToId),
     index("idx_leads_org_created").on(table.organizationId, table.createdAt),
+    index("idx_leads_pipeline_stage").on(
+      table.organizationId,
+      table.pipelineStage,
+    ),
   ],
 );
 

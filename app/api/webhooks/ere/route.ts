@@ -10,7 +10,7 @@ import {
 } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
-import { processDocument } from "@/lib/services/document-processor";
+import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -259,18 +259,23 @@ export async function POST(request: NextRequest) {
           fileName,
         });
 
-        // Fire-and-forget: send to LangExtract for structured extraction.
-        // Don't await — webhook should respond fast.
+        // Schedule ingest + AI extraction to run after the webhook
+        // responds. The background callback downloads the PDF from the
+        // source URL, persists it to the Railway bucket under a
+        // deterministic key, updates storage_path to the durable
+        // railway:// location, then runs LangExtract against the
+        // stable path. Uses Next.js after() so the promise actually
+        // completes on Vercel (fire-and-forget dies when the Lambda
+        // freezes).
         if (insertedDoc) {
-          processDocument({
+          enqueueIngestAndProcessing({
             documentId: insertedDoc.id,
             organizationId: job.organizationId,
-            extractionType: "medical_record",
-          }).catch((err) => {
-            logger.error("LangExtract processing failed", {
-              documentId: insertedDoc.id,
-              error: err,
-            });
+            caseId: job.caseId,
+            fileName,
+            fileType,
+            sourceUrl: body.downloadUrl ?? body.url ?? null,
+            source: "ere_webhook",
           });
         }
         break;

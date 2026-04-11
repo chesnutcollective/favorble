@@ -12,6 +12,7 @@ import {
   Upload01Icon,
   GlobeIcon,
   UserIcon,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { formatFileSize, getFileIconType } from "@/lib/storage/client";
@@ -33,6 +34,12 @@ export type DocumentItem = {
     | "ere";
   createdAt: string;
   createdByName?: string;
+  /**
+   * True when the document row is a metadata-only stub (e.g. Chronicle
+   * imports where the underlying PDF wasn't downloaded). Stubs cannot be
+   * previewed or downloaded and render a muted "Metadata only" badge.
+   */
+  isMetadataOnly?: boolean;
 };
 
 type DocumentListProps = {
@@ -40,6 +47,8 @@ type DocumentListProps = {
   onPreview: (doc: DocumentItem) => void;
   onDownload: (doc: DocumentItem) => void;
   onDelete?: (doc: DocumentItem) => void;
+  onReprocess?: (doc: DocumentItem) => void;
+  reprocessingId?: string | null;
   sourceFilter?: string | null;
   onSourceFilterChange?: (source: string | null) => void;
 };
@@ -59,6 +68,8 @@ export function DocumentList({
   onPreview,
   onDownload,
   onDelete,
+  onReprocess,
+  reprocessingId,
   sourceFilter,
   onSourceFilterChange,
 }: DocumentListProps) {
@@ -160,9 +171,24 @@ export function DocumentList({
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <FileIcon type={iconType} />
-                        <span className="truncate font-medium text-foreground max-w-[200px]">
+                        <span
+                          className={cn(
+                            "truncate font-medium max-w-[200px]",
+                            doc.isMetadataOnly
+                              ? "text-[#999]"
+                              : "text-foreground",
+                          )}
+                        >
                           {doc.fileName}
                         </span>
+                        {doc.isMetadataOnly && (
+                          <span
+                            className="shrink-0 rounded-full border border-[#EAEAEA] px-1.5 py-0.5 text-[10px] font-medium text-[#999]"
+                            title="This document is a metadata stub. The underlying PDF wasn't downloaded from Chronicle."
+                          >
+                            Metadata only
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="hidden px-4 py-2.5 sm:table-cell">
@@ -187,7 +213,13 @@ export function DocumentList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onPreview(doc)}
-                          title="Preview"
+                          disabled={doc.isMetadataOnly}
+                          title={
+                            doc.isMetadataOnly
+                              ? "Metadata only — no file to preview"
+                              : "Preview"
+                          }
+                          className="disabled:opacity-30"
                         >
                           <HugeiconsIcon icon={EyeIcon} size={16} />
                         </Button>
@@ -195,10 +227,42 @@ export function DocumentList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onDownload(doc)}
-                          title="Download"
+                          disabled={doc.isMetadataOnly}
+                          title={
+                            doc.isMetadataOnly
+                              ? "Metadata only — no file to download"
+                              : "Download"
+                          }
+                          className="disabled:opacity-30"
                         >
                           <HugeiconsIcon icon={Download01Icon} size={16} />
                         </Button>
+                        {onReprocess && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onReprocess(doc)}
+                            disabled={
+                              reprocessingId === doc.id || doc.isMetadataOnly
+                            }
+                            title={
+                              doc.isMetadataOnly
+                                ? "Metadata only — no file to process"
+                                : "Reprocess with AI"
+                            }
+                            className="text-[#263c94] hover:text-[#263c94] disabled:opacity-30"
+                          >
+                            <HugeiconsIcon
+                              icon={SparklesIcon}
+                              size={16}
+                              className={
+                                reprocessingId === doc.id
+                                  ? "animate-pulse"
+                                  : undefined
+                              }
+                            />
+                          </Button>
+                        )}
                         {onDelete && (
                           <div className="relative">
                             <Button

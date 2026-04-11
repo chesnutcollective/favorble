@@ -109,8 +109,8 @@ export function ContactsListClient({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+        <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-sm">
           <HugeiconsIcon
             icon={Search01Icon}
             size={16}
@@ -133,7 +133,7 @@ export function ContactsListClient({
             applyFilters({ type: v });
           }}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent>
@@ -159,8 +159,8 @@ export function ContactsListClient({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
+              <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead className="text-right">Cases</TableHead>
             </TableRow>
           </TableHeader>
@@ -197,10 +197,10 @@ export function ContactsListClient({
                       {CONTACT_TYPE_LABELS[c.contactType] ?? c.contactType}
                     </span>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                     {c.email ?? "-"}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                     {c.phone ?? "-"}
                   </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">
@@ -214,12 +214,12 @@ export function ContactsListClient({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-[#666]">
           {total} total contact{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between sm:justify-start gap-2">
             <Button
               variant="outline"
               size="sm"

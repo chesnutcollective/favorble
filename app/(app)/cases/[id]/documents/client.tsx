@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useCallback, useTransition } from "react";
+import { toast } from "sonner";
 import {
   DocumentList,
   type DocumentItem,
@@ -18,6 +20,7 @@ import {
   getDocumentUrl,
   deleteDocument,
 } from "@/app/actions/documents";
+import { triggerLangExtract } from "@/app/actions/extract";
 
 type Template = {
   id: string;
@@ -54,6 +57,7 @@ export function CaseDocumentsClient({
   templates,
   caseData,
 }: CaseDocumentsClientProps) {
+  const router = useRouter();
   const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
   const [showUpload, setShowUpload] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<{
@@ -63,6 +67,8 @@ export function CaseDocumentsClient({
   } | null>(null);
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   const handleUpload = useCallback(
     async (files: File[], category?: string) => {
@@ -105,14 +111,18 @@ export function CaseDocumentsClient({
         fileType: doc.fileType,
         signedUrl: result.url,
       });
+      return;
     }
+    toast.error(result.error ?? "Could not open document");
   }, []);
 
   const handleDownload = useCallback(async (doc: DocumentItem) => {
     const result = await getDocumentUrl(doc.id);
     if (result.url) {
       window.open(result.url, "_blank");
+      return;
     }
+    toast.error(result.error ?? "Could not download document");
   }, []);
 
   const handleDelete = useCallback(async (doc: DocumentItem) => {
@@ -127,6 +137,36 @@ export function CaseDocumentsClient({
     }
   }, []);
 
+  const handleReprocess = useCallback(
+    async (doc: DocumentItem) => {
+      setReprocessingId(doc.id);
+      const extractionType = pickExtractionType(doc);
+      const loadingToast = toast.loading(
+        `Reprocessing "${doc.fileName}" with AI...`,
+      );
+      try {
+        const result = await triggerLangExtract(doc.id, extractionType);
+        toast.dismiss(loadingToast);
+        if (result.success) {
+          toast.success(`"${doc.fileName}" reprocessed successfully`);
+          startTransition(() => {
+            router.refresh();
+          });
+        } else {
+          toast.error(result.error || "Reprocessing failed");
+        }
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error(
+          error instanceof Error ? error.message : "Reprocessing failed",
+        );
+      } finally {
+        setReprocessingId(null);
+      }
+    },
+    [router],
+  );
+
   const handleTemplateGenerated = useCallback((doc: DocumentItem) => {
     setDocuments((prev) => [doc, ...prev]);
     setShowTemplateDialog(false);
@@ -138,18 +178,24 @@ export function CaseDocumentsClient({
         title="Documents"
         description="Case documents from all sources."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {templates.length > 0 && (
               <Button
                 onClick={() => setShowTemplateDialog(true)}
                 size="sm"
                 variant="outline"
+                className="flex-1 sm:flex-none"
               >
                 <HugeiconsIcon icon={File01Icon} size={16} className="mr-1" />
-                Generate from Template
+                <span className="hidden sm:inline">Generate from Template</span>
+                <span className="sm:hidden">Template</span>
               </Button>
             )}
-            <Button onClick={() => setShowUpload(!showUpload)} size="sm">
+            <Button
+              onClick={() => setShowUpload(!showUpload)}
+              size="sm"
+              className="flex-1 sm:flex-none"
+            >
               <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
               Upload
             </Button>
@@ -166,6 +212,8 @@ export function CaseDocumentsClient({
         onPreview={handlePreview}
         onDownload={handleDownload}
         onDelete={handleDelete}
+        onReprocess={handleReprocess}
+        reprocessingId={reprocessingId}
         sourceFilter={sourceFilter}
         onSourceFilterChange={setSourceFilter}
       />
@@ -177,7 +225,10 @@ export function CaseDocumentsClient({
           if (!open) setPreviewDoc(null);
         }}
       >
-        <SheetContent side="right" className="w-[600px] p-0 sm:max-w-[600px]">
+        <SheetContent
+          side="right"
+          className="w-full p-0 sm:w-[600px] sm:max-w-[600px]"
+        >
           {previewDoc && (
             <DocumentPreview
               fileName={previewDoc.fileName}
@@ -202,4 +253,37 @@ export function CaseDocumentsClient({
       />
     </div>
   );
+}
+
+type ExtractionType =
+  | "medical_record"
+  | "status_report"
+  | "decision_letter"
+  | "efolder_classification";
+
+/**
+ * Guess the best LangExtract extraction type from a document's filename,
+ * category, and source. Mirrors the ERE webhook's filename heuristics so
+ * manual reprocess matches the automatic path.
+ */
+function pickExtractionType(doc: DocumentItem): ExtractionType {
+  const name = doc.fileName.toLowerCase();
+  const category = (doc.category ?? "").toLowerCase();
+
+  if (
+    name.includes("decision") ||
+    name.includes("favorable") ||
+    name.includes("denial") ||
+    category.includes("decision")
+  ) {
+    return "decision_letter";
+  }
+  if (
+    name.includes("status") ||
+    name.includes("report") ||
+    category.includes("status")
+  ) {
+    return "status_report";
+  }
+  return "medical_record";
 }

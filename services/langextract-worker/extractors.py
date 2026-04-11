@@ -9,8 +9,11 @@ Each configuration defines:
 The shapes are tuned for Favorble's SSA / legal workflows:
   - medical_record       Extract providers, dates, diagnoses, treatments, meds.
   - status_report        Pull claim status, hearing date / office, ALJ, docs.
-  - decision_letter      Favorable / unfavorable decision, date, reasoning.
+  - decision_letter      Favorable / unfavorable decision, date, reasoning,
+                         RFC findings, severe impairments, listing match, PRW.
   - efolder_classification  Classify an ERE / e-folder document into a type.
+  - phi_sheet_draft      Draft a Pre-Hearing Intelligence sheet from sources.
+  - appeal_brief         Extract Appeals Council / Federal Court brief fields.
 """
 
 from __future__ import annotations
@@ -63,19 +66,45 @@ received_date when those details are in the text.
 """
 
 DECISION_LETTER_PROMPT = """\
-Extract the SSA disability decision details from the letter text.
+Extract the SSA disability decision details from the letter text. You are
+reading an ALJ Notice of Decision. Return exact source spans only (never
+paraphrase) and attach structured attributes where indicated.
 
 Entity classes:
-  - decision_type       Must be "favorable", "partially favorable", "unfavorable",
-                        or "dismissal". Use the attribute ``raw`` to hold the
-                        exact source phrase.
-  - decision_date       The date the decision was issued.
-  - onset_date          The established onset date, if stated.
-  - alj                 Deciding Administrative Law Judge.
-  - reasoning           Key finding or rationale sentences from the decision.
-  - appeal_deadline     Date by which an appeal must be filed, if mentioned.
+  - decision_type         One of "favorable", "partially_favorable",
+                          "unfavorable", "dismissal", or "remand". Store the
+                          normalized token in the ``value`` attribute and the
+                          literal source phrase in the ``raw`` attribute.
+  - decision_date         The date the decision was issued.
+  - onset_date            The established onset date, if stated.
+  - alj                   Deciding Administrative Law Judge.
+  - reasoning             A concise summary sentence of the ALJ's stated
+                          reasoning. Prefer the sentence that most directly
+                          explains WHY the claim was granted or denied. Store
+                          the full paragraph (if any) in the ``full_text``
+                          attribute.
+  - rfc_findings          Residual Functional Capacity paragraph(s) — the
+                          sentence(s) describing the claimant's RFC. Use the
+                          ``exertional_level`` attribute to capture "sedentary",
+                          "light", "medium", "heavy", or "very heavy" when the
+                          ALJ states one.
+  - severe_impairment     One extraction per severe medically determinable
+                          impairment named at Step 2. Use the ``step`` = "2"
+                          attribute.
+  - listing_match         Whether the claimant met or equaled a Listing at
+                          Step 3. Use the ``met`` attribute ("true" / "false")
+                          and the ``listing`` attribute to hold the listing
+                          number (e.g. "1.15") if stated.
+  - past_relevant_work    Step 4 analysis of past relevant work. Use the
+                          ``can_perform_prw`` attribute ("true" / "false") when
+                          the ALJ makes an explicit finding.
+  - appeal_deadline       Date / period by which an appeal must be filed, if
+                          mentioned.
 
-Return the exact source text for each extraction.
+Rules:
+  - Always return exact source text for each extraction.
+  - If a field is not present in the document, omit it rather than inventing.
+  - Multiple severe_impairment extractions are expected — one per impairment.
 """
 
 EFOLDER_CLASSIFICATION_PROMPT = """\
@@ -92,6 +121,79 @@ Allowed values for the ``document_type`` extraction (use the attribute
 Return one extraction with class ``document_type``. Include a ``confidence``
 attribute in [0, 1] and a short ``reason`` attribute citing specific language
 from the document.
+"""
+
+
+PHI_SHEET_DRAFT_PROMPT = """\
+Extract structured facts to populate a Pre-Hearing Intelligence (PHI) sheet
+draft for an SSA disability claim. The source text is an assembled packet of
+medical records, work history, and claimant statements. Your job is to
+identify the strongest sentences from the record that ground each PHI field.
+
+Always return the exact source span for each extraction. The downstream
+editor will refine the draft; your job is to provide richly grounded raw
+material — NOT polished prose.
+
+Entity classes:
+  - claimant_summary        One or two sentences from the record giving
+                            background (age, prior work, onset, core problem).
+                            Include ``age``, ``gender``, ``onset`` attributes
+                            when the text states them.
+  - alleged_impairment      One extraction per impairment the claimant alleges.
+                            Use the ``severity`` attribute ("alleged",
+                            "documented", "severe") based on how the record
+                            characterizes it.
+  - key_medical_evidence    The strongest evidentiary sentences — imaging
+                            findings, objective test results, specialist
+                            opinions, hospitalizations. One extraction per
+                            piece of evidence. Attach ``source`` (provider or
+                            exhibit id) and ``weight`` ("strong", "moderate",
+                            "supporting") attributes.
+  - work_history_summary    Sentence(s) describing relevant past work. Attach
+                            ``years`` and ``exertional_level`` attributes when
+                            stated.
+  - vocational_factor       One extraction per vocational factor the record
+                            mentions. Use the ``factor`` attribute to hold
+                            one of: "age", "education", "language", "skills".
+  - hearing_strategy_note   Internal-analysis sentences suggesting an approach
+                            (e.g. "strong grid rule argument at 50",
+                            "listing 12.04 equivalency available").
+  - question_for_alj        Any question or topic the representative should
+                            raise at the hearing.
+  - witness_recommended     Any treating source or lay witness the record
+                            suggests calling.
+
+Only return extractions when the source text actually supports them. Do not
+fabricate strategy notes or witness recommendations if the record is silent.
+"""
+
+
+APPEAL_BRIEF_PROMPT = """\
+Extract the skeleton of an Appeals Council or Federal Court appeal brief
+from the source text. The input may be a prior ALJ decision, a draft brief,
+or a hearing transcript. Return exact source spans only.
+
+Entity classes:
+  - case_caption            The case caption (claimant name, SSA claim
+                            number, docket / case number). Attach ``claimant``,
+                            ``ssn_last4``, and ``docket`` attributes if
+                            present in the text.
+  - alj_decision_date       The date of the ALJ decision being appealed.
+  - issue_on_appeal         One extraction per issue being raised on appeal
+                            (e.g. "whether the ALJ properly evaluated the
+                            treating source opinion"). Attach an ``index``
+                            attribute ("1", "2", …) in order.
+  - error_alleged           One extraction per specific legal error alleged
+                            (e.g. "failure to apply the treating physician
+                            rule", "improper step 5 analysis"). Attach a
+                            ``category`` attribute such as "legal_standard",
+                            "credibility", "rfc", "step_5", "listings",
+                            "new_evidence".
+  - relief_requested        The relief requested from the reviewing body
+                            (e.g. "remand for further proceedings", "reversal
+                            and award of benefits").
+
+Do not invent legal theories the source text does not support.
 """
 
 
@@ -196,8 +298,19 @@ def _decision_letter_examples() -> List[Any]:
             text=(
                 "Notice of Decision — Fully Favorable. After careful review of "
                 "the entire record, ALJ Maria Alvarez finds the claimant has "
-                "been disabled since January 3, 2023. This decision is issued "
-                "on April 2, 2025. You have 60 days to file an appeal."
+                "been disabled since January 3, 2023. At Step 2 the claimant "
+                "has the following severe impairments: degenerative disc "
+                "disease of the lumbar spine, major depressive disorder, and "
+                "fibromyalgia. At Step 3 the claimant's impairments do not "
+                "meet or medically equal the severity of a listed impairment. "
+                "After careful consideration of the entire record, the "
+                "undersigned finds that the claimant has the residual "
+                "functional capacity to perform sedentary work as defined in "
+                "20 CFR 404.1567(a) except she can occasionally climb ramps "
+                "and stairs and must avoid concentrated exposure to hazards. "
+                "At Step 4, the claimant is unable to perform any past "
+                "relevant work as a warehouse picker. This decision is "
+                "issued on April 2, 2025. You have 60 days to file an appeal."
             ),
             extractions=[
                 lx_data.Extraction(
@@ -224,11 +337,260 @@ def _decision_letter_examples() -> List[Any]:
                         "Alvarez finds the claimant has been disabled since "
                         "January 3, 2023."
                     ),
+                    attributes={"kind": "summary"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="rfc_findings",
+                    extraction_text=(
+                        "the claimant has the residual functional capacity to "
+                        "perform sedentary work as defined in 20 CFR "
+                        "404.1567(a) except she can occasionally climb ramps "
+                        "and stairs and must avoid concentrated exposure to "
+                        "hazards"
+                    ),
+                    attributes={"exertional_level": "sedentary"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="severe_impairment",
+                    extraction_text="degenerative disc disease of the lumbar spine",
+                    attributes={"step": "2"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="severe_impairment",
+                    extraction_text="major depressive disorder",
+                    attributes={"step": "2"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="severe_impairment",
+                    extraction_text="fibromyalgia",
+                    attributes={"step": "2"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="listing_match",
+                    extraction_text=(
+                        "the claimant's impairments do not meet or medically "
+                        "equal the severity of a listed impairment"
+                    ),
+                    attributes={"met": "false"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="past_relevant_work",
+                    extraction_text=(
+                        "the claimant is unable to perform any past relevant "
+                        "work as a warehouse picker"
+                    ),
+                    attributes={
+                        "can_perform_prw": "false",
+                        "prw_title": "warehouse picker",
+                    },
                 ),
                 lx_data.Extraction(
                     extraction_class="appeal_deadline",
                     extraction_text="60 days",
                     attributes={"kind": "relative"},
+                ),
+            ],
+        )
+    ]
+
+
+def _phi_sheet_draft_examples() -> List[Any]:
+    if not _LX_AVAILABLE:
+        return []
+    return [
+        lx_data.ExampleData(
+            text=(
+                "Claimant is a 52-year-old former warehouse worker with a "
+                "high school education who alleges disability due to chronic "
+                "low back pain, radiculopathy, and depression beginning "
+                "March 2023. MRI of the lumbar spine dated 06/12/2024 shows "
+                "L4-L5 disc herniation with nerve root impingement. Dr. Chen "
+                "at Brookside Spine notes the claimant cannot sit or stand "
+                "more than 15 minutes at a time. PHQ-9 score of 18 "
+                "(moderately severe) recorded 08/01/2024. Claimant's past "
+                "relevant work as warehouse picker was performed at the "
+                "heavy exertional level for 14 years. At age 52 with a "
+                "limited education, a grid rule argument under 201.14 may "
+                "apply if RFC is limited to sedentary. Treating physician "
+                "Dr. Chen should be called to testify about sitting and "
+                "standing limitations. The ALJ should be asked how the "
+                "claimant can sustain competitive work with breaks every "
+                "15 minutes."
+            ),
+            extractions=[
+                lx_data.Extraction(
+                    extraction_class="claimant_summary",
+                    extraction_text=(
+                        "Claimant is a 52-year-old former warehouse worker "
+                        "with a high school education who alleges disability "
+                        "due to chronic low back pain, radiculopathy, and "
+                        "depression beginning March 2023."
+                    ),
+                    attributes={
+                        "age": "52",
+                        "onset": "March 2023",
+                        "education": "high school",
+                    },
+                ),
+                lx_data.Extraction(
+                    extraction_class="alleged_impairment",
+                    extraction_text="chronic low back pain",
+                    attributes={"severity": "documented"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="alleged_impairment",
+                    extraction_text="radiculopathy",
+                    attributes={"severity": "documented"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="alleged_impairment",
+                    extraction_text="depression",
+                    attributes={"severity": "documented"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="key_medical_evidence",
+                    extraction_text=(
+                        "MRI of the lumbar spine dated 06/12/2024 shows L4-L5 "
+                        "disc herniation with nerve root impingement"
+                    ),
+                    attributes={"source": "imaging", "weight": "strong"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="key_medical_evidence",
+                    extraction_text=(
+                        "Dr. Chen at Brookside Spine notes the claimant "
+                        "cannot sit or stand more than 15 minutes at a time"
+                    ),
+                    attributes={
+                        "source": "Dr. Chen, Brookside Spine",
+                        "weight": "strong",
+                    },
+                ),
+                lx_data.Extraction(
+                    extraction_class="key_medical_evidence",
+                    extraction_text=(
+                        "PHQ-9 score of 18 (moderately severe) recorded "
+                        "08/01/2024"
+                    ),
+                    attributes={"source": "objective_test", "weight": "moderate"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="work_history_summary",
+                    extraction_text=(
+                        "past relevant work as warehouse picker was performed "
+                        "at the heavy exertional level for 14 years"
+                    ),
+                    attributes={"years": "14", "exertional_level": "heavy"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="vocational_factor",
+                    extraction_text="age 52",
+                    attributes={"factor": "age"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="vocational_factor",
+                    extraction_text="limited education",
+                    attributes={"factor": "education"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="hearing_strategy_note",
+                    extraction_text=(
+                        "a grid rule argument under 201.14 may apply if RFC "
+                        "is limited to sedentary"
+                    ),
+                ),
+                lx_data.Extraction(
+                    extraction_class="witness_recommended",
+                    extraction_text="Dr. Chen",
+                ),
+                lx_data.Extraction(
+                    extraction_class="question_for_alj",
+                    extraction_text=(
+                        "how the claimant can sustain competitive work with "
+                        "breaks every 15 minutes"
+                    ),
+                ),
+            ],
+        )
+    ]
+
+
+def _appeal_brief_examples() -> List[Any]:
+    if not _LX_AVAILABLE:
+        return []
+    return [
+        lx_data.ExampleData(
+            text=(
+                "BEFORE THE APPEALS COUNCIL, SOCIAL SECURITY ADMINISTRATION. "
+                "In re: Jane Roe, Claimant. Claim No. XXX-XX-1234. Docket: "
+                "AC-2025-00841. Appeal from the decision of ALJ Robert Hwang "
+                "dated March 15, 2025. The claimant appeals on the following "
+                "issues: (1) whether the ALJ properly evaluated the treating "
+                "source opinion of Dr. Amelia Chen under 20 CFR 404.1520c; "
+                "(2) whether the ALJ's Step 5 analysis is supported by "
+                "substantial evidence. The ALJ erred by failing to articulate "
+                "supportability and consistency factors for the treating "
+                "source opinion. The ALJ further erred by relying on VE "
+                "testimony that conflicted with the DOT without resolving "
+                "the conflict. The claimant respectfully requests that this "
+                "matter be remanded for further proceedings."
+            ),
+            extractions=[
+                lx_data.Extraction(
+                    extraction_class="case_caption",
+                    extraction_text=(
+                        "In re: Jane Roe, Claimant. Claim No. XXX-XX-1234. "
+                        "Docket: AC-2025-00841."
+                    ),
+                    attributes={
+                        "claimant": "Jane Roe",
+                        "ssn_last4": "1234",
+                        "docket": "AC-2025-00841",
+                    },
+                ),
+                lx_data.Extraction(
+                    extraction_class="alj_decision_date",
+                    extraction_text="March 15, 2025",
+                ),
+                lx_data.Extraction(
+                    extraction_class="issue_on_appeal",
+                    extraction_text=(
+                        "whether the ALJ properly evaluated the treating "
+                        "source opinion of Dr. Amelia Chen under 20 CFR "
+                        "404.1520c"
+                    ),
+                    attributes={"index": "1"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="issue_on_appeal",
+                    extraction_text=(
+                        "whether the ALJ's Step 5 analysis is supported by "
+                        "substantial evidence"
+                    ),
+                    attributes={"index": "2"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="error_alleged",
+                    extraction_text=(
+                        "failing to articulate supportability and consistency "
+                        "factors for the treating source opinion"
+                    ),
+                    attributes={"category": "legal_standard"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="error_alleged",
+                    extraction_text=(
+                        "relying on VE testimony that conflicted with the "
+                        "DOT without resolving the conflict"
+                    ),
+                    attributes={"category": "step_5"},
+                ),
+                lx_data.Extraction(
+                    extraction_class="relief_requested",
+                    extraction_text=(
+                        "this matter be remanded for further proceedings"
+                    ),
+                    attributes={"kind": "remand"},
                 ),
             ],
         )
@@ -312,6 +674,148 @@ MOCK_RESPONSES: Dict[str, Dict[str, Any]] = {
             _mock_extraction(
                 "reasoning",
                 "After careful review of the entire record, the claimant has been disabled since January 3, 2023.",
+                kind="summary",
+            ),
+            _mock_extraction(
+                "rfc_findings",
+                "the claimant has the residual functional capacity to perform sedentary work",
+                exertional_level="sedentary",
+            ),
+            _mock_extraction(
+                "severe_impairment",
+                "degenerative disc disease of the lumbar spine",
+                step="2",
+            ),
+            _mock_extraction(
+                "severe_impairment",
+                "major depressive disorder",
+                step="2",
+            ),
+            _mock_extraction(
+                "severe_impairment",
+                "fibromyalgia",
+                step="2",
+            ),
+            _mock_extraction(
+                "listing_match",
+                "the claimant's impairments do not meet or medically equal the severity of a listed impairment",
+                met="false",
+            ),
+            _mock_extraction(
+                "past_relevant_work",
+                "the claimant is unable to perform any past relevant work as a warehouse picker",
+                can_perform_prw="false",
+                prw_title="warehouse picker",
+            ),
+            _mock_extraction(
+                "appeal_deadline",
+                "60 days",
+                kind="relative",
+            ),
+        ]
+    },
+    "phi_sheet_draft": {
+        "extractions": [
+            _mock_extraction(
+                "claimant_summary",
+                "Claimant is a 52-year-old former warehouse worker with a high school education",
+                age="52",
+                education="high school",
+            ),
+            _mock_extraction(
+                "alleged_impairment",
+                "chronic low back pain",
+                severity="documented",
+            ),
+            _mock_extraction(
+                "alleged_impairment",
+                "radiculopathy",
+                severity="documented",
+            ),
+            _mock_extraction(
+                "alleged_impairment",
+                "depression",
+                severity="documented",
+            ),
+            _mock_extraction(
+                "key_medical_evidence",
+                "MRI of the lumbar spine dated 06/12/2024 shows L4-L5 disc herniation",
+                source="imaging",
+                weight="strong",
+            ),
+            _mock_extraction(
+                "key_medical_evidence",
+                "PHQ-9 score of 18 (moderately severe)",
+                source="objective_test",
+                weight="moderate",
+            ),
+            _mock_extraction(
+                "work_history_summary",
+                "past relevant work as warehouse picker was performed at the heavy exertional level for 14 years",
+                years="14",
+                exertional_level="heavy",
+            ),
+            _mock_extraction(
+                "vocational_factor",
+                "age 52",
+                factor="age",
+            ),
+            _mock_extraction(
+                "vocational_factor",
+                "limited education",
+                factor="education",
+            ),
+            _mock_extraction(
+                "hearing_strategy_note",
+                "a grid rule argument under 201.14 may apply if RFC is limited to sedentary",
+            ),
+            _mock_extraction(
+                "witness_recommended",
+                "Dr. Chen",
+            ),
+            _mock_extraction(
+                "question_for_alj",
+                "how the claimant can sustain competitive work with breaks every 15 minutes",
+            ),
+        ]
+    },
+    "appeal_brief": {
+        "extractions": [
+            _mock_extraction(
+                "case_caption",
+                "In re: Jane Roe, Claimant. Claim No. XXX-XX-1234.",
+                claimant="Jane Roe",
+                ssn_last4="1234",
+                docket="AC-2025-00841",
+            ),
+            _mock_extraction(
+                "alj_decision_date",
+                "March 15, 2025",
+            ),
+            _mock_extraction(
+                "issue_on_appeal",
+                "whether the ALJ properly evaluated the treating source opinion",
+                index="1",
+            ),
+            _mock_extraction(
+                "issue_on_appeal",
+                "whether the ALJ's Step 5 analysis is supported by substantial evidence",
+                index="2",
+            ),
+            _mock_extraction(
+                "error_alleged",
+                "failing to articulate supportability and consistency factors for the treating source opinion",
+                category="legal_standard",
+            ),
+            _mock_extraction(
+                "error_alleged",
+                "relying on VE testimony that conflicted with the DOT without resolving the conflict",
+                category="step_5",
+            ),
+            _mock_extraction(
+                "relief_requested",
+                "this matter be remanded for further proceedings",
+                kind="remand",
             ),
         ]
     },
@@ -353,6 +857,16 @@ EXTRACTION_TYPES: Dict[str, Dict[str, Any]] = {
         "prompt_description": EFOLDER_CLASSIFICATION_PROMPT,
         "examples_fn": _efolder_examples,
         "mock_key": "efolder_classification",
+    },
+    "phi_sheet_draft": {
+        "prompt_description": PHI_SHEET_DRAFT_PROMPT,
+        "examples_fn": _phi_sheet_draft_examples,
+        "mock_key": "phi_sheet_draft",
+    },
+    "appeal_brief": {
+        "prompt_description": APPEAL_BRIEF_PROMPT,
+        "examples_fn": _appeal_brief_examples,
+        "mock_key": "appeal_brief",
     },
 }
 

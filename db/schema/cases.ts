@@ -98,6 +98,7 @@ export const cases = pgTable(
     dateLastInsured: timestamp("date_last_insured", { withTimezone: true }),
     hearingOffice: text("hearing_office"),
     adminLawJudge: text("admin_law_judge"),
+    hearingDate: timestamp("hearing_date", { withTimezone: true }),
 
     // Chronicle integration
     chronicleClaimantId: text("chronicle_claimant_id"),
@@ -116,6 +117,21 @@ export const cases = pgTable(
 
     // Case Status integration
     caseStatusExternalId: text("case_status_external_id"),
+
+    // Medical Records workspace
+    mrStatus: text("mr_status"),
+    mrTeamColor: text("mr_team_color"),
+
+    // PHI Sheet (Pre-Hearing Intelligence) authoring workflow
+    // Status values: 'unassigned' | 'assigned' | 'in_progress' | 'in_review' | 'complete'
+    phiSheetStatus: text("phi_sheet_status").default("unassigned"),
+    phiSheetWriterId: uuid("phi_sheet_writer_id").references(() => users.id),
+    phiSheetStartedAt: timestamp("phi_sheet_started_at", {
+      withTimezone: true,
+    }),
+    phiSheetCompletedAt: timestamp("phi_sheet_completed_at", {
+      withTimezone: true,
+    }),
 
     closedAt: timestamp("closed_at", { withTimezone: true }),
     closedReason: text("closed_reason"),
@@ -139,6 +155,15 @@ export const cases = pgTable(
       table.organizationId,
       table.status,
       table.currentStageId,
+    ),
+    index("idx_cases_org_hearing_date").on(
+      table.organizationId,
+      table.hearingDate,
+    ),
+    index("idx_cases_phi_writer").on(table.phiSheetWriterId),
+    index("idx_cases_org_phi_status").on(
+      table.organizationId,
+      table.phiSheetStatus,
     ),
   ],
 );

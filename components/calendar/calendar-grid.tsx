@@ -313,19 +313,19 @@ export function CalendarGrid({
   return (
     <div className="space-y-4">
       {/* Navigation header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("prev")}>
             &larr; Prev
           </Button>
-          <h2 className="text-lg font-semibold text-foreground px-3">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground px-2 sm:px-3 truncate flex-1 text-center sm:flex-none sm:text-left">
             {getHeading()}
           </h2>
           <Button variant="outline" size="sm" onClick={() => navigate("next")}>
             Next &rarr;
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* View mode toggle */}
           <div className="flex rounded-md border border-border">
             {(["month", "week", "day"] as const).map((mode) => (
@@ -363,8 +363,8 @@ export function CalendarGrid({
 
       {/* ====== MONTH VIEW ====== */}
       {viewMode === "month" && (
-        <div className="flex gap-6">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          <div className="flex-1 min-w-0">
             <div className="grid grid-cols-7 border-b border-border mb-1">
               {DAY_HEADERS.map((h) => (
                 <div
@@ -441,7 +441,7 @@ export function CalendarGrid({
 
           {/* Side panel -- selected day events */}
           {selectedDay && (
-            <div className="w-80 shrink-0">
+            <div className="w-full lg:w-80 shrink-0">
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-medium text-foreground mb-3">
@@ -472,8 +472,8 @@ export function CalendarGrid({
 
       {/* ====== WEEK VIEW ====== */}
       {viewMode === "week" && (
-        <div className="overflow-auto">
-          <div className="min-w-[800px]">
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <div className="min-w-[640px] md:min-w-[800px]">
             {/* Day headers */}
             <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border">
               <div />
@@ -669,7 +669,7 @@ export function CalendarGrid({
           </div>
 
           {/* Day view side panel with all events for the day */}
-          <div className="w-80 shrink-0">
+          <div className="w-full lg:w-80 shrink-0">
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-sm font-medium text-foreground mb-3">
@@ -706,13 +706,13 @@ export function CalendarGrid({
 
       {/* Create Event Dialog */}
       {showCreateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="fixed inset-0 bg-black/80"
             onClick={() => setShowCreateDialog(false)}
             onKeyDown={() => {}}
           />
-          <div className="relative z-50 w-full max-w-lg bg-background border border-border rounded-lg p-6 shadow-lg">
+          <div className="relative z-50 w-[calc(100%-0.5rem)] max-w-lg max-h-[90dvh] overflow-y-auto bg-background border border-border rounded-lg p-4 sm:p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-foreground mb-4">
               Create Event
             </h2>
@@ -732,7 +732,7 @@ export function CalendarGrid({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1.5">
                   <label htmlFor="evt-type" className="text-sm font-medium">
                     Type
@@ -773,7 +773,7 @@ export function CalendarGrid({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1.5">
                   <label htmlFor="evt-date" className="text-sm font-medium">
                     Date

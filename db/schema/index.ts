@@ -14,3 +14,8 @@ export * from "./audit";
 export * from "./ere";
 export * from "./document-processing";
 export * from "./medical-chronology";
+export * from "./medical-records";
+export * from "./mail";
+export * from "./billing";
+export * from "./trust";
+export * from "./team-chat";

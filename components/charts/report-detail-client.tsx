@@ -81,27 +81,27 @@ export function ReportDetailClient({
       {/* Filters and export buttons */}
       <Card className="print:hidden">
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
             {showDateFilter && (
               <>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 w-full sm:w-auto">
                   <Label htmlFor="detail-start-date">From</Label>
                   <Input
                     id="detail-start-date"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-40"
+                    className="w-full sm:w-40"
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 w-full sm:w-auto">
                   <Label htmlFor="detail-end-date">To</Label>
                   <Input
                     id="detail-end-date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-40"
+                    className="w-full sm:w-40"
                   />
                 </div>
                 <Button onClick={handleFilter} disabled={loading} size="sm">
@@ -109,7 +109,7 @@ export function ReportDetailClient({
                 </Button>
               </>
             )}
-            <div className="flex gap-2 ml-auto">
+            <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
               <Button onClick={handleCsvExport} variant="outline" size="sm">
                 Export CSV
               </Button>
@@ -179,8 +179,8 @@ function ReportChart({
             <YAxis
               type="category"
               dataKey="name"
-              width={140}
-              fontSize={12}
+              width={100}
+              fontSize={11}
               tick={{ fill: "hsl(var(--foreground))" }}
             />
             <Tooltip

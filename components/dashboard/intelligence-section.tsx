@@ -1,5 +1,7 @@
 "use client";
 
+import { COLORS as TOKENS } from "@/lib/design-tokens";
+
 // ---------------------------------------------------------------------------
 // Intelligence Section — 6 chart cards (pure CSS / SVG, no charting library)
 // Vercel Light design tokens: #EAEAEA borders, 6px radius, 20px card padding
@@ -57,7 +59,7 @@ const MONTH_LABELS = [
 ];
 
 const COLORS = {
-  green: "#1d72b8",
+  green: TOKENS.ok,
   amber: "#F5A623",
   red: "#EE0000",
   blue: "#0070F3",

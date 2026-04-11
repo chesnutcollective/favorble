@@ -13,6 +13,16 @@ import {
   contacts,
   communications,
   users,
+  outboundMail,
+  rfcRequests,
+  invoices,
+  timeEntries,
+  expenses,
+  trustAccounts,
+  trustTransactions,
+  chatChannels,
+  chatChannelMembers,
+  chatMessages,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -130,6 +140,67 @@ export type EmailSummary = {
   }[];
 };
 
+export type HearingsSummary = {
+  next48hCount: number;
+  next7dCount: number;
+  next30dCount: number;
+  mrBlocking14dCount: number;
+};
+
+export type FilingSummary = {
+  readyToSubmit: number;
+  bundlesReady: number;
+  submittedThisWeek: number;
+};
+
+export type PhiWriterSummary = {
+  myAssigned: number;
+  myInProgress: number;
+  dueThisWeek: number;
+  unassigned: number;
+};
+
+export type MedicalRecordsSummary = {
+  urgentBlocking14d: number;
+  rfcRequested: number;
+  rfcAwaiting: number;
+  rfcReceived: number;
+  teamWorkload: { color: string; count: number }[];
+};
+
+export type MailSummary = {
+  pendingInbound: number;
+  inTransit: number;
+  certifiedInTransit: number;
+  unmatched: number;
+};
+
+export type BillingSummary = {
+  outstandingCents: number;
+  outstandingCount: number;
+  overdueCents: number;
+  overdueCount: number;
+  unbilledMinutes: number;
+  unbilledTimeCount: number;
+  unbilledExpenseCents: number;
+  unbilledExpenseCount: number;
+  draftInvoiceCount: number;
+};
+
+export type TrustSummary = {
+  totalBalanceCents: number;
+  accountCount: number;
+  hasNegativeBalance: boolean;
+  unreconciledCount: number;
+  oldestUnreconciledDays: number | null;
+  daysSinceLastReconciled: number | null;
+};
+
+export type TeamChatSummary = {
+  mentionCount: number;
+  dmUnreadCount: number;
+};
+
 export type NavPanelData = {
   stageCounts: StageCounts[];
   taskSummary: TaskSummary;
@@ -140,6 +211,14 @@ export type NavPanelData = {
   contactSummary: ContactSummary;
   messageSummary: MessageSummary;
   emailSummary: EmailSummary;
+  hearingsSummary: HearingsSummary;
+  filingSummary: FilingSummary;
+  phiWriterSummary: PhiWriterSummary;
+  medicalRecordsSummary: MedicalRecordsSummary;
+  mailSummary: MailSummary;
+  billingSummary: BillingSummary;
+  trustSummary: TrustSummary;
+  teamChatSummary: TeamChatSummary;
 };
 
 /* ─── Sub-queries ─── */
@@ -552,6 +631,541 @@ async function getEmailSummary(organizationId: string): Promise<EmailSummary> {
   };
 }
 
+async function getHearingsSummary(
+  organizationId: string,
+): Promise<HearingsSummary> {
+  const now = new Date();
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const in30d = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const in14d = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const [n48, n7, n30, mrBlocking] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in48h),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in7d),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.organizationId, organizationId),
+          isNull(calendarEvents.deletedAt),
+          eq(calendarEvents.eventType, "hearing"),
+          gte(calendarEvents.startAt, now),
+          lte(calendarEvents.startAt, in30d),
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          gte(cases.hearingDate, now),
+          lte(cases.hearingDate, in14d),
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      ),
+  ]);
+
+  return {
+    next48hCount: n48[0]?.count ?? 0,
+    next7dCount: n7[0]?.count ?? 0,
+    next30dCount: n30[0]?.count ?? 0,
+    mrBlocking14dCount: mrBlocking[0]?.count ?? 0,
+  };
+}
+
+async function getFilingSummary(
+  organizationId: string,
+): Promise<FilingSummary> {
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // "Ready to submit" and "bundles ready" proxy via stage group name until
+  // a dedicated filing_status column exists. Stage groups with "filing" or
+  // "ready" in their name are treated as ready-to-submit.
+  const [ready, bundles, submittedThisWeek] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .innerJoin(
+        caseStageGroups,
+        eq(caseStages.stageGroupId, caseStageGroups.id),
+      )
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`LOWER(${caseStageGroups.name}) LIKE '%ready%' OR LOWER(${caseStages.name}) LIKE '%ready to file%' OR LOWER(${caseStages.name}) LIKE '%ready to submit%'`,
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`LOWER(${caseStages.name}) LIKE '%bundle%' OR LOWER(${caseStages.name}) LIKE '%packet%' OR LOWER(${caseStages.name}) LIKE '%review%'`,
+        ),
+      ),
+    db
+      .select({ count: count() })
+      .from(cases)
+      .innerJoin(caseStages, eq(cases.currentStageId, caseStages.id))
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          isNull(cases.deletedAt),
+          gte(cases.updatedAt, weekAgo),
+          sql`LOWER(${caseStages.name}) LIKE '%submitted%' OR LOWER(${caseStages.name}) LIKE '%filed%'`,
+        ),
+      ),
+  ]);
+
+  return {
+    readyToSubmit: ready[0]?.count ?? 0,
+    bundlesReady: bundles[0]?.count ?? 0,
+    submittedThisWeek: submittedThisWeek[0]?.count ?? 0,
+  };
+}
+
+async function getPhiWriterSummary(
+  organizationId: string,
+  userId: string,
+): Promise<PhiWriterSummary> {
+  const now = new Date();
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const [myAssigned, myInProgress, dueThisWeek, unassigned] = await Promise.all(
+    [
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            eq(cases.phiSheetWriterId, userId),
+            sql`${cases.phiSheetStatus} IN ('assigned','in_progress')`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            eq(cases.phiSheetWriterId, userId),
+            eq(cases.phiSheetStatus, "in_progress"),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            gte(cases.hearingDate, now),
+            lte(cases.hearingDate, in7d),
+            sql`${cases.phiSheetStatus} IS DISTINCT FROM 'complete'`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+            gte(cases.hearingDate, now),
+            sql`(${cases.phiSheetStatus} = 'unassigned' OR ${cases.phiSheetStatus} IS NULL)`,
+          ),
+        ),
+    ],
+  );
+
+  return {
+    myAssigned: myAssigned[0]?.count ?? 0,
+    myInProgress: myInProgress[0]?.count ?? 0,
+    dueThisWeek: dueThisWeek[0]?.count ?? 0,
+    unassigned: unassigned[0]?.count ?? 0,
+  };
+}
+
+async function getMedicalRecordsSummary(
+  organizationId: string,
+): Promise<MedicalRecordsSummary> {
+  const now = new Date();
+  const in14d = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const [urgent, rfcCounts, teamWorkload] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          gte(cases.hearingDate, now),
+          lte(cases.hearingDate, in14d),
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      ),
+    db
+      .select({
+        status: rfcRequests.status,
+        count: count(),
+      })
+      .from(rfcRequests)
+      .where(eq(rfcRequests.organizationId, organizationId))
+      .groupBy(rfcRequests.status),
+    db
+      .select({
+        color: cases.mrTeamColor,
+        count: count(),
+      })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.organizationId, organizationId),
+          eq(cases.status, "active"),
+          isNull(cases.deletedAt),
+          sql`${cases.mrTeamColor} IS NOT NULL`,
+          sql`${cases.mrStatus} IS DISTINCT FROM 'complete'`,
+        ),
+      )
+      .groupBy(cases.mrTeamColor),
+  ]);
+
+  let rfcRequested = 0;
+  let rfcAwaiting = 0;
+  let rfcReceived = 0;
+  for (const row of rfcCounts) {
+    if (row.status === "requested") rfcAwaiting = row.count;
+    if (row.status === "received") rfcReceived = row.count;
+    if (row.status === "not_requested") rfcRequested = row.count;
+  }
+
+  return {
+    urgentBlocking14d: urgent[0]?.count ?? 0,
+    rfcRequested,
+    rfcAwaiting,
+    rfcReceived,
+    teamWorkload: teamWorkload
+      .filter((r): r is { color: string; count: number } => r.color !== null)
+      .map((r) => ({ color: r.color, count: r.count })),
+  };
+}
+
+async function getMailSummary(
+  organizationId: string,
+): Promise<MailSummary> {
+  const [pendingInbound, inTransit, certifiedInTransit, unmatched] =
+    await Promise.all([
+      // Inbound mail: documents tagged 'mail' (match heuristic until a
+      // dedicated inbound_mail table exists).
+      db
+        .select({ count: count() })
+        .from(documents)
+        .innerJoin(cases, eq(documents.caseId, cases.id))
+        .where(
+          and(
+            eq(cases.organizationId, organizationId),
+            isNull(documents.deletedAt),
+            sql`'mail' = ANY(${documents.tags})`,
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(outboundMail)
+        .where(
+          and(
+            eq(outboundMail.organizationId, organizationId),
+            isNull(outboundMail.deliveredAt),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(outboundMail)
+        .where(
+          and(
+            eq(outboundMail.organizationId, organizationId),
+            isNull(outboundMail.deliveredAt),
+            eq(outboundMail.mailType, "certified"),
+          ),
+        ),
+      db
+        .select({ count: count() })
+        .from(documents)
+        .where(
+          and(
+            isNull(documents.deletedAt),
+            isNull(documents.caseId),
+            sql`'mail' = ANY(${documents.tags})`,
+          ),
+        ),
+    ]);
+
+  return {
+    pendingInbound: pendingInbound[0]?.count ?? 0,
+    inTransit: inTransit[0]?.count ?? 0,
+    certifiedInTransit: certifiedInTransit[0]?.count ?? 0,
+    unmatched: unmatched[0]?.count ?? 0,
+  };
+}
+
+async function getBillingSummary(
+  organizationId: string,
+): Promise<BillingSummary> {
+  const now = new Date();
+
+  const [outstanding, overdue, unbilledTime, unbilledExpense, drafts] =
+    await Promise.all([
+      // Outstanding: sent or overdue invoices, unpaid balance
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${invoices.totalCents} - ${invoices.amountPaidCents}), 0)::int`,
+          count: count(),
+        })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            sql`${invoices.status} IN ('sent','overdue')`,
+          ),
+        ),
+      // Overdue subset: past due date or status=overdue
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${invoices.totalCents} - ${invoices.amountPaidCents}), 0)::int`,
+          count: count(),
+        })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            sql`(${invoices.status} = 'overdue' OR (${invoices.status} = 'sent' AND ${invoices.dueDate} < ${now}))`,
+          ),
+        ),
+      // Unbilled time: billable entries with no invoice
+      db
+        .select({
+          totalMinutes: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)::int`,
+          count: count(),
+        })
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.organizationId, organizationId),
+            eq(timeEntries.billable, true),
+            isNull(timeEntries.invoiceId),
+          ),
+        ),
+      // Unbilled expenses: reimbursable, not yet billed
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${expenses.amountCents}), 0)::int`,
+          count: count(),
+        })
+        .from(expenses)
+        .where(
+          and(
+            eq(expenses.organizationId, organizationId),
+            eq(expenses.reimbursable, true),
+            isNull(expenses.invoiceId),
+          ),
+        ),
+      // Draft invoices awaiting review/send
+      db
+        .select({ count: count() })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            eq(invoices.status, "draft"),
+          ),
+        ),
+    ]);
+
+  return {
+    outstandingCents: outstanding[0]?.totalCents ?? 0,
+    outstandingCount: outstanding[0]?.count ?? 0,
+    overdueCents: overdue[0]?.totalCents ?? 0,
+    overdueCount: overdue[0]?.count ?? 0,
+    unbilledMinutes: unbilledTime[0]?.totalMinutes ?? 0,
+    unbilledTimeCount: unbilledTime[0]?.count ?? 0,
+    unbilledExpenseCents: unbilledExpense[0]?.totalCents ?? 0,
+    unbilledExpenseCount: unbilledExpense[0]?.count ?? 0,
+    draftInvoiceCount: drafts[0]?.count ?? 0,
+  };
+}
+
+async function getTrustSummary(
+  organizationId: string,
+): Promise<TrustSummary> {
+  const [accounts, unreconciled, lastReconciled] = await Promise.all([
+    // Total balance across all trust accounts for this org
+    db
+      .select({
+        totalCents: sql<number>`coalesce(sum(${trustAccounts.balanceCents}), 0)::int`,
+        minBalance: sql<number>`coalesce(min(${trustAccounts.balanceCents}), 0)::int`,
+        count: count(),
+      })
+      .from(trustAccounts)
+      .where(eq(trustAccounts.organizationId, organizationId)),
+    // Unreconciled transactions for org (joined through account)
+    db
+      .select({
+        count: count(),
+        oldestDate: sql<Date | null>`min(${trustTransactions.transactionDate})`,
+      })
+      .from(trustTransactions)
+      .innerJoin(
+        trustAccounts,
+        eq(trustTransactions.trustAccountId, trustAccounts.id),
+      )
+      .where(
+        and(
+          eq(trustAccounts.organizationId, organizationId),
+          eq(trustTransactions.reconciled, false),
+        ),
+      ),
+    // Most recent reconciled transaction date as proxy for "last reconciled"
+    db
+      .select({
+        latestDate: sql<Date | null>`max(${trustTransactions.transactionDate})`,
+      })
+      .from(trustTransactions)
+      .innerJoin(
+        trustAccounts,
+        eq(trustTransactions.trustAccountId, trustAccounts.id),
+      )
+      .where(
+        and(
+          eq(trustAccounts.organizationId, organizationId),
+          eq(trustTransactions.reconciled, true),
+        ),
+      ),
+  ]);
+
+  const now = Date.now();
+  const oldestRaw = unreconciled[0]?.oldestDate;
+  const oldestUnreconciledDays = oldestRaw
+    ? Math.floor((now - new Date(oldestRaw).getTime()) / 86_400_000)
+    : null;
+
+  const lastRaw = lastReconciled[0]?.latestDate;
+  const daysSinceLastReconciled = lastRaw
+    ? Math.floor((now - new Date(lastRaw).getTime()) / 86_400_000)
+    : null;
+
+  return {
+    totalBalanceCents: accounts[0]?.totalCents ?? 0,
+    accountCount: accounts[0]?.count ?? 0,
+    hasNegativeBalance: (accounts[0]?.minBalance ?? 0) < 0,
+    unreconciledCount: unreconciled[0]?.count ?? 0,
+    oldestUnreconciledDays,
+    daysSinceLastReconciled,
+  };
+}
+
+async function getTeamChatSummary(
+  organizationId: string,
+  userId: string,
+): Promise<TeamChatSummary> {
+  const [mentions, dms] = await Promise.all([
+    // Unread mentions: messages in channels where current user is a member,
+    // user is in mentioned_user_ids, and message created_at > last_read_at
+    db
+      .select({ count: count() })
+      .from(chatMessages)
+      .innerJoin(
+        chatChannels,
+        eq(chatChannels.id, chatMessages.channelId),
+      )
+      .innerJoin(
+        chatChannelMembers,
+        and(
+          eq(chatChannelMembers.channelId, chatMessages.channelId),
+          eq(chatChannelMembers.userId, userId),
+        ),
+      )
+      .where(
+        and(
+          eq(chatChannels.organizationId, organizationId),
+          sql`${userId} = ANY(${chatMessages.mentionedUserIds})`,
+          sql`${chatMessages.createdAt} > COALESCE(${chatChannelMembers.lastReadAt}, '1970-01-01')`,
+        ),
+      ),
+    // Unread direct messages: channels of type='direct' where member is user
+    // and message created_at > last_read_at and author is not current user
+    db
+      .select({ count: count() })
+      .from(chatMessages)
+      .innerJoin(
+        chatChannels,
+        eq(chatChannels.id, chatMessages.channelId),
+      )
+      .innerJoin(
+        chatChannelMembers,
+        and(
+          eq(chatChannelMembers.channelId, chatMessages.channelId),
+          eq(chatChannelMembers.userId, userId),
+        ),
+      )
+      .where(
+        and(
+          eq(chatChannels.organizationId, organizationId),
+          eq(chatChannels.channelType, "direct"),
+          ne(chatMessages.userId, userId),
+          sql`${chatMessages.createdAt} > COALESCE(${chatChannelMembers.lastReadAt}, '1970-01-01')`,
+        ),
+      ),
+  ]);
+
+  return {
+    mentionCount: mentions[0]?.count ?? 0,
+    dmUnreadCount: dms[0]?.count ?? 0,
+  };
+}
+
 /* ─── Main aggregator ─── */
 
 export async function getNavPanelData(): Promise<NavPanelData> {
@@ -569,6 +1183,14 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     contactSummary,
     messageSummary,
     emailSummary,
+    hearingsSummary,
+    filingSummary,
+    phiWriterSummary,
+    medicalRecordsSummary,
+    mailSummary,
+    billingSummary,
+    trustSummary,
+    teamChatSummary,
   ] = await Promise.all([
     getStageCounts(orgId).catch((): StageCounts[] => []),
     getTaskSummary(userId).catch(
@@ -612,6 +1234,75 @@ export async function getNavPanelData(): Promise<NavPanelData> {
         recentEmails: [],
       }),
     ),
+    getHearingsSummary(orgId).catch(
+      (): HearingsSummary => ({
+        next48hCount: 0,
+        next7dCount: 0,
+        next30dCount: 0,
+        mrBlocking14dCount: 0,
+      }),
+    ),
+    getFilingSummary(orgId).catch(
+      (): FilingSummary => ({
+        readyToSubmit: 0,
+        bundlesReady: 0,
+        submittedThisWeek: 0,
+      }),
+    ),
+    getPhiWriterSummary(orgId, userId).catch(
+      (): PhiWriterSummary => ({
+        myAssigned: 0,
+        myInProgress: 0,
+        dueThisWeek: 0,
+        unassigned: 0,
+      }),
+    ),
+    getMedicalRecordsSummary(orgId).catch(
+      (): MedicalRecordsSummary => ({
+        urgentBlocking14d: 0,
+        rfcRequested: 0,
+        rfcAwaiting: 0,
+        rfcReceived: 0,
+        teamWorkload: [],
+      }),
+    ),
+    getMailSummary(orgId).catch(
+      (): MailSummary => ({
+        pendingInbound: 0,
+        inTransit: 0,
+        certifiedInTransit: 0,
+        unmatched: 0,
+      }),
+    ),
+    getBillingSummary(orgId).catch(
+      (): BillingSummary => ({
+        outstandingCents: 0,
+        outstandingCount: 0,
+        overdueCents: 0,
+        overdueCount: 0,
+        unbilledMinutes: 0,
+        unbilledTimeCount: 0,
+        unbilledExpenseCents: 0,
+        unbilledExpenseCount: 0,
+        draftInvoiceCount: 0,
+      }),
+    ),
+    getTrustSummary(orgId).catch(
+      (): TrustSummary => ({
+        totalBalanceCents: 0,
+        accountCount: 0,
+        hasNegativeBalance: false,
+        unreconciledCount: 0,
+        oldestUnreconciledDays: null,
+        daysSinceLastReconciled: null,
+      }),
+    ),
+    getTeamChatSummary(orgId, userId).catch(
+      (): TeamChatSummary => ({
+        mentionCount: 0,
+        dmUnreadCount: 0,
+      }),
+    ),
   ]);
 
   return {
@@ -624,5 +1315,13 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     contactSummary,
     messageSummary,
     emailSummary,
+    hearingsSummary,
+    filingSummary,
+    phiWriterSummary,
+    medicalRecordsSummary,
+    mailSummary,
+    billingSummary,
+    trustSummary,
+    teamChatSummary,
   };
 }

@@ -28,7 +28,7 @@ const DATE_RANGE_OPTIONS: { value: DateRange; label: string }[] = [
 function Sparkline({ path, color }: { path: string; color: string }) {
   const gradientId = `sg-${color.replace("#", "")}`;
   return (
-    <div className="w-16 h-8 shrink-0 ml-3">
+    <div className="w-12 sm:w-16 h-7 sm:h-8 shrink-0 ml-2 sm:ml-3">
       <svg
         viewBox="0 0 64 32"
         preserveAspectRatio="none"
@@ -72,12 +72,12 @@ function DashboardStatCard({
 }) {
   const isPositive = trend.value >= 0;
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md px-5 py-4 hover:border-[#CCC] transition-colors duration-200 flex items-center justify-between">
-      <div className="flex-1">
-        <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] mb-1">
+    <div className="bg-white border border-[#EAEAEA] rounded-md px-3 sm:px-5 py-3 sm:py-4 hover:border-[#CCC] transition-colors duration-200 flex items-center justify-between min-w-0">
+      <div className="flex-1 min-w-0">
+        <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] mb-1 truncate">
           {label}
         </div>
-        <div className="text-[28px] font-semibold font-mono tracking-[-1px] leading-[1.1]">
+        <div className="text-[22px] sm:text-[28px] font-semibold font-mono tracking-[-1px] leading-[1.1]">
           {value}
         </div>
         <div className="text-[12px] font-mono mt-1">
@@ -184,7 +184,7 @@ function PipelineFunnel({ stages }: { stages: DashboardData["funnelStages"] }) {
       <div className="mt-2 space-y-2">
         {stages.map((stage) => (
           <div key={stage.label} className="flex items-center gap-3">
-            <div className="w-[130px] text-right text-[12px] font-mono text-[#666] shrink-0">
+            <div className="w-20 sm:w-[130px] text-right text-[11px] sm:text-[12px] font-mono text-[#666] shrink-0 truncate">
               {stage.label}
             </div>
             <div className="flex-1 h-7 relative">
@@ -296,9 +296,8 @@ function DenialReasons({
         Denial Reasons
       </div>
       <div
-        className="grid gap-[3px] h-[180px]"
+        className="grid gap-[3px] h-[180px] grid-cols-2 sm:grid-cols-4"
         style={{
-          gridTemplateColumns: "repeat(4, 1fr)",
           gridTemplateRows: "auto auto",
         }}
       >
@@ -343,7 +342,7 @@ function AppealsSuccess({
       <div className="mt-3 space-y-3">
         {levels.map((level) => (
           <div key={level.label} className="flex items-center gap-3">
-            <div className="w-[110px] text-right text-[12px] font-mono text-[#666] shrink-0">
+            <div className="w-20 sm:w-[110px] text-right text-[11px] sm:text-[12px] font-mono text-[#666] shrink-0 truncate">
               {level.label}
             </div>
             <div className="flex-1 h-[26px] bg-[#F7F7F7] rounded-sm overflow-hidden relative">
@@ -435,8 +434,8 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         }
       />
 
-      {/* Stat Cards — 5 across */}
-      <div className="grid gap-4 grid-cols-5">
+      {/* Stat Cards — responsive 1/2/3/5 across */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {data.stats.map((stat) => (
           <AnimatedStatCard
             key={stat.label}
@@ -457,7 +456,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#999] mb-3 pb-2 border-b border-[#EAEAEA]">
           Pipeline & Outcomes
         </div>
-        <div className="grid gap-4 grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2">
           <PipelineFunnel stages={data.funnelStages} />
           <WinRateDonut data={data.winRate} />
           <DenialReasons reasons={data.denialReasons} />

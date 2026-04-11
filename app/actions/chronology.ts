@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/auth/session";
 import { eq, and, asc, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import { logPhiAccess, shouldAudit } from "@/lib/services/hipaa-audit";
 
 export type ChronologyFilters = {
   entryType?: string;
@@ -22,7 +23,21 @@ export async function getChronologyEntries(
   caseId: string,
   filters?: ChronologyFilters,
 ) {
-  await requireSession();
+  const session = await requireSession();
+
+  // HIPAA: reading a medical chronology is PHI access. Debounce per user/case.
+  if (shouldAudit(`chronology_read:${session.id}:${caseId}`)) {
+    await logPhiAccess({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "medical_chronology",
+      entityId: caseId,
+      caseId,
+      fieldsAccessed: ["medical_chronology"],
+      reason: "chronology read",
+      severity: "info",
+    });
+  }
 
   const conditions = [eq(medicalChronologyEntries.caseId, caseId)];
 
@@ -353,7 +368,21 @@ export async function deleteChronologyEntry(entryId: string) {
  * Export chronology entries for a case in the specified format.
  */
 export async function exportChronology(caseId: string, format: "csv" | "json") {
-  await requireSession();
+  const session = await requireSession();
+
+  // HIPAA: chronology exports are always logged (not debounced).
+  await logPhiAccess({
+    organizationId: session.organizationId,
+    userId: session.id,
+    entityType: "medical_chronology",
+    entityId: caseId,
+    caseId,
+    fieldsAccessed: ["medical_chronology"],
+    reason: `chronology export (${format})`,
+    severity: "warning",
+    action: "phi_access.chronology_export",
+    metadata: { format },
+  });
 
   const entries = await db
     .select()

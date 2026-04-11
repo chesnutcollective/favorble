@@ -63,7 +63,7 @@ export function DataTable<TData, TValue>({
           onChange={(e) =>
             table.getColumn(searchKey)?.setFilterValue(e.target.value)
           }
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
       )}
 
@@ -118,11 +118,11 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-[#666]">
           {table.getFilteredRowModel().rows.length} total rows
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-start gap-2">
           <Button
             variant="outline"
             size="sm"

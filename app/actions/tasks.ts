@@ -32,9 +32,21 @@ export type TaskFilters = {
 };
 
 /**
+ * Hard cap on how many rows any queue query will return. Filing agents need
+ * sub-300ms responses and nobody productively scrolls past a few hundred tasks
+ * in a single view — use filtering/pagination to drill down instead of
+ * dumping the entire table.
+ */
+const DEFAULT_QUEUE_LIMIT = 200;
+const TEAM_QUEUE_LIMIT = 500;
+
+/**
  * Get the current user's task queue.
  */
-export async function getMyQueue(filters: TaskFilters = {}) {
+export async function getMyQueue(
+  filters: TaskFilters = {},
+  limit: number = DEFAULT_QUEUE_LIMIT,
+) {
   const session = await requireSession();
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -104,7 +116,8 @@ export async function getMyQueue(filters: TaskFilters = {}) {
     .leftJoin(caseStages, eq(cases.currentStageId, caseStages.id))
     .leftJoin(caseStageGroups, eq(caseStages.stageGroupId, caseStageGroups.id))
     .where(and(...conditions))
-    .orderBy(asc(tasks.dueDate), desc(tasks.priority));
+    .orderBy(asc(tasks.dueDate), desc(tasks.priority))
+    .limit(limit);
 
   return result;
 }
@@ -210,18 +223,13 @@ export async function completeTask(taskId: string) {
     })
     .where(eq(tasks.id, taskId));
 
-  // Unblock dependent tasks
-  const dependentTasks = await db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(and(eq(tasks.dependsOnTaskId, taskId), eq(tasks.status, "blocked")));
-
-  for (const dep of dependentTasks) {
-    await db
-      .update(tasks)
-      .set({ status: "pending", updatedAt: new Date() })
-      .where(eq(tasks.id, dep.id));
-  }
+  // Unblock dependent tasks in a single UPDATE instead of N round-trips.
+  await db
+    .update(tasks)
+    .set({ status: "pending", updatedAt: new Date() })
+    .where(
+      and(eq(tasks.dependsOnTaskId, taskId), eq(tasks.status, "blocked")),
+    );
 
   // Auto-advance: check if all workflow tasks for this case's current stage are done
   await checkAndAutoAdvance(taskId, session.id, session.organizationId);
@@ -355,9 +363,10 @@ async function checkAndAutoAdvance(
  */
 export async function bulkCompleteTasks(taskIds: string[]) {
   await requireSession();
-  for (const taskId of taskIds) {
-    await completeTask(taskId);
-  }
+  // Run task completions in parallel — each completion is idempotent and
+  // auto-advance checks are safe to race because the workflow-engine caller
+  // re-reads state before mutating.
+  await Promise.all(taskIds.map((taskId) => completeTask(taskId)));
   revalidatePath("/queue");
 }
 
@@ -424,7 +433,8 @@ export async function getCaseTasks(caseId: string) {
     .from(tasks)
     .leftJoin(users, eq(tasks.assignedToId, users.id))
     .where(and(eq(tasks.caseId, caseId), isNull(tasks.deletedAt)))
-    .orderBy(asc(tasks.status), asc(tasks.dueDate));
+    .orderBy(asc(tasks.status), asc(tasks.dueDate))
+    .limit(500);
 
   return result;
 }
@@ -480,7 +490,7 @@ export async function getOverdueTaskCount() {
  * Get team queue: all tasks for users on the same team as the current user.
  * Only accessible by managers (case_manager) and admins.
  */
-export async function getTeamQueue() {
+export async function getTeamQueue(limit: number = TEAM_QUEUE_LIMIT) {
   const session = await requireSession();
 
   // Only managers and admins can view team queue
@@ -533,7 +543,8 @@ export async function getTeamQueue() {
           : eq(tasks.organizationId, session.organizationId),
       ),
     )
-    .orderBy(asc(tasks.dueDate), desc(tasks.priority));
+    .orderBy(asc(tasks.dueDate), desc(tasks.priority))
+    .limit(limit);
 
   return result;
 }

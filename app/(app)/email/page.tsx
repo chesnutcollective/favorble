@@ -1,3 +1,13 @@
+/**
+ * Email workspace — ELECTRONIC email integration (Microsoft Outlook).
+ *
+ * This page fetches emails from Outlook via Microsoft Graph, auto-matches
+ * them to cases by contact email address, and lets users manually
+ * associate unmatched emails with cases.
+ *
+ * For PHYSICAL paper mail (scanning, certified tracking, FedEx/UPS
+ * outbound), see `/mail` (`app/(app)/mail/page.tsx`).
+ */
 import type { Metadata } from "next";
 import { getAllEmails, getCasesForPicker } from "@/app/actions/emails";
 import { PageHeader } from "@/components/shared/page-header";
@@ -10,6 +20,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 
 export const metadata: Metadata = {
   title: "Email",
+  description:
+    "Outlook email integration — review auto-matched emails and associate unmatched messages with cases.",
 };
 
 export default async function EmailPage({
@@ -35,8 +47,8 @@ export default async function EmailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Email"
-        description="Review and associate emails with cases. Auto-matched emails appear linked; unmatched emails can be manually associated."
+        title="Electronic Email"
+        description="Outlook email integration — review auto-matched messages and associate unmatched emails with cases. For physical paper mail, see Mail."
       />
 
       {!isConfigured && (

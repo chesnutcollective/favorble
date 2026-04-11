@@ -1,18 +1,32 @@
 import type { Metadata } from "next";
-import { getLeads, getLeadCountsByStatus } from "@/app/actions/leads";
-import { LeadsPipelineClient } from "./client";
+import { getLeadsByStage } from "@/app/actions/leads";
+import { LeadsPipelineClient, type ClientLead } from "./client";
+import {
+  PIPELINE_STAGES,
+  PIPELINE_GROUPS,
+  getStagesByGroup,
+  DEFAULT_PIPELINE_STAGE_ID,
+  type PipelineStageGroup,
+} from "@/lib/services/lead-pipeline-config";
 
 export const metadata: Metadata = {
   title: "Leads",
 };
 
-const PIPELINE_STATUSES = [
-  { key: "new", label: "New" },
-  { key: "contacted", label: "Contacted" },
-  { key: "intake_in_progress", label: "Intake" },
-  { key: "contract_sent", label: "Contract Sent" },
-  { key: "contract_signed", label: "Signed" },
-] as const;
+type GroupPayload = {
+  id: PipelineStageGroup;
+  label: string;
+  color: string;
+  order: number;
+  stages: Array<{
+    id: string;
+    label: string;
+    color: string;
+    order: number;
+    isTerminal: boolean;
+    leads: ClientLead[];
+  }>;
+};
 
 export default async function LeadsPage({
   searchParams,
@@ -21,45 +35,65 @@ export default async function LeadsPage({
 }) {
   const params = await searchParams;
   const action = params.action ?? "";
-  const status = params.status ?? "";
-  let allLeads: Awaited<ReturnType<typeof getLeads>> = [];
-  let statusCounts: Awaited<ReturnType<typeof getLeadCountsByStatus>> = [];
+  const stageParam = params.stage ?? params.status ?? "";
 
+  let leadsByStage = new Map<string, Awaited<ReturnType<typeof getLeadsByStage>> extends Map<string, infer V> ? V : never>();
   try {
-    [allLeads, statusCounts] = await Promise.all([
-      getLeads(),
-      getLeadCountsByStatus(),
-    ]);
+    leadsByStage = await getLeadsByStage();
   } catch {
-    // DB unavailable
+    // DB unavailable — render an empty pipeline.
+    for (const stage of PIPELINE_STAGES) {
+      leadsByStage.set(stage.id, []);
+    }
   }
 
-  const countsMap = new Map(statusCounts.map((s) => [s.status, s.count]));
+  const stagesByGroup = getStagesByGroup();
 
-  const columns = PIPELINE_STATUSES.map((ps) => ({
-    status: ps.key,
-    label: ps.label,
-    count: countsMap.get(ps.key) ?? 0,
-    leads: allLeads
-      .filter((l) => l.status === ps.key)
-      .map((l) => ({
-        id: l.id,
-        firstName: l.firstName,
-        lastName: l.lastName,
-        email: l.email,
-        phone: l.phone,
-        source: l.source,
-        createdAt: l.createdAt.toISOString(),
-        notes: l.notes,
+  const groups: GroupPayload[] = (
+    Object.keys(PIPELINE_GROUPS) as PipelineStageGroup[]
+  )
+    .sort((a, b) => PIPELINE_GROUPS[a].order - PIPELINE_GROUPS[b].order)
+    .map((groupId) => ({
+      id: groupId,
+      label: PIPELINE_GROUPS[groupId].label,
+      color: PIPELINE_GROUPS[groupId].color,
+      order: PIPELINE_GROUPS[groupId].order,
+      stages: stagesByGroup[groupId].map((stage) => ({
+        id: stage.id,
+        label: stage.label,
+        color: stage.color,
+        order: stage.order,
+        isTerminal: stage.isTerminal,
+        leads: (leadsByStage.get(stage.id) ?? []).map((l) => ({
+          id: l.id,
+          firstName: l.firstName,
+          lastName: l.lastName,
+          email: l.email,
+          phone: l.phone,
+          source: l.source,
+          createdAt: l.createdAt.toISOString(),
+          notes: l.notes,
+          pipelineStage: l.pipelineStage ?? DEFAULT_PIPELINE_STAGE_ID,
+        })),
       })),
+    }));
+
+  const allStages = PIPELINE_STAGES.map((s) => ({
+    id: s.id,
+    label: s.label,
+    group: s.group,
+    order: s.order,
+    color: s.color,
+    isTerminal: s.isTerminal,
   }));
 
   return (
     <div className="space-y-4">
       <LeadsPipelineClient
-        columns={columns}
+        groups={groups}
+        allStages={allStages}
         initialAction={action}
-        initialStatus={status}
+        initialStage={stageParam}
       />
     </div>
   );

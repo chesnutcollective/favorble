@@ -7,11 +7,17 @@ pointers into the source document.
 
 Endpoints
 ---------
-GET  /health                     Liveness probe.
-POST /extract                    Generic extraction; choose ``extraction_type``.
-POST /extract/medical-record     Specialized medical record extraction.
-POST /extract/status-report      Specialized SSA status report extraction.
-POST /extract/decision-letter    Specialized SSA decision letter extraction.
+GET  /health                       Liveness probe.
+POST /extract                      Generic extraction; choose ``extraction_type``.
+POST /extract/medical-record       Specialized medical record extraction.
+POST /extract/status-report        Specialized SSA status report extraction.
+POST /extract/decision-letter      Specialized SSA decision letter extraction
+                                    (enhanced: RFC, severe impairments,
+                                    listing match, PRW, reasoning).
+POST /extract/efolder-classification  Classify an ERE document into a type.
+POST /extract/phi-sheet-draft      Draft a Pre-Hearing Intelligence sheet.
+POST /extract/appeal-brief         Extract Appeals Council / Federal Court
+                                    brief skeleton fields.
 
 Mock mode
 ---------
@@ -291,6 +297,8 @@ def root() -> Dict[str, Any]:
             "/extract/status-report",
             "/extract/decision-letter",
             "/extract/efolder-classification",
+            "/extract/phi-sheet-draft",
+            "/extract/appeal-brief",
         ],
     }
 
@@ -344,6 +352,28 @@ def extract_efolder_classification(req: SpecializedRequest) -> ExtractResponse:
     return _do_extract(
         document_text=req.document_text,
         extraction_type="efolder_classification",
+        model=req.model,
+        max_workers=req.max_workers,
+        extraction_passes=req.extraction_passes,
+    )
+
+
+@app.post("/extract/phi-sheet-draft", response_model=ExtractResponse)
+def extract_phi_sheet_draft(req: SpecializedRequest) -> ExtractResponse:
+    return _do_extract(
+        document_text=req.document_text,
+        extraction_type="phi_sheet_draft",
+        model=req.model,
+        max_workers=req.max_workers,
+        extraction_passes=req.extraction_passes,
+    )
+
+
+@app.post("/extract/appeal-brief", response_model=ExtractResponse)
+def extract_appeal_brief(req: SpecializedRequest) -> ExtractResponse:
+    return _do_extract(
+        document_text=req.document_text,
+        extraction_type="appeal_brief",
         model=req.model,
         max_workers=req.max_workers,
         extraction_passes=req.extraction_passes,

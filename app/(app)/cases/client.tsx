@@ -351,7 +351,7 @@ export function CasesListClient({
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="nc-first">First Name</Label>
                     <Input
@@ -423,8 +423,8 @@ export function CasesListClient({
       />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+        <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-sm">
           <HugeiconsIcon
             icon={Search01Icon}
             size={16}
@@ -447,7 +447,7 @@ export function CasesListClient({
             applyFilters({ stage: v });
           }}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All Stages" />
           </SelectTrigger>
           <SelectContent>
@@ -465,7 +465,7 @@ export function CasesListClient({
             applyFilters({ team: v });
           }}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="All Teams" />
           </SelectTrigger>
           <SelectContent>
@@ -483,7 +483,7 @@ export function CasesListClient({
             applyFilters({ assignedTo: v });
           }}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All Assigned" />
           </SelectTrigger>
           <SelectContent>
