@@ -15,6 +15,14 @@ import {
   users,
   outboundMail,
   rfcRequests,
+  invoices,
+  timeEntries,
+  expenses,
+  trustAccounts,
+  trustTransactions,
+  chatChannels,
+  chatChannelMembers,
+  chatMessages,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -167,6 +175,32 @@ export type MailSummary = {
   unmatched: number;
 };
 
+export type BillingSummary = {
+  outstandingCents: number;
+  outstandingCount: number;
+  overdueCents: number;
+  overdueCount: number;
+  unbilledMinutes: number;
+  unbilledTimeCount: number;
+  unbilledExpenseCents: number;
+  unbilledExpenseCount: number;
+  draftInvoiceCount: number;
+};
+
+export type TrustSummary = {
+  totalBalanceCents: number;
+  accountCount: number;
+  hasNegativeBalance: boolean;
+  unreconciledCount: number;
+  oldestUnreconciledDays: number | null;
+  daysSinceLastReconciled: number | null;
+};
+
+export type TeamChatSummary = {
+  mentionCount: number;
+  dmUnreadCount: number;
+};
+
 export type NavPanelData = {
   stageCounts: StageCounts[];
   taskSummary: TaskSummary;
@@ -182,6 +216,9 @@ export type NavPanelData = {
   phiWriterSummary: PhiWriterSummary;
   medicalRecordsSummary: MedicalRecordsSummary;
   mailSummary: MailSummary;
+  billingSummary: BillingSummary;
+  trustSummary: TrustSummary;
+  teamChatSummary: TeamChatSummary;
 };
 
 /* ─── Sub-queries ─── */
@@ -914,6 +951,221 @@ async function getMailSummary(
   };
 }
 
+async function getBillingSummary(
+  organizationId: string,
+): Promise<BillingSummary> {
+  const now = new Date();
+
+  const [outstanding, overdue, unbilledTime, unbilledExpense, drafts] =
+    await Promise.all([
+      // Outstanding: sent or overdue invoices, unpaid balance
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${invoices.totalCents} - ${invoices.amountPaidCents}), 0)::int`,
+          count: count(),
+        })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            sql`${invoices.status} IN ('sent','overdue')`,
+          ),
+        ),
+      // Overdue subset: past due date or status=overdue
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${invoices.totalCents} - ${invoices.amountPaidCents}), 0)::int`,
+          count: count(),
+        })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            sql`(${invoices.status} = 'overdue' OR (${invoices.status} = 'sent' AND ${invoices.dueDate} < ${now}))`,
+          ),
+        ),
+      // Unbilled time: billable entries with no invoice
+      db
+        .select({
+          totalMinutes: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)::int`,
+          count: count(),
+        })
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.organizationId, organizationId),
+            eq(timeEntries.billable, true),
+            isNull(timeEntries.invoiceId),
+          ),
+        ),
+      // Unbilled expenses: reimbursable, not yet billed
+      db
+        .select({
+          totalCents: sql<number>`coalesce(sum(${expenses.amountCents}), 0)::int`,
+          count: count(),
+        })
+        .from(expenses)
+        .where(
+          and(
+            eq(expenses.organizationId, organizationId),
+            eq(expenses.reimbursable, true),
+            isNull(expenses.invoiceId),
+          ),
+        ),
+      // Draft invoices awaiting review/send
+      db
+        .select({ count: count() })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.organizationId, organizationId),
+            eq(invoices.status, "draft"),
+          ),
+        ),
+    ]);
+
+  return {
+    outstandingCents: outstanding[0]?.totalCents ?? 0,
+    outstandingCount: outstanding[0]?.count ?? 0,
+    overdueCents: overdue[0]?.totalCents ?? 0,
+    overdueCount: overdue[0]?.count ?? 0,
+    unbilledMinutes: unbilledTime[0]?.totalMinutes ?? 0,
+    unbilledTimeCount: unbilledTime[0]?.count ?? 0,
+    unbilledExpenseCents: unbilledExpense[0]?.totalCents ?? 0,
+    unbilledExpenseCount: unbilledExpense[0]?.count ?? 0,
+    draftInvoiceCount: drafts[0]?.count ?? 0,
+  };
+}
+
+async function getTrustSummary(
+  organizationId: string,
+): Promise<TrustSummary> {
+  const [accounts, unreconciled, lastReconciled] = await Promise.all([
+    // Total balance across all trust accounts for this org
+    db
+      .select({
+        totalCents: sql<number>`coalesce(sum(${trustAccounts.balanceCents}), 0)::int`,
+        minBalance: sql<number>`coalesce(min(${trustAccounts.balanceCents}), 0)::int`,
+        count: count(),
+      })
+      .from(trustAccounts)
+      .where(eq(trustAccounts.organizationId, organizationId)),
+    // Unreconciled transactions for org (joined through account)
+    db
+      .select({
+        count: count(),
+        oldestDate: sql<Date | null>`min(${trustTransactions.transactionDate})`,
+      })
+      .from(trustTransactions)
+      .innerJoin(
+        trustAccounts,
+        eq(trustTransactions.trustAccountId, trustAccounts.id),
+      )
+      .where(
+        and(
+          eq(trustAccounts.organizationId, organizationId),
+          eq(trustTransactions.reconciled, false),
+        ),
+      ),
+    // Most recent reconciled transaction date as proxy for "last reconciled"
+    db
+      .select({
+        latestDate: sql<Date | null>`max(${trustTransactions.transactionDate})`,
+      })
+      .from(trustTransactions)
+      .innerJoin(
+        trustAccounts,
+        eq(trustTransactions.trustAccountId, trustAccounts.id),
+      )
+      .where(
+        and(
+          eq(trustAccounts.organizationId, organizationId),
+          eq(trustTransactions.reconciled, true),
+        ),
+      ),
+  ]);
+
+  const now = Date.now();
+  const oldestRaw = unreconciled[0]?.oldestDate;
+  const oldestUnreconciledDays = oldestRaw
+    ? Math.floor((now - new Date(oldestRaw).getTime()) / 86_400_000)
+    : null;
+
+  const lastRaw = lastReconciled[0]?.latestDate;
+  const daysSinceLastReconciled = lastRaw
+    ? Math.floor((now - new Date(lastRaw).getTime()) / 86_400_000)
+    : null;
+
+  return {
+    totalBalanceCents: accounts[0]?.totalCents ?? 0,
+    accountCount: accounts[0]?.count ?? 0,
+    hasNegativeBalance: (accounts[0]?.minBalance ?? 0) < 0,
+    unreconciledCount: unreconciled[0]?.count ?? 0,
+    oldestUnreconciledDays,
+    daysSinceLastReconciled,
+  };
+}
+
+async function getTeamChatSummary(
+  organizationId: string,
+  userId: string,
+): Promise<TeamChatSummary> {
+  const [mentions, dms] = await Promise.all([
+    // Unread mentions: messages in channels where current user is a member,
+    // user is in mentioned_user_ids, and message created_at > last_read_at
+    db
+      .select({ count: count() })
+      .from(chatMessages)
+      .innerJoin(
+        chatChannels,
+        eq(chatChannels.id, chatMessages.channelId),
+      )
+      .innerJoin(
+        chatChannelMembers,
+        and(
+          eq(chatChannelMembers.channelId, chatMessages.channelId),
+          eq(chatChannelMembers.userId, userId),
+        ),
+      )
+      .where(
+        and(
+          eq(chatChannels.organizationId, organizationId),
+          sql`${userId} = ANY(${chatMessages.mentionedUserIds})`,
+          sql`${chatMessages.createdAt} > COALESCE(${chatChannelMembers.lastReadAt}, '1970-01-01')`,
+        ),
+      ),
+    // Unread direct messages: channels of type='direct' where member is user
+    // and message created_at > last_read_at and author is not current user
+    db
+      .select({ count: count() })
+      .from(chatMessages)
+      .innerJoin(
+        chatChannels,
+        eq(chatChannels.id, chatMessages.channelId),
+      )
+      .innerJoin(
+        chatChannelMembers,
+        and(
+          eq(chatChannelMembers.channelId, chatMessages.channelId),
+          eq(chatChannelMembers.userId, userId),
+        ),
+      )
+      .where(
+        and(
+          eq(chatChannels.organizationId, organizationId),
+          eq(chatChannels.channelType, "direct"),
+          ne(chatMessages.userId, userId),
+          sql`${chatMessages.createdAt} > COALESCE(${chatChannelMembers.lastReadAt}, '1970-01-01')`,
+        ),
+      ),
+  ]);
+
+  return {
+    mentionCount: mentions[0]?.count ?? 0,
+    dmUnreadCount: dms[0]?.count ?? 0,
+  };
+}
+
 /* ─── Main aggregator ─── */
 
 export async function getNavPanelData(): Promise<NavPanelData> {
@@ -936,6 +1188,9 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     phiWriterSummary,
     medicalRecordsSummary,
     mailSummary,
+    billingSummary,
+    trustSummary,
+    teamChatSummary,
   ] = await Promise.all([
     getStageCounts(orgId).catch((): StageCounts[] => []),
     getTaskSummary(userId).catch(
@@ -1019,6 +1274,35 @@ export async function getNavPanelData(): Promise<NavPanelData> {
         unmatched: 0,
       }),
     ),
+    getBillingSummary(orgId).catch(
+      (): BillingSummary => ({
+        outstandingCents: 0,
+        outstandingCount: 0,
+        overdueCents: 0,
+        overdueCount: 0,
+        unbilledMinutes: 0,
+        unbilledTimeCount: 0,
+        unbilledExpenseCents: 0,
+        unbilledExpenseCount: 0,
+        draftInvoiceCount: 0,
+      }),
+    ),
+    getTrustSummary(orgId).catch(
+      (): TrustSummary => ({
+        totalBalanceCents: 0,
+        accountCount: 0,
+        hasNegativeBalance: false,
+        unreconciledCount: 0,
+        oldestUnreconciledDays: null,
+        daysSinceLastReconciled: null,
+      }),
+    ),
+    getTeamChatSummary(orgId, userId).catch(
+      (): TeamChatSummary => ({
+        mentionCount: 0,
+        dmUnreadCount: 0,
+      }),
+    ),
   ]);
 
   return {
@@ -1036,5 +1320,8 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     phiWriterSummary,
     medicalRecordsSummary,
     mailSummary,
+    billingSummary,
+    trustSummary,
+    teamChatSummary,
   };
 }

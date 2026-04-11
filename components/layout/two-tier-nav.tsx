@@ -668,7 +668,8 @@ export function TwoTierNav({
             {/* Mail Panel */}
             <MailPanel active={visiblePanel === "mail"} navData={navData} />
 
-            {/* Default panels for any remaining items */}
+            {/* Default panels for items without a custom panel
+                (billing, trust, team-chat currently fall through here). */}
             {visibleRailItems
               .filter(
                 (item) =>
@@ -2936,7 +2937,7 @@ function PanelCounterRow({
 }: {
   href: string;
   label: string;
-  value: number;
+  value: number | string;
   tone?: "default" | "urgent" | "success" | "warn";
   sublabel?: string;
 }) {
@@ -3270,6 +3271,199 @@ function MailPanel({
       <div style={{ padding: "12px 12px 0" }}>
         <Link href="/mail" style={panelFooterLinkStyle}>
           Open mail inbox &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Billing ─── */
+
+function formatCents(cents: number): string {
+  const dollars = cents / 100;
+  if (Math.abs(dollars) >= 10000) {
+    return `$${(dollars / 1000).toFixed(1)}k`;
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(dollars);
+}
+
+function BillingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.billingSummary;
+  const unbilledHours = ((s?.unbilledMinutes ?? 0) / 60).toFixed(1);
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Billing</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Money to capture
+      </div>
+
+      <PanelCounterRow
+        href="/billing/invoices"
+        label="Outstanding"
+        sublabel={
+          s && s.overdueCount > 0
+            ? `${s.overdueCount} overdue`
+            : s
+              ? `${s.outstandingCount} invoice${s.outstandingCount === 1 ? "" : "s"}`
+              : undefined
+        }
+        value={formatCents(s?.outstandingCents ?? 0)}
+        tone={s && s.overdueCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/billing/time"
+        label="Unbilled time"
+        sublabel={
+          s ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}` : undefined
+        }
+        value={`${unbilledHours}h`}
+      />
+      <PanelCounterRow
+        href="/billing"
+        label="Unbilled expenses"
+        sublabel={
+          s ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}` : undefined
+        }
+        value={formatCents(s?.unbilledExpenseCents ?? 0)}
+      />
+      <PanelCounterRow
+        href="/billing/invoices"
+        label="Draft invoices"
+        value={s?.draftInvoiceCount ?? 0}
+        tone={s && s.draftInvoiceCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/billing" style={panelFooterLinkStyle}>
+          View all billing &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Trust ─── */
+
+function TrustPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.trustSummary;
+  const reconTone =
+    s && s.oldestUnreconciledDays != null && s.oldestUnreconciledDays > 30
+      ? "urgent"
+      : s && s.unreconciledCount > 0
+        ? "warn"
+        : "default";
+  const lastTone =
+    s && s.daysSinceLastReconciled != null && s.daysSinceLastReconciled > 30
+      ? "urgent"
+      : s && s.daysSinceLastReconciled != null && s.daysSinceLastReconciled > 14
+        ? "warn"
+        : "default";
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div
+        className="ttn-panel-header"
+        style={{ display: "flex", alignItems: "center", gap: 6 }}
+      >
+        <span>Trust</span>
+        {s?.hasNegativeBalance && (
+          <span
+            title="Negative account balance"
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              backgroundColor: "#EE0000",
+              display: "inline-block",
+            }}
+          />
+        )}
+      </div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {formatCents(s?.totalBalanceCents ?? 0)} &middot;{" "}
+        {s?.accountCount ?? 0} account{s?.accountCount === 1 ? "" : "s"}
+      </div>
+
+      <PanelCounterRow
+        href="/trust"
+        label="Pending reconciliation"
+        sublabel={
+          s?.oldestUnreconciledDays != null && s.unreconciledCount > 0
+            ? `${s.oldestUnreconciledDays}d oldest`
+            : undefined
+        }
+        value={s?.unreconciledCount ?? 0}
+        tone={reconTone}
+      />
+      <PanelCounterRow
+        href="/trust"
+        label="Last reconciled"
+        value={
+          s?.daysSinceLastReconciled != null
+            ? `${s.daysSinceLastReconciled}d ago`
+            : "never"
+        }
+        tone={lastTone}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/trust" style={panelFooterLinkStyle}>
+          Open trust accounting &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Team Chat ─── */
+
+function TeamChatPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.teamChatSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Team Chat</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        Internal staff only
+      </div>
+
+      <PanelCounterRow
+        href="/team-chat"
+        label="Mentions"
+        sublabel="@you"
+        value={s?.mentionCount ?? 0}
+        tone={s && s.mentionCount > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/team-chat"
+        label="Direct messages"
+        value={s?.dmUnreadCount ?? 0}
+        tone={s && s.dmUnreadCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/team-chat" style={panelFooterLinkStyle}>
+          Open team chat &rarr;
         </Link>
       </div>
     </div>
