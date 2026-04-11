@@ -3,6 +3,7 @@ import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import { communications, documents, cases, caseStages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
+import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -163,31 +164,47 @@ export async function POST(request: NextRequest) {
           body.mimeType ??
           "application/octet-stream";
 
-        await db.insert(documents).values({
-          organizationId: resolved.organizationId,
-          caseId: resolved.caseId,
-          fileName,
-          fileType,
-          fileSizeBytes: body.fileSize ?? body.size ?? null,
-          storagePath:
-            body.downloadUrl ??
-            body.url ??
-            `pending/case-status/${body.documentId ?? body.id ?? "unknown"}`,
-          source: "case_status",
-          sourceExternalId: body.documentId ?? body.id ?? null,
-          category: body.category ?? null,
-          description: body.description ?? null,
-          metadata: {
-            rawEvent: eventType,
-            downloadUrl: body.downloadUrl ?? body.url ?? null,
-            receivedAt: new Date().toISOString(),
-          },
-        });
+        const [insertedDoc] = await db
+          .insert(documents)
+          .values({
+            organizationId: resolved.organizationId,
+            caseId: resolved.caseId,
+            fileName,
+            fileType,
+            fileSizeBytes: body.fileSize ?? body.size ?? null,
+            storagePath:
+              body.downloadUrl ??
+              body.url ??
+              `pending/case-status/${body.documentId ?? body.id ?? "unknown"}`,
+            source: "case_status",
+            sourceExternalId: body.documentId ?? body.id ?? null,
+            category: body.category ?? null,
+            description: body.description ?? null,
+            metadata: {
+              rawEvent: eventType,
+              downloadUrl: body.downloadUrl ?? body.url ?? null,
+              receivedAt: new Date().toISOString(),
+            },
+          })
+          .returning({ id: documents.id });
 
         logger.info("Case Status document persisted", {
           caseId: resolved.caseId,
           fileName,
         });
+
+        // Schedule AI extraction to run after the webhook responds.
+        // The helper skips non-extractable mime types automatically, so
+        // client-uploaded images/receipts won't burn LLM tokens.
+        if (insertedDoc) {
+          enqueueDocumentProcessing({
+            documentId: insertedDoc.id,
+            organizationId: resolved.organizationId,
+            fileName,
+            fileType,
+            source: "case_status_webhook",
+          });
+        }
         break;
       }
 

@@ -10,30 +10,10 @@ import {
 } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
-import { processDocument } from "@/lib/services/document-processor";
-import type { ExtractionType } from "@/lib/integrations/langextract";
+import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
-
-/**
- * Pick the LangExtract extraction type based on an ERE document's filename.
- * Matches are case-insensitive. Falls back to "medical_record".
- */
-function pickExtractionTypeFromFileName(fileName: string): ExtractionType {
-  const name = fileName.toLowerCase();
-  if (
-    name.includes("decision") ||
-    name.includes("favorable") ||
-    name.includes("denial")
-  ) {
-    return "decision_letter";
-  }
-  if (name.includes("status") || name.includes("report")) {
-    return "status_report";
-  }
-  return "medical_record";
-}
 
 /**
  * Verify ERE webhook secret.
@@ -279,19 +259,17 @@ export async function POST(request: NextRequest) {
           fileName,
         });
 
-        // Fire-and-forget: send to LangExtract for structured extraction.
-        // Don't await — webhook should respond fast.
+        // Schedule AI extraction to run after the webhook responds.
+        // Uses Next.js after() which keeps the execution alive past the
+        // response, so the promise actually completes on Vercel (plain
+        // fire-and-forget gets killed when the Lambda freezes).
         if (insertedDoc) {
-          const extractionType = pickExtractionTypeFromFileName(fileName);
-          processDocument({
+          enqueueDocumentProcessing({
             documentId: insertedDoc.id,
             organizationId: job.organizationId,
-            extractionType,
-          }).catch((err) => {
-            logger.error("LangExtract processing failed", {
-              documentId: insertedDoc.id,
-              error: err,
-            });
+            fileName,
+            fileType,
+            source: "ere_webhook",
           });
         }
         break;

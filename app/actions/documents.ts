@@ -7,6 +7,7 @@ import {
   getDocumentSignedUrl as getSignedUrl,
   deleteDocumentFile,
 } from "@/lib/storage/server";
+import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
 import { eq, and, isNull, desc } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
@@ -93,6 +94,17 @@ export async function uploadDocumentAction(formData: FormData) {
       documentId: doc.id,
       caseId,
       fileName: file.name,
+    });
+
+    // Schedule AI extraction to run after the action completes.
+    // Non-extractable file types (images, audio, etc.) are skipped by
+    // the helper.
+    enqueueDocumentProcessing({
+      documentId: doc.id,
+      organizationId,
+      fileName: file.name,
+      fileType: file.type,
+      source: "manual_upload",
     });
 
     return { success: true, document: doc };
