@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import { communications, documents, cases, caseStages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
+import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -193,15 +193,18 @@ export async function POST(request: NextRequest) {
           fileName,
         });
 
-        // Schedule AI extraction to run after the webhook responds.
-        // The helper skips non-extractable mime types automatically, so
-        // client-uploaded images/receipts won't burn LLM tokens.
+        // Schedule ingest (download + persist to Railway bucket) +
+        // extraction after the webhook responds. The helper skips
+        // non-extractable mime types automatically, so client-uploaded
+        // images/receipts won't burn LLM tokens.
         if (insertedDoc) {
-          enqueueDocumentProcessing({
+          enqueueIngestAndProcessing({
             documentId: insertedDoc.id,
             organizationId: resolved.organizationId,
+            caseId: resolved.caseId,
             fileName,
             fileType,
+            sourceUrl: body.downloadUrl ?? body.url ?? null,
             source: "case_status_webhook",
           });
         }

@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import { documents, cases } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
+import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -169,13 +169,17 @@ export async function POST(request: NextRequest) {
           fileName,
         });
 
-        // Schedule AI extraction to run after the webhook responds.
+        // Schedule ingest (download + persist to Railway bucket) +
+        // extraction after the webhook responds. See ere/route.ts for
+        // the full rationale.
         if (insertedDoc) {
-          enqueueDocumentProcessing({
+          enqueueIngestAndProcessing({
             documentId: insertedDoc.id,
             organizationId: resolved.organizationId,
+            caseId: resolved.caseId,
             fileName,
             fileType,
+            sourceUrl: body.downloadUrl ?? body.url ?? null,
             source: "chronicle_webhook",
           });
         }

@@ -10,7 +10,7 @@ import {
 } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
-import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
+import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -259,16 +259,22 @@ export async function POST(request: NextRequest) {
           fileName,
         });
 
-        // Schedule AI extraction to run after the webhook responds.
-        // Uses Next.js after() which keeps the execution alive past the
-        // response, so the promise actually completes on Vercel (plain
-        // fire-and-forget gets killed when the Lambda freezes).
+        // Schedule ingest + AI extraction to run after the webhook
+        // responds. The background callback downloads the PDF from the
+        // source URL, persists it to the Railway bucket under a
+        // deterministic key, updates storage_path to the durable
+        // railway:// location, then runs LangExtract against the
+        // stable path. Uses Next.js after() so the promise actually
+        // completes on Vercel (fire-and-forget dies when the Lambda
+        // freezes).
         if (insertedDoc) {
-          enqueueDocumentProcessing({
+          enqueueIngestAndProcessing({
             documentId: insertedDoc.id,
             organizationId: job.organizationId,
+            caseId: job.caseId,
             fileName,
             fileType,
+            sourceUrl: body.downloadUrl ?? body.url ?? null,
             source: "ere_webhook",
           });
         }

@@ -64,6 +64,11 @@ function getClient(): S3Client {
 /**
  * Upload a buffer to the Railway bucket.
  * Returns the full railway://... storage_path to store in the DB.
+ *
+ * Uses a timestamp-based key — safe for manual uploads and one-off
+ * seed runs. For webhook ingestion that may retry, prefer
+ * `uploadRailwayDocumentAtKey()` with a deterministic key built from
+ * the document id so retries overwrite the same object.
  */
 export async function uploadRailwayDocument(
   organizationId: string,
@@ -73,8 +78,24 @@ export async function uploadRailwayDocument(
   contentType: string,
 ): Promise<{ storagePath: string; key: string }> {
   const key = buildRailwayDocumentKey(organizationId, caseId, fileName);
+  return uploadRailwayDocumentAtKey(key, buffer, contentType);
+}
+
+/**
+ * Upload a buffer to the Railway bucket at an explicit key. Callers
+ * build the key themselves, so a retry of the same operation produces
+ * the same key and overwrites the existing object instead of creating
+ * a duplicate. Use this for any ingest-from-external-source flow where
+ * the source event may be delivered more than once.
+ */
+export async function uploadRailwayDocumentAtKey(
+  key: string,
+  buffer: Buffer | Uint8Array,
+  contentType: string,
+): Promise<{ storagePath: string; key: string }> {
+  const bucketName = process.env.RAILWAY_BUCKET_NAME as string;
   const input: PutObjectCommandInput = {
-    Bucket: process.env.RAILWAY_BUCKET_NAME as string,
+    Bucket: bucketName,
     Key: key,
     Body: buffer,
     ContentType: contentType,
@@ -82,12 +103,28 @@ export async function uploadRailwayDocument(
   };
   await getClient().send(new PutObjectCommand(input));
   return {
-    storagePath: buildRailwayStoragePath(
-      process.env.RAILWAY_BUCKET_NAME as string,
-      key,
-    ),
+    storagePath: buildRailwayStoragePath(bucketName, key),
     key,
   };
+}
+
+/**
+ * Build a deterministic Railway bucket key for a specific document row.
+ * Because the key is derived from the documentId (which is stable
+ * across retries of the same webhook event), re-ingesting the same
+ * document overwrites the existing blob rather than creating a
+ * duplicate.
+ *
+ * Format: `{orgId}/{caseId}/{documentId}-{sanitizedFilename}`
+ */
+export function buildDeterministicDocumentKey(
+  organizationId: string,
+  caseId: string,
+  documentId: string,
+  fileName: string,
+): string {
+  const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `${organizationId}/${caseId}/${documentId}-${sanitized}`;
 }
 
 /**
