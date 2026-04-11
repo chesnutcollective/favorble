@@ -3,6 +3,10 @@ import { getCases, getOrgUsers } from "@/app/actions/cases";
 import { getAllStages } from "@/app/actions/stages";
 import { PageHeader } from "@/components/shared/page-header";
 import { CasesListClient } from "./client";
+import { db } from "@/db/drizzle";
+import { communications } from "@/db/schema";
+import { and, desc, inArray, isNotNull } from "drizzle-orm";
+import { isAtRiskLabel } from "@/lib/services/case-health";
 
 export const metadata: Metadata = {
   title: "Cases",
@@ -73,6 +77,40 @@ export default async function CasesPage({
     }
   }
 
+  // QA-3: flag cases whose most recent communication has an at-risk
+  // sentiment label (frustrated / angry / churn_risk) so the list
+  // renders a red "At risk" pill next to the case number.
+  const atRiskCaseIds = new Set<string>();
+  const visibleIds = casesResult.cases.map((c) => c.id);
+  if (visibleIds.length > 0) {
+    try {
+      const latest = await db
+        .selectDistinctOn([communications.caseId], {
+          caseId: communications.caseId,
+          sentimentLabel: communications.sentimentLabel,
+          createdAt: communications.createdAt,
+        })
+        .from(communications)
+        .where(
+          and(
+            inArray(
+              communications.caseId,
+              visibleIds as [string, ...string[]],
+            ),
+            isNotNull(communications.sentimentLabel),
+          ),
+        )
+        .orderBy(communications.caseId, desc(communications.createdAt));
+      for (const row of latest) {
+        if (row.caseId && isAtRiskLabel(row.sentimentLabel)) {
+          atRiskCaseIds.add(row.caseId);
+        }
+      }
+    } catch {
+      // Non-fatal — the badge is purely informational.
+    }
+  }
+
   return (
     <div className="space-y-4">
       <CasesListClient
@@ -80,6 +118,7 @@ export default async function CasesPage({
           ...c,
           createdAt: c.createdAt.toISOString(),
           updatedAt: c.updatedAt.toISOString(),
+          atRisk: atRiskCaseIds.has(c.id),
         }))}
         total={casesResult.total}
         page={casesResult.page}
