@@ -43,6 +43,20 @@
       "when": 1775852479432,
       "tag": "0005_fine_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775940576555,
+      "tag": "0008_calm_krista_starr",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1775954598307,
+      "tag": "0009_large_magik",
+      "breakpoints": true
     }
   ]
 }
