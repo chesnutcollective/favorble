@@ -174,7 +174,10 @@ export function NotificationBell() {
                         >
                           {item.title}
                         </span>
-                        <PriorityBadge priority={item.priority} />
+                        <span className="flex shrink-0 items-center gap-1">
+                          {item.sourceEventId && <AiBadge />}
+                          <PriorityBadge priority={item.priority} />
+                        </span>
                       </div>
                       <p
                         className="mt-0.5 line-clamp-2 text-[12px]"
@@ -199,6 +202,22 @@ export function NotificationBell() {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function AiBadge() {
+  return (
+    <span
+      title="Generated with AI"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide"
+      style={{
+        backgroundColor: COLORS.brandSubtle,
+        color: COLORS.brand,
+      }}
+    >
+      <span aria-hidden="true">{"\u2699"}</span>
+      AI
+    </span>
   );
 }
 

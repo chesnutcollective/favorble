@@ -26,6 +26,13 @@ export type ClientNotification = {
   actionLabel: string | null;
   actionHref: string | null;
   caseId: string | null;
+  /**
+   * SM-3: when present, this notification was generated from a
+   * supervisor event (e.g. stagnant scan). Drives the AI pill in the
+   * notification bell so users know the body / next action came from
+   * an AI suggestion.
+   */
+  sourceEventId: string | null;
   readAt: string | null;
   dismissedAt: string | null;
   createdAt: string;
@@ -40,6 +47,7 @@ function serialize(row: typeof notifications.$inferSelect): ClientNotification {
     actionLabel: row.actionLabel,
     actionHref: row.actionHref,
     caseId: row.caseId,
+    sourceEventId: row.sourceEventId,
     readAt: row.readAt ? row.readAt.toISOString() : null,
     dismissedAt: row.dismissedAt ? row.dismissedAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
