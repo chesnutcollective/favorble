@@ -37,6 +37,18 @@
     {
       "path": "/api/cron/coaching-scan",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/integration-health",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/integration-alerts",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/integration-cleanup",
+      "schedule": "0 5 * * *"
     }
   ]
 }

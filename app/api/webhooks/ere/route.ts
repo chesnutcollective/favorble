@@ -16,6 +16,7 @@ import { recordSupervisorEvent } from "@/lib/services/supervisor-events";
 import { handleSupervisorEvent } from "@/lib/services/event-router";
 import { executeEventWorkflows } from "@/lib/workflow-engine";
 import { autoLinkJudgeFromScrapedData } from "@/lib/services/contact-autolink";
+import { logIntegrationEvent } from "@/lib/services/integration-event-logger";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -511,6 +512,46 @@ export async function POST(request: NextRequest) {
         logger.warn("Unknown ERE event type", { eventType });
       }
     }
+
+    // Log the webhook event for the integration detail page.
+    // Run in after() so it doesn't block the response.
+    const capturedEventType = eventType;
+    const capturedBody = body;
+    after(async () => {
+      try {
+        // Resolve org ID from the job if available
+        let orgId: string | undefined;
+        if (capturedBody.jobId) {
+          const [jobRow] = await db
+            .select({ organizationId: ereJobs.organizationId })
+            .from(ereJobs)
+            .where(eq(ereJobs.id, capturedBody.jobId))
+            .limit(1);
+          orgId = jobRow?.organizationId;
+        }
+        if (orgId) {
+          await logIntegrationEvent({
+            organizationId: orgId,
+            integrationId: "ere-orchestrator",
+            eventType: "webhook_received",
+            status:
+              capturedEventType === "scrape.failed" ||
+              capturedEventType === "credentials.invalid"
+                ? "error"
+                : "ok",
+            httpStatus: 200,
+            summary: `Webhook: ${capturedEventType}`,
+            webhookPath: "/api/webhooks/ere",
+            webhookEventType: capturedEventType,
+            payload: capturedBody,
+          });
+        }
+      } catch (logErr) {
+        logger.warn("Failed to log ERE webhook event", {
+          error: logErr instanceof Error ? logErr.message : String(logErr),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

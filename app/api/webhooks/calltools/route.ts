@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { db } from "@/db/drizzle";
 import { callRecordings, cases } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import { enqueueTranscription } from "@/lib/services/call-transcription";
+import { logIntegrationEvent } from "@/lib/services/integration-event-logger";
 import crypto from "node:crypto";
 
 /**
@@ -168,6 +170,29 @@ export async function POST(request: NextRequest) {
     if (inserted) {
       enqueueTranscription({ recordingId: inserted.id });
     }
+
+    // Log the webhook event for the integration analytics layer.
+    const capturedEventType = eventType;
+    after(async () => {
+      try {
+        if (orgId) {
+          await logIntegrationEvent({
+            organizationId: orgId,
+            integrationId: "calltools",
+            eventType: "webhook_received",
+            status: "ok",
+            httpStatus: 200,
+            summary: `Webhook: ${capturedEventType}`,
+            webhookPath: "/api/webhooks/calltools",
+            webhookEventType: capturedEventType,
+          });
+        }
+      } catch (logErr) {
+        logger.warn("Failed to log CallTools webhook event", {
+          error: logErr instanceof Error ? logErr.message : String(logErr),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true, recordingId: inserted?.id });
   } catch (error) {

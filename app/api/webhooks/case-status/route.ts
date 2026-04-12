@@ -11,6 +11,7 @@ import {
   extractActionItemsFromMessage,
   classifyClientConfirmationReply,
 } from "@/lib/services/message-intake";
+import { logIntegrationEvent } from "@/lib/services/integration-event-logger";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -345,6 +346,32 @@ export async function POST(request: NextRequest) {
         logger.warn("Unknown Case Status event type", { eventType });
       }
     }
+
+    // Log the webhook event for the integration detail page.
+    const capturedEventType = eventType;
+    const capturedBody = body;
+    after(async () => {
+      try {
+        const resolved = await resolveCaseId(capturedBody.caseId);
+        if (resolved) {
+          await logIntegrationEvent({
+            organizationId: resolved.organizationId,
+            integrationId: "case-status",
+            eventType: "webhook_received",
+            status: "ok",
+            httpStatus: 200,
+            summary: `Webhook: ${capturedEventType}`,
+            webhookPath: "/api/webhooks/case-status",
+            webhookEventType: capturedEventType,
+            payload: capturedBody,
+          });
+        }
+      } catch (logErr) {
+        logger.warn("Failed to log CaseStatus webhook event", {
+          error: logErr instanceof Error ? logErr.message : String(logErr),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
