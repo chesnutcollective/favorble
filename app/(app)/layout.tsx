@@ -6,6 +6,7 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { ViewAsBanner } from "@/components/layout/view-as-banner";
 import { getActiveCaseCount } from "@/app/actions/cases";
 import { getNavPanelData } from "@/app/actions/nav-data";
+import { getChangelogCommits } from "@/app/actions/changelog";
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
 
 export default async function AppLayout({
@@ -14,9 +15,10 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const persona = await requireEffectivePersona();
-  const [casesCount, navData] = await Promise.all([
+  const [casesCount, navData, changelogResult] = await Promise.all([
     getActiveCaseCount(),
     getNavPanelData().catch(() => undefined),
+    getChangelogCommits().catch(() => ({ commits: [], hasMore: false })),
   ]);
 
   const isAdmin = persona.actorPersonaId === "admin";
@@ -40,6 +42,7 @@ export default async function AppLayout({
             isAdmin={isAdmin}
             currentPersonaId={persona.personaId}
             isViewingAs={persona.isViewingAs}
+            changelogCommits={changelogResult.commits}
           />
         </Suspense>
         <main className="ttn-main-area">

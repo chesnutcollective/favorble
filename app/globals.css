@@ -412,6 +412,107 @@
   background: #007AFF;
 }
 
+/* Notification badge (count) */
+.ttn-notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FFF;
+  background: var(--nav-accent, #263c94);
+  border: 1.5px solid var(--nav-rail-bg, #1C1C1E);
+  border-radius: 8px;
+  padding: 0 3px;
+  font-family: var(--font-mono);
+}
+
+/* Changelog panel styles */
+.ttn-changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ttn-changelog-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.12s ease;
+}
+
+.ttn-changelog-item:hover {
+  background: #F3F4F6;
+}
+
+.ttn-changelog-item-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ttn-changelog-type {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.ttn-changelog-type.feat { background: rgba(29,114,184,0.12); color: #185f9b; }
+.ttn-changelog-type.fix { background: rgba(239,68,68,0.10); color: #DC2626; }
+.ttn-changelog-type.chore { background: rgba(156,163,175,0.15); color: #6B7280; }
+.ttn-changelog-type.docs { background: rgba(139,92,246,0.10); color: #7C3AED; }
+.ttn-changelog-type.other { background: rgba(156,163,175,0.15); color: #6B7280; }
+
+.ttn-changelog-time {
+  font-size: 10px;
+  color: #9CA3AF;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-mono, 'Geist Mono', monospace);
+}
+
+.ttn-changelog-subject {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ttn-changelog-footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.ttn-changelog-footer a {
+  font-size: 11px;
+  font-weight: 500;
+  color: #185f9b;
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+
+.ttn-changelog-footer a:hover {
+  color: #263c94;
+}
+
 /* ── User avatar in rail ── */
 .ttn-rail-avatar {
   width: 30px;

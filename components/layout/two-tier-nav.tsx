@@ -15,6 +15,7 @@ import {
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
+import type { CommitEntry } from "@/app/actions/changelog";
 import {
   Tooltip,
   TooltipContent,
@@ -540,6 +541,7 @@ export function TwoTierNav({
   isAdmin,
   currentPersonaId,
   isViewingAs,
+  changelogCommits,
 }: {
   user: SessionUser;
   casesCount?: number;
@@ -559,6 +561,8 @@ export function TwoTierNav({
   currentPersonaId: PersonaId;
   /** True when the admin is actively previewing another persona. */
   isViewingAs: boolean;
+  /** Recent commits for the changelog panel. */
+  changelogCommits?: CommitEntry[];
 }) {
   const pathname = usePathname();
 
@@ -598,7 +602,30 @@ export function TwoTierNav({
   }, [personaNav, railItemsById]);
 
   const activeRailId = getActiveRailId(pathname, visibleRailItems);
-  const visiblePanel = activeRailId;
+
+  // Panel override: allows non-route panels (e.g. changelog) to show temporarily
+  const [panelOverride, setPanelOverride] = useState<string | null>(null);
+  // Reset override when the route changes
+  useEffect(() => {
+    setPanelOverride(null);
+  }, [pathname]);
+  const visiblePanel = panelOverride ?? activeRailId;
+
+  // Unread changelog badge: compare commit dates against localStorage timestamp
+  const [changelogUnread, setChangelogUnread] = useState(0);
+  useEffect(() => {
+    if (!changelogCommits?.length) return;
+    const lastViewed = localStorage.getItem("changelog:lastViewedAt");
+    if (!lastViewed) {
+      setChangelogUnread(changelogCommits.length);
+      return;
+    }
+    const lastViewedDate = new Date(lastViewed).getTime();
+    const unread = changelogCommits.filter(
+      (c) => new Date(c.date).getTime() > lastViewedDate,
+    ).length;
+    setChangelogUnread(unread);
+  }, [changelogCommits]);
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
@@ -768,6 +795,44 @@ export function TwoTierNav({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Changelog / what's new */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={`ttn-rail-btn${visiblePanel === "changelog" ? " active" : ""}`}
+                onClick={() =>
+                  setPanelOverride((prev) =>
+                    prev === "changelog" ? null : "changelog",
+                  )
+                }
+                style={{ position: "relative" }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="18"
+                  height="18"
+                >
+                  <path d="M20 2v3h-2V3H6v2H4V2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1zM4 7h16v10H4V7zm0 12h16v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1zM8 9v2h8V9H8zm0 4v2h5v-2H8z" />
+                </svg>
+                {changelogUnread > 0 && (
+                  <span className="ttn-notif-badge">
+                    {changelogUnread > 9 ? "9+" : changelogUnread}
+                  </span>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              sideOffset={10}
+              className="ttn-tooltip"
+            >
+              What&apos;s new
+            </TooltipContent>
+          </Tooltip>
+
           {/* Settings gear — only shown to admins (actor, not previewed persona) */}
           {isAdmin && (
             <Tooltip>
@@ -891,6 +956,13 @@ export function TwoTierNav({
             <TeamChatPanel
               active={visiblePanel === "team-chat"}
               navData={navData}
+            />
+
+            {/* Changelog Panel */}
+            <ChangelogPanel
+              active={visiblePanel === "changelog"}
+              commits={changelogCommits}
+              onMarkViewed={() => setChangelogUnread(0)}
             />
 
             {/* Default panels for any remaining items without a custom panel */}
@@ -3696,6 +3768,60 @@ function TeamChatPanel({
         <Link href="/team-chat" style={panelFooterLinkStyle}>
           Open team chat &rarr;
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function ChangelogPanel({
+  active,
+  commits,
+  onMarkViewed,
+}: {
+  active: boolean;
+  commits?: CommitEntry[];
+  onMarkViewed: () => void;
+}) {
+  useEffect(() => {
+    if (active) {
+      localStorage.setItem("changelog:lastViewedAt", new Date().toISOString());
+      onMarkViewed();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const displayCommits = (commits ?? []).slice(0, 8);
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">What&apos;s New</div>
+
+      {displayCommits.length === 0 ? (
+        <div style={{ padding: "6px 8px", fontSize: 12, color: "#999" }}>
+          No recent updates
+        </div>
+      ) : (
+        <div className="ttn-changelog-list">
+          {displayCommits.map((c) => (
+            <div key={c.hash} className="ttn-changelog-item">
+              <div className="ttn-changelog-item-header">
+                <span className={`ttn-changelog-type ${c.type}`}>
+                  {c.type}
+                </span>
+                <span className="ttn-changelog-time">
+                  {formatRelativeTime(c.date)}
+                </span>
+              </div>
+              <div className="ttn-changelog-subject" title={c.subject}>
+                {c.subject}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="ttn-changelog-footer">
+        <Link href="/changelog">View full changelog &rarr;</Link>
       </div>
     </div>
   );
