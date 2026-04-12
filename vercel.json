@@ -7,20 +7,36 @@
       "schedule": "*/15 * * * *"
     },
     {
+      "path": "/api/cron/transcription-retry",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/cron/escalate-overdue",
       "schedule": "*/30 * * * *"
     },
     {
-      "path": "/api/cron/coaching-scan",
-      "schedule": "0 4 * * *"
+      "path": "/api/cron/deadline-scan",
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/risk-scan",
       "schedule": "15 * * * *"
     },
     {
+      "path": "/api/cron/stagnant-scan",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/performance-rollup",
+      "schedule": "0 2 * * *"
+    },
+    {
       "path": "/api/cron/compliance-scan",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/coaching-scan",
+      "schedule": "0 4 * * *"
     }
   ]
 }

@@ -153,12 +153,25 @@ export default async function CallDetailPage({
         >
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold">Transcript</h2>
-            <span className="text-[11px] text-[#999] uppercase">
-              {transcript?.provider ?? "none"}
-            </span>
+            {transcript?.provider === "deepgram" ? (
+              <span
+                className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                style={{
+                  backgroundColor: COLORS.brandSubtle,
+                  color: COLORS.brand,
+                }}
+              >
+                Transcribed by Deepgram
+              </span>
+            ) : (
+              <span className="text-[11px] text-[#999] uppercase">
+                {transcript?.provider ?? "none"}
+              </span>
+            )}
           </div>
 
-          {transcript?.provider === "stub" && (
+          {(transcript?.provider === "stub" ||
+            transcript?.provider === "stub_no_api_key") && (
             <div
               className="mb-3 rounded-[7px] border p-3 text-[12px]"
               style={{
@@ -167,11 +180,11 @@ export default async function CallDetailPage({
                 color: COLORS.warn,
               }}
             >
-              This is a stub transcript. Connect Deepgram or Whisper in{" "}
-              <code className="font-mono">
-                lib/services/call-transcription.ts
-              </code>{" "}
-              to replace the placeholder with real speaker-segmented text.
+              This is a stub transcript. Set{" "}
+              <code className="font-mono">DEEPGRAM_API_KEY</code> in your
+              environment to enable real transcription — the pipeline will
+              switch automatically on the next run. No code changes
+              required.
             </div>
           )}
 
