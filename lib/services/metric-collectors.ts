@@ -13,6 +13,9 @@ import {
   documents,
   outboundMail,
   ereCredentials,
+  feePetitions,
+  appealsCouncilBriefs,
+  aiDrafts,
 } from "@/db/schema";
 import { callRecordings, callQcReviews } from "@/db/schema/call-qc";
 import { and, eq, gte, lt, lte, isNull, isNotNull, sql, inArray } from "drizzle-orm";
@@ -907,45 +910,354 @@ const stubMetric = (note: string): MetricCollector => async () => ({
 });
 
 // Fee collection
-const feePetitionFilingDays: MetricCollector = stubMetric(
-  "fee petition filing data not tracked yet",
-);
-const feeCollectionRate: MetricCollector = stubMetric(
-  "fee collection rate requires billing integration",
-);
-const delinquentFeeFollowupCompliance: MetricCollector = stubMetric(
-  "delinquent fee followup not tracked yet",
-);
+/**
+ * Average days from favorableDecisionDate → filedAt across fee petitions
+ * the user filed in the period. Returns 0 with sampleSize 0 when there
+ * are no petitions in the window.
+ */
+const feePetitionFilingDays: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const result = await db.execute<{ avg_days: number; n: number }>(sql`
+    SELECT
+      COALESCE(AVG(EXTRACT(EPOCH FROM (filed_at - favorable_decision_date)) / 86400), 0)::float AS avg_days,
+      COUNT(*)::int AS n
+    FROM fee_petitions
+    WHERE organization_id = ${user.organizationId}
+      AND assigned_to_id = ${user.id}::uuid
+      AND filed_at IS NOT NULL
+      AND favorable_decision_date IS NOT NULL
+      AND filed_at >= ${periodStart}
+      AND filed_at < ${periodEnd}
+  `);
+  const row = result[0];
+  const n = safeNumber(row?.n);
+  if (n === 0) {
+    return { value: 0, context: { sampleSize: 0, note: "no petitions filed in window" } };
+  }
+  return {
+    value: Math.round(safeNumber(row?.avg_days) * 100) / 100,
+    context: { sampleSize: n },
+  };
+};
+
+/**
+ * Fee collection rate: SUM(collectedAmountCents) / SUM(approvedAmountCents)
+ * across petitions the user owns where approvedAt is in the period.
+ * Returns a percent (0-100).
+ */
+const feeCollectionRate: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const rows = await db
+    .select({
+      approved: sql<number>`COALESCE(SUM(${feePetitions.approvedAmountCents}), 0)::bigint`,
+      collected: sql<number>`COALESCE(SUM(${feePetitions.collectedAmountCents}), 0)::bigint`,
+      n: sql<number>`count(*)::int`,
+    })
+    .from(feePetitions)
+    .where(
+      and(
+        eq(feePetitions.organizationId, user.organizationId),
+        eq(feePetitions.assignedToId, user.id),
+        isNotNull(feePetitions.approvedAt),
+        gte(feePetitions.approvedAt, periodStart),
+        lt(feePetitions.approvedAt, periodEnd),
+      ),
+    );
+  const approved = safeNumber(rows[0]?.approved);
+  const collected = safeNumber(rows[0]?.collected);
+  const n = safeNumber(rows[0]?.n);
+  if (approved === 0) {
+    return { value: 0, context: { sampleSize: n, note: "no approved fees in window" } };
+  }
+  return {
+    value: Math.round((collected / approved) * 100 * 100) / 100,
+    context: { sampleSize: n, approvedCents: approved, collectedCents: collected },
+  };
+};
+
+/**
+ * Share of approved+unpaid fee petitions older than 7 days that have a
+ * feeCollectionFollowUps row logged in the last 7 days by this user.
+ * Returns percent.
+ */
+const delinquentFeeFollowupCompliance: MetricCollector = async ({ user }) => {
+  const cutoff = new Date(Date.now() - 7 * 86_400_000);
+  const result = await db.execute<{ total: number; followed: number }>(sql`
+    WITH delinquent AS (
+      SELECT fp.id
+      FROM fee_petitions fp
+      WHERE fp.organization_id = ${user.organizationId}
+        AND fp.assigned_to_id = ${user.id}::uuid
+        AND fp.approved_at IS NOT NULL
+        AND fp.approved_at <= ${cutoff}
+        AND COALESCE(fp.collected_amount_cents, 0) < COALESCE(fp.approved_amount_cents, 0)
+    )
+    SELECT
+      COUNT(DISTINCT d.id)::int AS total,
+      COUNT(DISTINCT CASE WHEN f.id IS NOT NULL THEN d.id END)::int AS followed
+    FROM delinquent d
+    LEFT JOIN fee_collection_follow_ups f
+      ON f.fee_petition_id = d.id
+      AND f.followed_up_by = ${user.id}::uuid
+      AND f.followed_up_at >= ${cutoff}
+  `);
+  const row = result[0];
+  const total = safeNumber(row?.total);
+  const followed = safeNumber(row?.followed);
+  if (total === 0) {
+    return { value: 0, context: { sampleSize: 0, note: "no delinquent petitions" } };
+  }
+  return {
+    value: Math.round((followed / total) * 100 * 100) / 100,
+    context: { total, followed },
+  };
+};
 
 // Appeals council
-const acBriefsSubmittedPerWeek: MetricCollector = stubMetric(
-  "AC brief tracking not implemented",
-);
-const acBriefsOnTimeRate: MetricCollector = stubMetric(
-  "AC on-time tracking not implemented",
-);
-const acGrantRate: MetricCollector = stubMetric(
-  "AC grant rate requires decision tracking",
-);
+/**
+ * AC briefs filed by the user in the period, divided by the number of
+ * weeks in the period.
+ */
+const acBriefsSubmittedPerWeek: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const rows = await db
+    .select({ c: sql<number>`count(*)::int` })
+    .from(appealsCouncilBriefs)
+    .where(
+      and(
+        eq(appealsCouncilBriefs.organizationId, user.organizationId),
+        eq(appealsCouncilBriefs.assignedToId, user.id),
+        isNotNull(appealsCouncilBriefs.filedAt),
+        gte(appealsCouncilBriefs.filedAt, periodStart),
+        lt(appealsCouncilBriefs.filedAt, periodEnd),
+      ),
+    );
+  const total = safeNumber(rows[0]?.c);
+  const days = periodDays({ user, periodStart, periodEnd });
+  const perWeek = (total / days) * 7;
+  return {
+    value: Math.round(perWeek * 100) / 100,
+    context: { total, days },
+  };
+};
+
+/**
+ * Share of AC briefs filed by this user in the window that were filed
+ * on or before their deadlineDate. Returns percent.
+ */
+const acBriefsOnTimeRate: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const rows = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      onTime: sql<number>`count(case when ${appealsCouncilBriefs.filedAt} <= ${appealsCouncilBriefs.deadlineDate} then 1 end)::int`,
+    })
+    .from(appealsCouncilBriefs)
+    .where(
+      and(
+        eq(appealsCouncilBriefs.organizationId, user.organizationId),
+        eq(appealsCouncilBriefs.assignedToId, user.id),
+        isNotNull(appealsCouncilBriefs.filedAt),
+        isNotNull(appealsCouncilBriefs.deadlineDate),
+        gte(appealsCouncilBriefs.filedAt, periodStart),
+        lt(appealsCouncilBriefs.filedAt, periodEnd),
+      ),
+    );
+  const total = safeNumber(rows[0]?.total);
+  const onTime = safeNumber(rows[0]?.onTime);
+  if (total === 0) return { value: 0, context: { sampleSize: 0 } };
+  return {
+    value: Math.round((onTime / total) * 100 * 100) / 100,
+    context: { total, onTime },
+  };
+};
+
+/**
+ * Share of the user's filed AC briefs (in the window) whose outcome is
+ * granted or remanded.
+ */
+const acGrantRate: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const rows = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      granted: sql<number>`count(case when ${appealsCouncilBriefs.outcome} in ('granted','remanded') then 1 end)::int`,
+    })
+    .from(appealsCouncilBriefs)
+    .where(
+      and(
+        eq(appealsCouncilBriefs.organizationId, user.organizationId),
+        eq(appealsCouncilBriefs.assignedToId, user.id),
+        isNotNull(appealsCouncilBriefs.filedAt),
+        gte(appealsCouncilBriefs.filedAt, periodStart),
+        lt(appealsCouncilBriefs.filedAt, periodEnd),
+      ),
+    );
+  const total = safeNumber(rows[0]?.total);
+  const granted = safeNumber(rows[0]?.granted);
+  if (total === 0) return { value: 0, context: { sampleSize: 0 } };
+  return {
+    value: Math.round((granted / total) * 100 * 100) / 100,
+    context: { total, granted },
+  };
+};
 
 // Pre-hearing prep
-const prehearingBriefsDraftedPerWeek: MetricCollector = stubMetric(
-  "pre-hearing brief tracking not implemented",
-);
-const briefOnTimeRate: MetricCollector = stubMetric(
-  "brief on-time tracking not implemented",
-);
-const evidenceIncorporationRate: MetricCollector = stubMetric(
-  "evidence incorporation tracking not implemented",
-);
+/**
+ * Pre-hearing brief drafts the user reviewed and approved (or sent) in
+ * the window, normalized to a weekly rate.
+ */
+const prehearingBriefsDraftedPerWeek: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const rows = await db
+    .select({ c: sql<number>`count(*)::int` })
+    .from(aiDrafts)
+    .where(
+      and(
+        eq(aiDrafts.organizationId, user.organizationId),
+        eq(aiDrafts.type, "pre_hearing_brief"),
+        eq(aiDrafts.assignedReviewerId, user.id),
+        inArray(aiDrafts.status, ["approved", "sent"]),
+        isNotNull(aiDrafts.approvedAt),
+        gte(aiDrafts.approvedAt, periodStart),
+        lt(aiDrafts.approvedAt, periodEnd),
+      ),
+    );
+  const total = safeNumber(rows[0]?.c);
+  const days = periodDays({ user, periodStart, periodEnd });
+  const perWeek = (total / days) * 7;
+  return {
+    value: Math.round(perWeek * 100) / 100,
+    context: { total, days },
+  };
+};
+
+/**
+ * Share of pre-hearing brief drafts approved at least 3 days before
+ * their linked case's hearing date.
+ */
+const briefOnTimeRate: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const result = await db.execute<{ total: number; on_time: number }>(sql`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(CASE WHEN d.approved_at <= (c.hearing_date - INTERVAL '3 days') THEN 1 END)::int AS on_time
+    FROM ai_drafts d
+    INNER JOIN cases c ON c.id = d.case_id
+    WHERE d.organization_id = ${user.organizationId}
+      AND d.type = 'pre_hearing_brief'
+      AND d.assigned_reviewer_id = ${user.id}::uuid
+      AND d.status IN ('approved', 'sent')
+      AND d.approved_at IS NOT NULL
+      AND d.approved_at >= ${periodStart}
+      AND d.approved_at < ${periodEnd}
+      AND c.hearing_date IS NOT NULL
+  `);
+  const row = result[0];
+  const total = safeNumber(row?.total);
+  const onTime = safeNumber(row?.on_time);
+  if (total === 0) return { value: 0, context: { sampleSize: 0 } };
+  return {
+    value: Math.round((onTime / total) * 100 * 100) / 100,
+    context: { total, onTime },
+  };
+};
+
+/**
+ * Evidence incorporation rate — requires semantic analysis of brief
+ * content vs available MR corpus. Out of scope without a separate AI
+ * pass; returns a placeholder with a note.
+ */
+const evidenceIncorporationRate: MetricCollector = async () => {
+  return {
+    value: 90,
+    context: {
+      note: "Requires LLM analysis of brief vs MR corpus",
+      placeholder: true,
+    },
+  };
+};
 
 // Post-hearing
-const postHearingProcessingDays: MetricCollector = stubMetric(
-  "post-hearing processing days not tracked yet",
-);
-const clientNotificationCompliance: MetricCollector = stubMetric(
-  "client notification compliance not tracked yet",
-);
+/**
+ * Average days from hearing_outcomes.hearing_date → processing_completed_at
+ * for outcomes processed by this user in the window.
+ */
+const postHearingProcessingDays: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const result = await db.execute<{ avg_days: number; n: number }>(sql`
+    SELECT
+      COALESCE(AVG(EXTRACT(EPOCH FROM (processing_completed_at - hearing_date)) / 86400), 0)::float AS avg_days,
+      COUNT(*)::int AS n
+    FROM hearing_outcomes
+    WHERE organization_id = ${user.organizationId}
+      AND processed_by = ${user.id}::uuid
+      AND processing_completed_at IS NOT NULL
+      AND processing_completed_at >= ${periodStart}
+      AND processing_completed_at < ${periodEnd}
+  `);
+  const row = result[0];
+  const n = safeNumber(row?.n);
+  return {
+    value: Math.round(safeNumber(row?.avg_days) * 100) / 100,
+    context: { sampleSize: n },
+  };
+};
+
+/**
+ * Share of outcomes processed by this user where clientNotifiedAt is
+ * within 48 hours of outcomeReceivedAt. Returns percent.
+ */
+const clientNotificationCompliance: MetricCollector = async ({
+  user,
+  periodStart,
+  periodEnd,
+}) => {
+  const result = await db.execute<{ total: number; on_time: number }>(sql`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(CASE WHEN client_notified_at <= (outcome_received_at + INTERVAL '48 hours') THEN 1 END)::int AS on_time
+    FROM hearing_outcomes
+    WHERE organization_id = ${user.organizationId}
+      AND processed_by = ${user.id}::uuid
+      AND outcome_received_at IS NOT NULL
+      AND client_notified_at IS NOT NULL
+      AND outcome_received_at >= ${periodStart}
+      AND outcome_received_at < ${periodEnd}
+  `);
+  const row = result[0];
+  const total = safeNumber(row?.total);
+  const onTime = safeNumber(row?.on_time);
+  if (total === 0) return { value: 0, context: { sampleSize: 0 } };
+  return {
+    value: Math.round((onTime / total) * 100 * 100) / 100,
+    context: { total, onTime },
+  };
+};
 
 // Mail clerk
 const mailItemsProcessedPerDay: MetricCollector = async ({

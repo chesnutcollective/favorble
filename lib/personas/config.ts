@@ -28,6 +28,10 @@ export type PersonaId =
   | "medical_records"
   | "phi_sheet_writer"
   | "reviewer"
+  | "fee_collection"
+  | "appeals_council"
+  | "post_hearing"
+  | "pre_hearing_prep"
   | "viewer";
 
 export type PersonaConfig = {
@@ -269,6 +273,89 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     },
   },
 
+  fee_collection: {
+    label: "Fee Collection",
+    shortLabel: "Fees",
+    defaultRoute: "/fee-collection",
+    nav: [
+      "dashboard",
+      "fee-collection",
+      "cases",
+      "contacts",
+      "documents",
+      "billing",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Fee petitions filed with SSA after favorable decisions, through approval and collection.",
+    primaryKpi: {
+      label: "Delinquent Petitions",
+      subtitle: "Approved > 30 days unpaid",
+    },
+  },
+
+  appeals_council: {
+    label: "Appeals Council",
+    shortLabel: "AC",
+    defaultRoute: "/appeals-council",
+    nav: [
+      "dashboard",
+      "appeals-council",
+      "cases",
+      "documents",
+      "drafts",
+      "calendar",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Appeals Council brief pipeline — unfavorable decisions tracked through drafting, review, and filing.",
+    primaryKpi: {
+      label: "Urgent Deadlines",
+      subtitle: "Within 7 days of AC filing deadline",
+    },
+  },
+
+  post_hearing: {
+    label: "Post-Hearing Processing",
+    shortLabel: "Post-Hearing",
+    defaultRoute: "/post-hearing",
+    nav: [
+      "dashboard",
+      "post-hearing",
+      "hearings",
+      "cases",
+      "documents",
+      "messages",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Process hearing outcomes — notify clients, advance stages, and close the loop on decisions.",
+    primaryKpi: {
+      label: "Awaiting Processing",
+      subtitle: "Outcomes not yet worked",
+    },
+  },
+
+  pre_hearing_prep: {
+    label: "Pre-Hearing Prep",
+    shortLabel: "Pre-Hearing",
+    defaultRoute: "/phi-writer",
+    nav: [
+      "dashboard",
+      "phi-writer",
+      "cases",
+      "documents",
+      "hearings",
+      "team-chat",
+    ],
+    workspaceDescription:
+      "Author pre-hearing briefs and PHI sheets for upcoming hearings, sorted by hearing urgency.",
+    primaryKpi: {
+      label: "Briefs This Week",
+      subtitle: "Hearings within 14 days",
+    },
+  },
+
   viewer: {
     label: "Viewer",
     shortLabel: "Viewer",
@@ -296,6 +383,10 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
   "medical_records",
   "phi_sheet_writer",
   "reviewer",
+  "fee_collection",
+  "appeals_council",
+  "post_hearing",
+  "pre_hearing_prep",
 ];
 
 /**

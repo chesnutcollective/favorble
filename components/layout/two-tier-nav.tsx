@@ -320,6 +320,54 @@ const mainNav: RailItem[] = [
     ),
   },
   {
+    id: "fee-collection",
+    label: "Fee Collection",
+    href: "/fee-collection",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.88 15.76V19h-1.75v-1.29c-1.12-.24-2.1-.95-2.17-2.2h1.28c.07.73.58 1.3 1.88 1.3 1.39 0 1.7-.69 1.7-1.13 0-.59-.32-1.15-1.94-1.54-1.81-.44-3.05-1.18-3.05-2.67 0-1.25.99-2.06 2.21-2.33V7.84h1.75v1.32c1.33.32 2 1.33 2.04 2.42h-1.28c-.04-.77-.45-1.3-1.59-1.3-1.1 0-1.77.5-1.77 1.21 0 .62.48 1.03 1.95 1.4 1.47.37 3.04.99 3.04 2.83-.01 1.34-1.01 2.07-2.3 2.34z" />
+      </svg>
+    ),
+  },
+  {
+    id: "appeals-council",
+    label: "Appeals Council",
+    href: "/appeals-council",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 3c-.55 0-1 .45-1 1v.28c-1.16.41-2 1.51-2 2.82v.01l-4 8.89c0 2 2 3 4 3s4-1 4-3l-4-8.89v-.01c0-.65.41-1.2 1-1.41V20H5v2h14v-2h-6V5.72c.59.21 1 .76 1 1.41v.01l-4 8.89c0 2 2 3 4 3s4-1 4-3l-4-8.89v-.01c0-1.31-.84-2.41-2-2.82V4c0-.55-.45-1-1-1zm-5 7.33L8.6 14H5.4L7 10.33zm10 0L18.6 14h-3.2L17 10.33z" />
+      </svg>
+    ),
+  },
+  {
+    id: "post-hearing",
+    label: "Post-Hearing",
+    href: "/post-hearing",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+      </svg>
+    ),
+  },
+  {
     id: "supervisor",
     label: "Supervisor",
     href: "/admin/supervisor",

@@ -174,6 +174,27 @@ export const NAV_ITEM_REGISTRY: Record<string, NavItemMeta> = {
     description: "Internal team channels and DMs",
     iconName: "BubbleChatIcon",
   },
+  "fee-collection": {
+    id: "fee-collection",
+    label: "Fee Collection",
+    href: "/fee-collection",
+    description: "Fee petitions filed with SSA after favorable decisions",
+    iconName: "DollarCircleIcon",
+  },
+  "appeals-council": {
+    id: "appeals-council",
+    label: "Appeals Council",
+    href: "/appeals-council",
+    description: "AC brief pipeline and 65-day deadline tracking",
+    iconName: "BalanceScaleIcon",
+  },
+  "post-hearing": {
+    id: "post-hearing",
+    label: "Post-Hearing",
+    href: "/post-hearing",
+    description: "Process hearing outcomes and close the loop on decisions",
+    iconName: "CheckmarkBadge01Icon",
+  },
 };
 
 /**
