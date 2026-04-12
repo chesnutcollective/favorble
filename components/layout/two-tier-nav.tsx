@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -479,6 +479,20 @@ export function TwoTierNav({
 }) {
   const pathname = usePathname();
 
+  // Sidebar collapse state — default expanded, persisted in localStorage
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem("ttn-sidebar-collapsed");
+    if (stored === "true") setCollapsed(true);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("ttn-sidebar-collapsed", String(collapsed));
+    document.documentElement.style.setProperty(
+      "--sidebar-w",
+      collapsed ? "80px" : "264px",
+    );
+  }, [collapsed]);
+
   // Build a persona-scoped rail in the persona's preferred order.
   // Items not in personaNav are hidden. Unknown IDs are silently skipped.
   const railItemsById = React.useMemo(() => {
@@ -512,7 +526,7 @@ export function TwoTierNav({
   }
 
   return (
-    <div className="ttn-float">
+    <div className="ttn-float" data-collapsed={collapsed}>
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
         <nav className="ttn-rail">
@@ -551,6 +565,32 @@ export function TwoTierNav({
 
           <div className="ttn-rail-divider" />
           <div className="ttn-rail-spacer" />
+
+          {/* Collapse / expand toggle */}
+          <button
+            type="button"
+            className="ttn-collapse-btn"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setCollapsed((c) => !c)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="16"
+              height="16"
+              style={{
+                transform: collapsed ? "rotate(180deg)" : undefined,
+                transition: "transform 0.2s ease",
+              }}
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
 
           {/* User avatar */}
           <DropdownMenu>

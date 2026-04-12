@@ -224,6 +224,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: margin-left 0.2s ease;
 }
 
 /* ── Floating sidebar wrapper ── */
@@ -419,6 +420,40 @@
   flex-direction: column;
   user-select: none;
   overflow: hidden;
+  transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
+}
+
+/* ── Collapsed state ── */
+.ttn-float[data-collapsed="true"] .ttn-panel {
+  width: 0;
+  min-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ttn-float[data-collapsed="true"] .ttn-rail {
+  border-radius: 12px;
+}
+
+/* ── Collapse toggle button ── */
+.ttn-collapse-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  transition: background 0.15s ease, color 0.15s ease;
+  margin-bottom: 4px;
+}
+
+.ttn-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Search trigger */
