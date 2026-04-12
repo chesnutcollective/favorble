@@ -14,6 +14,10 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import { askClaude } from "@/lib/ai/client";
 import { getRoleMetricPack } from "@/lib/services/role-metrics";
+import {
+  getRecipe,
+  type CoachingRecipe,
+} from "@/lib/services/coaching-library";
 
 /**
  * Coaching conversation + call-script draft generators (CC-2, CC-4).
@@ -235,6 +239,46 @@ function formatActivityForPrompt(bundle: ActivityBundle): string {
   return parts.join("\n");
 }
 
+/**
+ * Format a coaching recipe as structured context for the Claude prompt.
+ * The recipe library (`coaching-library.ts`) holds role- and
+ * metric-specific diagnosis + talking points + root causes + training
+ * resources. Surfacing these to Claude is the difference between
+ * "generic sympathetic outline" and "specific, actionable coaching".
+ */
+function formatRecipeForPrompt(recipe: CoachingRecipe | null): string {
+  if (!recipe) {
+    return "## Coaching recipe\n- (no recipe catalogued for this metric — draft from first principles)";
+  }
+  const lines: string[] = [];
+  lines.push("## Coaching recipe (authoritative guidance)");
+  lines.push(`\n### Diagnosis\n${recipe.diagnosis}`);
+
+  lines.push("\n### Coaching talking points");
+  for (const pt of recipe.coachingTalkingPoints) {
+    lines.push(`- ${pt}`);
+  }
+
+  lines.push("\n### Common root causes");
+  for (const cause of recipe.commonRootCauses) {
+    lines.push(`- ${cause}`);
+  }
+
+  lines.push("\n### Recommended action steps");
+  for (const step of recipe.actionSteps) {
+    lines.push(
+      `- ${step.label} — ${step.description} (expected: ${step.expectedOutcome}; timeframe: ${step.timeframe})`,
+    );
+  }
+
+  lines.push("\n### Training resources to mention by name");
+  for (const res of recipe.trainingResources) {
+    lines.push(`- ${res}`);
+  }
+
+  return lines.join("\n");
+}
+
 function pickExamples(bundle: ActivityBundle): Example[] {
   const examples: Example[] = [];
 
@@ -346,6 +390,7 @@ export async function draftCoachingConversation(
 
     const pack = getRoleMetricPack(subject.role);
     const metric = pack.metrics.find((m) => m.metricKey === flag.metricKey);
+    const recipe = getRecipe(subject.role, flag.metricKey);
 
     const prompt = `${SYSTEM_INTRO}
 
@@ -355,14 +400,18 @@ Context:
 - Flag summary: ${flag.summary}
 - Classification: ${flag.classification ?? "unclear"}
 
+${formatRecipeForPrompt(recipe)}
+
 Activity bundle:
 ${formatActivityForPrompt(bundle)}
 
 Task: Draft a coaching conversation outline that includes:
 1. An opening that acknowledges the person and the data
 2. 2-3 specific examples pulled from the activity bundle (with dates)
-3. A proposed improvement plan with measurable goals
-4. Two open questions for the coachee to answer
+3. A proposed improvement plan that weaves in the recipe's action steps and training resources by name (not generic advice)
+4. Two open questions for the coachee to answer — ideally pulled from the recipe's talking points or root causes
+
+Lean heavily on the coaching recipe above — it contains the authoritative diagnosis, talking points, and root causes for this specific metric. Reference specific resources from the recipe by name. Do NOT invent generic advice when the recipe has specific guidance.
 
 Write it as a conversation outline a supervisor can follow live. Plain English, under 500 words.`;
 
@@ -417,6 +466,7 @@ export async function draftCoachingCallScript(
 
     const pack = getRoleMetricPack(subject.role);
     const metric = pack.metrics.find((m) => m.metricKey === flag.metricKey);
+    const recipe = getRecipe(subject.role, flag.metricKey);
 
     const prompt = `${SYSTEM_INTRO}
 
@@ -425,15 +475,19 @@ Context:
 - Flagged metric: ${metric?.label ?? flag.metricKey}
 - Flag summary: ${flag.summary}
 
+${formatRecipeForPrompt(recipe)}
+
 Activity bundle:
 ${formatActivityForPrompt(bundle)}
 
 Task: Draft a phone call script the supervisor can read aloud. Include:
 - A warm opener (by name)
-- Exact words to use for the hard part
-- 2 specific examples with dates and case references
-- A scripted improvement-plan offer
-- A closing that commits to a follow-up in 1 week
+- Exact words to use for the hard part — lift language directly from the recipe's coaching talking points
+- 2 specific examples with dates and case references from the activity bundle
+- A scripted improvement-plan offer that names specific action steps from the recipe by label
+- A closing that commits to a follow-up in 1 week and points at a specific training resource from the recipe
+
+Lean heavily on the coaching recipe above. The whole point of this script is to deliver the recipe's guidance in natural phone-call language. Reference specific resources by name. Do NOT write generic coaching phrases when the recipe has specific language.
 
 Write it as a literal script with speaker labels ("Supervisor:") and no stage directions other than [pause]. Under 500 words.`;
 

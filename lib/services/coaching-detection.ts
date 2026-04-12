@@ -16,6 +16,7 @@ import {
 } from "@/lib/services/role-metrics";
 import { findOutliers } from "@/lib/services/pattern-analysis";
 import { createNotification } from "@/lib/services/notify";
+import { getRecipe } from "@/lib/services/coaching-library";
 
 /**
  * Coaching flag + training gap detection (CC-1, CC-3).
@@ -38,78 +39,47 @@ const CRITICAL_FLAG_THRESHOLD = 2; // need ≥ N critical-band metrics
 const TRAINING_GAP_RATIO = 0.5; // 50% of the team below warn
 
 /**
- * Suggested action library. Keyed by `${role}::${metricKey}`, with a
- * generic fallback per metric. Supervisors see these directly in the
- * coaching flag UI as concrete next steps.
+ * Shape of the action step persisted to `coaching_flags.suggested_action_steps`.
  */
-const ACTION_STEPS: Record<string, string[]> = {
-  "medical_records::mr_requests_sent_per_day": [
-    "Audit the current request queue and identify the backlog driver",
-    "Pair with a peer who is hitting target to observe their workflow",
-    "Commit to a 10-request-per-day floor for the next 5 working days",
-  ],
-  "medical_records::mr_request_turnaround_days": [
-    "Pull a list of open requests older than 14 days and triage",
-    "Agree on a daily follow-up cadence for outstanding providers",
-    "Flag any providers consistently >30 days for escalation",
-  ],
-  "medical_records::follow_up_compliance_rate": [
-    "Review the follow-up checklist — is every new request scheduled?",
-    "Turn on daily automated reminders in the MR workspace",
-  ],
-  "case_manager::task_completion_rate": [
-    "Reconcile this week's task board; close or reassign anything stale",
-    "Schedule a daily 15-minute task review with the supervisor",
-    "Identify the top 3 tasks blocking progress and resolve",
-  ],
-  "case_manager::avg_response_time_minutes": [
-    "Enable inbox notifications and clear the backlog before lunch",
-    "Use canned responses for the 5 most common inbound questions",
-    "Escalate any clients with 48+ hour open loops",
-  ],
-  "case_manager::unread_messages_backlog": [
-    "Clear the unread messages backlog by end of day",
-    "Adopt a twice-daily inbox triage cadence",
-  ],
-  "case_manager::stagnant_case_count": [
-    "Pull the stagnant case list and run a 10-case review session",
-    "Identify structural blockers (waiting on docs? client?) and assign owners",
-  ],
-  "intake_agent::lead_conversion_rate": [
-    "Shadow a peer call to compare objection handling",
-    "Review the last 10 lost leads and tag refusal reasons",
-    "Roleplay the contract close with the supervisor",
-  ],
-  "intake_agent::avg_response_time_minutes": [
-    "Enable phone + SMS alerts for new leads",
-    "Commit to a 15-minute first-touch SLA and log every exception",
-  ],
-  "filing_agent::applications_filed_per_day": [
-    "Audit the ready-to-file queue for missing evidence",
-    "Run a 1-day filing sprint to clear the oldest items",
-  ],
-  "filing_agent::filing_error_rate": [
-    "Review the last 10 rejected filings with the supervisor",
-    "Update the pre-submission checklist to catch the most common errors",
-  ],
-  "attorney::win_rate": [
-    "Request a case review from peer attorney on recent losses",
-    "Schedule a hearing-prep audit for upcoming docket",
-  ],
-  "hearing_advocate::win_rate": [
-    "Review the last 5 lost hearings with the supervising attorney",
-    "Schedule a mock-hearing practice session",
-  ],
-  "phi_sheet_writer::phi_sheet_turnaround_hours": [
-    "Identify the blocker in the current sheet workflow",
-    "Batch routine sections with templates to compress turnaround",
-  ],
+type StoredActionStep = {
+  label: string;
+  description: string | null;
+  expectedOutcome?: string | null;
+  timeframe?: string | null;
+  dueDate: string | null;
 };
 
-const GENERIC_ACTION_STEPS: string[] = [
-  "Schedule a 30-minute coaching conversation with the supervisor",
-  "Review the last week of work and identify the top blocker",
-  "Agree on a measurable improvement goal for next week",
+/**
+ * Fallback used only when the coaching library has no recipe for a
+ * given (role, metric) pair. Real recipes live in
+ * `lib/services/coaching-library.ts`.
+ */
+const GENERIC_ACTION_STEPS: StoredActionStep[] = [
+  {
+    label: "Schedule a 30-minute coaching conversation with the supervisor",
+    description:
+      "Open calendar and book time with the supervisor in the next 2 business days. Bring the flagged metric and last week of activity.",
+    expectedOutcome: "A shared plan for the week ahead",
+    timeframe: "Within 2 business days",
+    dueDate: null,
+  },
+  {
+    label: "Review the last week of work and identify the top blocker",
+    description:
+      "Before the coaching conversation, spend 15 minutes writing down the single biggest thing in the way of hitting target this week.",
+    expectedOutcome: "A concrete blocker the supervisor can help remove",
+    timeframe: "Before the coaching session",
+    dueDate: null,
+  },
+  {
+    label: "Agree on a measurable improvement goal for next week",
+    description:
+      "Leave the coaching conversation with a specific, measurable target for the next 7 days — not a general intention.",
+    expectedOutcome:
+      "Everyone knows what 'improved' looks like by next Friday",
+    timeframe: "End of coaching session",
+    dueDate: null,
+  },
 ];
 
 type MetricEvaluation = {
@@ -182,10 +152,20 @@ async function hasOpenFlag(
   return rows.length > 0;
 }
 
-function getActionSteps(role: string, metricKey: string): string[] {
-  const specific = ACTION_STEPS[`${role}::${metricKey}`];
-  if (specific && specific.length > 0) return specific;
-  return GENERIC_ACTION_STEPS;
+/**
+ * Pull the recipe-driven action steps for (role, metricKey). Falls back
+ * to a generic 3-step checklist only if no recipe is registered.
+ */
+function getActionSteps(role: string, metricKey: string): StoredActionStep[] {
+  const recipe = getRecipe(role, metricKey);
+  if (!recipe) return GENERIC_ACTION_STEPS;
+  return recipe.actionSteps.map((step) => ({
+    label: step.label,
+    description: step.description,
+    expectedOutcome: step.expectedOutcome,
+    timeframe: step.timeframe,
+    dueDate: null,
+  }));
 }
 
 /**
@@ -353,11 +333,14 @@ export async function detectCoachingFlags(): Promise<DetectCoachingFlagsResult> 
 
     const supervisorUserId = await resolveSupervisorId(user.organizationId);
     const actionSteps = getActionSteps(user.role, primary.metric.metricKey);
+    const recipe = getRecipe(user.role, primary.metric.metricKey);
 
-    const summaryParts = [
-      `${user.firstName} ${user.lastName} is in the critical band on ${criticals.length} ${pack.label} metric${criticals.length === 1 ? "" : "s"}`,
-      `(${criticals.map((c) => c.metric.label).join(", ")})`,
-    ];
+    // Preferred summary: recipe diagnosis (specific, reads well in UI).
+    // Fallback: the old role-label rollup for metric pairs that don't
+    // have a recipe yet.
+    const summary = recipe
+      ? `${user.firstName} ${user.lastName} — ${primary.metric.label}: ${recipe.diagnosis}`
+      : `${user.firstName} ${user.lastName} is in the critical band on ${criticals.length} ${pack.label} metric${criticals.length === 1 ? "" : "s"} (${criticals.map((c) => c.metric.label).join(", ")})`;
 
     try {
       const [inserted] = await db
@@ -370,12 +353,8 @@ export async function detectCoachingFlags(): Promise<DetectCoachingFlagsResult> 
           metricKey: primary.metric.metricKey,
           severity,
           status: "open",
-          summary: summaryParts.join(" "),
-          suggestedActionSteps: actionSteps.map((label) => ({
-            label,
-            description: null,
-            dueDate: null,
-          })),
+          summary,
+          suggestedActionSteps: actionSteps,
           classification,
         })
         .returning({ id: coachingFlags.id });
@@ -388,7 +367,7 @@ export async function detectCoachingFlags(): Promise<DetectCoachingFlagsResult> 
           organizationId: user.organizationId,
           userId: supervisorUserId,
           title: `Coaching flag raised: ${user.firstName} ${user.lastName}`,
-          body: summaryParts.join(" "),
+          body: summary,
           priority: severity >= 7 ? "high" : "normal",
           actionLabel: "Review flag",
           actionHref: `/coaching/${inserted.id}`,
@@ -467,7 +446,31 @@ export async function detectTrainingGaps(): Promise<DetectTrainingGapsResult> {
 
       const pluralRole = `${pack.label.toLowerCase()}s`;
       const summary = `${belowWarn} of ${usersWithMetric.length} ${pluralRole} are below target for ${metric.label}`;
-      const recommendation = `Schedule a role-wide training on ${metric.label}. ${ratio >= 0.75 ? "This is affecting most of the team — prioritize a live workshop." : "Cover the top 3 failure modes and re-measure in 2 weeks."}`;
+
+      // Recipe-driven recommendation: point leadership at the specific
+      // training resources the library has catalogued for this metric,
+      // formatted as a numbered list. Fall back to a generic sentence if
+      // the library doesn't have a recipe for this (role, metric) pair.
+      const recipe = getRecipe(role, metric.metricKey);
+      const urgencyHint =
+        ratio >= 0.75
+          ? "This is affecting most of the team — prioritize a live workshop."
+          : "Cover the top 3 failure modes and re-measure in 2 weeks.";
+      let recommendation: string;
+      if (recipe && recipe.trainingResources.length > 0) {
+        const numbered = recipe.trainingResources
+          .map((resource, i) => `${i + 1}. ${resource}`)
+          .join("\n");
+        const rootCauses =
+          recipe.commonRootCauses.length > 0
+            ? `\n\nCommon root causes:\n${recipe.commonRootCauses
+                .map((c) => `- ${c}`)
+                .join("\n")}`
+            : "";
+        recommendation = `Schedule a role-wide training on ${metric.label}. ${urgencyHint}\n\nRecommended resources:\n${numbered}${rootCauses}`;
+      } else {
+        recommendation = `Schedule a role-wide training on ${metric.label}. ${urgencyHint}`;
+      }
 
       try {
         await db.insert(trainingGaps).values({
