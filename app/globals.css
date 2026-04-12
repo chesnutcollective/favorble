@@ -1097,6 +1097,16 @@
 ::-webkit-scrollbar-thumb { background: #D4D4D4; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #A3A3A3; }
 
+/* Hidden scrollbars (default) — scroll functionality preserved */
+html.scrollbars-hidden,
+html.scrollbars-hidden * {
+  scrollbar-width: none !important; /* Firefox */
+}
+html.scrollbars-hidden::-webkit-scrollbar,
+html.scrollbars-hidden *::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Edge */
+}
+
 /* ── Selection ── */
 ::selection { background: #D1D5DB; color: #171717; }
 

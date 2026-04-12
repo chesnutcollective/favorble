@@ -26,6 +26,7 @@ const defaultAdminItems: AdminItem[] = [
   { label: "Fields", href: "/settings/fields" },
   { label: "Users", href: "/settings/users" },
   { label: "Templates", href: "/settings/templates" },
+  { label: "Preferences", href: "/settings/preferences" },
 ];
 
 const defaultToggles: ToggleSetting[] = [
