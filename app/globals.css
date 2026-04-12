@@ -287,6 +287,16 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.ttn-rail-group::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
 }
 
 .ttn-rail-divider {
@@ -298,7 +308,7 @@
 }
 
 .ttn-rail-spacer {
-  flex: 1;
+  flex: 0;
 }
 
 /* Rail button */
