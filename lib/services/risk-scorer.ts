@@ -6,50 +6,88 @@ import {
   tasks,
   communications,
   documents,
-  caseStageTransitions,
+  supervisorEvents,
+  complianceFindings,
+  auditLog,
 } from "@/db/schema";
 import { and, desc, eq, isNull, lt, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
+import { classifyTrend } from "@/lib/services/pattern-analysis";
+import { buildCaseContext } from "@/lib/services/case-context";
 
 /**
- * Case risk scoring (PR-1) — heuristic weighted-sum variant.
+ * Case risk scoring (PR-1) — heuristic weighted-sum, v2.
  *
- * The scorer is deliberately explainable: every input becomes a factor
- * with its own `contribution` number, so the UI can show exactly why a
- * case is flagged. Weights are documented inline and MUST sum to 100 —
- * that makes the maximum possible score 100 without per-factor
- * normalization gymnastics.
+ * Every input becomes a factor with its own `contribution` number, so
+ * the UI can show exactly why a case is flagged. Weights are documented
+ * inline. The raw sum is normalized to 0..100 via `MAX_RAW` so band
+ * thresholds (low/medium/high/critical) stay stable.
  *
- * v1 factors (points out of 100):
- *   stage dwell time .............. 18
- *   overdue tasks ................. 14
- *   ALJ historical win rate ....... 12   (only if hearingDate set)
- *   communications gap ............ 14
- *   MR completeness ............... 10
- *   hearing proximity + PHI combo . 22   (compound signal)
- *   client sentiment .............. 10
- *   -------
- *   total .........................100
+ * v2 adds five new signals on top of the v1 weighted sum, recalibrates
+ * the existing seven, and optionally attaches a short AI-generated
+ * narrative for cases scoring ≥ 60.
  *
- * Riskier cases accumulate higher contributions from each factor. The
- * total is capped at 100 for safety.
+ * Factors (raw points out of MAX_RAW = 143):
+ *   stage dwell time .............. 12   (was 18)
+ *   overdue tasks ................. 10   (was 14)
+ *   ALJ historical win rate ....... 10   (was 12)
+ *   communications gap ............ 10   (was 14)
+ *   MR completeness ...............  8   (was 10)
+ *   hearing proximity + PHI combo . 15   (was 22)
+ *   client sentiment (latest) .....  7   (was 10)
+ *   --- existing total ............ 72
+ *   risk trajectory ...............  8   NEW
+ *   missed SSA deadlines ..........  20  NEW (10 per, cap 20)
+ *   unresolved supervisor events ..  16  NEW (4 per, cap 16)
+ *   open compliance findings ......  15  NEW (6/3/1, cap 15)
+ *   sentiment trend ...............  12  NEW (all-or-nothing)
+ *   --- new total ................. 71
+ *   ================================
+ *   MAX_RAW ....................... 143
+ *
+ * After rawScore → `score = round(rawScore * 100 / 143)` is capped to
+ * [0,100] and the band is derived against legacy thresholds.
  */
 
-const SCORER_VERSION = "v1";
+const SCORER_VERSION = "v2";
 
-// Factor weights — documented above. Must sum to 100.
-const W_STAGE_DWELL = 18;
-const W_OVERDUE_TASKS = 14;
-const W_ALJ_WIN_RATE = 12;
-const W_COMMS_GAP = 14;
-const W_MR_COMPLETENESS = 10;
-const W_HEARING_PHI = 22;
-const W_SENTIMENT = 10;
+// Factor weights — documented above.
+const W_STAGE_DWELL = 12;
+const W_OVERDUE_TASKS = 10;
+const W_ALJ_WIN_RATE = 10;
+const W_COMMS_GAP = 10;
+const W_MR_COMPLETENESS = 8;
+const W_HEARING_PHI = 15;
+const W_SENTIMENT = 7;
+const W_TRAJECTORY = 8;
+const W_MISSED_SSA_DEADLINE_PER = 10;
+const W_MISSED_SSA_DEADLINE_CAP = 20;
+const W_UNRESOLVED_EVENT_PER = 4;
+const W_UNRESOLVED_EVENT_CAP = 16;
+const W_COMPLIANCE_CRITICAL = 6;
+const W_COMPLIANCE_HIGH = 3;
+const W_COMPLIANCE_MEDIUM = 1;
+const W_COMPLIANCE_CAP = 15;
+const W_SENTIMENT_TREND = 12;
+
+const MAX_RAW =
+  W_STAGE_DWELL +
+  W_OVERDUE_TASKS +
+  W_ALJ_WIN_RATE +
+  W_COMMS_GAP +
+  W_MR_COMPLETENESS +
+  W_HEARING_PHI +
+  W_SENTIMENT +
+  W_TRAJECTORY +
+  W_MISSED_SSA_DEADLINE_CAP +
+  W_UNRESOLVED_EVENT_CAP +
+  W_COMPLIANCE_CAP +
+  W_SENTIMENT_TREND;
 
 export type RiskFactor = {
   key: string;
   label: string;
-  contribution: number; // 0..weight
+  contribution: number; // 0..weight (in raw space)
   note: string;
 };
 
@@ -80,7 +118,7 @@ function clamp(value: number, max: number): number {
 
 /**
  * Stage dwell time: more days in the current stage → more points.
- * Scale: 0d → 0, 30d → half, 90d+ → full weight.
+ * Scale: 0-14d → 0, 30d → half, 90d+ → full weight.
  */
 function scoreStageDwell(stageEnteredAt: Date | null): RiskFactor {
   if (!stageEnteredAt) {
@@ -121,9 +159,8 @@ function scoreOverdueTasks(overdueCount: number): RiskFactor {
 }
 
 /**
- * ALJ historical win rate (if this case has a hearing date set and an
- * ALJ assigned). Lower win rate → higher risk. Only applies once we
- * know who the judge is.
+ * ALJ historical win rate (only when hearing date + ALJ are set).
+ * 0% win rate → full weight; 80%+ → 0.
  */
 function scoreAljWinRate(
   hearingDate: Date | null,
@@ -146,7 +183,6 @@ function scoreAljWinRate(
       note: `ALJ ${aljName} has no historical data — mild risk`,
     };
   }
-  // 0% win rate → full weight; 80%+ → 0.
   const ratio = 1 - clamp(aljWinRate / 0.8, 1);
   return {
     key: "alj_win_rate",
@@ -157,8 +193,7 @@ function scoreAljWinRate(
 }
 
 /**
- * Communications gap: days since last inbound/outbound message.
- * 0d → 0, 30d+ → full.
+ * Communications gap. 0d → 0, 30d+ → full.
  */
 function scoreCommsGap(lastCommAt: Date | null): RiskFactor {
   if (!lastCommAt) {
@@ -183,8 +218,8 @@ function scoreCommsGap(lastCommAt: Date | null): RiskFactor {
 }
 
 /**
- * MR completeness: how many "medical_records" category documents are
- * on file. <3 → full, 10+ → 0.
+ * MR completeness: how many medical_records category documents are on
+ * file. <3 → full, 10+ → 0.
  */
 function scoreMrCompleteness(mrCount: number): RiskFactor {
   let ratio: number;
@@ -201,10 +236,6 @@ function scoreMrCompleteness(mrCount: number): RiskFactor {
 
 /**
  * Compound signal: hearing approaching + PHI sheet incomplete.
- * - Hearing in ≤14 days with phi unassigned → full weight
- * - Hearing in 15-30 days with phi unassigned → half
- * - Hearing scheduled and phi complete → 0
- * - No hearing scheduled → 0
  */
 function scoreHearingPhiCombo(
   hearingDate: Date | null,
@@ -263,8 +294,9 @@ function scoreHearingPhiCombo(
 }
 
 /**
- * Client sentiment signal: angry/frustrated/churn-risk labels in the
- * recent comms get the full weight.
+ * Client sentiment (latest window) — kept so v2 still credits a single
+ * negative message, but at a lower weight since `scoreSentimentTrend`
+ * below amplifies when the pattern persists.
  */
 function scoreSentiment(
   negativeCount: number,
@@ -273,12 +305,147 @@ function scoreSentiment(
   const ratio = clamp(negativeCount / 3, 1);
   return {
     key: "client_sentiment",
-    label: "Client sentiment",
+    label: "Client sentiment (latest)",
     contribution: Math.round(ratio * W_SENTIMENT),
     note:
       negativeCount === 0
         ? "No negative sentiment detected"
         : `${negativeCount} negative signal${negativeCount === 1 ? "" : "s"}: ${recentLabels.slice(0, 3).join(", ")}`,
+  };
+}
+
+/**
+ * (v2) Risk trajectory — trend over last ≤3 historical scores for this
+ * case. Declining trend (score getting worse) adds full weight.
+ */
+function scoreTrajectory(history: number[]): RiskFactor {
+  if (history.length < 2) {
+    return {
+      key: "risk_trajectory",
+      label: "Risk trajectory",
+      contribution: 0,
+      note: "Not enough history",
+    };
+  }
+  const trend = classifyTrend(history, "lower_is_better");
+  if (trend === "declining") {
+    return {
+      key: "risk_trajectory",
+      label: "Risk trajectory",
+      contribution: W_TRAJECTORY,
+      note: `Scores rising over last ${history.length} snapshots`,
+    };
+  }
+  if (trend === "improving") {
+    return {
+      key: "risk_trajectory",
+      label: "Risk trajectory",
+      contribution: 0,
+      note: "Scores improving",
+    };
+  }
+  return {
+    key: "risk_trajectory",
+    label: "Risk trajectory",
+    contribution: 0,
+    note: "Stable trend",
+  };
+}
+
+/**
+ * (v2) Missed SSA deadlines — count of past-due, non-complete tasks
+ * whose `sourceEventId` stamps them as event-driven. 10 points each,
+ * capped at 20.
+ */
+function scoreMissedSsaDeadlines(count: number): RiskFactor {
+  const contribution = Math.min(
+    W_MISSED_SSA_DEADLINE_CAP,
+    count * W_MISSED_SSA_DEADLINE_PER,
+  );
+  return {
+    key: "missed_ssa_deadlines",
+    label: "Missed SSA deadlines",
+    contribution,
+    note:
+      count === 0
+        ? "No event-driven deadlines missed"
+        : `${count} event-driven task${count === 1 ? "" : "s"} past due`,
+  };
+}
+
+/**
+ * (v2) Unresolved supervisor events — open events on this case. Each
+ * adds 4 points, capped at 16.
+ */
+function scoreUnresolvedEvents(count: number): RiskFactor {
+  const contribution = Math.min(
+    W_UNRESOLVED_EVENT_CAP,
+    count * W_UNRESOLVED_EVENT_PER,
+  );
+  return {
+    key: "unresolved_events",
+    label: "Unresolved supervisor events",
+    contribution,
+    note:
+      count === 0
+        ? "All supervisor events resolved"
+        : `${count} unresolved event${count === 1 ? "" : "s"}`,
+  };
+}
+
+/**
+ * (v2) Open compliance findings — each finding contributes by severity:
+ * critical 6, high 3, medium 1, capped at 15 total.
+ */
+function scoreComplianceFindings(
+  critical: number,
+  high: number,
+  medium: number,
+): RiskFactor {
+  const raw =
+    critical * W_COMPLIANCE_CRITICAL +
+    high * W_COMPLIANCE_HIGH +
+    medium * W_COMPLIANCE_MEDIUM;
+  const contribution = Math.min(W_COMPLIANCE_CAP, raw);
+  const total = critical + high + medium;
+  return {
+    key: "compliance_findings",
+    label: "Open compliance findings",
+    contribution,
+    note:
+      total === 0
+        ? "No open compliance findings"
+        : `${total} open finding${total === 1 ? "" : "s"} (${critical}C/${high}H/${medium}M)`,
+  };
+}
+
+/**
+ * (v2) Sentiment trend — last 5 inbound communications. ≥3 in the
+ * negative bucket gets the full weight.
+ */
+function scoreSentimentTrend(
+  recentInboundLabels: Array<string | null>,
+): RiskFactor {
+  const negatives = recentInboundLabels.filter(
+    (l) => l === "frustrated" || l === "angry" || l === "churn_risk",
+  ).length;
+  const sampleSize = recentInboundLabels.length;
+  if (negatives >= 3) {
+    return {
+      key: "sentiment_trend",
+      label: "Sentiment trend (5 msgs)",
+      contribution: W_SENTIMENT_TREND,
+      note: `${negatives}/${sampleSize} recent inbound msgs negative`,
+    };
+  }
+  return {
+    key: "sentiment_trend",
+    label: "Sentiment trend (5 msgs)",
+    contribution: 0,
+    note:
+      sampleSize === 0
+        ? "No recent inbound messages"
+        : `${negatives}/${sampleSize} recent negative — below threshold`,
   };
 }
 
@@ -295,6 +462,14 @@ type CaseSignals = {
   negativeSentimentCount: number;
   negativeSentimentLabels: string[];
   aljWinRate: number | null;
+  // v2 signals
+  missedSsaDeadlineCount: number;
+  unresolvedEventCount: number;
+  complianceCriticalCount: number;
+  complianceHighCount: number;
+  complianceMediumCount: number;
+  recentInboundSentimentLabels: Array<string | null>;
+  historyScores: number[];
 };
 
 /**
@@ -319,60 +494,133 @@ async function loadCaseSignals(caseId: string): Promise<CaseSignals | null> {
 
   const now = new Date();
 
-  const [overdueTaskRows, lastCommRows, mrDocRows, sentimentRows, aljStatsRows] =
-    await Promise.all([
-      db
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(tasks)
-        .where(
-          and(
-            eq(tasks.caseId, caseId),
-            isNull(tasks.deletedAt),
-            lt(tasks.dueDate, now),
-            sql`${tasks.status} NOT IN ('completed', 'skipped')`,
-          ),
+  const [
+    overdueTaskRows,
+    lastCommRows,
+    mrDocRows,
+    sentimentRows,
+    aljStatsRows,
+    missedSsaRows,
+    unresolvedEventRows,
+    complianceRows,
+    recentInboundRows,
+    historyRows,
+  ] = await Promise.all([
+    db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.caseId, caseId),
+          isNull(tasks.deletedAt),
+          lt(tasks.dueDate, now),
+          sql`${tasks.status} NOT IN ('completed', 'skipped')`,
         ),
-      db
-        .select({ createdAt: communications.createdAt })
-        .from(communications)
-        .where(eq(communications.caseId, caseId))
-        .orderBy(desc(communications.createdAt))
-        .limit(1),
-      db
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(documents)
-        .where(
-          and(
-            eq(documents.caseId, caseId),
-            isNull(documents.deletedAt),
-            eq(documents.category, "medical_records"),
-          ),
+      ),
+    db
+      .select({ createdAt: communications.createdAt })
+      .from(communications)
+      .where(eq(communications.caseId, caseId))
+      .orderBy(desc(communications.createdAt))
+      .limit(1),
+    db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(documents)
+      .where(
+        and(
+          eq(documents.caseId, caseId),
+          isNull(documents.deletedAt),
+          eq(documents.category, "medical_records"),
         ),
-      db
-        .select({
-          label: communications.sentimentLabel,
-        })
-        .from(communications)
-        .where(
-          and(
-            eq(communications.caseId, caseId),
-            sql`${communications.sentimentLabel} IN ('frustrated', 'angry', 'churn_risk')`,
-            sql`${communications.createdAt} > NOW() - INTERVAL '30 days'`,
-          ),
+      ),
+    db
+      .select({
+        label: communications.sentimentLabel,
+      })
+      .from(communications)
+      .where(
+        and(
+          eq(communications.caseId, caseId),
+          sql`${communications.sentimentLabel} IN ('frustrated', 'angry', 'churn_risk')`,
+          sql`${communications.createdAt} > NOW() - INTERVAL '30 days'`,
         ),
-      caseRow.adminLawJudge
-        ? db.execute<{ won: number; lost: number }>(sql`
-            SELECT
-              SUM(CASE WHEN status = 'closed_won' THEN 1 ELSE 0 END)::int AS won,
-              SUM(CASE WHEN status = 'closed_lost' THEN 1 ELSE 0 END)::int AS lost
-            FROM cases
-            WHERE organization_id = ${caseRow.organizationId}
-              AND admin_law_judge = ${caseRow.adminLawJudge}
-              AND status IN ('closed_won', 'closed_lost')
-              AND deleted_at IS NULL
-          `)
-        : Promise.resolve([] as Array<{ won: number; lost: number }>),
-    ]);
+      ),
+    caseRow.adminLawJudge
+      ? db.execute<{ won: number; lost: number }>(sql`
+          SELECT
+            SUM(CASE WHEN status = 'closed_won' THEN 1 ELSE 0 END)::int AS won,
+            SUM(CASE WHEN status = 'closed_lost' THEN 1 ELSE 0 END)::int AS lost
+          FROM cases
+          WHERE organization_id = ${caseRow.organizationId}
+            AND admin_law_judge = ${caseRow.adminLawJudge}
+            AND status IN ('closed_won', 'closed_lost')
+            AND deleted_at IS NULL
+        `)
+      : Promise.resolve([] as Array<{ won: number; lost: number }>),
+    // v2: missed SSA deadlines — event-driven tasks past due
+    db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.caseId, caseId),
+          isNull(tasks.deletedAt),
+          lt(tasks.dueDate, now),
+          sql`${tasks.status} NOT IN ('completed', 'skipped')`,
+          sql`${tasks.sourceEventId} IS NOT NULL`,
+        ),
+      ),
+    // v2: unresolved supervisor events (not 'resolved' / 'dismissed')
+    db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(supervisorEvents)
+      .where(
+        and(
+          eq(supervisorEvents.caseId, caseId),
+          sql`${supervisorEvents.status} NOT IN ('resolved','dismissed')`,
+        ),
+      ),
+    // v2: open compliance findings bucketed by severity
+    db
+      .select({
+        severity: complianceFindings.severity,
+        count: sql<number>`COUNT(*)::int`,
+      })
+      .from(complianceFindings)
+      .where(
+        and(
+          eq(complianceFindings.caseId, caseId),
+          eq(complianceFindings.status, "open"),
+        ),
+      )
+      .groupBy(complianceFindings.severity),
+    // v2: last 5 INBOUND comms, any sentiment label (for trend check)
+    db
+      .select({ label: communications.sentimentLabel })
+      .from(communications)
+      .where(
+        and(
+          eq(communications.caseId, caseId),
+          eq(communications.direction, "inbound"),
+        ),
+      )
+      .orderBy(desc(communications.createdAt))
+      .limit(5),
+    // v2: previous ≤3 risk score snapshots from audit_log, newest first
+    db
+      .select({
+        changes: auditLog.changes,
+      })
+      .from(auditLog)
+      .where(
+        and(
+          eq(auditLog.entityType, "case_risk_score"),
+          eq(auditLog.entityId, caseId),
+        ),
+      )
+      .orderBy(desc(auditLog.createdAt))
+      .limit(3),
+  ]);
 
   const overdueTaskCount = Number(overdueTaskRows[0]?.count ?? 0);
   const lastCommAt = lastCommRows[0]?.createdAt ?? null;
@@ -392,6 +640,31 @@ async function loadCaseSignals(caseId: string): Promise<CaseSignals | null> {
     aljWinRate = total > 0 ? won / total : null;
   }
 
+  const missedSsaDeadlineCount = Number(missedSsaRows[0]?.count ?? 0);
+  const unresolvedEventCount = Number(unresolvedEventRows[0]?.count ?? 0);
+
+  let complianceCriticalCount = 0;
+  let complianceHighCount = 0;
+  let complianceMediumCount = 0;
+  for (const r of complianceRows) {
+    const n = Number(r.count ?? 0);
+    if (r.severity === "critical") complianceCriticalCount = n;
+    else if (r.severity === "high") complianceHighCount = n;
+    else if (r.severity === "medium") complianceMediumCount = n;
+  }
+
+  const recentInboundSentimentLabels = recentInboundRows.map((r) => r.label);
+
+  // History is newest-first from audit log; classifyTrend wants oldest
+  // first, so we reverse.
+  const historyScores: number[] = [];
+  for (const r of historyRows) {
+    const changes = (r.changes ?? {}) as { score?: number };
+    if (typeof changes.score === "number") {
+      historyScores.unshift(changes.score);
+    }
+  }
+
   return {
     caseId,
     organizationId: caseRow.organizationId,
@@ -405,7 +678,79 @@ async function loadCaseSignals(caseId: string): Promise<CaseSignals | null> {
     negativeSentimentCount,
     negativeSentimentLabels: negativeLabels,
     aljWinRate,
+    missedSsaDeadlineCount,
+    unresolvedEventCount,
+    complianceCriticalCount,
+    complianceHighCount,
+    complianceMediumCount,
+    recentInboundSentimentLabels,
+    historyScores,
   };
+}
+
+/**
+ * Build a short (2-3 sentence) narrative explaining the top risk
+ * factors. Fails soft — returns null on any error so the scorer still
+ * persists the numeric result.
+ */
+async function generateRiskNarrative(
+  caseId: string,
+  score: number,
+  topFactors: RiskFactor[],
+): Promise<string | null> {
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+  try {
+    const ctx = await buildCaseContext(caseId, {
+      communicationsLimit: 5,
+      chronologyLimit: 5,
+      documentsLimit: 5,
+      stageHistoryLimit: 3,
+    });
+    if (!ctx) return null;
+
+    const claimantName = ctx.claimant
+      ? `${ctx.claimant.firstName} ${ctx.claimant.lastName}`
+      : "the claimant";
+    const stage = ctx.caseMeta.stageName ?? "unknown stage";
+    const hearing = ctx.caseMeta.hearingDate
+      ? ctx.caseMeta.hearingDate.toISOString().split("T")[0]
+      : "none";
+
+    const factorSummary = topFactors
+      .map((f) => `- ${f.label}: ${f.note} (+${f.contribution})`)
+      .join("\n");
+
+    const prompt = `You are briefing a Social Security disability case manager on WHY a case just flagged high-risk. Output 2-3 sentences of plain English — no headings, no bullets, no filler. Focus on the top factors below and what the case manager should pay attention to.
+
+Case: ${ctx.caseMeta.caseNumber} (${claimantName})
+Stage: ${stage}
+Hearing date: ${hearing}
+Computed risk score: ${score}/100
+
+Top contributing factors:
+${factorSummary}
+
+Narrative:`;
+
+    // Import lazily so the scorer doesn't pay the SDK init cost when
+    // ANTHROPIC_API_KEY isn't set.
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 250,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const textBlock = message.content.find((b) => b.type === "text");
+    const text = textBlock?.type === "text" ? textBlock.text.trim() : null;
+    return text && text.length > 0 ? text : null;
+  } catch (err) {
+    logger.warn("risk-scorer: narrative generation failed", {
+      caseId,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return null;
+  }
 }
 
 /**
@@ -430,11 +775,44 @@ export async function scoreCase(caseId: string): Promise<RiskScoreResult | null>
       signals.negativeSentimentCount,
       signals.negativeSentimentLabels,
     ),
+    scoreTrajectory(signals.historyScores),
+    scoreMissedSsaDeadlines(signals.missedSsaDeadlineCount),
+    scoreUnresolvedEvents(signals.unresolvedEventCount),
+    scoreComplianceFindings(
+      signals.complianceCriticalCount,
+      signals.complianceHighCount,
+      signals.complianceMediumCount,
+    ),
+    scoreSentimentTrend(signals.recentInboundSentimentLabels),
   ];
 
   const rawScore = factors.reduce((sum, f) => sum + f.contribution, 0);
-  const score = Math.min(100, Math.max(0, Math.round(rawScore)));
+  // Normalize raw sum (0..MAX_RAW) back into 0..100 space so the band
+  // thresholds stay stable across v1 → v2.
+  const normalized = Math.round((rawScore / MAX_RAW) * 100);
+  const score = Math.min(100, Math.max(0, normalized));
   const riskBand = deriveRiskBand(score);
+
+  // Build the factors payload, including an optional AI narrative when
+  // the case is worth narrating. Stored as the first entry with key
+  // `ai_narrative` so the UI can pick it out without a schema change.
+  const factorsPayload: RiskFactor[] = [...factors];
+
+  if (score >= 60) {
+    const topFactors = [...factors]
+      .filter((f) => f.contribution > 0)
+      .sort((a, b) => b.contribution - a.contribution)
+      .slice(0, 3);
+    const narrative = await generateRiskNarrative(caseId, score, topFactors);
+    if (narrative) {
+      factorsPayload.unshift({
+        key: "ai_narrative",
+        label: "AI narrative",
+        contribution: 0,
+        note: narrative,
+      });
+    }
+  }
 
   try {
     await db
@@ -444,7 +822,7 @@ export async function scoreCase(caseId: string): Promise<RiskScoreResult | null>
         caseId,
         score,
         riskBand,
-        factors,
+        factors: factorsPayload,
         scorerVersion: SCORER_VERSION,
         scoredAt: new Date(),
       })
@@ -453,12 +831,21 @@ export async function scoreCase(caseId: string): Promise<RiskScoreResult | null>
         set: {
           score,
           riskBand,
-          factors,
+          factors: factorsPayload,
           scorerVersion: SCORER_VERSION,
           scoredAt: new Date(),
           updatedAt: new Date(),
         },
       });
+
+    // Append to audit log so subsequent runs can see trajectory.
+    await db.insert(auditLog).values({
+      organizationId: signals.organizationId,
+      entityType: "case_risk_score",
+      entityId: caseId,
+      action: "scored",
+      changes: { score, riskBand, scorerVersion: SCORER_VERSION },
+    });
   } catch (err) {
     logger.error("risk-scorer: failed to upsert", {
       caseId,

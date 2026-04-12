@@ -131,17 +131,26 @@ export default async function RiskReportPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((r) => {
+              rows.flatMap((r) => {
                 const factors = Array.isArray(r.factors)
                   ? (r.factors as FactorLite[])
                   : [];
-                const topFactors = [...factors]
+                // AI narrative is stored as a factor with key="ai_narrative"
+                // (see risk-scorer.ts). It has contribution=0, so we filter
+                // it out of the "top factors" column.
+                const narrativeFactor = factors.find(
+                  (f) => f.key === "ai_narrative",
+                );
+                const numericFactors = factors.filter(
+                  (f) => f.key !== "ai_narrative",
+                );
+                const topFactors = [...numericFactors]
                   .sort((a, b) => b.contribution - a.contribution)
                   .slice(0, 3);
                 const claimant = r.leadId
                   ? leadNameMap.get(r.leadId) ?? "Unknown"
                   : "Unknown";
-                return (
+                return [
                   <TableRow key={r.caseId}>
                     <TableCell className="font-mono text-[12px]">
                       <Link
@@ -189,8 +198,30 @@ export default async function RiskReportPage() {
                     <TableCell className="text-[12px] font-mono text-[#666]">
                       {r.scoredAt.toISOString().split("T")[0]}
                     </TableCell>
-                  </TableRow>
-                );
+                  </TableRow>,
+                  ...(narrativeFactor
+                    ? [
+                        <TableRow
+                          key={`${r.caseId}-why`}
+                          className="bg-[#FAF7F0] hover:bg-[#FAF7F0]"
+                        >
+                          <TableCell
+                            colSpan={7}
+                            className="border-t-0 py-2 pl-10 text-[12px]"
+                          >
+                            <div className="flex items-start gap-2">
+                              <span className="mt-0.5 inline-flex items-center rounded bg-[#3A0000] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                                Why
+                              </span>
+                              <p className="text-[12px] leading-relaxed text-[#333]">
+                                {narrativeFactor.note}
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>,
+                      ]
+                    : []),
+                ];
               })
             )}
           </TableBody>
