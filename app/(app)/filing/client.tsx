@@ -352,7 +352,7 @@ export function FilingClient({
                     return (
                       <TableRow
                         key={row.taskId}
-                        className="hover:bg-[rgba(38,60,148,0.04)]"
+                        className="hover:bg-[rgba(38,60,148,0.04)] transition-colors duration-200"
                       >
                         <TableCell className="font-mono text-xs">
                           <Link

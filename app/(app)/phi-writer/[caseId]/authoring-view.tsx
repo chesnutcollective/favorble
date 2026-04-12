@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -419,7 +420,8 @@ export function PhiAuthoringView({
                 Documents ({bundle.documents.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 max-h-[320px] overflow-auto">
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[320px]">
               {bundle.documents.length === 0 ? (
                 <p className="p-4 text-xs text-muted-foreground">
                   No documents on file.
@@ -451,6 +453,7 @@ export function PhiAuthoringView({
                   ))}
                 </ul>
               )}
+              </ScrollArea>
             </CardContent>
           </Card>
 
@@ -583,7 +586,8 @@ export function PhiAuthoringView({
                 Medical Chronology ({sortedChronology.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 max-h-[820px] overflow-auto">
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[820px]">
               {sortedChronology.length === 0 ? (
                 <p className="p-4 text-xs text-muted-foreground">
                   No chronology entries yet.
@@ -652,6 +656,7 @@ export function PhiAuthoringView({
                   ))}
                 </ul>
               )}
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>

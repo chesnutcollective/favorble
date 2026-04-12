@@ -584,7 +584,7 @@ export function AuditLogsClient({
                   return (
                     <Fragment key={log.id}>
                       <TableRow
-                        className="cursor-pointer hover:bg-[#FAFAFA]"
+                        className="cursor-pointer hover:bg-[#FAFAFA] transition-colors duration-200"
                         onClick={() =>
                           setExpandedId(isExpanded ? null : log.id)
                         }
@@ -666,7 +666,7 @@ export function AuditLogsClient({
                         </TableCell>
                       </TableRow>
                       {isExpanded && (
-                        <TableRow className="bg-[#FAFAFA] hover:bg-[#FAFAFA]">
+                        <TableRow className="hover:bg-[#F0F0F0] transition-colors duration-200">
                           <TableCell
                             colSpan={6}
                             className="p-4"

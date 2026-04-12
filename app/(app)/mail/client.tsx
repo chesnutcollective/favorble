@@ -469,7 +469,7 @@ function InboundQueueSection({
             return (
               <li
                 key={item.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC]"
+                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC] transition-colors duration-200"
               >
                 <div
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
@@ -605,7 +605,7 @@ function OutboundQueueSection({
             return (
               <li
                 key={m.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC]"
+                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC] transition-colors duration-200"
               >
                 <div
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
@@ -990,7 +990,7 @@ function AddOutboundDialog({
                     {caseResults.map((r) => (
                       <li
                         key={r.caseId}
-                        className="cursor-pointer px-2.5 py-1.5 text-[13px] hover:bg-[#FAFAFC]"
+                        className="cursor-pointer px-2.5 py-1.5 text-[13px] hover:bg-[#FAFAFC] transition-colors duration-200"
                         onClick={() => {
                           setSelectedCase(r);
                           setRecipient(

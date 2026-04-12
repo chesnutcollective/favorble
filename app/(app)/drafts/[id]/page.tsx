@@ -123,7 +123,7 @@ export default async function DraftReviewPage({
           <a
             href={`/api/drafts/${draft.id}/pdf`}
             download
-            className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
           >
             <svg
               width="14"

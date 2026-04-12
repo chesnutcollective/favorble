@@ -222,7 +222,7 @@ function WeekRow({ hearing }: { hearing: UpcomingHearing }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 py-3 border-b last:border-b-0 border-[#EAEAEA] hover:bg-[#F8F9FC]"
+      className="flex items-center gap-4 py-3 border-b last:border-b-0 border-[#EAEAEA] hover:bg-[#F8F9FC] transition-colors duration-200"
     >
       <div className="w-28 shrink-0">
         <p className="text-[11px] font-medium" style={{ color: PRIMARY }}>
@@ -315,7 +315,7 @@ function UpcomingGrid({ hearings }: { hearings: UpcomingHearing[] }) {
                   <Link
                     key={h.id}
                     href={h.caseId ? `/hearings/${h.caseId}` : "#"}
-                    className="block rounded border border-[#EAEAEA] bg-white p-2 hover:border-[#263c94]"
+                    className="block rounded border border-[#EAEAEA] bg-white p-2 hover:border-[#263c94] transition-colors duration-200"
                   >
                     <p className="text-xs font-medium text-foreground truncate">
                       {claimant}

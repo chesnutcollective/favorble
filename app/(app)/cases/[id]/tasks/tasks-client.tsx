@@ -284,7 +284,7 @@ export function CaseTasksClient({
           {openTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-start gap-3 rounded-md p-2 hover:bg-accent"
+              className="flex items-start gap-3 rounded-md p-2 hover:bg-accent transition-colors duration-200"
             >
               <Checkbox
                 className="mt-0.5"

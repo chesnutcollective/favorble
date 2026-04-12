@@ -185,7 +185,7 @@ export default async function ClientHealthPage() {
               return (
                 <tr
                   key={row.id}
-                  className="border-t border-[rgba(59,89,152,0.08)] hover:bg-[#FAFAFA]"
+                  className="border-t border-[rgba(59,89,152,0.08)] hover:bg-[#FAFAFA] transition-colors duration-200"
                 >
                   <td className="px-4 py-2 font-mono text-[12px]">
                     <Link

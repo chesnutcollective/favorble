@@ -632,7 +632,7 @@ function QueueList({
           >
             <CardContent className="p-0">
               <div
-                className="p-4 flex items-start gap-3 cursor-pointer hover:bg-[#FAFAFA]"
+                className="p-4 flex items-start gap-3 cursor-pointer hover:bg-[#FAFAFA] transition-colors duration-200"
                 onClick={(e) => {
                   const target = e.target as HTMLElement;
                   if (target.closest("button,input,[role=checkbox]")) return;

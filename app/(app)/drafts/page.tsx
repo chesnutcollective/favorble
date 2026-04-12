@@ -176,7 +176,7 @@ export default async function DraftsInboxPage({
             const preview = draft.body.slice(0, 160);
             return (
               <Link key={draft.id} href={`/drafts/${draft.id}`}>
-                <Card className="hover:bg-accent transition-colors">
+                <Card className="hover:bg-accent transition-colors duration-200">
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">

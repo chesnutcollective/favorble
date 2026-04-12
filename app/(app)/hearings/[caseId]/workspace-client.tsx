@@ -499,7 +499,7 @@ export function HearingWorkspaceClient({
                               <Link
                                 key={d.caseId}
                                 href={`/cases/${d.caseId}`}
-                                className="flex items-center justify-between border-b border-[#EAEAEA] py-1.5 text-sm hover:bg-[#F8F9FC]"
+                                className="flex items-center justify-between border-b border-[#EAEAEA] py-1.5 text-sm hover:bg-[#F8F9FC] transition-colors duration-200"
                               >
                                 <span className="font-medium">
                                   {d.caseNumber}

@@ -225,7 +225,7 @@ export default async function MessageQaPage({
               return (
                 <tr
                   key={row.id}
-                  className="border-t border-[rgba(59,89,152,0.08)] hover:bg-[#FAFAFA]"
+                  className="border-t border-[rgba(59,89,152,0.08)] hover:bg-[#FAFAFA] transition-colors duration-200"
                 >
                   <td className="px-4 py-2 max-w-[380px]">
                     {row.caseId ? (
