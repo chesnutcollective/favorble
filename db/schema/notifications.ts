@@ -10,10 +10,7 @@ import {
 import { organizations } from "./organizations";
 import { users } from "./users";
 import { cases } from "./cases";
-import {
-  notificationChannelEnum,
-  notificationPriorityEnum,
-} from "./enums";
+import { notificationChannelEnum, notificationPriorityEnum } from "./enums";
 
 /**
  * In-app notifications. Backs the notification bell, the "what do I need
@@ -80,9 +77,7 @@ export const notificationDeliveries = pgTable(
       .notNull(),
   },
   (table) => [
-    index("idx_notification_deliveries_notification").on(
-      table.notificationId,
-    ),
+    index("idx_notification_deliveries_notification").on(table.notificationId),
   ],
 );
 
@@ -90,23 +85,20 @@ export const notificationDeliveries = pgTable(
  * Per-user notification preferences. Lets users mute certain channels or
  * event types. Minimal for MVP — expand as needed.
  */
-export const notificationPreferences = pgTable(
-  "notification_preferences",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" })
-      .unique(),
-    emailEnabled: boolean("email_enabled").notNull().default(true),
-    smsEnabled: boolean("sms_enabled").notNull().default(false),
-    pushEnabled: boolean("push_enabled").notNull().default(true),
-    mutedEventTypes: text("muted_event_types").array(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-);
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" })
+    .unique(),
+  emailEnabled: boolean("email_enabled").notNull().default(true),
+  smsEnabled: boolean("sms_enabled").notNull().default(false),
+  pushEnabled: boolean("push_enabled").notNull().default(true),
+  mutedEventTypes: text("muted_event_types").array(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

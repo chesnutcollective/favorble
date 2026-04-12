@@ -35,7 +35,7 @@ export function FlagActionsClient({
       setMessage(
         result.success
           ? "Conversation draft queued — refresh in a few seconds."
-          : result.error ?? "Failed to queue draft",
+          : (result.error ?? "Failed to queue draft"),
       );
       setTimeout(() => router.refresh(), 1500);
     });
@@ -46,7 +46,7 @@ export function FlagActionsClient({
       setMessage(
         result.success
           ? "Call script queued — refresh in a few seconds."
-          : result.error ?? "Failed to queue script",
+          : (result.error ?? "Failed to queue script"),
       );
       setTimeout(() => router.refresh(), 1500);
     });
@@ -104,9 +104,7 @@ export function FlagActionsClient({
       >
         Dismiss
       </Button>
-      {message && (
-        <span className="text-[12px] text-[#666]">{message}</span>
-      )}
+      {message && <span className="text-[12px] text-[#666]">{message}</span>}
     </div>
   );
 }

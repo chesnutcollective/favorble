@@ -135,8 +135,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Ask for the contract on every qualified call",
         description:
           "Stop offering to 'send info first'. If a lead qualifies (SSI/SSDI eligible, not already represented), say 'Let me get your e-signature started right now' and use /intake/contract-send.",
-        expectedOutcome:
-          "Lead-to-contract-sent rate climbs within 3 days",
+        expectedOutcome: "Lead-to-contract-sent rate climbs within 3 days",
         timeframe: "Start on your very next call",
       },
     ],
@@ -335,7 +334,8 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review workload with supervisor weekly",
         description:
           "Every Friday, send a 3-bullet summary: tasks closed, tasks blocked, tasks rolling to next week. Triggers a real conversation if the load is genuinely unmanageable.",
-        expectedOutcome: "Workload issues surface early instead of at review time",
+        expectedOutcome:
+          "Workload issues surface early instead of at review time",
         timeframe: "Every Friday",
       },
     ],
@@ -515,16 +515,14 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Identify your top stuck stage",
         description:
           "Open /cases?assigned=me and group by stage. Where are most of your cases sitting? That stage is your bottleneck. Common answers: 'Awaiting MR', 'Waiting on Contract Signature', 'Ready for Filing Review'.",
-        expectedOutcome:
-          "Clear picture of exactly where cases are stalling",
+        expectedOutcome: "Clear picture of exactly where cases are stalling",
         timeframe: "Today",
       },
       {
         label: "Run a 10-case unstick session with the supervisor",
         description:
           "Pick the 10 cases stuck longest in your top stuck stage. Sit with the supervisor for 30 minutes, go through each one, and either take an action or mark it as blocked.",
-        expectedOutcome:
-          "5+ cases transition to next stage, others escalated",
+        expectedOutcome: "5+ cases transition to next stage, others escalated",
         timeframe: "This week",
       },
       {
@@ -574,7 +572,8 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         timeframe: "Today",
       },
       {
-        label: "Schedule client-touch outreach for the 'waiting on client' bucket",
+        label:
+          "Schedule client-touch outreach for the 'waiting on client' bucket",
         description:
           "Block 30 minutes this week to call or send a personal SMS to every client in this bucket. Use /cases/bulk-message if you have more than 5.",
         expectedOutcome: "Clients re-engage or cases get closed out cleanly",
@@ -829,8 +828,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pair with a peer hitting target for 1 hour",
         description:
           "Sit with [top MR specialist] and observe exactly how they triage and send. Import their shortcuts and keyboard flow.",
-        expectedOutcome:
-          "Pickup of 2-3 specific workflow improvements",
+        expectedOutcome: "Pickup of 2-3 specific workflow improvements",
         timeframe: "This week",
       },
     ],
@@ -875,8 +873,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Flag chronically slow providers for escalation",
         description:
           "Any provider consistently >30 days without responding goes on the escalation list. Supervisor handles the phone chase to their records department.",
-        expectedOutcome:
-          "Top-5 offenders get named and handled, not absorbed",
+        expectedOutcome: "Top-5 offenders get named and handled, not absorbed",
         timeframe: "This week",
       },
     ],
@@ -907,8 +904,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review the MR follow-up checklist",
         description:
           "Open the MR request-send flow. Is the 14-day follow-up auto-scheduled on every new request? If not, fix that setting today.",
-        expectedOutcome:
-          "Every new request has an auto-follow-up scheduled",
+        expectedOutcome: "Every new request has an auto-follow-up scheduled",
         timeframe: "Today",
       },
       {
@@ -953,8 +949,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pull every hearing in the next 30 days",
         description:
           "Open /hearings?within=30d and check MR completeness for each. Any hearing at <100% records gets a targeted sprint this week.",
-        expectedOutcome:
-          "Hearing docket is visible and prioritized correctly",
+        expectedOutcome: "Hearing docket is visible and prioritized correctly",
         timeframe: "Today",
       },
       {
@@ -968,8 +963,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Set a 30-day-out MR completeness review",
         description:
           "Every Monday, open /hearings?within=30d and review MR status. Catch gaps 30 days out, not 3 days out.",
-        expectedOutcome:
-          "Records-complete rate climbs to 95%+ within 3 weeks",
+        expectedOutcome: "Records-complete rate climbs to 95%+ within 3 weeks",
         timeframe: "Weekly starting Monday",
       },
     ],
@@ -1049,16 +1043,14 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Clear the oldest sheets first",
         description:
           "Open /phi/queue sorted by assignment date ascending. Work oldest-first. Don't cherry-pick short or easy sheets.",
-        expectedOutcome:
-          "Aging sheets get completed instead of skipped",
+        expectedOutcome: "Aging sheets get completed instead of skipped",
         timeframe: "Daily habit",
       },
       {
         label: "Use the PHI auto-populate feature",
         description:
           "Click 'Auto-populate from records' on any new sheet. It pulls demographics, diagnosis, meds, and impairments from the MR documents into the sheet. Saves 20-30 minutes per sheet.",
-        expectedOutcome:
-          "Time per sheet drops from ~90 minutes to ~45 minutes",
+        expectedOutcome: "Time per sheet drops from ~90 minutes to ~45 minutes",
         timeframe: "Start on the very next sheet",
       },
       {
@@ -1104,8 +1096,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Work a sheet in a single sitting",
         description:
           "Don't start a sheet, stop, and come back 2 days later — you lose ~20 minutes of re-familiarization each time. Block 60-90 minutes and finish it.",
-        expectedOutcome:
-          "Fewer review cycles and faster turnaround",
+        expectedOutcome: "Fewer review cycles and faster turnaround",
         timeframe: "Start on next assignment",
       },
       {
@@ -1142,24 +1133,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pull the overdue list and commit dates",
         description:
           "Open /phi/overdue. For each sheet, commit a specific completion date to your supervisor. Write it in the sheet notes.",
-        expectedOutcome:
-          "Overdue list has a plan, not just a problem",
+        expectedOutcome: "Overdue list has a plan, not just a problem",
         timeframe: "Today",
       },
       {
         label: "Clear 2 overdue sheets per day until zero",
         description:
           "Commit to a specific per-day clear rate. Don't take new assignments until the overdue list is under 3.",
-        expectedOutcome:
-          "Overdue count hits zero within a week",
+        expectedOutcome: "Overdue count hits zero within a week",
         timeframe: "Daily",
       },
       {
         label: "Flag sheets blocked by missing records",
         description:
           "If a sheet is overdue because medical records aren't in, mark it 'blocked: waiting on MR' and escalate to the MR team — don't just let the clock run.",
-        expectedOutcome:
-          "Blocked sheets get unblocked; others get finished",
+        expectedOutcome: "Blocked sheets get unblocked; others get finished",
         timeframe: "Today",
       },
     ],
@@ -1189,24 +1177,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review the last 5 sheets that needed multiple cycles",
         description:
           "Pull /phi filtered to 'review_cycles > 1'. Sit with the reviewer and read through what they flagged. Tag the feedback: missing section / wrong cite / unclear writing / typo.",
-        expectedOutcome:
-          "Clear picture of the top failure mode in your drafts",
+        expectedOutcome: "Clear picture of the top failure mode in your drafts",
         timeframe: "This week",
       },
       {
         label: "Run the PHI self-check before submitting",
         description:
           "Before clicking 'submit for review', run the self-check that lints for the 10 most common issues (missing sections, bad cites, passive voice). Takes 90 seconds, catches most 1-cycle issues.",
-        expectedOutcome:
-          "First-cycle acceptance rate climbs to 70%+",
+        expectedOutcome: "First-cycle acceptance rate climbs to 70%+",
         timeframe: "Every sheet starting today",
       },
       {
         label: "Pair on a sheet with the reviewer",
         description:
           "Schedule 90 minutes with the reviewer. Write a sheet together in real time, watching what they flag as you go. Imports their standards into your head.",
-        expectedOutcome:
-          "Aligned on what 'done' actually means",
+        expectedOutcome: "Aligned on what 'done' actually means",
         timeframe: "This week",
       },
     ],
@@ -1241,24 +1226,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Audit hearing assignment routing",
         description:
           "Check /admin/hearing-rotation. Are you in the active rotation? Are you flagged unavailable for any reason? Are you getting the share you expected?",
-        expectedOutcome:
-          "Clear answer on whether routing is fair",
+        expectedOutcome: "Clear answer on whether routing is fair",
         timeframe: "This week",
       },
       {
         label: "Volunteer for upcoming unassigned hearings",
         description:
           "Open /hearings?unassigned. Pick 3-5 in the next 30 days and claim them. Send the scheduler a note confirming.",
-        expectedOutcome:
-          "Hearing count for next week climbs to target",
+        expectedOutcome: "Hearing count for next week climbs to target",
         timeframe: "Today",
       },
       {
         label: "Confirm availability signals are correct",
         description:
           "Check /calendar/availability. Make sure you're not accidentally blocked off for the week. Common cause: an old PTO that never got removed.",
-        expectedOutcome:
-          "Availability signals match your actual capacity",
+        expectedOutcome: "Availability signals match your actual capacity",
         timeframe: "Today",
       },
     ],
@@ -1288,32 +1270,28 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Case-review the last 5 losses with a peer attorney",
         description:
           "Pull the last 5 unfavorable decisions. Read the ALJ's reasoning with a peer attorney and tag: 'credibility problem' / 'RFC mismatch' / 'missing evidence' / 'bad testimony'.",
-        expectedOutcome:
-          "Pattern on the top 1-2 failure modes",
+        expectedOutcome: "Pattern on the top 1-2 failure modes",
         timeframe: "This week",
       },
       {
         label: "Schedule a prep audit for the next 5 hearings",
         description:
           "For the next 5 upcoming hearings, sit with the prep team 3 days before each one and stress-test the record. What's weak? What could the ALJ attack?",
-        expectedOutcome:
-          "Walk in prepared, not hoping",
+        expectedOutcome: "Walk in prepared, not hoping",
         timeframe: "Starting next week",
       },
       {
         label: "Practice opening statements with a peer",
         description:
           "Record yourself giving the opening for one upcoming hearing. Share with a peer attorney for feedback. The opening shapes the ALJ's view of the case.",
-        expectedOutcome:
-          "Stronger opens, higher favorable rate",
+        expectedOutcome: "Stronger opens, higher favorable rate",
         timeframe: "Before next hearing",
       },
       {
         label: "Request mentor shadowing from a top-winning attorney",
         description:
           "Ask a top-winning peer if you can sit in on one of their hearings. Observe exactly how they question the claimant and cross-examine the VE.",
-        expectedOutcome:
-          "Import 2-3 specific techniques",
+        expectedOutcome: "Import 2-3 specific techniques",
         timeframe: "Next 2 weeks",
       },
     ],
@@ -1346,24 +1324,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Schedule prep sessions 5 days out, not 3",
         description:
           "For every hearing on your calendar, add a 90-minute prep block at 5 days out. That gives 2 days of buffer to fix anything the prep surfaces.",
-        expectedOutcome:
-          "100% of hearings prepped with buffer",
+        expectedOutcome: "100% of hearings prepped with buffer",
         timeframe: "Today",
       },
       {
         label: "Confirm prep materials at 5 days out",
         description:
           "Open each hearing in /hearings and verify: PHI sheet done, MR complete, brief drafted, client prep scheduled. Anything missing = escalation.",
-        expectedOutcome:
-          "Gaps surface in time to fix",
+        expectedOutcome: "Gaps surface in time to fix",
         timeframe: "Every hearing, starting now",
       },
       {
         label: "Hand off prep to a prep attorney when overloaded",
         description:
           "If you have 5+ hearings in a week, assign prep on 2 of them to a junior prep attorney. Focus your energy on the harder cases.",
-        expectedOutcome:
-          "Prep quality holds even at high hearing volume",
+        expectedOutcome: "Prep quality holds even at high hearing volume",
         timeframe: "This week",
       },
     ],
@@ -1393,24 +1368,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pull all cases >18 months old",
         description:
           "Open /cases?assigned=me&age>540. Read through every one. Is it genuinely stuck in SSA backlog, or is there something on our side?",
-        expectedOutcome:
-          "Clear picture of avoidable vs. unavoidable old cases",
+        expectedOutcome: "Clear picture of avoidable vs. unavoidable old cases",
         timeframe: "This week",
       },
       {
         label: "Close out the closeable ones",
         description:
           "For any old case that is resolved but still open in the system, close it out. Good hygiene makes the metric meaningful.",
-        expectedOutcome:
-          "Case age drops by cleanup alone",
+        expectedOutcome: "Case age drops by cleanup alone",
         timeframe: "This week",
       },
       {
         label: "Set a monthly stale-case review",
         description:
           "First Monday of each month, review cases older than 12 months. For each, either take action or write a 1-sentence 'waiting on X until Y' note.",
-        expectedOutcome:
-          "No case goes silent for a full month",
+        expectedOutcome: "No case goes silent for a full month",
         timeframe: "Monthly recurring",
       },
     ],
@@ -1440,8 +1412,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review the last 5 low-NPS comments",
         description:
           "Pull /clients/nps filtered to score ≤6 from the last 30 days. Read every comment. Tag: 'communication' / 'outcome' / 'billing' / 'preparation'.",
-        expectedOutcome:
-          "Clear picture of the top driver of dissatisfaction",
+        expectedOutcome: "Clear picture of the top driver of dissatisfaction",
         timeframe: "This week",
       },
       {
@@ -1456,8 +1427,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Personal call on every unfavorable decision",
         description:
           "When a case is lost, call the client personally within 24 hours. Don't send a letter, don't delegate to CM. A personal call on a loss is the #1 NPS-preserving action.",
-        expectedOutcome:
-          "Losing clients don't become bad NPS scores",
+        expectedOutcome: "Losing clients don't become bad NPS scores",
         timeframe: "Starting next loss",
       },
     ],
@@ -1491,24 +1461,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Check the hearing assignment rotation",
         description:
           "Open /admin/advocate-rotation. Confirm you're active, not flagged unavailable, and in the same weight class as peers.",
-        expectedOutcome:
-          "Clear answer on whether routing is the cause",
+        expectedOutcome: "Clear answer on whether routing is the cause",
         timeframe: "Today",
       },
       {
         label: "Volunteer for next week's unassigned hearings",
         description:
           "Open /hearings?unassigned&next=7d. Claim 3-5 to get to target count.",
-        expectedOutcome:
-          "Next week's count hits target",
+        expectedOutcome: "Next week's count hits target",
         timeframe: "Today",
       },
       {
         label: "Ask the scheduler for 10 hearings / week capacity",
         description:
           "Send the scheduler a direct message: 'I have capacity for 10 hearings / week, please route accordingly.' Most advocates don't self-advocate.",
-        expectedOutcome:
-          "Routing pipeline becomes explicit",
+        expectedOutcome: "Routing pipeline becomes explicit",
         timeframe: "Today",
       },
     ],
@@ -1517,9 +1484,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
       "Pull up /admin/advocate-rotation together during the session.",
       "Self-advocacy is expected — we can't guess capacity.",
     ],
-    trainingResources: [
-      "Advocate Handbook § 1 — Rotation & Scheduling",
-    ],
+    trainingResources: ["Advocate Handbook § 1 — Rotation & Scheduling"],
     commonRootCauses: [
       "Stale unavailability flag on the rotation",
       "Not self-advocating for a share of the week's hearings",
@@ -1536,32 +1501,28 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review the last 5 losses with a supervising attorney",
         description:
           "Pull the last 5 unfavorable outcomes. Read the ALJ reasoning together and tag the failure mode.",
-        expectedOutcome:
-          "Pattern on top 1-2 failure modes",
+        expectedOutcome: "Pattern on top 1-2 failure modes",
         timeframe: "This week",
       },
       {
         label: "Schedule a mock hearing session",
         description:
           "Pick an upcoming hearing. Run a 45-minute mock with a peer playing ALJ and claimant. Full opening, claimant direct, VE cross.",
-        expectedOutcome:
-          "Real reps before the real hearing",
+        expectedOutcome: "Real reps before the real hearing",
         timeframe: "Within 5 business days",
       },
       {
         label: "Shadow a top-winning advocate",
         description:
           "Sit in on one hearing by a top-winning advocate. Observe cross-exam technique and objection handling.",
-        expectedOutcome:
-          "Import 2-3 specific techniques",
+        expectedOutcome: "Import 2-3 specific techniques",
         timeframe: "Next 2 weeks",
       },
       {
         label: "Re-read the VE hypothetical playbook",
         description:
           "The #1 lost-hearing pattern is blown VE hypotheticals. Re-read § 4 of the Advocate Handbook and practice one hypothetical out loud.",
-        expectedOutcome:
-          "Sharper VE cross on the next hearing",
+        expectedOutcome: "Sharper VE cross on the next hearing",
         timeframe: "Before next hearing",
       },
     ],
@@ -1592,24 +1553,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review your last 3 QC'd transcripts with a supervisor",
         description:
           "Open /qc/transcripts?me. Read the QC feedback on your last 3 scored calls. Tag: 'opening' / 'direct' / 'cross' / 'objections' / 'closing'.",
-        expectedOutcome:
-          "Clear picture of where you're losing points",
+        expectedOutcome: "Clear picture of where you're losing points",
         timeframe: "This week",
       },
       {
         label: "Pick a top-scoring transcript and read it end-to-end",
         description:
           "Find a peer transcript with a 90+ QC score. Read it. See how the pro structures each phase.",
-        expectedOutcome:
-          "Imported template for high-scoring calls",
+        expectedOutcome: "Imported template for high-scoring calls",
         timeframe: "This week",
       },
       {
         label: "Re-do one past hearing as a written exercise",
         description:
           "Pick a transcript where you scored low. Rewrite your cross-exam section as you'd do it today. Share with supervisor for feedback.",
-        expectedOutcome:
-          "Muscle memory for the corrected pattern",
+        expectedOutcome: "Muscle memory for the corrected pattern",
         timeframe: "Next 2 weeks",
       },
     ],
@@ -1639,24 +1597,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pull prep status for the next 5 hearings",
         description:
           "Open /hearings?me&next=14d. For each, confirm PHI, MR, and brief status. Anything incomplete at 5 days out = immediate escalation.",
-        expectedOutcome:
-          "Gaps visible in time to fix",
+        expectedOutcome: "Gaps visible in time to fix",
         timeframe: "Today",
       },
       {
         label: "Confirm prep 5 days out on every hearing",
         description:
           "Calendar-block every hearing with a 30-minute 'prep confirmation' block 5 days before.",
-        expectedOutcome:
-          "No hearings prepped late",
+        expectedOutcome: "No hearings prepped late",
         timeframe: "Today",
       },
       {
         label: "Escalate blocked prep to supervisor within 48 hours",
         description:
           "If PHI / MR / brief is not in by 5 days out, escalate to supervisor. Don't absorb other teams' delays silently.",
-        expectedOutcome:
-          "Blocked prep becomes visible, not invisible",
+        expectedOutcome: "Blocked prep becomes visible, not invisible",
         timeframe: "Start today",
       },
     ],
@@ -1665,9 +1620,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
       "Pull up next 2 weeks of hearings and check prep status live.",
       "Commit to 5-day-out confirmation on every upcoming hearing.",
     ],
-    trainingResources: [
-      "Advocate Handbook § 3 — Prep Timeline",
-    ],
+    trainingResources: ["Advocate Handbook § 3 — Prep Timeline"],
     commonRootCauses: [
       "No scheduled prep-confirmation block on the calendar",
       "Upstream PHI / MR delays not surfaced to supervisor",
@@ -1688,24 +1641,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "File the fee petition within 5 business days of every win",
         description:
           "Set an alert on /cases?status=favorable-decision. Every new win triggers a fee petition within 5 business days. No exceptions.",
-        expectedOutcome:
-          "Average filing days drops from [actual] to under 7",
+        expectedOutcome: "Average filing days drops from [actual] to under 7",
         timeframe: "Starting on the next win",
       },
       {
         label: "Clear the backlog of unfiled petitions",
         description:
           "Open /fees?status=unfiled. Every petition older than 7 days gets worked today. Block 2-3 hours if needed.",
-        expectedOutcome:
-          "Unfiled backlog drops to zero",
+        expectedOutcome: "Unfiled backlog drops to zero",
         timeframe: "This week",
       },
       {
         label: "Use the fee-petition template library",
         description:
           "Click 'Use template' on the petition form. Pre-filled for the 3 most common scenarios. Saves ~20 minutes per petition.",
-        expectedOutcome:
-          "Time per petition drops from 45 to 20 minutes",
+        expectedOutcome: "Time per petition drops from 45 to 20 minutes",
         timeframe: "Today",
       },
     ],
@@ -1735,24 +1685,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Pull the 90-day unpaid list",
         description:
           "Open /fees?status=unpaid&age>90. Every line is a collections conversation waiting to happen.",
-        expectedOutcome:
-          "Clear picture of real collection gap",
+        expectedOutcome: "Clear picture of real collection gap",
         timeframe: "Today",
       },
       {
         label: "Run a 14-day collection cadence on every open fee",
         description:
           "For each unpaid fee, schedule: day 0 letter, day 14 call, day 30 letter, day 45 supervisor escalation. Put it in /fees as an automation.",
-        expectedOutcome:
-          "Collection rate climbs to 90%+ within a quarter",
+        expectedOutcome: "Collection rate climbs to 90%+ within a quarter",
         timeframe: "Today",
       },
       {
         label: "Personal call on every fee >60 days overdue",
         description:
           "No more letters after 60 days. Pick up the phone and call the client personally. Most fees are psychological, not financial.",
-        expectedOutcome:
-          "60+ day collection rate climbs sharply",
+        expectedOutcome: "60+ day collection rate climbs sharply",
         timeframe: "This week",
       },
     ],
@@ -1782,24 +1729,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Clear the follow-up queue today",
         description:
           "Open /fees/followups?overdue=true. Every overdue follow-up gets done today — letter, call, or system note.",
-        expectedOutcome:
-          "Overdue queue hits zero",
+        expectedOutcome: "Overdue queue hits zero",
         timeframe: "Today",
       },
       {
         label: "Enable the daily fee-followup digest",
         description:
           "/settings/notifications → enable 'Fee follow-ups due' daily digest. Arrives at 9am with that day's list.",
-        expectedOutcome:
-          "Follow-ups become first-thing habit",
+        expectedOutcome: "Follow-ups become first-thing habit",
         timeframe: "Today",
       },
       {
         label: "Block Tuesday + Thursday afternoons for collections",
         description:
           "Recurring calendar blocks. Tuesday 2-4pm and Thursday 2-4pm = collections time. Nothing else.",
-        expectedOutcome:
-          "100% follow-up compliance",
+        expectedOutcome: "100% follow-up compliance",
         timeframe: "Starting this week",
       },
     ],
@@ -1808,9 +1752,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
       "Demo the daily digest during the session.",
       "Commit to Tuesday + Thursday blocks on the calendar.",
     ],
-    trainingResources: [
-      "Fee Collection Playbook § 4 — Follow-up Discipline",
-    ],
+    trainingResources: ["Fee Collection Playbook § 4 — Follow-up Discipline"],
     commonRootCauses: [
       "No daily digest — relying on memory",
       "No scheduled collection time — happens between other work",
@@ -1832,24 +1774,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Audit the 60-day window list",
         description:
           "Open /appeals?status=unfiled&window<60d. Every case here has a real deadline. Work them oldest-first.",
-        expectedOutcome:
-          "Zero cases in the <60d window go unfiled",
+        expectedOutcome: "Zero cases in the <60d window go unfiled",
         timeframe: "Today",
       },
       {
         label: "Block 2 mornings per week for AC brief writing",
         description:
           "Tuesday 9-12 and Thursday 9-12 — calendar-blocked, no meetings, deep-work time. Target: 2 briefs per session.",
-        expectedOutcome:
-          "4 briefs per week minimum",
+        expectedOutcome: "4 briefs per week minimum",
         timeframe: "Starting Monday",
       },
       {
         label: "Use the AC brief template library",
         description:
           "Open /appeals/templates. Pre-built structures for the 5 most common error types (substantial evidence, legal error, new evidence, etc).",
-        expectedOutcome:
-          "Time per brief cuts from ~4 hours to ~2",
+        expectedOutcome: "Time per brief cuts from ~4 hours to ~2",
         timeframe: "Next brief",
       },
     ],
@@ -1878,24 +1817,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Build a red-zone alert",
         description:
           "/settings/alerts → add 'AC brief deadline <10 days' as a daily push + email. Red zone is non-negotiable.",
-        expectedOutcome:
-          "No brief ever enters the <10d zone without attention",
+        expectedOutcome: "No brief ever enters the <10d zone without attention",
         timeframe: "Today",
       },
       {
         label: "Clear the red zone today",
         description:
           "Open /appeals?window<10d. Work every one before anything else.",
-        expectedOutcome:
-          "No red-zone brief left unfiled at EOD",
+        expectedOutcome: "No red-zone brief left unfiled at EOD",
         timeframe: "Today",
       },
       {
         label: "Set a weekly deadline review",
         description:
           "Every Monday 9am, open /appeals?window<30d. Plan the week around them.",
-        expectedOutcome:
-          "Deadlines visible early, not at the last minute",
+        expectedOutcome: "Deadlines visible early, not at the last minute",
         timeframe: "Weekly recurring",
       },
     ],
@@ -1924,24 +1860,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Review the last 5 denied AC decisions",
         description:
           "Read the AC's denial reasoning on 5 recent submissions. Tag: 'no legal error identified' / 'error waived' / 'insufficient record cite' / 'frivolous'.",
-        expectedOutcome:
-          "Pattern on what AC actually wants to see",
+        expectedOutcome: "Pattern on what AC actually wants to see",
         timeframe: "This week",
       },
       {
         label: "Pair with a senior brief writer on 2 upcoming briefs",
         description:
           "Sit with [senior AC writer] for 2 briefs. Watch how they identify legal error and craft the argument.",
-        expectedOutcome:
-          "Imported technique for next solo brief",
+        expectedOutcome: "Imported technique for next solo brief",
         timeframe: "Next 2 weeks",
       },
       {
         label: "Re-read the AC's own criteria for granting review",
         description:
           "Read HALLEX I-3-0-1. Know what AC reviews for, write directly to those criteria.",
-        expectedOutcome:
-          "Briefs target the right audience",
+        expectedOutcome: "Briefs target the right audience",
         timeframe: "This week",
       },
     ],
@@ -1975,24 +1908,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Block 2 brief-writing mornings per week",
         description:
           "Tuesday 9-12 and Thursday 9-12 as deep-work time. Target: 3 briefs per session.",
-        expectedOutcome:
-          "6 briefs per week minimum",
+        expectedOutcome: "6 briefs per week minimum",
         timeframe: "Starting Monday",
       },
       {
         label: "Use the brief template library",
         description:
           "Open /prep/templates. Pick by case type. Pre-filled with structure, key-cite slots, and theory-of-case framing.",
-        expectedOutcome:
-          "Time per brief drops from ~3 hours to ~90 minutes",
+        expectedOutcome: "Time per brief drops from ~3 hours to ~90 minutes",
         timeframe: "Next brief",
       },
       {
         label: "Auto-populate from PHI sheets",
         description:
           "Click 'Import PHI summary' in the brief tool. Pulls medical timeline, RFC limits, and provider list automatically.",
-        expectedOutcome:
-          "Saves 30 minutes per brief",
+        expectedOutcome: "Saves 30 minutes per brief",
         timeframe: "Today",
       },
     ],
@@ -2022,24 +1952,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Target delivery at 5 days out, not 3",
         description:
           "Every brief should be in the attorney's hands 5 days before hearing. 3 days is the floor, not the goal.",
-        expectedOutcome:
-          "Attorneys prep with real time, not in panic",
+        expectedOutcome: "Attorneys prep with real time, not in panic",
         timeframe: "Starting next brief",
       },
       {
         label: "Weekly hearing-docket review",
         description:
           "Every Monday 9am, review /hearings?next=14d. Every hearing needs a brief due date assigned.",
-        expectedOutcome:
-          "Briefs show up in the writer's queue 10+ days out",
+        expectedOutcome: "Briefs show up in the writer's queue 10+ days out",
         timeframe: "Weekly recurring",
       },
       {
         label: "Escalate blocked briefs within 48 hours",
         description:
           "If a brief is blocked on PHI or MR, escalate to supervisor within 48 hours. Don't absorb upstream delays.",
-        expectedOutcome:
-          "Blocked briefs get unblocked",
+        expectedOutcome: "Blocked briefs get unblocked",
         timeframe: "Today",
       },
     ],
@@ -2048,9 +1975,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
       "Ask: 'When do you start working a brief?' — if it's less than a week out, that's the fix.",
       "Monday docket review is the mechanical fix. Commit to it.",
     ],
-    trainingResources: [
-      "Prep Playbook § 2 — Brief Timeline",
-    ],
+    trainingResources: ["Prep Playbook § 2 — Brief Timeline"],
     commonRootCauses: [
       "No Monday docket review — briefs discovered late",
       "Writing reactively — starting the brief 2-3 days before the hearing",
@@ -2068,24 +1993,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Run the evidence-completeness check on every brief",
         description:
           "Before submitting, click 'Check evidence coverage'. Flags any record in the case file not cited in the brief.",
-        expectedOutcome:
-          "100% evidence incorporation rate",
+        expectedOutcome: "100% evidence incorporation rate",
         timeframe: "Every brief starting today",
       },
       {
         label: "Review the last 5 briefs that missed evidence",
         description:
           "Pull /prep?missing_evidence>0 from the last 30 days. Read what was missed. Tag: 'missed MR' / 'missed RFC' / 'missed testimony'.",
-        expectedOutcome:
-          "Clear pattern on what gets missed",
+        expectedOutcome: "Clear pattern on what gets missed",
         timeframe: "This week",
       },
       {
         label: "Pair with a senior prep writer on 2 briefs",
         description:
           "Watch how a senior identifies and incorporates evidence. Import their read-then-cite workflow.",
-        expectedOutcome:
-          "Better evidence discipline",
+        expectedOutcome: "Better evidence discipline",
         timeframe: "Next 2 weeks",
       },
     ],
@@ -2119,24 +2041,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Process every hearing outcome within 48 hours",
         description:
           "Open /hearings?processed=false daily. Every hearing gets its outcome logged and client notified within 48 hours.",
-        expectedOutcome:
-          "Processing days drops from [actual] to under 3",
+        expectedOutcome: "Processing days drops from [actual] to under 3",
         timeframe: "Starting today",
       },
       {
         label: "Use the post-hearing workflow checklist",
         description:
           "Click 'Start post-hearing' on each case. The 7-step checklist (outcome log, client call, next-steps letter, fee team handoff, MR team handoff, case stage update, file close) prevents missed steps.",
-        expectedOutcome:
-          "No missed steps; consistent processing",
+        expectedOutcome: "No missed steps; consistent processing",
         timeframe: "Every case starting today",
       },
       {
         label: "Block 1 hour each morning for post-hearing work",
         description:
           "9:00-10:00 daily is post-hearing time. Close nothing else until yesterday's hearings are processed.",
-        expectedOutcome:
-          "Processing stays under 3 days reliably",
+        expectedOutcome: "Processing stays under 3 days reliably",
         timeframe: "Daily starting Monday",
       },
     ],
@@ -2165,24 +2084,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Personal call, not letter, on every outcome",
         description:
           "Every hearing outcome — win or loss — gets a personal call within 48 hours. No exceptions, no delegation to letter.",
-        expectedOutcome:
-          "100% client notification rate",
+        expectedOutcome: "100% client notification rate",
         timeframe: "Starting today",
       },
       {
         label: "Enable the 'hearing outcome → notify client' reminder",
         description:
           "/settings/notifications → enable 'Hearing concluded, client not yet notified'. Fires at 24 hours post-hearing if no call logged.",
-        expectedOutcome:
-          "Reminder fires before the 48-hour deadline",
+        expectedOutcome: "Reminder fires before the 48-hour deadline",
         timeframe: "Today",
       },
       {
         label: "Script the loss call with a supervisor",
         description:
           "Losing calls are hard and get avoided. Script yours with a supervisor and practice once. The hardest call becomes routine.",
-        expectedOutcome:
-          "Losses get called, not letter'd",
+        expectedOutcome: "Losses get called, not letter'd",
         timeframe: "This week",
       },
     ],
@@ -2216,24 +2132,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Clear the mail room top-down every morning",
         description:
           "9:00am daily — open the mail room queue (/mail) and work oldest-first until the queue is under 10 items. Then move on to other work.",
-        expectedOutcome:
-          "Queue starts every day near zero",
+        expectedOutcome: "Queue starts every day near zero",
         timeframe: "Daily habit",
       },
       {
         label: "Use the bulk-scan + auto-categorize feature",
         description:
           "Instead of scanning items one-at-a-time, use /mail/bulk-scan. Auto-categorizes by sender and routes automatically to the right case.",
-        expectedOutcome:
-          "Throughput climbs 50%+",
+        expectedOutcome: "Throughput climbs 50%+",
         timeframe: "Start on the next batch",
       },
       {
         label: "Block the 9-11am slot for mail processing",
         description:
           "Calendar-block 9:00-11:00 as 'mail processing deep work'. Nothing else during that window.",
-        expectedOutcome:
-          "60 items per day consistently",
+        expectedOutcome: "60 items per day consistently",
         timeframe: "Starting Monday",
       },
     ],
@@ -2262,24 +2175,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Use auto-categorize on every scan",
         description:
           "Bulk-scan automatically attaches mail to the correct case by matching claimant name + DOB. Reduces routing to seconds.",
-        expectedOutcome:
-          "Routing time drops from [actual] to under 30 minutes",
+        expectedOutcome: "Routing time drops from [actual] to under 30 minutes",
         timeframe: "Start on the next scan",
       },
       {
         label: "Route in real time, not in batches",
         description:
           "Don't scan everything first and route later. Scan → route → confirm attached → next item.",
-        expectedOutcome:
-          "Nothing aged more than a few minutes in limbo",
+        expectedOutcome: "Nothing aged more than a few minutes in limbo",
         timeframe: "Start today",
       },
       {
         label: "Escalate unroutable items immediately",
         description:
           "If mail can't be matched to a case (bad name match, etc), create a 'unroutable' ticket and tag the case manager team. Don't let unroutable items rot.",
-        expectedOutcome:
-          "Unroutable mail gets resolved same-day",
+        expectedOutcome: "Unroutable mail gets resolved same-day",
         timeframe: "Today",
       },
     ],
@@ -2309,24 +2219,21 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
         label: "Walk the mail room end-of-day",
         description:
           "Last 15 minutes of each day, physically walk the mail room. Any item left unprocessed gets flagged: escalated, bulk-scanned, or manually routed before you leave.",
-        expectedOutcome:
-          "No item ever ages past 24 hours",
+        expectedOutcome: "No item ever ages past 24 hours",
         timeframe: "Daily habit",
       },
       {
         label: "Set a physical 'oldest item' visible tracker",
         description:
           "Post the oldest item in the mail room on a whiteboard with its received date. Creates social pressure to clear it.",
-        expectedOutcome:
-          "Oldest item never drifts past 24 hours",
+        expectedOutcome: "Oldest item never drifts past 24 hours",
         timeframe: "Today",
       },
       {
         label: "Escalate any item at 48 hours immediately",
         description:
           "If any item hits 48 hours without being processed, escalate to supervisor — it almost always means the item is genuinely unroutable.",
-        expectedOutcome:
-          "No item ever hits 72 hours",
+        expectedOutcome: "No item ever hits 72 hours",
         timeframe: "Start today",
       },
     ],
@@ -2334,9 +2241,7 @@ export const COACHING_LIBRARY: CoachingRecipe[] = [
       "Oldest item aging is [actual] hours, target is under 24. Patterns of aging items signal a process gap, not a volume gap.",
       "The end-of-day walk is the mechanical fix — commit to it during the session.",
     ],
-    trainingResources: [
-      "Mail Room Playbook § 3 — Zero-Age Discipline",
-    ],
+    trainingResources: ["Mail Room Playbook § 3 — Zero-Age Discipline"],
     commonRootCauses: [
       "No end-of-day walkthrough — aged items hide overnight",
       "Unroutable items absorbed silently instead of escalated",

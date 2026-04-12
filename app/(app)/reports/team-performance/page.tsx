@@ -152,9 +152,7 @@ export default async function TeamPerformancePage({
                     className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
                     style={{
                       borderColor:
-                        r === roleFilter
-                          ? COLORS.brand
-                          : COLORS.borderDefault,
+                        r === roleFilter ? COLORS.brand : COLORS.borderDefault,
                       color: r === roleFilter ? COLORS.brand : COLORS.text2,
                       background:
                         r === roleFilter ? COLORS.brandSubtle : "transparent",
@@ -181,9 +179,9 @@ export default async function TeamPerformancePage({
       ) : (
         <div className="space-y-6">
           {sortedRoles.map((role) => {
-            const roleRows = (byRole.get(role) ?? []).slice().sort(
-              (a, b) => b.compositeScore - a.compositeScore,
-            );
+            const roleRows = (byRole.get(role) ?? [])
+              .slice()
+              .sort((a, b) => b.compositeScore - a.compositeScore);
             return (
               <Card key={role}>
                 <CardContent className="p-0">
@@ -207,9 +205,7 @@ export default async function TeamPerformancePage({
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Team</TableHead>
-                        <TableHead className="text-right">
-                          Composite
-                        </TableHead>
+                        <TableHead className="text-right">Composite</TableHead>
                         <TableHead className="text-right">Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -233,10 +229,7 @@ export default async function TeamPerformancePage({
                           </TableCell>
                           <TableCell>
                             {r.team ? (
-                              <Badge
-                                variant="outline"
-                                className="capitalize"
-                              >
+                              <Badge variant="outline" className="capitalize">
                                 {r.team.replace(/_/g, " ")}
                               </Badge>
                             ) : (

@@ -126,10 +126,7 @@ export function CommandPalette() {
   }, [deferredQuery, open]);
 
   const flatResults = useMemo(() => response?.results ?? [], [response]);
-  const groupedResults = useMemo(
-    () => groupByType(flatResults),
-    [flatResults],
-  );
+  const groupedResults = useMemo(() => groupByType(flatResults), [flatResults]);
   // Flat list of indices in the order they appear, for keyboard nav.
   const navigableResults = flatResults;
 
@@ -313,10 +310,13 @@ export function CommandPalette() {
           style={{ overflowY: "auto", flex: 1 }}
         >
           {!query && (
-            <RecentSection recents={recents} onPick={(r) => {
-              setOpen(false);
-              router.push(r.href);
-            }} />
+            <RecentSection
+              recents={recents}
+              onPick={(r) => {
+                setOpen(false);
+                router.push(r.href);
+              }}
+            />
           )}
 
           {query && !loading && flatResults.length === 0 && (
@@ -385,7 +385,9 @@ function ResultGroup({
         }}
       >
         {typeLabel(type)}
-        <span style={{ marginLeft: 8, color: "#C7C7C7" }}>{results.length}</span>
+        <span style={{ marginLeft: 8, color: "#C7C7C7" }}>
+          {results.length}
+        </span>
       </div>
       {results.map((r) => (
         <ResultRow
@@ -636,64 +638,110 @@ function groupByType(results: SearchResult[]) {
     if (existing) existing.push(r);
     else groups.set(r.entityType, [r]);
   }
-  return Array.from(groups.entries()).map(([type, results]) => ({ type, results }));
+  return Array.from(groups.entries()).map(([type, results]) => ({
+    type,
+    results,
+  }));
 }
 
 function typeLabel(type: EntityType): string {
   switch (type) {
-    case "case": return "Cases";
-    case "contact": return "Contacts";
-    case "lead": return "Leads";
-    case "user": return "People";
-    case "document": return "Documents";
-    case "document_chunk": return "Passages";
-    case "chronology_entry": return "Chronology";
-    case "calendar_event": return "Calendar";
-    case "task": return "Tasks";
-    case "communication": return "Messages";
-    case "chat_message": return "Team Chat";
-    case "outbound_mail": return "Mail";
-    case "invoice": return "Invoices";
-    case "time_entry": return "Time";
-    case "expense": return "Expenses";
-    case "payment": return "Payments";
-    case "trust_transaction": return "Trust";
-    case "workflow": return "Workflows";
-    case "document_template": return "Templates";
-    case "audit_log_entry": return "Audit Log";
-    default: return String(type);
+    case "case":
+      return "Cases";
+    case "contact":
+      return "Contacts";
+    case "lead":
+      return "Leads";
+    case "user":
+      return "People";
+    case "document":
+      return "Documents";
+    case "document_chunk":
+      return "Passages";
+    case "chronology_entry":
+      return "Chronology";
+    case "calendar_event":
+      return "Calendar";
+    case "task":
+      return "Tasks";
+    case "communication":
+      return "Messages";
+    case "chat_message":
+      return "Team Chat";
+    case "outbound_mail":
+      return "Mail";
+    case "invoice":
+      return "Invoices";
+    case "time_entry":
+      return "Time";
+    case "expense":
+      return "Expenses";
+    case "payment":
+      return "Payments";
+    case "trust_transaction":
+      return "Trust";
+    case "workflow":
+      return "Workflows";
+    case "document_template":
+      return "Templates";
+    case "audit_log_entry":
+      return "Audit Log";
+    default:
+      return String(type);
   }
 }
 
 function matchedFieldLabel(field: string): string {
   switch (field) {
-    case "title": return "title";
-    case "subtitle": return "meta";
-    case "body": return "content";
-    case "identifier": return "id match";
-    case "tag": return "tag";
-    case "facet": return "facet";
-    default: return field;
+    case "title":
+      return "title";
+    case "subtitle":
+      return "meta";
+    case "body":
+      return "content";
+    case "identifier":
+      return "id match";
+    case "tag":
+      return "tag";
+    case "facet":
+      return "facet";
+    default:
+      return field;
   }
 }
 
 function iconMeta(type: EntityType): { label: string; bg: string; fg: string } {
   switch (type) {
-    case "case":             return { label: "CA", bg: "#EEF1FA", fg: "#263c94" };
-    case "contact":          return { label: "CT", bg: "#E6F7EF", fg: "#047857" };
-    case "lead":             return { label: "LD", bg: "#FEF3C7", fg: "#92400E" };
-    case "user":             return { label: "PP", bg: "#F3E8FF", fg: "#6B21A8" };
-    case "document":         return { label: "DC", bg: "#E5EFFF", fg: "#1d4ed8" };
-    case "document_chunk":   return { label: "¶",  bg: "#DBEAFE", fg: "#1e40af" };
-    case "chronology_entry": return { label: "CH", bg: "#FCE7F3", fg: "#9d174d" };
-    case "calendar_event":   return { label: "CL", bg: "#FEE4E2", fg: "#b91c1c" };
-    case "task":             return { label: "TK", bg: "#FEF3C7", fg: "#B45309" };
-    case "communication":    return { label: "MS", bg: "#DBEAFE", fg: "#1d4ed8" };
-    case "chat_message":     return { label: "CM", bg: "#E0E7FF", fg: "#4338ca" };
-    case "outbound_mail":    return { label: "MA", bg: "#FDE68A", fg: "#78350F" };
-    case "invoice":          return { label: "$",  bg: "#D1FAE5", fg: "#065F46" };
-    case "trust_transaction":return { label: "TR", bg: "#E0F2FE", fg: "#0369A1" };
-    default:                 return { label: "··", bg: "#F3F4F6", fg: "#4B5563" };
+    case "case":
+      return { label: "CA", bg: "#EEF1FA", fg: "#263c94" };
+    case "contact":
+      return { label: "CT", bg: "#E6F7EF", fg: "#047857" };
+    case "lead":
+      return { label: "LD", bg: "#FEF3C7", fg: "#92400E" };
+    case "user":
+      return { label: "PP", bg: "#F3E8FF", fg: "#6B21A8" };
+    case "document":
+      return { label: "DC", bg: "#E5EFFF", fg: "#1d4ed8" };
+    case "document_chunk":
+      return { label: "¶", bg: "#DBEAFE", fg: "#1e40af" };
+    case "chronology_entry":
+      return { label: "CH", bg: "#FCE7F3", fg: "#9d174d" };
+    case "calendar_event":
+      return { label: "CL", bg: "#FEE4E2", fg: "#b91c1c" };
+    case "task":
+      return { label: "TK", bg: "#FEF3C7", fg: "#B45309" };
+    case "communication":
+      return { label: "MS", bg: "#DBEAFE", fg: "#1d4ed8" };
+    case "chat_message":
+      return { label: "CM", bg: "#E0E7FF", fg: "#4338ca" };
+    case "outbound_mail":
+      return { label: "MA", bg: "#FDE68A", fg: "#78350F" };
+    case "invoice":
+      return { label: "$", bg: "#D1FAE5", fg: "#065F46" };
+    case "trust_transaction":
+      return { label: "TR", bg: "#E0F2FE", fg: "#0369A1" };
+    default:
+      return { label: "··", bg: "#F3F4F6", fg: "#4B5563" };
   }
 }
 
@@ -705,7 +753,10 @@ function renderWithHighlights(text: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
   return escaped
-    .replace(/«/g, "<mark style=\"background:#FEF3C7;color:inherit;padding:0 1px;\">")
+    .replace(
+      /«/g,
+      '<mark style="background:#FEF3C7;color:inherit;padding:0 1px;">',
+    )
     .replace(/»/g, "</mark>");
 }
 
@@ -726,7 +777,8 @@ function pushRecent(item: RecentItem) {
   if (typeof window === "undefined") return;
   try {
     const existing = loadRecents().filter(
-      (r) => !(r.entityId === item.entityId && r.entityType === item.entityType),
+      (r) =>
+        !(r.entityId === item.entityId && r.entityType === item.entityType),
     );
     const next = [item, ...existing].slice(0, RECENT_CAP);
     window.localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next));

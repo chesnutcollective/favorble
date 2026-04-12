@@ -208,9 +208,9 @@ function extractContextSignals(ctx: CaseContextBundle): string[] {
   );
   if (mostRecentInbound) {
     signals.push(
-      `Last inbound message ${mostRecentInbound.createdAt
-        .toISOString()
-        .split("T")[0]}${
+      `Last inbound message ${
+        mostRecentInbound.createdAt.toISOString().split("T")[0]
+      }${
         mostRecentInbound.sentimentLabel
           ? ` (sentiment: ${mostRecentInbound.sentimentLabel})`
           : ""

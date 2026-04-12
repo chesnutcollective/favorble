@@ -97,10 +97,7 @@ export const rfcRequests = pgTable(
   (table) => [
     index("idx_rfc_requests_org").on(table.organizationId),
     index("idx_rfc_requests_case").on(table.caseId),
-    index("idx_rfc_requests_org_status").on(
-      table.organizationId,
-      table.status,
-    ),
+    index("idx_rfc_requests_org_status").on(table.organizationId, table.status),
     index("idx_rfc_requests_due").on(table.dueDate),
   ],
 );

@@ -22,13 +22,7 @@ import { logger } from "@/lib/logger/server";
  * are stored in cases.mrTeamColor as free-form text. Kept non-exported
  * because "use server" files can only export async functions (Next 16+).
  */
-const MR_TEAM_COLORS = [
-  "blue",
-  "orange",
-  "green",
-  "yellow",
-  "purple",
-] as const;
+const MR_TEAM_COLORS = ["blue", "orange", "green", "yellow", "purple"] as const;
 
 export type MrTeamColor = (typeof MR_TEAM_COLORS)[number];
 
@@ -167,9 +161,7 @@ export async function getMrQueue(): Promise<MrQueueRow[]> {
     .map((r) => {
       const hearing = r.hearingDate ? new Date(r.hearingDate) : null;
       const daysUntil = hearing
-        ? Math.ceil(
-            (hearing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-          )
+        ? Math.ceil((hearing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
         : null;
       let claimant: string;
       if (r.firstName || r.lastName) {

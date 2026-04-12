@@ -1,12 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import {
-  hearingOutcomes,
-  cases,
-  leads,
-  users,
-} from "@/db/schema";
+import { hearingOutcomes, cases, leads, users } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { desc, eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
@@ -119,9 +114,7 @@ export async function getHearingOutcomes(): Promise<HearingOutcomeWorkspace> {
 
       const ageInDays = Math.max(
         0,
-        Math.floor(
-          (now - new Date(r.hearingDate).getTime()) / 86_400_000,
-        ),
+        Math.floor((now - new Date(r.hearingDate).getTime()) / 86_400_000),
       );
 
       const progress = {

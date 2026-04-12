@@ -67,12 +67,16 @@ async function touchTable(spec: TableSpec): Promise<number> {
   // UPDATE ... SET id = id re-fires triggers without actually changing
   // any columns. Skips soft-deleted rows via the optional filter.
   const where = spec.softDelete ? sql`WHERE deleted_at IS NULL` : sql``;
-  const res = await sql.unsafe(
-    `UPDATE ${spec.table} SET updated_at = updated_at ${spec.softDelete ? "WHERE deleted_at IS NULL" : ""}`,
-  ).catch(async () => {
-    // Fall back for tables without updated_at.
-    return sql.unsafe(`UPDATE ${spec.table} SET id = id ${spec.softDelete ? "WHERE deleted_at IS NULL" : ""}`);
-  });
+  const res = await sql
+    .unsafe(
+      `UPDATE ${spec.table} SET updated_at = updated_at ${spec.softDelete ? "WHERE deleted_at IS NULL" : ""}`,
+    )
+    .catch(async () => {
+      // Fall back for tables without updated_at.
+      return sql.unsafe(
+        `UPDATE ${spec.table} SET id = id ${spec.softDelete ? "WHERE deleted_at IS NULL" : ""}`,
+      );
+    });
   const n = (res as unknown as { count: number }).count ?? 0;
   console.log(`  ${spec.table.padEnd(28)} ${n} rows`);
   return n;

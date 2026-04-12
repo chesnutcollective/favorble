@@ -16,7 +16,17 @@ import {
   aiDrafts,
   supervisorEvents,
 } from "@/db/schema";
-import { and, desc, eq, isNull, lt, gt, sql, inArray, isNotNull } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  isNull,
+  lt,
+  gt,
+  sql,
+  inArray,
+  isNotNull,
+} from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
 /**
@@ -160,9 +170,7 @@ async function ruleBarCaseStageStagnant90d(
 
 // ----- Rule: BAR — missing welcome call within 7 days of intake -----
 
-async function ruleBarMissingWelcomeCall(
-  input: RuleInput,
-): Promise<Finding[]> {
+async function ruleBarMissingWelcomeCall(input: RuleInput): Promise<Finding[]> {
   const rows = await db
     .select({
       id: cases.id,
@@ -387,10 +395,7 @@ async function ruleBarHearingNoBrief(input: RuleInput): Promise<Finding[]> {
       .select({ id: aiDrafts.id })
       .from(aiDrafts)
       .where(
-        and(
-          eq(aiDrafts.caseId, c.id),
-          eq(aiDrafts.type, "pre_hearing_brief"),
-        ),
+        and(eq(aiDrafts.caseId, c.id), eq(aiDrafts.type, "pre_hearing_brief")),
       )
       .limit(1);
     if (!brief) {
@@ -629,7 +634,10 @@ async function ruleEthicsNoActivity60d(input: RuleInput): Promise<Finding[]> {
       .select({ id: communications.id })
       .from(communications)
       .where(
-        and(eq(communications.caseId, c.id), gt(communications.createdAt, sixtyDaysAgo)),
+        and(
+          eq(communications.caseId, c.id),
+          gt(communications.createdAt, sixtyDaysAgo),
+        ),
       )
       .limit(1);
     if (comm) continue;
@@ -638,9 +646,7 @@ async function ruleEthicsNoActivity60d(input: RuleInput): Promise<Finding[]> {
     const [task] = await db
       .select({ id: tasks.id })
       .from(tasks)
-      .where(
-        and(eq(tasks.caseId, c.id), gt(tasks.createdAt, sixtyDaysAgo)),
-      )
+      .where(and(eq(tasks.caseId, c.id), gt(tasks.createdAt, sixtyDaysAgo)))
       .limit(1);
     if (task) continue;
 
@@ -649,10 +655,7 @@ async function ruleEthicsNoActivity60d(input: RuleInput): Promise<Finding[]> {
       .select({ id: auditLog.id })
       .from(auditLog)
       .where(
-        and(
-          eq(auditLog.entityId, c.id),
-          gt(auditLog.createdAt, sixtyDaysAgo),
-        ),
+        and(eq(auditLog.entityId, c.id), gt(auditLog.createdAt, sixtyDaysAgo)),
       )
       .limit(1);
     if (audit) continue;
@@ -810,9 +813,7 @@ export async function runComplianceScan(): Promise<RunComplianceScanResult> {
       try {
         const findings = await fn({ organizationId: org.id });
         for (const finding of findings) {
-          if (
-            await findingExists(org.id, rule.code, finding.subjectId)
-          ) {
+          if (await findingExists(org.id, rule.code, finding.subjectId)) {
             findingsSkipped++;
             continue;
           }

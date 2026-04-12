@@ -205,7 +205,9 @@ export async function GET(request: NextRequest) {
     logger.error("Cron deadline-scan hearing query failed", {
       error: err instanceof Error ? err.message : String(err),
     });
-    errors.push(`hearing scan: ${err instanceof Error ? err.message : String(err)}`);
+    errors.push(
+      `hearing scan: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
   // ----- Helper: record event + notify for a given rule -----
@@ -243,7 +245,9 @@ export async function GET(request: NextRequest) {
       payload: { ruleType: input.ruleType, ...input.payload },
     });
     if (!eventId) {
-      errors.push(`recordSupervisorEvent failed for case ${input.caseId} rule ${input.ruleType}`);
+      errors.push(
+        `recordSupervisorEvent failed for case ${input.caseId} rule ${input.ruleType}`,
+      );
       return;
     }
     recorded++;
@@ -308,7 +312,9 @@ export async function GET(request: NextRequest) {
       if (!caseRow) continue;
 
       const daysSinceDecision = Math.floor(
-        (now.getTime() - (outcome.outcomeReceivedAt?.getTime() ?? now.getTime())) / 86400000,
+        (now.getTime() -
+          (outcome.outcomeReceivedAt?.getTime() ?? now.getTime())) /
+          86400000,
       );
 
       await recordAndNotify({
@@ -317,8 +323,12 @@ export async function GET(request: NextRequest) {
         caseNumber: caseRow.caseNumber,
         ruleType: "fee_petition",
         summaryText: `Case ${caseRow.caseNumber}: favorable decision received ${daysSinceDecision} days ago but no fee petition has been filed (60-day deadline)`,
-        recommendedAction: "File fee petition with SSA before the 60-day window closes.",
-        payload: { daysSinceDecision, outcomeReceivedAt: outcome.outcomeReceivedAt?.toISOString() },
+        recommendedAction:
+          "File fee petition with SSA before the 60-day window closes.",
+        payload: {
+          daysSinceDecision,
+          outcomeReceivedAt: outcome.outcomeReceivedAt?.toISOString(),
+        },
         priority: daysSinceDecision >= 50 ? "urgent" : "high",
       });
     }
@@ -372,8 +382,13 @@ export async function GET(request: NextRequest) {
         caseNumber: caseRow.caseNumber,
         ruleType: "rfc_follow_up",
         summaryText: `Case ${caseRow.caseNumber}: RFC from ${rfc.providerName ?? "provider"} is due in ${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"}`,
-        recommendedAction: "Follow up with treating physician on RFC form before the deadline.",
-        payload: { dueDate: rfc.dueDate.toISOString(), providerName: rfc.providerName, daysUntilDue },
+        recommendedAction:
+          "Follow up with treating physician on RFC form before the deadline.",
+        payload: {
+          dueDate: rfc.dueDate.toISOString(),
+          providerName: rfc.providerName,
+          daysUntilDue,
+        },
         priority: daysUntilDue <= 2 ? "urgent" : "high",
       });
     }
@@ -416,7 +431,8 @@ export async function GET(request: NextRequest) {
       if (!caseRow) continue;
 
       const daysSinceRequest = Math.floor(
-        (now.getTime() - (mr.requestedAt?.getTime() ?? now.getTime())) / 86400000,
+        (now.getTime() - (mr.requestedAt?.getTime() ?? now.getTime())) /
+          86400000,
       );
 
       await recordAndNotify({
@@ -425,8 +441,13 @@ export async function GET(request: NextRequest) {
         caseNumber: caseRow.caseNumber,
         ruleType: "mr_follow_up",
         summaryText: `Case ${caseRow.caseNumber}: medical records from ${mr.providerName ?? "provider"} requested ${daysSinceRequest} days ago with no response`,
-        recommendedAction: "Follow up with provider on outstanding medical records request.",
-        payload: { requestedAt: mr.requestedAt?.toISOString(), providerName: mr.providerName, daysSinceRequest },
+        recommendedAction:
+          "Follow up with provider on outstanding medical records request.",
+        payload: {
+          requestedAt: mr.requestedAt?.toISOString(),
+          providerName: mr.providerName,
+          daysSinceRequest,
+        },
         priority: daysSinceRequest >= 14 ? "urgent" : "high",
       });
     }
@@ -481,7 +502,13 @@ export async function GET(request: NextRequest) {
       const [caseRow] = await db
         .select({ caseNumber: cases.caseNumber })
         .from(cases)
-        .where(and(eq(cases.id, evt.caseId), eq(cases.status, "active"), isNull(cases.deletedAt)))
+        .where(
+          and(
+            eq(cases.id, evt.caseId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+          ),
+        )
         .limit(1);
       if (!caseRow) continue;
 
@@ -495,7 +522,8 @@ export async function GET(request: NextRequest) {
         caseNumber: caseRow.caseNumber,
         ruleType: "good_cause_response",
         summaryText: `Case ${caseRow.caseNumber}: denial received ${daysSinceDenial} days ago, approaching 65-day appeal window with no action taken`,
-        recommendedAction: "File appeal or document good cause for late filing before the 65-day window closes.",
+        recommendedAction:
+          "File appeal or document good cause for late filing before the 65-day window closes.",
         payload: { denialDate: evt.createdAt.toISOString(), daysSinceDenial },
         priority: daysSinceDenial >= 58 ? "urgent" : "high",
       });
@@ -503,7 +531,9 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`good_cause_response scan: ${msg}`);
-    logger.error("Cron deadline-scan good_cause_response failed", { error: msg });
+    logger.error("Cron deadline-scan good_cause_response failed", {
+      error: msg,
+    });
   }
 
   // ----- Rule: appeal_reconsideration -----
@@ -551,7 +581,13 @@ export async function GET(request: NextRequest) {
       const [caseRow] = await db
         .select({ caseNumber: cases.caseNumber })
         .from(cases)
-        .where(and(eq(cases.id, evt.caseId), eq(cases.status, "active"), isNull(cases.deletedAt)))
+        .where(
+          and(
+            eq(cases.id, evt.caseId),
+            eq(cases.status, "active"),
+            isNull(cases.deletedAt),
+          ),
+        )
         .limit(1);
       if (!caseRow) continue;
 
@@ -566,15 +602,22 @@ export async function GET(request: NextRequest) {
         caseNumber: caseRow.caseNumber,
         ruleType: "appeal_reconsideration",
         summaryText: `Case ${caseRow.caseNumber}: ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining to file Request for Reconsideration (denial was ${daysSinceDenial} days ago)`,
-        recommendedAction: "File Request for Reconsideration before the 65-day deadline.",
-        payload: { denialDate: evt.createdAt.toISOString(), daysSinceDenial, daysRemaining },
+        recommendedAction:
+          "File Request for Reconsideration before the 65-day deadline.",
+        payload: {
+          denialDate: evt.createdAt.toISOString(),
+          daysSinceDenial,
+          daysRemaining,
+        },
         priority: daysRemaining <= 7 ? "urgent" : "high",
       });
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`appeal_reconsideration scan: ${msg}`);
-    logger.error("Cron deadline-scan appeal_reconsideration failed", { error: msg });
+    logger.error("Cron deadline-scan appeal_reconsideration failed", {
+      error: msg,
+    });
   }
 
   const scanSummary = {

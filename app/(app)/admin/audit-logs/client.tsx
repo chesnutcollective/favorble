@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  useCallback,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
@@ -235,10 +229,9 @@ export function AuditLogsClient({
           sp.delete("severity");
         }
         const qs = sp.toString();
-        router.replace(
-          qs ? `/admin/audit-logs?${qs}` : "/admin/audit-logs",
-          { scroll: false },
-        );
+        router.replace(qs ? `/admin/audit-logs?${qs}` : "/admin/audit-logs", {
+          scroll: false,
+        });
         return;
       }
       updateUrl(next, 1);
@@ -270,9 +263,7 @@ export function AuditLogsClient({
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
-      const csv = await exportAuditLogsCsv(
-        filtersToActionFilters(filters),
-      );
+      const csv = await exportAuditLogsCsv(filtersToActionFilters(filters));
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -307,11 +298,7 @@ export function AuditLogsClient({
             style={{ backgroundColor: BRAND }}
             className="text-white hover:opacity-90"
           >
-            <HugeiconsIcon
-              icon={Download01Icon}
-              size={16}
-              className="mr-1.5"
-            />
+            <HugeiconsIcon icon={Download01Icon} size={16} className="mr-1.5" />
             {isExporting ? "Exporting..." : "Export CSV"}
           </Button>
         }

@@ -33,9 +33,7 @@ export const outboundMail = pgTable(
     recipientAddress: text("recipient_address"),
     mailType: mailTypeEnum("mail_type").notNull().default("regular"),
     trackingNumber: text("tracking_number"),
-    sentAt: timestamp("sent_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     notes: text("notes"),
     sentBy: uuid("sent_by").references(() => users.id),

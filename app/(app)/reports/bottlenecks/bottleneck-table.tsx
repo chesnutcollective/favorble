@@ -70,10 +70,7 @@ export function BottleneckTable({ rows }: Props) {
           className="px-6 py-3 border-b"
           style={{ borderColor: COLORS.borderSubtle }}
         >
-          <h2
-            className="text-sm font-semibold"
-            style={{ color: COLORS.text1 }}
-          >
+          <h2 className="text-sm font-semibold" style={{ color: COLORS.text1 }}>
             Top stages by case count
           </h2>
           <p className="text-xs" style={{ color: COLORS.text3 }}>
@@ -111,9 +108,7 @@ export function BottleneckTable({ rows }: Props) {
                     onClick={() => handleRowClick(r.stageId)}
                     style={{
                       backgroundColor:
-                        expanded === r.stageId
-                          ? COLORS.brandSubtle
-                          : undefined,
+                        expanded === r.stageId ? COLORS.brandSubtle : undefined,
                     }}
                   >
                     <TableCell className="font-medium">
@@ -146,8 +141,8 @@ export function BottleneckTable({ rows }: Props) {
                           r.avgAgeDays > 30
                             ? COLORS.bad
                             : r.avgAgeDays > 14
-                            ? COLORS.warn
-                            : COLORS.text1,
+                              ? COLORS.warn
+                              : COLORS.text1,
                       }}
                     >
                       {r.avgAgeDays}d
@@ -287,9 +282,7 @@ export function BottleneckTable({ rows }: Props) {
                                       </td>
                                       <td className="px-3 py-2 text-xs">
                                         {c.assigneeName ?? (
-                                          <span
-                                            style={{ color: COLORS.text4 }}
-                                          >
+                                          <span style={{ color: COLORS.text4 }}>
                                             Unassigned
                                           </span>
                                         )}

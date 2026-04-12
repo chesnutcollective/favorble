@@ -35,7 +35,9 @@ export default async function PostHearingPage() {
   }
 
   const inFlight =
-    data.counts.awaiting + data.counts.clientNotified + data.counts.stageAdvanced;
+    data.counts.awaiting +
+    data.counts.clientNotified +
+    data.counts.stageAdvanced;
 
   return (
     <div className="space-y-6">
@@ -67,10 +69,7 @@ export default async function PostHearingPage() {
               ? "—"
               : `${Math.round(
                   (data.counts.awaiting /
-                    Math.max(
-                      1,
-                      data.counts.awaiting + data.counts.completed,
-                    )) *
+                    Math.max(1, data.counts.awaiting + data.counts.completed)) *
                     100,
                 )}%`
           }

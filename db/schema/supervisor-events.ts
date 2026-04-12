@@ -10,10 +10,7 @@ import { organizations } from "./organizations";
 import { users } from "./users";
 import { cases } from "./cases";
 import { tasks } from "./tasks";
-import {
-  supervisorEventTypeEnum,
-  supervisorEventStatusEnum,
-} from "./enums";
+import { supervisorEventTypeEnum, supervisorEventStatusEnum } from "./enums";
 
 /**
  * Supervisor events are the unified event log that drives the entire

@@ -5,12 +5,7 @@ import {
   getComplianceRules,
 } from "@/app/actions/compliance";
 import { PageHeader } from "@/components/shared/page-header";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -276,10 +271,7 @@ function FindingsTable({
                   {new Date(f.detectedAt).toISOString().split("T")[0]}
                 </TableCell>
                 <TableCell>
-                  <FindingActionsClient
-                    findingId={f.id}
-                    status={f.status}
-                  />
+                  <FindingActionsClient findingId={f.id} status={f.status} />
                 </TableCell>
               </TableRow>
             ))

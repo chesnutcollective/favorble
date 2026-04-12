@@ -202,14 +202,16 @@ export async function POST(request: NextRequest) {
                 } catch (linkErr) {
                   logger.warn("ERE ALJ auto-link failed", {
                     caseId: job.caseId,
-                    error: linkErr instanceof Error ? linkErr.message : String(linkErr),
+                    error:
+                      linkErr instanceof Error
+                        ? linkErr.message
+                        : String(linkErr),
                   });
                 }
               }
 
               // --- Supervisor event detection (SA-2 / SA-5) ---
-              const prevHearingMs =
-                priorCase?.hearingDate?.getTime() ?? null;
+              const prevHearingMs = priorCase?.hearingDate?.getTime() ?? null;
               const newHearingMs = incomingHearingDate?.getTime() ?? null;
               const isNewHearing =
                 newHearingMs !== null && prevHearingMs !== newHearingMs;
@@ -243,8 +245,7 @@ export async function POST(request: NextRequest) {
                     } catch (err) {
                       logger.error("ere hearing_scheduled handler failed", {
                         eventId,
-                        error:
-                          err instanceof Error ? err.message : String(err),
+                        error: err instanceof Error ? err.message : String(err),
                       });
                     }
                   });
@@ -259,8 +260,7 @@ export async function POST(request: NextRequest) {
                 !statusNorm.includes("unfavorable");
               const isUnfavorable = statusNorm.includes("unfavorable");
               const isDenial =
-                statusNorm.includes("denial") ||
-                statusNorm.includes("denied");
+                statusNorm.includes("denial") || statusNorm.includes("denied");
               const statusChanged = statusNorm && statusNorm !== prevStatus;
 
               const fireDecisionEvent = async (
@@ -296,8 +296,7 @@ export async function POST(request: NextRequest) {
                     } catch (err) {
                       logger.error(`ere ${decisionType} handler failed`, {
                         eventId,
-                        error:
-                          err instanceof Error ? err.message : String(err),
+                        error: err instanceof Error ? err.message : String(err),
                       });
                     }
                   });

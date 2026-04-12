@@ -400,8 +400,7 @@ export async function getFilingTemplates() {
 
   return rows.map((row) => {
     const nameLower = row.name.toLowerCase();
-    let type: "SSDI" | "SSI" | "Both" | "Reconsideration" | "Hearing" =
-      "SSDI";
+    let type: "SSDI" | "SSI" | "Both" | "Reconsideration" | "Hearing" = "SSDI";
     if (nameLower.includes("hearing")) type = "Hearing";
     else if (nameLower.includes("reconsid")) type = "Reconsideration";
     else if (nameLower.includes("ssdi") && nameLower.includes("ssi"))
@@ -425,10 +424,7 @@ export async function getFilingTemplates() {
  * document row attached to the case). Used by the "Use Template" button in
  * the filing sidebar.
  */
-export async function applyFilingTemplate(
-  caseId: string,
-  templateId: string,
-) {
+export async function applyFilingTemplate(caseId: string, templateId: string) {
   const session = await requireSession();
 
   const [template] = await db
@@ -547,9 +543,7 @@ export async function oneClickFile(
             asc(caseStages.displayOrder),
           );
 
-        const idx = allStages.findIndex(
-          (s) => s.id === caseRow.currentStageId,
-        );
+        const idx = allStages.findIndex((s) => s.id === caseRow.currentStageId);
         if (idx >= 0 && idx < allStages.length - 1) {
           nextStageId = allStages[idx + 1].id;
         }

@@ -894,9 +894,7 @@ async function getMedicalRecordsSummary(
   };
 }
 
-async function getMailSummary(
-  organizationId: string,
-): Promise<MailSummary> {
+async function getMailSummary(organizationId: string): Promise<MailSummary> {
   const [pendingInbound, inTransit, certifiedInTransit, unmatched] =
     await Promise.all([
       // Inbound mail: documents tagged 'mail' (match heuristic until a
@@ -1037,9 +1035,7 @@ async function getBillingSummary(
   };
 }
 
-async function getTrustSummary(
-  organizationId: string,
-): Promise<TrustSummary> {
+async function getTrustSummary(organizationId: string): Promise<TrustSummary> {
   const [accounts, unreconciled, lastReconciled] = await Promise.all([
     // Total balance across all trust accounts for this org
     db
@@ -1116,10 +1112,7 @@ async function getTeamChatSummary(
     db
       .select({ count: count() })
       .from(chatMessages)
-      .innerJoin(
-        chatChannels,
-        eq(chatChannels.id, chatMessages.channelId),
-      )
+      .innerJoin(chatChannels, eq(chatChannels.id, chatMessages.channelId))
       .innerJoin(
         chatChannelMembers,
         and(
@@ -1139,10 +1132,7 @@ async function getTeamChatSummary(
     db
       .select({ count: count() })
       .from(chatMessages)
-      .innerJoin(
-        chatChannels,
-        eq(chatChannels.id, chatMessages.channelId),
-      )
+      .innerJoin(chatChannels, eq(chatChannels.id, chatMessages.channelId))
       .innerJoin(
         chatChannelMembers,
         and(

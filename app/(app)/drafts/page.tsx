@@ -39,7 +39,10 @@ const LABEL_BY_TYPE: Record<string, string> = {
   other: "Other",
 };
 
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+const STATUS_VARIANT: Record<
+  string,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
   generating: "secondary",
   draft_ready: "default",
   in_review: "default",
@@ -201,9 +204,7 @@ export default async function DraftsInboxPage({
                       </p>
                     )}
                     <div className="flex gap-3 text-[11px] text-muted-foreground">
-                      {draft.caseNumber && (
-                        <span>Case {draft.caseNumber}</span>
-                      )}
+                      {draft.caseNumber && <span>Case {draft.caseNumber}</span>}
                       {reviewer && <span>Reviewer: {reviewer}</span>}
                     </div>
                   </CardContent>

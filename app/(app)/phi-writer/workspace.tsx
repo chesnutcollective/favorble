@@ -254,7 +254,10 @@ export function PhiWriterWorkspace({
         >
           <CardHeader
             className="pb-3"
-            style={{ backgroundColor: SURFACE, borderBottom: "1px solid #eef0f5" }}
+            style={{
+              backgroundColor: SURFACE,
+              borderBottom: "1px solid #eef0f5",
+            }}
           >
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-base">
@@ -609,9 +612,7 @@ function InfoRow({
         {icon ? <HugeiconsIcon icon={icon} size={11} /> : null}
         {label}
       </p>
-      <p className="text-sm text-foreground mt-0.5 truncate">
-        {value ?? "—"}
-      </p>
+      <p className="text-sm text-foreground mt-0.5 truncate">{value ?? "—"}</p>
     </div>
   );
 }

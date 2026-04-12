@@ -452,7 +452,9 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: c.id,
       type: "contact",
       title: c.fullName,
-      subtitle: [formatContactType(c.contactType), c.email].filter(Boolean).join(" \u00B7 "),
+      subtitle: [formatContactType(c.contactType), c.email]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: `/contacts/${c.id}`,
       metadata: formatContactType(c.contactType),
       preview: {
@@ -469,10 +471,20 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: t.id,
       type: "task",
       title: t.title,
-      subtitle: [fmtStatus(t.status), t.caseNumber ? `Case ${t.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      subtitle: [
+        fmtStatus(t.status),
+        t.caseNumber ? `Case ${t.caseNumber}` : null,
+      ]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: t.caseId ? `/cases/${t.caseId}/tasks` : "/queue",
       badge: fmtStatus(t.status),
-      badgeColor: t.status === "completed" ? "#1d72b8" : t.status === "blocked" ? "#EF4444" : "#6B7280",
+      badgeColor:
+        t.status === "completed"
+          ? "#1d72b8"
+          : t.status === "blocked"
+            ? "#EF4444"
+            : "#6B7280",
       preview: {
         Title: t.title,
         Status: fmtStatus(t.status),
@@ -488,7 +500,9 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: l.id,
       type: "lead",
       title: l.fullName,
-      subtitle: [fmtStatus(l.status), l.source].filter(Boolean).join(" \u00B7 "),
+      subtitle: [fmtStatus(l.status), l.source]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: `/leads/${l.id}`,
       badge: fmtStatus(l.status),
       badgeColor: statusColor(l.status),
@@ -505,7 +519,9 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: d.id,
       type: "document",
       title: d.fileName,
-      subtitle: [d.category, d.caseNumber ? `Case ${d.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      subtitle: [d.category, d.caseNumber ? `Case ${d.caseNumber}` : null]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: d.caseId ? `/cases/${d.caseId}/documents` : "/documents",
       preview: {
         File: d.fileName,
@@ -521,7 +537,12 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: e.id,
       type: "event",
       title: e.title,
-      subtitle: [fmtStatus(e.eventType), e.caseNumber ? `Case ${e.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      subtitle: [
+        fmtStatus(e.eventType),
+        e.caseNumber ? `Case ${e.caseNumber}` : null,
+      ]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: e.caseId ? `/cases/${e.caseId}/calendar` : "/calendar",
       badge: fmtStatus(e.eventType),
       badgeColor: e.eventType === "hearing" ? "#1d72b8" : "#6B7280",
@@ -539,7 +560,12 @@ function transformAPIResults(data: APISearchResults): SearchResultItem[] {
       id: m.id,
       type: "message",
       title: m.subject ?? "(No subject)",
-      subtitle: [fmtStatus(m.type), m.caseNumber ? `Case ${m.caseNumber}` : null].filter(Boolean).join(" \u00B7 "),
+      subtitle: [
+        fmtStatus(m.type),
+        m.caseNumber ? `Case ${m.caseNumber}` : null,
+      ]
+        .filter(Boolean)
+        .join(" \u00B7 "),
       href: m.caseId ? `/messages?highlight=${m.id}` : "/messages",
       preview: {
         Subject: m.subject,
@@ -730,7 +756,9 @@ export function GlobalSearch() {
       const res = await fetch("/api/search?q=*&limit=12");
       if (res.ok) {
         const raw = await res.json();
-        const data: APISearchResults = raw.results ? raw : { results: raw, topHit: null };
+        const data: APISearchResults = raw.results
+          ? raw
+          : { results: raw, topHit: null };
         setSuggestions(transformAPIResults(data));
       }
     } catch {
@@ -769,7 +797,9 @@ export function GlobalSearch() {
       if (res.ok) {
         const raw = await res.json();
         // Handle both old format {cases:[]} and new {results:{cases:[]}}
-        const data: APISearchResults = raw.results ? raw : { results: raw, topHit: raw.topHit ?? null };
+        const data: APISearchResults = raw.results
+          ? raw
+          : { results: raw, topHit: raw.topHit ?? null };
         const items = transformAPIResults(data);
         setResults(items);
         // Transform topHit if present
@@ -780,9 +810,20 @@ export function GlobalSearch() {
           const thItem: SearchResultItem = {
             id: thData.id ?? "",
             type: thType,
-            title: thData.claimantName ?? thData.fullName ?? thData.title ?? thData.fileName ?? thData.subject ?? "",
+            title:
+              thData.claimantName ??
+              thData.fullName ??
+              thData.title ??
+              thData.fileName ??
+              thData.subject ??
+              "",
             subtitle: thData.caseNumber ?? thData.contactType ?? "",
-            href: thType === "case" ? `/cases/${thData.id}` : thType === "contact" ? `/contacts/${thData.id}` : "/",
+            href:
+              thType === "case"
+                ? `/cases/${thData.id}`
+                : thType === "contact"
+                  ? `/contacts/${thData.id}`
+                  : "/",
           };
           setTopHit(thItem);
         } else {
@@ -1297,7 +1338,16 @@ export function GlobalSearch() {
                           <button
                             key={`${s.type}-${s.id}`}
                             type="button"
-                            onClick={() => navigate(s.href, { id: s.id, type: s.type, title: s.title, subtitle: s.subtitle, href: s.href, timestamp: Date.now() })}
+                            onClick={() =>
+                              navigate(s.href, {
+                                id: s.id,
+                                type: s.type,
+                                title: s.title,
+                                subtitle: s.subtitle,
+                                href: s.href,
+                                timestamp: Date.now(),
+                              })
+                            }
                             className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors duration-75 hover:bg-[#FAFAFA]"
                           >
                             <span className="text-[13px] shrink-0 w-5 text-center">

@@ -28,9 +28,8 @@ const EMPTY: AcBriefWorkspace = {
 
 function urgentCount(data: AcBriefWorkspace): number {
   const active = [...data.pending, ...data.drafting, ...data.inReview];
-  return active.filter(
-    (r) => r.daysRemaining !== null && r.daysRemaining <= 7,
-  ).length;
+  return active.filter((r) => r.daysRemaining !== null && r.daysRemaining <= 7)
+    .length;
 }
 
 export default async function AppealsCouncilPage() {

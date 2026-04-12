@@ -10,7 +10,10 @@ import {
 } from "@/db/schema";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
-import { recordSupervisorEvent, linkArtifactToEvent } from "@/lib/services/supervisor-events";
+import {
+  recordSupervisorEvent,
+  linkArtifactToEvent,
+} from "@/lib/services/supervisor-events";
 import { createNotification } from "@/lib/services/notify";
 import { suggestStagnantCaseNextAction } from "@/lib/services/stagnant-suggestions";
 
@@ -142,10 +145,7 @@ export async function GET(request: NextRequest) {
       // Compute days since last activity using the most recent of
       // stageEnteredAt / updatedAt
       const lastActivity = new Date(
-        Math.max(
-          c.stageEnteredAt.getTime(),
-          c.updatedAt.getTime(),
-        ),
+        Math.max(c.stageEnteredAt.getTime(), c.updatedAt.getTime()),
       );
       const daysIdle = Math.floor(
         (now.getTime() - lastActivity.getTime()) / (24 * 60 * 60 * 1000),
@@ -242,10 +242,7 @@ export async function GET(request: NextRequest) {
     logger.error("Cron stagnant-scan query failed", {
       error: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json(
-      { error: "Query failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
 
   const summary = {

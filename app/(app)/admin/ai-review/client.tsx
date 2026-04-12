@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   FilterIcon,
@@ -171,19 +166,23 @@ export function AiReviewClient({
     });
   }, [initialEntries]);
 
-  const handleApprove = useCallback(async (id: string) => {
-    setBusyId(id);
-    try {
-      await approveExtraction(id);
-      startTransition(() => router.refresh());
-    } finally {
-      setBusyId(null);
-    }
-  }, [router]);
+  const handleApprove = useCallback(
+    async (id: string) => {
+      setBusyId(id);
+      try {
+        await approveExtraction(id);
+        startTransition(() => router.refresh());
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [router],
+  );
 
   const handleReject = useCallback(
     async (id: string) => {
-      const reason = window.prompt("Reason for rejection (optional):") ?? undefined;
+      const reason =
+        window.prompt("Reason for rejection (optional):") ?? undefined;
       setBusyId(id);
       try {
         await rejectExtraction(id, reason);
@@ -551,7 +550,9 @@ function QueueList({
           >
             <HugeiconsIcon icon={AiMagicIcon} size={22} color={BRAND} />
           </div>
-          <p className="text-[14px] font-medium">No extractions in this bucket</p>
+          <p className="text-[14px] font-medium">
+            No extractions in this bucket
+          </p>
           <p className="text-[12px] text-[#666] mt-1">
             New AI extractions will appear here once documents are processed.
           </p>
@@ -722,10 +723,10 @@ function QueueList({
 
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#666]">
                     {entry.providerName && <span>{entry.providerName}</span>}
-                    {entry.eventDate && <span>· {formatDate(entry.eventDate)}</span>}
-                    {entry.caseNumber && (
-                      <span>· Case {entry.caseNumber}</span>
+                    {entry.eventDate && (
+                      <span>· {formatDate(entry.eventDate)}</span>
                     )}
+                    {entry.caseNumber && <span>· Case {entry.caseNumber}</span>}
                     {entry.claimantName && <span>· {entry.claimantName}</span>}
                     {entry.sourceDocumentName && (
                       <span className="truncate max-w-[260px]">
@@ -873,7 +874,10 @@ function QueueList({
                           label="Entry type"
                           value={entry.entryType.replace(/_/g, " ")}
                         />
-                        <Field label="Event date" value={formatDate(entry.eventDate)} />
+                        <Field
+                          label="Event date"
+                          value={formatDate(entry.eventDate)}
+                        />
                         <Field
                           label="Provider"
                           value={entry.providerName ?? "--"}
@@ -907,8 +911,14 @@ function QueueList({
                         entry.treatments.length > 0 ||
                         entry.medications.length > 0) && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <ListBlock title="Diagnoses" items={entry.diagnoses} />
-                          <ListBlock title="Treatments" items={entry.treatments} />
+                          <ListBlock
+                            title="Diagnoses"
+                            items={entry.diagnoses}
+                          />
+                          <ListBlock
+                            title="Treatments"
+                            items={entry.treatments}
+                          />
                           <ListBlock
                             title="Medications"
                             items={entry.medications}
@@ -956,7 +966,8 @@ function QueueList({
                           <span className="font-medium text-[#333]">
                             {entry.verifiedByName}
                           </span>{" "}
-                          {entry.verifiedAt && `on ${formatDate(entry.verifiedAt)}`}
+                          {entry.verifiedAt &&
+                            `on ${formatDate(entry.verifiedAt)}`}
                         </p>
                       )}
                     </>

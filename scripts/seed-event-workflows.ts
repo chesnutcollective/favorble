@@ -351,12 +351,8 @@ async function main() {
   console.log(`  Workflows created this run: ${workflowsCreated}`);
   console.log(`  Workflows skipped (existing): ${workflowsSkipped}`);
   console.log(`  Task templates created this run: ${tasksCreated}`);
-  console.log(
-    `  Total event_detected workflows in DB: ${wfRow?.n ?? 0}`,
-  );
-  console.log(
-    `  Total workflow_task_templates in DB: ${ttRow?.n ?? 0}`,
-  );
+  console.log(`  Total event_detected workflows in DB: ${wfRow?.n ?? 0}`);
+  console.log(`  Total workflow_task_templates in DB: ${ttRow?.n ?? 0}`);
 
   await client.end();
 }

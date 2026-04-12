@@ -18,7 +18,17 @@ import {
   aiDrafts,
 } from "@/db/schema";
 import { callRecordings, callQcReviews } from "@/db/schema/call-qc";
-import { and, eq, gte, lt, lte, isNull, isNotNull, sql, inArray } from "drizzle-orm";
+import {
+  and,
+  eq,
+  gte,
+  lt,
+  lte,
+  isNull,
+  isNotNull,
+  sql,
+  inArray,
+} from "drizzle-orm";
 import { getRoleMetricPack } from "@/lib/services/role-metrics";
 import { logger } from "@/lib/logger/server";
 
@@ -53,7 +63,9 @@ export type CollectorResult = {
   context?: Record<string, unknown>;
 };
 
-export type MetricCollector = (input: CollectorInput) => Promise<CollectorResult>;
+export type MetricCollector = (
+  input: CollectorInput,
+) => Promise<CollectorResult>;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -513,7 +525,11 @@ const contractsSentPerDay: MetricCollector = async ({
   const days = periodDays({ user, periodStart, periodEnd });
   return {
     value: Math.round((total / days) * 100) / 100,
-    context: { total, days, note: "proxied via outbound mail 'contract' notes" },
+    context: {
+      total,
+      days,
+      note: "proxied via outbound mail 'contract' notes",
+    },
   };
 };
 
@@ -886,7 +902,10 @@ const avgTranscriptQcScore: MetricCollector = async ({
       n: sql<number>`count(*)::int`,
     })
     .from(callQcReviews)
-    .innerJoin(callRecordings, eq(callQcReviews.callRecordingId, callRecordings.id))
+    .innerJoin(
+      callRecordings,
+      eq(callQcReviews.callRecordingId, callRecordings.id),
+    )
     .where(
       and(
         eq(callRecordings.userId, user.id),
@@ -904,10 +923,12 @@ const avgTranscriptQcScore: MetricCollector = async ({
 // Fee collection, appeals, pre-hearing, post-hearing, mail clerk, reviewer
 // ---------------------------------------------------------------------------
 
-const stubMetric = (note: string): MetricCollector => async () => ({
-  value: 0,
-  context: { note },
-});
+const stubMetric =
+  (note: string): MetricCollector =>
+  async () => ({
+    value: 0,
+    context: { note },
+  });
 
 // Fee collection
 /**
@@ -935,7 +956,10 @@ const feePetitionFilingDays: MetricCollector = async ({
   const row = result[0];
   const n = safeNumber(row?.n);
   if (n === 0) {
-    return { value: 0, context: { sampleSize: 0, note: "no petitions filed in window" } };
+    return {
+      value: 0,
+      context: { sampleSize: 0, note: "no petitions filed in window" },
+    };
   }
   return {
     value: Math.round(safeNumber(row?.avg_days) * 100) / 100,
@@ -973,11 +997,18 @@ const feeCollectionRate: MetricCollector = async ({
   const collected = safeNumber(rows[0]?.collected);
   const n = safeNumber(rows[0]?.n);
   if (approved === 0) {
-    return { value: 0, context: { sampleSize: n, note: "no approved fees in window" } };
+    return {
+      value: 0,
+      context: { sampleSize: n, note: "no approved fees in window" },
+    };
   }
   return {
     value: Math.round((collected / approved) * 100 * 100) / 100,
-    context: { sampleSize: n, approvedCents: approved, collectedCents: collected },
+    context: {
+      sampleSize: n,
+      approvedCents: approved,
+      collectedCents: collected,
+    },
   };
 };
 
@@ -1011,7 +1042,10 @@ const delinquentFeeFollowupCompliance: MetricCollector = async ({ user }) => {
   const total = safeNumber(row?.total);
   const followed = safeNumber(row?.followed);
   if (total === 0) {
-    return { value: 0, context: { sampleSize: 0, note: "no delinquent petitions" } };
+    return {
+      value: 0,
+      context: { sampleSize: 0, note: "no delinquent petitions" },
+    };
   }
   return {
     value: Math.round((followed / total) * 100 * 100) / 100,
@@ -1438,6 +1472,8 @@ export async function collectAllMetricsForUser(
 /**
  * Expose the raw collector map for advanced use cases (tests, seeders).
  */
-export function getCollectorForMetric(metricKey: string): MetricCollector | null {
+export function getCollectorForMetric(
+  metricKey: string,
+): MetricCollector | null {
   return COLLECTORS[metricKey] ?? null;
 }

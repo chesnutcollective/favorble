@@ -140,7 +140,11 @@ export async function GET(request: NextRequest) {
   }));
 
   // "My stuff" affinity boost. Cases I own, leads assigned to me, etc.
-  const affinityBoosts = buildAffinityBoosts(lexicalRows, semanticRows, principal.userId);
+  const affinityBoosts = buildAffinityBoosts(
+    lexicalRows,
+    semanticRows,
+    principal.userId,
+  );
 
   // Merge with RRF. We treat the identifier list as a lexical prepend:
   // exact-ID hits effectively land at rank 0, guaranteeing top slot.
@@ -376,23 +380,24 @@ function buildScopeFilter(scope: string) {
   return sql`entity_type = ANY(${types}::text[])`;
 }
 
-function buildDateFilter(bucket: ReturnType<typeof dateBucketBounds> extends infer _T ? Parameters<typeof dateBucketBounds>[0] : never) {
+function buildDateFilter(
+  bucket: ReturnType<typeof dateBucketBounds> extends infer _T
+    ? Parameters<typeof dateBucketBounds>[0]
+    : never,
+) {
   const bounds = dateBucketBounds(bucket);
   if (!bounds) return sql`TRUE`;
   const from = bounds.from;
   const to = bounds.to;
-  if (from && to) return sql`entity_updated_at BETWEEN ${from}::timestamptz AND ${to}::timestamptz`;
+  if (from && to)
+    return sql`entity_updated_at BETWEEN ${from}::timestamptz AND ${to}::timestamptz`;
   if (from) return sql`entity_updated_at >= ${from}::timestamptz`;
   if (to) return sql`entity_updated_at <= ${to}::timestamptz`;
   return sql`TRUE`;
 }
 
 /** Derive a deep link for each entity type. */
-function hrefFor(
-  type: EntityType,
-  entityId: string,
-  facets: unknown,
-): string {
+function hrefFor(type: EntityType, entityId: string, facets: unknown): string {
   const f = (facets ?? {}) as Record<string, unknown>;
   switch (type) {
     case "case":
@@ -405,14 +410,13 @@ function hrefFor(
       return `/admin/users`;
     case "document": {
       const caseId = typeof f.case_id === "string" ? f.case_id : null;
-      return caseId
-        ? `/cases/${caseId}/documents`
-        : `/documents`;
+      return caseId ? `/cases/${caseId}/documents` : `/documents`;
     }
     case "document_chunk": {
       const caseId = typeof f.case_id === "string" ? f.case_id : null;
       const docId = typeof f.document_id === "string" ? f.document_id : null;
-      const page = typeof f.page_number === "number" ? f.page_number : undefined;
+      const page =
+        typeof f.page_number === "number" ? f.page_number : undefined;
       if (caseId && docId) {
         const qs = new URLSearchParams({ doc: docId });
         if (page) qs.set("page", String(page));

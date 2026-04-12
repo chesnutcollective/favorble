@@ -60,9 +60,7 @@ async function resolveCaseId(
     .from(cases)
     .where(eq(cases.caseStatusExternalId, caseExternalId))
     .limit(1);
-  return row
-    ? { caseId: row.id, organizationId: row.organizationId }
-    : null;
+  return row ? { caseId: row.id, organizationId: row.organizationId } : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -72,10 +70,7 @@ export async function POST(request: NextRequest) {
 
     if (!verifySignature(signature, rawBody)) {
       logger.error("CallTools webhook signature verification failed");
-      return NextResponse.json(
-        { error: "Invalid signature" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const body = JSON.parse(rawBody) as {

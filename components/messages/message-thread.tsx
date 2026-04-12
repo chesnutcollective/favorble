@@ -61,10 +61,16 @@ type Props = {
   standalone: SerializedMessage[];
   caseId: string;
   isConfigured: boolean;
-  onSendMessage: (data: {
-    caseId: string;
-    body: string;
-  }) => Promise<SerializedMessage | { id: string; type: string; body: string | null; fromAddress: string | null; createdAt: string }>;
+  onSendMessage: (data: { caseId: string; body: string }) => Promise<
+    | SerializedMessage
+    | {
+        id: string;
+        type: string;
+        body: string | null;
+        fromAddress: string | null;
+        createdAt: string;
+      }
+  >;
 };
 
 type DraftState = {
@@ -266,10 +272,7 @@ export function MessageThread({
     });
   }
 
-  function handleApproveDraft(
-    messageId: string,
-    threadIdHint: string | null,
-  ) {
+  function handleApproveDraft(messageId: string, threadIdHint: string | null) {
     const draft = drafts[messageId];
     if (!draft?.draftId) return;
     const draftId = draft.draftId;
@@ -471,13 +474,25 @@ export function MessageThread({
       )}
       {qaError && !qaChecking && (
         <div className="border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 rounded-lg p-3 space-y-2">
-          <p className="text-xs text-amber-700 dark:text-amber-300">{qaError}</p>
+          <p className="text-xs text-amber-700 dark:text-amber-300">
+            {qaError}
+          </p>
           <div className="flex items-center gap-2 justify-end">
-            <Button size="sm" variant="ghost" onClick={handleDismissQa} className="h-7 text-xs">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleDismissQa}
+              className="h-7 text-xs"
+            >
               Dismiss
             </Button>
             {qaPendingSend && (
-              <Button size="sm" variant="outline" onClick={handleSendAnyway} className="h-7 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSendAnyway}
+                className="h-7 text-xs"
+              >
                 Send anyway
               </Button>
             )}
@@ -503,7 +518,9 @@ export function MessageThread({
           </div>
           {qaPreview.issues.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-amber-800 dark:text-amber-200">Issues:</p>
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+                Issues:
+              </p>
               <ul className="text-xs text-amber-700 dark:text-amber-300 list-disc pl-4 space-y-0.5">
                 {qaPreview.issues.map((issue, i) => (
                   <li key={i}>{issue}</li>
@@ -513,7 +530,9 @@ export function MessageThread({
           )}
           {qaPreview.suggestions.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Suggestions:</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Suggestions:
+              </p>
               <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-0.5">
                 {qaPreview.suggestions.map((s, i) => (
                   <li key={i}>{s}</li>
@@ -522,10 +541,20 @@ export function MessageThread({
             </div>
           )}
           <div className="flex items-center gap-2 justify-end">
-            <Button size="sm" variant="ghost" onClick={handleDismissQa} className="h-7 text-xs">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleDismissQa}
+              className="h-7 text-xs"
+            >
               Edit message
             </Button>
-            <Button size="sm" variant="outline" onClick={handleSendAnyway} className="h-7 text-xs">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleSendAnyway}
+              className="h-7 text-xs"
+            >
               Send anyway
             </Button>
           </div>
@@ -567,8 +596,7 @@ export function MessageThread({
         const isCollapsed = collapsed[group.summary.threadId] ?? false;
         const chronological = [...group.messages].sort(
           (a, b) =>
-            new Date(a.createdAt).getTime() -
-            new Date(b.createdAt).getTime(),
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
         );
         return (
           <div
@@ -706,14 +734,10 @@ function renderMessage({
   const draft = drafts[msg.id];
   return (
     <div key={msg.id} className="space-y-2">
-      <div
-        className={`flex ${isInbound ? "justify-start" : "justify-end"}`}
-      >
+      <div className={`flex ${isInbound ? "justify-start" : "justify-end"}`}>
         <div
           className={`max-w-[80%] rounded-lg p-3 ${
-            isInbound
-              ? "bg-muted text-foreground"
-              : "bg-blue-600 text-white"
+            isInbound ? "bg-muted text-foreground" : "bg-blue-600 text-white"
           } ${isOptimistic ? "opacity-60" : ""}`}
         >
           <div className="flex items-center gap-2 mb-1">
@@ -788,9 +812,7 @@ function renderMessage({
             <>
               <Textarea
                 value={draft.body}
-                onChange={(e) =>
-                  handleDraftBodyChange(msg.id, e.target.value)
-                }
+                onChange={(e) => handleDraftBodyChange(msg.id, e.target.value)}
                 rows={6}
                 placeholder="AI draft will appear here. Edit as needed, then approve to send."
                 className="text-sm"

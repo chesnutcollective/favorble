@@ -92,9 +92,7 @@ export async function autoLinkContactsFromExtraction(
         organizationId: documents.organizationId,
       })
       .from(documents)
-      .where(
-        and(eq(documents.id, documentId), isNull(documents.deletedAt)),
-      )
+      .where(and(eq(documents.id, documentId), isNull(documents.deletedAt)))
       .limit(1);
 
     if (!doc || !doc.caseId) {

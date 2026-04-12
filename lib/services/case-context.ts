@@ -194,17 +194,14 @@ export async function buildCaseContext(
         transitionedByLast: users.lastName,
       })
       .from(caseStageTransitions)
-      .leftJoin(
-        caseStages,
-        eq(caseStageTransitions.toStageId, caseStages.id),
-      )
+      .leftJoin(caseStages, eq(caseStageTransitions.toStageId, caseStages.id))
       .leftJoin(users, eq(caseStageTransitions.transitionedBy, users.id))
       .where(eq(caseStageTransitions.caseId, caseId))
       .orderBy(desc(caseStageTransitions.transitionedAt))
       .limit(stageLimit);
 
-    const stageHistory: CaseContextBundle["stageHistory"] = stageHistoryRows.map(
-      (r) => ({
+    const stageHistory: CaseContextBundle["stageHistory"] =
+      stageHistoryRows.map((r) => ({
         stageName: r.stageName,
         stageCode: r.stageCode,
         transitionedAt: r.transitionedAt,
@@ -212,13 +209,14 @@ export async function buildCaseContext(
           r.transitionedByFirst && r.transitionedByLast
             ? `${r.transitionedByFirst} ${r.transitionedByLast}`
             : null,
-      }),
-    );
+      }));
 
     // --- Communications ---
     const commsConditions = [eq(communications.caseId, caseId)];
     if (opts.communicationTypes && opts.communicationTypes.length > 0) {
-      commsConditions.push(inArray(communications.type, opts.communicationTypes));
+      commsConditions.push(
+        inArray(communications.type, opts.communicationTypes),
+      );
     }
     const commsRows = await db
       .select({
@@ -266,9 +264,7 @@ export async function buildCaseContext(
         createdAt: documents.createdAt,
       })
       .from(documents)
-      .where(
-        and(eq(documents.caseId, caseId), isNull(documents.deletedAt)),
-      )
+      .where(and(eq(documents.caseId, caseId), isNull(documents.deletedAt)))
       .orderBy(desc(documents.createdAt))
       .limit(docsLimit);
 

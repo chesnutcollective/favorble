@@ -125,9 +125,7 @@ export async function runPerformanceRollup(opts: {
       usersProcessed: 0,
       teamsProcessed: 0,
       metricsWritten: 0,
-      errors: [
-        { error: err instanceof Error ? err.message : String(err) },
-      ],
+      errors: [{ error: err instanceof Error ? err.message : String(err) }],
     });
   }
 

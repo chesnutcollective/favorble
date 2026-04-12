@@ -308,7 +308,10 @@ export async function logAiDraftEvent(
 const DEBOUNCE_WINDOW_MS = 60_000;
 const debounceCache = new Map<string, number>();
 
-export function shouldAudit(key: string, windowMs = DEBOUNCE_WINDOW_MS): boolean {
+export function shouldAudit(
+  key: string,
+  windowMs = DEBOUNCE_WINDOW_MS,
+): boolean {
   const now = Date.now();
   const last = debounceCache.get(key);
   if (last && now - last < windowMs) {

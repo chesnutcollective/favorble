@@ -26,7 +26,9 @@ const SEVERITY_COLORS: Record<string, string> = {
   critical: "bg-[#3a0000] text-white",
 };
 
-function severityBand(severity: number): "low" | "medium" | "high" | "critical" {
+function severityBand(
+  severity: number,
+): "low" | "medium" | "high" | "critical" {
   if (severity <= 3) return "low";
   if (severity <= 5) return "medium";
   if (severity <= 8) return "high";

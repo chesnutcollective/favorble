@@ -522,8 +522,7 @@ export const ROLE_METRICS: Record<string, RoleMetricPack> = {
       {
         metricKey: "ac_grant_rate",
         label: "AC remand/grant rate",
-        description:
-          "Share of AC submissions that resulted in remand or grant",
+        description: "Share of AC submissions that resulted in remand or grant",
         unit: "percent",
         direction: "higher_is_better",
         targetValue: 25,

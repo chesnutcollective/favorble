@@ -67,7 +67,10 @@ function renderHtml(subject: string, body: string): string {
 
   const paragraphs = body
     .split(/\n{2,}/)
-    .map((p) => `<p style="margin:0 0 12px 0;">${escape(p).replace(/\n/g, "<br>")}</p>`)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 12px 0;">${escape(p).replace(/\n/g, "<br>")}</p>`,
+    )
     .join("");
 
   return `<!doctype html>
@@ -147,7 +150,9 @@ async function getUserPhone(userId: string): Promise<string | null> {
       sql`select phone from users where id = ${userId} limit 1`,
     );
     // postgres-js returns an array-like of rows
-    const rows = Array.isArray(result) ? result : (result as unknown as { rows?: unknown[] }).rows;
+    const rows = Array.isArray(result)
+      ? result
+      : (result as unknown as { rows?: unknown[] }).rows;
     const first = (rows as Array<{ phone: string | null }> | undefined)?.[0];
     return first?.phone ?? null;
   } catch (err) {

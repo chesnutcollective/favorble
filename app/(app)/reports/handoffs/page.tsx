@@ -118,8 +118,8 @@ export default async function HandoffsPage() {
                           r.avgHours <= 24
                             ? COLORS.ok
                             : r.avgHours <= 72
-                            ? COLORS.warn
-                            : COLORS.bad,
+                              ? COLORS.warn
+                              : COLORS.bad,
                       }}
                     >
                       {r.avgHours}h avg

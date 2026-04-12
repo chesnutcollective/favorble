@@ -142,7 +142,9 @@ export async function handleSupervisorEvent(
             `What happened: ${event.summary}`,
             actionLine,
             draftNote,
-          ].join("\n").slice(0, 300);
+          ]
+            .join("\n")
+            .slice(0, 300);
           const notifId = await createNotification({
             organizationId: event.organizationId,
             userId: assignee.userId,
@@ -162,7 +164,8 @@ export async function handleSupervisorEvent(
       } catch (notifErr) {
         logger.warn("handleSupervisorEvent: notification failed", {
           eventId,
-          error: notifErr instanceof Error ? notifErr.message : String(notifErr),
+          error:
+            notifErr instanceof Error ? notifErr.message : String(notifErr),
         });
       }
     }

@@ -10,11 +10,7 @@ import { organizations } from "./organizations";
 import { cases } from "./cases";
 import { users } from "./users";
 import { workflowTemplates, workflowTaskTemplates } from "./workflows";
-import {
-  taskStatusEnum,
-  taskPriorityEnum,
-  escalationStateEnum,
-} from "./enums";
+import { taskStatusEnum, taskPriorityEnum, escalationStateEnum } from "./enums";
 
 export const tasks = pgTable(
   "tasks",
@@ -64,10 +60,9 @@ export const tasks = pgTable(
     clientConfirmationAskedAt: timestamp("client_confirmation_asked_at", {
       withTimezone: true,
     }),
-    clientConfirmationAnsweredAt: timestamp(
-      "client_confirmation_answered_at",
-      { withTimezone: true },
-    ),
+    clientConfirmationAnsweredAt: timestamp("client_confirmation_answered_at", {
+      withTimezone: true,
+    }),
     clientConfirmationAnswer: text("client_confirmation_answer"),
 
     createdAt: timestamp("created_at", { withTimezone: true })

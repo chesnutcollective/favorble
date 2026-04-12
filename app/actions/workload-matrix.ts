@@ -15,12 +15,7 @@
 import { and, eq, gt, inArray, isNull, lt, max, sql } from "drizzle-orm";
 
 import { db } from "@/db/drizzle";
-import {
-  caseAssignments,
-  cases,
-  tasks,
-  users,
-} from "@/db/schema";
+import { caseAssignments, cases, tasks, users } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { logger } from "@/lib/logger/server";
 
@@ -178,9 +173,7 @@ export async function getWorkloadMatrix(): Promise<WorkloadRow[]> {
         activeCaseCount: activeCaseByUser.get(u.id) ?? 0,
         lastActivity:
           activityByUser.get(u.id) ??
-          (u.lastLoginAt instanceof Date
-            ? u.lastLoginAt.toISOString()
-            : null),
+          (u.lastLoginAt instanceof Date ? u.lastLoginAt.toISOString() : null),
       }))
       .sort((a, b) => b.overdueTaskCount - a.overdueTaskCount);
   } catch (error) {

@@ -64,15 +64,19 @@ export function ReassignmentList({
                     style={{ color: COLORS.text2 }}
                   >
                     Move from{" "}
-                    <span style={{ color: COLORS.text1 }}>{s.fromUserName}</span>{" "}
-                    → <span style={{ color: COLORS.text1 }}>{s.toUserName}</span>
+                    <span style={{ color: COLORS.text1 }}>
+                      {s.fromUserName}
+                    </span>{" "}
+                    →{" "}
+                    <span style={{ color: COLORS.text1 }}>{s.toUserName}</span>
                   </p>
                   <p
                     className="text-[11px] mt-0.5"
                     style={{ color: COLORS.text3 }}
                   >
                     {s.reason}
-                    {s.dueDate && ` · due ${new Date(s.dueDate).toLocaleDateString()}`}
+                    {s.dueDate &&
+                      ` · due ${new Date(s.dueDate).toLocaleDateString()}`}
                   </p>
                   {s.rationale && (
                     <p
@@ -102,7 +106,9 @@ export function ReassignmentList({
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={!canReassign || isPending || state === "applying"}
+                      disabled={
+                        !canReassign || isPending || state === "applying"
+                      }
                       onClick={() => handleApply(s)}
                     >
                       {state === "applying" ? "Applying…" : "Apply"}

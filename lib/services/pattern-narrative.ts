@@ -31,10 +31,7 @@ type PatternNarrativeInput = {
   };
 };
 
-const cache = new Map<
-  string,
-  { narrative: string; expiresAt: number }
->();
+const cache = new Map<string, { narrative: string; expiresAt: number }>();
 const TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 function cacheKey(input: PatternNarrativeInput): string {

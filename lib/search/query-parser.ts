@@ -140,7 +140,9 @@ export function parseQuery(raw: string): ParsedQuery {
           dateBucket = key === "before" ? { to: value } : { from: value };
         } else if (/^\d{4}$/.test(value)) {
           dateBucket =
-            key === "before" ? { to: `${value}-12-31` } : { from: `${value}-01-01` };
+            key === "before"
+              ? { to: `${value}-12-31` }
+              : { from: `${value}-01-01` };
         }
         continue;
       }
@@ -167,9 +169,13 @@ export function parseQuery(raw: string): ParsedQuery {
 }
 
 function detectDirectIdentifier(raw: string):
-  | { kind: "case_number" | "ssa_doc_id" | "ssn_last4" | "icd10" | "email"; value: string }
+  | {
+      kind: "case_number" | "ssa_doc_id" | "ssn_last4" | "icd10" | "email";
+      value: string;
+    }
   | undefined {
-  if (RX.caseNumber.test(raw)) return { kind: "case_number", value: raw.toUpperCase() };
+  if (RX.caseNumber.test(raw))
+    return { kind: "case_number", value: raw.toUpperCase() };
   if (RX.ssaDocId.test(raw)) return { kind: "ssa_doc_id", value: raw };
   if (RX.icd10.test(raw)) return { kind: "icd10", value: raw.toUpperCase() };
   if (RX.email.test(raw)) return { kind: "email", value: raw.toLowerCase() };
@@ -181,9 +187,9 @@ function detectDirectIdentifier(raw: string):
  * Convert a DateBucket to an inclusive `[from, to]` pair in ISO format.
  * Used by the SQL layer to build range predicates.
  */
-export function dateBucketBounds(bucket: DateBucket | undefined):
-  | { from: string | null; to: string | null }
-  | null {
+export function dateBucketBounds(
+  bucket: DateBucket | undefined,
+): { from: string | null; to: string | null } | null {
   if (!bucket) return null;
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

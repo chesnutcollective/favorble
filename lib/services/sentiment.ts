@@ -211,7 +211,9 @@ export async function analyzeCommunicationSentiment(
 export function enqueueCommunicationAnalysis(input: {
   communicationId: string;
 }): void {
-  logger.info("sentiment: enqueued", { communicationId: input.communicationId });
+  logger.info("sentiment: enqueued", {
+    communicationId: input.communicationId,
+  });
 
   after(async () => {
     try {

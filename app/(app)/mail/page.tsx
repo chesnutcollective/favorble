@@ -10,10 +10,7 @@
  */
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
-import {
-  getInboundMailQueue,
-  getOutboundMailQueue,
-} from "@/app/actions/mail";
+import { getInboundMailQueue, getOutboundMailQueue } from "@/app/actions/mail";
 import { MailWorkspaceClient } from "./client";
 
 export const metadata: Metadata = {

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { IntegrationsStatus, ServiceHealth } from "@/lib/services/integrations-status";
+import type {
+  IntegrationsStatus,
+  ServiceHealth,
+} from "@/lib/services/integrations-status";
 
 const COCKPIT_CSS = `
 .cockpit-root{
@@ -197,475 +200,485 @@ const COCKPIT_CSS = `
 `;
 
 function StatusDot({ status }: { status: ServiceHealth["status"] }) {
-	return <span className={`cp-dot ${status}`} />;
+  return <span className={`cp-dot ${status}`} />;
 }
 
 function ServiceCard({ svc }: { svc: ServiceHealth }) {
-	return (
-		<div className={`cp-svc ${svc.status}`}>
-			<div className="cp-svc-head">
-				<StatusDot status={svc.status} />
-				<span className="cp-svc-name">{svc.name}</span>
-				<span className="cp-svc-env">{svc.env}</span>
-			</div>
-			<div className="cp-svc-meta">
-				{svc.meta.map((m) => (
-					<span key={m.label} className="cp-svc-meta-item">
-						<span className="cp-svc-meta-label">{m.label}</span> {m.value}
-					</span>
-				))}
-			</div>
-			<div className="cp-svc-footer">
-				<span className={`cp-svc-health ${svc.healthClass ?? ""}`}>
-					{svc.health}
-				</span>
-				{svc.action &&
-					(svc.url ? (
-						<a
-							href={svc.url}
-							className={`cp-svc-run ${svc.action.variant === "danger" ? "danger" : ""}`}
-						>
-							{svc.action.label}
-						</a>
-					) : (
-						<button
-							type="button"
-							className={`cp-svc-run ${svc.action.variant === "danger" ? "danger" : ""}`}
-						>
-							{svc.action.label}
-						</button>
-					))}
-			</div>
-		</div>
-	);
+  return (
+    <div className={`cp-svc ${svc.status}`}>
+      <div className="cp-svc-head">
+        <StatusDot status={svc.status} />
+        <span className="cp-svc-name">{svc.name}</span>
+        <span className="cp-svc-env">{svc.env}</span>
+      </div>
+      <div className="cp-svc-meta">
+        {svc.meta.map((m) => (
+          <span key={m.label} className="cp-svc-meta-item">
+            <span className="cp-svc-meta-label">{m.label}</span> {m.value}
+          </span>
+        ))}
+      </div>
+      <div className="cp-svc-footer">
+        <span className={`cp-svc-health ${svc.healthClass ?? ""}`}>
+          {svc.health}
+        </span>
+        {svc.action &&
+          (svc.url ? (
+            <a
+              href={svc.url}
+              className={`cp-svc-run ${svc.action.variant === "danger" ? "danger" : ""}`}
+            >
+              {svc.action.label}
+            </a>
+          ) : (
+            <button
+              type="button"
+              className={`cp-svc-run ${svc.action.variant === "danger" ? "danger" : ""}`}
+            >
+              {svc.action.label}
+            </button>
+          ))}
+      </div>
+    </div>
+  );
 }
 
-export function IntegrationsCockpit({ status }: { status: IntegrationsStatus }) {
-	const [clock, setClock] = useState(status.nowUtc);
-	const [since, setSince] = useState(2);
+export function IntegrationsCockpit({
+  status,
+}: {
+  status: IntegrationsStatus;
+}) {
+  const [clock, setClock] = useState(status.nowUtc);
+  const [since, setSince] = useState(2);
 
-	useEffect(() => {
-		const tick = () => {
-			const d = new Date();
-			const pad = (n: number) => String(n).padStart(2, "0");
-			setClock(
-				`${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`,
-			);
-			setSince((s) => (s + 1) % 60);
-		};
-		tick();
-		const id = setInterval(tick, 1000);
-		return () => clearInterval(id);
-	}, []);
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      setClock(
+        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`,
+      );
+      setSince((s) => (s + 1) % 60);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
-	const okCount = status.services.filter((s) => s.status === "ok").length;
-	const warnCount = status.services.filter((s) => s.status === "warn").length;
-	const badCount = status.services.filter((s) => s.status === "bad").length;
-	const offCount = status.services.filter((s) => s.status === "off").length;
+  const okCount = status.services.filter((s) => s.status === "ok").length;
+  const warnCount = status.services.filter((s) => s.status === "warn").length;
+  const badCount = status.services.filter((s) => s.status === "bad").length;
+  const offCount = status.services.filter((s) => s.status === "off").length;
 
-	return (
-		<>
-			<style dangerouslySetInnerHTML={{ __html: COCKPIT_CSS }} />
-			<div className="cockpit-root">
-				<div className="cp-app">
-					{/* TOPBAR */}
-					<div className="cp-topbar">
-						<div className="cp-brand">
-							<div className="cp-eyebrow">
-								Favorble · Admin · Operations Cockpit
-							</div>
-							<div className="cp-title">Integrations &amp; Systems</div>
-						</div>
-						<div className="cp-spacer" />
-						<div className="cp-meta">
-							<div className="cp-meta-item">
-								<span className="cp-meta-label">ENV</span>
-								<span>staging</span>
-							</div>
-							<div className="cp-vr" />
-							<div className="cp-meta-item">
-								<span className="cp-meta-label">REGION</span>
-								<span>us-east4</span>
-							</div>
-							<div className="cp-vr" />
-							<div className="cp-meta-item">
-								<span className="cp-meta-label">UTC</span>
-								<span>{clock}</span>
-							</div>
-						</div>
-						<div className="cp-live">
-							<span className="cp-live-dot" />
-							Live
-						</div>
-						<button
-							type="button"
-							className="cp-refresh"
-							onClick={() => window.location.reload()}
-						>
-							<svg
-								viewBox="0 0 16 16"
-								width={12}
-								height={12}
-								fill="none"
-								stroke="currentColor"
-								strokeWidth={1.5}
-								aria-hidden="true"
-							>
-								<path d="M13.5 8A5.5 5.5 0 1 1 12.5 4.5" />
-								<path d="M13 2v3h-3" />
-							</svg>
-							Refresh
-						</button>
-					</div>
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: COCKPIT_CSS }} />
+      <div className="cockpit-root">
+        <div className="cp-app">
+          {/* TOPBAR */}
+          <div className="cp-topbar">
+            <div className="cp-brand">
+              <div className="cp-eyebrow">
+                Favorble · Admin · Operations Cockpit
+              </div>
+              <div className="cp-title">Integrations &amp; Systems</div>
+            </div>
+            <div className="cp-spacer" />
+            <div className="cp-meta">
+              <div className="cp-meta-item">
+                <span className="cp-meta-label">ENV</span>
+                <span>staging</span>
+              </div>
+              <div className="cp-vr" />
+              <div className="cp-meta-item">
+                <span className="cp-meta-label">REGION</span>
+                <span>us-east4</span>
+              </div>
+              <div className="cp-vr" />
+              <div className="cp-meta-item">
+                <span className="cp-meta-label">UTC</span>
+                <span>{clock}</span>
+              </div>
+            </div>
+            <div className="cp-live">
+              <span className="cp-live-dot" />
+              Live
+            </div>
+            <button
+              type="button"
+              className="cp-refresh"
+              onClick={() => window.location.reload()}
+            >
+              <svg
+                viewBox="0 0 16 16"
+                width={12}
+                height={12}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              >
+                <path d="M13.5 8A5.5 5.5 0 1 1 12.5 4.5" />
+                <path d="M13 2v3h-3" />
+              </svg>
+              Refresh
+            </button>
+          </div>
 
-					{/* ALERTS */}
-					{status.alerts.map((alert, i) => (
-						<div key={i} className="cp-alert">
-							<div className="cp-alert-icon">!</div>
-							<div className="cp-alert-body">
-								<div className="cp-alert-title">{alert.title}</div>
-								<div className="cp-alert-desc">{alert.desc}</div>
-							</div>
-							<div className="cp-alert-actions">
-								<button type="button" className="cp-btn-ghost">
-									View logs
-								</button>
-								<button type="button" className="cp-btn-danger">
-									Restart service
-								</button>
-							</div>
-						</div>
-					))}
+          {/* ALERTS */}
+          {status.alerts.map((alert, i) => (
+            <div key={i} className="cp-alert">
+              <div className="cp-alert-icon">!</div>
+              <div className="cp-alert-body">
+                <div className="cp-alert-title">{alert.title}</div>
+                <div className="cp-alert-desc">{alert.desc}</div>
+              </div>
+              <div className="cp-alert-actions">
+                <button type="button" className="cp-btn-ghost">
+                  View logs
+                </button>
+                <button type="button" className="cp-btn-danger">
+                  Restart service
+                </button>
+              </div>
+            </div>
+          ))}
 
-					{/* COUNTERS */}
-					<div className="cp-counters">
-						<div className="cp-counter">
-							<div className="cp-counter-label">Cases</div>
-							<div className="cp-counter-val">
-								{status.counts.cases.toLocaleString()}
-							</div>
-						</div>
-						<div className="cp-counter">
-							<div className="cp-counter-label">Contacts</div>
-							<div className="cp-counter-val">
-								{status.counts.contacts.toLocaleString()}
-							</div>
-						</div>
-						<div className={`cp-counter ${status.counts.ereJobs === 0 ? "warn" : ""}`}>
-							<div className="cp-counter-label">ERE Jobs</div>
-							<div className="cp-counter-val">
-								{status.counts.ereJobs}
-								{status.counts.ereJobsFailed > 0 && (
-									<span className="cp-counter-delta down">
-										{status.counts.ereJobsFailed} fail
-									</span>
-								)}
-							</div>
-						</div>
-						<div className="cp-counter">
-							<div className="cp-counter-label">AI Extractions</div>
-							<div className="cp-counter-val">
-								{status.counts.processingResults}
-							</div>
-						</div>
-						<div
-							className={`cp-counter ${status.n8n.active === 0 ? "warn" : ""}`}
-						>
-							<div className="cp-counter-label">Workflows up</div>
-							<div className="cp-counter-val">
-								{status.n8n.active}
-								<span className="cp-counter-unit">/{status.n8n.total}</span>
-							</div>
-						</div>
-						<div className="cp-counter">
-							<div className="cp-counter-label">Chronology</div>
-							<div className="cp-counter-val">{status.counts.chronology}</div>
-						</div>
-						<div className="cp-counter">
-							<div className="cp-counter-label">Documents</div>
-							<div className="cp-counter-val">{status.counts.documents}</div>
-						</div>
-						<div className="cp-counter">
-							<div className="cp-counter-label">Tasks</div>
-							<div className="cp-counter-val">{status.counts.tasks}</div>
-						</div>
-					</div>
+          {/* COUNTERS */}
+          <div className="cp-counters">
+            <div className="cp-counter">
+              <div className="cp-counter-label">Cases</div>
+              <div className="cp-counter-val">
+                {status.counts.cases.toLocaleString()}
+              </div>
+            </div>
+            <div className="cp-counter">
+              <div className="cp-counter-label">Contacts</div>
+              <div className="cp-counter-val">
+                {status.counts.contacts.toLocaleString()}
+              </div>
+            </div>
+            <div
+              className={`cp-counter ${status.counts.ereJobs === 0 ? "warn" : ""}`}
+            >
+              <div className="cp-counter-label">ERE Jobs</div>
+              <div className="cp-counter-val">
+                {status.counts.ereJobs}
+                {status.counts.ereJobsFailed > 0 && (
+                  <span className="cp-counter-delta down">
+                    {status.counts.ereJobsFailed} fail
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="cp-counter">
+              <div className="cp-counter-label">AI Extractions</div>
+              <div className="cp-counter-val">
+                {status.counts.processingResults}
+              </div>
+            </div>
+            <div
+              className={`cp-counter ${status.n8n.active === 0 ? "warn" : ""}`}
+            >
+              <div className="cp-counter-label">Workflows up</div>
+              <div className="cp-counter-val">
+                {status.n8n.active}
+                <span className="cp-counter-unit">/{status.n8n.total}</span>
+              </div>
+            </div>
+            <div className="cp-counter">
+              <div className="cp-counter-label">Chronology</div>
+              <div className="cp-counter-val">{status.counts.chronology}</div>
+            </div>
+            <div className="cp-counter">
+              <div className="cp-counter-label">Documents</div>
+              <div className="cp-counter-val">{status.counts.documents}</div>
+            </div>
+            <div className="cp-counter">
+              <div className="cp-counter-label">Tasks</div>
+              <div className="cp-counter-val">{status.counts.tasks}</div>
+            </div>
+          </div>
 
-					{/* MAIN GRID */}
-					<div className="cp-main">
-						<section className="cp-card">
-							<div className="cp-card-header">
-								<span className="cp-card-title">Service Health</span>
-								<span className="cp-card-meta">
-									· {status.services.length} services monitored
-								</span>
-								<div className="cp-card-spacer" />
-								<span className="cp-tag green">{okCount} OK</span>
-								{warnCount > 0 && (
-									<span className="cp-tag amber">{warnCount} WARN</span>
-								)}
-								{badCount > 0 && (
-									<span className="cp-tag red">{badCount} DOWN</span>
-								)}
-								{offCount > 0 && (
-									<span className="cp-tag neutral">{offCount} OFF</span>
-								)}
-							</div>
-							<div className="cp-services-body">
-								<div className="cp-services-grid">
-									{status.services.map((svc) => (
-										<ServiceCard key={svc.name} svc={svc} />
-									))}
-								</div>
-							</div>
-						</section>
+          {/* MAIN GRID */}
+          <div className="cp-main">
+            <section className="cp-card">
+              <div className="cp-card-header">
+                <span className="cp-card-title">Service Health</span>
+                <span className="cp-card-meta">
+                  · {status.services.length} services monitored
+                </span>
+                <div className="cp-card-spacer" />
+                <span className="cp-tag green">{okCount} OK</span>
+                {warnCount > 0 && (
+                  <span className="cp-tag amber">{warnCount} WARN</span>
+                )}
+                {badCount > 0 && (
+                  <span className="cp-tag red">{badCount} DOWN</span>
+                )}
+                {offCount > 0 && (
+                  <span className="cp-tag neutral">{offCount} OFF</span>
+                )}
+              </div>
+              <div className="cp-services-body">
+                <div className="cp-services-grid">
+                  {status.services.map((svc) => (
+                    <ServiceCard key={svc.name} svc={svc} />
+                  ))}
+                </div>
+              </div>
+            </section>
 
-						<section className="cp-card">
-							<div className="cp-card-header">
-								<span className="cp-card-title">Recent Activity</span>
-								<span className="cp-card-meta">· last events</span>
-								<div className="cp-card-spacer" />
-								<span className="cp-live">
-									<span className="cp-live-dot" />
-									Streaming
-								</span>
-							</div>
-							<div className="cp-feed-body">
-								{status.activity.length === 0 && (
-									<div className="cp-feed-item info">
-										<span className="cp-feed-time">—</span>
-										<span className="cp-feed-icon info">··</span>
-										<div className="cp-feed-content">
-											<div className="cp-feed-line">No recent activity</div>
-											<div className="cp-feed-sub">
-												Events will appear here once jobs run
-											</div>
-										</div>
-									</div>
-								)}
-								{status.activity.map((item) => {
-									const ts = new Date(item.timestamp);
-									const now = Date.now();
-									const diffMs = now - ts.getTime();
-									let timeLabel: string;
-									if (diffMs < 60_000) timeLabel = "now";
-									else if (diffMs < 3_600_000)
-										timeLabel = `${Math.floor(diffMs / 60_000)}m`;
-									else if (diffMs < 86_400_000)
-										timeLabel = `${Math.floor(diffMs / 3_600_000)}h`;
-									else timeLabel = `${Math.floor(diffMs / 86_400_000)}d`;
-									return (
-										<div key={item.id} className={`cp-feed-item ${item.status}`}>
-											<span className="cp-feed-time">{timeLabel}</span>
-											<span className={`cp-feed-icon ${item.status}`}>
-												{item.iconLabel}
-											</span>
-											<div className="cp-feed-content">
-												<div className="cp-feed-line">{item.message}</div>
-												{item.detail && (
-													<div
-														className={`cp-feed-sub ${item.status === "bad" ? "bad" : ""}`}
-													>
-														{item.detail}
-													</div>
-												)}
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						</section>
-					</div>
+            <section className="cp-card">
+              <div className="cp-card-header">
+                <span className="cp-card-title">Recent Activity</span>
+                <span className="cp-card-meta">· last events</span>
+                <div className="cp-card-spacer" />
+                <span className="cp-live">
+                  <span className="cp-live-dot" />
+                  Streaming
+                </span>
+              </div>
+              <div className="cp-feed-body">
+                {status.activity.length === 0 && (
+                  <div className="cp-feed-item info">
+                    <span className="cp-feed-time">—</span>
+                    <span className="cp-feed-icon info">··</span>
+                    <div className="cp-feed-content">
+                      <div className="cp-feed-line">No recent activity</div>
+                      <div className="cp-feed-sub">
+                        Events will appear here once jobs run
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {status.activity.map((item) => {
+                  const ts = new Date(item.timestamp);
+                  const now = Date.now();
+                  const diffMs = now - ts.getTime();
+                  let timeLabel: string;
+                  if (diffMs < 60_000) timeLabel = "now";
+                  else if (diffMs < 3_600_000)
+                    timeLabel = `${Math.floor(diffMs / 60_000)}m`;
+                  else if (diffMs < 86_400_000)
+                    timeLabel = `${Math.floor(diffMs / 3_600_000)}h`;
+                  else timeLabel = `${Math.floor(diffMs / 86_400_000)}d`;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`cp-feed-item ${item.status}`}
+                    >
+                      <span className="cp-feed-time">{timeLabel}</span>
+                      <span className={`cp-feed-icon ${item.status}`}>
+                        {item.iconLabel}
+                      </span>
+                      <div className="cp-feed-content">
+                        <div className="cp-feed-line">{item.message}</div>
+                        {item.detail && (
+                          <div
+                            className={`cp-feed-sub ${item.status === "bad" ? "bad" : ""}`}
+                          >
+                            {item.detail}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
 
-					{/* BOTTOM */}
-					<div className="cp-bottom">
-						<section className="cp-card">
-							<div className="cp-card-header">
-								<span className="cp-card-title">n8n Workflows</span>
-								<span className="cp-card-meta">
-									· {status.n8n.total} total
-								</span>
-								<div className="cp-card-spacer" />
-								<span
-									className={`cp-tag ${status.n8n.active === 0 ? "amber" : "green"}`}
-								>
-									{status.n8n.active} active
-								</span>
-								{status.n8n.placeholders > 0 && (
-									<span className="cp-tag neutral">
-										{status.n8n.placeholders} TODO
-									</span>
-								)}
-							</div>
-							<div className="cp-wf-body">
-								<div className="cp-wf-summary">
-									<div className="cp-wf-big">
-										{status.n8n.active}
-										<span className="sub">/{status.n8n.total}</span>
-									</div>
-									<div className="cp-wf-st">
-										<div className="cp-wf-st-title">
-											{!status.n8n.reachable
-												? "n8n unreachable"
-												: status.n8n.active === 0
-													? "No workflows enabled"
-													: `${status.n8n.active} workflow(s) running`}
-										</div>
-										<div className="cp-wf-st-desc">
-											{status.n8n.total - status.n8n.placeholders} scaffolded +{" "}
-											{status.n8n.placeholders} placeholder
-										</div>
-									</div>
-									<a
-										href="https://n8n-staging-b24a.up.railway.app/"
-										target="_blank"
-										rel="noreferrer"
-										className="cp-wf-enable"
-									>
-										Open n8n
-									</a>
-								</div>
-								<div className="cp-wf-list">
-									{status.n8n.workflows.length === 0 && (
-										<div className="cp-wf-item">
-											<span className="cp-wf-name">
-												No workflows returned by n8n API
-											</span>
-										</div>
-									)}
-									{status.n8n.workflows.slice(0, 9).map((wf) => {
-										let lastLabel = "never";
-										if (wf.lastExecution) {
-											const diff = Date.now() - new Date(wf.lastExecution).getTime();
-											if (diff < 3_600_000)
-												lastLabel = `${Math.floor(diff / 60_000)}m ago`;
-											else if (diff < 86_400_000)
-												lastLabel = `${Math.floor(diff / 3_600_000)}h ago`;
-											else lastLabel = `${Math.floor(diff / 86_400_000)}d ago`;
-										}
-										return (
-											<div key={wf.id} className="cp-wf-item">
-												<div className={`cp-toggle ${wf.active ? "on" : ""}`} />
-												<span className="cp-wf-name">{wf.name}</span>
-												<span className="cp-wf-trig">{wf.trigger}</span>
-												<span className="cp-wf-last">{lastLabel}</span>
-											</div>
-										);
-									})}
-									{status.n8n.workflows.length > 9 && (
-										<div className="cp-wf-item" style={{ opacity: 0.7 }}>
-											<div className="cp-toggle" />
-											<span className="cp-wf-name">
-												+ {status.n8n.workflows.length - 9} more workflows
-											</span>
-											<span className="cp-wf-trig">mixed</span>
-											<span className="cp-wf-last">—</span>
-										</div>
-									)}
-								</div>
-							</div>
-						</section>
+          {/* BOTTOM */}
+          <div className="cp-bottom">
+            <section className="cp-card">
+              <div className="cp-card-header">
+                <span className="cp-card-title">n8n Workflows</span>
+                <span className="cp-card-meta">· {status.n8n.total} total</span>
+                <div className="cp-card-spacer" />
+                <span
+                  className={`cp-tag ${status.n8n.active === 0 ? "amber" : "green"}`}
+                >
+                  {status.n8n.active} active
+                </span>
+                {status.n8n.placeholders > 0 && (
+                  <span className="cp-tag neutral">
+                    {status.n8n.placeholders} TODO
+                  </span>
+                )}
+              </div>
+              <div className="cp-wf-body">
+                <div className="cp-wf-summary">
+                  <div className="cp-wf-big">
+                    {status.n8n.active}
+                    <span className="sub">/{status.n8n.total}</span>
+                  </div>
+                  <div className="cp-wf-st">
+                    <div className="cp-wf-st-title">
+                      {!status.n8n.reachable
+                        ? "n8n unreachable"
+                        : status.n8n.active === 0
+                          ? "No workflows enabled"
+                          : `${status.n8n.active} workflow(s) running`}
+                    </div>
+                    <div className="cp-wf-st-desc">
+                      {status.n8n.total - status.n8n.placeholders} scaffolded +{" "}
+                      {status.n8n.placeholders} placeholder
+                    </div>
+                  </div>
+                  <a
+                    href="https://n8n-staging-b24a.up.railway.app/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="cp-wf-enable"
+                  >
+                    Open n8n
+                  </a>
+                </div>
+                <div className="cp-wf-list">
+                  {status.n8n.workflows.length === 0 && (
+                    <div className="cp-wf-item">
+                      <span className="cp-wf-name">
+                        No workflows returned by n8n API
+                      </span>
+                    </div>
+                  )}
+                  {status.n8n.workflows.slice(0, 9).map((wf) => {
+                    let lastLabel = "never";
+                    if (wf.lastExecution) {
+                      const diff =
+                        Date.now() - new Date(wf.lastExecution).getTime();
+                      if (diff < 3_600_000)
+                        lastLabel = `${Math.floor(diff / 60_000)}m ago`;
+                      else if (diff < 86_400_000)
+                        lastLabel = `${Math.floor(diff / 3_600_000)}h ago`;
+                      else lastLabel = `${Math.floor(diff / 86_400_000)}d ago`;
+                    }
+                    return (
+                      <div key={wf.id} className="cp-wf-item">
+                        <div className={`cp-toggle ${wf.active ? "on" : ""}`} />
+                        <span className="cp-wf-name">{wf.name}</span>
+                        <span className="cp-wf-trig">{wf.trigger}</span>
+                        <span className="cp-wf-last">{lastLabel}</span>
+                      </div>
+                    );
+                  })}
+                  {status.n8n.workflows.length > 9 && (
+                    <div className="cp-wf-item" style={{ opacity: 0.7 }}>
+                      <div className="cp-toggle" />
+                      <span className="cp-wf-name">
+                        + {status.n8n.workflows.length - 9} more workflows
+                      </span>
+                      <span className="cp-wf-trig">mixed</span>
+                      <span className="cp-wf-last">—</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
 
-						<section className="cp-card">
-							<div className="cp-card-header">
-								<span className="cp-card-title">Queue Depths</span>
-								<span className="cp-card-meta">· BullMQ · Redis</span>
-								<div className="cp-card-spacer" />
-								<span className="cp-live">
-									<span className="cp-live-dot" />
-									Live
-								</span>
-							</div>
-							<div className="cp-q-body">
-								<div className="cp-q-item">
-									<div className="cp-q-head">
-										<span className="cp-q-name">langextract</span>
-										<span className="cp-q-count">0 jobs</span>
-									</div>
-									<div className="cp-q-bar">
-										<div className="cp-q-seg" style={{ width: "0%" }} />
-									</div>
-									<div className="cp-q-stats">
-										<span>
-											· {status.counts.processingResults} completed ·{" "}
-											{status.counts.chronology} chronology
-										</span>
-									</div>
-								</div>
-								<div className="cp-q-item">
-									<div className="cp-q-head">
-										<span className="cp-q-name">doc-processing</span>
-										<span className="cp-q-count">0 jobs</span>
-									</div>
-									<div className="cp-q-bar">
-										<div className="cp-q-seg" style={{ width: "0%" }} />
-									</div>
-									<div className="cp-q-stats">
-										<span>idle · waiting for ERE credentials</span>
-									</div>
-								</div>
-								<div className="cp-q-item">
-									<div className="cp-q-head">
-										<span className="cp-q-name">ere-fetch</span>
-										<span className="cp-q-count">{status.counts.ereJobs} jobs</span>
-									</div>
-									<div className="cp-q-bar">
-										{status.counts.ereJobsFailed > 0 && (
-											<div
-												className="cp-q-seg failed"
-												style={{ width: "100%" }}
-											/>
-										)}
-									</div>
-									<div className="cp-q-stats">
-										{status.counts.ereJobs === 0 ? (
-											<span>blocked by ere-cron · 0 credentials stored</span>
-										) : (
-											<>
-												<span className="failed">
-													{status.counts.ereJobsFailed} failed
-												</span>
-												<span>· {status.counts.ereJobs} total</span>
-											</>
-										)}
-									</div>
-								</div>
-								<div className="cp-q-item">
-									<div className="cp-q-head">
-										<span className="cp-q-name">email-ingest</span>
-										<span className="cp-q-count">0 jobs</span>
-									</div>
-									<div className="cp-q-bar">
-										<div className="cp-q-seg" style={{ width: "0%" }} />
-									</div>
-									<div className="cp-q-stats">
-										<span>idle · Outlook not linked</span>
-									</div>
-								</div>
-							</div>
-						</section>
-					</div>
+            <section className="cp-card">
+              <div className="cp-card-header">
+                <span className="cp-card-title">Queue Depths</span>
+                <span className="cp-card-meta">· BullMQ · Redis</span>
+                <div className="cp-card-spacer" />
+                <span className="cp-live">
+                  <span className="cp-live-dot" />
+                  Live
+                </span>
+              </div>
+              <div className="cp-q-body">
+                <div className="cp-q-item">
+                  <div className="cp-q-head">
+                    <span className="cp-q-name">langextract</span>
+                    <span className="cp-q-count">0 jobs</span>
+                  </div>
+                  <div className="cp-q-bar">
+                    <div className="cp-q-seg" style={{ width: "0%" }} />
+                  </div>
+                  <div className="cp-q-stats">
+                    <span>
+                      · {status.counts.processingResults} completed ·{" "}
+                      {status.counts.chronology} chronology
+                    </span>
+                  </div>
+                </div>
+                <div className="cp-q-item">
+                  <div className="cp-q-head">
+                    <span className="cp-q-name">doc-processing</span>
+                    <span className="cp-q-count">0 jobs</span>
+                  </div>
+                  <div className="cp-q-bar">
+                    <div className="cp-q-seg" style={{ width: "0%" }} />
+                  </div>
+                  <div className="cp-q-stats">
+                    <span>idle · waiting for ERE credentials</span>
+                  </div>
+                </div>
+                <div className="cp-q-item">
+                  <div className="cp-q-head">
+                    <span className="cp-q-name">ere-fetch</span>
+                    <span className="cp-q-count">
+                      {status.counts.ereJobs} jobs
+                    </span>
+                  </div>
+                  <div className="cp-q-bar">
+                    {status.counts.ereJobsFailed > 0 && (
+                      <div
+                        className="cp-q-seg failed"
+                        style={{ width: "100%" }}
+                      />
+                    )}
+                  </div>
+                  <div className="cp-q-stats">
+                    {status.counts.ereJobs === 0 ? (
+                      <span>blocked by ere-cron · 0 credentials stored</span>
+                    ) : (
+                      <>
+                        <span className="failed">
+                          {status.counts.ereJobsFailed} failed
+                        </span>
+                        <span>· {status.counts.ereJobs} total</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="cp-q-item">
+                  <div className="cp-q-head">
+                    <span className="cp-q-name">email-ingest</span>
+                    <span className="cp-q-count">0 jobs</span>
+                  </div>
+                  <div className="cp-q-bar">
+                    <div className="cp-q-seg" style={{ width: "0%" }} />
+                  </div>
+                  <div className="cp-q-stats">
+                    <span>idle · Outlook not linked</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
 
-					{/* FOOTER */}
-					<div className="cp-footer">
-						<span className="cp-footer-item">
-							<span className="cp-footer-dot" />
-							Auto-refresh manual · click Refresh to update
-						</span>
-						<span>
-							Last updated: <span>{since}s</span> ago
-						</span>
-						<div className="spacer" />
-						<span>
-							DB: {status.counts.cases} cases · {status.counts.contacts}{" "}
-							contacts · {status.counts.tasks} tasks ·{" "}
-							{status.counts.documents} documents · {status.counts.users} users
-							· {status.counts.chronology} chronology ·{" "}
-							{status.counts.processingResults} processing results
-						</span>
-					</div>
-				</div>
-			</div>
-		</>
-	);
+          {/* FOOTER */}
+          <div className="cp-footer">
+            <span className="cp-footer-item">
+              <span className="cp-footer-dot" />
+              Auto-refresh manual · click Refresh to update
+            </span>
+            <span>
+              Last updated: <span>{since}s</span> ago
+            </span>
+            <div className="spacer" />
+            <span>
+              DB: {status.counts.cases} cases · {status.counts.contacts}{" "}
+              contacts · {status.counts.tasks} tasks · {status.counts.documents}{" "}
+              documents · {status.counts.users} users ·{" "}
+              {status.counts.chronology} chronology ·{" "}
+              {status.counts.processingResults} processing results
+            </span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }

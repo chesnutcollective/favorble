@@ -74,8 +74,7 @@ export default async function SupervisorDraftsPage() {
         r.reviewerFirstName || r.reviewerLastName
           ? `${r.reviewerFirstName ?? ""} ${r.reviewerLastName ?? ""}`.trim()
           : null,
-      createdAt:
-        r.createdAt instanceof Date ? r.createdAt.toISOString() : null,
+      createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : null,
     }));
   } catch {
     // DB unavailable — render empty state.
@@ -89,7 +88,11 @@ export default async function SupervisorDraftsPage() {
         actions={
           <Button asChild variant="outline" size="sm">
             <Link href="/admin/supervisor">
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={14} className="mr-1" />
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={14}
+                className="mr-1"
+              />
               Supervisor hub
             </Link>
           </Button>
@@ -98,12 +101,9 @@ export default async function SupervisorDraftsPage() {
       {rows.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center">
-            <p
-              className="text-[13px]"
-              style={{ color: COLORS.text2 }}
-            >
-              No drafts in the firm right now. New drafts appear here as soon
-              as the generation worker writes them.
+            <p className="text-[13px]" style={{ color: COLORS.text2 }}>
+              No drafts in the firm right now. New drafts appear here as soon as
+              the generation worker writes them.
             </p>
           </CardContent>
         </Card>

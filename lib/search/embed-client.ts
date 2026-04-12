@@ -28,7 +28,9 @@
  * `embedding` NULL if all retries fail.
  */
 
-const PROVIDER = (process.env.SEARCH_EMBEDDING_PROVIDER ?? "stub").toLowerCase();
+const PROVIDER = (
+  process.env.SEARCH_EMBEDDING_PROVIDER ?? "stub"
+).toLowerCase();
 const DIM = Number(process.env.SEARCH_EMBEDDING_DIM ?? "1536");
 
 /** Short LRU cache so the same query text doesn't pay the provider cost twice in rapid succession. */
@@ -88,7 +90,8 @@ async function embedAzureBatch(texts: string[]): Promise<(number[] | null)[]> {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
   const deployment = process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT;
   const apiKey = process.env.AZURE_OPENAI_API_KEY;
-  const apiVersion = process.env.AZURE_OPENAI_API_VERSION ?? "2024-02-15-preview";
+  const apiVersion =
+    process.env.AZURE_OPENAI_API_VERSION ?? "2024-02-15-preview";
   if (!endpoint || !deployment || !apiKey) return texts.map(() => null);
   const url = `${endpoint.replace(/\/$/, "")}/openai/deployments/${deployment}/embeddings?api-version=${apiVersion}`;
   try {

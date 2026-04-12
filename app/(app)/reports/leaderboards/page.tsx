@@ -45,16 +45,14 @@ export default async function LeaderboardsPage({
   const metricKey =
     sp.metric && pack.metrics.some((m) => m.metricKey === sp.metric)
       ? sp.metric
-      : pack.metrics[0]?.metricKey ?? "";
+      : (pack.metrics[0]?.metricKey ?? "");
   const period = sp.period ?? "week";
 
   let rows: Awaited<ReturnType<typeof getLeaderboard>> = [];
   let compositeRows: Awaited<ReturnType<typeof getCompositeLeaderboard>> = [];
   try {
     [rows, compositeRows] = await Promise.all([
-      metricKey
-        ? getLeaderboard(role, metricKey, period)
-        : Promise.resolve([]),
+      metricKey ? getLeaderboard(role, metricKey, period) : Promise.resolve([]),
       getCompositeLeaderboard(role, period),
     ]);
   } catch {
@@ -152,7 +150,8 @@ export default async function LeaderboardsPage({
                   href={`/reports/leaderboards?role=${role}&metric=${metricKey}&period=${p}`}
                   className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
                   style={{
-                    borderColor: p === period ? COLORS.brand : COLORS.borderDefault,
+                    borderColor:
+                      p === period ? COLORS.brand : COLORS.borderDefault,
                     color: p === period ? COLORS.brand : COLORS.text2,
                     background:
                       p === period ? COLORS.brandSubtle : "transparent",
@@ -223,8 +222,8 @@ export default async function LeaderboardsPage({
                               r.compositeScore >= 80
                                 ? COLORS.ok
                                 : r.compositeScore >= 60
-                                ? COLORS.warn
-                                : COLORS.bad,
+                                  ? COLORS.warn
+                                  : COLORS.bad,
                           }}
                         >
                           {r.compositeScore}
@@ -314,9 +313,7 @@ export default async function LeaderboardsPage({
                             variant="outline"
                             style={{
                               color:
-                                r.deltaPercent >= 0
-                                  ? COLORS.ok
-                                  : COLORS.bad,
+                                r.deltaPercent >= 0 ? COLORS.ok : COLORS.bad,
                             }}
                           >
                             {r.deltaPercent >= 0 ? "+" : ""}
@@ -357,22 +354,40 @@ export default async function LeaderboardsPage({
                   className="border-b"
                   style={{ borderColor: COLORS.borderSubtle }}
                 >
-                  <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-left px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Metric
                   </th>
-                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-right px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Weight
                   </th>
-                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-right px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Target
                   </th>
-                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-right px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Warn
                   </th>
-                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-right px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Critical
                   </th>
-                  <th className="text-center px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                  <th
+                    className="text-center px-3 py-2 text-xs font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
                     Direction
                   </th>
                 </tr>
@@ -384,26 +399,42 @@ export default async function LeaderboardsPage({
                     className="border-b"
                     style={{ borderColor: COLORS.borderSubtle }}
                   >
-                    <td className="px-3 py-2 text-xs font-medium" style={{ color: COLORS.text1 }}>
+                    <td
+                      className="px-3 py-2 text-xs font-medium"
+                      style={{ color: COLORS.text1 }}
+                    >
                       {m.label}
                     </td>
-                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.brand }}>
+                    <td
+                      className="px-3 py-2 text-xs text-right tabular-nums"
+                      style={{ color: COLORS.brand }}
+                    >
                       {Math.round(m.weight * 100)}%
                     </td>
                     <td className="px-3 py-2 text-xs text-right tabular-nums">
                       {m.targetValue}
                       {m.unit === "percent" ? "%" : ""}
                     </td>
-                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.warn }}>
+                    <td
+                      className="px-3 py-2 text-xs text-right tabular-nums"
+                      style={{ color: COLORS.warn }}
+                    >
                       {m.warnThreshold}
                       {m.unit === "percent" ? "%" : ""}
                     </td>
-                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.bad }}>
+                    <td
+                      className="px-3 py-2 text-xs text-right tabular-nums"
+                      style={{ color: COLORS.bad }}
+                    >
                       {m.criticalThreshold}
                       {m.unit === "percent" ? "%" : ""}
                     </td>
-                    <td className="px-3 py-2 text-xs text-center" style={{ color: COLORS.text3 }}>
-                      {m.direction === "higher_is_better" ? "Higher" : "Lower"} is better
+                    <td
+                      className="px-3 py-2 text-xs text-center"
+                      style={{ color: COLORS.text3 }}
+                    >
+                      {m.direction === "higher_is_better" ? "Higher" : "Lower"}{" "}
+                      is better
                     </td>
                   </tr>
                 ))}

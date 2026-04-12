@@ -2,11 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { after } from "next/server";
 import { db } from "@/db/drizzle";
-import {
-  callRecordings,
-  callTranscripts,
-  callQcReviews,
-} from "@/db/schema";
+import { callRecordings, callTranscripts, callQcReviews } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import {
@@ -247,8 +243,7 @@ export async function reviewCallTranscript(
       },
       highlights: coerceHighlights(p.highlights),
       flags: coerceFlags(p.flags),
-      summary:
-        typeof p.summary === "string" ? p.summary.slice(0, 2000) : "",
+      summary: typeof p.summary === "string" ? p.summary.slice(0, 2000) : "",
     };
 
     await db.insert(callQcReviews).values({

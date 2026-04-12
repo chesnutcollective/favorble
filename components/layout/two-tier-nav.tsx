@@ -784,10 +784,7 @@ export function TwoTierNav({
             />
 
             {/* Filing Panel */}
-            <FilingPanel
-              active={visiblePanel === "filing"}
-              navData={navData}
-            />
+            <FilingPanel active={visiblePanel === "filing"} navData={navData} />
 
             {/* PHI Writer Panel */}
             <PhiWriterPanel
@@ -811,10 +808,7 @@ export function TwoTierNav({
             />
 
             {/* Trust Panel */}
-            <TrustPanel
-              active={visiblePanel === "trust"}
-              navData={navData}
-            />
+            <TrustPanel active={visiblePanel === "trust"} navData={navData} />
 
             {/* Team Chat Panel */}
             <TeamChatPanel
@@ -3480,7 +3474,9 @@ function BillingPanel({
         href="/billing/time"
         label="Unbilled time"
         sublabel={
-          s ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}` : undefined
+          s
+            ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}`
+            : undefined
         }
         value={`${unbilledHours}h`}
       />
@@ -3488,7 +3484,9 @@ function BillingPanel({
         href="/billing"
         label="Unbilled expenses"
         sublabel={
-          s ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}` : undefined
+          s
+            ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}`
+            : undefined
         }
         value={formatCents(s?.unbilledExpenseCents ?? 0)}
       />
@@ -3551,8 +3549,8 @@ function TrustPanel({
         )}
       </div>
       <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
-        {formatCents(s?.totalBalanceCents ?? 0)} &middot;{" "}
-        {s?.accountCount ?? 0} account{s?.accountCount === 1 ? "" : "s"}
+        {formatCents(s?.totalBalanceCents ?? 0)} &middot; {s?.accountCount ?? 0}{" "}
+        account{s?.accountCount === 1 ? "" : "s"}
       </div>
 
       <PanelCounterRow

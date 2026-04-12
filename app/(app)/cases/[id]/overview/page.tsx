@@ -22,9 +22,8 @@ export default async function CaseOverviewPage({
   let tasks: Awaited<ReturnType<typeof getCaseTasks>> = [];
   let activity: Awaited<ReturnType<typeof getCaseActivity>> = [];
   let docs: Awaited<ReturnType<typeof getCaseDocuments>> = [];
-  let sentimentPoints: Awaited<
-    ReturnType<typeof getCaseSentimentTimeline>
-  > = [];
+  let sentimentPoints: Awaited<ReturnType<typeof getCaseSentimentTimeline>> =
+    [];
 
   try {
     [caseData, tasks, activity, docs, sentimentPoints] = await Promise.all([

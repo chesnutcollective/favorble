@@ -170,7 +170,9 @@ function HeroHearingCard({ hearing }: { hearing: UpcomingHearing }) {
                   size={14}
                   color={PRIMARY}
                 />
-                <span className="text-foreground">ALJ {hearing.adminLawJudge}</span>
+                <span className="text-foreground">
+                  ALJ {hearing.adminLawJudge}
+                </span>
               </div>
             )}
             {hearing.hearingOffice && (
@@ -199,9 +201,7 @@ function HeroHearingCard({ hearing }: { hearing: UpcomingHearing }) {
           >
             <span>Chronology: {hearing.chronologyCount}</span>
             <span>·</span>
-            <span>
-              PHI sheet: {hearing.hasPhiSheet ? "Done" : "Missing"}
-            </span>
+            <span>PHI sheet: {hearing.hasPhiSheet ? "Done" : "Missing"}</span>
           </div>
         </CardContent>
       </Card>

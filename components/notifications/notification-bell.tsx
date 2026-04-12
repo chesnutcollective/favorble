@@ -86,9 +86,7 @@ export function NotificationBell() {
       await markRead(item.id);
       setItems((prev) =>
         prev.map((it) =>
-          it.id === item.id
-            ? { ...it, readAt: new Date().toISOString() }
-            : it,
+          it.id === item.id ? { ...it, readAt: new Date().toISOString() } : it,
         ),
       );
       setUnread((n) => Math.max(0, n - 1));

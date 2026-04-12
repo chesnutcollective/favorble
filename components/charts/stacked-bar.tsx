@@ -73,10 +73,7 @@ export function StackedBar({
 
   const computedWidth =
     width ??
-    Math.max(
-      PAD_X * 2 + bars.length * (barWidth + gap),
-      PAD_X * 2 + barWidth,
-    );
+    Math.max(PAD_X * 2 + bars.length * (barWidth + gap), PAD_X * 2 + barWidth);
 
   const usableH = height - PAD_TOP - PAD_BOTTOM;
 
@@ -185,10 +182,7 @@ export function StackedBar({
                 className="inline-block h-2.5 w-2.5 rounded-sm"
                 style={{ backgroundColor: s.color }}
               />
-              <span
-                className="text-[11px]"
-                style={{ color: COLORS.text2 }}
-              >
+              <span className="text-[11px]" style={{ color: COLORS.text2 }}>
                 {s.label}
               </span>
             </div>

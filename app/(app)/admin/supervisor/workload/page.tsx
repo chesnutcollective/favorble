@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowLeft01Icon,
-  BalanceScaleIcon,
-} from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, BalanceScaleIcon } from "@hugeicons/core-free-icons";
 
 import { requireSession } from "@/lib/auth/session";
 import { PageHeader } from "@/components/shared/page-header";
@@ -75,7 +72,11 @@ export default async function WorkloadImbalancePage() {
         actions={
           <Button asChild variant="outline" size="sm">
             <Link href="/admin/supervisor">
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={14} className="mr-1" />
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={14}
+                className="mr-1"
+              />
               Supervisor hub
             </Link>
           </Button>
@@ -109,13 +110,10 @@ export default async function WorkloadImbalancePage() {
       {!anyDetected && (
         <Card>
           <CardContent className="p-6 text-center">
-            <p
-              className="text-[13px]"
-              style={{ color: COLORS.text2 }}
-            >
-              No significant workload imbalance detected across any role.
-              Every team is within ±1.25 standard deviations of its mean
-              open-task count.
+            <p className="text-[13px]" style={{ color: COLORS.text2 }}>
+              No significant workload imbalance detected across any role. Every
+              team is within ±1.25 standard deviations of its mean open-task
+              count.
             </p>
           </CardContent>
         </Card>
@@ -123,7 +121,11 @@ export default async function WorkloadImbalancePage() {
 
       <div className="space-y-6">
         {results.map((r) => (
-          <RoleImbalanceSection key={r.role} result={r} canReassign={canReassign} />
+          <RoleImbalanceSection
+            key={r.role}
+            result={r}
+            canReassign={canReassign}
+          />
         ))}
       </div>
     </div>
@@ -160,10 +162,7 @@ function RoleImbalanceSection({
         >
           {label}
         </h2>
-        <span
-          className="text-[11px]"
-          style={{ color: COLORS.text3 }}
-        >
+        <span className="text-[11px]" style={{ color: COLORS.text3 }}>
           {report.sampleSize} active · mean {report.mean} open tasks
         </span>
       </div>
@@ -186,10 +185,7 @@ function RoleImbalanceSection({
       </div>
 
       {suggestions.length > 0 && (
-        <ReassignmentList
-          suggestions={suggestions}
-          canReassign={canReassign}
-        />
+        <ReassignmentList suggestions={suggestions} canReassign={canReassign} />
       )}
     </section>
   );
@@ -218,18 +214,12 @@ function OutlierCard({
           >
             {title}
           </div>
-          <span
-            className="text-[11px]"
-            style={{ color: COLORS.text3 }}
-          >
+          <span className="text-[11px]" style={{ color: COLORS.text3 }}>
             {users.length} {users.length === 1 ? "user" : "users"}
           </span>
         </div>
         {users.length === 0 ? (
-          <p
-            className="text-[12px]"
-            style={{ color: COLORS.text3 }}
-          >
+          <p className="text-[12px]" style={{ color: COLORS.text3 }}>
             {emptyText}
           </p>
         ) : (

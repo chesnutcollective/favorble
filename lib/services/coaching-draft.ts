@@ -99,10 +99,7 @@ async function loadActivityBundle(
       })
       .from(tasks)
       .where(
-        and(
-          eq(tasks.assignedToId, subjectUserId),
-          gte(tasks.updatedAt, since),
-        ),
+        and(eq(tasks.assignedToId, subjectUserId), gte(tasks.updatedAt, since)),
       )
       .orderBy(desc(tasks.updatedAt))
       .limit(50),
@@ -285,9 +282,7 @@ function pickExamples(bundle: ActivityBundle): Example[] {
   // A stalled task
   const stalled = bundle.tasks.find(
     (t) =>
-      t.status !== "completed" &&
-      t.dueDate &&
-      t.dueDate.getTime() < Date.now(),
+      t.status !== "completed" && t.dueDate && t.dueDate.getTime() < Date.now(),
   );
   if (stalled) {
     examples.push({
@@ -424,8 +419,7 @@ Write it as a conversation outline a supervisor can follow live. Plain English, 
         organizationId: subject.organizationId,
         coachingFlagId: flag.id,
         subjectUserId: subject.id,
-        supervisorUserId:
-          flag.supervisorUserId ?? subject.id, // fall back to subject if nothing else
+        supervisorUserId: flag.supervisorUserId ?? subject.id, // fall back to subject if nothing else
         title: `Coaching conversation: ${subject.firstName} ${subject.lastName} — ${metric?.label ?? flag.metricKey}`,
         body,
         examples,

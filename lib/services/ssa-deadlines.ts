@@ -213,7 +213,10 @@ export function getDeadlineRuleForEvent(
 /**
  * Count how many days until a deadline. Negative = past due.
  */
-export function daysUntilDeadline(deadline: Date, now: Date = new Date()): number {
+export function daysUntilDeadline(
+  deadline: Date,
+  now: Date = new Date(),
+): number {
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const normalizedNow = new Date(
     now.getFullYear(),

@@ -21,7 +21,8 @@ import { enqueueCallQcReview } from "@/lib/services/call-qc";
  * Cost note: nova-2 is ~$0.0043/minute. 1000 calls × 5 min avg = $21.50.
  */
 
-const STUB_TEXT = "[STUB TRANSCRIPT — set DEEPGRAM_API_KEY to enable real transcription]";
+const STUB_TEXT =
+  "[STUB TRANSCRIPT — set DEEPGRAM_API_KEY to enable real transcription]";
 
 const DEEPGRAM_ENDPOINT =
   "https://api.deepgram.com/v1/listen?model=nova-2&punctuate=true&diarize=true&smart_format=true&utterances=true";
@@ -149,8 +150,9 @@ async function upsertTranscript(input: {
   confidence: number;
   wordCount: number;
 }): Promise<void> {
-  const confidenceStr = Math.max(0, Math.min(0.999, input.confidence))
-    .toFixed(3);
+  const confidenceStr = Math.max(0, Math.min(0.999, input.confidence)).toFixed(
+    3,
+  );
 
   const existing = await db
     .select({ id: callTranscripts.id })
@@ -215,7 +217,13 @@ export async function transcribeRecording(recordingId: string): Promise<void> {
         provider: "stub_no_api_key",
         fullText: STUB_TEXT,
         segments: [
-          { speaker: "Speaker 1", startMs: 0, endMs: 0, text: STUB_TEXT, confidence: 0 },
+          {
+            speaker: "Speaker 1",
+            startMs: 0,
+            endMs: 0,
+            text: STUB_TEXT,
+            confidence: 0,
+          },
         ],
         confidence: 0,
         wordCount: STUB_TEXT.split(/\s+/).length,

@@ -118,10 +118,7 @@ export async function detectImbalance(
 
     const nameById = new Map<string, string>();
     for (const u of userRows) {
-      nameById.set(
-        u.id,
-        `${u.firstName} ${u.lastName}`.trim() || u.email,
-      );
+      nameById.set(u.id, `${u.firstName} ${u.lastName}`.trim() || u.email);
     }
 
     const labeled = userRows.map((u) => ({
@@ -129,8 +126,7 @@ export async function detectImbalance(
       value: loadByUser.get(u.id) ?? 0,
     }));
     const outliers = findOutliers(labeled, Z_THRESHOLD);
-    const mean =
-      labeled.reduce((acc, v) => acc + v.value, 0) / labeled.length;
+    const mean = labeled.reduce((acc, v) => acc + v.value, 0) / labeled.length;
 
     const overloaded: ImbalanceUser[] = [];
     const underutilized: ImbalanceUser[] = [];
@@ -185,24 +181,25 @@ export async function recommendReassignments(
       ...report.overloaded.map((u) => u.userId),
       ...report.underutilized.map((u) => u.userId),
     ];
-    const overdueRows = allUserIds.length > 0
-      ? await db
-          .select({
-            userId: tasks.assignedToId,
-            n: sql<number>`count(*)::int`,
-          })
-          .from(tasks)
-          .where(
-            and(
-              eq(tasks.organizationId, organizationId),
-              isNull(tasks.deletedAt),
-              inArray(tasks.status, ["pending", "in_progress"]),
-              inArray(tasks.assignedToId, allUserIds),
-              lt(tasks.dueDate, now),
-            ),
-          )
-          .groupBy(tasks.assignedToId)
-      : [];
+    const overdueRows =
+      allUserIds.length > 0
+        ? await db
+            .select({
+              userId: tasks.assignedToId,
+              n: sql<number>`count(*)::int`,
+            })
+            .from(tasks)
+            .where(
+              and(
+                eq(tasks.organizationId, organizationId),
+                isNull(tasks.deletedAt),
+                inArray(tasks.status, ["pending", "in_progress"]),
+                inArray(tasks.assignedToId, allUserIds),
+                lt(tasks.dueDate, now),
+              ),
+            )
+            .groupBy(tasks.assignedToId)
+        : [];
     const overdueByUser = new Map<string, number>();
     for (const row of overdueRows) {
       if (row.userId) overdueByUser.set(row.userId, Number(row.n ?? 0));

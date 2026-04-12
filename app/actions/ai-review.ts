@@ -13,17 +13,7 @@ import {
 import { requireSession } from "@/lib/auth/session";
 import { logger } from "@/lib/logger/server";
 import { logExtractionReview } from "@/lib/services/hipaa-audit";
-import {
-  and,
-  eq,
-  sql,
-  desc,
-  gte,
-  lte,
-  inArray,
-  isNull,
-  or,
-} from "drizzle-orm";
+import { and, eq, sql, desc, gte, lte, inArray, isNull, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type ReviewStatus = "pending" | "approved" | "rejected" | "all";
@@ -92,10 +82,7 @@ export type AiReviewListResult = {
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 200;
 
-function buildConditions(
-  organizationId: string,
-  filter: AiReviewFilter,
-) {
+function buildConditions(organizationId: string, filter: AiReviewFilter) {
   const conditions = [
     eq(medicalChronologyEntries.organizationId, organizationId),
     eq(medicalChronologyEntries.aiGenerated, true),
@@ -652,7 +639,9 @@ export async function editExtraction(
   if (updates.facilityName !== undefined)
     setClause.facilityName = updates.facilityName;
   if (updates.eventDate !== undefined)
-    setClause.eventDate = updates.eventDate ? new Date(updates.eventDate) : null;
+    setClause.eventDate = updates.eventDate
+      ? new Date(updates.eventDate)
+      : null;
   if (updates.diagnoses !== undefined) setClause.diagnoses = updates.diagnoses;
   if (updates.treatments !== undefined)
     setClause.treatments = updates.treatments;

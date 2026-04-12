@@ -77,8 +77,7 @@ export async function previewOutboundQa(
   caseId: string,
   messageText: string,
 ): Promise<
-  | { ok: true; result: QaPreviewResult }
-  | { ok: false; error: string }
+  { ok: true; result: QaPreviewResult } | { ok: false; error: string }
 > {
   await requireSession();
 

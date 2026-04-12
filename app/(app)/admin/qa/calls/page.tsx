@@ -19,11 +19,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type StatusFilter =
-  | "all"
-  | "pending"
-  | "reviewed"
-  | "flagged";
+type StatusFilter = "all" | "pending" | "reviewed" | "flagged";
 
 type SearchParams = {
   status?: string;
@@ -66,7 +62,9 @@ export default async function CallsQaPage({
   const params = await searchParams;
   const filter = resolveStatus(params.status);
 
-  const conditions = [eq(callRecordings.organizationId, session.organizationId)];
+  const conditions = [
+    eq(callRecordings.organizationId, session.organizationId),
+  ];
   if (filter === "pending") {
     conditions.push(
       inArray(callRecordings.status, [
@@ -128,8 +126,7 @@ export default async function CallsQaPage({
               href={`/admin/qa/calls${s === "all" ? "" : `?status=${s}`}`}
               className="rounded-full border px-3 py-1"
               style={{
-                borderColor:
-                  s === filter ? COLORS.brand : COLORS.borderDefault,
+                borderColor: s === filter ? COLORS.brand : COLORS.borderDefault,
                 backgroundColor: s === filter ? COLORS.brandSubtle : "#FFFFFF",
                 color: s === filter ? COLORS.brand : COLORS.text2,
               }}
@@ -184,9 +181,7 @@ export default async function CallsQaPage({
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-[12px]">
-                    {row.counterpartyName ??
-                      row.counterpartyPhone ??
-                      "—"}
+                    {row.counterpartyName ?? row.counterpartyPhone ?? "—"}
                     <span className="ml-2 text-[11px] text-[#999]">
                       {row.direction}
                     </span>
@@ -218,14 +213,15 @@ export default async function CallsQaPage({
                     </span>
                   </td>
                   <td className="px-4 py-2 text-[12px] text-[#999] font-mono">
-                    {new Date(
-                      row.startedAt ?? row.createdAt,
-                    ).toLocaleString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
+                    {new Date(row.startedAt ?? row.createdAt).toLocaleString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      },
+                    )}
                   </td>
                 </tr>
               );

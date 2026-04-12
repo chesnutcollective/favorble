@@ -251,10 +251,12 @@ export const complianceFindingSeverityEnum = pgEnum(
   ["info", "low", "medium", "high", "critical"],
 );
 
-export const complianceFindingStatusEnum = pgEnum(
-  "compliance_finding_status",
-  ["open", "acknowledged", "remediated", "false_positive"],
-);
+export const complianceFindingStatusEnum = pgEnum("compliance_finding_status", [
+  "open",
+  "acknowledged",
+  "remediated",
+  "false_positive",
+]);
 
 // Escalation state on tasks — feeds SA-7.
 export const escalationStateEnum = pgEnum("escalation_state", [

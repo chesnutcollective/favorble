@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  and,
-  desc,
-  eq,
-  gte,
-  isNotNull,
-  lt,
-  sql,
-} from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db/drizzle";
 import { communications, users } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
@@ -46,8 +38,7 @@ function bandForScore(score: number | null): {
   fg: string;
 } {
   if (score === null) return { label: "—", bg: "#F1F1F4", fg: COLORS.text2 };
-  if (score >= 80)
-    return { label: "High", bg: COLORS.okSubtle, fg: COLORS.ok };
+  if (score >= 80) return { label: "High", bg: COLORS.okSubtle, fg: COLORS.ok };
   if (score >= 60)
     return { label: "Medium", bg: COLORS.warnSubtle, fg: COLORS.warn };
   if (score >= 40)
@@ -74,17 +65,11 @@ export default async function MessageQaPage({
     conditions.push(gte(communications.qaScore, 80));
   } else if (filter === "medium") {
     conditions.push(
-      and(
-        gte(communications.qaScore, 60),
-        lt(communications.qaScore, 80),
-      )!,
+      and(gte(communications.qaScore, 60), lt(communications.qaScore, 80))!,
     );
   } else if (filter === "low") {
     conditions.push(
-      and(
-        gte(communications.qaScore, 40),
-        lt(communications.qaScore, 60),
-      )!,
+      and(gte(communications.qaScore, 40), lt(communications.qaScore, 60))!,
     );
   } else if (filter === "failed") {
     conditions.push(lt(communications.qaScore, 40));
@@ -141,7 +126,8 @@ export default async function MessageQaPage({
       />
 
       {aggregates.length > 0 && (
-        <div className="rounded-[10px] border p-4"
+        <div
+          className="rounded-[10px] border p-4"
           style={{
             borderColor: COLORS.borderSubtle,
             backgroundColor: COLORS.brandSubtle,
@@ -174,13 +160,9 @@ export default async function MessageQaPage({
                       className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
                       style={{ backgroundColor: band.bg, color: band.fg }}
                     >
-                      {a.avgScore !== null
-                        ? Math.round(a.avgScore)
-                        : "—"}
+                      {a.avgScore !== null ? Math.round(a.avgScore) : "—"}
                     </span>
-                    <span className="text-[11px] text-[#999]">
-                      n={a.total}
-                    </span>
+                    <span className="text-[11px] text-[#999]">n={a.total}</span>
                   </span>
                 </div>
               );
@@ -197,8 +179,7 @@ export default async function MessageQaPage({
               href={`/admin/qa/messages${f === "all" ? "" : `?score=${f}`}`}
               className="rounded-full border px-3 py-1"
               style={{
-                borderColor:
-                  f === filter ? COLORS.brand : COLORS.borderDefault,
+                borderColor: f === filter ? COLORS.brand : COLORS.borderDefault,
                 backgroundColor: f === filter ? COLORS.brandSubtle : "#FFFFFF",
                 color: f === filter ? COLORS.brand : COLORS.text2,
               }}

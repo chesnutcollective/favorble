@@ -45,7 +45,8 @@ export const NAV_ITEM_REGISTRY: Record<string, NavItemMeta> = {
     id: "coaching",
     label: "Coaching",
     href: "/coaching",
-    description: "Open coaching flags, training gaps, and AI-drafted conversations",
+    description:
+      "Open coaching flags, training gaps, and AI-drafted conversations",
     iconName: "Megaphone01Icon",
   },
   drafts: {

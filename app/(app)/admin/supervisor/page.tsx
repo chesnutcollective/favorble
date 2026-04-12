@@ -40,21 +40,15 @@ export default async function SupervisorHubPage() {
     notFound();
   }
 
-  const [
-    matrix,
-    openEvents,
-    openFlags,
-    openFindings,
-    highRisk,
-    openDrafts,
-  ] = await Promise.all([
-    getWorkloadMatrix(),
-    getOpenSupervisorEventCount(),
-    getOpenCoachingFlagCount(),
-    getOpenComplianceFindingCount(),
-    getHighRiskCaseCount(),
-    getOpenDraftCount(),
-  ]);
+  const [matrix, openEvents, openFlags, openFindings, highRisk, openDrafts] =
+    await Promise.all([
+      getWorkloadMatrix(),
+      getOpenSupervisorEventCount(),
+      getOpenCoachingFlagCount(),
+      getOpenComplianceFindingCount(),
+      getHighRiskCaseCount(),
+      getOpenDraftCount(),
+    ]);
 
   return (
     <div className="space-y-6">
@@ -124,10 +118,7 @@ export default async function SupervisorHubPage() {
           >
             Workload Matrix
           </h2>
-          <span
-            className="text-[11px]"
-            style={{ color: COLORS.text3 }}
-          >
+          <span className="text-[11px]" style={{ color: COLORS.text3 }}>
             {matrix.length} active {matrix.length === 1 ? "user" : "users"}
           </span>
         </div>
@@ -182,10 +173,7 @@ function SummaryCard({
             )}
           </div>
         </div>
-        <p
-          className="text-[12px] leading-5"
-          style={{ color: COLORS.text2 }}
-        >
+        <p className="text-[12px] leading-5" style={{ color: COLORS.text2 }}>
           {description}
         </p>
         <Button asChild variant="outline" size="sm" className="self-start">

@@ -176,8 +176,8 @@ export default async function UserPerformancePage({ params }: PageProps) {
                   perf.compositeScore >= 80
                     ? COLORS.ok
                     : perf.compositeScore >= 60
-                    ? COLORS.warn
-                    : COLORS.bad,
+                      ? COLORS.warn
+                      : COLORS.bad,
               }}
             >
               {perf.compositeScore}
@@ -241,11 +241,10 @@ export default async function UserPerformancePage({ params }: PageProps) {
             </span>
           </div>
           {firstDecliningMetric && (
-            <p
-              className="text-xs mt-2"
-              style={{ color: COLORS.text2 }}
-            >
-              Attention needed: <span className="font-medium">{firstDecliningMetric.label}</span> is showing a declining trend
+            <p className="text-xs mt-2" style={{ color: COLORS.text2 }}>
+              Attention needed:{" "}
+              <span className="font-medium">{firstDecliningMetric.label}</span>{" "}
+              is showing a declining trend
               {decliningCount > 1
                 ? ` (and ${decliningCount - 1} other metric${decliningCount - 1 > 1 ? "s" : ""})`
                 : ""}
@@ -343,18 +342,19 @@ export default async function UserPerformancePage({ params }: PageProps) {
                     >
                       {formatValue(metric.currentValue, metric.unit)}
                     </p>
-                    <p
-                      className="text-xs mt-1"
-                      style={{ color: COLORS.text3 }}
-                    >
-                      target {formatValue(metric.target, metric.unit)} ·
-                      warn {formatValue(metric.warn, metric.unit)} ·
-                      critical {formatValue(metric.critical, metric.unit)}
+                    <p className="text-xs mt-1" style={{ color: COLORS.text3 }}>
+                      target {formatValue(metric.target, metric.unit)} · warn{" "}
+                      {formatValue(metric.warn, metric.unit)} · critical{" "}
+                      {formatValue(metric.critical, metric.unit)}
                     </p>
                     {metric.deltaPercent !== null && (
-                      <p className="text-xs mt-1" style={{ color: COLORS.text2 }}>
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: COLORS.text2 }}
+                      >
                         {metric.delta >= 0 ? "+" : ""}
-                        {metric.delta} vs prior ({metric.deltaPercent >= 0 ? "+" : ""}
+                        {metric.delta} vs prior (
+                        {metric.deltaPercent >= 0 ? "+" : ""}
                         {metric.deltaPercent}%)
                       </p>
                     )}
@@ -365,10 +365,7 @@ export default async function UserPerformancePage({ params }: PageProps) {
                       color={colors.fg}
                       declining={trendData.trend === "declining"}
                     />
-                    <span
-                      className="text-xs mt-1"
-                      style={{ color: tb.color }}
-                    >
+                    <span className="text-xs mt-1" style={{ color: tb.color }}>
                       {tb.icon} {tb.label}
                     </span>
                   </div>

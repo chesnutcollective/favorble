@@ -113,9 +113,7 @@ export async function markAllNotificationsRead(userId: string): Promise<void> {
   await db
     .update(notifications)
     .set({ readAt: new Date() })
-    .where(
-      and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-    );
+    .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)));
 }
 
 /**
@@ -142,8 +140,6 @@ export async function getUnreadNotificationCount(
   const rows = await db
     .select({ id: notifications.id })
     .from(notifications)
-    .where(
-      and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-    );
+    .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)));
   return rows.length;
 }

@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { COLORS } from "@/lib/design-tokens";
 import type {
@@ -44,9 +39,7 @@ function AcBriefTable({ rows }: { rows: AcBriefRow[] }) {
     return (
       <Card>
         <CardContent className="p-10 text-center">
-          <p className="text-sm text-[#666]">
-            No briefs in this bucket.
-          </p>
+          <p className="text-sm text-[#666]">No briefs in this bucket.</p>
         </CardContent>
       </Card>
     );
@@ -132,9 +125,7 @@ export function AppealsCouncilTabs({ data }: { data: AcBriefWorkspace }) {
         <TabsTrigger value="in_review">
           In Review ({data.counts.inReview})
         </TabsTrigger>
-        <TabsTrigger value="filed">
-          Filed ({data.counts.filed})
-        </TabsTrigger>
+        <TabsTrigger value="filed">Filed ({data.counts.filed})</TabsTrigger>
         <TabsTrigger value="decided">
           Decided ({data.counts.decided})
         </TabsTrigger>

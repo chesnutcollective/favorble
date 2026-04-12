@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db/drizzle";
-import {
-  cases,
-  caseContacts,
-  contacts,
-  caseStages,
-} from "@/db/schema";
+import { cases, caseContacts, contacts, caseStages } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
   getCaseHealthForCases,

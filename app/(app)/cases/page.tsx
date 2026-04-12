@@ -93,10 +93,7 @@ export default async function CasesPage({
         .from(communications)
         .where(
           and(
-            inArray(
-              communications.caseId,
-              visibleIds as [string, ...string[]],
-            ),
+            inArray(communications.caseId, visibleIds as [string, ...string[]]),
             isNotNull(communications.sentimentLabel),
           ),
         )

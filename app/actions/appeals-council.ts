@@ -1,12 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import {
-  appealsCouncilBriefs,
-  cases,
-  leads,
-  users,
-} from "@/db/schema";
+import { appealsCouncilBriefs, cases, leads, users } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { asc, eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
@@ -110,9 +105,7 @@ export async function getAppealsCouncilBriefs(): Promise<AcBriefWorkspace> {
           : null;
 
       const daysRemaining = r.deadlineDate
-        ? Math.ceil(
-            (new Date(r.deadlineDate).getTime() - now) / 86_400_000,
-          )
+        ? Math.ceil((new Date(r.deadlineDate).getTime() - now) / 86_400_000)
         : null;
 
       const row: AcBriefRow = {

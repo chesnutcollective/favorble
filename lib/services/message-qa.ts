@@ -208,11 +208,7 @@ export async function reviewOutboundMessage(input: {
       return null;
     }
 
-    const qaStatus = passed
-      ? "passed"
-      : score < 40
-        ? "blocked"
-        : "needs_edit";
+    const qaStatus = passed ? "passed" : score < 40 ? "blocked" : "needs_edit";
 
     const notes = JSON.stringify({ issues, suggestions });
 

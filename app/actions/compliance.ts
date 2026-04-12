@@ -1,11 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import {
-  complianceRules,
-  complianceFindings,
-  cases,
-} from "@/db/schema";
+import { complianceRules, complianceFindings, cases } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth/session";

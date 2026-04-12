@@ -64,27 +64,24 @@ export const callRecordings = pgTable(
   ],
 );
 
-export const callTranscripts = pgTable(
-  "call_transcripts",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    callRecordingId: uuid("call_recording_id")
-      .notNull()
-      .references(() => callRecordings.id, { onDelete: "cascade" })
-      .unique(),
-    // Provider used to generate the transcript
-    provider: text("provider").notNull(), // "deepgram" | "whisper" | "stub"
-    // Full text of the transcript
-    fullText: text("full_text").notNull(),
-    // Speaker-segmented entries: [{ speaker, startMs, endMs, text }, ...]
-    segments: jsonb("segments"),
-    confidence: numeric("confidence", { precision: 4, scale: 3 }),
-    wordCount: integer("word_count"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-);
+export const callTranscripts = pgTable("call_transcripts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  callRecordingId: uuid("call_recording_id")
+    .notNull()
+    .references(() => callRecordings.id, { onDelete: "cascade" })
+    .unique(),
+  // Provider used to generate the transcript
+  provider: text("provider").notNull(), // "deepgram" | "whisper" | "stub"
+  // Full text of the transcript
+  fullText: text("full_text").notNull(),
+  // Speaker-segmented entries: [{ speaker, startMs, endMs, text }, ...]
+  segments: jsonb("segments"),
+  confidence: numeric("confidence", { precision: 4, scale: 3 }),
+  wordCount: integer("word_count"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
 
 export const callQcReviews = pgTable(
   "call_qc_reviews",

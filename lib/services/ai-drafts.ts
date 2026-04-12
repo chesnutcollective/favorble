@@ -367,7 +367,8 @@ export async function draftCallScript(input: {
       hearing_prep: "hearing preparation call with the client",
       welcome_call: "initial welcome call to a new client",
       fee_collection: "fee collection follow-up call",
-      coaching_conversation: "supervisor coaching conversation with a team member",
+      coaching_conversation:
+        "supervisor coaching conversation with a team member",
     };
 
     // SA-4: Pull scenario-specific prompt additions from the library

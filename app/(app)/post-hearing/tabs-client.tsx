@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { COLORS } from "@/lib/design-tokens";
 import type {
@@ -119,11 +114,7 @@ function HearingOutcomeTable({ rows }: { rows: HearingOutcomeRow[] }) {
   );
 }
 
-export function PostHearingTabs({
-  data,
-}: {
-  data: HearingOutcomeWorkspace;
-}) {
+export function PostHearingTabs({ data }: { data: HearingOutcomeWorkspace }) {
   return (
     <Tabs defaultValue="awaiting" className="w-full">
       <TabsList>

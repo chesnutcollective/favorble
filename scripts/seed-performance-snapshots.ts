@@ -69,7 +69,9 @@ async function main() {
       totalMetrics += body.metricsWritten;
       totalTeams = Math.max(totalTeams, body.teamsProcessed);
     } catch (err) {
-      console.log(`FAILED: ${err instanceof Error ? err.message : String(err)}`);
+      console.log(
+        `FAILED: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 

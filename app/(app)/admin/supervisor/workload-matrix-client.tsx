@@ -51,7 +51,14 @@ const TEAM_LABELS: Record<string, string> = {
 
 const ALL = "__all__";
 
-type SortKey = "name" | "role" | "team" | "open" | "overdue" | "cases" | "activity";
+type SortKey =
+  | "name"
+  | "role"
+  | "team"
+  | "open"
+  | "overdue"
+  | "cases"
+  | "activity";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
@@ -138,7 +145,9 @@ export function WorkloadMatrixClient({ rows }: { rows: WorkloadRow[] }) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(key);
-      setSortDir(key === "name" || key === "role" || key === "team" ? "asc" : "desc");
+      setSortDir(
+        key === "name" || key === "role" || key === "team" ? "asc" : "desc",
+      );
     }
   }
 
@@ -146,10 +155,7 @@ export function WorkloadMatrixClient({ rows }: { rows: WorkloadRow[] }) {
     return (
       <Card>
         <CardContent className="p-6">
-          <p
-            className="text-[13px]"
-            style={{ color: COLORS.text2 }}
-          >
+          <p className="text-[13px]" style={{ color: COLORS.text2 }}>
             No workload data available. This can happen when the org has no
             active team members, or when you aren&apos;t signed in with a
             supervisor role.
@@ -204,10 +210,7 @@ export function WorkloadMatrixClient({ rows }: { rows: WorkloadRow[] }) {
             </SelectContent>
           </Select>
         </div>
-        <div
-          className="ml-auto text-[11px]"
-          style={{ color: COLORS.text3 }}
-        >
+        <div className="ml-auto text-[11px]" style={{ color: COLORS.text3 }}>
           Bottleneck threshold:{" "}
           <span style={{ color: COLORS.text2 }}>
             &gt; {(teamAverageOverdue * 2).toFixed(1)} overdue
@@ -292,7 +295,7 @@ export function WorkloadMatrixClient({ rows }: { rows: WorkloadRow[] }) {
                       className="text-[12px]"
                       style={{ color: COLORS.text2 }}
                     >
-                      {row.team ? TEAM_LABELS[row.team] ?? row.team : "—"}
+                      {row.team ? (TEAM_LABELS[row.team] ?? row.team) : "—"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {row.openTaskCount}
@@ -367,7 +370,9 @@ function SortableHead({
         style={{ color: active ? COLORS.brand : COLORS.text2 }}
       >
         {children}
-        {active && <span className="text-[10px]">{dir === "asc" ? "↑" : "↓"}</span>}
+        {active && (
+          <span className="text-[10px]">{dir === "asc" ? "↑" : "↓"}</span>
+        )}
       </button>
     </TableHead>
   );

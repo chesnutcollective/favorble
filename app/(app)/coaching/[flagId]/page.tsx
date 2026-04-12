@@ -73,9 +73,7 @@ export default async function CoachingFlagDetailPage({
             {flag.classification ? (
               <Badge
                 variant={
-                  flag.classification === "people"
-                    ? "destructive"
-                    : "secondary"
+                  flag.classification === "people" ? "destructive" : "secondary"
                 }
               >
                 {flag.classification}

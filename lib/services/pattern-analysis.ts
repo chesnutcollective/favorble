@@ -54,7 +54,12 @@ export type LabeledValue = { label: string; value: number };
 export function findOutliers(
   data: LabeledValue[],
   thresholdStddev = 2,
-): Array<{ label: string; value: number; zScore: number; kind: "high" | "low" }> {
+): Array<{
+  label: string;
+  value: number;
+  zScore: number;
+  kind: "high" | "low";
+}> {
   const stats = computeStats(data.map((d) => d.value));
   const outliers: Array<{
     label: string;
@@ -198,7 +203,6 @@ export function classifyTrend(
   const threshold = Math.abs(yMean) * 0.05; // 5% of mean is meaningful
   if (Math.abs(slope) < threshold) return "stable";
 
-  const improving =
-    direction === "higher_is_better" ? slope > 0 : slope < 0;
+  const improving = direction === "higher_is_better" ? slope > 0 : slope < 0;
   return improving ? "improving" : "declining";
 }

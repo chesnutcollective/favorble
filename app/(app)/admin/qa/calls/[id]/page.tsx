@@ -183,8 +183,7 @@ export default async function CallDetailPage({
               This is a stub transcript. Set{" "}
               <code className="font-mono">DEEPGRAM_API_KEY</code> in your
               environment to enable real transcription — the pipeline will
-              switch automatically on the next run. No code changes
-              required.
+              switch automatically on the next run. No code changes required.
             </div>
           )}
 
@@ -344,8 +343,7 @@ export default async function CallDetailPage({
                           h.kind === "positive"
                             ? COLORS.okSubtle
                             : COLORS.badSubtle,
-                        color:
-                          h.kind === "positive" ? COLORS.ok : COLORS.bad,
+                        color: h.kind === "positive" ? COLORS.ok : COLORS.bad,
                       }}
                     >
                       {h.kind}

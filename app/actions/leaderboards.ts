@@ -94,17 +94,13 @@ function resolvePeriodWindow(period: LeaderboardPeriod): {
   const todayStart = startOfDayUTC(new Date());
   const days = period === "day" ? 1 : period === "week" ? 7 : 30;
   const currentEnd = todayStart;
-  const currentStart = new Date(
-    currentEnd.getTime() - days * 86_400_000,
-  );
+  const currentStart = new Date(currentEnd.getTime() - days * 86_400_000);
   const priorEnd = currentStart;
   const priorStart = new Date(priorEnd.getTime() - days * 86_400_000);
   return { currentStart, currentEnd, priorStart, priorEnd };
 }
 
-async function getLatestSnapshotStart(
-  orgId: string,
-): Promise<Date | null> {
+async function getLatestSnapshotStart(orgId: string): Promise<Date | null> {
   const rows = await db
     .select({ maxStart: sql<string>`max(${performanceSnapshots.periodStart})` })
     .from(performanceSnapshots)
@@ -471,7 +467,10 @@ export async function getUserTrend(
   userId: string,
   metricKey: string,
   daysBack = 30,
-): Promise<{ points: UserTrendPoint[]; trend: "improving" | "declining" | "stable" }> {
+): Promise<{
+  points: UserTrendPoint[];
+  trend: "improving" | "declining" | "stable";
+}> {
   const session = await requireSession();
   const orgId = session.organizationId;
 
@@ -574,7 +573,10 @@ export async function getAllUsersPerformance(): Promise<
     ORDER BY user_id, metric_key, period_start DESC
   `);
 
-  const byUser = new Map<string, { role: string; values: Record<string, number> }>();
+  const byUser = new Map<
+    string,
+    { role: string; values: Record<string, number> }
+  >();
   for (const r of rows) {
     const existing = byUser.get(r.user_id) ?? { role: r.role, values: {} };
     existing.values[r.metric_key] = Number(r.value);
@@ -583,9 +585,7 @@ export async function getAllUsersPerformance(): Promise<
 
   return allUsers.map((u) => {
     const data = byUser.get(u.id);
-    const composite = data
-      ? computeCompositeScore(data.role, data.values)
-      : 0;
+    const composite = data ? computeCompositeScore(data.role, data.values) : 0;
     return {
       userId: u.id,
       name: `${u.firstName} ${u.lastName}`.trim(),

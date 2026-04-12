@@ -134,7 +134,8 @@ export async function linkArtifactToEvent(
           ? "linkedTaskIds"
           : kind === "draft"
             ? "linkedDraftIds"
-            : "linkedNotificationIds"]: sql`array_append(COALESCE(${column}, ARRAY[]::uuid[]), ${artifactId}::uuid)`,
+            : "linkedNotificationIds"]:
+          sql`array_append(COALESCE(${column}, ARRAY[]::uuid[]), ${artifactId}::uuid)`,
         updatedAt: new Date(),
       })
       .where(eq(supervisorEvents.id, id));

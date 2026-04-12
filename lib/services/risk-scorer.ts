@@ -249,9 +249,7 @@ function scoreHearingPhiCombo(
       note: "No hearing scheduled",
     };
   }
-  const days = Math.floor(
-    (hearingDate.getTime() - Date.now()) / 86400000,
-  );
+  const days = Math.floor((hearingDate.getTime() - Date.now()) / 86400000);
   const phiComplete = phiSheetStatus === "complete";
   if (phiComplete) {
     return {
@@ -756,7 +754,9 @@ Narrative:`;
 /**
  * Compute and persist a risk score for a single case.
  */
-export async function scoreCase(caseId: string): Promise<RiskScoreResult | null> {
+export async function scoreCase(
+  caseId: string,
+): Promise<RiskScoreResult | null> {
   const signals = await loadCaseSignals(caseId);
   if (!signals) return null;
 

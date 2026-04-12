@@ -102,7 +102,9 @@ async function recordTransaction(input: {
   if (!account) throw new Error("Trust account not found");
 
   const signedAmount =
-    input.transactionType === "deposit" ? input.amountCents : -input.amountCents;
+    input.transactionType === "deposit"
+      ? input.amountCents
+      : -input.amountCents;
   const newBalance = account.balanceCents + signedAmount;
 
   const [tx] = await db

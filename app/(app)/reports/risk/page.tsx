@@ -148,7 +148,7 @@ export default async function RiskReportPage() {
                   .sort((a, b) => b.contribution - a.contribution)
                   .slice(0, 3);
                 const claimant = r.leadId
-                  ? leadNameMap.get(r.leadId) ?? "Unknown"
+                  ? (leadNameMap.get(r.leadId) ?? "Unknown")
                   : "Unknown";
                 return [
                   <TableRow key={r.caseId}>

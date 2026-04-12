@@ -11,10 +11,7 @@ import { WinRateFilterBar } from "./filter-bar";
 import { WinRateByDimensionChart } from "@/components/charts/win-rate-by-dimension-chart";
 import { WinRateTable } from "./win-rate-table";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  JusticeScale01Icon,
-  Award01Icon,
-} from "@hugeicons/core-free-icons";
+import { JusticeScale01Icon, Award01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -120,9 +117,7 @@ export default async function WinRatesPage({
         <StatsCard
           title="Total Decisions"
           value={overview.totalDecisions}
-          subtitle={
-            periodDays > 0 ? `Last ${periodDays} days` : "All time"
-          }
+          subtitle={periodDays > 0 ? `Last ${periodDays} days` : "All time"}
         />
         <StatsCard
           title="Cases Won"

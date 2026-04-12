@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
-import {
-  communications,
-  documents,
-  cases,
-  caseStages,
-} from "@/db/schema";
+import { communications, documents, cases, caseStages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import { logCommunicationEvent } from "@/lib/services/hipaa-audit";

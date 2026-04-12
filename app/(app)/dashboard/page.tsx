@@ -177,10 +177,8 @@ async function loadRoleMetricBlock(
 
   const metricCards: MetricCardData[] = pack.metrics.map((metric) => {
     const series = byKey.get(metric.metricKey) ?? [];
-    const current =
-      series.length > 0 ? series[series.length - 1] : null;
-    const band =
-      current !== null ? evaluateMetric(metric, current) : null;
+    const current = series.length > 0 ? series[series.length - 1] : null;
+    const band = current !== null ? evaluateMetric(metric, current) : null;
     return {
       metric,
       currentValue: current,
@@ -231,8 +229,7 @@ function formatMetricValue(
 }
 
 function formatTargetValue(metric: RoleMetricDefinition): string {
-  const suffix =
-    metric.direction === "higher_is_better" ? "≥" : "≤";
+  const suffix = metric.direction === "higher_is_better" ? "≥" : "≤";
   const val = formatMetricValue(metric, metric.targetValue);
   return `Target ${suffix} ${val}`;
 }
@@ -274,9 +271,7 @@ async function computePrimaryKpi(
         // screen we surface ERE credential count as a cheap proxy and fall
         // back to a literal "All systems operational" message if even that
         // query fails.
-        const [totalRow] = await db
-          .select({ n: count() })
-          .from(ereCredentials);
+        const [totalRow] = await db.select({ n: count() }).from(ereCredentials);
         const [activeRow] = await db
           .select({ n: count() })
           .from(ereCredentials)
@@ -532,12 +527,11 @@ export default async function DashboardPage() {
           }}
         >
           <CardContent className="p-4 flex items-start gap-3">
-            <HugeiconsIcon
-              icon={Shield01Icon}
-              size={18}
-              color={COLORS.brand}
-            />
-            <div className="text-[12px] leading-5" style={{ color: COLORS.text2 }}>
+            <HugeiconsIcon icon={Shield01Icon} size={18} color={COLORS.brand} />
+            <div
+              className="text-[12px] leading-5"
+              style={{ color: COLORS.text2 }}
+            >
               <p className="font-medium" style={{ color: COLORS.text1 }}>
                 Super-admin view
               </p>
@@ -618,10 +612,7 @@ export default async function DashboardPage() {
           {!metricBlock.hasSnapshotData && (
             <Card className="mb-3">
               <CardContent className="p-4">
-                <p
-                  className="text-[12px]"
-                  style={{ color: COLORS.text2 }}
-                >
+                <p className="text-[12px]" style={{ color: COLORS.text2 }}>
                   No performance snapshot data yet. Metrics will populate once
                   the nightly rollup has recorded at least one day of activity
                   for your account.
@@ -670,16 +661,10 @@ export default async function DashboardPage() {
                         className="text-[28px] font-semibold leading-none"
                         style={{ color: COLORS.text1 }}
                       >
-                        {formatMetricValue(
-                          card.metric,
-                          card.currentValue,
-                        )}
+                        {formatMetricValue(card.metric, card.currentValue)}
                       </div>
                       <div style={{ color: accent }}>
-                        <Sparkline
-                          data={card.sparkline}
-                          stroke={accent}
-                        />
+                        <Sparkline data={card.sparkline} stroke={accent} />
                       </div>
                     </div>
                   </CardContent>

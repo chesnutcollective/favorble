@@ -75,8 +75,7 @@ const GENERIC_ACTION_STEPS: StoredActionStep[] = [
     label: "Agree on a measurable improvement goal for next week",
     description:
       "Leave the coaching conversation with a specific, measurable target for the next 7 days — not a general intention.",
-    expectedOutcome:
-      "Everyone knows what 'improved' looks like by next Friday",
+    expectedOutcome: "Everyone knows what 'improved' looks like by next Friday",
     timeframe: "End of coaching session",
     dueDate: null,
   },
@@ -173,9 +172,7 @@ function getActionSteps(role: string, metricKey: string): StoredActionStep[] {
  * user and reduce them to a map keyed by userId → metricKey → latest
  * numeric value.
  */
-async function loadLatestValuesByUser(
-  cutoff: Date,
-): Promise<
+async function loadLatestValuesByUser(cutoff: Date): Promise<
   Map<
     string,
     {

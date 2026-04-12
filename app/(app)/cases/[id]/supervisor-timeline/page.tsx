@@ -16,7 +16,12 @@ type Step = {
 
 const SEVERITY: Record<
   string,
-  { label: string; bg: string; fg: string; severity: "red" | "amber" | "green" | "blue" }
+  {
+    label: string;
+    bg: string;
+    fg: string;
+    severity: "red" | "amber" | "green" | "blue";
+  }
 > = {
   denial_received: {
     label: "Denial received",
@@ -214,9 +219,9 @@ export default async function SupervisorTimelinePage({
       {events.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No supervisor events for this case yet. Events appear here when
-            the system detects a denial, missed deadline, stagnant case, or
-            similar trigger.
+            No supervisor events for this case yet. Events appear here when the
+            system detects a denial, missed deadline, stagnant case, or similar
+            trigger.
           </CardContent>
         </Card>
       ) : (
@@ -265,7 +270,11 @@ export default async function SupervisorTimelinePage({
                     {isOpen && (
                       <div className="flex shrink-0 gap-2">
                         <form action={resolveEventAction}>
-                          <input type="hidden" name="eventId" value={event.id} />
+                          <input
+                            type="hidden"
+                            name="eventId"
+                            value={event.id}
+                          />
                           <input type="hidden" name="caseId" value={caseId} />
                           <button
                             type="submit"
@@ -275,7 +284,11 @@ export default async function SupervisorTimelinePage({
                           </button>
                         </form>
                         <form action={dismissEventAction}>
-                          <input type="hidden" name="eventId" value={event.id} />
+                          <input
+                            type="hidden"
+                            name="eventId"
+                            value={event.id}
+                          />
                           <input type="hidden" name="caseId" value={caseId} />
                           <button
                             type="submit"
@@ -419,7 +432,9 @@ function StatusPill({ status }: { status: string }) {
     <span
       className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
       style={{
-        backgroundColor: isTerminal ? "rgba(139,139,151,0.12)" : COLORS.brandSubtle,
+        backgroundColor: isTerminal
+          ? "rgba(139,139,151,0.12)"
+          : COLORS.brandSubtle,
         color: isTerminal ? COLORS.text2 : COLORS.brand,
       }}
     >

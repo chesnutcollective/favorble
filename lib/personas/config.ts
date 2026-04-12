@@ -157,14 +157,7 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     label: "Filing Agent",
     shortLabel: "Filer",
     defaultRoute: "/filing",
-    nav: [
-      "dashboard",
-      "filing",
-      "queue",
-      "cases",
-      "documents",
-      "team-chat",
-    ],
+    nav: ["dashboard", "filing", "queue", "cases", "documents", "team-chat"],
     workspaceDescription:
       "Ready-to-file queue for SSDI/SSI applications with one-click stage transitions.",
     primaryKpi: {
@@ -394,7 +387,5 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
  * isn't in our enum (defensive — shouldn't happen in practice).
  */
 export function getPersonaConfig(personaId: string): PersonaConfig {
-  return (
-    PERSONA_CONFIG[personaId as PersonaId] ?? PERSONA_CONFIG.viewer
-  );
+  return PERSONA_CONFIG[personaId as PersonaId] ?? PERSONA_CONFIG.viewer;
 }

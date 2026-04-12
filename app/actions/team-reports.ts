@@ -428,4 +428,3 @@ export async function getTeamSummaries(): Promise<TeamSummary[]> {
       compositeScore: 0,
     }));
 }
-

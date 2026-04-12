@@ -24,30 +24,26 @@ import {
  *
  * Feeds PR-2.
  */
-export const complianceRules = pgTable(
-  "compliance_rules",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    organizationId: uuid("organization_id").references(() => organizations.id),
-    // Unique code referenced by the scanner. e.g. "BAR_TRUST_DISBURSEMENT_LOG"
-    code: text("code").notNull().unique(),
-    name: text("name").notNull(),
-    description: text("description").notNull(),
-    category: text("category").notNull(), // bar, ethics, documentation, hipaa
-    defaultSeverity:
-      complianceFindingSeverityEnum("default_severity").notNull().default(
-        "medium",
-      ),
-    enabled: boolean("enabled").notNull().default(true),
-    config: jsonb("config"), // rule-specific tuning (thresholds, excludes)
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-);
+export const complianceRules = pgTable("compliance_rules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+  // Unique code referenced by the scanner. e.g. "BAR_TRUST_DISBURSEMENT_LOG"
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // bar, ethics, documentation, hipaa
+  defaultSeverity: complianceFindingSeverityEnum("default_severity")
+    .notNull()
+    .default("medium"),
+  enabled: boolean("enabled").notNull().default(true),
+  config: jsonb("config"), // rule-specific tuning (thresholds, excludes)
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
 
 /**
  * Compliance findings. A row per (rule, subject) where the scanner

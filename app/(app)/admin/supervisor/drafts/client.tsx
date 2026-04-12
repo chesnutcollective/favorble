@@ -155,10 +155,7 @@ export function SupervisorDraftsClient({ rows }: { rows: DraftRow[] }) {
             </SelectContent>
           </Select>
         </div>
-        <div
-          className="ml-auto text-[11px]"
-          style={{ color: COLORS.text3 }}
-        >
+        <div className="ml-auto text-[11px]" style={{ color: COLORS.text3 }}>
           {filtered.length} of {rows.length}
         </div>
       </div>

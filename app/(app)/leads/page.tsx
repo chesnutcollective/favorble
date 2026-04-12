@@ -37,7 +37,12 @@ export default async function LeadsPage({
   const action = params.action ?? "";
   const stageParam = params.stage ?? params.status ?? "";
 
-  let leadsByStage = new Map<string, Awaited<ReturnType<typeof getLeadsByStage>> extends Map<string, infer V> ? V : never>();
+  let leadsByStage = new Map<
+    string,
+    Awaited<ReturnType<typeof getLeadsByStage>> extends Map<string, infer V>
+      ? V
+      : never
+  >();
   try {
     leadsByStage = await getLeadsByStage();
   } catch {

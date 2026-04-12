@@ -200,9 +200,7 @@ export default async function CaseActivityPage({
   // Emails are already covered above — filter comm rows so we don't
   // double-render email_inbound / email_outbound events.
   const commEvents: TimelineEvent[] = commRows
-    .filter(
-      (c) => c.type !== "email_inbound" && c.type !== "email_outbound",
-    )
+    .filter((c) => c.type !== "email_inbound" && c.type !== "email_outbound")
     .map((c) => {
       const isInbound =
         c.direction === "inbound" || c.type.endsWith("_inbound");

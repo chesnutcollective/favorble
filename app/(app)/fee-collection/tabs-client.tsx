@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { COLORS } from "@/lib/design-tokens";
 import type {
@@ -87,10 +82,7 @@ function FeePetitionTable({ rows }: { rows: FeePetitionRow[] }) {
                   {formatCurrency(r.approvedAmountCents)}
                 </div>
                 {r.outstandingCents > 0 && (
-                  <div
-                    className="text-[11px]"
-                    style={{ color: COLORS.bad }}
-                  >
+                  <div className="text-[11px]" style={{ color: COLORS.bad }}>
                     {formatCurrency(r.outstandingCents)} outstanding
                   </div>
                 )}
@@ -119,9 +111,7 @@ export function FeeCollectionTabs({ data }: { data: FeePetitionWorkspace }) {
         <TabsTrigger value="pending">
           Pending ({data.counts.pending})
         </TabsTrigger>
-        <TabsTrigger value="filed">
-          Filed ({data.counts.filed})
-        </TabsTrigger>
+        <TabsTrigger value="filed">Filed ({data.counts.filed})</TabsTrigger>
         <TabsTrigger value="approved">
           Approved ({data.counts.approved})
         </TabsTrigger>

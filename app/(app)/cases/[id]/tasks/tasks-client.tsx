@@ -529,8 +529,8 @@ export function CaseTasksClient({
                 {dialog.kind === "task_instructions" && (
                   <p className="text-sm text-muted-foreground">
                     The AI will read this task and generate step-by-step
-                    instructions for the assignee, pulling relevant details
-                    from the case file.
+                    instructions for the assignee, pulling relevant details from
+                    the case file.
                   </p>
                 )}
 
@@ -548,8 +548,8 @@ export function CaseTasksClient({
 
                 {dialog.kind === "status_update" && (
                   <p className="text-sm text-muted-foreground">
-                    The AI will generate a short, friendly status update for
-                    the client using what&apos;s in the case file right now.
+                    The AI will generate a short, friendly status update for the
+                    client using what&apos;s in the case file right now.
                   </p>
                 )}
 

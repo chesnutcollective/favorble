@@ -75,8 +75,10 @@ export const coachingDrafts = pgTable(
     organizationId: uuid("organization_id")
       .notNull()
       .references(() => organizations.id),
-    coachingFlagId: uuid("coaching_flag_id")
-      .references(() => coachingFlags.id, { onDelete: "set null" }),
+    coachingFlagId: uuid("coaching_flag_id").references(
+      () => coachingFlags.id,
+      { onDelete: "set null" },
+    ),
     subjectUserId: uuid("subject_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -129,7 +131,5 @@ export const trainingGaps = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (table) => [
-    index("idx_training_gaps_role").on(table.role),
-  ],
+  (table) => [index("idx_training_gaps_role").on(table.role)],
 );

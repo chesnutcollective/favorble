@@ -243,19 +243,34 @@ export function HandoffMatrix({ rows, teams }: Props) {
                       className="border-b"
                       style={{ borderColor: COLORS.borderSubtle }}
                     >
-                      <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                      <th
+                        className="text-left px-3 py-2 text-xs font-medium"
+                        style={{ color: COLORS.text3 }}
+                      >
                         Case #
                       </th>
-                      <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                      <th
+                        className="text-right px-3 py-2 text-xs font-medium"
+                        style={{ color: COLORS.text3 }}
+                      >
                         Dwell
                       </th>
-                      <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                      <th
+                        className="text-left px-3 py-2 text-xs font-medium"
+                        style={{ color: COLORS.text3 }}
+                      >
                         Assignee
                       </th>
-                      <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                      <th
+                        className="text-right px-3 py-2 text-xs font-medium"
+                        style={{ color: COLORS.text3 }}
+                      >
                         Overdue tasks
                       </th>
-                      <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                      <th
+                        className="text-left px-3 py-2 text-xs font-medium"
+                        style={{ color: COLORS.text3 }}
+                      >
                         Last activity
                       </th>
                     </tr>
@@ -295,12 +310,17 @@ export function HandoffMatrix({ rows, teams }: Props) {
                           className="px-3 py-2 text-xs text-right tabular-nums"
                           style={{
                             color:
-                              c.overdueTaskCount > 0 ? COLORS.bad : COLORS.text1,
+                              c.overdueTaskCount > 0
+                                ? COLORS.bad
+                                : COLORS.text1,
                           }}
                         >
                           {c.overdueTaskCount}
                         </td>
-                        <td className="px-3 py-2 text-xs" style={{ color: COLORS.text3 }}>
+                        <td
+                          className="px-3 py-2 text-xs"
+                          style={{ color: COLORS.text3 }}
+                        >
                           {c.lastActivityDate
                             ? new Date(c.lastActivityDate).toLocaleDateString()
                             : "—"}

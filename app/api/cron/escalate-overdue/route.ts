@@ -98,7 +98,8 @@ export async function GET(request: NextRequest) {
       ORDER BY due_date ASC
       LIMIT ${MAX_TASKS_PER_RUN}
     `);
-    const overdueTasks = (raw as unknown as { rows?: OverdueRow[] }).rows ??
+    const overdueTasks =
+      (raw as unknown as { rows?: OverdueRow[] }).rows ??
       (raw as unknown as OverdueRow[]);
 
     logger.info("Cron escalate-overdue sweep started", {
@@ -196,7 +197,8 @@ export async function GET(request: NextRequest) {
           // SA-7: Rich context for supervisor tier-2 escalation
           const daysOverdue = dueDate ? diffDays(dueDate, now) : 0;
           const assigneeName = assignee
-            ? `${assignee.firstName ?? ""} ${assignee.lastName ?? ""}`.trim() || "Unknown"
+            ? `${assignee.firstName ?? ""} ${assignee.lastName ?? ""}`.trim() ||
+              "Unknown"
             : "Unknown";
 
           let caseLabel = "";
@@ -209,13 +211,17 @@ export async function GET(request: NextRequest) {
             if (caseRow) {
               caseLabel = `Case ${caseRow.caseNumber}`;
             }
-          } catch { /* best effort */ }
+          } catch {
+            /* best effort */
+          }
 
           const tier2Lines = [
             `Task: "${task.title}"${task.description ? ` — ${task.description.slice(0, 80)}` : ""}`,
             `Assignee: ${assigneeName} · ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue`,
             caseLabel ? caseLabel : null,
-          ].filter(Boolean).join("\n");
+          ]
+            .filter(Boolean)
+            .join("\n");
 
           await createNotification({
             organizationId: task.organization_id,
@@ -256,8 +262,12 @@ export async function GET(request: NextRequest) {
             .from(users)
             .where(eq(users.id, task.assigned_to_id!))
             .limit(1);
-          if (a) tier3AssigneeName = `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || "Unknown";
-        } catch { /* best effort */ }
+          if (a)
+            tier3AssigneeName =
+              `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || "Unknown";
+        } catch {
+          /* best effort */
+        }
 
         let tier3CaseLabel = "";
         try {
@@ -269,14 +279,18 @@ export async function GET(request: NextRequest) {
           if (caseRow) {
             tier3CaseLabel = `Case ${caseRow.caseNumber}`;
           }
-        } catch { /* best effort */ }
+        } catch {
+          /* best effort */
+        }
 
         const tier3Body = [
           `Task: "${task.title}"${task.description ? ` — ${task.description.slice(0, 80)}` : ""}`,
           `Assignee: ${tier3AssigneeName} · ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue`,
           tier3CaseLabel ? tier3CaseLabel : null,
           "Escalated through 2 tiers without resolution.",
-        ].filter(Boolean).join("\n");
+        ]
+          .filter(Boolean)
+          .join("\n");
 
         const admins = await db
           .select({ id: users.id })

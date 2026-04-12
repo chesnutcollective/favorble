@@ -219,7 +219,9 @@ async function main() {
       failed += 1;
       console.warn(
         `  FAILED ${doc.document_id}:`,
-        err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120),
+        err instanceof Error
+          ? err.message.slice(0, 120)
+          : String(err).slice(0, 120),
       );
     }
   }
@@ -230,7 +232,9 @@ async function main() {
       (SELECT count(*)::int FROM search_documents
          WHERE entity_type = 'document_chunk' AND deleted_at IS NULL) AS n
   `;
-  console.log(`\ndone: ${docs.length} docs · ${totalChunks} chunks written · ${failed} failed`);
+  console.log(
+    `\ndone: ${docs.length} docs · ${totalChunks} chunks written · ${failed} failed`,
+  );
   console.log(
     `document_chunks total: ${summary.chunks} · search_documents chunks live: ${summary.n}`,
   );

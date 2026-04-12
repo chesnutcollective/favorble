@@ -99,7 +99,10 @@ function buildPageIndex(
   while ((match = rx.exec(text)) !== null) {
     pageNo += 1;
     const capturedPage = match[1] ? parseInt(match[1], 10) : undefined;
-    out.push({ start: match.index + match[0].length, page: capturedPage ?? pageNo });
+    out.push({
+      start: match.index + match[0].length,
+      page: capturedPage ?? pageNo,
+    });
     if (capturedPage) pageNo = capturedPage;
   }
   return out;
@@ -175,7 +178,11 @@ export function chunkText(
       if (overlapTokens > 0 && buffer.length > 0) {
         const tail: string[] = [];
         let tailTokens = 0;
-        for (let i = buffer.length - 1; i >= 0 && tailTokens < overlapTokens; i--) {
+        for (
+          let i = buffer.length - 1;
+          i >= 0 && tailTokens < overlapTokens;
+          i--
+        ) {
           tail.unshift(buffer[i]);
           tailTokens += estimateTokens(buffer[i]);
         }
