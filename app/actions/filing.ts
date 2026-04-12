@@ -11,6 +11,8 @@ import {
   documentTemplates,
   auditLog,
   caseStageTransitions,
+  contacts,
+  caseContacts,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -171,11 +173,55 @@ export async function getFilingQueue(
 
   const now = Date.now();
 
+  // For cases where leads didn't provide a name, fall back to primary
+  // contact from case_contacts -> contacts (Chronicle-imported cases).
+  const caseIdsWithoutLeadName = rows
+    .filter((r) => !r.claimantFirstName && !r.claimantLastName)
+    .map((r) => r.caseId);
+
+  const contactNameMap = new Map<
+    string,
+    { firstName: string; lastName: string }
+  >();
+  if (caseIdsWithoutLeadName.length > 0) {
+    const contactRows = await db
+      .select({
+        caseId: caseContacts.caseId,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        relationship: caseContacts.relationship,
+      })
+      .from(caseContacts)
+      .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+      .where(
+        and(
+          inArray(caseContacts.caseId, caseIdsWithoutLeadName),
+          eq(caseContacts.isPrimary, true),
+        ),
+      );
+    // Prefer claimant relationship; fall back to any primary contact
+    for (const c of contactRows) {
+      const existing = contactNameMap.get(c.caseId);
+      if (!existing || c.relationship === "claimant") {
+        contactNameMap.set(c.caseId, {
+          firstName: c.firstName,
+          lastName: c.lastName,
+        });
+      }
+    }
+  }
+
   const mapped: FilingQueueRow[] = rows.map((r) => {
-    const claimantName =
-      r.claimantFirstName || r.claimantLastName
-        ? `${r.claimantFirstName ?? ""} ${r.claimantLastName ?? ""}`.trim()
+    let claimantName: string;
+    if (r.claimantFirstName || r.claimantLastName) {
+      claimantName =
+        `${r.claimantFirstName ?? ""} ${r.claimantLastName ?? ""}`.trim();
+    } else {
+      const contact = contactNameMap.get(r.caseId);
+      claimantName = contact
+        ? `${contact.firstName} ${contact.lastName}`.trim()
         : "Unknown Claimant";
+    }
 
     const daysWaiting = Math.max(
       0,
