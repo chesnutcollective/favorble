@@ -4,15 +4,15 @@
   "crons": [
     {
       "path": "/api/cron/ingest-retry",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 1 * * *"
     },
     {
       "path": "/api/cron/transcription-retry",
-      "schedule": "0 */6 * * *"
+      "schedule": "15 1 * * *"
     },
     {
       "path": "/api/cron/escalate-overdue",
-      "schedule": "0 */4 * * *"
+      "schedule": "30 1 * * *"
     },
     {
       "path": "/api/cron/deadline-scan",
@@ -40,15 +40,15 @@
     },
     {
       "path": "/api/cron/integration-health",
-      "schedule": "0 */8 * * *"
+      "schedule": "0 5 * * *"
     },
     {
       "path": "/api/cron/integration-alerts",
-      "schedule": "0 */12 * * *"
+      "schedule": "30 5 * * *"
     },
     {
       "path": "/api/cron/integration-cleanup",
-      "schedule": "0 5 * * *"
+      "schedule": "0 9 * * *"
     }
   ]
 }
