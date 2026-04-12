@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { COLORS } from "@/lib/design-tokens";
 import type {
   FeePetitionRow,
   FeePetitionWorkspace,
@@ -29,28 +27,18 @@ function formatDate(iso: string | null): string {
 function FeePetitionTable({ rows }: { rows: FeePetitionRow[] }) {
   if (rows.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-10 text-center">
-          <p className="text-sm text-[#666]">
-            No fee petitions in this bucket.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="text-3xl text-muted-foreground mb-3">💰</div>
+        <p className="text-sm font-medium text-foreground">No fee petitions in this bucket</p>
+        <p className="text-xs text-muted-foreground mt-1">Fee petitions will appear here as they move through the pipeline.</p>
+      </div>
     );
   }
 
   return (
-    <div
-      className="border rounded-md bg-white overflow-hidden"
-      style={{ borderColor: COLORS.borderDefault }}
-    >
+    <div className="border border-border rounded-md bg-white overflow-hidden">
       <table className="w-full text-[13px]">
-        <thead
-          style={{
-            backgroundColor: COLORS.surface,
-            borderBottom: `1px solid ${COLORS.borderDefault}`,
-          }}
-        >
+        <thead className="bg-muted/50 border-b border-border">
           <tr>
             <th className="text-left px-4 py-2 font-medium">Case / Claimant</th>
             <th className="text-left px-4 py-2 font-medium">Favorable</th>
@@ -63,40 +51,39 @@ function FeePetitionTable({ rows }: { rows: FeePetitionRow[] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr
+            <Link
               key={r.id}
-              style={{ borderTop: `1px solid ${COLORS.borderSubtle}` }}
+              href={`/cases/${r.caseId}`}
+              className="contents"
             >
-              <td className="px-4 py-2">
-                <div className="font-medium">{r.caseNumber}</div>
-                <div className="text-[11px] text-[#666]">{r.claimantName}</div>
-              </td>
-              <td className="px-4 py-2 tabular-nums">
-                {formatDate(r.favorableDecisionDate)}
-              </td>
-              <td className="px-4 py-2 tabular-nums">{r.ageInDays}d</td>
-              <td className="px-4 py-2">{r.assignedUserName ?? "—"}</td>
-              <td className="px-4 py-2 capitalize">{r.status}</td>
-              <td className="px-4 py-2 text-right tabular-nums">
-                <div className="font-medium">
-                  {formatCurrency(r.approvedAmountCents)}
-                </div>
-                {r.outstandingCents > 0 && (
-                  <div className="text-[11px]" style={{ color: COLORS.bad }}>
-                    {formatCurrency(r.outstandingCents)} outstanding
+              <tr className="border-t border-border hover:bg-[#FAFAFA] transition-colors duration-200 cursor-pointer">
+                <td className="px-4 py-2">
+                  <div className="font-medium">{r.caseNumber}</div>
+                  <div className="text-[11px] text-muted-foreground">{r.claimantName}</div>
+                </td>
+                <td className="px-4 py-2 tabular-nums">
+                  {formatDate(r.favorableDecisionDate)}
+                </td>
+                <td className="px-4 py-2 tabular-nums">{r.ageInDays}d</td>
+                <td className="px-4 py-2">{r.assignedUserName ?? "—"}</td>
+                <td className="px-4 py-2 capitalize">{r.status}</td>
+                <td className="px-4 py-2 text-right tabular-nums">
+                  <div className="font-medium">
+                    {formatCurrency(r.approvedAmountCents)}
                   </div>
-                )}
-              </td>
-              <td className="px-4 py-2">
-                <Link
-                  href={`/cases/${r.caseId}`}
-                  className="text-[12px] underline"
-                  style={{ color: COLORS.brand }}
-                >
-                  View case
-                </Link>
-              </td>
-            </tr>
+                  {r.outstandingCents > 0 && (
+                    <div className="text-[11px] text-urgent">
+                      {formatCurrency(r.outstandingCents)} outstanding
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  <span className="text-[12px] underline text-brand-600">
+                    View case
+                  </span>
+                </td>
+              </tr>
+            </Link>
           ))}
         </tbody>
       </table>

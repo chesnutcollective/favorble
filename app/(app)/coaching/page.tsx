@@ -20,10 +20,10 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const SEVERITY_COLORS: Record<string, string> = {
-  low: "bg-[#f0f0f0] text-[#444]",
-  medium: "bg-[#fff4e0] text-[#8a4b00]",
-  high: "bg-[#ffe5e0] text-[#a02400]",
-  critical: "bg-[#3a0000] text-white",
+  low: "bg-muted text-foreground",
+  medium: "bg-warning/10 text-warning",
+  high: "bg-urgent/10 text-urgent",
+  critical: "bg-urgent text-white",
 };
 
 function severityBand(
@@ -57,7 +57,7 @@ export default async function CoachingPage() {
         actions={
           <Link
             href="/coaching/training-gaps"
-            className="text-[13px] text-[#0066cc] hover:underline"
+            className="text-[13px] text-brand-600 hover:underline"
           >
             View training gaps →
           </Link>
@@ -66,21 +66,21 @@ export default async function CoachingPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
-          <CardContent className="p-4">
-            <p className="text-[12px] text-[#666]">Open flags</p>
-            <p className="text-[28px] font-semibold">{openCount}</p>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground mb-2">Open flags</p>
+            <p className="text-[28px] font-bold tracking-[-1px] leading-[1.1] tabular-nums">{openCount}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <p className="text-[12px] text-[#666]">People problems</p>
-            <p className="text-[28px] font-semibold">{peopleCount}</p>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground mb-2">People problems</p>
+            <p className="text-[28px] font-bold tracking-[-1px] leading-[1.1] tabular-nums">{peopleCount}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <p className="text-[12px] text-[#666]">Process problems</p>
-            <p className="text-[28px] font-semibold">{processCount}</p>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground mb-2">Process problems</p>
+            <p className="text-[28px] font-bold tracking-[-1px] leading-[1.1] tabular-nums">{processCount}</p>
           </CardContent>
         </Card>
       </div>
@@ -103,20 +103,27 @@ export default async function CoachingPage() {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="h-24 text-center text-muted-foreground"
+                  className="h-32"
                 >
-                  No open coaching flags.
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <div className="text-3xl text-muted-foreground mb-3">🎯</div>
+                    <p className="text-sm font-medium text-foreground">No open coaching flags</p>
+                    <p className="text-xs text-muted-foreground mt-1">Coaching flags will appear here from performance snapshots.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               flags.map((flag) => {
                 const band = severityBand(flag.severity);
                 return (
-                  <TableRow key={flag.id}>
+                  <TableRow
+                    key={flag.id}
+                    className="hover:bg-[#FAFAFA] transition-colors duration-200"
+                  >
                     <TableCell className="font-medium">
                       {flag.subjectName}
                     </TableCell>
-                    <TableCell className="text-[13px] text-[#666] capitalize">
+                    <TableCell className="text-[13px] text-muted-foreground capitalize">
                       {flag.role.replace(/_/g, " ")}
                     </TableCell>
                     <TableCell>
@@ -126,7 +133,7 @@ export default async function CoachingPage() {
                         {flag.severity}/10 · {band}
                       </span>
                     </TableCell>
-                    <TableCell className="text-[13px] font-mono text-[#666]">
+                    <TableCell className="text-[13px] font-mono text-muted-foreground">
                       {flag.metricKey}
                     </TableCell>
                     <TableCell>
@@ -141,16 +148,16 @@ export default async function CoachingPage() {
                           {flag.classification}
                         </Badge>
                       ) : (
-                        <span className="text-[12px] text-[#999]">—</span>
+                        <span className="text-[12px] text-muted-foreground/60">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-[13px] text-[#444] max-w-md truncate">
+                    <TableCell className="text-[13px] text-muted-foreground max-w-md truncate">
                       {flag.summary}
                     </TableCell>
                     <TableCell>
                       <Link
                         href={`/coaching/${flag.id}`}
-                        className="text-[13px] text-[#0066cc] hover:underline"
+                        className="text-[13px] text-brand-600 hover:underline"
                       >
                         Open
                       </Link>

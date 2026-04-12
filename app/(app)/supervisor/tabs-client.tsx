@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { COLORS } from "@/lib/design-tokens";
 import type {
   WorkloadRow,
@@ -26,7 +25,7 @@ function EscalationBadge({ state }: { state: string }) {
   const styles: Record<string, { bg: string; color: string }> = {
     reminder_sent: { bg: COLORS.warnSubtle, color: COLORS.warn },
     supervisor_notified: { bg: COLORS.badSubtle, color: COLORS.bad },
-    management_flagged: { bg: "#3a0000", color: "#ffffff" },
+    management_flagged: { bg: COLORS.bad, color: "#ffffff" },
   };
   const s = styles[state] ?? { bg: COLORS.okSubtle, color: COLORS.ok };
   return (
@@ -108,7 +107,7 @@ function WorkloadBar({
   const inProgressPct = max > 0 ? Math.min(100, (inProgress / max) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
         <div className="h-full flex">
           <div
             className="h-full rounded-l-full"
@@ -128,7 +127,7 @@ function WorkloadBar({
           />
         </div>
       </div>
-      <span className="text-[11px] tabular-nums text-[#666] w-6 text-right">
+      <span className="text-[11px] tabular-nums text-muted-foreground w-6 text-right">
         {total}
       </span>
     </div>
@@ -138,30 +137,20 @@ function WorkloadBar({
 function WorkloadTable({ rows }: { rows: WorkloadRow[] }) {
   if (rows.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-10 text-center">
-          <p className="text-sm text-[#666]">
-            No team members with open tasks.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="text-3xl text-muted-foreground mb-3">👥</div>
+        <p className="text-sm font-medium text-foreground">No team members with open tasks</p>
+        <p className="text-xs text-muted-foreground mt-1">Team workload will appear here once tasks are assigned.</p>
+      </div>
     );
   }
 
   const maxTasks = Math.max(...rows.map((r) => r.totalOpen), 1);
 
   return (
-    <div
-      className="border rounded-md bg-white overflow-hidden"
-      style={{ borderColor: COLORS.borderDefault }}
-    >
+    <div className="border border-border rounded-md bg-white overflow-hidden">
       <table className="w-full text-[13px]">
-        <thead
-          style={{
-            backgroundColor: COLORS.surface,
-            borderBottom: `1px solid ${COLORS.borderDefault}`,
-          }}
-        >
+        <thead className="bg-muted/50 border-b border-border">
           <tr>
             <th className="text-left px-4 py-2 font-medium">Team Member</th>
             <th className="text-left px-4 py-2 font-medium">Role</th>
@@ -175,17 +164,17 @@ function WorkloadTable({ rows }: { rows: WorkloadRow[] }) {
           {rows.map((r) => (
             <tr
               key={r.userId}
-              style={{ borderTop: `1px solid ${COLORS.borderSubtle}` }}
+              className="border-t border-border hover:bg-[#FAFAFA] transition-colors duration-200"
             >
               <td className="px-4 py-2">
                 <div className="font-medium">{r.userName}</div>
                 {r.team && (
-                  <div className="text-[11px] text-[#666] capitalize">
+                  <div className="text-[11px] text-muted-foreground capitalize">
                     {r.team.replace(/_/g, " ")}
                   </div>
                 )}
               </td>
-              <td className="px-4 py-2 capitalize text-[#666]">
+              <td className="px-4 py-2 capitalize text-muted-foreground">
                 {r.role.replace(/_/g, " ")}
               </td>
               <td className="px-4 py-2 w-40">
@@ -207,7 +196,7 @@ function WorkloadTable({ rows }: { rows: WorkloadRow[] }) {
                     {r.overdueTasks}
                   </span>
                 ) : (
-                  <span className="text-[#999]">0</span>
+                  <span className="text-muted-foreground/60">0</span>
                 )}
               </td>
             </tr>
@@ -223,26 +212,18 @@ function WorkloadTable({ rows }: { rows: WorkloadRow[] }) {
 function EscalationTable({ rows }: { rows: EscalationRow[] }) {
   if (rows.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-10 text-center">
-          <p className="text-sm text-[#666]">No escalated tasks.</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="text-3xl text-muted-foreground mb-3">🚨</div>
+        <p className="text-sm font-medium text-foreground">No escalated tasks</p>
+        <p className="text-xs text-muted-foreground mt-1">Escalations will appear here when tasks exceed their due dates.</p>
+      </div>
     );
   }
 
   return (
-    <div
-      className="border rounded-md bg-white overflow-hidden"
-      style={{ borderColor: COLORS.borderDefault }}
-    >
+    <div className="border border-border rounded-md bg-white overflow-hidden">
       <table className="w-full text-[13px]">
-        <thead
-          style={{
-            backgroundColor: COLORS.surface,
-            borderBottom: `1px solid ${COLORS.borderDefault}`,
-          }}
-        >
+        <thead className="bg-muted/50 border-b border-border">
           <tr>
             <th className="text-left px-4 py-2 font-medium">Task</th>
             <th className="text-left px-4 py-2 font-medium">Case</th>
@@ -256,43 +237,42 @@ function EscalationTable({ rows }: { rows: EscalationRow[] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr
+            <Link
               key={r.taskId}
-              style={{ borderTop: `1px solid ${COLORS.borderSubtle}` }}
+              href={`/cases/${r.caseId}`}
+              className="contents"
             >
-              <td className="px-4 py-2 font-medium max-w-[200px] truncate">
-                {r.taskTitle}
-              </td>
-              <td className="px-4 py-2">{r.caseNumber}</td>
-              <td className="px-4 py-2">{r.assignedUserName ?? "\u2014"}</td>
-              <td className="px-4 py-2">
-                <PriorityBadge priority={r.priority} />
-              </td>
-              <td className="px-4 py-2">
-                <EscalationBadge state={r.escalationState} />
-              </td>
-              <td className="px-4 py-2 tabular-nums">
-                {formatDate(r.dueDate)}
-              </td>
-              <td className="px-4 py-2 text-right tabular-nums">
-                {r.daysOverdue > 0 ? (
-                  <span style={{ color: COLORS.bad, fontWeight: 600 }}>
-                    {r.daysOverdue}d
+              <tr className="border-t border-border hover:bg-[#FAFAFA] transition-colors duration-200 cursor-pointer">
+                <td className="px-4 py-2 font-medium max-w-[200px] truncate">
+                  {r.taskTitle}
+                </td>
+                <td className="px-4 py-2">{r.caseNumber}</td>
+                <td className="px-4 py-2">{r.assignedUserName ?? "\u2014"}</td>
+                <td className="px-4 py-2">
+                  <PriorityBadge priority={r.priority} />
+                </td>
+                <td className="px-4 py-2">
+                  <EscalationBadge state={r.escalationState} />
+                </td>
+                <td className="px-4 py-2 tabular-nums">
+                  {formatDate(r.dueDate)}
+                </td>
+                <td className="px-4 py-2 text-right tabular-nums">
+                  {r.daysOverdue > 0 ? (
+                    <span style={{ color: COLORS.bad, fontWeight: 600 }}>
+                      {r.daysOverdue}d
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground/60">\u2014</span>
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  <span className="text-[12px] underline text-brand-600">
+                    View case
                   </span>
-                ) : (
-                  <span className="text-[#999]">\u2014</span>
-                )}
-              </td>
-              <td className="px-4 py-2">
-                <Link
-                  href={`/cases/${r.caseId}`}
-                  className="text-[12px] underline"
-                  style={{ color: COLORS.brand }}
-                >
-                  View case
-                </Link>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            </Link>
           ))}
         </tbody>
       </table>
@@ -305,26 +285,18 @@ function EscalationTable({ rows }: { rows: EscalationRow[] }) {
 function EventsTable({ rows }: { rows: SupervisorEventRow[] }) {
   if (rows.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-10 text-center">
-          <p className="text-sm text-[#666]">No supervisor events.</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="text-3xl text-muted-foreground mb-3">📡</div>
+        <p className="text-sm font-medium text-foreground">No supervisor events</p>
+        <p className="text-xs text-muted-foreground mt-1">Events will appear here as they are detected by the system.</p>
+      </div>
     );
   }
 
   return (
-    <div
-      className="border rounded-md bg-white overflow-hidden"
-      style={{ borderColor: COLORS.borderDefault }}
-    >
+    <div className="border border-border rounded-md bg-white overflow-hidden">
       <table className="w-full text-[13px]">
-        <thead
-          style={{
-            backgroundColor: COLORS.surface,
-            borderBottom: `1px solid ${COLORS.borderDefault}`,
-          }}
-        >
+        <thead className="bg-muted/50 border-b border-border">
           <tr>
             <th className="text-left px-4 py-2 font-medium">Event</th>
             <th className="text-left px-4 py-2 font-medium">Status</th>
@@ -335,40 +307,45 @@ function EventsTable({ rows }: { rows: SupervisorEventRow[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr
-              key={r.id}
-              style={{ borderTop: `1px solid ${COLORS.borderSubtle}` }}
-            >
-              <td className="px-4 py-2">
-                <div className="flex flex-col gap-1">
-                  <EventTypeBadge type={r.eventType} />
-                  <p className="text-[12px] text-[#444] max-w-xs truncate">
-                    {r.summary}
-                  </p>
-                </div>
-              </td>
-              <td className="px-4 py-2">
-                <StatusDot status={r.status} />
-              </td>
-              <td className="px-4 py-2">{r.caseNumber ?? "\u2014"}</td>
-              <td className="px-4 py-2">{r.assignedUserName ?? "\u2014"}</td>
-              <td className="px-4 py-2 tabular-nums">
-                {formatDate(r.detectedAt)}
-              </td>
-              <td className="px-4 py-2">
-                {r.caseId && (
-                  <Link
-                    href={`/cases/${r.caseId}`}
-                    className="text-[12px] underline"
-                    style={{ color: COLORS.brand }}
-                  >
-                    View case
-                  </Link>
-                )}
-              </td>
-            </tr>
-          ))}
+          {rows.map((r) => {
+            const row = (
+              <tr
+                key={r.id}
+                className={`border-t border-border transition-colors duration-200 ${r.caseId ? "hover:bg-[#FAFAFA] cursor-pointer" : ""}`}
+              >
+                <td className="px-4 py-2">
+                  <div className="flex flex-col gap-1">
+                    <EventTypeBadge type={r.eventType} />
+                    <p className="text-[12px] text-muted-foreground max-w-xs truncate">
+                      {r.summary}
+                    </p>
+                  </div>
+                </td>
+                <td className="px-4 py-2">
+                  <StatusDot status={r.status} />
+                </td>
+                <td className="px-4 py-2">{r.caseNumber ?? "\u2014"}</td>
+                <td className="px-4 py-2">{r.assignedUserName ?? "\u2014"}</td>
+                <td className="px-4 py-2 tabular-nums">
+                  {formatDate(r.detectedAt)}
+                </td>
+                <td className="px-4 py-2">
+                  {r.caseId && (
+                    <span className="text-[12px] underline text-brand-600">
+                      View case
+                    </span>
+                  )}
+                </td>
+              </tr>
+            );
+            return r.caseId ? (
+              <Link key={r.id} href={`/cases/${r.caseId}`} className="contents">
+                {row}
+              </Link>
+            ) : (
+              row
+            );
+          })}
         </tbody>
       </table>
     </div>

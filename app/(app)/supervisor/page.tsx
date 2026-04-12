@@ -63,7 +63,7 @@ export default async function SupervisorPage() {
         description="Team workload, escalations, and supervisor event feed across all active cases."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatsCard
           title="Active Cases"
           value={perf.totalActiveCases}
