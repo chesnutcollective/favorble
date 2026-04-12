@@ -15,9 +15,44 @@ import {
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ThemeSwitcher } from "./theme-switcher";
 import { ViewAsMenu } from "./view-as-menu";
 import type { PersonaId } from "@/lib/personas/config";
+
+/* ─── Tooltip descriptions ─── */
+
+const railTooltips: Record<string, string> = {
+  dashboard: "Dashboard \u2014 your daily command center",
+  supervisor: "Supervisor \u2014 monitor team performance & case health",
+  coaching: "Coaching \u2014 flags, action plans & training gaps",
+  drafts: "AI Drafts \u2014 review & approve AI-generated documents",
+  cases: "Cases \u2014 every active case at a glance",
+  leads: "Leads \u2014 intake pipeline & new prospects",
+  queue: "Queue \u2014 your personal task list",
+  calendar: "Calendar \u2014 hearings, deadlines & appointments",
+  messages: "Messages \u2014 client conversations",
+  email: "Email \u2014 Outlook integration",
+  contacts: "Contacts \u2014 claimants, providers & counsel",
+  documents: "Documents \u2014 case files & uploads",
+  reports: "Reports \u2014 analytics, win rates & ALJ stats",
+  hearings: "Hearings \u2014 upcoming hearing prep",
+  filing: "Filing \u2014 SSDI/SSI application queue",
+  "phi-writer": "PHI Writer \u2014 pre-hearing intelligence sheets",
+  "medical-records": "Medical Records \u2014 MR collection & RFC tracking",
+  mail: "Mail \u2014 physical mail processing",
+  billing: "Billing \u2014 time, invoices & payments",
+  trust: "Trust \u2014 IOLTA accounts & transactions",
+  "team-chat": "Team Chat \u2014 internal channels",
+  "fee-collection": "Fee Collection \u2014 petitions & collections",
+  "appeals-council": "Appeals Council \u2014 AC brief pipeline",
+  "post-hearing": "Post-Hearing \u2014 outcome processing",
+};
 
 /* ─── Rail nav items ─── */
 
@@ -577,6 +612,7 @@ export function TwoTierNav({
     <div className="ttn-float" data-collapsed={collapsed}>
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
+        <TooltipProvider delayDuration={150}>
         <nav className="ttn-rail">
           {/* Logo */}
           <Link
@@ -593,20 +629,30 @@ export function TwoTierNav({
             />
           </Link>
 
-          {/* Main nav icons */}
-          <div className="ttn-rail-group">
+          {/* Main nav icons — scrollable with fade mask */}
+          <div className="ttn-rail-group ttn-rail-scroll-mask">
             {visibleRailItems.map((item) => {
               const active = isRailActive(item);
+              const tip = railTooltips[item.id] ?? item.label;
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`ttn-rail-btn${active ? " active" : ""}`}
-                  title={item.label}
-                >
-                  {item.icon}
-                  {item.notification && <span className="ttn-notif-dot" />}
-                </Link>
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={`ttn-rail-btn${active ? " active" : ""}`}
+                    >
+                      {item.icon}
+                      {item.notification && <span className="ttn-notif-dot" />}
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    sideOffset={10}
+                    className="ttn-tooltip"
+                  >
+                    {tip}
+                  </TooltipContent>
+                </Tooltip>
               );
             })}
           </div>
@@ -615,43 +661,63 @@ export function TwoTierNav({
           <div className="ttn-rail-spacer" />
 
           {/* Collapse / expand toggle */}
-          <button
-            type="button"
-            className="ttn-collapse-btn"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            onClick={() => setCollapsed((c) => !c)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width="16"
-              height="16"
-              style={{
-                transform: collapsed ? "rotate(180deg)" : undefined,
-                transition: "transform 0.2s ease",
-              }}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="ttn-collapse-btn"
+                onClick={() => setCollapsed((c) => !c)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  width="16"
+                  height="16"
+                  style={{
+                    transform: collapsed ? "rotate(180deg)" : undefined,
+                    transition: "transform 0.2s ease",
+                  }}
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              sideOffset={10}
+              className="ttn-tooltip"
             >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+              {collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            </TooltipContent>
+          </Tooltip>
 
           {/* User avatar */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="ttn-rail-avatar"
-                type="button"
-                title={`${user.firstName} ${user.lastName}`}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="ttn-rail-avatar"
+                    type="button"
+                  >
+                    <span>{initials}</span>
+                    <span className="ttn-status-dot" />
+                  </button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={10}
+                className="ttn-tooltip"
               >
-                <span>{initials}</span>
-                <span className="ttn-status-dot" />
-              </button>
-            </DropdownMenuTrigger>
+                Your profile & view-as
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent
               side="right"
               align="end"
@@ -704,15 +770,26 @@ export function TwoTierNav({
 
           {/* Settings gear — only shown to admins (actor, not previewed persona) */}
           {isAdmin && (
-            <Link
-              href="/admin/settings"
-              className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
-              title="Settings"
-            >
-              {settingsIcon}
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/admin/settings"
+                  className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
+                >
+                  {settingsIcon}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={10}
+                className="ttn-tooltip"
+              >
+                Settings &mdash; firm configuration & admin
+              </TooltipContent>
+            </Tooltip>
           )}
         </nav>
+        </TooltipProvider>
 
         {/* ── Tier 2: Context Panel ── */}
         <aside className="ttn-panel">
