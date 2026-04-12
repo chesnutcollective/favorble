@@ -16,6 +16,12 @@ import {
 } from "@/lib/services/case-health";
 import { PageHeader } from "@/components/shared/page-header";
 import { COLORS } from "@/lib/design-tokens";
+import { getOrgSentimentTrend } from "@/app/actions/sentiment-analytics";
+import {
+  StackedBar,
+  type StackedBarEntry,
+  type StackedBarSeries,
+} from "@/components/charts/stacked-bar";
 
 export const metadata: Metadata = {
   title: "Client Health — QA",
@@ -92,7 +98,29 @@ export default async function ClientHealthPage() {
     .limit(200);
 
   const caseIds = caseRows.map((c) => c.id);
-  const healthMap = await getCaseHealthForCases(caseIds);
+  const [healthMap, trendDays] = await Promise.all([
+    getCaseHealthForCases(caseIds),
+    getOrgSentimentTrend(30),
+  ]);
+
+  const SENTIMENT_SERIES: StackedBarSeries[] = [
+    { key: "positive", label: "Positive", color: COLORS.ok },
+    { key: "neutral", label: "Neutral", color: COLORS.text4 },
+    { key: "confused", label: "Confused", color: COLORS.brand },
+    { key: "frustrated", label: "Frustrated", color: COLORS.warn },
+    { key: "angry", label: "Angry", color: COLORS.bad },
+    { key: "churn_risk", label: "Churn risk", color: "#7a1f18" },
+  ];
+
+  const trendBars: StackedBarEntry[] = trendDays.map((d) => ({
+    label: d.date.slice(5), // mm-dd
+    segments: SENTIMENT_SERIES.map((s) => ({
+      key: s.key,
+      value: d.counts[s.key as keyof typeof d.counts] ?? 0,
+    })),
+  }));
+
+  const trendTotals = trendDays.reduce((acc, d) => acc + d.total, 0);
 
   const enriched = caseRows
     .map((c) => ({
@@ -224,6 +252,41 @@ export default async function ClientHealthPage() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div
+        className="rounded-[10px] border p-4"
+        style={{
+          borderColor: COLORS.borderSubtle,
+          backgroundColor: "#FFFFFF",
+        }}
+      >
+        <div className="mb-3 flex items-baseline justify-between">
+          <div>
+            <h2
+              className="text-[14px] font-semibold"
+              style={{ color: COLORS.text1 }}
+            >
+              Sentiment trend (last 30 days)
+            </h2>
+            <p className="text-[12px]" style={{ color: COLORS.text3 }}>
+              Daily distribution of analyzed messages across the org.
+            </p>
+          </div>
+          <span className="text-[11px]" style={{ color: COLORS.text3 }}>
+            {trendTotals === 0
+              ? "no analyzed messages yet"
+              : `${trendTotals} analyzed`}
+          </span>
+        </div>
+        <StackedBar
+          bars={trendBars}
+          series={SENTIMENT_SERIES}
+          height={200}
+          barWidth={14}
+          gap={4}
+          ariaLabel="Org-wide sentiment distribution per day"
+        />
       </div>
     </div>
   );

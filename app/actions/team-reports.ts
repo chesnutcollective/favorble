@@ -13,6 +13,7 @@ import {
   type Classification,
   type LabeledValue,
 } from "@/lib/services/pattern-analysis";
+import { generatePatternNarrative } from "@/lib/services/pattern-narrative";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,6 +51,8 @@ export type PatternAnalysisResult = {
   metricKey: string;
   label: string;
   classification: Classification;
+  /** Plain-English summary of the verdict for non-analyst readers. */
+  narrative: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -190,11 +193,30 @@ export async function getRolePatternAnalysis(
     direction: metric.direction,
   });
 
+  const currentAverage =
+    values.length > 0
+      ? Math.round(
+          (values.reduce((acc, v) => acc + v.value, 0) / values.length) * 100,
+        ) / 100
+      : undefined;
+
+  const narrative = await generatePatternNarrative({
+    role,
+    metricKey,
+    metricLabel: metric.label,
+    classification,
+    stats: {
+      target: metric.targetValue,
+      currentAverage,
+    },
+  });
+
   return {
     role,
     metricKey,
     label: metric.label,
     classification,
+    narrative,
   };
 }
 

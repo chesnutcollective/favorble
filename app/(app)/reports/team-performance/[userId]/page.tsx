@@ -7,6 +7,7 @@ import {
   getUserTrend,
   type UserMetricSnapshot,
 } from "@/app/actions/leaderboards";
+import { getRolePatternAnalysis } from "@/app/actions/team-reports";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,6 +105,15 @@ export default async function UserPerformancePage({ params }: PageProps) {
     ),
   );
 
+  // RP-3: pull a process-vs-people pattern verdict + AI narrative for
+  // each metric on this user's role. Failures fall back to null so the
+  // metric card still renders without the badge/sentence.
+  const patterns = await Promise.all(
+    perf.metrics.map((m) =>
+      getRolePatternAnalysis(perf.role, m.metricKey).catch(() => null),
+    ),
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -181,9 +191,44 @@ export default async function UserPerformancePage({ params }: PageProps) {
         {perf.metrics.map((metric, i) => {
           const colors = statusColor(metric.status);
           const trendData = trends[i];
+          const pattern = patterns[i];
           return (
             <Card key={metric.metricKey}>
               <CardContent className="p-5">
+                {pattern && pattern.classification.kind !== "unclear" && (
+                  <div
+                    className="mb-3 rounded-md border p-2.5"
+                    style={{
+                      borderColor: COLORS.borderSubtle,
+                      backgroundColor: COLORS.surface,
+                    }}
+                  >
+                    <p
+                      className="text-[12px] leading-snug"
+                      style={{ color: COLORS.text2 }}
+                    >
+                      {pattern.narrative}
+                    </p>
+                    <div className="mt-1.5">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] uppercase tracking-wide"
+                        style={{
+                          borderColor:
+                            pattern.classification.kind === "process"
+                              ? COLORS.warn
+                              : COLORS.brand,
+                          color:
+                            pattern.classification.kind === "process"
+                              ? COLORS.warn
+                              : COLORS.brand,
+                        }}
+                      >
+                        {pattern.classification.kind} problem
+                      </Badge>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-start justify-between mb-3">
                   <div className="min-w-0 flex-1">
                     <h3

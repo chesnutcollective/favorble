@@ -12,6 +12,7 @@ import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import { recordSupervisorEvent, linkArtifactToEvent } from "@/lib/services/supervisor-events";
 import { createNotification } from "@/lib/services/notify";
+import { suggestStagnantCaseNextAction } from "@/lib/services/stagnant-suggestions";
 
 /**
  * Cron endpoint that scans for stagnant cases — cases where nothing has
@@ -151,8 +152,22 @@ export async function GET(request: NextRequest) {
       );
 
       const summary = `Case ${c.caseNumber} has had no activity in ${daysIdle} days`;
-      const recommendedAction =
-        "Review stage progression and assign next action";
+
+      // SM-3: ask Claude for a per-case next-action recommendation.
+      // Wrapped in try/catch — failures fall back to a generic line so
+      // a hung LLM never blocks the sweep.
+      let recommendedAction = "Review case with case manager";
+      try {
+        recommendedAction = await suggestStagnantCaseNextAction({
+          caseId: c.id,
+          daysStagnant: daysIdle,
+        });
+      } catch (err) {
+        logger.warn("stagnant-scan: suggestion failed, using fallback", {
+          caseId: c.id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
 
       // Find the case manager for this case (falls back to primary assignee)
       const [assignee] = await db
