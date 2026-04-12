@@ -611,10 +611,17 @@ export function TwoTierNav({
   }, [pathname]);
   const visiblePanel = panelOverride ?? activeRailId;
 
-  // Unread changelog badge: compare commit dates against localStorage timestamp
+  // Unread changelog badge: compare commit dates against localStorage timestamp.
+  // Clear when user navigates to /changelog.
   const [changelogUnread, setChangelogUnread] = useState(0);
   useEffect(() => {
     if (!changelogCommits?.length) return;
+    // If the user is currently on /changelog, mark everything as read
+    if (pathname.startsWith("/changelog")) {
+      localStorage.setItem("changelog:lastViewedAt", new Date().toISOString());
+      setChangelogUnread(0);
+      return;
+    }
     const lastViewed = localStorage.getItem("changelog:lastViewedAt");
     if (!lastViewed) {
       setChangelogUnread(changelogCommits.length);
@@ -625,7 +632,7 @@ export function TwoTierNav({
       (c) => new Date(c.date).getTime() > lastViewedDate,
     ).length;
     setChangelogUnread(unread);
-  }, [changelogCommits]);
+  }, [changelogCommits, pathname]);
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
@@ -795,17 +802,12 @@ export function TwoTierNav({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Changelog / what's new */}
+          {/* Changelog / what's new — navigates to /changelog */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <button
-                type="button"
-                className={`ttn-rail-btn${visiblePanel === "changelog" ? " active" : ""}`}
-                onClick={() =>
-                  setPanelOverride((prev) =>
-                    prev === "changelog" ? null : "changelog",
-                  )
-                }
+              <Link
+                href="/changelog"
+                className={`ttn-rail-btn${pathname.startsWith("/changelog") ? " active" : ""}`}
                 style={{ position: "relative" }}
               >
                 <svg
@@ -822,7 +824,7 @@ export function TwoTierNav({
                     {changelogUnread > 9 ? "9+" : changelogUnread}
                   </span>
                 )}
-              </button>
+              </Link>
             </TooltipTrigger>
             <TooltipContent
               side="right"
