@@ -1,12 +1,13 @@
 import "server-only";
 import { db } from "@/db/drizzle";
-import { supervisorEvents } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { supervisorEvents, caseAssignments, users } from "@/db/schema";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import {
   advanceSupervisorEvent,
   linkArtifactToEvent,
 } from "@/lib/services/supervisor-events";
+import { createNotification } from "@/lib/services/notify";
 import {
   draftAppealReconsideration,
   draftAppealsCouncilBrief,
@@ -112,6 +113,59 @@ export async function handleSupervisorEvent(
       by: "system",
       note: `Auto-drafted ${draftIds.length} artifact(s) in response to ${event.eventType}`,
     });
+
+    // SA-1: Structured "what to do next" notification for the case manager
+    if (caseId && draftIds.length > 0) {
+      try {
+        const [assignee] = await db
+          .select({ userId: caseAssignments.userId })
+          .from(caseAssignments)
+          .leftJoin(users, eq(users.id, caseAssignments.userId))
+          .where(
+            and(
+              eq(caseAssignments.caseId, caseId),
+              isNull(caseAssignments.unassignedAt),
+            ),
+          )
+          .orderBy(desc(caseAssignments.isPrimary))
+          .limit(1);
+
+        if (assignee?.userId) {
+          const draftNote =
+            draftIds.length === 1
+              ? "AI has drafted 1 artifact. Review and approve."
+              : `AI has drafted ${draftIds.length} artifacts. Review and approve.`;
+          const actionLine = event.recommendedAction
+            ? `What to do: ${event.recommendedAction}`
+            : `What to do: Review the auto-generated drafts.`;
+          const notifBody = [
+            `What happened: ${event.summary}`,
+            actionLine,
+            draftNote,
+          ].join("\n").slice(0, 300);
+          const notifId = await createNotification({
+            organizationId: event.organizationId,
+            userId: assignee.userId,
+            caseId,
+            title: `Event: ${event.eventType.replace(/_/g, " ")}`,
+            body: notifBody,
+            priority: "high",
+            actionLabel: "Open draft",
+            actionHref: `/drafts/${draftIds[0]}`,
+            dedupeKey: `event-draft:${eventId}`,
+            sourceEventId: eventId,
+          });
+          if (notifId) {
+            await linkArtifactToEvent(eventId, "notification", notifId);
+          }
+        }
+      } catch (notifErr) {
+        logger.warn("handleSupervisorEvent: notification failed", {
+          eventId,
+          error: notifErr instanceof Error ? notifErr.message : String(notifErr),
+        });
+      }
+    }
 
     logger.info("handleSupervisorEvent drafts created", {
       eventId,

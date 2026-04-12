@@ -4,6 +4,7 @@ import { getCrossTeamHandoffs } from "@/app/actions/team-reports";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { COLORS } from "@/lib/design-tokens";
+import { HandoffMatrix } from "./handoff-matrix";
 
 export const metadata: Metadata = {
   title: "Cross-Team Handoffs",
@@ -19,13 +20,6 @@ const TEAMS = [
   "administration",
 ] as const;
 
-function hoursColor(hours: number): string {
-  if (hours === 0) return COLORS.text4;
-  if (hours <= 24) return COLORS.ok;
-  if (hours <= 72) return COLORS.warn;
-  return COLORS.bad;
-}
-
 export default async function HandoffsPage() {
   await requireSession();
 
@@ -34,12 +28,6 @@ export default async function HandoffsPage() {
     rows = await getCrossTeamHandoffs();
   } catch {
     // DB unavailable
-  }
-
-  // Build a lookup map (fromTeam, toTeam) → cell
-  const matrix = new Map<string, (typeof rows)[number]>();
-  for (const r of rows) {
-    matrix.set(`${r.fromTeam}|${r.toTeam}`, r);
   }
 
   const totalHandoffs = rows.reduce((sum, r) => sum + r.caseCount, 0);
@@ -97,91 +85,7 @@ export default async function HandoffsPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div
-            className="px-6 py-3 border-b"
-            style={{ borderColor: COLORS.borderSubtle }}
-          >
-            <h2
-              className="text-sm font-semibold"
-              style={{ color: COLORS.text1 }}
-            >
-              Handoff matrix (avg hours)
-            </h2>
-            <p className="text-xs" style={{ color: COLORS.text3 }}>
-              Row = source team, column = destination team. Empty = no direct
-              handoffs recorded.
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b" style={{ borderColor: COLORS.borderSubtle }}>
-                  <th className="text-left px-3 py-2 text-xs font-medium text-[#666]">
-                    From →
-                  </th>
-                  {TEAMS.map((t) => (
-                    <th
-                      key={t}
-                      className="text-center px-3 py-2 text-xs font-medium text-[#666] capitalize"
-                    >
-                      {t.replace(/_/g, " ")}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {TEAMS.map((from) => (
-                  <tr
-                    key={from}
-                    className="border-b"
-                    style={{ borderColor: COLORS.borderSubtle }}
-                  >
-                    <td className="px-3 py-2 text-xs font-medium capitalize">
-                      {from.replace(/_/g, " ")}
-                    </td>
-                    {TEAMS.map((to) => {
-                      const cell = matrix.get(`${from}|${to}`);
-                      if (!cell || from === to) {
-                        return (
-                          <td
-                            key={to}
-                            className="text-center px-3 py-2 text-xs"
-                            style={{ color: COLORS.text4 }}
-                          >
-                            —
-                          </td>
-                        );
-                      }
-                      return (
-                        <td
-                          key={to}
-                          className="text-center px-3 py-2 text-xs tabular-nums"
-                        >
-                          <span
-                            style={{ color: hoursColor(cell.avgHours) }}
-                            className="font-semibold"
-                          >
-                            {cell.avgHours}h
-                          </span>
-                          <span
-                            className="block text-[10px]"
-                            style={{ color: COLORS.text3 }}
-                          >
-                            {cell.caseCount} case
-                            {cell.caseCount === 1 ? "" : "s"}
-                          </span>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <HandoffMatrix rows={rows} teams={[...TEAMS]} />
 
       <Card>
         <CardContent className="p-5">
@@ -209,7 +113,14 @@ export default async function HandoffsPage() {
                   <span>
                     <span
                       className="font-semibold tabular-nums"
-                      style={{ color: hoursColor(r.avgHours) }}
+                      style={{
+                        color:
+                          r.avgHours <= 24
+                            ? COLORS.ok
+                            : r.avgHours <= 72
+                            ? COLORS.warn
+                            : COLORS.bad,
+                      }}
                     >
                       {r.avgHours}h avg
                     </span>

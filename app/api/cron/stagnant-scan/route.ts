@@ -208,14 +208,18 @@ export async function GET(request: NextRequest) {
 
         // Notify the case manager, if any
         if (assignee?.userId) {
+          const notifBody = [
+            `What happened: ${summary}.`,
+            `What to do: ${recommendedAction}`,
+          ].join("\n");
           const notifId = await createNotification({
             organizationId: c.organizationId,
             userId: assignee.userId,
             caseId: c.id,
             title: "Stagnant case",
-            body: summary,
+            body: notifBody.slice(0, 300),
             priority: "normal",
-            actionLabel: "Open case",
+            actionLabel: "Review case",
             actionHref: `/cases/${c.id}/supervisor-timeline`,
             dedupeKey: `stagnant:${c.id}`,
             sourceEventId: eventId,

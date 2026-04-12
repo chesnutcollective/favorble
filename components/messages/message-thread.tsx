@@ -10,6 +10,10 @@ import {
   editAiDraft,
   rejectAiDraft,
 } from "@/app/actions/ai";
+import {
+  previewOutboundQa,
+  type QaPreviewResult,
+} from "@/app/actions/qa-preview";
 
 /**
  * CM-1 — Threaded message view.
@@ -177,6 +181,17 @@ export function MessageThread({
   // Collapsed state per thread (collapsed = false by default)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
+  // QA-2: Pre-send inline QA preview state
+  const [qaPreview, setQaPreview] = useState<QaPreviewResult | null>(null);
+  const [qaError, setQaError] = useState<string | null>(null);
+  const [qaChecking, setQaChecking] = useState(false);
+  // Stash the message + threadId so "Send anyway" can dispatch the
+  // original send without re-typing.
+  const [qaPendingSend, setQaPendingSend] = useState<{
+    body: string;
+    threadId: string | null;
+  } | null>(null);
+
   function setDraft(messageId: string, update: Partial<DraftState>) {
     setDrafts((prev) => {
       const existing = prev[messageId] ?? EMPTY_DRAFT;
@@ -315,11 +330,11 @@ export function MessageThread({
     textareaRef.current?.focus();
   }
 
-  function handleSend() {
-    const trimmed = body.trim();
-    if (!trimmed) return;
-
-    const targetThreadId = composeThreadId;
+  /**
+   * Actually dispatch the message — called after QA passes or the user
+   * clicks "Send anyway".
+   */
+  function dispatchSend(trimmed: string, targetThreadId: string | null) {
     const optimisticMsg: SerializedMessage = {
       id: `optimistic-${Date.now()}`,
       type: "message_outbound",
@@ -330,15 +345,65 @@ export function MessageThread({
     };
 
     setBody("");
-    // Reset compose thread after a fresh-thread send so the next
-    // message defaults to standalone again until the user explicitly
-    // starts a new thread or replies inside an existing one.
     setComposeThreadId(null);
+    setQaPreview(null);
+    setQaError(null);
+    setQaPendingSend(null);
 
     startTransition(async () => {
       addOptimistic(optimisticMsg);
       await onSendMessage({ caseId, body: trimmed });
     });
+  }
+
+  /**
+   * QA-2: Pre-flight QA check. If it passes, auto-send. If it fails,
+   * show the results inline so the user can fix or override.
+   */
+  function handleSend() {
+    const trimmed = body.trim();
+    if (!trimmed) return;
+
+    const targetThreadId = composeThreadId;
+
+    // Clear previous preview
+    setQaPreview(null);
+    setQaError(null);
+    setQaChecking(true);
+    setQaPendingSend({ body: trimmed, threadId: targetThreadId });
+
+    startTransition(async () => {
+      try {
+        const res = await previewOutboundQa(caseId, trimmed);
+        if (!res.ok) {
+          setQaError(res.error);
+          setQaChecking(false);
+          return;
+        }
+        setQaChecking(false);
+        if (res.result.passed) {
+          // Auto-send — QA passed
+          dispatchSend(trimmed, targetThreadId);
+        } else {
+          // Show preview and let the user decide
+          setQaPreview(res.result);
+        }
+      } catch {
+        setQaError("QA check failed — you can still send the message");
+        setQaChecking(false);
+      }
+    });
+  }
+
+  function handleSendAnyway() {
+    if (!qaPendingSend) return;
+    dispatchSend(qaPendingSend.body, qaPendingSend.threadId);
+  }
+
+  function handleDismissQa() {
+    setQaPreview(null);
+    setQaError(null);
+    setQaPendingSend(null);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -389,12 +454,83 @@ export function MessageThread({
           <Button
             size="sm"
             onClick={handleSend}
-            disabled={!body.trim() || isPending}
+            disabled={!body.trim() || isPending || qaChecking}
           >
-            {isPending ? "Sending..." : "Send"}
+            {qaChecking ? "Checking..." : isPending ? "Sending..." : "Send"}
           </Button>
         </div>
       </div>
+
+      {/* QA-2: Pre-send QA preview results */}
+      {qaChecking && (
+        <div className="border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30 rounded-lg p-3">
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            Running quality check before sending...
+          </p>
+        </div>
+      )}
+      {qaError && !qaChecking && (
+        <div className="border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 rounded-lg p-3 space-y-2">
+          <p className="text-xs text-amber-700 dark:text-amber-300">{qaError}</p>
+          <div className="flex items-center gap-2 justify-end">
+            <Button size="sm" variant="ghost" onClick={handleDismissQa} className="h-7 text-xs">
+              Dismiss
+            </Button>
+            {qaPendingSend && (
+              <Button size="sm" variant="outline" onClick={handleSendAnyway} className="h-7 text-xs">
+                Send anyway
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+      {qaPreview && !qaChecking && (
+        <div
+          className={`border rounded-lg p-3 space-y-2 ${
+            qaPreview.passed
+              ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30"
+              : "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm">
+              {qaPreview.passed ? "\u2713" : "\u26A0"}
+            </span>
+            <span className="text-xs font-medium">
+              QA Score: {qaPreview.score}/100
+              {qaPreview.passed ? " — Passed" : " — Needs review"}
+            </span>
+          </div>
+          {qaPreview.issues.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-200">Issues:</p>
+              <ul className="text-xs text-amber-700 dark:text-amber-300 list-disc pl-4 space-y-0.5">
+                {qaPreview.issues.map((issue, i) => (
+                  <li key={i}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {qaPreview.suggestions.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Suggestions:</p>
+              <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-0.5">
+                {qaPreview.suggestions.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="flex items-center gap-2 justify-end">
+            <Button size="sm" variant="ghost" onClick={handleDismissQa} className="h-7 text-xs">
+              Edit message
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleSendAnyway} className="h-7 text-xs">
+              Send anyway
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Empty state */}
       {!hasAny && (

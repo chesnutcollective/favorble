@@ -51,6 +51,7 @@ export type ReassignmentSuggestion = {
   toUserId: string;
   toUserName: string;
   reason: string;
+  rationale: string;
 };
 
 const Z_THRESHOLD = 1.25;
@@ -177,6 +178,36 @@ export async function recommendReassignments(
 
   try {
     const now = new Date();
+
+    // Pre-compute overdue counts for all users involved so we can
+    // generate meaningful rationale strings without N+1 queries.
+    const allUserIds = [
+      ...report.overloaded.map((u) => u.userId),
+      ...report.underutilized.map((u) => u.userId),
+    ];
+    const overdueRows = allUserIds.length > 0
+      ? await db
+          .select({
+            userId: tasks.assignedToId,
+            n: sql<number>`count(*)::int`,
+          })
+          .from(tasks)
+          .where(
+            and(
+              eq(tasks.organizationId, organizationId),
+              isNull(tasks.deletedAt),
+              inArray(tasks.status, ["pending", "in_progress"]),
+              inArray(tasks.assignedToId, allUserIds),
+              lt(tasks.dueDate, now),
+            ),
+          )
+          .groupBy(tasks.assignedToId)
+      : [];
+    const overdueByUser = new Map<string, number>();
+    for (const row of overdueRows) {
+      if (row.userId) overdueByUser.set(row.userId, Number(row.n ?? 0));
+    }
+
     for (const over of report.overloaded) {
       // Pick the next target in round-robin fashion to avoid dumping
       // everything on a single underutilized user.
@@ -207,6 +238,11 @@ export async function recommendReassignments(
 
       if (!candidate) continue;
 
+      const fromOverdue = overdueByUser.get(over.userId) ?? 0;
+      const toOverdue = overdueByUser.get(target.userId) ?? 0;
+
+      const rationale = `Move "${candidate.title}" from ${over.name} (${over.load} open tasks, ${fromOverdue} overdue) to ${target.name} (${target.load} open tasks, ${toOverdue} overdue). This balances the ${role} team's workload.`;
+
       suggestions.push({
         taskId: candidate.id,
         taskTitle: candidate.title,
@@ -219,6 +255,7 @@ export async function recommendReassignments(
         toUserId: target.userId,
         toUserName: target.name,
         reason: `${over.name} is carrying ${over.load} open tasks (z=${over.zScore}); ${target.name} has ${target.load}.`,
+        rationale,
       });
     }
   } catch (error) {

@@ -4,15 +4,8 @@ import { getBottleneckAnalysis } from "@/app/actions/team-reports";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { COLORS } from "@/lib/design-tokens";
+import { BottleneckTable } from "./bottleneck-table";
 
 export const metadata: Metadata = {
   title: "Bottlenecks",
@@ -35,7 +28,7 @@ export default async function BottlenecksPage() {
     <div className="space-y-6">
       <PageHeader
         title="Bottleneck Analysis"
-        description="Stages where cases are piling up. 'Why' column lists heuristic root-cause hints (overdue tasks, missing PHI sheets, etc.)."
+        description="Stages where cases are piling up. Click a row to see the individual cases stuck at that stage."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -74,115 +67,7 @@ export default async function BottlenecksPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div
-            className="px-6 py-3 border-b"
-            style={{ borderColor: COLORS.borderSubtle }}
-          >
-            <h2
-              className="text-sm font-semibold"
-              style={{ color: COLORS.text1 }}
-            >
-              Top stages by case count
-            </h2>
-            <p className="text-xs" style={{ color: COLORS.text3 }}>
-              Heuristic bottleneck detection. Sort order: active case count.
-            </p>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Stage</TableHead>
-                <TableHead>Team</TableHead>
-                <TableHead className="text-right">Cases</TableHead>
-                <TableHead className="text-right">Avg age</TableHead>
-                <TableHead className="text-right">Overdue tasks</TableHead>
-                <TableHead>Why</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-6"
-                    style={{ color: COLORS.text3 }}
-                  >
-                    No bottlenecks detected.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                rows.map((r) => (
-                  <TableRow key={r.stageId}>
-                    <TableCell className="font-medium">
-                      {r.stageName}
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {r.owningTeam ? (
-                        <Badge variant="outline">
-                          {r.owningTeam.replace(/_/g, " ")}
-                        </Badge>
-                      ) : (
-                        <span style={{ color: COLORS.text4 }}>—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {r.activeCaseCount}
-                    </TableCell>
-                    <TableCell
-                      className="text-right tabular-nums"
-                      style={{
-                        color:
-                          r.avgAgeDays > 30
-                            ? COLORS.bad
-                            : r.avgAgeDays > 14
-                            ? COLORS.warn
-                            : COLORS.text1,
-                      }}
-                    >
-                      {r.avgAgeDays}d
-                    </TableCell>
-                    <TableCell
-                      className="text-right tabular-nums"
-                      style={{
-                        color: r.overdueTaskCount > 0 ? COLORS.bad : COLORS.text1,
-                      }}
-                    >
-                      {r.overdueTaskCount}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {r.why.length === 0 ? (
-                          <span
-                            className="text-xs"
-                            style={{ color: COLORS.text4 }}
-                          >
-                            no obvious cause
-                          </span>
-                        ) : (
-                          r.why.map((reason, i) => (
-                            <Badge
-                              key={i}
-                              variant="outline"
-                              style={{
-                                borderColor: COLORS.borderDefault,
-                                color: COLORS.text2,
-                              }}
-                            >
-                              {reason}
-                            </Badge>
-                          ))
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <BottleneckTable rows={rows} />
     </div>
   );
 }

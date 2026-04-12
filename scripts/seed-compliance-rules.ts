@@ -36,6 +36,7 @@ type RuleSeed = {
 };
 
 const RULES: RuleSeed[] = [
+  // --- Existing 4 rules ---
   {
     code: "HIPAA_PHI_CREDENTIAL_STORAGE",
     name: "PHI credential storage hygiene",
@@ -66,6 +67,87 @@ const RULES: RuleSeed[] = [
     description:
       "Active cases without any document in category 'fee_agreement'. A signed fee agreement is required before work proceeds.",
     category: "ethics",
+    defaultSeverity: "high",
+  },
+  // --- 10 new rules ---
+  {
+    code: "HIPAA_AUDIT_LOG_GAPS",
+    name: "HIPAA audit log gaps (30 days)",
+    description:
+      "Cases with PHI access history but no audit log entry in the last 30 days. Continuous audit coverage is required for HIPAA compliance.",
+    category: "hipaa",
+    defaultSeverity: "medium",
+  },
+  {
+    code: "BAR_CASE_NO_ATTORNEY_ASSIGNED",
+    name: "No attorney assigned to active case",
+    description:
+      "Active cases with no attorney in case assignments. Every active case must have a supervising attorney.",
+    category: "bar",
+    defaultSeverity: "high",
+  },
+  {
+    code: "BAR_HEARING_NO_BRIEF",
+    name: "Hearing approaching without pre-hearing brief",
+    description:
+      "Cases with a hearing in the next 14 days and no pre-hearing brief AI draft on file.",
+    category: "bar",
+    defaultSeverity: "high",
+  },
+  {
+    code: "BAR_APPEAL_DEADLINE_MISSED",
+    name: "65-day appeal deadline missed",
+    description:
+      "Cases where a denial was received over 65 days ago with no appeal or reconsideration filing on record.",
+    category: "bar",
+    defaultSeverity: "critical",
+  },
+  {
+    code: "ETHICS_CLIENT_UNRESPONSIVE_30D",
+    name: "Client unresponsive (30 days)",
+    description:
+      "Active cases with no inbound client communication in 30 days. Ethical duty to maintain client contact.",
+    category: "ethics",
+    defaultSeverity: "medium",
+  },
+  {
+    code: "ETHICS_TASK_OVERDUE_14D",
+    name: "Task overdue by 14+ days",
+    description:
+      "Pending tasks that are overdue by 14 or more days. Overdue tasks may indicate neglected client obligations.",
+    category: "ethics",
+    defaultSeverity: "medium",
+  },
+  {
+    code: "HIPAA_PHI_ACCESS_NO_CASE_LINK",
+    name: "PHI access without case link",
+    description:
+      "Audit log entries with action 'phi_accessed' that are not linked to a specific case. All PHI access must be traceable to a case.",
+    category: "hipaa",
+    defaultSeverity: "high",
+  },
+  {
+    code: "BAR_MISSING_CASE_NUMBER",
+    name: "Missing case number on active case",
+    description:
+      "Active cases with an empty or null case number. Every case must have a valid case number for tracking and bar compliance.",
+    category: "bar",
+    defaultSeverity: "medium",
+  },
+  {
+    code: "ETHICS_NO_ACTIVITY_60D",
+    name: "No activity on case (60 days)",
+    description:
+      "Active cases with zero audit log, task, or communication activity in the last 60 days. May indicate abandoned representation.",
+    category: "ethics",
+    defaultSeverity: "high",
+  },
+  {
+    code: "BAR_MISSING_SIGNED_FEE_AGREEMENT",
+    name: "Missing signed (e-signature) fee agreement",
+    description:
+      "Cases past intake stage with no document where category contains 'fee_agreement' AND source contains 'esignature'. A signed fee agreement is required for bar compliance.",
+    category: "bar",
     defaultSeverity: "high",
   },
 ];

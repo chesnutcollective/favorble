@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ComparisonBar } from "@/components/charts/comparison-bar";
 import { COLORS } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
@@ -61,8 +62,15 @@ export default async function LeaderboardsPage({
   }
 
   const metric = pack.metrics.find((m) => m.metricKey === metricKey);
-
   const availableRoles = Object.keys(ROLE_METRICS).sort();
+
+  // Compute team average for the selected metric (for comparison bars)
+  const teamAvgValue =
+    rows.length > 0
+      ? Math.round(
+          (rows.reduce((sum, r) => sum + r.value, 0) / rows.length) * 100,
+        ) / 100
+      : 0;
 
   return (
     <div className="space-y-6">
@@ -247,6 +255,9 @@ export default async function LeaderboardsPage({
                 {metric?.direction === "higher_is_better"
                   ? "Higher is better"
                   : "Lower is better"}
+                {metric
+                  ? ` · Target: ${metric.targetValue}${metric.unit === "percent" ? "%" : ""} · Team avg: ${teamAvgValue}`
+                  : ""}
               </p>
             </div>
             <Table>
@@ -255,6 +266,7 @@ export default async function LeaderboardsPage({
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead className="text-right">Value</TableHead>
+                  <TableHead className="w-[170px]">vs Target</TableHead>
                   <TableHead className="text-right">Δ</TableHead>
                 </TableRow>
               </TableHeader>
@@ -262,7 +274,7 @@ export default async function LeaderboardsPage({
                 {rows.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-[#999] py-6"
                     >
                       No data yet
@@ -283,6 +295,18 @@ export default async function LeaderboardsPage({
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {r.value}
+                      </TableCell>
+                      <TableCell>
+                        {metric && (
+                          <ComparisonBar
+                            actual={r.value}
+                            target={metric.targetValue}
+                            teamAvg={teamAvgValue}
+                            critical={metric.criticalThreshold}
+                            warn={metric.warnThreshold}
+                            direction={metric.direction}
+                          />
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         {r.deltaPercent !== null ? (
@@ -310,6 +334,84 @@ export default async function LeaderboardsPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* How scores are calculated */}
+      <Card>
+        <CardContent className="p-5">
+          <h3
+            className="text-sm font-semibold mb-3"
+            style={{ color: COLORS.text1 }}
+          >
+            How scores are calculated
+          </h3>
+          <p className="text-xs mb-4" style={{ color: COLORS.text3 }}>
+            The composite score is a weighted average of all metrics for the{" "}
+            <span className="capitalize font-medium">{pack.label}</span> role.
+            Each metric is normalized to 0-100 based on its target and critical
+            threshold, then weighted as shown below.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr
+                  className="border-b"
+                  style={{ borderColor: COLORS.borderSubtle }}
+                >
+                  <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Metric
+                  </th>
+                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Weight
+                  </th>
+                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Target
+                  </th>
+                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Warn
+                  </th>
+                  <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Critical
+                  </th>
+                  <th className="text-center px-3 py-2 text-xs font-medium" style={{ color: COLORS.text3 }}>
+                    Direction
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {pack.metrics.map((m) => (
+                  <tr
+                    key={m.metricKey}
+                    className="border-b"
+                    style={{ borderColor: COLORS.borderSubtle }}
+                  >
+                    <td className="px-3 py-2 text-xs font-medium" style={{ color: COLORS.text1 }}>
+                      {m.label}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.brand }}>
+                      {Math.round(m.weight * 100)}%
+                    </td>
+                    <td className="px-3 py-2 text-xs text-right tabular-nums">
+                      {m.targetValue}
+                      {m.unit === "percent" ? "%" : ""}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.warn }}>
+                      {m.warnThreshold}
+                      {m.unit === "percent" ? "%" : ""}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-right tabular-nums" style={{ color: COLORS.bad }}>
+                      {m.criticalThreshold}
+                      {m.unit === "percent" ? "%" : ""}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-center" style={{ color: COLORS.text3 }}>
+                      {m.direction === "higher_is_better" ? "Higher" : "Lower"} is better
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

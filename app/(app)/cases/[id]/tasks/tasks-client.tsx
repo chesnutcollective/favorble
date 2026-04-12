@@ -72,7 +72,11 @@ type DraftDialogState = {
     | "client_update"
     | "provider_followup"
     | "ssa_inquiry"
-    | "denial_notification";
+    | "denial_notification"
+    | "hearing_prep"
+    | "welcome_call"
+    | "fee_collection"
+    | "coaching_conversation";
   scenario: string;
   counterparty: string;
 };
@@ -481,6 +485,16 @@ export function CaseTasksClient({
                         <option value="ssa_inquiry">SSA inquiry</option>
                         <option value="denial_notification">
                           Denial notification
+                        </option>
+                        <option value="hearing_prep">
+                          Hearing preparation
+                        </option>
+                        <option value="welcome_call">
+                          Welcome call (new client)
+                        </option>
+                        <option value="fee_collection">Fee collection</option>
+                        <option value="coaching_conversation">
+                          Coaching conversation
                         </option>
                       </select>
                     </FieldLabel>

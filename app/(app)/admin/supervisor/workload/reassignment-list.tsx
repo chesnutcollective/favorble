@@ -74,6 +74,14 @@ export function ReassignmentList({
                     {s.reason}
                     {s.dueDate && ` · due ${new Date(s.dueDate).toLocaleDateString()}`}
                   </p>
+                  {s.rationale && (
+                    <p
+                      className="text-[11px] mt-1 leading-relaxed"
+                      style={{ color: COLORS.text2 }}
+                    >
+                      {s.rationale}
+                    </p>
+                  )}
                 </div>
                 <div className="shrink-0">
                   {state === "applied" ? (

@@ -25,14 +25,39 @@ function scoreColor(score: number): string {
   return COLORS.bad;
 }
 
-export default async function TeamPerformancePage() {
+const PERIOD_OPTIONS = [
+  { key: "today", label: "Today" },
+  { key: "7d", label: "Last 7 days" },
+  { key: "30d", label: "Last 30 days" },
+] as const;
+
+type SearchParams = Promise<{
+  period?: string;
+  role?: string;
+}>;
+
+export default async function TeamPerformancePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   await requireSession();
+  const sp = await searchParams;
+
+  const period = PERIOD_OPTIONS.some((p) => p.key === sp.period)
+    ? sp.period!
+    : "7d";
+  const roleFilter = sp.role ?? null;
 
   let rows: Awaited<ReturnType<typeof getAllUsersPerformance>> = [];
   try {
     rows = await getAllUsersPerformance();
   } catch {
     // DB unavailable
+  }
+
+  if (roleFilter) {
+    rows = rows.filter((r) => r.role === roleFilter);
   }
 
   // Group by role
@@ -44,13 +69,105 @@ export default async function TeamPerformancePage() {
   }
 
   const sortedRoles = [...byRole.keys()].sort();
+  const allRoles = [...new Set(rows.map((r) => r.role))].sort();
+
+  // Build CSV export URL with current filters
+  const csvParams = new URLSearchParams();
+  if (roleFilter) csvParams.set("role", roleFilter);
+  const csvUrl = `/api/reports/team-performance/csv${csvParams.toString() ? `?${csvParams}` : ""}`;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Team Performance"
         description="Composite performance scores across every team member. Click a row for the full metric breakdown."
+        actions={
+          <a
+            href={csvUrl}
+            className="inline-flex items-center gap-2 text-[13px] px-3 py-2 rounded-md border border-[#EAEAEA] text-[#263c94] hover:border-[#263c94] transition-colors"
+            download
+          >
+            Download CSV
+          </a>
+        }
       />
+
+      {/* Period selector */}
+      <Card>
+        <CardContent className="p-5 space-y-4">
+          <div>
+            <p
+              className="text-xs uppercase tracking-wide mb-2"
+              style={{ color: COLORS.text3 }}
+            >
+              Period
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {PERIOD_OPTIONS.map((p) => (
+                <Link
+                  key={p.key}
+                  href={`/reports/team-performance?period=${p.key}${roleFilter ? `&role=${roleFilter}` : ""}`}
+                  className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs"
+                  style={{
+                    borderColor:
+                      p.key === period ? COLORS.brand : COLORS.borderDefault,
+                    color: p.key === period ? COLORS.brand : COLORS.text2,
+                    background:
+                      p.key === period ? COLORS.brandSubtle : "transparent",
+                  }}
+                >
+                  {p.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          {allRoles.length > 1 && (
+            <div>
+              <p
+                className="text-xs uppercase tracking-wide mb-2"
+                style={{ color: COLORS.text3 }}
+              >
+                Role filter
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/reports/team-performance?period=${period}`}
+                  className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs"
+                  style={{
+                    borderColor: !roleFilter
+                      ? COLORS.brand
+                      : COLORS.borderDefault,
+                    color: !roleFilter ? COLORS.brand : COLORS.text2,
+                    background: !roleFilter
+                      ? COLORS.brandSubtle
+                      : "transparent",
+                  }}
+                >
+                  All roles
+                </Link>
+                {allRoles.map((r) => (
+                  <Link
+                    key={r}
+                    href={`/reports/team-performance?period=${period}&role=${r}`}
+                    className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
+                    style={{
+                      borderColor:
+                        r === roleFilter
+                          ? COLORS.brand
+                          : COLORS.borderDefault,
+                      color: r === roleFilter ? COLORS.brand : COLORS.text2,
+                      background:
+                        r === roleFilter ? COLORS.brandSubtle : "transparent",
+                    }}
+                  >
+                    {r.replace(/_/g, " ")}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {rows.length === 0 ? (
         <Card>

@@ -15,6 +15,7 @@ import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import { recordSupervisorEvent } from "@/lib/services/supervisor-events";
 import { handleSupervisorEvent } from "@/lib/services/event-router";
 import { executeEventWorkflows } from "@/lib/workflow-engine";
+import { autoLinkJudgeFromScrapedData } from "@/lib/services/contact-autolink";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -188,6 +189,23 @@ export async function POST(request: NextRequest) {
                   updatedAt: new Date(),
                 })
                 .where(eq(cases.id, job.caseId));
+
+              // SA-6: Auto-link ALJ contact from scraped data
+              if (body.scrapedData.adminLawJudge) {
+                try {
+                  await autoLinkJudgeFromScrapedData({
+                    organizationId: jobRow.organizationId,
+                    caseId: job.caseId,
+                    adminLawJudge: body.scrapedData.adminLawJudge,
+                    hearingOffice: body.scrapedData.hearingOffice ?? null,
+                  });
+                } catch (linkErr) {
+                  logger.warn("ERE ALJ auto-link failed", {
+                    caseId: job.caseId,
+                    error: linkErr instanceof Error ? linkErr.message : String(linkErr),
+                  });
+                }
+              }
 
               // --- Supervisor event detection (SA-2 / SA-5) ---
               const prevHearingMs =

@@ -7,9 +7,8 @@ import {
   documents,
   cases,
   caseStages,
-  tasks,
 } from "@/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
 import { logCommunicationEvent } from "@/lib/services/hipaa-audit";
 import { enqueueCommunicationAnalysis } from "@/lib/services/sentiment";
@@ -182,31 +181,22 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // CM-3: extract action items from the inbound message, and if
-        // the case has any outstanding `pending_client_confirmation`
-        // tasks, classify this reply as a yes/no/unclear answer first
-        // so we can update the task state. Both run via after() so we
-        // never block the webhook ack.
+        // CM-3: On EVERY inbound message, attempt to classify it as a
+        // reply to a pending client confirmation task. The classifier
+        // itself checks whether any `pending_client_confirmation` tasks
+        // exist and no-ops if there are none, so we always call it
+        // rather than gating on a pre-check (which could miss tasks
+        // created between the pre-check and the classifier call).
+        // After classification, extract any new action items from the
+        // message. Both run via after() so we never block the webhook.
         if (insertedComm) {
           const commId = insertedComm.id;
-          const caseId = resolved.caseId;
           after(async () => {
             try {
-              const [pendingTask] = await db
-                .select({ id: tasks.id })
-                .from(tasks)
-                .where(
-                  and(
-                    eq(tasks.caseId, caseId),
-                    eq(tasks.status, "pending_client_confirmation"),
-                    isNull(tasks.deletedAt),
-                  ),
-                )
-                .limit(1);
-
-              if (pendingTask) {
-                await classifyClientConfirmationReply(commId);
-              }
+              // Always attempt classification — the function returns
+              // null when there are no pending_client_confirmation
+              // tasks so there is no wasted LLM call in that case.
+              await classifyClientConfirmationReply(commId);
               await extractActionItemsFromMessage(commId);
             } catch (err) {
               logger.error("case-status message intake failed", {

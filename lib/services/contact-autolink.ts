@@ -6,7 +6,7 @@ import {
   contacts,
   caseContacts,
 } from "@/db/schema";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
 /**
@@ -150,7 +150,7 @@ export async function autoLinkContactsFromExtraction(
     let linked = 0;
 
     for (const candidate of seen.values()) {
-      // Look up existing contact by (org, type, first, last)
+      // Look up existing contact by (org, type, first, last) — case-insensitive
       const [existing] = await db
         .select({ id: contacts.id })
         .from(contacts)
@@ -158,8 +158,8 @@ export async function autoLinkContactsFromExtraction(
           and(
             eq(contacts.organizationId, doc.organizationId),
             eq(contacts.contactType, candidate.contactType),
-            eq(contacts.firstName, candidate.firstName),
-            eq(contacts.lastName, candidate.lastName),
+            sql`LOWER(${contacts.firstName}) = LOWER(${candidate.firstName})`,
+            sql`LOWER(${contacts.lastName}) = LOWER(${candidate.lastName})`,
             isNull(contacts.deletedAt),
           ),
         )
@@ -221,6 +221,103 @@ export async function autoLinkContactsFromExtraction(
   } catch (err) {
     logger.error("autoLinkContactsFromExtraction failed", {
       documentId,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return null;
+  }
+}
+
+/**
+ * Auto-link an ALJ contact from ERE scraper webhook data.
+ *
+ * When the ERE scraper reports a new `adminLawJudge` name on a case,
+ * this helper upserts the contact (type = ssa_judge) and links it to
+ * the case. Uses case-insensitive name dedup to avoid duplicates.
+ *
+ * Best-effort: failures are logged and never thrown.
+ */
+export async function autoLinkJudgeFromScrapedData(input: {
+  organizationId: string;
+  caseId: string;
+  adminLawJudge: string;
+  hearingOffice?: string | null;
+}): Promise<{ created: boolean; linked: boolean } | null> {
+  try {
+    const name = normalizeName(input.adminLawJudge);
+    if (!name) return null;
+
+    // Case-insensitive dedup lookup
+    const [existing] = await db
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.organizationId, input.organizationId),
+          eq(contacts.contactType, "ssa_judge"),
+          sql`LOWER(${contacts.firstName}) = LOWER(${name.firstName})`,
+          sql`LOWER(${contacts.lastName}) = LOWER(${name.lastName})`,
+          isNull(contacts.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    let contactId = existing?.id ?? null;
+    let created = false;
+
+    if (!contactId) {
+      const [ins] = await db
+        .insert(contacts)
+        .values({
+          organizationId: input.organizationId,
+          firstName: name.firstName,
+          lastName: name.lastName || "—",
+          contactType: "ssa_judge",
+          metadata: {
+            autoLinked: true,
+            source: "ere_scraper",
+            hearingOffice: input.hearingOffice ?? null,
+          },
+        })
+        .returning({ id: contacts.id });
+      contactId = ins.id;
+      created = true;
+    }
+
+    // Link to case if not already linked
+    const [existingLink] = await db
+      .select({ id: caseContacts.id })
+      .from(caseContacts)
+      .where(
+        and(
+          eq(caseContacts.caseId, input.caseId),
+          eq(caseContacts.contactId, contactId),
+          eq(caseContacts.relationship, "judge"),
+        ),
+      )
+      .limit(1);
+
+    let linked = false;
+    if (!existingLink) {
+      await db.insert(caseContacts).values({
+        caseId: input.caseId,
+        contactId,
+        relationship: "judge",
+        isPrimary: false,
+      });
+      linked = true;
+    }
+
+    logger.info("autoLinkJudgeFromScrapedData complete", {
+      caseId: input.caseId,
+      adminLawJudge: input.adminLawJudge,
+      created,
+      linked,
+    });
+
+    return { created, linked };
+  } catch (err) {
+    logger.error("autoLinkJudgeFromScrapedData failed", {
+      caseId: input.caseId,
       error: err instanceof Error ? err.message : String(err),
     });
     return null;

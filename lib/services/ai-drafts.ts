@@ -10,6 +10,7 @@ import {
 } from "@/lib/services/case-context";
 import { logger } from "@/lib/logger/server";
 import { logAiDraftEvent } from "@/lib/services/hipaa-audit";
+import { getCallScenario } from "@/lib/services/call-script-scenarios";
 
 /**
  * AI draft generators for team-facing artifacts (CM-4). Every function:
@@ -339,7 +340,11 @@ export type CallScriptType =
   | "client_update"
   | "provider_followup"
   | "ssa_inquiry"
-  | "denial_notification";
+  | "denial_notification"
+  | "hearing_prep"
+  | "welcome_call"
+  | "fee_collection"
+  | "coaching_conversation";
 
 export async function draftCallScript(input: {
   caseId: string;
@@ -359,15 +364,27 @@ export async function draftCallScript(input: {
       provider_followup: "follow-up call to a medical provider",
       ssa_inquiry: "call to the SSA field office / hearing office",
       denial_notification: "call to notify the client of a denial",
+      hearing_prep: "hearing preparation call with the client",
+      welcome_call: "initial welcome call to a new client",
+      fee_collection: "fee collection follow-up call",
+      coaching_conversation: "supervisor coaching conversation with a team member",
     };
+
+    // SA-4: Pull scenario-specific prompt additions from the library
+    const scenario = getCallScenario(input.callType);
+    const scenarioBlock = scenario
+      ? `\n\nScenario guidance: ${scenario.systemPromptAddition}\n\nStructure your script around these points:\n${scenario.structureHints.map((h, i) => `${i + 1}. ${h}`).join("\n")}`
+      : "";
+
     const prompt = `${SYSTEM_INTRO}
 
 Draft a call script for the following call:
 
-- Call type: ${input.callType} (${labelByType[input.callType]})
+- Call type: ${input.callType} (${labelByType[input.callType] ?? input.callType})
 - Counterparty: ${input.counterparty}
 - Scenario: ${input.scenario}
 - Claimant: ${claimantLabel(ctx)}
+${scenarioBlock}
 
 The script should have:
 1. A one-line opening greeting + identification

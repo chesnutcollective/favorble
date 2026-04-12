@@ -49,12 +49,25 @@ function formatValue(value: number, unit: UserMetricSnapshot["unit"]): string {
   }
 }
 
+function trendBadge(trend: "improving" | "declining" | "stable") {
+  switch (trend) {
+    case "improving":
+      return { label: "Improving", color: COLORS.ok, icon: "\u2191" };
+    case "declining":
+      return { label: "Declining", color: COLORS.bad, icon: "\u2193" };
+    case "stable":
+      return { label: "Stable", color: COLORS.text3, icon: "\u2014" };
+  }
+}
+
 function Sparkline({
   points,
   color,
+  declining,
 }: {
   points: { value: number }[];
   color: string;
+  declining?: boolean;
 }) {
   if (points.length < 2) {
     return <span className="text-xs text-[#999]">no trend data</span>;
@@ -73,6 +86,17 @@ function Sparkline({
     .join(" ");
   return (
     <svg width={w} height={h} className="block">
+      {declining && (
+        <rect
+          x={0}
+          y={0}
+          width={w}
+          height={h}
+          rx={4}
+          fill={COLORS.bad}
+          opacity={0.06}
+        />
+      )}
       <path d={path} fill="none" stroke={color} strokeWidth={1.5} />
     </svg>
   );
@@ -113,6 +137,16 @@ export default async function UserPerformancePage({ params }: PageProps) {
       getRolePatternAnalysis(perf.role, m.metricKey).catch(() => null),
     ),
   );
+
+  // RP-4: Trend summary counts
+  const improvingCount = trends.filter((t) => t.trend === "improving").length;
+  const decliningCount = trends.filter((t) => t.trend === "declining").length;
+  const stableCount = trends.filter((t) => t.trend === "stable").length;
+
+  // Find the first declining metric for the summary note
+  const firstDecliningIdx = trends.findIndex((t) => t.trend === "declining");
+  const firstDecliningMetric =
+    firstDecliningIdx >= 0 ? perf.metrics[firstDecliningIdx] : null;
 
   return (
     <div className="space-y-6">
@@ -186,12 +220,48 @@ export default async function UserPerformancePage({ params }: PageProps) {
         </Card>
       </div>
 
+      {/* RP-4: Trend summary */}
+      <Card>
+        <CardContent className="p-5">
+          <h3
+            className="text-sm font-semibold mb-2"
+            style={{ color: COLORS.text1 }}
+          >
+            Trend Summary (30 days)
+          </h3>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <span style={{ color: COLORS.ok }}>
+              <span className="font-semibold">{improvingCount}</span> improving
+            </span>
+            <span style={{ color: COLORS.text3 }}>
+              <span className="font-semibold">{stableCount}</span> stable
+            </span>
+            <span style={{ color: COLORS.bad }}>
+              <span className="font-semibold">{decliningCount}</span> declining
+            </span>
+          </div>
+          {firstDecliningMetric && (
+            <p
+              className="text-xs mt-2"
+              style={{ color: COLORS.text2 }}
+            >
+              Attention needed: <span className="font-medium">{firstDecliningMetric.label}</span> is showing a declining trend
+              {decliningCount > 1
+                ? ` (and ${decliningCount - 1} other metric${decliningCount - 1 > 1 ? "s" : ""})`
+                : ""}
+              .
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Metric cards */}
       <div className="grid gap-4 md:grid-cols-2">
         {perf.metrics.map((metric, i) => {
           const colors = statusColor(metric.status);
           const trendData = trends[i];
           const pattern = patterns[i];
+          const tb = trendBadge(trendData.trend);
           return (
             <Card key={metric.metricKey}>
               <CardContent className="p-5">
@@ -231,12 +301,25 @@ export default async function UserPerformancePage({ params }: PageProps) {
                 )}
                 <div className="flex items-start justify-between mb-3">
                   <div className="min-w-0 flex-1">
-                    <h3
-                      className="text-sm font-semibold"
-                      style={{ color: COLORS.text1 }}
-                    >
-                      {metric.label}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h3
+                        className="text-sm font-semibold"
+                        style={{ color: COLORS.text1 }}
+                      >
+                        {metric.label}
+                      </h3>
+                      {/* RP-4: Trend badge */}
+                      <Badge
+                        variant="outline"
+                        className="text-[10px]"
+                        style={{
+                          borderColor: tb.color,
+                          color: tb.color,
+                        }}
+                      >
+                        {tb.icon} {tb.label}
+                      </Badge>
+                    </div>
                     <p
                       className="text-xs mt-0.5"
                       style={{ color: COLORS.text3 }}
@@ -280,12 +363,13 @@ export default async function UserPerformancePage({ params }: PageProps) {
                     <Sparkline
                       points={trendData.points}
                       color={colors.fg}
+                      declining={trendData.trend === "declining"}
                     />
                     <span
-                      className="text-xs mt-1 capitalize"
-                      style={{ color: COLORS.text3 }}
+                      className="text-xs mt-1"
+                      style={{ color: tb.color }}
                     >
-                      {trendData.trend}
+                      {tb.icon} {tb.label}
                     </span>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
-import { users } from "@/db/schema";
+import { cases, users } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import { createNotification } from "@/lib/services/notify";
@@ -47,6 +47,7 @@ type OverdueRow = {
   organization_id: string;
   case_id: string;
   title: string;
+  description: string | null;
   assigned_to_id: string | null;
   due_date: Date | string | null;
   escalation_state:
@@ -85,6 +86,7 @@ export async function GET(request: NextRequest) {
              organization_id,
              case_id,
              title,
+             description,
              assigned_to_id,
              due_date,
              COALESCE(escalation_state::text, 'none') AS escalation_state,
@@ -118,13 +120,13 @@ export async function GET(request: NextRequest) {
         : Number.POSITIVE_INFINITY;
 
       if (state === "none") {
-        // Tier 1: immediate reminder to assignee
+        // Tier 1: simple reminder to assignee
         await createNotification({
           organizationId: task.organization_id,
           userId: task.assigned_to_id,
           caseId: task.case_id,
           title: "Task overdue",
-          body: `"${task.title}" was due ${dueDate.toISOString().split("T")[0]} and is now overdue.`,
+          body: `Your task "${task.title}" is overdue.`,
           priority: "high",
           actionLabel: "Open task",
           actionHref: `/queue?task=${task.id}`,
@@ -148,6 +150,8 @@ export async function GET(request: NextRequest) {
         const [assignee] = await db
           .select({
             id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
             team: users.team,
             organizationId: users.organizationId,
           })
@@ -189,15 +193,39 @@ export async function GET(request: NextRequest) {
         }
 
         if (supervisorId) {
+          // SA-7: Rich context for supervisor tier-2 escalation
+          const daysOverdue = dueDate ? diffDays(dueDate, now) : 0;
+          const assigneeName = assignee
+            ? `${assignee.firstName ?? ""} ${assignee.lastName ?? ""}`.trim() || "Unknown"
+            : "Unknown";
+
+          let caseLabel = "";
+          try {
+            const [caseRow] = await db
+              .select({ caseNumber: cases.caseNumber })
+              .from(cases)
+              .where(eq(cases.id, task.case_id))
+              .limit(1);
+            if (caseRow) {
+              caseLabel = `Case ${caseRow.caseNumber}`;
+            }
+          } catch { /* best effort */ }
+
+          const tier2Lines = [
+            `Task: "${task.title}"${task.description ? ` — ${task.description.slice(0, 80)}` : ""}`,
+            `Assignee: ${assigneeName} · ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue`,
+            caseLabel ? caseLabel : null,
+          ].filter(Boolean).join("\n");
+
           await createNotification({
             organizationId: task.organization_id,
             userId: supervisorId,
             caseId: task.case_id,
             title: "Team task still overdue",
-            body: `"${task.title}" is overdue and the assignee hasn't acted on the initial reminder.`,
+            body: tier2Lines.slice(0, 300),
             priority: "high",
-            actionLabel: "Open task",
-            actionHref: `/queue?task=${task.id}`,
+            actionLabel: "View case tasks",
+            actionHref: `/cases/${task.case_id}/tasks`,
             dedupeKey: `escalate:${task.id}:tier2`,
           });
 
@@ -217,7 +245,39 @@ export async function GET(request: NextRequest) {
       }
 
       if (state === "supervisor_notified" && sinceLast >= 2) {
-        // Tier 3: notify all org admins
+        // Tier 3: notify all org admins with full context
+        const daysOverdue = dueDate ? diffDays(dueDate, now) : 0;
+
+        // Look up assignee name for tier-3 context
+        let tier3AssigneeName = "Unknown";
+        try {
+          const [a] = await db
+            .select({ firstName: users.firstName, lastName: users.lastName })
+            .from(users)
+            .where(eq(users.id, task.assigned_to_id!))
+            .limit(1);
+          if (a) tier3AssigneeName = `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || "Unknown";
+        } catch { /* best effort */ }
+
+        let tier3CaseLabel = "";
+        try {
+          const [caseRow] = await db
+            .select({ caseNumber: cases.caseNumber })
+            .from(cases)
+            .where(eq(cases.id, task.case_id))
+            .limit(1);
+          if (caseRow) {
+            tier3CaseLabel = `Case ${caseRow.caseNumber}`;
+          }
+        } catch { /* best effort */ }
+
+        const tier3Body = [
+          `Task: "${task.title}"${task.description ? ` — ${task.description.slice(0, 80)}` : ""}`,
+          `Assignee: ${tier3AssigneeName} · ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue`,
+          tier3CaseLabel ? tier3CaseLabel : null,
+          "Escalated through 2 tiers without resolution.",
+        ].filter(Boolean).join("\n");
+
         const admins = await db
           .select({ id: users.id })
           .from(users)
@@ -235,10 +295,10 @@ export async function GET(request: NextRequest) {
             userId: admin.id,
             caseId: task.case_id,
             title: "Task escalated to management",
-            body: `"${task.title}" has been overdue through two tiers of escalation without action.`,
+            body: tier3Body.slice(0, 300),
             priority: "urgent",
-            actionLabel: "Open task",
-            actionHref: `/queue?task=${task.id}`,
+            actionLabel: "View case tasks",
+            actionHref: `/cases/${task.case_id}/tasks`,
             dedupeKey: `escalate:${task.id}:tier3:${admin.id}`,
           });
         }
