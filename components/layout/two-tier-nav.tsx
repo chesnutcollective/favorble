@@ -2073,40 +2073,58 @@ function CalendarPanel({
             <div
               style={{
                 display: "flex",
-                alignItems: "flex-start",
-                gap: 8,
-                padding: "8px 12px",
+                flexDirection: "column",
+                gap: 2,
+                padding: "8px 10px",
+                borderLeft: `3px solid ${event.color}`,
+                marginBottom: 2,
+                minWidth: 0,
               }}
             >
-              <span
+              {/* Time — full-width row on top */}
+              <div
                 style={{
                   fontSize: 10,
                   fontFamily: "monospace",
                   color: "#999",
-                  whiteSpace: "nowrap",
-                  marginTop: 1,
-                  minWidth: 54,
+                  fontWeight: 600,
                 }}
               >
                 {event.time}
-              </span>
+              </div>
+              {/* Title — full width, wraps if long */}
               <div
                 style={{
-                  width: 3,
-                  alignSelf: "stretch",
-                  borderRadius: 2,
-                  backgroundColor: event.color,
-                  flexShrink: 0,
+                  fontSize: 12,
+                  color: "#1C1C1E",
+                  lineHeight: 1.35,
                 }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: "#1C1C1E" }}>
-                  {event.title}
-                </div>
+              >
+                {event.title}
+              </div>
+              {/* Meta — case + type badge on one compact row */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 2,
+                  minWidth: 0,
+                }}
+              >
                 {event.caseName && (
-                  <div style={{ fontSize: 10, color: "#999", marginTop: 1 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#999",
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {event.caseName}
-                  </div>
+                  </span>
                 )}
                 <span
                   style={{
@@ -2119,7 +2137,8 @@ function CalendarPanel({
                     borderRadius: 3,
                     padding: "0 4px",
                     lineHeight: "16px",
-                    marginTop: 3,
+                    marginLeft: event.caseName ? "auto" : 0,
+                    flexShrink: 0,
                   }}
                 >
                   {event.type}

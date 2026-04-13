@@ -39,23 +39,39 @@ export function AttorneySubnav({ data }: { data: AttorneySubnavData }) {
       <SubnavAnchorBlock>
         {next ? (
           <>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
-              <span
-                style={{
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: COLORS.text1,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {next.countdown}
-              </span>
-              <span style={{ fontSize: 11, color: COLORS.text2 }}>
-                · Case {next.caseNumber ?? "—"}
-              </span>
+            {/* Countdown dominates — 28px so it reads at a glance */}
+            <div
+              style={{
+                fontSize: 28,
+                fontWeight: 700,
+                color: COLORS.text1,
+                letterSpacing: "-0.04em",
+                lineHeight: 1,
+                marginBottom: 4,
+              }}
+            >
+              {next.countdown}
+            </div>
+            {/* Compact meta — case + ALJ on one line each, muted */}
+            <div
+              style={{
+                fontSize: 11,
+                color: COLORS.text2,
+                marginBottom: 2,
+                lineHeight: 1.3,
+              }}
+            >
+              Case {next.caseNumber ?? "—"}
             </div>
             {next.alj && (
-              <div style={{ fontSize: 11, color: COLORS.text2, marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: COLORS.text2,
+                  marginBottom: 8,
+                  lineHeight: 1.3,
+                }}
+              >
                 ALJ {next.alj}
               </div>
             )}

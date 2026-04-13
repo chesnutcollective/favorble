@@ -49,6 +49,13 @@ export default async function CasesPage({
           status: status || undefined,
           team: team || undefined,
           assignedToId: assignedTo || undefined,
+          sortBy: sortBy as
+            | "caseNumber"
+            | "updatedAt"
+            | "createdAt"
+            | "stage"
+            | "assignedTo",
+          sortDir: sortDir as "asc" | "desc",
         },
         { page, pageSize: 50 },
       ),
@@ -66,6 +73,13 @@ export default async function CasesPage({
             status: status || undefined,
             team: team || undefined,
             assignedToId: assignedTo || undefined,
+            sortBy: sortBy as
+              | "caseNumber"
+              | "updatedAt"
+              | "createdAt"
+              | "stage"
+              | "assignedTo",
+            sortDir: sortDir as "asc" | "desc",
           },
           { page, pageSize: 50 },
         ),
