@@ -61,9 +61,12 @@ export async function getFeedbackList(params: {
 export type FeedbackStats = {
   total: number;
   open: number;
+  /** Items with status=open AND created more than 48h ago — actionable triage backlog */
+  needsTriage: number;
   thisWeek: number;
   lastWeek: number;
   byCategory: Array<{ category: FeedbackCategory; count: number }>;
+  byStatus: Array<{ status: FeedbackStatus; count: number }>;
 };
 
 export async function getFeedbackStats(
@@ -73,10 +76,13 @@ export async function getFeedbackStats(
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
+  const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
   const [totalsRow] = await db
     .select({
       total: count(),
       open: sql<number>`count(*) filter (where ${feedback.status} = 'open')`,
+      needsTriage: sql<number>`count(*) filter (where ${feedback.status} = 'open' and ${feedback.createdAt} <= ${twoDaysAgo.toISOString()})`,
     })
     .from(feedback)
     .where(eq(feedback.organizationId, organizationId));
@@ -108,13 +114,24 @@ export async function getFeedbackStats(
     .where(eq(feedback.organizationId, organizationId))
     .groupBy(feedback.category);
 
+  const statusRows = await db
+    .select({ status: feedback.status, c: count() })
+    .from(feedback)
+    .where(eq(feedback.organizationId, organizationId))
+    .groupBy(feedback.status);
+
   return {
     total: Number(totalsRow?.total ?? 0),
     open: Number(totalsRow?.open ?? 0),
+    needsTriage: Number(totalsRow?.needsTriage ?? 0),
     thisWeek: Number(thisWeekRow?.c ?? 0),
     lastWeek: Number(lastWeekRow?.c ?? 0),
     byCategory: categoryRows.map((r) => ({
       category: r.category as FeedbackCategory,
+      count: Number(r.c),
+    })),
+    byStatus: statusRows.map((r) => ({
+      status: r.status as FeedbackStatus,
       count: Number(r.c),
     })),
   };

@@ -16,6 +16,8 @@ import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
 import type { CommitEntry } from "@/app/actions/changelog";
+import { PersonaDashboardSubnav } from "@/components/dashboard/subnav";
+import type { DashboardSubnavData } from "@/lib/dashboard-subnav/types";
 import {
   Tooltip,
   TooltipContent,
@@ -511,6 +513,11 @@ const settingsNav: SettingsItem[] = [
     description: "Search system event history",
   },
   {
+    label: "Feedback",
+    href: "/admin/feedback",
+    description: "Triage bugs, feature requests, UX issues",
+  },
+  {
     label: "AI Review",
     href: "/admin/ai-review",
     description: "Verify AI-extracted data",
@@ -538,6 +545,7 @@ export function TwoTierNav({
   user,
   casesCount,
   navData,
+  subnavData,
   personaNav,
   isAdmin,
   currentPersonaId,
@@ -547,6 +555,8 @@ export function TwoTierNav({
   user: SessionUser;
   casesCount?: number;
   navData?: NavPanelData;
+  /** Per-persona dashboard sub-nav data (discriminated union) */
+  subnavData?: import("@/lib/dashboard-subnav/types").DashboardSubnavData;
   /**
    * Ordered list of rail item IDs this persona is allowed to see.
    * Items not in this list are hidden. Ordering follows this array.
@@ -868,10 +878,11 @@ export function TwoTierNav({
           </div>
 
           <div className="ttn-panel-content-wrapper">
-            {/* Dashboard Panel */}
-            <DashboardPanel
+            {/* Dashboard Panel — per-persona via dispatcher */}
+            <PersonaDashboardPanelWrapper
               active={visiblePanel === "dashboard"}
               casesCount={casesCount}
+              subnavData={subnavData}
             />
 
             {/* Cases Panel */}
@@ -1069,6 +1080,32 @@ function getEventColor(eventType: string | null): string {
     default:
       return "#185f9b";
   }
+}
+
+/**
+ * Wrapper that picks per-persona dashboard sub-nav when subnavData is provided,
+ * otherwise falls back to the legacy hardcoded DashboardPanel. The wrapper
+ * preserves the `active` class state Radix-style panel switching expects.
+ */
+function PersonaDashboardPanelWrapper({
+  active,
+  casesCount,
+  subnavData,
+}: {
+  active: boolean;
+  casesCount?: number;
+  subnavData?: DashboardSubnavData;
+}) {
+  if (!subnavData) {
+    return <DashboardPanel active={active} casesCount={casesCount} />;
+  }
+  // The dispatcher's SubnavShell already renders ttn-panel-content active;
+  // wrap in a div that hides it when not active.
+  return (
+    <div style={{ display: active ? undefined : "none" }}>
+      <PersonaDashboardSubnav data={subnavData} />
+    </div>
+  );
 }
 
 function DashboardPanel({

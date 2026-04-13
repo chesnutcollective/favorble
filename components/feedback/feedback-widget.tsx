@@ -55,7 +55,8 @@ export function FeedbackWidget() {
   const [pin, setPin] = useState<PinnedElement | null>(null);
   const [isAnnotating, setIsAnnotating] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { captureScreenshot, isCapturing } = useScreenshot();
+  const { captureScreenshot, isCapturing, error: captureError, clearError } =
+    useScreenshot();
   const {
     isSupported: voiceSupported,
     isRecording,
@@ -74,6 +75,7 @@ export function FeedbackWidget() {
   }
 
   async function handleCaptureClick() {
+    clearError();
     // Close the dialog first so the widget doesn't end up in the screenshot,
     // capture, then reopen.
     setOpen(false);
@@ -82,9 +84,9 @@ export function FeedbackWidget() {
     setOpen(true);
     if (result) {
       setScreenshot(result);
-    } else {
-      toast.error("Could not capture screenshot.");
     }
+    // On failure, error stays in `captureError` and the widget renders a
+    // visible retry banner — no toast needed.
   }
 
   function handleAnnotateClick() {
@@ -121,13 +123,21 @@ export function FeedbackWidget() {
       return;
     }
 
-    // Auto-capture if no manual screenshot exists
+    // Pixel-perfect server-side screenshot is required for submit. If none
+    // has been captured yet, capture now (blocking). On failure, abort the
+    // submit — the user sees the inline error/retry banner and can decide
+    // what to do.
     let finalScreenshot = screenshot;
     if (!finalScreenshot) {
       setOpen(false);
       await new Promise((r) => setTimeout(r, 300));
       finalScreenshot = await captureScreenshot();
-      // Don't reopen — we're about to submit
+      setOpen(true);
+      if (!finalScreenshot) {
+        // Error is already surfaced via the retry banner.
+        return;
+      }
+      setScreenshot(finalScreenshot);
     }
 
     const context: Record<string, unknown> = {};
@@ -210,8 +220,14 @@ export function FeedbackWidget() {
           if (!v) resetForm();
         }}
       >
-        <DialogContent data-feedback-widget="true" className="sm:max-w-md">
-          <form onSubmit={handleSubmit}>
+        <DialogContent
+          data-feedback-widget="true"
+          className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md"
+        >
+          <form
+            onSubmit={handleSubmit}
+            className="flex min-h-0 min-w-0 flex-1 flex-col"
+          >
             <DialogHeader>
               <DialogTitle>Send feedback</DialogTitle>
               <DialogDescription>
@@ -219,7 +235,7 @@ export function FeedbackWidget() {
                 an idea.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="min-w-0 flex-1 space-y-4 overflow-y-auto py-4">
               <div className="space-y-2">
                 <Label htmlFor="fb-category">Category</Label>
                 <Select
@@ -307,8 +323,41 @@ export function FeedbackWidget() {
                 )}
               </div>
 
-              {/* Screenshot preview */}
-              {screenshot && (
+              {/* Capture progress / error / preview */}
+              {isCapturing && (
+                <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <span>
+                    Capturing pixel-perfect screenshot… (this can take a few seconds)
+                  </span>
+                </div>
+              )}
+              {!isCapturing && captureError && (
+                <div
+                  className="flex items-start gap-2 rounded-md border px-3 py-2 text-xs"
+                  style={{
+                    borderColor: "#d1453b",
+                    background: "rgba(209,69,59,0.08)",
+                    color: "#d1453b",
+                  }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold">Screenshot failed</p>
+                    <p className="mt-0.5 break-words text-[11px]">
+                      {captureError}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCaptureClick}
+                    className="shrink-0 rounded-md border px-2 py-1 text-[11px] font-semibold"
+                    style={{ borderColor: "#d1453b" }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+              {!isCapturing && !captureError && screenshot && (
                 <div className="relative overflow-hidden rounded-md border">
                   <Image
                     src={`data:image/jpeg;base64,${screenshot.base64}`}
@@ -331,14 +380,14 @@ export function FeedbackWidget() {
 
               {/* Pin preview */}
               {pin && (
-                <div className="flex items-start gap-2 rounded-md border bg-muted/30 px-2 py-1.5 text-[11px]">
+                <div className="flex min-w-0 items-start gap-2 rounded-md border bg-muted/30 px-2 py-1.5 text-[11px]">
                   <HugeiconsIcon
                     icon={Target02Icon}
                     size={14}
                     className="mt-0.5 shrink-0"
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 font-medium">
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <p className="line-clamp-2 break-words font-medium">
                       {pin.text || "(no visible text)"}
                     </p>
                     <p className="truncate font-mono text-[10px] text-muted-foreground">

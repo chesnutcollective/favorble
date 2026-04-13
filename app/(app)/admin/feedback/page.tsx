@@ -10,9 +10,19 @@ import { FeedbackAdminClient } from "./client";
 export const metadata: Metadata = { title: "Feedback" };
 export const dynamic = "force-dynamic";
 
-export default async function FeedbackAdminPage() {
+type SearchParams = {
+  id?: string;
+};
+
+export default async function FeedbackAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const session = await requireSession();
   if (session.role !== "admin") notFound();
+
+  const params = await searchParams;
 
   const [items, stats] = await Promise.all([
     getFeedbackList({ organizationId: session.organizationId }),
@@ -27,6 +37,7 @@ export default async function FeedbackAdminPage() {
         updatedAt: i.updatedAt.toISOString(),
       }))}
       stats={stats}
+      initialSelectedId={params.id ?? null}
     />
   );
 }
