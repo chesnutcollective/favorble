@@ -12,7 +12,10 @@ import {
   CATEGORY_DESCRIPTIONS,
   type IntegrationCategory,
 } from "@/lib/integrations/registry";
-import { getCustomLogoUrls } from "@/app/actions/integration-management";
+import {
+  getCustomLogoUrls,
+  type CustomLogoUrls,
+} from "@/app/actions/integration-management";
 import { IntegrationsCockpitClient } from "./cockpit-client";
 
 export const metadata: Metadata = {
@@ -29,6 +32,8 @@ export type IntegrationCardData = {
   tagline: string;
   logoPath: string;
   fallbackIcon: string;
+  hostLogoPath?: string;
+  hostName?: string;
   category: IntegrationCategory;
   tags: string[];
   status: "connected" | "configured" | "missing_config" | "error";
@@ -56,8 +61,8 @@ export type CockpitSummary = {
 export type CockpitPageData = {
   categories: CategorySection[];
   summary: CockpitSummary;
-  /** Map of integrationId -> signed custom logo URL for integrations with uploaded logos */
-  customLogoUrls: Record<string, string>;
+  /** Map of integrationId -> signed custom logo URLs (tech + host) for integrations with uploaded logos */
+  customLogoUrls: Record<string, CustomLogoUrls>;
 };
 
 export default async function IntegrationsPage() {
@@ -182,6 +187,8 @@ export default async function IntegrationsPage() {
         tagline: integration.tagline,
         logoPath: integration.logoPath,
         fallbackIcon: integration.fallbackIcon,
+        hostLogoPath: integration.hostLogoPath,
+        hostName: integration.hostName,
         category: integration.category,
         tags: integration.tags,
         status,

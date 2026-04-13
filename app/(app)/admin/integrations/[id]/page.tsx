@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function IntegrationDetailPage({ params }: Props) {
   const { id } = await params;
-  const [detail, customLogoUrl] = await Promise.all([
+  const [detail, customLogoUrls] = await Promise.all([
     getIntegrationDetail(id),
     getCustomLogoUrl(id),
   ]);
@@ -31,6 +31,6 @@ export default async function IntegrationDetailPage({ params }: Props) {
   }
 
   return (
-    <IntegrationDetailClient detail={detail} customLogoUrl={customLogoUrl} />
+    <IntegrationDetailClient detail={detail} customLogoUrls={customLogoUrls} />
   );
 }

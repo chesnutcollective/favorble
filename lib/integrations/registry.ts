@@ -46,6 +46,15 @@ export type IntegrationConfig = {
   logoPath: string;
   /** Fallback icon character or emoji when logo fails to load */
   fallbackIcon: string;
+  /**
+   * Path to the HOST platform logo (e.g. Railway, Vercel). Optional — when
+   * set, the UI renders this as a small overlay badge next to the primary
+   * tech logo to signal "running on X". Leave undefined for pure SaaS
+   * integrations where the host IS the technology.
+   */
+  hostLogoPath?: string;
+  /** Human-readable host name, used for alt text / tooltips. */
+  hostName?: string;
   /** The URL to ping for health checks (null = not health-checkable) */
   healthCheckUrl: string | null;
   /** Env var that contains the health check URL (resolved at runtime) */
@@ -101,6 +110,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "data_pipeline",
     logoPath: "integrations/ssa.svg",
     fallbackIcon: "🏛",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     healthCheckEnvVar: "ERE_SCRAPER_URL",
     envVars: [
@@ -133,6 +144,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "data_pipeline",
     logoPath: "integrations/playwright.svg",
     fallbackIcon: "🎭",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     envVars: [],
     poweredFeatures: ["ERE scraping sessions"],
@@ -149,6 +162,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "data_pipeline",
     logoPath: "integrations/cron.svg",
     fallbackIcon: "⏰",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     envVars: [],
     poweredFeatures: ["Automated hearing date monitoring", "Incremental case syncs"],
@@ -347,6 +362,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "ai",
     logoPath: "integrations/gemini.svg",
     fallbackIcon: "🤖",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     healthCheckEnvVar: "LANGEXTRACT_URL",
     envVars: [
@@ -428,6 +445,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "infrastructure",
     logoPath: "integrations/postgresql.svg",
     fallbackIcon: "🐘",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     envVars: [
       { key: "DATABASE_URL", label: "Connection String", required: true, secret: true },
@@ -446,6 +465,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "infrastructure",
     logoPath: "integrations/redis.svg",
     fallbackIcon: "🔴",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     envVars: [
       { key: "REDIS_URL", label: "Redis Connection", required: false, secret: true },
@@ -464,6 +485,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "infrastructure",
     logoPath: "integrations/s3.svg",
     fallbackIcon: "📦",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     envVars: [
       { key: "RAILWAY_BUCKET_ENDPOINT", label: "S3 Endpoint", required: true, secret: false },
@@ -490,6 +513,8 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     category: "infrastructure",
     logoPath: "integrations/n8n.svg",
     fallbackIcon: "⚡",
+    hostLogoPath: "integrations/railway.svg",
+    hostName: "Railway",
     healthCheckUrl: null,
     healthCheckEnvVar: "N8N_BASE_URL",
     envVars: [

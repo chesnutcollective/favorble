@@ -456,17 +456,40 @@ const ALLOWED_LOGO_TYPES = new Set([
 ]);
 const MAX_LOGO_SIZE = 500 * 1024; // 500 KB
 
+export type LogoSlot = "tech" | "host";
+
+function parseSlot(raw: unknown): LogoSlot {
+  return raw === "host" ? "host" : "tech";
+}
+
+const SLOT_CONFIG: Record<
+  LogoSlot,
+  { payloadKey: "customLogoPath" | "customHostLogoPath"; keySuffix: string; summaryLabel: string }
+> = {
+  tech: { payloadKey: "customLogoPath", keySuffix: "logo", summaryLabel: "Logo" },
+  host: { payloadKey: "customHostLogoPath", keySuffix: "host-logo", summaryLabel: "Host logo" },
+};
+
 /**
  * Upload a custom integration logo. Stores the file in the Railway bucket
  * (production) or as a base64 data URL in the event payload (dev fallback).
  * Records a `config_changed` event for the audit trail.
+ *
+ * The `slot` field on the FormData ("tech" | "host") selects which logo
+ * is being replaced. Defaults to "tech" for back-compat.
  */
 export async function uploadIntegrationLogo(
   formData: FormData,
-): Promise<{ success: boolean; signedUrl?: string; error?: string }> {
+): Promise<{
+  success: boolean;
+  signedUrl?: string;
+  storagePath?: string;
+  error?: string;
+}> {
   const session = await requireSession();
   const integrationId = formData.get("integrationId");
   const file = formData.get("file");
+  const slot = parseSlot(formData.get("slot"));
 
   if (typeof integrationId !== "string" || !integrationId) {
     return { success: false, error: "Missing integrationId" };
@@ -503,38 +526,36 @@ export async function uploadIntegrationLogo(
   };
   const ext = extMap[file.type] ?? "png";
 
-  let customLogoPath: string;
+  const slotCfg = SLOT_CONFIG[slot];
+  let storagePath: string;
   let signedUrl: string;
 
   if (isRailwayBucketConfigured()) {
-    // Production: upload to Railway bucket
-    const key = `integration-logos/${integrationId}-logo.${ext}`;
+    const key = `integration-logos/${integrationId}-${slotCfg.keySuffix}.${ext}`;
     const result = await uploadRailwayDocumentAtKey(key, buffer, file.type);
-    customLogoPath = result.storagePath;
-    signedUrl = await getRailwaySignedUrl(customLogoPath);
+    storagePath = result.storagePath;
+    signedUrl = await getRailwaySignedUrl(storagePath);
   } else {
-    // Dev fallback: store as base64 data URL in the event payload
     const base64 = buffer.toString("base64");
-    customLogoPath = `data:${file.type};base64,${base64}`;
-    signedUrl = customLogoPath;
+    storagePath = `data:${file.type};base64,${base64}`;
+    signedUrl = storagePath;
   }
 
-  // Record config_changed event with the custom logo path
   await db.insert(integrationEvents).values({
     organizationId: session.organizationId,
     integrationId,
     eventType: "config_changed",
     status: "ok",
-    summary: "Logo updated",
-    payload: { customLogoPath },
+    summary: `${slotCfg.summaryLabel} updated`,
+    payload: { [slotCfg.payloadKey]: storagePath },
   });
 
-  logger.info("Integration logo uploaded", { integrationId });
+  logger.info("Integration logo uploaded", { integrationId, slot });
 
   revalidatePath(`/admin/integrations/${integrationId}`);
   revalidatePath("/admin/integrations");
 
-  return { success: true, signedUrl };
+  return { success: true, signedUrl, storagePath };
 }
 
 /**
@@ -546,8 +567,15 @@ export async function uploadIntegrationLogo(
 export async function fetchFaviconAsLogo(input: {
   integrationId: string;
   url: string;
-}): Promise<{ success: boolean; signedUrl?: string; error?: string }> {
+  slot?: LogoSlot;
+}): Promise<{
+  success: boolean;
+  signedUrl?: string;
+  storagePath?: string;
+  error?: string;
+}> {
   const session = await requireSession();
+  const slot: LogoSlot = input.slot === "host" ? "host" : "tech";
 
   const config = getIntegration(input.integrationId);
   if (!config) {
@@ -600,18 +628,19 @@ export async function fetchFaviconAsLogo(input: {
     };
   }
 
-  let customLogoPath: string;
+  const slotCfg = SLOT_CONFIG[slot];
+  let storagePath: string;
   let signedUrl: string;
 
   if (isRailwayBucketConfigured()) {
-    const key = `integration-logos/${input.integrationId}-logo.png`;
+    const key = `integration-logos/${input.integrationId}-${slotCfg.keySuffix}.png`;
     const result = await uploadRailwayDocumentAtKey(key, buffer, "image/png");
-    customLogoPath = result.storagePath;
-    signedUrl = await getRailwaySignedUrl(customLogoPath);
+    storagePath = result.storagePath;
+    signedUrl = await getRailwaySignedUrl(storagePath);
   } else {
     const base64 = buffer.toString("base64");
-    customLogoPath = `data:image/png;base64,${base64}`;
-    signedUrl = customLogoPath;
+    storagePath = `data:image/png;base64,${base64}`;
+    signedUrl = storagePath;
   }
 
   await db.insert(integrationEvents).values({
@@ -619,31 +648,49 @@ export async function fetchFaviconAsLogo(input: {
     integrationId: input.integrationId,
     eventType: "config_changed",
     status: "ok",
-    summary: `Logo fetched from ${domain}`,
-    payload: { customLogoPath, sourceDomain: domain },
+    summary: `${slotCfg.summaryLabel} fetched from ${domain}`,
+    payload: { [slotCfg.payloadKey]: storagePath, sourceDomain: domain },
   });
 
   logger.info("Integration favicon fetched", {
     integrationId: input.integrationId,
     domain,
+    slot,
   });
 
   revalidatePath(`/admin/integrations/${input.integrationId}`);
   revalidatePath("/admin/integrations");
 
-  return { success: true, signedUrl };
+  return { success: true, signedUrl, storagePath };
+}
+
+export type CustomLogoRef = { url: string; storagePath: string };
+export type CustomLogoUrls = {
+  tech: CustomLogoRef | null;
+  host: CustomLogoRef | null;
+};
+
+async function signStoragePath(path: string): Promise<string | null> {
+  if (path.startsWith("data:")) return path;
+  try {
+    return await getRailwaySignedUrl(path);
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Look up whether a custom logo has been uploaded for the given integration.
- * Returns a signed URL (or data URL in dev) if one exists, null otherwise.
+ * Look up custom logos uploaded for an integration. Scans recent
+ * `config_changed` events and returns the most-recent tech + host overrides
+ * independently — each slot is tracked separately so uploading one does not
+ * clear the other.
  */
 export async function getCustomLogoUrl(
   integrationId: string,
-): Promise<string | null> {
+): Promise<CustomLogoUrls> {
   const session = await requireSession();
 
-  const [row] = await db
+  const rows = await db
     .select({ payload: integrationEvents.payload })
     .from(integrationEvents)
     .where(
@@ -654,41 +701,232 @@ export async function getCustomLogoUrl(
       ),
     )
     .orderBy(desc(integrationEvents.createdAt))
-    .limit(1);
+    .limit(50);
 
-  if (!row?.payload) return null;
-
-  const payload = row.payload as Record<string, unknown>;
-  const customLogoPath = payload.customLogoPath;
-  if (typeof customLogoPath !== "string") return null;
-
-  // Data URL (dev fallback) — return directly
-  if (customLogoPath.startsWith("data:")) return customLogoPath;
-
-  // Railway bucket path — sign it
-  try {
-    return await getRailwaySignedUrl(customLogoPath);
-  } catch (err) {
-    logger.warn("Failed to sign custom logo URL", {
-      integrationId,
-      error: err,
-    });
-    return null;
+  let techPath: string | null = null;
+  let hostPath: string | null = null;
+  for (const row of rows) {
+    const payload = row.payload as Record<string, unknown> | null;
+    if (!payload) continue;
+    if (!techPath && typeof payload.customLogoPath === "string") {
+      techPath = payload.customLogoPath;
+    }
+    if (!hostPath && typeof payload.customHostLogoPath === "string") {
+      hostPath = payload.customHostLogoPath;
+    }
+    if (techPath && hostPath) break;
   }
+
+  const [techUrl, hostUrl] = await Promise.all([
+    techPath ? signStoragePath(techPath) : Promise.resolve(null),
+    hostPath ? signStoragePath(hostPath) : Promise.resolve(null),
+  ]);
+
+  if (techPath && !techUrl) {
+    logger.warn("Failed to sign custom tech logo URL", { integrationId });
+  }
+  if (hostPath && !hostUrl) {
+    logger.warn("Failed to sign custom host logo URL", { integrationId });
+  }
+
+  return {
+    tech: techPath && techUrl ? { url: techUrl, storagePath: techPath } : null,
+    host: hostPath && hostUrl ? { url: hostUrl, storagePath: hostPath } : null,
+  };
+}
+
+export type UploadedLogo = {
+  /** The storage path (bucket key or data: URL). Round-trip safely — server
+   * re-validates membership in the org's event log before applying. */
+  storagePath: string;
+  /** Signed URL for display. */
+  signedUrl: string;
+  /** The integration this logo was last uploaded for. */
+  lastUsedFor: string;
+  /** Whether it was last used as tech or host. */
+  lastUsedAs: LogoSlot;
+  /** Favicon source domain, if this came from the fetch-favicon flow. */
+  sourceDomain?: string;
+  updatedAt: string;
+};
+
+/**
+ * List every unique custom logo uploaded or favicon-fetched in this org.
+ * Dedupes by storage path, sorted most-recent first. Used by the admin UI
+ * to let operators reuse an existing asset instead of re-uploading.
+ */
+export async function listUploadedLogos(): Promise<UploadedLogo[]> {
+  const session = await requireSession();
+
+  const rows = await db
+    .select({
+      integrationId: integrationEvents.integrationId,
+      payload: integrationEvents.payload,
+      createdAt: integrationEvents.createdAt,
+    })
+    .from(integrationEvents)
+    .where(
+      and(
+        eq(integrationEvents.organizationId, session.organizationId),
+        eq(integrationEvents.eventType, "config_changed"),
+      ),
+    )
+    .orderBy(desc(integrationEvents.createdAt))
+    .limit(500);
+
+  // Dedup by storagePath, keeping the most-recent metadata (first seen in
+  // desc order == most recent).
+  const seen = new Map<
+    string,
+    {
+      slot: LogoSlot;
+      integrationId: string;
+      sourceDomain?: string;
+      createdAt: Date;
+    }
+  >();
+
+  for (const row of rows) {
+    const payload = row.payload as Record<string, unknown> | null;
+    if (!payload) continue;
+
+    const techPath = payload.customLogoPath;
+    if (typeof techPath === "string" && !seen.has(techPath)) {
+      seen.set(techPath, {
+        slot: "tech",
+        integrationId: row.integrationId,
+        sourceDomain:
+          typeof payload.sourceDomain === "string"
+            ? payload.sourceDomain
+            : undefined,
+        createdAt: row.createdAt,
+      });
+    }
+
+    const hostPath = payload.customHostLogoPath;
+    if (typeof hostPath === "string" && !seen.has(hostPath)) {
+      seen.set(hostPath, {
+        slot: "host",
+        integrationId: row.integrationId,
+        sourceDomain:
+          typeof payload.sourceDomain === "string"
+            ? payload.sourceDomain
+            : undefined,
+        createdAt: row.createdAt,
+      });
+    }
+  }
+
+  const signed = await Promise.all(
+    Array.from(seen.entries()).map(async ([storagePath, meta]) => {
+      const signedUrl = await signStoragePath(storagePath);
+      if (!signedUrl) return null;
+      const logo: UploadedLogo = {
+        storagePath,
+        signedUrl,
+        lastUsedFor: meta.integrationId,
+        lastUsedAs: meta.slot,
+        updatedAt: meta.createdAt.toISOString(),
+        ...(meta.sourceDomain ? { sourceDomain: meta.sourceDomain } : {}),
+      };
+      return logo;
+    }),
+  );
+
+  const resolved: UploadedLogo[] = [];
+  for (const entry of signed) {
+    if (entry) resolved.push(entry);
+  }
+  resolved.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return resolved;
 }
 
 /**
- * Batch lookup of custom logo URLs for multiple integrations.
- * Returns a map of integrationId -> signed URL for those that have custom logos.
+ * Apply an existing logo (from the org's prior uploads) to an integration
+ * slot. Validates the storagePath is present in this org's event log to
+ * prevent pointing at arbitrary bucket keys.
+ */
+export async function applyExistingLogo(input: {
+  integrationId: string;
+  slot: LogoSlot;
+  storagePath: string;
+}): Promise<{
+  success: boolean;
+  signedUrl?: string;
+  storagePath?: string;
+  error?: string;
+}> {
+  const session = await requireSession();
+
+  const config = getIntegration(input.integrationId);
+  if (!config) return { success: false, error: "Unknown integration" };
+
+  const slot: LogoSlot = input.slot === "host" ? "host" : "tech";
+
+  // Validate storagePath exists in this org's config_changed history
+  const rows = await db
+    .select({ payload: integrationEvents.payload })
+    .from(integrationEvents)
+    .where(
+      and(
+        eq(integrationEvents.organizationId, session.organizationId),
+        eq(integrationEvents.eventType, "config_changed"),
+      ),
+    )
+    .orderBy(desc(integrationEvents.createdAt))
+    .limit(500);
+
+  const known = rows.some((r) => {
+    const p = r.payload as Record<string, unknown> | null;
+    if (!p) return false;
+    return (
+      p.customLogoPath === input.storagePath ||
+      p.customHostLogoPath === input.storagePath
+    );
+  });
+  if (!known) {
+    return { success: false, error: "Logo not found in your library" };
+  }
+
+  const slotCfg = SLOT_CONFIG[slot];
+
+  await db.insert(integrationEvents).values({
+    organizationId: session.organizationId,
+    integrationId: input.integrationId,
+    eventType: "config_changed",
+    status: "ok",
+    summary: `${slotCfg.summaryLabel} reused from library`,
+    payload: { [slotCfg.payloadKey]: input.storagePath, reusedFromLibrary: true },
+  });
+
+  const signedUrl = await signStoragePath(input.storagePath);
+  if (!signedUrl) {
+    return { success: false, error: "Failed to sign logo URL" };
+  }
+
+  logger.info("Integration logo reused from library", {
+    integrationId: input.integrationId,
+    slot,
+  });
+
+  revalidatePath(`/admin/integrations/${input.integrationId}`);
+  revalidatePath("/admin/integrations");
+
+  return { success: true, signedUrl, storagePath: input.storagePath };
+}
+
+/**
+ * Batch lookup of custom logo URLs. Returns a map of integrationId to its
+ * tech/host overrides (only integrations with at least one override appear
+ * in the map).
  */
 export async function getCustomLogoUrls(
   integrationIds: string[],
-): Promise<Record<string, string>> {
+): Promise<Record<string, CustomLogoUrls>> {
   if (integrationIds.length === 0) return {};
 
   const session = await requireSession();
 
-  // Find the most recent config_changed event per integration that has a customLogoPath
   const rows = await db
     .select({
       integrationId: integrationEvents.integrationId,
@@ -703,34 +941,36 @@ export async function getCustomLogoUrls(
     )
     .orderBy(desc(integrationEvents.createdAt));
 
-  // Deduplicate: keep only the most recent per integration
-  const latestPerIntegration = new Map<string, string>();
+  const pathsPerIntegration = new Map<
+    string,
+    { tech?: string; host?: string }
+  >();
   for (const row of rows) {
-    if (latestPerIntegration.has(row.integrationId)) continue;
+    if (!integrationIds.includes(row.integrationId)) continue;
+    const current = pathsPerIntegration.get(row.integrationId) ?? {};
     const payload = row.payload as Record<string, unknown> | null;
-    const customLogoPath = payload?.customLogoPath;
-    if (typeof customLogoPath === "string") {
-      latestPerIntegration.set(row.integrationId, customLogoPath);
+    if (!payload) continue;
+    if (!current.tech && typeof payload.customLogoPath === "string") {
+      current.tech = payload.customLogoPath;
     }
+    if (!current.host && typeof payload.customHostLogoPath === "string") {
+      current.host = payload.customHostLogoPath;
+    }
+    pathsPerIntegration.set(row.integrationId, current);
   }
 
-  // Sign URLs in parallel
-  const result: Record<string, string> = {};
-  const entries = Array.from(latestPerIntegration.entries()).filter(([id]) =>
-    integrationIds.includes(id),
-  );
-
+  const result: Record<string, CustomLogoUrls> = {};
   await Promise.all(
-    entries.map(async ([id, path]) => {
-      if (path.startsWith("data:")) {
-        result[id] = path;
-        return;
-      }
-      try {
-        result[id] = await getRailwaySignedUrl(path);
-      } catch {
-        // Skip if signing fails
-      }
+    Array.from(pathsPerIntegration.entries()).map(async ([id, paths]) => {
+      const [techUrl, hostUrl] = await Promise.all([
+        paths.tech ? signStoragePath(paths.tech) : Promise.resolve(null),
+        paths.host ? signStoragePath(paths.host) : Promise.resolve(null),
+      ]);
+      const tech =
+        paths.tech && techUrl ? { url: techUrl, storagePath: paths.tech } : null;
+      const host =
+        paths.host && hostUrl ? { url: hostUrl, storagePath: paths.host } : null;
+      if (tech || host) result[id] = { tech, host };
     }),
   );
 

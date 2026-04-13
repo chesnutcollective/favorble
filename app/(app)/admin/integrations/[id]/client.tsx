@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,9 +12,12 @@ import {
   deleteAlertRule,
   uploadIntegrationLogo,
   fetchFaviconAsLogo,
+  listUploadedLogos,
+  applyExistingLogo,
   type IntegrationDetail,
   type IntegrationEventRow,
   type AlertRuleRow,
+  type UploadedLogo,
 } from "@/app/actions/integration-management";
 
 // ── Helpers ──
@@ -603,28 +606,211 @@ function AlertRulesSection({
   );
 }
 
+// ── Logo library strip ──
+
+function LogoLibraryStrip({
+  logos,
+  currentStoragePath,
+  currentDisplaySrc,
+  defaultLabel,
+  applyingPath,
+  busy,
+  onPick,
+}: {
+  logos: UploadedLogo[] | null;
+  currentStoragePath: string | null;
+  currentDisplaySrc: string;
+  defaultLabel: string;
+  applyingPath: string | null;
+  busy: boolean;
+  onPick: (storagePath: string) => void;
+}) {
+  if (logos === null) {
+    return (
+      <div
+        className="mb-2 flex h-10 items-center justify-center rounded-md border border-dashed text-[10px]"
+        style={{ borderColor: COLORS.borderSubtle, color: COLORS.text3 }}
+      >
+        Loading library…
+      </div>
+    );
+  }
+
+  const currentEntry = currentStoragePath
+    ? logos.find((l) => l.storagePath === currentStoragePath) ?? null
+    : null;
+  const currentMeta = currentEntry
+    ? currentEntry.sourceDomain ?? `Last used by ${currentEntry.lastUsedFor}`
+    : defaultLabel;
+
+  return (
+    <div className="mb-3">
+      {/* Sticky "Current" row */}
+      <div
+        className="mb-2 flex items-center gap-2 rounded-md border px-2 py-1.5"
+        style={{ borderColor: COLORS.borderSubtle, background: COLORS.bg }}
+      >
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded border bg-white"
+          style={{ borderColor: COLORS.borderDefault }}
+        >
+          <Image
+            src={currentDisplaySrc}
+            alt="Currently active"
+            width={28}
+            height={28}
+            className="h-full w-full object-contain p-0.5"
+            unoptimized={
+              currentDisplaySrc.startsWith("data:") ||
+              currentDisplaySrc.startsWith("http")
+            }
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: COLORS.text3 }}
+          >
+            Current
+          </p>
+          <p
+            className="truncate text-[11px]"
+            style={{ color: COLORS.text1 }}
+          >
+            {currentMeta}
+          </p>
+        </div>
+      </div>
+
+      {logos.length > 0 && (
+        <>
+          <p
+            className="mb-1 text-[10px] font-medium"
+            style={{ color: COLORS.text3 }}
+          >
+            Pick from library
+          </p>
+          <div
+            className="flex gap-1.5 overflow-x-auto pb-1"
+            style={{ scrollbarWidth: "thin" }}
+          >
+            {logos.map((logo) => {
+              const isApplying = applyingPath === logo.storagePath;
+              const isCurrent = logo.storagePath === currentStoragePath;
+              const title = logo.sourceDomain
+                ? `From ${logo.sourceDomain} (last used by ${logo.lastUsedFor})`
+                : `Last used by ${logo.lastUsedFor}`;
+              return (
+                <button
+                  key={logo.storagePath}
+                  type="button"
+                  onClick={() => onPick(logo.storagePath)}
+                  disabled={busy || isCurrent}
+                  title={isCurrent ? `Currently active — ${title}` : title}
+                  className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-white transition-all hover:ring-2 disabled:cursor-default"
+                  style={{
+                    borderColor: isCurrent ? COLORS.brand : COLORS.borderDefault,
+                    boxShadow: isCurrent ? `0 0 0 2px ${COLORS.brand}` : undefined,
+                    opacity: !isCurrent && busy ? 0.5 : 1,
+                  }}
+                >
+                  <Image
+                    src={logo.signedUrl}
+                    alt={logo.sourceDomain ?? logo.lastUsedFor}
+                    width={32}
+                    height={32}
+                    className="h-full w-full object-contain p-0.5"
+                    unoptimized
+                  />
+                  {isCurrent && (
+                    <span
+                      className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full text-white"
+                      style={{ background: COLORS.brand }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-2.5 w-2.5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 5.29a1 1 0 010 1.42l-8 8a1 1 0 01-1.42 0l-4-4a1 1 0 111.42-1.42L8 12.59l7.29-7.3a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  )}
+                  {isApplying && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Main Component ──
 
 export function IntegrationDetailClient({
   detail,
-  customLogoUrl,
+  customLogoUrls,
 }: {
   detail: IntegrationDetail;
-  customLogoUrl: string | null;
+  customLogoUrls: {
+    tech: { url: string; storagePath: string } | null;
+    host: { url: string; storagePath: string } | null;
+  };
 }) {
   const router = useRouter();
   const { config, categoryLabel } = detail;
+  const hasHost = Boolean(config.hostLogoPath);
   const [verifying, setVerifying] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState<string>(
-    customLogoUrl ?? `/${config.logoPath}`,
+    customLogoUrls.tech?.url ?? `/${config.logoPath}`,
   );
-  const [uploading, setUploading] = useState(false);
+  const [techCurrentPath, setTechCurrentPath] = useState<string | null>(
+    customLogoUrls.tech?.storagePath ?? null,
+  );
+  const [hostLogoError, setHostLogoError] = useState(false);
+  const [hostLogoSrc, setHostLogoSrc] = useState<string>(
+    customLogoUrls.host?.url ?? (config.hostLogoPath ? `/${config.hostLogoPath}` : ""),
+  );
+  const [hostCurrentPath, setHostCurrentPath] = useState<string | null>(
+    customLogoUrls.host?.storagePath ?? null,
+  );
+  const [uploading, setUploading] = useState<null | "tech" | "host">(null);
+  const [fetchingFavicon, setFetchingFavicon] = useState<null | "tech" | "host">(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showLogoMenu, setShowLogoMenu] = useState(false);
   const [faviconUrl, setFaviconUrl] = useState("");
-  const [fetchingFavicon, setFetchingFavicon] = useState(false);
+  const [hostFaviconUrl, setHostFaviconUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hostFileInputRef = useRef<HTMLInputElement>(null);
+  const [logoLibrary, setLogoLibrary] = useState<UploadedLogo[] | null>(null);
+  const [applyingPath, setApplyingPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showLogoMenu || logoLibrary !== null) return;
+    let cancelled = false;
+    listUploadedLogos()
+      .then((logos) => {
+        if (!cancelled) setLogoLibrary(logos);
+      })
+      .catch(() => {
+        if (!cancelled) setLogoLibrary([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [showLogoMenu, logoLibrary]);
 
   const overallStatus = detail.allRequiredConfigured ? "active" : "pending";
 
@@ -646,57 +832,115 @@ export function IntegrationDetailClient({
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    slot: "tech" | "host",
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadError(null);
-    setUploading(true);
+    setUploading(slot);
 
     try {
       const formData = new FormData();
       formData.set("integrationId", config.id);
       formData.set("file", file);
+      formData.set("slot", slot);
 
       const result = await uploadIntegrationLogo(formData);
-      if (result.success && result.signedUrl) {
-        setLogoSrc(result.signedUrl);
-        setLogoError(false);
+      if (result.success && result.signedUrl && result.storagePath) {
+        if (slot === "tech") {
+          setLogoSrc(result.signedUrl);
+          setTechCurrentPath(result.storagePath);
+          setLogoError(false);
+        } else {
+          setHostLogoSrc(result.signedUrl);
+          setHostCurrentPath(result.storagePath);
+          setHostLogoError(false);
+        }
+        setLogoLibrary(null); // force library re-fetch so new upload appears
       } else {
         setUploadError(result.error ?? "Upload failed");
       }
     } catch {
       setUploadError("Upload failed unexpectedly");
     } finally {
-      setUploading(false);
-      // Reset file input so re-selecting the same file triggers onChange
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setUploading(null);
+      const ref = slot === "tech" ? fileInputRef : hostFileInputRef;
+      if (ref.current) ref.current.value = "";
     }
   };
 
-  const handleFetchFavicon = async () => {
-    if (!faviconUrl.trim()) return;
+  const handleFetchFavicon = async (slot: "tech" | "host") => {
+    const url = slot === "tech" ? faviconUrl : hostFaviconUrl;
+    if (!url.trim()) return;
     setUploadError(null);
-    setFetchingFavicon(true);
+    setFetchingFavicon(slot);
     try {
       const result = await fetchFaviconAsLogo({
         integrationId: config.id,
-        url: faviconUrl.trim(),
+        url: url.trim(),
+        slot,
       });
-      if (result.success && result.signedUrl) {
-        setLogoSrc(result.signedUrl);
-        setLogoError(false);
+      if (result.success && result.signedUrl && result.storagePath) {
+        if (slot === "tech") {
+          setLogoSrc(result.signedUrl);
+          setTechCurrentPath(result.storagePath);
+          setLogoError(false);
+          setFaviconUrl("");
+        } else {
+          setHostLogoSrc(result.signedUrl);
+          setHostCurrentPath(result.storagePath);
+          setHostLogoError(false);
+          setHostFaviconUrl("");
+        }
+        setLogoLibrary(null); // force library re-fetch
         setShowLogoMenu(false);
-        setFaviconUrl("");
       } else {
         setUploadError(result.error ?? "Fetch failed");
       }
     } catch {
       setUploadError("Fetch failed unexpectedly");
     } finally {
-      setFetchingFavicon(false);
+      setFetchingFavicon(null);
     }
   };
+
+  const handleApplyExisting = async (
+    slot: "tech" | "host",
+    storagePath: string,
+  ) => {
+    setUploadError(null);
+    setApplyingPath(storagePath);
+    try {
+      const result = await applyExistingLogo({
+        integrationId: config.id,
+        slot,
+        storagePath,
+      });
+      if (result.success && result.signedUrl && result.storagePath) {
+        if (slot === "tech") {
+          setLogoSrc(result.signedUrl);
+          setTechCurrentPath(result.storagePath);
+          setLogoError(false);
+        } else {
+          setHostLogoSrc(result.signedUrl);
+          setHostCurrentPath(result.storagePath);
+          setHostLogoError(false);
+        }
+        setShowLogoMenu(false);
+      } else {
+        setUploadError(result.error ?? "Could not apply logo");
+      }
+    } catch {
+      setUploadError("Could not apply logo");
+    } finally {
+      setApplyingPath(null);
+    }
+  };
+
+  const busy = uploading !== null || fetchingFavicon !== null || applyingPath !== null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
@@ -727,15 +971,32 @@ export function IntegrationDetailClient({
               />
             )}
           </div>
+          {hasHost && hostLogoSrc && !hostLogoError && (
+            <div
+              className="pointer-events-none absolute -bottom-1 -right-1 flex h-[20px] w-[20px] items-center justify-center overflow-hidden rounded-md bg-white shadow-sm"
+              style={{ boxShadow: `0 0 0 2px ${COLORS.surface}` }}
+              title={config.hostName ? `Hosted on ${config.hostName}` : undefined}
+            >
+              <Image
+                src={hostLogoSrc}
+                alt={config.hostName ?? "Host platform"}
+                width={20}
+                height={20}
+                className="object-contain"
+                unoptimized={hostLogoSrc.startsWith("data:") || hostLogoSrc.startsWith("http")}
+                onError={() => setHostLogoError(true)}
+              />
+            </div>
+          )}
           {/* Edit logo overlay */}
           <button
             type="button"
             onClick={() => setShowLogoMenu(!showLogoMenu)}
-            disabled={uploading || fetchingFavicon}
+            disabled={busy}
             className="absolute inset-0 flex items-center justify-center rounded-[10px] bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100 disabled:cursor-wait"
             aria-label="Change logo"
           >
-            {uploading || fetchingFavicon ? (
+            {busy ? (
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <svg
@@ -753,7 +1014,14 @@ export function IntegrationDetailClient({
             type="file"
             accept="image/png,image/jpeg,image/svg+xml"
             className="hidden"
-            onChange={handleLogoUpload}
+            onChange={(e) => handleFileUpload("tech", e)}
+          />
+          <input
+            ref={hostFileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml"
+            className="hidden"
+            onChange={(e) => handleFileUpload("host", e)}
           />
           {/* Logo edit menu */}
           {showLogoMenu && (
@@ -763,37 +1031,49 @@ export function IntegrationDetailClient({
                 onClick={() => setShowLogoMenu(false)}
               />
               <div
-                className="absolute left-0 top-full z-50 mt-2 w-64 rounded-[10px] border bg-white p-3 shadow-lg"
+                className="absolute left-0 top-full z-50 mt-2 w-72 rounded-[10px] border bg-white p-3 shadow-lg"
                 style={{ borderColor: COLORS.borderDefault }}
               >
-                <p
-                  className="mb-2 text-[11px] font-semibold uppercase tracking-wider"
-                  style={{ color: COLORS.text3 }}
-                >
-                  Change logo
-                </p>
+                {/* Tech logo section */}
+                <div>
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-wider"
+                    style={{ color: COLORS.text3 }}
+                  >
+                    Logo
+                  </p>
+                  <p className="mb-2 text-[10px]" style={{ color: COLORS.text3 }}>
+                    The main service mark shown on the integration card.
+                  </p>
+                </div>
+                <LogoLibraryStrip
+                  logos={logoLibrary}
+                  currentStoragePath={techCurrentPath}
+                  currentDisplaySrc={logoSrc}
+                  defaultLabel={`Default — ${config.logoPath.split("/").pop() ?? "logo"}`}
+                  applyingPath={applyingPath}
+                  busy={busy}
+                  onPick={(path) => handleApplyExisting("tech", path)}
+                />
                 <button
                   type="button"
                   onClick={() => {
-                    setShowLogoMenu(false);
                     fileInputRef.current?.click();
                   }}
-                  className="mb-2 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50"
+                  disabled={busy}
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 disabled:opacity-50"
                   style={{ color: COLORS.text1 }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.text3 }}>
                     <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
                   </svg>
-                  Upload a file (PNG, SVG, JPEG)
+                  Upload new file
                 </button>
-                <div
-                  className="border-t pt-2"
-                  style={{ borderColor: COLORS.borderSubtle }}
-                >
-                  <p
-                    className="mb-1.5 text-[11px] font-medium"
-                    style={{ color: COLORS.text3 }}
-                  >
+                <p className="mb-2 ml-7 text-[10px]" style={{ color: COLORS.text3 }}>
+                  PNG · SVG · JPEG, up to 500 KB
+                </p>
+                <div className="border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
+                  <p className="mb-1.5 text-[11px] font-medium" style={{ color: COLORS.text3 }}>
                     Or fetch favicon from URL
                   </p>
                   <div className="flex gap-1.5">
@@ -802,26 +1082,97 @@ export function IntegrationDetailClient({
                       value={faviconUrl}
                       onChange={(e) => setFaviconUrl(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") handleFetchFavicon();
+                        if (e.key === "Enter") handleFetchFavicon("tech");
                       }}
-                      placeholder="e.g. clerk.com"
+                      placeholder={`e.g. ${config.shortName.toLowerCase()}.com`}
                       className="flex-1 rounded-md border px-2 py-1 text-xs outline-none focus:ring-1"
-                      style={{
-                        borderColor: COLORS.borderDefault,
-                        color: COLORS.text1,
-                      }}
+                      style={{ borderColor: COLORS.borderDefault, color: COLORS.text1 }}
                     />
                     <button
                       type="button"
-                      onClick={handleFetchFavicon}
-                      disabled={fetchingFavicon || !faviconUrl.trim()}
+                      onClick={() => handleFetchFavicon("tech")}
+                      disabled={fetchingFavicon !== null || !faviconUrl.trim()}
                       className="shrink-0 rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-40"
                       style={{ backgroundColor: COLORS.brand }}
                     >
-                      {fetchingFavicon ? "..." : "Fetch"}
+                      {fetchingFavicon === "tech" ? "..." : "Fetch"}
                     </button>
                   </div>
                 </div>
+
+                {/* Hosting badge section */}
+                {hasHost && (
+                  <div
+                    className="mt-3 border-t pt-3"
+                    style={{ borderColor: COLORS.borderDefault }}
+                  >
+                    <div>
+                      <p
+                        className="text-[11px] font-semibold uppercase tracking-wider"
+                        style={{ color: COLORS.text3 }}
+                      >
+                        Hosting badge
+                      </p>
+                      <p className="mb-2 text-[10px]" style={{ color: COLORS.text3 }}>
+                        Small corner overlay — the platform this runs on
+                        {config.hostName ? ` (${config.hostName})` : ""}.
+                      </p>
+                    </div>
+                    <LogoLibraryStrip
+                      logos={logoLibrary}
+                      currentStoragePath={hostCurrentPath}
+                      currentDisplaySrc={hostLogoSrc || `/${config.hostLogoPath ?? ""}`}
+                      defaultLabel={`Default — ${(config.hostLogoPath ?? "").split("/").pop() ?? "badge"}`}
+                      applyingPath={applyingPath}
+                      busy={busy}
+                      onPick={(path) => handleApplyExisting("host", path)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        hostFileInputRef.current?.click();
+                      }}
+                      disabled={busy}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 disabled:opacity-50"
+                      style={{ color: COLORS.text1 }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.text3 }}>
+                        <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
+                      </svg>
+                      Upload new file
+                    </button>
+                    <p className="mb-2 ml-7 text-[10px]" style={{ color: COLORS.text3 }}>
+                      PNG · SVG · JPEG, up to 500 KB
+                    </p>
+                    <div className="border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
+                      <p className="mb-1.5 text-[11px] font-medium" style={{ color: COLORS.text3 }}>
+                        Or fetch favicon from URL
+                      </p>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          value={hostFaviconUrl}
+                          onChange={(e) => setHostFaviconUrl(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleFetchFavicon("host");
+                          }}
+                          placeholder={`e.g. ${(config.hostName ?? "host").toLowerCase()}.com`}
+                          className="flex-1 rounded-md border px-2 py-1 text-xs outline-none focus:ring-1"
+                          style={{ borderColor: COLORS.borderDefault, color: COLORS.text1 }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleFetchFavicon("host")}
+                          disabled={fetchingFavicon !== null || !hostFaviconUrl.trim()}
+                          className="shrink-0 rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-40"
+                          style={{ backgroundColor: COLORS.brand }}
+                        >
+                          {fetchingFavicon === "host" ? "..." : "Fetch"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           )}

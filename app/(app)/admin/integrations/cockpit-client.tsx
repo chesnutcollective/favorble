@@ -65,17 +65,24 @@ function IntegrationCard({
   card,
   onVerify,
   isPinging,
-  customLogoUrl,
+  customLogoUrls,
 }: {
   card: IntegrationCardData;
   onVerify: (id: string) => void;
   isPinging: boolean;
-  customLogoUrl?: string;
+  customLogoUrls?: {
+    tech: { url: string; storagePath: string } | null;
+    host: { url: string; storagePath: string } | null;
+  };
 }) {
   const router = useRouter();
   const config = STATUS_CONFIG[card.status];
   const [imgError, setImgError] = useState(false);
-  const imgSrc = customLogoUrl ?? `/${card.logoPath}`;
+  const [hostImgError, setHostImgError] = useState(false);
+  const imgSrc = customLogoUrls?.tech?.url ?? `/${card.logoPath}`;
+  const hostImgSrc = card.hostLogoPath
+    ? customLogoUrls?.host?.url ?? `/${card.hostLogoPath}`
+    : null;
 
   return (
     <Card
@@ -85,19 +92,37 @@ function IntegrationCard({
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           {/* Logo */}
-          <div className="relative flex-shrink-0 w-12 h-12 rounded-lg border border-[rgba(0,0,0,0.06)] bg-white flex items-center justify-center overflow-hidden">
-            {!imgError ? (
-              <Image
-                src={imgSrc}
-                alt={card.name}
-                width={48}
-                height={48}
-                className="object-contain p-1"
-                unoptimized={imgSrc.startsWith("data:") || imgSrc.startsWith("http")}
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <span className="text-xl">{card.fallbackIcon}</span>
+          <div className="relative flex-shrink-0 w-12 h-12">
+            <div className="w-12 h-12 rounded-lg border border-[rgba(0,0,0,0.06)] bg-white flex items-center justify-center overflow-hidden">
+              {!imgError ? (
+                <Image
+                  src={imgSrc}
+                  alt={card.name}
+                  width={48}
+                  height={48}
+                  className="object-contain p-1"
+                  unoptimized={imgSrc.startsWith("data:") || imgSrc.startsWith("http")}
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span className="text-xl">{card.fallbackIcon}</span>
+              )}
+            </div>
+            {hostImgSrc && !hostImgError && (
+              <div
+                className="absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-md bg-white ring-2 ring-white flex items-center justify-center overflow-hidden shadow-sm"
+                title={card.hostName ? `Hosted on ${card.hostName}` : undefined}
+              >
+                <Image
+                  src={hostImgSrc}
+                  alt={card.hostName ?? "Host platform"}
+                  width={18}
+                  height={18}
+                  className="object-contain"
+                  unoptimized={hostImgSrc.startsWith("data:") || hostImgSrc.startsWith("http")}
+                  onError={() => setHostImgError(true)}
+                />
+              </div>
             )}
           </div>
 
@@ -348,7 +373,7 @@ export function IntegrationsCockpitClient({
                 card={card}
                 onVerify={pingIntegration}
                 isPinging={pingingIds.has(card.id)}
-                customLogoUrl={data.customLogoUrls[card.id]}
+                customLogoUrls={data.customLogoUrls[card.id]}
               />
             ))}
           </div>
