@@ -36,10 +36,11 @@ export default async function AppLayout({
       {persona.isViewingAs && (
         <ViewAsBanner
           personaLabel={persona.config.label}
+          personaId={persona.personaId}
           actorName={actorName}
         />
       )}
-      <div className="ttn-app-layout">
+      <div className={`ttn-app-layout${persona.isViewingAs ? " has-view-as-banner" : ""}`}>
         <Suspense>
           <TwoTierNav
             user={persona.actor}

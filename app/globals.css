@@ -212,9 +212,16 @@
 }
 
 /* ── App layout ── */
+:root {
+  --view-as-banner-h: 0px;
+}
+.has-view-as-banner {
+  --view-as-banner-h: 36px;
+}
+
 .ttn-app-layout {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - var(--view-as-banner-h));
   background: var(--bg-root, #FAFAFA);
 }
 
@@ -230,11 +237,11 @@
 /* ── Floating sidebar wrapper ── */
 .ttn-float {
   position: fixed;
-  top: 0;
+  top: var(--view-as-banner-h, 0);
   left: 0;
   z-index: 40;
   padding: 12px 0 12px 12px;
-  height: 100vh;
+  height: calc(100vh - var(--view-as-banner-h, 0px));
   display: flex;
   flex-shrink: 0;
 }
@@ -250,7 +257,7 @@
 .ttn-rail {
   width: 56px;
   min-width: 56px;
-  height: calc(100vh - 24px);
+  height: calc(100vh - 24px - var(--view-as-banner-h, 0px));
   background: var(--nav-rail-bg, #1C1C1E);
   border-radius: 12px 0 0 12px;
   display: flex;
@@ -559,7 +566,7 @@
 .ttn-panel {
   width: 184px;
   min-width: 184px;
-  height: calc(100vh - 24px);
+  height: calc(100vh - 24px - var(--view-as-banner-h, 0px));
   background: var(--bg-card, #FAFAFA);
   border-radius: 0 12px 12px 0;
   display: flex;
