@@ -149,12 +149,10 @@ export async function getDocumentUrl(documentId: string) {
       storagePath: doc.storagePath,
       error: err,
     });
-    return {
-      error:
-        err instanceof Error
-          ? `Could not open document: ${err.message}`
-          : "Could not open document",
-    };
+    // Don't leak storage internals (env var names, bucket paths, etc.) to
+    // the UI. A generic "unavailable" with a server-side log is enough for
+    // operators to investigate without exposing infra to admins.
+    return { error: "Source PDF unavailable" };
   }
 }
 

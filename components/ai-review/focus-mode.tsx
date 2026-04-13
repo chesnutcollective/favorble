@@ -15,8 +15,14 @@
  */
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
-import { getNextEntry } from "@/app/actions/ai-review";
+import {
+  approveExtraction,
+  getNextEntry,
+  rejectExtraction,
+} from "@/app/actions/ai-review";
 import type { AiReviewEntry } from "@/app/actions/ai-review";
 import type { ReviewQuery } from "@/lib/ai-review/types";
 import { EntryDetail } from "./entry-detail";
@@ -132,12 +138,48 @@ export function FocusMode({
     });
   }, [advance]);
 
+  const router = useRouter();
+
+  const approveCurrent = useCallback(() => {
+    if (!entry) return;
+    startTransition(async () => {
+      try {
+        await approveExtraction(entry.id);
+        toast.success("Approved", { duration: 1500 });
+        onActionComplete();
+        router.refresh();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Approve failed");
+      }
+    });
+  }, [entry, onActionComplete, router]);
+
+  const rejectCurrent = useCallback(() => {
+    if (!entry) return;
+    startTransition(async () => {
+      try {
+        await rejectExtraction(entry.id);
+        toast.success("Rejected", { duration: 1500 });
+        onActionComplete();
+        router.refresh();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Reject failed");
+      }
+    });
+  }, [entry, onActionComplete, router]);
+
   // Keyboard shortcuts. Bound to document; ignored when focus is in an
   // editable field so the user can edit the summary normally.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
-      if (tag === "input" || tag === "textarea") return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const inEditable =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        target?.isContentEditable === true;
+      if (inEditable) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       switch (e.key.toLowerCase()) {
         case "j":
@@ -160,11 +202,26 @@ export function FocusMode({
             cur ? undefined : (entry?.caseId ?? undefined),
           );
           break;
+        case "a":
+          e.preventDefault();
+          approveCurrent();
+          break;
+        case "r":
+          e.preventDefault();
+          rejectCurrent();
+          break;
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goBack, goForward, skip, entry?.caseId]);
+  }, [
+    goBack,
+    goForward,
+    skip,
+    entry?.caseId,
+    approveCurrent,
+    rejectCurrent,
+  ]);
 
   // ─── Render ────────────────────────────────────────────────────
 

@@ -15,8 +15,10 @@
  */
 
 import {
+  forwardRef,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -41,18 +43,18 @@ type Suggestion =
   | { kind: "qualifier"; key: Qualifier; hint: string }
   | { kind: "value"; key: Qualifier; value: string; meta?: string };
 
-export function CopilotBar({
-  query,
-  facets,
-  onChange,
-  loading,
-}: {
-  query: ReviewQuery;
-  facets?: FacetCounts | null;
-  onChange: (next: ReviewQuery) => void;
-  loading?: boolean;
-}) {
+export const CopilotBar = forwardRef<
+  HTMLInputElement,
+  {
+    query: ReviewQuery;
+    facets?: FacetCounts | null;
+    onChange: (next: ReviewQuery) => void;
+    loading?: boolean;
+    onHelpClick?: () => void;
+  }
+>(function CopilotBar({ query, facets, onChange, loading, onHelpClick }, ref) {
   const inputRef = useRef<HTMLInputElement>(null);
+  useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
   const [text, setText] = useState(() => stringifyQuery(query));
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
@@ -261,17 +263,41 @@ export function CopilotBar({
           onKeyDown={onKeyDown}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Search · case:HS-05827 confidence:<60 status:pending date:2026..."
+          placeholder="Filter by case, provider, status…"
           className="flex-1 border-none bg-transparent text-[14px] outline-none placeholder:text-zinc-400"
           aria-label="Filter the review queue"
           aria-autocomplete="list"
-          aria-expanded={open}
+          aria-controls="copilot-suggestions"
+          aria-expanded={open && suggestions.length > 0}
+          aria-activedescendant={
+            open && suggestions[highlight]
+              ? `copilot-sug-${highlight}`
+              : undefined
+          }
+          role="combobox"
         />
         {loading ? (
-          <span className="text-[11px] font-mono text-zinc-400">…</span>
+          <span className="text-[11px] font-mono text-zinc-400" aria-hidden>
+            …
+          </span>
         ) : null}
-        <kbd className="rounded border border-zinc-200 px-1.5 py-0.5 text-[10px] font-mono text-zinc-500">
-          ⌘K
+        {onHelpClick ? (
+          <button
+            type="button"
+            onClick={onHelpClick}
+            className="rounded border border-zinc-200 px-1.5 py-0.5 text-[10px] font-mono text-zinc-500 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+            aria-label="Show keyboard shortcuts"
+            title="Help (?)"
+          >
+            ?
+          </button>
+        ) : null}
+        <kbd
+          className="rounded border border-zinc-200 px-1.5 py-0.5 text-[10px] font-mono text-zinc-500"
+          aria-hidden
+          title="Press / to focus this bar"
+        >
+          /
         </kbd>
       </div>
 
@@ -293,6 +319,7 @@ export function CopilotBar({
       {/* Autocomplete dropdown */}
       {open && suggestions.length > 0 ? (
         <div
+          id="copilot-suggestions"
           role="listbox"
           className="absolute left-0 right-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-200 bg-white shadow-lg"
         >
@@ -301,6 +328,7 @@ export function CopilotBar({
             return (
               <button
                 key={`${s.kind}-${s.key}-${"value" in s ? s.value : ""}`}
+                id={`copilot-sug-${i}`}
                 role="option"
                 aria-selected={isActive}
                 onMouseDown={(e) => {
@@ -308,7 +336,7 @@ export function CopilotBar({
                   applySuggestion(s);
                 }}
                 onMouseEnter={() => setHighlight(i)}
-                className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[13px] ${
+                className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[13px] focus-visible:outline-none ${
                   isActive ? "bg-zinc-100" : "hover:bg-zinc-50"
                 }`}
               >
@@ -328,7 +356,7 @@ export function CopilotBar({
       ) : null}
     </div>
   );
-}
+});
 
 // ─── Sub-components ───────────────────────────────────────────────
 
@@ -395,25 +423,27 @@ function ChipStrip({
   if (chips.length === 0) return null;
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+    <ul
+      className="mt-2 flex flex-wrap items-center gap-1.5"
+      aria-label="Active filters"
+    >
       {chips.map((c) => (
-        <button
+        <li
           key={`${c.key}-${c.label}`}
-          type="button"
-          onClick={() => onRemove(c.key)}
-          className={`group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition ${chipToneClasses(c.tone)}`}
-          title="Remove this filter"
+          className={`group inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${chipToneClasses(c.tone)}`}
         >
           <span>{c.label}</span>
-          <span
-            aria-hidden
-            className="text-[12px] opacity-50 group-hover:opacity-100"
+          <button
+            type="button"
+            onClick={() => onRemove(c.key)}
+            aria-label={`Remove filter: ${c.label}`}
+            className="rounded-full p-0.5 text-[12px] opacity-50 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
           >
             ×
-          </span>
-        </button>
+          </button>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -432,7 +462,11 @@ function DidYouMean({
     .filter((u): u is typeof u & { suggestion: Qualifier } => !!u.suggestion);
   if (items.length === 0) return null;
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-amber-900">
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-amber-900"
+    >
       <span className="text-amber-700">Unknown qualifier — did you mean</span>
       {items.map((u) => (
         <button

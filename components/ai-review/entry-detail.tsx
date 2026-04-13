@@ -81,19 +81,24 @@ function FieldPane({
     });
   };
 
-  const onReject = () => {
-    const reason = window.prompt("Reason for rejection (optional)");
-    if (reason === null) return; // cancelled
+  const [showReject, setShowReject] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const submitReject = () => {
+    setShowReject(false);
     startTransition(async () => {
       try {
-        await rejectExtraction(entry.id, reason || undefined);
+        await rejectExtraction(entry.id, rejectReason || undefined);
         toast.success("Rejected", { duration: 1500 });
+        setRejectReason("");
         onActionComplete?.();
         router.refresh();
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Reject failed");
       }
     });
+  };
+  const onReject = () => {
+    setShowReject(true);
   };
 
   const onSaveSummary = () => {
@@ -117,17 +122,19 @@ function FieldPane({
   return (
     <div className="flex h-full flex-col rounded-lg border border-zinc-200 bg-white">
       {/* Header band */}
-      <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-zinc-500">
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5">
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono uppercase tracking-wider text-zinc-600">
               {entry.entryType.replace(/_/g, " ")}
             </span>
             <ConfidenceBadge value={entry.confidence} />
-            <StatusBadge entry={entry} />
+            {entry.isVerified || entry.isExcluded ? (
+              <StatusBadge entry={entry} />
+            ) : null}
             {entry.daysPending >= 7 && !entry.isVerified && !entry.isExcluded ? (
               <span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700">
-                {entry.daysPending}d pending
+                {entry.daysPending}d overdue
               </span>
             ) : null}
           </div>
@@ -165,6 +172,47 @@ function FieldPane({
           />
         </div>
       </div>
+
+      {/* Inline reject reason form */}
+      {showReject ? (
+        <div className="border-b border-red-100 bg-red-50/50 px-4 py-3">
+          <label className="block text-[11px] font-medium uppercase tracking-wider text-red-800">
+            Rejection reason (optional)
+          </label>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="text"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              autoFocus
+              placeholder="e.g. wrong patient, hallucinated diagnosis…"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitReject();
+                if (e.key === "Escape") setShowReject(false);
+              }}
+              className="flex-1 rounded border border-red-200 bg-white px-2 py-1 text-[13px] outline-none focus:border-red-400"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowReject(false);
+                setRejectReason("");
+              }}
+              className="rounded border border-zinc-200 bg-white px-2 py-1 text-[12px] text-zinc-700 hover:bg-zinc-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={submitReject}
+              disabled={isPending}
+              className="rounded bg-red-600 px-3 py-1 text-[12px] font-medium text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-50"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
@@ -264,11 +312,12 @@ function SourcePane({ entry }: { entry: AiReviewEntry }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
     if (!entry.sourceDocumentId) {
       setSignedUrl(null);
-      setError("No source PDF linked to this entry.");
+      setError("This entry has no source PDF linked.");
       return;
     }
     let cancelled = false;
@@ -283,11 +332,11 @@ function SourcePane({ entry }: { entry: AiReviewEntry }) {
         } else if ("url" in res && res.url) {
           setSignedUrl(res.url);
         } else {
-          setError("Could not load source PDF.");
+          setError("Source PDF unavailable");
         }
       })
-      .catch((err) => {
-        if (!cancelled) setError(err?.message ?? "Failed to load PDF");
+      .catch(() => {
+        if (!cancelled) setError("Source PDF unavailable");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -295,19 +344,51 @@ function SourcePane({ entry }: { entry: AiReviewEntry }) {
     return () => {
       cancelled = true;
     };
-  }, [entry.sourceDocumentId]);
+  }, [entry.sourceDocumentId, retryToken]);
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500">
-        <Loader2 size={16} className="animate-spin" />
+      <div
+        className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500"
+        role="status"
+        aria-label="Loading source PDF"
+      >
+        <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden />
+        <span className="text-[12px]">Loading source PDF…</span>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-4 text-center text-[13px] text-amber-900">
-        {error}
+      <div
+        role="alert"
+        className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-6 text-center"
+      >
+        <div className="text-zinc-400">
+          <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="13" y2="17" />
+          </svg>
+        </div>
+        <div className="text-[14px] font-medium text-zinc-900">
+          Source PDF unavailable
+        </div>
+        <div className="max-w-sm text-[12px] text-zinc-500">
+          {error.startsWith("This entry") || error.startsWith("This document")
+            ? error
+            : "We couldn't load the source for this entry. The reviewer can still approve or reject based on the extracted fields."}
+        </div>
+        {entry.sourceDocumentId ? (
+          <button
+            type="button"
+            onClick={() => setRetryToken((t) => t + 1)}
+            className="mt-1 rounded border border-zinc-200 bg-white px-3 py-1 text-[12px] font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          >
+            Retry
+          </button>
+        ) : null}
       </div>
     );
   }
@@ -408,21 +489,33 @@ function ActionButton({
   tone: "primary" | "neutral" | "danger";
 }) {
   const tones: Record<typeof tone, string> = {
-    primary: "bg-emerald-600 text-white hover:bg-emerald-700",
-    neutral: "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
-    danger: "border border-red-200 bg-white text-red-700 hover:bg-red-50",
+    primary:
+      "bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-400",
+    neutral:
+      "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 focus-visible:ring-zinc-400",
+    danger:
+      "border border-red-200 bg-white text-red-700 hover:bg-red-50 focus-visible:ring-red-400",
+  };
+  const kbdTones: Record<typeof tone, string> = {
+    primary: "bg-emerald-800/60 text-emerald-50",
+    neutral: "bg-zinc-100 text-zinc-600",
+    danger: "bg-red-100 text-red-700",
   };
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-keyshortcuts={shortcut}
       title={`${label} — ${shortcut}`}
-      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[12px] font-medium transition disabled:opacity-50 ${tones[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-[12px] font-medium transition focus-visible:outline-none focus-visible:ring-2 disabled:opacity-50 ${tones[tone]}`}
     >
       {icon}
       <span>{label}</span>
-      <kbd className="ml-1 rounded bg-black/10 px-1 text-[10px] font-mono">
+      <kbd
+        className={`ml-1 rounded px-1 text-[10px] font-mono leading-none ${kbdTones[tone]}`}
+        aria-hidden
+      >
         {shortcut}
       </kbd>
     </button>
