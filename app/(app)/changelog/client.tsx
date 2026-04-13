@@ -1,21 +1,31 @@
 "use client";
 
-import { useState, useEffect, useTransition, useCallback } from "react";
+import { useState, useEffect, useRef, useTransition, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Clock01Icon,
   Calendar03Icon,
   GitCommitIcon,
   ArrowRight01Icon,
+  ArrowDown01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   getChangelogCommits,
   type CommitEntry,
   type CommitType,
 } from "@/app/actions/changelog";
+import {
+  getCommitDetails,
+  type CommitDetails,
+} from "@/app/actions/changelog-details";
 
 /* ─── Type badge config ─── */
 const TYPE_CONFIG: Record<
@@ -117,7 +127,6 @@ function bucketCommits(commits: CommitEntry[]): CommitBucket[] {
     } else if (d >= startOfMonth) {
       addToBucket("this-month", commit);
     } else {
-      // Group by month: "2026-03" etc.
       const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       addToBucket(monthKey, commit);
     }
@@ -134,7 +143,6 @@ function bucketLabel(key: string): string {
   if (key === "today") return "Today";
   if (key === "this-week") return "This Week";
   if (key === "this-month") return "This Month";
-  // "2026-03" -> "March 2026"
   const [year, month] = key.split("-");
   const date = new Date(Number(year), Number(month) - 1, 1);
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
@@ -168,6 +176,216 @@ function formatRelativeTime(dateStr: string): string {
   });
 }
 
+/* ─── Tiny inline markdown renderer ───
+ * Handles **bold**, paragraphs, and `code` so we don't add a markdown dep.
+ * For anything richer we'd reach for react-markdown.
+ */
+function renderInlineMarkdown(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    const token = match[0];
+    if (token.startsWith("**")) {
+      parts.push(
+        <strong key={key++} className="font-semibold text-foreground">
+          {token.slice(2, -2)}
+        </strong>,
+      );
+    } else {
+      parts.push(
+        <code
+          key={key++}
+          className="rounded bg-[#F5F5F5] px-1 py-0.5 font-mono text-[11px]"
+        >
+          {token.slice(1, -1)}
+        </code>,
+      );
+    }
+    last = regex.lastIndex;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+function MarkdownParagraphs({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/\n{2,}/).map((para, i) => (
+        <p key={i} className="text-[13px] leading-relaxed text-[#444]">
+          {renderInlineMarkdown(para)}
+        </p>
+      ))}
+    </>
+  );
+}
+
+/* ─── Detail panel rendered inside the accordion ─── */
+function CommitDetailBody({
+  commit,
+  details,
+  loading,
+}: {
+  commit: CommitEntry;
+  details: CommitDetails | null;
+  loading: boolean;
+}) {
+  if (loading && !details) {
+    return (
+      <div className="space-y-2 pt-3">
+        <div className="h-3 w-3/4 animate-pulse rounded bg-[#F0F0F0]" />
+        <div className="h-3 w-full animate-pulse rounded bg-[#F0F0F0]" />
+        <div className="h-3 w-5/6 animate-pulse rounded bg-[#F0F0F0]" />
+      </div>
+    );
+  }
+
+  // Fallback when the AI summary isn't available (no API key, error, etc.) —
+  // show whatever git gave us so the accordion is never empty.
+  if (!details || details.status !== "ready") {
+    return (
+      <div className="space-y-3 pt-3">
+        {commit.body ? (
+          <pre className="whitespace-pre-wrap rounded border border-[#EAEAEA] bg-[#FAFAFA] p-3 font-mono text-xs leading-relaxed text-[#666]">
+            {commit.body}
+          </pre>
+        ) : (
+          <p className="text-[12px] text-[#999]">
+            No detailed explanation available yet.
+          </p>
+        )}
+        {details?.errorMessage && (
+          <p className="text-[11px] text-[#EE0000]">
+            Generation error: {details.errorMessage}
+          </p>
+        )}
+        {details?.filesChanged && details.filesChanged.length > 0 && (
+          <FileList
+            files={details.filesChanged}
+            additions={details.additions}
+            deletions={details.deletions}
+          />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 pt-3">
+      {/* Summary line */}
+      {details.summary && (
+        <p className="text-[14px] font-medium leading-snug text-foreground">
+          {details.summary}
+        </p>
+      )}
+
+      {/* Bullets */}
+      {details.bullets && details.bullets.length > 0 && (
+        <ul className="space-y-1.5">
+          {details.bullets.map((b, i) => (
+            <li
+              key={i}
+              className="relative pl-4 text-[13px] leading-snug text-[#444] before:absolute before:left-0 before:top-[7px] before:h-1 before:w-1 before:rounded-full before:bg-[#0070F3]"
+            >
+              {renderInlineMarkdown(b)}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Details paragraphs */}
+      {details.details && (
+        <div className="space-y-2 border-l-2 border-[#EAEAEA] pl-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#999]">
+            What changed
+          </div>
+          <MarkdownParagraphs text={details.details} />
+        </div>
+      )}
+
+      {/* User impact */}
+      {details.userImpact && (
+        <div className="rounded border border-[#E0EFFE] bg-[#F4F9FF] p-3">
+          <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#0070F3]">
+            What this means for you
+          </div>
+          <MarkdownParagraphs text={details.userImpact} />
+        </div>
+      )}
+
+      {/* Risk notes */}
+      {details.riskNotes && details.riskNotes.trim() && (
+        <div className="rounded border border-[#FCE4A1] bg-[#FFFBED] p-3">
+          <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#A86A00]">
+            Watch for
+          </div>
+          <MarkdownParagraphs text={details.riskNotes} />
+        </div>
+      )}
+
+      {/* File list */}
+      {details.filesChanged && details.filesChanged.length > 0 && (
+        <FileList
+          files={details.filesChanged}
+          additions={details.additions}
+          deletions={details.deletions}
+        />
+      )}
+    </div>
+  );
+}
+
+function FileList({
+  files,
+  additions,
+  deletions,
+}: {
+  files: NonNullable<CommitDetails["filesChanged"]>;
+  additions: number | null;
+  deletions: number | null;
+}) {
+  return (
+    <details className="group rounded border border-[#EAEAEA] bg-white">
+      <summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-[12px] text-[#666]">
+        <span>
+          {files.length} file{files.length === 1 ? "" : "s"} changed
+          {additions !== null && deletions !== null && (
+            <>
+              {" — "}
+              <span className="text-[#0E8345]">+{additions}</span>{" "}
+              <span className="text-[#EE0000]">-{deletions}</span>
+            </>
+          )}
+        </span>
+        <HugeiconsIcon
+          icon={ArrowDown01Icon}
+          size={12}
+          className="transition-transform group-open:rotate-180"
+        />
+      </summary>
+      <ul className="border-t border-[#EAEAEA] px-3 py-2">
+        {files.map((f) => (
+          <li
+            key={f.path}
+            className="flex items-center justify-between gap-2 py-0.5 font-mono text-[11px] text-[#666]"
+          >
+            <span className="truncate" title={f.path}>
+              {f.path}
+            </span>
+            <span className="shrink-0 text-[10px] text-[#999]">
+              <span className="text-[#0E8345]">+{f.additions}</span>{" "}
+              <span className="text-[#EE0000]">-{f.deletions}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 /* ─── Commit Row ─── */
 function CommitRow({
   commit,
@@ -176,17 +394,40 @@ function CommitRow({
   commit: CommitEntry;
   isLast: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [details, setDetails] = useState<CommitDetails | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fetchedRef = useRef(false);
   const cfg = TYPE_CONFIG[commit.type];
+
+  // Lazy-load details the first time the accordion opens. Track in-flight via a
+  // ref so we don't depend on `loading`/`details` and trigger our own cleanup.
+  useEffect(() => {
+    if (!open || fetchedRef.current) return;
+    fetchedRef.current = true;
+    let cancelled = false;
+    setLoading(true);
+    getCommitDetails(commit.hash)
+      .then((result) => {
+        if (!cancelled) setDetails(result);
+      })
+      .catch(() => {
+        // Network/server failure — fallback renders the raw commit body
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, commit.hash]);
 
   return (
     <div className="group relative flex gap-3 pb-4">
-      {/* Vertical line */}
       {!isLast && (
         <div className="absolute left-[3px] top-3 h-full w-px bg-[#EAEAEA]" />
       )}
 
-      {/* Timeline dot */}
       <div
         className={cn(
           "relative z-10 mt-1.5 h-2 w-2 shrink-0 rounded-full",
@@ -194,62 +435,71 @@ function CommitRow({
         )}
       />
 
-      {/* Content */}
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {/* Type badge */}
-          <span
-            className="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
-            style={{ color: cfg.color, backgroundColor: cfg.bg }}
-          >
-            {cfg.label}
-          </span>
-          {/* Subject */}
-          <span className="text-[13px] font-medium text-foreground leading-snug">
-            {commit.subject}
-          </span>
-        </div>
-
-        {/* Meta row */}
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[#999]">
-          <span>{commit.author}</span>
-          <span className="text-[#EAEAEA]">&middot;</span>
-          <span>{formatRelativeTime(commit.date)}</span>
-          <span className="text-[#EAEAEA]">&middot;</span>
-          <a
-            href={commit.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-0.5 font-mono text-[#999] hover:text-[#0070F3] transition-colors"
-          >
-            {commit.shortHash}
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              size={10}
-              className="opacity-0 group-hover:opacity-100 transition-opacity -rotate-45"
-            />
-          </a>
-          {/* Body toggle */}
-          {commit.body && (
-            <>
-              <span className="text-[#EAEAEA]">&middot;</span>
+        <Collapsible open={open} onOpenChange={setOpen}>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+              style={{ color: cfg.color, backgroundColor: cfg.bg }}
+            >
+              {cfg.label}
+            </span>
+            <CollapsibleTrigger asChild>
               <button
                 type="button"
-                onClick={() => setExpanded((prev) => !prev)}
-                className="text-[#999] hover:text-foreground transition-colors"
+                className="text-left text-[13px] font-medium leading-snug text-foreground hover:underline"
               >
-                {expanded ? "Hide details" : "Show details"}
+                {commit.subject}
               </button>
-            </>
-          )}
-        </div>
+            </CollapsibleTrigger>
+          </div>
 
-        {/* Expanded body */}
-        {expanded && commit.body && (
-          <pre className="mt-2 whitespace-pre-wrap rounded border border-[#EAEAEA] bg-[#FAFAFA] p-3 text-xs text-[#666] font-mono leading-relaxed">
-            {commit.body}
-          </pre>
-        )}
+          {/* Meta row */}
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[#999]">
+            <span>{commit.author}</span>
+            <span className="text-[#EAEAEA]">&middot;</span>
+            <span>{formatRelativeTime(commit.date)}</span>
+            <span className="text-[#EAEAEA]">&middot;</span>
+            <a
+              href={commit.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-0.5 font-mono text-[#999] transition-colors hover:text-[#0070F3] sm:inline-flex"
+            >
+              {commit.shortHash}
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                size={10}
+                className="-rotate-45 opacity-0 transition-opacity group-hover:opacity-100"
+              />
+            </a>
+            <span className="text-[#EAEAEA]">&middot;</span>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-0.5 text-[#999] transition-colors hover:text-foreground"
+              >
+                {open ? "Hide details" : "Show details"}
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={10}
+                  className={cn(
+                    "transition-transform",
+                    open && "rotate-180",
+                  )}
+                />
+              </button>
+            </CollapsibleTrigger>
+          </div>
+
+          <CollapsibleContent>
+            <CommitDetailBody
+              commit={commit}
+              details={details}
+              loading={loading}
+            />
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
@@ -298,7 +548,6 @@ export function ChangelogClient({
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
 
-  // Mark as viewed for nav badge
   useEffect(() => {
     try {
       localStorage.setItem("changelog:lastViewedAt", new Date().toISOString());

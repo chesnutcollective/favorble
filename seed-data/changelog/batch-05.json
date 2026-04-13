@@ -1,0 +1,202 @@
+[
+  {
+    "sha": "e38c1d5bd22ea951adc1fa7d3a544a37e2afd19b",
+    "summary": "Every clickable item in every sidebar panel now drives the main page — auto-scroll, highlight ring, deep links to filtered tabs/dates.",
+    "details": "Six surfaces wired together so panel clicks change main-area state.\n\n- **Messages**: clicking a preview goes to `/messages?highlight={id}` which auto-scrolls and renders an emerald ring on the matching row, fading after 3 seconds. Case numbers in previews link to `/cases/{caseId}`.\n- **Cases**: stage filter links read `searchParams` (already wired).\n- **Contacts**: type filter links read `searchParams` (already wired).\n- **Documents**: source filter now reads `searchParams.source` and initializes the filter on mount.\n- **Queue**: 'Overdue' link → `/queue?tab=overdue` opens on the Overdue tab. Valid tabs: all, overdue, today, this_week, next_week, no_date.\n- **Calendar**: event links → `/calendar?date=YYYY-MM-DD` opens day view on that date. `CalendarGrid` accepts `initialDay` for date-driven initialization.\n- **Email**: 'Unmatched' link → `/email?filter=unmatched` auto-scrolls to the unmatched section.",
+    "userImpact": "Every panel click now actually navigates somewhere useful and lands you on the right view — instead of dropping you on a generic page where you have to filter manually.",
+    "riskNotes": "",
+    "bullets": ["Messages: highlight ring + scroll on click", "Queue: tab=overdue/today/etc deep link", "Calendar: ?date=YYYY-MM-DD opens day view", "Email: ?filter=unmatched auto-scrolls", "Documents: source filter initializes from URL"]
+  },
+  {
+    "sha": "14fdb39479cb682ee6c9692cd644f85003f1b992",
+    "summary": "All 11 sidebar panels now show real DB data instead of hardcoded mockup values — single new server action fetches it all in parallel.",
+    "details": "**Root cause fix.** `TwoTierNav` now receives a `navData` prop with real DB queries for every panel, replacing all hardcoded mockup data.\n\n**Data layer (`nav-data.ts`).** `getNavPanelData()` fetches 9 queries in parallel with per-query error handling: stageCounts (real stage IDs + case counts), taskSummary (total, overdue, dueToday, top 5 tasks), leadCounts (per pipeline status), todayEvents (today's calendar events with type/case links), recentActivity (last 5 audit log entries), documentSummary (total + by source + recent uploads), contactSummary (total + by type + recent contacts), messageSummary (total + unread + recent), emailSummary (matched/unmatched + Outlook config status).\n\n**Panel fixes.** Dashboard New Case link, tasks/hearings/activity wired. Cases stage links use real UUIDs (was passing names → zero results). Removed non-functional SSDI/SSI tabs, honest 'coming soon' for pinned. Leads adds missing 'Contract Sent' stage, real conversion rate. Queue: real task count/overdue, top 5 tasks as Links. Calendar: real today's events, clickable day strip, event count dot. Messages: real unread count, removed fake Sent/Drafts folders. Email: real Outlook connection status. Contacts: fixed type labels to match DB enums, added 'Expert', filter pills navigate via `router.push`. Documents: switched from category to source taxonomy, removed phantom 'pending review'. Reports: fixed all 6 links + 2 slug mismatches. Settings: added missing `/admin/settings` link.\n\nAll panel items now use `<Link>` instead of `<div>` for clickability.",
+    "userImpact": "Every count, label, and link in every sidebar panel is real and accurate. Stage filters actually filter (UUID fix). Task counts match the queue. Email matched/unmatched badges reflect actual Outlook state.",
+    "riskNotes": "9 parallel queries on every page load. Per-query try/catch prevents a single failure from breaking the nav, but watch latency under load.",
+    "bullets": ["Single server action fetches 9 panel data queries in parallel", "Stage filter UUIDs fix: links actually filter cases now", "11 panels switch from mockup data to real DB queries", "All panel items are <Link>, not <div>"]
+  },
+  {
+    "sha": "dfea35309a3c32a6d7c1cca365e814dd72168b02",
+    "summary": "Every rail icon gets a custom contextual panel instead of the generic 'View all' fallback — pipeline funnels, task lists, day strips, etc.",
+    "details": "Seven custom panel types replacing the `DefaultPanel` fallback for the main nav items.\n\n- **Leads**: pipeline funnel (New → Contacted → Intake → Signed), conversion rate.\n- **Queue**: task count + overdue stat, 5 task items with checkboxes + due dates.\n- **Calendar**: mini week strip with today highlighted, 3 events with type badges.\n- **Email**: Outlook status, matched/unmatched tabs, 4 email previews with case links.\n- **Contacts**: type filter pills (All / Claimants / Providers / Attorneys / SSA), 5 contacts.\n- **Documents**: category filters with counts (6 categories), 3 recent uploads.\n- **Reports**: 6 report types with icons + chevrons, quick stats (win rate, avg days, revenue).\n\n`DefaultPanel` filter now excludes all 10 main nav items — only serves as fallback for future additions.",
+    "userImpact": "Hovering any rail icon shows a meaningful preview/summary instead of a generic placeholder. Power users can navigate fast without leaving the current page.",
+    "riskNotes": "Initial pass uses hardcoded mockup data — replaced with real DB data in the next commit (`14fdb39`).",
+    "bullets": ["7 custom panels: Leads, Queue, Calendar, Email, Contacts, Documents, Reports", "DefaultPanel scoped down to fallback-only", "Mockup data initially; real data in next commit"]
+  },
+  {
+    "sha": "88e5f55cc48fb9ba4afe2a99c667d5603eb008d9",
+    "summary": "Complete sidebar rebuild — floating two-tier nav (icon rail + context panel) inspired by Slack/Discord with Vercel Light aesthetics.",
+    "details": "Replaces the flat shadcn sidebar with a floating two-tier navigation.\n\n**Tier 1 — Icon Rail** (56px, charcoal `#1C1C1E`). Filled SVG icons, 35% opacity default, 100% active. Emerald pill background + 3px left bar on active item. `scale(1.05)` hover pop, emerald glow pulse animation. Notification pulse dot on Messages. 'F' emerald gradient logo, user avatar with status dot. Settings gear for `/admin/*` routes.\n\n**Tier 2 — Context Panel** (184px, `#FAFAFA`). 150ms crossfade transitions between panel content. Hover-preview: hovering a rail icon temporarily shows its panel. Built-in search trigger with `⌘K` badge. 'Favorble Pro' footer badge.\n\n**Panel content by section**: Dashboard (quick actions grid, today's numbers, recent activity), Cases (SSDI/SSI tabs, stage breakdown with progress bars, pinned cases), Messages (inbox/sent/drafts folders, message previews with avatars), Leads (pipeline funnel + conversion rate), Calendar (today's events with type badges), Settings (admin links with active state, toggle switches), Default (title + 'View all' link for other sections).\n\n**Floating effect**: 12px margins (left, top, bottom), 12px border-radius on outer corners, subtle shadow (`0 1px 3px + 0 4px 12px`), page background visible through margins.\n\n**Layout changes**: replaced `SidebarProvider`/`AppSidebar` with `TwoTierNav`. Main content: 264px left margin. Mobile: nav hidden below 1024px. Apple theme: blue accent overrides via CSS variables.\n\nAlso includes 7 panel component files and nav proposal mockups.",
+    "userImpact": "First impression of the app changes dramatically — modern floating sidebar with smooth crossfades, hover preview, and a clear visual hierarchy.",
+    "riskNotes": "Mobile (<1024px) hides the nav entirely — make sure the mobile sheet handles the overflow.",
+    "bullets": ["Two-tier floating nav: 56px icon rail + 184px panel", "Charcoal rail with emerald active state", "Hover-preview shows panel temporarily", "Smooth 150ms crossfade between panels", "Built-in ⌘K search trigger"]
+  },
+  {
+    "sha": "19765e71d47c42fedaa04ba07dbcfc12ec80b5a2",
+    "summary": "Fixes the denial pattern heatmap overflow on narrow screens; adds 5 sidebar nav design proposals.",
+    "details": "Adds an `overflow-x-auto` wrapper to the denial pattern tracker table on the dashboard so wide tables can scroll horizontally instead of breaking layout. Also creates 5 sidebar navigation HTML proposals in `styleguides/nav-proposals/` for design review (one of which became the floating two-tier in `88e5f55`).",
+    "userImpact": "Dashboard layout no longer breaks when the denial heatmap is wider than the container.",
+    "riskNotes": "",
+    "bullets": ["Horizontal scroll wrapper on denial heatmap", "5 nav design proposals committed for review"]
+  },
+  {
+    "sha": "f8dfaecb87be4be5b8a0762e995408af54a32079",
+    "summary": "Comprehensive 29-chart dashboard with real data across 5 sections — pipeline, intelligence, evidence, activity, trends.",
+    "details": "Complete dashboard rebuild with 29 visualizations in 5 sections, wired to real database queries with demo data seeded.\n\n**Sections.**\n- **Top**: 5 stat cards with sparklines + Urgent Attention Queue.\n- **Pipeline & Outcomes**: funnel, win rate donut, denial treemap, appeals bars.\n- **Intelligence**: ALJ approval rates, listing match bubbles, denial heatmap, time-to-hearing scatter, past-due projection, case complexity histogram.\n- **Evidence & Hearings**: RFC limitations, CE outcomes donut, VE analysis table, hearing prep readiness, client satisfaction gauge.\n- **Activity & Feeds**: live activity feed, recent decisions, team heatmap, document processing pipeline.\n- **Trends**: 12-month case volume, revenue bars, task sparklines, weekly velocity.\n\nAll charts built with pure CSS/SVG — no external charting library.\n\n**Data layer.** `dashboard-data.ts` server action fetches all metrics in parallel. Seed script populates 60 cases, 120 tasks, 60 documents, 121 audit entries, 25 calendar events, 25 contacts, 35 medical chronology entries, 12 ALJs, 6 hearing offices across 12 months.\n\n**Schema sync.** Added missing columns (`ere_last_scrape_at`, chronology fields) and all ERE/chronology/exhibit tables to the database. Also includes 6 dashboard proposal mockups.",
+    "userImpact": "Dashboard goes from a few placeholder cards to a full operations command center showing pipeline health, ALJ patterns, hearing readiness, evidence completeness, and 12-month trends — all with real data.",
+    "riskNotes": "29 charts on one page — watch initial render time on large datasets.",
+    "bullets": ["29 visualizations across 5 dashboard sections", "All charts pure CSS/SVG (no charting library)", "Seed script: 60 cases, 120 tasks, 12 ALJs, 12 months", "Parallel-fetched data layer", "6 alternative dashboard mockups in styleguides"]
+  },
+  {
+    "sha": "cfcd3ac84cb9eff2a6fd18b7868bcd71c2ed6f3e",
+    "summary": "Final pixel-perfect pass — stage badges become 6px dots, fixed sidebar icon opacity selector, stat card overdue counts split into red number + gray label.",
+    "details": "Six small visual fixes:\n\n- Stage badges: replaced colored pills with 6px dot + 13px text (matches mockup pattern).\n- Sidebar icon opacity: fixed broken CSS selector — icons now 50% inactive / 100% active.\n- Stat card overdue: '+5 overdue' now renders as split red number + gray label.\n- Dashboard empty state: simplified to 'No tasks due today' at 13px `#666`.\n- Page header description: 13px (was 14px).",
+    "userImpact": "Subtle but the app feels more polished and matches the design mockup pixel-for-pixel.",
+    "riskNotes": "",
+    "bullets": ["Stage colored pills → 6px dot + 13px text", "Sidebar icon opacity selector fixed", "Stat card overdue split into red + gray", "Empty states and headers re-sized to mockup specs"]
+  },
+  {
+    "sha": "e4968dd759e9e19c1d315a7fe40e116d25b1d566",
+    "summary": "Closes every visual gap between the live app and the Vercel Light styleguide HTML — sidebar groups, stat cards, dashboard layout, tables, global CSS.",
+    "details": "Comprehensive pixel-perfect alignment pass.\n\n**Sidebar.** Restructured nav into OVERVIEW / TOOLS / SETTINGS labeled groups. Cases count badge (pill, monospace 11px, `#EAEAEA` border). Nav items 13px `#666` default, flush padding. Section labels 11px uppercase 0.05em tracking `#999`. Logo 24px margin-bottom. User area 13px name, 11px email, 20px horizontal padding. Container 16px vertical padding, 240px width.\n\n**Stat cards.** Value 28px/700/-1px tracking/1.1 line-height/`tnum`. Label 12px `#666` with 8px margin-bottom. Trend monospace 12px green/red. Padding 20px, hover border `#CCC`.\n\n**Dashboard layout.** Removed 'Welcome back, Jake' subtitle. Added Export + New Case header buttons. Section headers 14px/600 with 'View All' links. Card titles 12px/500/uppercase/0.04em/`#666`. Two-column bottom grid (tasks + activity side by side). Task items 16px checkbox, 13px text, monospace 11px dates. Activity 8px dots, narrative text, monospace timestamps.\n\n**Tables.** Headers 11px/500/uppercase/0.06em/`#999`/`#FAFAFA` bg. Cells 13px, 12px vertical padding. Row hover `#FAFAFA`. Case IDs monospace 12px `#999`. Stage column 6px dot + text. Type badges 10px uppercase pill `#FAFAFA` bg, `#EAEAEA` border. Attorney column 22px avatar + abbreviated name. Pagination text buttons at 13px.\n\n**Global CSS.** Line-height 1.5, links color inherit no decoration, radius scale (sm=4px, md=6px, lg=8px), `.card-title` utility, monospace default 12px, search bar exact mockup styling.",
+    "userImpact": "App now matches the Vercel Light reference mockup down to the pixel — type sizes, weights, tracking, and table treatments are all consistent.",
+    "riskNotes": "",
+    "bullets": ["Sidebar reorganized into OVERVIEW/TOOLS/SETTINGS groups", "Stat cards retuned to 28px/700 with tnum", "Dashboard header gets Export + New Case actions", "Tables: 6px dot stages, monospace IDs, abbreviated attorneys", "Global CSS scale + line-height reset"]
+  },
+  {
+    "sha": "77530a2403fcdf11f39d7a5a2e8eea7779ef1e01",
+    "summary": "Full restyle to Vercel Light design system — Geist font, white-on-light palette, no shadows, plus an Apple HIG theme toggle.",
+    "details": "Complete design system overhaul from shadcn/brand-tinted to Vercel Light.\n\n**Tokens.** Font: Geist + Geist Mono (replacing DM Sans/DM Mono). Colors: `#FAFAFA` bg, `#FFFFFF` cards, `#EAEAEA` borders, `#171717`/`#666`/`#999` text. Primary: black `#000` buttons with white text. Accent: `#0070F3` blue (sparingly), `#00C853` green, `#F5A623` amber, `#EE0000` red. Radius 6px (was 10px). **Shadows: NONE** — borders define all edges. Transitions 200ms ease.\n\n**Components (21 files).** Card no shadow + 1px border, hover darkens border. Button black primary, bordered secondary, no scale effect. Badge no shadow, clean fills/outlines. Input/Select border focus (`#888`), no ring. Dialog/Sheet no shadow, border only. Table clean borders, `#F0F0F0` hover, uppercase headers. Tabs underline style, black active. Checkbox/Switch black checked state. Tooltip black bg, no shadow.\n\n**Sidebar.** 240px, `#FAFAFA` bg, `#EAEAEA` right border. Active: white bg, no colored borders/icons. Nav 13px `#666` text, 16px icons at 50% opacity. Logo 24px black square + 'Favorble' (removed 'by Hogan Smith'). Avatar neutral gray circle.\n\n**Pages restyled.** Dashboard (clean stat cards, monochrome pipeline, 8px dot activity), Cases (removed stats bar), Case detail (monochrome stage bar), Tabs (text-only, black underline), SSA/Chronology, Admin, Contacts, Messages, Leads.\n\n**Theme toggle.** `ThemeProvider` with localStorage persistence. `data-skin=\"apple\"` CSS override swaps all tokens to Apple HIG (blue `#007AFF` accent, 10px radius, shadows, SF Pro font, 13px base). Segmented control in user dropdown menu. Zero component changes — pure CSS token swap.\n\nAlso includes 160 styleguide HTML files (10 styles × 5 pages × dark+light + 6 variant sub-styles).",
+    "userImpact": "App reads as Vercel Light — clean, dense, no shadows, Geist typography. Users can flip to an Apple HIG skin in their dropdown for a softer look. Zero component changes between themes.",
+    "riskNotes": "Big visual change touching 21 component files. Worth eyeballing every page after deploy.",
+    "bullets": ["Vercel Light: Geist font, no shadows, 6px radius", "21 component files restyled", "Black primary buttons, neutral grays for inactive states", "Apple HIG theme via pure CSS token swap", "160 styleguide HTML files committed for reference"]
+  },
+  {
+    "sha": "9619b63127f24365a73abdc42282ec9c2b2a0b20",
+    "summary": "Comprehensive UI polish addressing all UI design audit findings — design system, empty states, dashboard, sidebar, and page-level fixes.",
+    "details": "Audit had scored the app 68/100 'template-like'. This pass addresses every finding.\n\n**Design system layer.** Card subtle shadows + `hover:shadow-md` transitions, lighter borders. Button `transition-all`, `active:scale-[0.98]` press effect. Badge subtle shadow on solids, tinted outline backgrounds. Global CSS: semantic color tokens (urgent/success/warning/info), heading typography (`tracking-tight`), `tabular-nums` for stat cards. Page headers consistent `tracking-tight font-semibold`.\n\n**Dashboard.** Stat cards: colored icons, left border accents, '5 overdue' now red/bold. Activity feed: humanized labels ('task_completed' → 'Task Completed'), colored icons, action-specific badges. Pipeline funnel: taller bars, percentage tooltips, grid breakdown.\n\n**Sidebar.** Active state with left border accent + colored icon. Hover states with subtle bg transitions. Section labels uppercase `tracking-wider`. User avatar with brand color background. Footer subtle top border separator.\n\n**Empty states (18 files).** Enhanced `EmptyState` component with colored icon circles, action/secondary props, bordered variant, fade-in + pulse animations. All empty states updated with accents, CTAs, and better copy.\n\n**Fixed broken pages.** My Queue redirects to /queue (was 404). Calendar/Documents/Reports `EmptyState` serialization crash fixed (root cause: missing `'use client'`).\n\n**Page polish.** Cases list summary stats bar with stage counts. Contacts initials avatars with type-specific colors, colored type badges. Messages date group separators, humanized types, load-more pagination. Case detail tabs with icons, visual grouping, active state. Overview colored card accents. SSA Data uppercase labels, row dividers, actionable Chronicle badge. Chronology stat card icons, segmented timeline toggle. Admin integrations configured/unconfigured visual hierarchy. Admin ERE security banner gradient. Admin workflows action CTA in empty state.",
+    "userImpact": "Every page got cleaner — colored accents, real empty states, proper humanization of internal labels, fixed crashes on multiple pages. The 'template-like' feel is gone.",
+    "riskNotes": "Big diff — 214 files. Worth a full visual sweep.",
+    "bullets": ["Audit-driven polish across 18 empty states + 21 design components", "Dashboard stat cards: colored icons + left accents + bold red counters", "Sidebar active state visually distinct", "Fixed EmptyState crash on multiple pages", "Page-level polish across cases, contacts, messages, admin"]
+  },
+  {
+    "sha": "7d36325011cd6dff657b033f2171ff6f775b8d28",
+    "summary": "Full ERE scraping platform — 7 new tables, 3 Railway services, AI document pipeline, and the medical chronology UI.",
+    "details": "Complete implementation of direct SSA ERE (Electronic Records Express) integration replacing the Chronicle dependency.\n\n**7 new tables**: ere_credentials, ere_jobs, scraped_case_data, document_processing_results, medical_chronology_entries, exhibit_packets, exhibit_packet_documents (with migration).\n\n**3 Railway microservices**: ere-orchestrator, ere-browser (Playwright/Chromium), ere-cron — automated SSA portal scraping with TOTP auth and session management.\n\n**Document processing pipeline**: OCR + Claude AI classification + chronology extraction.\n\n**Medical chronology page**: timeline view, verification workflow, export.\n\n**Exhibit packet builder**: Bates stamping via pdf-lib.\n\n**ERE credential management** admin page with encrypted storage. 9 new API routes, 3 server action files (28 actions total). ERE monitoring cards on the SSA case page. Docker Compose for local dev, GitHub Actions for Railway CI/CD.",
+    "userImpact": "Firm can now scrape SSA's ERE portal directly instead of paying for Chronicle, with automated chronology extraction and exhibit packet building (Bates-stamped PDFs ready to file).",
+    "riskNotes": "Heavy infrastructure addition — 3 Railway services + Playwright + TOTP. Operationally complex; monitor scraping success rates.",
+    "bullets": ["7 new tables (ERE jobs, chronology, exhibit packets)", "3 Railway services with TOTP/session management", "OCR + Claude classification + chronology extraction", "Medical chronology timeline with export", "Exhibit packet builder with Bates stamping"]
+  },
+  {
+    "sha": "3df23f55deeafd749bc022636372e3d0dc2aa789",
+    "summary": "Switches the DB connection to Railway PostgreSQL (no PgBouncer) — enables prepared statements and tunes the connection pool.",
+    "details": "Railway provides a direct Postgres connection without PgBouncer in front, so prepared statements work correctly. Connection pool set to max 10 with 20s idle timeout.",
+    "userImpact": "Faster queries (prepared statements) and a properly tuned pool.",
+    "riskNotes": "",
+    "bullets": ["Direct Postgres connection (no PgBouncer)", "Pool max=10, idle_timeout=20s", "Prepared statements enabled"]
+  },
+  {
+    "sha": "f655abc81dcdd0d9fc834983ef9c0b6e90241a4d",
+    "summary": "Adds retry logic to the cases list and case detail pages to survive transient DB connection flakes.",
+    "details": "Adds simple retry wrappers around the cases list and case detail data fetches so a single transient connection error doesn't render an error page. Mitigation for early Railway connection instability.",
+    "userImpact": "Cases pages stop occasionally showing error states from one-off connection blips.",
+    "riskNotes": "",
+    "bullets": ["Retry wrappers on cases list + detail fetches", "Mitigates DB connection flakiness"]
+  },
+  {
+    "sha": "a7cf27b94330e0692b5c6840d7c4ce7688be18ec",
+    "summary": "Stages admin page falls back to raw SQL when the ORM query fails, with proper column mapping.",
+    "details": "Fallback path on the admin stages page: when the Drizzle query fails, it runs a raw SQL query and maps columns by hand so the page still renders. Bandage for early ORM/connection issues.",
+    "userImpact": "Admin stages page renders even when the ORM query fails.",
+    "riskNotes": "Defensive fallback — keeps the page working but masks underlying issues. Investigate root causes before relying on the fallback.",
+    "bullets": ["Raw SQL fallback when ORM fails", "Manual column mapping preserves shape", "Bandage for early DB instability"]
+  },
+  {
+    "sha": "2273798694c6d0f5744e860c4f96379b5c99cf90",
+    "summary": "Trailing newlines in DATABASE_URL (injected by some env tools) are now stripped before postgres-js sees them.",
+    "details": "Some env-var tools inject literal `\\n` characters into env values. The drizzle client now trims those trailing newlines (both literal `\\n` and actual newlines) before passing the URL to postgres-js, which would otherwise fail to parse.",
+    "userImpact": "DB connection works regardless of how the env var was set.",
+    "riskNotes": "",
+    "bullets": ["Strips trailing \\n from DATABASE_URL", "Handles both literal and actual newline chars"]
+  },
+  {
+    "sha": "187c5f6a8c3ebb50c57f693acc307e92a6ff0a55",
+    "summary": "Stages page falls back to a query without the org filter when the primary query returns empty.",
+    "details": "Fallback safety net: if the org-scoped stages query returns no rows (likely because the demo user's org doesn't have stages seeded), retry without the org filter so the page renders something.",
+    "userImpact": "Admin stages page never appears empty for the demo user.",
+    "riskNotes": "Cross-org data leakage risk in production — make sure this fallback is removed or gated when going live.",
+    "bullets": ["Fallback drops org filter when primary query empty", "Demo-environment safety net", "Should be gated before production"]
+  },
+  {
+    "sha": "15185b5ba365b587f8bd4ea2492af0467e640b70",
+    "summary": "Demo user lookup falls back to raw SQL when the Drizzle ORM query fails.",
+    "details": "Adds a raw SQL fallback in `lib/auth/session.ts` for the demo user lookup so authentication still works during early ORM/connection instability.",
+    "userImpact": "Demo login works reliably even when the ORM intermittently fails.",
+    "riskNotes": "Defensive fallback during early instability — investigate root causes before keeping it long-term.",
+    "bullets": ["Raw SQL fallback for demo user", "Keeps auth working through ORM flakes"]
+  },
+  {
+    "sha": "4806b244359dc430944e22c75e20e84f15e39683",
+    "summary": "Stages query retries once on failure.",
+    "details": "Adds a single retry on the stages query in the admin page so a one-off transient error doesn't render the error state.",
+    "userImpact": "Stages page recovers from one-off query failures without the user seeing an error.",
+    "riskNotes": "",
+    "bullets": ["Single retry on stages query failure", "6 lines of code"]
+  },
+  {
+    "sha": "a317991aa2dfbd1edbe70fada0067eb3f834eb14",
+    "summary": "Adds error logging to the stages page to diagnose the recurring failure.",
+    "details": "Two-line change: instruments the stages page with error logging so the recurring failure has a stack trace to debug from.",
+    "userImpact": "No user-visible change — internal diagnostics improvement.",
+    "riskNotes": "",
+    "bullets": ["Error logging added to stages page", "Diagnostic improvement"]
+  },
+  {
+    "sha": "66fb70ba6d204aec95bdd6c176b427bb56118a6e",
+    "summary": "Fixes build errors in the document merge fields export path.",
+    "details": "TypeScript build errors in `app/actions/documents.ts` and `components/documents/generate-template-dialog.tsx` related to merge-fields export. Small targeted fix to restore green CI.",
+    "userImpact": "Build succeeds again.",
+    "riskNotes": "",
+    "bullets": ["Fixes types in merge-fields export", "8-line change across 2 files"]
+  },
+  {
+    "sha": "23be19edb7df5bcc819691eb5f555a2e047cbf84",
+    "summary": "11-agent feature merge — Reporting, Cases, Queue, Leads, Email, Webhooks, Admin, Notes, Calendar, Polish, AI/Import.",
+    "details": "Eleven parallel agent workstreams merged into one commit. Highlights:\n\n- **Agent 1 — Reporting**: team member chart, time-in-stage, cases over time, pipeline funnel, custom report detail pages, CSV/PDF export, deadline widget.\n- **Agent 2 — Cases**: kanban view, claimant search, server sort, saved presets, column config, bulk reassign/close.\n- **Agent 3 — Queue**: team queue, keyboard shortcuts, reassign/snooze, stage filter.\n- **Agent 4 — Leads**: Zapier webhook persisting, intake forms, eSignature tracking, round-robin assignment, auto-populate fields on conversion.\n- **Agent 5 — Email**: auto-matching, review queue, manual association, timeline display.\n- **Agent 6 — Webhooks**: Case Status + Chronicle persist data, unread tracking, role-based routing, signature verification.\n- **Agent 7 — Admin**: auto-advance on task completion, workflow timeline display, edit/delete workflows/fields/templates.\n- **Agent 8 — Notes**: types/tags, @mentions, pinning, links. Formula engine with arithmetic, date math, conditionals.\n- **Agent 9 — Calendar**: week/day views, Outlook sync, client reminders.\n- **Agent 10 — Polish**: masked SSN, Case Status link, per-stage color, drag reorder, category picker, template merge rendering.\n- **Agent 11 — AI + Import**: case summarization, next steps, draft comms (Anthropic), CSV import wizard with field mapping and duplicate detection.\n\n67 files changed.",
+    "userImpact": "Massive feature lift — kanban cases, team queue, Zapier intake, email auto-matching, workflow auto-advance, formula engine, calendar week/day views, AI case summaries, and CSV import all in one drop.",
+    "riskNotes": "67 files changed in one commit. Worth full regression test.",
+    "bullets": ["11 parallel agent workstreams merged", "Cases kanban + bulk actions", "Zapier intake + eSignature tracking", "Email auto-matching + review queue", "AI case summarization (Anthropic) + CSV import wizard", "Notes formula engine"]
+  },
+  {
+    "sha": "4c7b3b49d0ce05c2034643c13ebc8d7a0fe8c93b",
+    "summary": "Massive cross-phase upgrade — stage change with workflow preview, Cmd+K palette, recharts dashboards, calendar grid, message compose, drag-drop leads.",
+    "details": "Four phases of work shipping together.\n\n**Phase 1A.** Stage change dropdown on case header with workflow preview, Cmd+K global search palette across cases/contacts/tasks.\n\n**Phase 1B.** Editable custom fields on cases, admin CRUD forms for workflows/stages/fields.\n\n**Phase 2.** Recharts on dashboard/reports, calendar grid view, message compose UI.\n\n**Phase 3.** Queue task detail sheet + bulk actions, cases column sorting + New Case form, leads drag-and-drop + lead detail page.\n\n**Phase 4.** Admin templates page, loading skeletons, error boundaries, rich text notes, user management improvements.",
+    "userImpact": "Foundation features land across cases, queue, leads, calendar, messages, admin. First version of Cmd+K and recharts dashboards.",
+    "riskNotes": "Large cross-phase commit — diff spans 64 files.",
+    "bullets": ["Stage change with workflow preview", "First Cmd+K palette", "Recharts on dashboard + reports", "Lead drag-drop + detail page", "Loading skeletons + error boundaries"]
+  },
+  {
+    "sha": "e13a2c3e542f454924a8cf8bdba3df775dab3eb7",
+    "summary": "Three smaller wins — admin Users page with real data, case note creation form, and a workflow verification.",
+    "details": "**Admin Users**: real user list with role/team badges and status. **Case Activity**: 'Add note' form that creates `communications` rows + merged timeline. **Admin Workflows**: confirmed working as-is (no changes needed).",
+    "userImpact": "Admins can see the real user roster. Anyone with case access can add notes that show up in the activity timeline.",
+    "riskNotes": "",
+    "bullets": ["Admin Users page wired to real data", "Case Add Note form creates communications rows", "Activity timeline merges notes + system events"]
+  },
+  {
+    "sha": "d4deddd8c05aacec24edd027c0e0eee76d8ed0ec",
+    "summary": "Cases list shows real claimant names; brand-new contacts page with search + type filter + case counts.",
+    "details": "`getCases` now falls back to any primary contact when no claimant is found. Seed script links all 50 cases to claimant contacts. New contacts page with search, type filter, and a table showing case counts per contact.",
+    "userImpact": "Cases list shows claimant names instead of 'Unknown'. Contacts has its own searchable, filterable view.",
+    "riskNotes": "",
+    "bullets": ["getCases fallback to primary contact", "Seed links 50 cases to claimants", "New /contacts page with search + filter"]
+  },
+  {
+    "sha": "ff818483a1c28a1ed13e36511bb10d227f279ea7",
+    "summary": "Replaces SQL ANY() with Drizzle inArray for compatibility with the Postgres pooler.",
+    "details": "Some Postgres pooler configurations don't handle parameterized `ANY()` arrays correctly. Replaces the raw SQL approach with Drizzle's `inArray()` helper, which generates compatible SQL across pooler types.",
+    "userImpact": "Cases queries that used `ANY()` work reliably regardless of pooler config.",
+    "riskNotes": "",
+    "bullets": ["SQL ANY() replaced with Drizzle inArray()", "Pooler-compatible parameterization"]
+  }
+]

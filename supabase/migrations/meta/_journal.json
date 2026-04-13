@@ -57,6 +57,13 @@
       "when": 1775954598307,
       "tag": "0009_large_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1776076858840,
+      "tag": "0010_awesome_paladin",
+      "breakpoints": true
     }
   ]
 }

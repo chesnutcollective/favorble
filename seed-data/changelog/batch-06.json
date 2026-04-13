@@ -1,0 +1,178 @@
+[
+  {
+    "sha": "6d257db6d085adf9afe370e6b73756e5ba415e67",
+    "summary": "Drizzle client falls back to POSTGRES_URL when DATABASE_URL is unset (Supabase preview deploys use the former).",
+    "details": "Supabase's Vercel integration injects `POSTGRES_URL` (not `DATABASE_URL`) into preview deploy environments. Adds a fallback so the Drizzle client picks up either name.",
+    "userImpact": "Preview deploys get a working DB connection without manually setting `DATABASE_URL`.",
+    "riskNotes": "",
+    "bullets": ["DATABASE_URL falls back to POSTGRES_URL", "Fixes Supabase preview-deploy DB wiring"]
+  },
+  {
+    "sha": "5fa73cc8f79607e661f5984d8b8609c6886c0bc9",
+    "summary": "Demo session loads the real seeded admin user from the DB so seeded data shows up across the app.",
+    "details": "The demo session was using a hardcoded admin user with a placeholder organization id, which meant queries scoped by org returned no seeded data. Now the session queries the seeded admin from the DB so all org-scoped queries find the right rows.",
+    "userImpact": "Seeded cases, contacts, leads, etc. actually show up in the demo session instead of empty pages.",
+    "riskNotes": "",
+    "bullets": ["Demo session loads admin from DB", "Org-scoped queries now find seeded data"]
+  },
+  {
+    "sha": "62462fa81b4efd947a70ca02d695d6a6ba86ef55",
+    "summary": "Comprehensive demo data seed — 50 cases, 200 tasks, 30 contacts, 100 documents, plus audit, calendar, leads, comms, and stage transitions.",
+    "details": "New idempotent seed script populates: 50 cases, 200 tasks, 30 contacts, 100 documents, 150 audit entries, 20 calendar events, 15 leads, 30 communications, 276 custom field values, and 138 stage transitions.",
+    "userImpact": "Demo environment has enough realistic content to exercise every feature without manual data entry.",
+    "riskNotes": "Pure seed — never run against production.",
+    "bullets": ["50 cases, 200 tasks, 30 contacts, 100 documents", "150 audit + 30 comms + 138 stage transitions", "276 custom field values", "Idempotent seed script"]
+  },
+  {
+    "sha": "f762be0d35c3920c226a9be5bc2018ef00bee2a3",
+    "summary": "Wraps every server component page's DB calls in try/catch so a DB outage shows empty states instead of crashing every page.",
+    "details": "All 20 server component pages now gracefully handle DB failures with sensible defaults (empty arrays, zero counts). No page renders a 500 error if the database is unavailable.",
+    "userImpact": "When the DB hiccups, pages show 'No items' rather than crashing — much better experience during transient issues.",
+    "riskNotes": "Defensive try/catch can mask real errors. Make sure the underlying query failures are still logged.",
+    "bullets": ["20 pages wrapped in try/catch", "Graceful fallbacks: empty arrays, zero counts", "No more 500 errors on DB hiccups"]
+  },
+  {
+    "sha": "cbbd0d8d3fdf10c6921c6e949fcf840bd13da086",
+    "summary": "Wraps dashboard DB queries in try/catch so the dashboard renders even when individual queries fail.",
+    "details": "Per-query try/catch on the dashboard fetches so a single failing query doesn't take down the whole page.",
+    "userImpact": "Dashboard renders even if one of its many queries fails.",
+    "riskNotes": "",
+    "bullets": ["Per-query try/catch on dashboard", "Partial render on partial failure"]
+  },
+  {
+    "sha": "742203223d5eae678b4cb9994919e4dd4e7f9bf6",
+    "summary": "Demo session returns the canned admin user immediately — no DB or auth calls — for fast, deterministic local dev.",
+    "details": "Strips down the demo session path: no DB lookup, no auth checks, just return the canned admin user. Faster, deterministic, and works even when the DB is down.",
+    "userImpact": "Demo login is instant and bulletproof. Useful for local dev when you don't want to depend on the DB or auth provider.",
+    "riskNotes": "Never enable in production — it bypasses all auth.",
+    "bullets": ["Demo user returned without DB or auth calls", "Fast and deterministic", "Disable in production"]
+  },
+  {
+    "sha": "a6c3ca1be87ddf7568ee379a260c795cf91b69aa",
+    "summary": "Demo bypass — middleware passes everything through, login button goes straight to dashboard, requireSession returns demo admin.",
+    "details": "For demo/dev use: middleware passes all requests through (no auth check), login button navigates directly to `/dashboard`, `requireSession` returns the demo admin as fallback, all pages accessible without authentication.",
+    "userImpact": "Demo flow is now zero-friction — click login, you're in. Useful for screenshots and quick walkthroughs.",
+    "riskNotes": "There is no real auth in this state. Make sure ENABLE_CLERK_AUTH or equivalent gating ships before going to production.",
+    "bullets": ["Middleware passes all requests through", "Login button → /dashboard directly", "requireSession returns demo admin fallback"]
+  },
+  {
+    "sha": "2ae18182b2da62d6f6eab805e994fe74fb4f5f3a",
+    "summary": "Reverts back to a form action so the server-action redirect works correctly.",
+    "details": "Reverts the `onSubmit` approach in favor of the standard form action, since the server-action redirect needs the form-action contract to work. Two-line change.",
+    "userImpact": "Login redirect to the dashboard works again.",
+    "riskNotes": "",
+    "bullets": ["Form action restored for proper redirect", "2-line revert"]
+  },
+  {
+    "sha": "6a2de93a9b680bce17596caaf0bee934544171f7",
+    "summary": "Switches login form to onSubmit + preventDefault to avoid 'React form unexpectedly submitted' errors.",
+    "details": "React's form action was triggering an 'unexpectedly submitted' error in some flows. Switched to `onSubmit` with `preventDefault` to fix submission. (Reverted shortly after in `2ae1818` once the underlying issue was understood.)",
+    "userImpact": "Temporary fix for login form submission errors.",
+    "riskNotes": "",
+    "bullets": ["onSubmit with preventDefault", "Reverted in next commit"]
+  },
+  {
+    "sha": "8fadd9e11a4f9d9c5146d66d2c2a02b68b92b179",
+    "summary": "Login errors now surface to the user instead of being silently swallowed by the catch block.",
+    "details": "Login errors were being caught and ignored, leaving users with a frozen form and no feedback. The catch block now surfaces errors so users see what went wrong.",
+    "userImpact": "Failed logins show an actual error message instead of doing nothing.",
+    "riskNotes": "",
+    "bullets": ["Login errors surfaced to user", "No more silent failures"]
+  },
+  {
+    "sha": "b465637961cae34c58e3d1613d9a62d4bad3ca0a",
+    "summary": "Adds an explicit session check after login to confirm credentials worked before redirecting.",
+    "details": "Five-line change: after login attempts, explicitly verify the session was created before redirecting, so users aren't redirected into an unauthenticated state.",
+    "userImpact": "Login redirect only happens if the session was actually established.",
+    "riskNotes": "",
+    "bullets": ["Explicit post-login session check", "Prevents redirect into unauthenticated state"]
+  },
+  {
+    "sha": "ab1a4f962b10866f86d02f9eecc2a486364c9230",
+    "summary": "Login form switches from defaultValue to controlled inputs so pre-filled credentials always reach FormData.",
+    "details": "`defaultValue` on inputs doesn't reliably populate `FormData` in all browsers. Switched to controlled inputs (state-bound `value`) so the pre-filled demo credentials are always submitted.",
+    "userImpact": "Demo login works in every browser instead of intermittently failing because the form was empty.",
+    "riskNotes": "",
+    "bullets": ["Controlled inputs for pre-filled fields", "FormData reliably populated", "Cross-browser consistency"]
+  },
+  {
+    "sha": "51f02f3d95806f094125bb49a713fe4c0fb8c4b8",
+    "summary": "Login form pre-fills with demo credentials so testers don't have to type them every time.",
+    "details": "Two-line change adding default values for the demo email + password on the login form.",
+    "userImpact": "One-click sign-in for demos and quick QA.",
+    "riskNotes": "Never ship to production with credentials prefilled.",
+    "bullets": ["Demo credentials pre-filled in login form", "Removes friction for testers"]
+  },
+  {
+    "sha": "c8ee1ce3677f28f4e02d05167851cd2035ba9418",
+    "summary": "Renames CaseFlow → Favorble across the entire codebase. Hogan Smith becomes the sub-brand.",
+    "details": "Favorble is now the primary brand; 'by Hogan Smith' is the sub-brand. Updates metadata, sidebar, login page, design system docs, integration comments, and the encryption salt.",
+    "userImpact": "Every brand reference in the app reads 'Favorble' from this commit forward.",
+    "riskNotes": "Encryption salt change requires re-encrypting any data encrypted before this commit. Confirm there's no production data at risk.",
+    "bullets": ["CaseFlow → Favorble across codebase", "Hogan Smith demoted to sub-brand", "Encryption salt updated", "Metadata, sidebar, login page touched"]
+  },
+  {
+    "sha": "5703ebeaa72c7d7f884b103fd2393e3b274219f3",
+    "summary": "Empty commit to trigger a Vercel build.",
+    "details": "Empty commit. Pushed to nudge Vercel to rebuild and redeploy.",
+    "userImpact": "No user-visible change — internal CI trigger.",
+    "riskNotes": "",
+    "bullets": ["Empty commit to trigger Vercel build"]
+  },
+  {
+    "sha": "436cc41a8d01e8fcd1bce7200e60d9a07db412d3",
+    "summary": "Migrates all icons from lucide-react to @hugeicons/react across 31 files. Zero lucide imports remain.",
+    "details": "Replaces 31 files importing from `lucide-react` with `@hugeicons/core-free-icons` + `@hugeicons/react` renderer. Zero lucide imports remain in `app/` or `components/`. Also adds Hogan Smith logo SVG variants (dark/white/wordmark/mark) to `public/`.",
+    "userImpact": "Icon library swap. Icons may render slightly differently — visual sweep recommended.",
+    "riskNotes": "Hugeicons rendering differs subtly from Lucide. Some icon names changed; verify edge cases.",
+    "bullets": ["31 files migrated from lucide to hugeicons", "Zero lucide imports remain", "Hogan Smith logo SVG variants added"]
+  },
+  {
+    "sha": "8fa97b550f79f9419a05f0a2184c8f2e632d14d8",
+    "summary": "Design system foundation — DM Sans/DM Mono fonts, unified design tokens, hugeicons install, styleguide route.",
+    "details": "**Design tokens.** Replaces CSS variables with unified design tokens — brand-tinted borders, violet-gray text, motion system.\n\n**Typography.** Adds DM Sans + DM Mono via `next/font` for an anti-template typographic feel.\n\n**Icons.** Installs `@hugeicons/react` icon library.\n\n**Styleguide route.** New `/admin/styleguide` route serving the design system reference.\n\n**Polish.** Custom scrollbar, selection styling, and keyframe animations added.",
+    "userImpact": "App typography becomes distinctive (DM Sans) and the design system has a single source of truth via `/admin/styleguide`.",
+    "riskNotes": "DM Sans/Mono later replaced by Geist when restyling to Vercel Light (`77530a2`).",
+    "bullets": ["DM Sans + DM Mono via next/font", "Unified design tokens replace ad-hoc CSS variables", "@hugeicons/react installed", "/admin/styleguide route for design reference"]
+  },
+  {
+    "sha": "d9fd37b065b699cc269a163d178b6a0e61ba47c6",
+    "summary": "First Hogan Smith Law rebrand of the UI — royal blue palette, real logo, split-layout login, theme tokens replacing hardcoded grays.",
+    "details": "Replaces the stock shadcn color palette with a Hogan Smith royal blue theme. Swaps the generic Scale icon for the actual logo throughout. Redesigns the login page with a split layout. Replaces all hardcoded gray classes with theme tokens.",
+    "userImpact": "First version of the app with proper Hogan Smith branding — royal blue, real logo, split login.",
+    "riskNotes": "Heavily restyled later (`77530a2` to Vercel Light, `aebb807` to brand blue #263c94). This commit's specific palette doesn't survive long.",
+    "bullets": ["Royal blue palette replaces shadcn defaults", "Real Hogan Smith logo throughout", "Split-layout login page", "33 files migrated from hardcoded grays to tokens"]
+  },
+  {
+    "sha": "b23d27ff451e8335d90b8c39229e4440456fc50e",
+    "summary": "Adds Hogan Smith Law branding assets — favicon, OpenGraph image, logo PNG/WebP, and metadata.",
+    "details": "Adds `app/icon.png` (favicon), `app/opengraph-image.png` (link preview), `public/hogansmith-logo.png` and `.webp`, and updates `app/layout.tsx` metadata so the app shows up correctly when shared and bookmarked.",
+    "userImpact": "Browser tabs show the Hogan Smith favicon, link previews show the proper OG image, bookmarks pull a Hogan Smith icon.",
+    "riskNotes": "",
+    "bullets": ["Favicon (app/icon.png)", "OpenGraph image (app/opengraph-image.png)", "PNG + WebP logo assets", "Metadata wired in app/layout.tsx"]
+  },
+  {
+    "sha": "801c891eb91f4096d67c0a6db0abc4497bb9cb37",
+    "summary": "Postgres client gets prepare:false so Supabase's PgBouncer transaction-mode pooler stops 500-erroring on every page.",
+    "details": "Supabase's PgBouncer transaction-mode pooler doesn't support prepared statements. Adding `prepare: false` to the postgres client options fixes 500 errors on all pages when deployed to Vercel serverless functions.",
+    "userImpact": "Vercel serverless deploys stop 500-erroring on every page request.",
+    "riskNotes": "Disabling prepared statements has a small performance cost. Reverted in commit `3df23f5` once the project moved off PgBouncer to Railway direct Postgres.",
+    "bullets": ["postgres client: prepare: false", "Fixes PgBouncer transaction-mode 500 errors", "Reverted later when moving to Railway"]
+  },
+  {
+    "sha": "523a1a3e8a45b2e34fc465e6c986c3f683d02c7a",
+    "summary": "Two big fixes — removes 'use client' from EmptyState (was blocking server components) and fixes the sidebar overlap with proper var() syntax.",
+    "details": "**EmptyState fix.** Removed `'use client'` from the EmptyState component, which was throwing a React Server Components error when server pages tried to pass Lucide icons as props. Affected `/calendar`, `/messages`, `/documents`, `/admin/workflows`.\n\n**Sidebar overlap fix.** Replaced bare CSS custom property references (`w-[--sidebar-width]`) with explicit `var()` syntax (`w-[var(--sidebar-width)]`) in the sidebar component for Tailwind v4 compatibility — this was causing the sidebar spacer to render at 0px width, which made the main content overlap behind the fixed sidebar.\n\nAlso includes the full app scaffolding (all routes, schema, seeds, components, auth, middleware, integrations, tests) — this was an early commit consolidating prior work.",
+    "userImpact": "Calendar, Messages, Documents, and Admin Workflows pages stop crashing. Sidebar no longer overlaps the main content.",
+    "riskNotes": "Large 137-file commit — one of the early scaffolding consolidations.",
+    "bullets": ["Removed 'use client' from EmptyState", "Fixed sidebar 0px-spacer overlap (Tailwind v4 var() syntax)", "Affected pages now render correctly"]
+  },
+  {
+    "sha": "a9226f97d0fb2ba4b853c6d77e1b753395c1c055",
+    "summary": "Empty commit to trigger an early Vercel deploy.",
+    "details": "First commit — empty, used to trigger an initial Vercel deploy of the project.",
+    "userImpact": "No user-visible change — bootstraps the deploy pipeline.",
+    "riskNotes": "",
+    "bullets": ["Empty commit triggers Vercel deploy", "First commit in the project history"]
+  }
+]

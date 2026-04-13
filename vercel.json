@@ -49,6 +49,10 @@
     {
       "path": "/api/cron/integration-cleanup",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/changelog-backfill",
+      "schedule": "30 9 * * *"
     }
   ]
 }
