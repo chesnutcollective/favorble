@@ -55,6 +55,25 @@ export async function submitFeedbackAction(
     };
   }
 
+  // Stamp build info so Claude can checkout the exact code snapshot the
+  // user was running when the bug was filed.
+  const commitSha =
+    process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GIT_COMMIT_SHA;
+  const branch =
+    process.env.VERCEL_GIT_COMMIT_REF ?? process.env.GIT_BRANCH;
+  if (commitSha || branch || process.env.VERCEL_ENV) {
+    mergedContext.build = {
+      ...(commitSha ? { commitSha } : {}),
+      ...(branch ? { branch } : {}),
+      ...(process.env.VERCEL_ENV
+        ? { environment: process.env.VERCEL_ENV }
+        : {}),
+      ...(process.env.VERCEL_URL
+        ? { deploymentUrl: `https://${process.env.VERCEL_URL}` }
+        : {}),
+    };
+  }
+
   try {
     const row = await createFeedback({
       organizationId: session.organizationId,
@@ -286,7 +305,17 @@ export async function buildClaudeExportAction(input?: {
     "",
     "2. **View the screenshot** by using the `Read` tool on `/tmp/feedback-<id>.jpg`. Claude Code processes image files as vision input automatically — you'll see the exact page state the user was looking at, including any red outline/dot markers showing the element they pinned.",
     "",
-    "3. **Investigate** the issue using the message, pinned element selector, screenshot, and pageUrl. Identify root cause in the codebase.",
+    "3. **Investigate** the issue using every signal in the item's context:",
+    "   - `message` — the user's description",
+    "   - `pageUrl` — the exact route; map it to `app/(app)/...` in the codebase",
+    "   - `pin.outerHtml` — truncated markup of the clicked element; grep the classList or structure to find the source component",
+    "   - `pin.selector` + `pin.text` — CSS path and visible text for confirmation",
+    "   - `pin.rect` + `browser.viewport` + `browser.devicePixelRatio` — size / DPR context for layout bugs",
+    "   - `browser.theme` — dark vs light mode; reproduce the failing mode",
+    "   - `browser.locale` / `timeZone` — for i18n, date, or timezone bugs",
+    "   - `persona` — which role's UI was active (use the `view-as` cookie if you need to reproduce)",
+    "   - `build.commitSha` + `build.branch` — the exact code snapshot; `git checkout <sha>` to read the code as it was",
+    "   - `screenshot.url` — the pixel-perfect JPEG you downloaded in step 1",
     "",
     "4. **Propose and implement a fix**, then update the item's status via the API below (`building` when starting work, `staging` when deployed to staging branch, `production` when merged to main).",
     "",

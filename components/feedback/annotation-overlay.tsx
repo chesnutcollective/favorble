@@ -16,6 +16,9 @@ export type PinnedElement = {
     width: number;
     height: number;
   };
+  /** Truncated outerHTML of the picked element, useful for Claude to grep
+   *  the codebase with. Capped at ~2KB and scrubbed of noisy React props. */
+  outerHtml?: string;
 };
 
 function getCssPath(el: Element): string {
@@ -41,6 +44,37 @@ function isWidgetDescendant(el: Element | null): boolean {
     node = node.parentElement;
   }
   return false;
+}
+
+/**
+ * Snapshot an element's outerHTML, stripping noisy React runtime attributes
+ * and capping at ~2KB so the payload stays small but Claude sees enough
+ * markup to grep the codebase for the component.
+ */
+function truncateOuterHtml(el: Element): string {
+  const clone = el.cloneNode(true) as Element;
+  const walker = document.createTreeWalker(clone, NodeFilter.SHOW_ELEMENT);
+  let node: Node | null = walker.currentNode;
+  while (node) {
+    if (node instanceof Element) {
+      for (const name of Array.from(node.getAttributeNames())) {
+        if (
+          name.startsWith("data-react") ||
+          name.startsWith("aria-owns") ||
+          name === "data-radix-collection-item" ||
+          name === "data-radix-scroll-area-viewport" ||
+          name.startsWith("data-state") === false &&
+            name.startsWith("data-") &&
+            name.length > 50
+        ) {
+          node.removeAttribute(name);
+        }
+      }
+    }
+    node = walker.nextNode();
+  }
+  const html = clone.outerHTML;
+  return html.length > 2048 ? `${html.slice(0, 2048)}…[truncated]` : html;
 }
 
 export function AnnotationOverlay({
@@ -97,6 +131,7 @@ export function AnnotationOverlay({
         width: Math.round(r.width),
         height: Math.round(r.height),
       },
+      outerHtml: truncateOuterHtml(el),
     });
   }
 

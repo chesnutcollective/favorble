@@ -303,12 +303,20 @@ export function FeedbackWidget() {
     if (transcript.trim()) context.voiceTranscript = transcript.trim();
     if (pin) context.pin = pin;
     if (typeof window !== "undefined") {
+      const isDark =
+        document.documentElement.classList.contains("dark") ||
+        document.documentElement.getAttribute("data-theme") === "dark" ||
+        window.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
       context.browser = {
         userAgent: navigator.userAgent,
         viewport: {
           width: window.innerWidth,
           height: window.innerHeight,
         },
+        devicePixelRatio: window.devicePixelRatio || 1,
+        theme: isDark ? "dark" : "light",
+        locale: navigator.language,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       const params = new URL(window.location.href).searchParams;
       const tab = params.get("tab");

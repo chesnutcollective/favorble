@@ -77,16 +77,27 @@ type ContextShape = {
     clickX: number;
     clickY: number;
     rect?: { top: number; left: number; width: number; height: number };
+    outerHtml?: string;
   };
   browser?: {
     userAgent?: string;
     viewport?: { width: number; height: number };
+    devicePixelRatio?: number;
+    theme?: string;
+    locale?: string;
+    timeZone?: string;
   };
   persona?: {
     actorPersonaId: string;
     effectivePersonaId: string;
     isViewingAs: boolean;
     personaLabel: string;
+  };
+  build?: {
+    commitSha?: string;
+    branch?: string;
+    environment?: string;
+    deploymentUrl?: string;
   };
   activeTab?: string;
 };
@@ -805,6 +816,16 @@ function DetailPanel({
               <p className="mt-0.5 text-[10px] text-muted-foreground">
                 click @ ({ctx.pin.clickX}, {ctx.pin.clickY})
               </p>
+              {ctx.pin.outerHtml && (
+                <details className="mt-1.5">
+                  <summary className="cursor-pointer text-[10px] text-muted-foreground hover:text-foreground">
+                    Show outerHTML
+                  </summary>
+                  <pre className="mt-1 max-h-48 overflow-auto rounded border bg-background p-2 font-mono text-[10px] leading-relaxed">
+                    {ctx.pin.outerHtml}
+                  </pre>
+                </details>
+              )}
             </div>
           </section>
         )}
@@ -881,6 +902,34 @@ function DetailPanel({
                   <dt className="text-muted-foreground">Viewport</dt>
                   <dd className="font-mono">
                     {ctx.browser.viewport.width}×{ctx.browser.viewport.height}
+                    {ctx.browser.devicePixelRatio
+                      ? ` @${ctx.browser.devicePixelRatio}x`
+                      : ""}
+                  </dd>
+                </>
+              )}
+              {ctx.browser?.theme && (
+                <>
+                  <dt className="text-muted-foreground">Theme</dt>
+                  <dd>{ctx.browser.theme}</dd>
+                </>
+              )}
+              {ctx.browser?.locale && (
+                <>
+                  <dt className="text-muted-foreground">Locale</dt>
+                  <dd className="font-mono">
+                    {ctx.browser.locale}
+                    {ctx.browser.timeZone ? ` · ${ctx.browser.timeZone}` : ""}
+                  </dd>
+                </>
+              )}
+              {ctx.build?.commitSha && (
+                <>
+                  <dt className="text-muted-foreground">Commit</dt>
+                  <dd className="font-mono text-[10px]">
+                    {ctx.build.commitSha.slice(0, 7)}
+                    {ctx.build.branch ? ` (${ctx.build.branch})` : ""}
+                    {ctx.build.environment ? ` · ${ctx.build.environment}` : ""}
                   </dd>
                 </>
               )}
