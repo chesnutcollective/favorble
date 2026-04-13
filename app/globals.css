@@ -737,18 +737,18 @@
 /* ── Dashboard: Quick Actions ── */
 .ttn-quick-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 6px;
   margin-bottom: 16px;
 }
 
 .ttn-quick-action-btn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 4px;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   background: #FFF;
@@ -764,12 +764,17 @@
 
 .ttn-quick-action-btn svg {
   color: #263c94;
+  flex-shrink: 0;
 }
 
 .ttn-quick-action-btn span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Today's Numbers */
