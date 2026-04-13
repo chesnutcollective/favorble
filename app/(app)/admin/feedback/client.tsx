@@ -71,7 +71,13 @@ type Item = {
 type ContextShape = {
   screenshot?: { base64: string; width?: number; height?: number };
   voiceTranscript?: string;
-  pin?: { selector: string; text: string; clickX: number; clickY: number };
+  pin?: {
+    selector: string;
+    text: string;
+    clickX: number;
+    clickY: number;
+    rect?: { top: number; left: number; width: number; height: number };
+  };
   browser?: {
     userAgent?: string;
     viewport?: { width: number; height: number };
@@ -1124,7 +1130,11 @@ function ScreenshotWithPin({
   base64: string;
   width?: number;
   height?: number;
-  pin?: { clickX: number; clickY: number };
+  pin?: {
+    clickX: number;
+    clickY: number;
+    rect?: { top: number; left: number; width: number; height: number };
+  };
 }) {
   const [enlarged, setEnlarged] = useState(false);
   const src = `data:image/jpeg;base64,${base64}`;
@@ -1134,6 +1144,16 @@ function ScreenshotWithPin({
       ? {
           left: `${(pin.clickX / width) * 100}%`,
           top: `${(pin.clickY / height) * 100}%`,
+        }
+      : null;
+
+  const outlinePct =
+    pin?.rect && width && height
+      ? {
+          left: `${(pin.rect.left / width) * 100}%`,
+          top: `${(pin.rect.top / height) * 100}%`,
+          width: `${(pin.rect.width / width) * 100}%`,
+          height: `${(pin.rect.height / height) * 100}%`,
         }
       : null;
 
@@ -1152,6 +1172,18 @@ function ScreenshotWithPin({
           className="h-auto max-h-56 w-full object-contain"
           unoptimized
         />
+        {outlinePct && (
+          <span
+            className="pointer-events-none absolute"
+            style={{
+              ...outlinePct,
+              outline: "2px solid #d1453b",
+              outlineOffset: "-1px",
+              borderRadius: "2px",
+              background: "rgba(209,69,59,0.10)",
+            }}
+          />
+        )}
         {pinPct && (
           <span
             className="pointer-events-none absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white"
@@ -1173,6 +1205,18 @@ function ScreenshotWithPin({
               className="h-auto w-full object-contain"
               unoptimized
             />
+            {outlinePct && (
+              <span
+                className="pointer-events-none absolute"
+                style={{
+                  ...outlinePct,
+                  outline: "2px solid #d1453b",
+                  outlineOffset: "-1px",
+                  borderRadius: "2px",
+                  background: "rgba(209,69,59,0.10)",
+                }}
+              />
+            )}
             {pinPct && (
               <span
                 className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white"

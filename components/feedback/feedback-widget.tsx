@@ -47,6 +47,99 @@ import {
 type Screenshot = { base64: string; width: number; height: number };
 
 /**
+ * Inline screenshot preview shown inside the feedback dialog. Click to
+ * zoom; if a pin was set, overlays a red marker at the pinned coords
+ * (positioned by % of intrinsic dimensions so it scales correctly).
+ */
+function ScreenshotPreview({
+  screenshot,
+  pin,
+  onZoom,
+  onRemove,
+}: {
+  screenshot: Screenshot;
+  pin: PinnedElement | null;
+  onZoom: () => void;
+  onRemove: () => void;
+}) {
+  const overlays = computePinOverlays(pin, screenshot);
+
+  return (
+    <div className="relative overflow-hidden rounded-md border">
+      <button
+        type="button"
+        onClick={onZoom}
+        className="block w-full"
+        aria-label="View screenshot at full size"
+      >
+        <Image
+          src={`data:image/jpeg;base64,${screenshot.base64}`}
+          alt="Screenshot preview — click to zoom"
+          width={480}
+          height={300}
+          className="h-auto max-h-40 w-full cursor-zoom-in object-contain"
+          unoptimized
+        />
+        {overlays.outline && (
+          <span
+            className="pointer-events-none absolute"
+            style={{
+              ...overlays.outline,
+              outline: "2px solid #d1453b",
+              outlineOffset: "-1px",
+              borderRadius: "2px",
+              background: "rgba(209,69,59,0.10)",
+            }}
+          />
+        )}
+        {overlays.dot && (
+          <span
+            className="pointer-events-none absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white"
+            style={{ ...overlays.dot, background: "#d1453b" }}
+          />
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white hover:bg-black"
+        aria-label="Remove screenshot"
+      >
+        <HugeiconsIcon icon={Cancel01Icon} size={12} />
+      </button>
+    </div>
+  );
+}
+
+function computePinOverlays(
+  pin: PinnedElement | null,
+  screenshot: Screenshot,
+): {
+  dot: { left: string; top: string } | null;
+  outline: { left: string; top: string; width: string; height: string } | null;
+} {
+  if (!pin || screenshot.width <= 0 || screenshot.height <= 0) {
+    return { dot: null, outline: null };
+  }
+  const dot = {
+    left: `${(pin.clickX / screenshot.width) * 100}%`,
+    top: `${(pin.clickY / screenshot.height) * 100}%`,
+  };
+  const outline = pin.rect
+    ? {
+        left: `${(pin.rect.left / screenshot.width) * 100}%`,
+        top: `${(pin.rect.top / screenshot.height) * 100}%`,
+        width: `${(pin.rect.width / screenshot.width) * 100}%`,
+        height: `${(pin.rect.height / screenshot.height) * 100}%`,
+      }
+    : null;
+  return { dot, outline };
+}
+
+/**
  * Centered loading card shown while a pixel-perfect screenshot is being
  * captured server-side. Lives at z-index above the FAB; tagged
  * `data-feedback-widget="true"` so the snapshot serializer hides it during
@@ -93,6 +186,7 @@ export function FeedbackWidget() {
   const [isAnnotating, setIsAnnotating] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [captureRequested, setCaptureRequested] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const { captureScreenshot, isCapturing, error: captureError, clearError } =
     useScreenshot();
   const showCaptureOverlay = captureRequested || isCapturing;
@@ -423,24 +517,12 @@ export function FeedbackWidget() {
                 </div>
               )}
               {!isCapturing && !captureError && screenshot && (
-                <div className="relative overflow-hidden rounded-md border">
-                  <Image
-                    src={`data:image/jpeg;base64,${screenshot.base64}`}
-                    alt="Screenshot preview"
-                    width={480}
-                    height={300}
-                    className="h-auto max-h-40 w-full object-contain"
-                    unoptimized
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setScreenshot(null)}
-                    className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white hover:bg-black"
-                    aria-label="Remove screenshot"
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
-                  </button>
-                </div>
+                <ScreenshotPreview
+                  screenshot={screenshot}
+                  pin={pin}
+                  onZoom={() => setZoomOpen(true)}
+                  onRemove={() => setScreenshot(null)}
+                />
               )}
 
               {/* Pin preview */}
@@ -489,6 +571,66 @@ export function FeedbackWidget() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Full-size screenshot zoom */}
+      {screenshot && (
+        <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
+          <DialogContent
+            data-feedback-widget="true"
+            className="max-w-5xl"
+          >
+            <DialogHeader>
+              <DialogTitle className="text-sm">Screenshot preview</DialogTitle>
+              <DialogDescription className="text-xs">
+                Captured at {screenshot.width}×{screenshot.height}
+                {pin ? " · pin marker shown in red" : ""}.
+              </DialogDescription>
+            </DialogHeader>
+            <ZoomedScreenshot screenshot={screenshot} pin={pin} />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
+  );
+}
+
+function ZoomedScreenshot({
+  screenshot,
+  pin,
+}: {
+  screenshot: Screenshot;
+  pin: PinnedElement | null;
+}) {
+  const overlays = computePinOverlays(pin, screenshot);
+
+  return (
+    <div className="relative">
+      <Image
+        src={`data:image/jpeg;base64,${screenshot.base64}`}
+        alt="Submitted screenshot at full size"
+        width={screenshot.width}
+        height={screenshot.height}
+        className="h-auto w-full object-contain"
+        unoptimized
+      />
+      {overlays.outline && (
+        <span
+          className="pointer-events-none absolute"
+          style={{
+            ...overlays.outline,
+            outline: "2px solid #d1453b",
+            outlineOffset: "-1px",
+            borderRadius: "2px",
+            background: "rgba(209,69,59,0.10)",
+          }}
+        />
+      )}
+      {overlays.dot && (
+        <span
+          className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white"
+          style={{ ...overlays.dot, background: "#d1453b" }}
+        />
+      )}
+    </div>
   );
 }

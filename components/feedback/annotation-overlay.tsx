@@ -8,6 +8,14 @@ export type PinnedElement = {
   text: string;
   clickX: number;
   clickY: number;
+  /** Bounding rect of the picked element at pin time, in viewport pixels.
+   *  Used to overlay an outline on the captured screenshot. */
+  rect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
 };
 
 function getCssPath(el: Element): string {
@@ -77,11 +85,18 @@ export function AnnotationOverlay({
     if (!el || isWidgetDescendant(el)) return;
 
     const text = (el.textContent ?? "").trim().slice(0, 200);
+    const r = el.getBoundingClientRect();
     onSelect({
       selector: getCssPath(el),
       text,
       clickX: Math.round(e.clientX),
       clickY: Math.round(e.clientY),
+      rect: {
+        top: Math.round(r.top),
+        left: Math.round(r.left),
+        width: Math.round(r.width),
+        height: Math.round(r.height),
+      },
     });
   }
 
