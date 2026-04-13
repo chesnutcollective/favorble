@@ -11,6 +11,7 @@ import {
   updateAlertRule,
   deleteAlertRule,
   uploadIntegrationLogo,
+  fetchFaviconAsLogo,
   type IntegrationDetail,
   type IntegrationEventRow,
   type AlertRuleRow,
@@ -620,6 +621,9 @@ export function IntegrationDetailClient({
   );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [showLogoMenu, setShowLogoMenu] = useState(false);
+  const [faviconUrl, setFaviconUrl] = useState("");
+  const [fetchingFavicon, setFetchingFavicon] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const overallStatus = detail.allRequiredConfigured ? "active" : "pending";
@@ -670,6 +674,30 @@ export function IntegrationDetailClient({
     }
   };
 
+  const handleFetchFavicon = async () => {
+    if (!faviconUrl.trim()) return;
+    setUploadError(null);
+    setFetchingFavicon(true);
+    try {
+      const result = await fetchFaviconAsLogo({
+        integrationId: config.id,
+        url: faviconUrl.trim(),
+      });
+      if (result.success && result.signedUrl) {
+        setLogoSrc(result.signedUrl);
+        setLogoError(false);
+        setShowLogoMenu(false);
+        setFaviconUrl("");
+      } else {
+        setUploadError(result.error ?? "Fetch failed");
+      }
+    } catch {
+      setUploadError("Fetch failed unexpectedly");
+    } finally {
+      setFetchingFavicon(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
       {/* Back link */}
@@ -699,15 +727,15 @@ export function IntegrationDetailClient({
               />
             )}
           </div>
-          {/* Upload overlay */}
+          {/* Edit logo overlay */}
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
+            onClick={() => setShowLogoMenu(!showLogoMenu)}
+            disabled={uploading || fetchingFavicon}
             className="absolute inset-0 flex items-center justify-center rounded-[10px] bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100 disabled:cursor-wait"
-            aria-label="Upload custom logo"
+            aria-label="Change logo"
           >
-            {uploading ? (
+            {uploading || fetchingFavicon ? (
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <svg
@@ -727,6 +755,76 @@ export function IntegrationDetailClient({
             className="hidden"
             onChange={handleLogoUpload}
           />
+          {/* Logo edit menu */}
+          {showLogoMenu && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowLogoMenu(false)}
+              />
+              <div
+                className="absolute left-0 top-full z-50 mt-2 w-64 rounded-[10px] border bg-white p-3 shadow-lg"
+                style={{ borderColor: COLORS.borderDefault }}
+              >
+                <p
+                  className="mb-2 text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ color: COLORS.text3 }}
+                >
+                  Change logo
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLogoMenu(false);
+                    fileInputRef.current?.click();
+                  }}
+                  className="mb-2 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50"
+                  style={{ color: COLORS.text1 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.text3 }}>
+                    <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
+                  </svg>
+                  Upload a file (PNG, SVG, JPEG)
+                </button>
+                <div
+                  className="border-t pt-2"
+                  style={{ borderColor: COLORS.borderSubtle }}
+                >
+                  <p
+                    className="mb-1.5 text-[11px] font-medium"
+                    style={{ color: COLORS.text3 }}
+                  >
+                    Or fetch favicon from URL
+                  </p>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={faviconUrl}
+                      onChange={(e) => setFaviconUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleFetchFavicon();
+                      }}
+                      placeholder="e.g. clerk.com"
+                      className="flex-1 rounded-md border px-2 py-1 text-xs outline-none focus:ring-1"
+                      style={{
+                        borderColor: COLORS.borderDefault,
+                        color: COLORS.text1,
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFetchFavicon}
+                      disabled={fetchingFavicon || !faviconUrl.trim()}
+                      className="shrink-0 rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-40"
+                      style={{ backgroundColor: COLORS.brand }}
+                    >
+                      {fetchingFavicon ? "..." : "Fetch"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
           {uploadError && (
             <div
               className="absolute left-0 top-full mt-1 whitespace-nowrap rounded px-2 py-1 text-[11px] font-medium"

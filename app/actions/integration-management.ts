@@ -538,6 +538,103 @@ export async function uploadIntegrationLogo(
 }
 
 /**
+ * Fetch a favicon from a URL and save it as the integration's logo.
+ * Uses Google's favicon service to reliably get high-res favicons for
+ * any domain. The admin enters a URL like "https://clerk.com" and we
+ * pull the 128px icon, upload it to the bucket, and record the event.
+ */
+export async function fetchFaviconAsLogo(input: {
+  integrationId: string;
+  url: string;
+}): Promise<{ success: boolean; signedUrl?: string; error?: string }> {
+  const session = await requireSession();
+
+  const config = getIntegration(input.integrationId);
+  if (!config) {
+    return { success: false, error: "Unknown integration" };
+  }
+
+  // Extract the domain from the URL
+  let domain: string;
+  try {
+    const parsed = new URL(
+      input.url.startsWith("http") ? input.url : `https://${input.url}`,
+    );
+    domain = parsed.hostname;
+  } catch {
+    return { success: false, error: "Invalid URL" };
+  }
+
+  // Fetch favicon via Google's service (reliable, returns PNG, supports size param)
+  const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+
+  let buffer: Buffer;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const response = await fetch(faviconUrl, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Google favicon service returned ${response.status}`,
+      };
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    buffer = Buffer.from(arrayBuffer);
+
+    // Google returns a tiny 1x1 or 16x16 default when the domain has no favicon.
+    // Reject very small images (< 500 bytes is almost certainly the default).
+    if (buffer.length < 500) {
+      return {
+        success: false,
+        error: `No favicon found for ${domain}. Try uploading a logo file instead.`,
+      };
+    }
+  } catch (err) {
+    return {
+      success: false,
+      error: `Failed to fetch favicon: ${err instanceof Error ? err.message : "unknown error"}`,
+    };
+  }
+
+  let customLogoPath: string;
+  let signedUrl: string;
+
+  if (isRailwayBucketConfigured()) {
+    const key = `integration-logos/${input.integrationId}-logo.png`;
+    const result = await uploadRailwayDocumentAtKey(key, buffer, "image/png");
+    customLogoPath = result.storagePath;
+    signedUrl = await getRailwaySignedUrl(customLogoPath);
+  } else {
+    const base64 = buffer.toString("base64");
+    customLogoPath = `data:image/png;base64,${base64}`;
+    signedUrl = customLogoPath;
+  }
+
+  await db.insert(integrationEvents).values({
+    organizationId: session.organizationId,
+    integrationId: input.integrationId,
+    eventType: "config_changed",
+    status: "ok",
+    summary: `Logo fetched from ${domain}`,
+    payload: { customLogoPath, sourceDomain: domain },
+  });
+
+  logger.info("Integration favicon fetched", {
+    integrationId: input.integrationId,
+    domain,
+  });
+
+  revalidatePath(`/admin/integrations/${input.integrationId}`);
+  revalidatePath("/admin/integrations");
+
+  return { success: true, signedUrl };
+}
+
+/**
  * Look up whether a custom logo has been uploaded for the given integration.
  * Returns a signed URL (or data URL in dev) if one exists, null otherwise.
  */
