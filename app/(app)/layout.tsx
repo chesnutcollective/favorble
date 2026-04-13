@@ -7,6 +7,7 @@ import { ViewAsBanner } from "@/components/layout/view-as-banner";
 import { getActiveCaseCount } from "@/app/actions/cases";
 import { getNavPanelData } from "@/app/actions/nav-data";
 import { getChangelogCommits } from "@/app/actions/changelog";
+import { getDashboardSubnavData } from "@/app/actions/dashboard-subnav";
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
@@ -16,10 +17,15 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const persona = await requireEffectivePersona();
-  const [casesCount, navData, changelogResult] = await Promise.all([
+  const [casesCount, navData, changelogResult, subnavData] = await Promise.all([
     getActiveCaseCount(),
     getNavPanelData().catch(() => undefined),
     getChangelogCommits().catch(() => ({ commits: [], hasMore: false })),
+    getDashboardSubnavData(
+      persona.personaId,
+      persona.actor.organizationId,
+      persona.actor.id,
+    ).catch(() => undefined),
   ]);
 
   const isAdmin = persona.actorPersonaId === "admin";
@@ -39,6 +45,7 @@ export default async function AppLayout({
             user={persona.actor}
             casesCount={casesCount}
             navData={navData}
+            subnavData={subnavData}
             personaNav={persona.config.nav}
             isAdmin={isAdmin}
             currentPersonaId={persona.personaId}

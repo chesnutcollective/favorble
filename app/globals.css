@@ -1344,3 +1344,75 @@ pre {
 		margin: 0 !important;
 	}
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Dashboard primitive animations
+ * Used by RadialGauge, LiveTicker, StageFlowCards, etc.
+ * All animations honour prefers-reduced-motion (see media query below).
+ * ───────────────────────────────────────────────────────────────────────── */
+
+@keyframes dash-breathe {
+	0% { opacity: 0.35; transform: scale(1); }
+	50% { opacity: 0; transform: scale(1.18); }
+	100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes dash-arc-draw {
+	from { stroke-dashoffset: var(--dash-arc-len, 360); }
+	to   { stroke-dashoffset: var(--dash-arc-target, 0); }
+}
+
+@keyframes dash-ticker-scroll {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+
+@keyframes dash-pellet-flow {
+	from { transform: translateX(0); opacity: 0; }
+	10%  { opacity: 1; }
+	90%  { opacity: 1; }
+	to   { transform: translateX(var(--pellet-distance, 100%)); opacity: 0; }
+}
+
+@keyframes dash-pulse-dot {
+	0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+	50%      { box-shadow: 0 0 0 6px transparent; opacity: 0.85; }
+}
+
+@keyframes dash-fade-up {
+	from { opacity: 0; transform: translateY(6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.dash-breathe {
+	animation: dash-breathe var(--dash-breathe-cadence, 3s) ease-out infinite;
+}
+.dash-arc-draw {
+	animation: dash-arc-draw 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.dash-ticker {
+	animation: dash-ticker-scroll var(--dash-ticker-duration, 60s) linear infinite;
+}
+.dash-ticker:hover {
+	animation-play-state: paused;
+}
+.dash-pellet {
+	animation: dash-pellet-flow var(--dash-pellet-duration, 1.2s) linear infinite;
+}
+.dash-pulse-dot {
+	animation: dash-pulse-dot 2s ease-in-out infinite;
+}
+.dash-fade-up {
+	animation: dash-fade-up 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dash-breathe,
+	.dash-arc-draw,
+	.dash-ticker,
+	.dash-pellet,
+	.dash-pulse-dot,
+	.dash-fade-up {
+		animation: none !important;
+	}
+}

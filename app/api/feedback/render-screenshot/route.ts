@@ -4,7 +4,8 @@ import { requireSession } from "@/lib/auth/session";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 
-export const runtime = "nodejs";
+// `runtime` cannot be set when nextConfig.experimental.useCache is enabled —
+// Node is the default for Route Handlers anyway, so this is a no-op removal.
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
