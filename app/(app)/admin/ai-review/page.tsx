@@ -1,79 +1,56 @@
 import type { Metadata } from "next";
 import {
-  getAiReviewQueue,
-  getAiReviewStats,
-  getAiReviewDocumentTypes,
-  type AiReviewFilter,
-  type ReviewStatus,
-  type ConfidenceLevel,
+  getFacetCounts,
+  getNextEntry,
+  getReviewEntriesV2,
 } from "@/app/actions/ai-review";
-import { AiReviewClient } from "./client";
+import {
+  decodeStateFromUrl,
+} from "@/lib/ai-review/saved-views";
+import { AiReviewWorkspace } from "./workspace";
 
 export const metadata: Metadata = {
   title: "AI Review Queue",
 };
 
-type SearchParams = {
-  status?: string;
-  confidence?: string;
-  documentType?: string;
-  tab?: string;
-  page?: string;
-};
-
-function resolveStatus(tab: string | undefined): ReviewStatus {
-  if (tab === "approved" || tab === "verified") return "approved";
-  if (tab === "rejected") return "rejected";
-  if (tab === "all") return "all";
-  return "pending";
-}
-
-function resolveConfidence(value: string | undefined): ConfidenceLevel {
-  if (value === "low" || value === "medium" || value === "high") return value;
-  return "all";
-}
-
+/**
+ * Server entry — decodes state from the URL, fires the initial data
+ * fetches in parallel, and hands everything to the workspace client.
+ *
+ * The URL is the canonical state container:
+ *   ?mode=focus|table|canvas&view=triage&q=case:HS-05827+confidence:<60
+ */
 export default async function AiReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const raw = await searchParams;
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(raw)) {
+    if (typeof v === "string") params.set(k, v);
+    else if (Array.isArray(v) && v[0]) params.set(k, v[0]);
+  }
+  const decoded = decodeStateFromUrl(params);
 
-  const tab = params.tab ?? "pending";
-  const status = resolveStatus(tab);
-  const confidenceLevel = resolveConfidence(params.confidence);
-  const documentType = params.documentType ?? "all";
-  const page = Math.max(Number(params.page ?? "1") || 1, 1);
-
-  const filter: AiReviewFilter = {
-    status,
-    confidenceLevel,
-    documentType,
-    page,
-    pageSize: 25,
-  };
-
-  const [queueResult, stats, documentTypes] = await Promise.all([
-    getAiReviewQueue(filter),
-    getAiReviewStats(),
-    getAiReviewDocumentTypes(),
+  const [facets, initialFocusEntry, initialList] = await Promise.all([
+    getFacetCounts(decoded.query),
+    decoded.mode === "focus"
+      ? getNextEntry(decoded.query)
+      : Promise.resolve(null),
+    decoded.mode !== "focus"
+      ? getReviewEntriesV2({ ...decoded.query, pageSize: 50 })
+      : Promise.resolve({ entries: [], totalCount: 0, hasMore: false }),
   ]);
 
   return (
-    <AiReviewClient
-      initialEntries={queueResult.entries}
-      totalCount={queueResult.totalCount}
-      hasMore={queueResult.hasMore}
-      stats={stats}
-      documentTypes={documentTypes}
-      initialFilters={{
-        tab,
-        confidence: confidenceLevel,
-        documentType,
-      }}
-      currentPage={page}
-      pageSize={25}
+    <AiReviewWorkspace
+      initialMode={decoded.mode}
+      initialView={decoded.view}
+      initialQuery={decoded.query}
+      initialFacets={facets}
+      initialFocusEntry={initialFocusEntry}
+      initialList={initialList}
     />
   );
 }
