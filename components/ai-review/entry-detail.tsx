@@ -221,15 +221,15 @@ function FieldPane({
       ) : null}
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
-        <Section label="Summary">
+      <div className="flex-1 overflow-y-auto">
+        <Section label="Summary" first>
           {editingSummary ? (
             <div className="flex flex-col gap-2">
               <textarea
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
                 rows={4}
-                className="w-full rounded border border-zinc-300 px-2 py-1.5 text-[13px] outline-none focus:border-zinc-500"
+                className="w-full rounded border border-zinc-300 px-2 py-1.5 text-[14px] outline-none focus:border-zinc-500"
               />
               <div className="flex justify-end gap-2">
                 <button
@@ -248,63 +248,86 @@ function FieldPane({
                   disabled={isPending}
                   className="rounded bg-zinc-900 px-2 py-1 text-[12px] text-white disabled:opacity-50"
                 >
-                  {isPending ? <Loader2 size={12} className="animate-spin" /> : "Save"}
+                  {isPending ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-[14px] leading-snug text-zinc-900">
+            <p className="text-[15px] font-medium leading-[1.55] text-zinc-900">
               {entry.summary || (
-                <span className="italic text-zinc-400">No summary</span>
+                <span className="italic font-normal text-zinc-400">
+                  No summary
+                </span>
               )}
             </p>
           )}
         </Section>
 
-        <FieldRow label="Provider" value={entry.providerName} />
-        <FieldRow label="Facility" value={entry.facilityName} />
-        <FieldRow
-          label="Event date"
-          value={
-            entry.eventDate
-              ? new Date(entry.eventDate).toLocaleDateString()
-              : null
-          }
-        />
-        <ListBlock label="Diagnoses" items={entry.diagnoses} />
-        <ListBlock label="Treatments" items={entry.treatments} />
-        <ListBlock label="Medications" items={entry.medications} />
+        <Section label="Facts">
+          <dl className="grid grid-cols-2 gap-x-5 gap-y-2 text-[13px] sm:grid-cols-3">
+            <FactCol label="Provider" value={entry.providerName} accent />
+            <FactCol label="Facility" value={entry.facilityName} />
+            <FactCol
+              label="Event date"
+              value={
+                entry.eventDate
+                  ? new Date(entry.eventDate).toLocaleDateString()
+                  : null
+              }
+            />
+          </dl>
+        </Section>
+
+        <SeverityList label="Diagnoses" items={entry.diagnoses} />
+        <SeverityList label="Treatments" items={entry.treatments} variant="treatment" />
+        <SeverityList label="Medications" items={entry.medications} variant="medication" />
 
         {entry.details ? (
-          <Section label="Details">
-            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-zinc-700">
-              {entry.details}
-            </p>
+          <Section label="Raw extraction">
+            <details className="group rounded border border-zinc-100 bg-zinc-50/50 open:bg-zinc-50">
+              <summary className="cursor-pointer list-none px-3 py-1.5 text-[11px] font-mono text-zinc-500 hover:text-zinc-700">
+                <span className="select-none">
+                  {entry.details.split("\n").filter(Boolean).length} extracted
+                  fields ·{" "}
+                  <span className="text-zinc-400 group-open:hidden">show</span>
+                  <span className="hidden text-zinc-400 group-open:inline">
+                    hide
+                  </span>
+                </span>
+              </summary>
+              <pre className="whitespace-pre-wrap break-words border-t border-zinc-100 px-3 py-2 font-mono text-[11px] leading-relaxed text-zinc-600">
+                {entry.details}
+              </pre>
+            </details>
           </Section>
         ) : null}
 
         {entry.sourceHighlights.length > 0 ? (
-          <Section label="Source highlights">
-            <div className="flex flex-col gap-1.5">
-              {entry.sourceHighlights.slice(0, 6).map((h, i) => (
-                <div
+          <Section label={`Source highlights · ${entry.sourceHighlights.length}`}>
+            <ul className="divide-y divide-zinc-100 overflow-hidden rounded border border-zinc-100 bg-white">
+              {entry.sourceHighlights.slice(0, 8).map((h, i) => (
+                <li
                   key={i}
-                  className="rounded border border-zinc-100 bg-zinc-50 px-2 py-1.5"
+                  className="flex items-baseline gap-3 px-3 py-1.5 text-[12px] hover:bg-zinc-50/60"
                 >
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                  <span className="w-28 shrink-0 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
                     {h.field}
-                  </div>
-                  <div className="mt-0.5 text-[12px] italic text-zinc-700">
+                  </span>
+                  <span className="flex-1 truncate italic text-zinc-700">
                     “{h.text}”
-                  </div>
+                  </span>
                   {h.startChar != null ? (
-                    <div className="mt-0.5 text-[10px] font-mono text-zinc-400">
-                      char {h.startChar}–{h.endChar}
-                    </div>
+                    <span className="shrink-0 font-mono text-[10px] text-zinc-400">
+                      {h.startChar}–{h.endChar}
+                    </span>
                   ) : null}
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </Section>
         ) : null}
       </div>
@@ -428,13 +451,17 @@ function SourcePane({ entry }: { entry: AiReviewEntry }) {
 function Section({
   label,
   children,
+  first,
 }: {
   label: string;
   children: React.ReactNode;
+  first?: boolean;
 }) {
   return (
-    <div className="mt-3">
-      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+    <div
+      className={`px-4 py-3 ${first ? "" : "border-t border-zinc-100"}`}
+    >
+      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
         {label}
       </div>
       {children}
@@ -442,38 +469,85 @@ function Section({
   );
 }
 
-function FieldRow({
+function FactCol({
   label,
   value,
+  accent,
 }: {
   label: string;
   value: string | null | undefined;
+  accent?: boolean;
 }) {
   return (
-    <div className="mt-2 flex items-baseline gap-3">
-      <div className="w-24 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+    <div className="min-w-0">
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
         {label}
-      </div>
-      <div className="flex-1 truncate text-[13px] text-zinc-900">
+      </dt>
+      <dd
+        className={`mt-0.5 truncate ${
+          accent ? "text-[#263c94] font-medium" : "text-zinc-900"
+        }`}
+      >
         {value || <span className="italic text-zinc-400">—</span>}
-      </div>
+      </dd>
     </div>
   );
 }
 
-function ListBlock({ label, items }: { label: string; items: string[] }) {
+/**
+ * Heuristic severity assignment for diagnoses (not perfect but visually
+ * useful — chronic/major terms get warmer tones, generic mental-health
+ * terms get neutral). When variant != "diagnosis" we render flat.
+ */
+function severityFor(text: string): "severe" | "major" | "minor" {
+  const t = text.toLowerCase();
+  if (
+    /amputee|amputation|cancer|metastat|terminal|stage iv|paralysis|stroke|heart failure|kidney failure|cirrhosis|copd|als/.test(
+      t,
+    )
+  ) {
+    return "severe";
+  }
+  if (
+    /major depress|bipolar|schizo|ptsd|chronic|severe|fracture|hernia|herniated|seizure|psychosis|fibromyalgia/.test(
+      t,
+    )
+  ) {
+    return "major";
+  }
+  return "minor";
+}
+
+function SeverityList({
+  label,
+  items,
+  variant = "diagnosis",
+}: {
+  label: string;
+  items: string[];
+  variant?: "diagnosis" | "treatment" | "medication";
+}) {
   if (!items.length) return null;
   return (
     <Section label={label}>
       <div className="flex flex-wrap gap-1.5">
-        {items.map((it, i) => (
-          <span
-            key={`${label}-${i}`}
-            className="rounded border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[12px] text-zinc-700"
-          >
-            {it}
-          </span>
-        ))}
+        {items.map((it, i) => {
+          const tones: Record<"severe" | "major" | "minor", string> = {
+            severe: "border-red-200 bg-red-50 text-red-900",
+            major: "border-amber-200 bg-amber-50 text-amber-900",
+            minor: "border-zinc-200 bg-white text-zinc-700",
+          };
+          const tone =
+            variant === "diagnosis" ? severityFor(it) : ("minor" as const);
+          return (
+            <span
+              key={`${label}-${i}`}
+              className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[12px] ${tones[tone]}`}
+            >
+              {it}
+            </span>
+          );
+        })}
       </div>
     </Section>
   );
