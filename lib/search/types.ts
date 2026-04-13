@@ -79,6 +79,7 @@ export type SearchMatchedField =
   | "subtitle"
   | "body"
   | "identifier"
+  | "fuzzy_identifier"
   | "tag"
   | "facet";
 

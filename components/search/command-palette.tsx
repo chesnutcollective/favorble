@@ -701,6 +701,8 @@ function matchedFieldLabel(field: string): string {
       return "content";
     case "identifier":
       return "id match";
+    case "fuzzy_identifier":
+      return "did you mean?";
     case "tag":
       return "tag";
     case "facet":

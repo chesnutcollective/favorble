@@ -316,7 +316,56 @@ async function runIdentifierLookup(
       AND ${identifier} = ANY(identifiers)
     LIMIT 5
   `);
-  return rows as unknown as RawRow[];
+  const hits = rows as unknown as RawRow[];
+  if (hits.length > 0) return hits;
+  // No exact hit — try Levenshtein <= 2 over each element of the
+  // identifiers array. Handles one-digit typos / transpositions on
+  // case numbers like "HS-05287" → "HS-05827".
+  return runFuzzyIdentifierLookup(identifier, accessSql);
+}
+
+async function runFuzzyIdentifierLookup(
+  identifier: string,
+  accessSql: ReturnType<typeof buildAccessFilter>,
+): Promise<RawRow[]> {
+  // Requires the `fuzzystrmatch` extension (migration 0012). If it's
+  // not installed yet (fresh clone, pre-migration), the query throws;
+  // swallow and return no fuzzy hits rather than break the whole
+  // search response.
+  try {
+    const rows = await db.execute<RawRow>(sql`
+      SELECT
+        id::text                      AS id,
+        entity_type                   AS entity_type,
+        entity_id::text               AS entity_id,
+        title                         AS title,
+        subtitle                      AS subtitle,
+        NULL::text                    AS snippet,
+        'fuzzy_identifier'::text      AS matched_field,
+        facets                        AS facets,
+        (1.0 - (dist::float / 4.0))   AS rank_score
+      FROM (
+        SELECT
+          sd.*,
+          (
+            SELECT MIN(levenshtein(upper(ident), upper(${identifier})))
+            FROM unnest(sd.identifiers) AS ident
+            WHERE length(ident) BETWEEN length(${identifier}) - 2
+                                   AND length(${identifier}) + 2
+          ) AS dist
+        FROM search_documents sd
+        WHERE ${accessSql}
+          AND array_length(identifiers, 1) > 0
+      ) scored
+      WHERE dist IS NOT NULL AND dist <= 2
+      ORDER BY dist ASC
+      LIMIT 5
+    `);
+    return rows as unknown as RawRow[];
+  } catch (err) {
+    console.warn("[search] fuzzy identifier fallback failed", err);
+    return [];
+  }
 }
 
 type FacetCountRow = { key: string; value: string; count: number };
