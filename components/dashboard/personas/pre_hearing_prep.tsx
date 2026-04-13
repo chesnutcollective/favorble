@@ -140,7 +140,7 @@ export async function PreHearingPrepDashboard({ actor }: Props) {
             size={120}
             strokeWidth={10}
             color={accent}
-            trackColor="rgba(255,255,255,0.18)"
+            trackColor="rgba(255,255,255,0.35)"
             centerLabel={`${overallPct}%`}
             centerSubtitle="prep"
           />

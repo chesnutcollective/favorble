@@ -238,9 +238,9 @@ export async function AttorneyDashboard({ actor }: Props) {
               <ProgressRing
                 value={nextPrep}
                 size={88}
-                strokeWidth={7}
-                color="#F5F5F7"
-                trackColor="rgba(255,255,255,0.18)"
+                strokeWidth={8}
+                color="#ffffff"
+                trackColor="rgba(255,255,255,0.35)"
                 centerLabel={countdownTo(next.start)}
                 centerSubtitle="next hearing"
               />

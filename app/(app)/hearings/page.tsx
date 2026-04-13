@@ -456,7 +456,7 @@ export default async function HearingsPage({
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <HugeiconsIcon icon={UserGroupIcon} size={16} color={PRIMARY} />
-          <h2 className="text-sm font-semibold text-foreground">Upcoming</h2>
+          <h2 className="text-sm font-semibold text-foreground">Next 30 Days</h2>
           <Badge variant="outline" className="ml-1 text-[10px]">
             {upcoming.length}
           </Badge>
