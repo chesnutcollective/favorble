@@ -64,6 +64,13 @@
       "when": 1776076858840,
       "tag": "0010_awesome_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1776087688316,
+      "tag": "0011_short_mister_fear",
+      "breakpoints": true
     }
   ]
 }

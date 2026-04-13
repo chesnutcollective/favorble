@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@anthropic-ai/sdk':
         specifier: ^0.80.0
-        version: 0.80.0
+        version: 0.80.0(zod@4.3.6)
       '@aws-sdk/client-s3':
         specifier: ^3.1029.0
         version: 3.1029.0
@@ -89,6 +89,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.4)
@@ -131,6 +134,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.6
@@ -3487,6 +3493,9 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
+  html-to-image@1.11.13:
+    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
+
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
@@ -4445,6 +4454,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
 snapshots:
 
   '@acemir/cssom@0.9.31': {}
@@ -4453,9 +4465,11 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
-  '@anthropic-ai/sdk@0.80.0':
+  '@anthropic-ai/sdk@0.80.0(zod@4.3.6)':
     dependencies:
       json-schema-to-ts: 3.1.1
+    optionalDependencies:
+      zod: 4.3.6
 
   '@asamuzakjp/css-color@5.0.1':
     dependencies:
@@ -7611,6 +7625,8 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
+  html-to-image@1.11.13: {}
+
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
@@ -8488,3 +8504,5 @@ snapshots:
   yallist@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.3.6: {}

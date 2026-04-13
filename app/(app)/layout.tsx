@@ -8,6 +8,7 @@ import { getActiveCaseCount } from "@/app/actions/cases";
 import { getNavPanelData } from "@/app/actions/nav-data";
 import { getChangelogCommits } from "@/app/actions/changelog";
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 export default async function AppLayout({
   children,
@@ -52,6 +53,7 @@ export default async function AppLayout({
           </div>
         </main>
       </div>
+      {isAdmin && <FeedbackWidget />}
     </ThemeWrapper>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { ClerkProvider } from "@clerk/nextjs";
 import { geist, geistMono } from "@/lib/fonts";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,7 +40,10 @@ export default async function RootLayout({
         lang="en"
         className={`${geist.variable} ${geistMono.variable}${hideScrollbars ? " scrollbars-hidden" : ""}`}
       >
-        <body className="font-sans antialiased">{children}</body>
+        <body className="font-sans antialiased">
+          {children}
+          <Toaster />
+        </body>
       </html>
     </ClerkProvider>
   );

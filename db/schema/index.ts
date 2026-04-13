@@ -31,3 +31,4 @@ export * from "./coaching";
 export * from "./supervisor-domains";
 export * from "./integration-events";
 export * from "./changelog-summaries";
+export * from "./feedback";
