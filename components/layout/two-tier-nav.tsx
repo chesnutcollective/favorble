@@ -521,6 +521,7 @@ const settingsNav: SettingsItem[] = [
 
 function getActiveRailId(pathname: string, items: RailItem[]): string {
   if (pathname.startsWith("/admin")) return "settings";
+  if (pathname.startsWith("/changelog")) return "changelog";
   for (const item of items) {
     if (item.id === "dashboard") {
       if (pathname === "/dashboard" || pathname === "/") return "dashboard";
@@ -2351,13 +2352,29 @@ function EmailPanel({
                         }}
                       >
                         {email.caseId ? (
-                          <Link
-                            href={`/cases/${email.caseId}`}
-                            style={{ color: "#185f9b", textDecoration: "none" }}
-                            onClick={(ev) => ev.stopPropagation()}
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            style={{
+                              color: "#185f9b",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                            }}
+                            onClick={(ev) => {
+                              ev.preventDefault();
+                              ev.stopPropagation();
+                              window.location.href = `/cases/${email.caseId}`;
+                            }}
+                            onKeyDown={(ev) => {
+                              if (ev.key === "Enter") {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                window.location.href = `/cases/${email.caseId}`;
+                              }
+                            }}
                           >
                             &rarr; {email.caseLink}
-                          </Link>
+                          </span>
                         ) : (
                           <>&rarr; {email.caseLink}</>
                         )}
