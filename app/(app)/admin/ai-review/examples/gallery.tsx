@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const SAMPLE = {
   type: "office_visit",
@@ -46,7 +47,26 @@ const EXAMPLES = [
 ] as const;
 
 export function ExamplesGallery() {
-  const [active, setActive] = useState<string>("all");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initial = searchParams.get("ex") ?? "all";
+  const [active, setActiveState] = useState<string>(initial);
+
+  // Keep URL in sync so each tab is shareable + deep-linkable.
+  const setActive = (id: string) => {
+    setActiveState(id);
+    const next = new URLSearchParams(searchParams.toString());
+    if (id === "all") next.delete("ex");
+    else next.set("ex", id);
+    const qs = next.toString();
+    router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+  };
+
+  // Re-sync if the URL changes from outside (back/forward).
+  useEffect(() => {
+    setActiveState(searchParams.get("ex") ?? "all");
+  }, [searchParams]);
 
   const visible = active === "all" ? EXAMPLES : EXAMPLES.filter((e) => e.id === active);
 
