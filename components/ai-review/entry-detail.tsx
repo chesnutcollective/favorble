@@ -122,54 +122,60 @@ function FieldPane({
   return (
     <div className="flex h-full flex-col rounded-lg border border-zinc-200 bg-white">
       {/* Header band */}
-      <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono uppercase tracking-wider text-zinc-600">
-              {entry.entryType.replace(/_/g, " ")}
+      <div className="flex flex-col gap-2 border-b border-zinc-100 px-4 py-3">
+        {/* Row 1 — type + case/claimant + status/overdue */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
+          <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono uppercase tracking-wider text-zinc-600">
+            {entry.entryType.replace(/_/g, " ")}
+          </span>
+          {entry.caseNumber ? (
+            <span className="font-mono text-[12px] text-zinc-700">
+              {entry.caseNumber}
             </span>
-            <ConfidenceBadge value={entry.confidence} />
-            {entry.isVerified || entry.isExcluded ? (
-              <StatusBadge entry={entry} />
-            ) : null}
-            {entry.daysPending >= 7 && !entry.isVerified && !entry.isExcluded ? (
-              <span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700">
-                {entry.daysPending}d overdue
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-1 truncate text-[12px] text-zinc-600">
-            {entry.caseNumber ? (
-              <span className="font-mono">{entry.caseNumber}</span>
-            ) : null}
-            {entry.claimantName ? ` · ${entry.claimantName}` : ""}
-          </div>
+          ) : null}
+          {entry.claimantName ? (
+            <span className="text-[12px] text-zinc-600">
+              · {entry.claimantName}
+            </span>
+          ) : null}
+          {entry.isVerified || entry.isExcluded ? (
+            <StatusBadge entry={entry} />
+          ) : null}
+          {entry.daysPending >= 7 && !entry.isVerified && !entry.isExcluded ? (
+            <span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700">
+              {entry.daysPending}d overdue
+            </span>
+          ) : null}
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <ActionButton
-            label="Reject"
-            shortcut="R"
-            icon={<X size={14} />}
-            onClick={onReject}
-            disabled={isPending || entry.isExcluded}
-            tone="danger"
-          />
-          <ActionButton
-            label="Edit"
-            shortcut="E"
-            icon={<Edit3 size={14} />}
-            onClick={() => setEditingSummary((v) => !v)}
-            disabled={isPending}
-            tone="neutral"
-          />
-          <ActionButton
-            label="Approve"
-            shortcut="A"
-            icon={<Check size={14} />}
-            onClick={onApprove}
-            disabled={isPending || entry.isVerified}
-            tone="primary"
-          />
+        {/* Row 2 — confidence + actions */}
+        <div className="flex items-center justify-between gap-3">
+          <ConfidenceBadge value={entry.confidence} />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ActionButton
+              label="Reject"
+              shortcut="R"
+              icon={<X size={14} />}
+              onClick={onReject}
+              disabled={isPending || entry.isExcluded}
+              tone="danger"
+            />
+            <ActionButton
+              label="Edit"
+              shortcut="E"
+              icon={<Edit3 size={14} />}
+              onClick={() => setEditingSummary((v) => !v)}
+              disabled={isPending}
+              tone="neutral"
+            />
+            <ActionButton
+              label="Approve"
+              shortcut="A"
+              icon={<Check size={14} />}
+              onClick={onApprove}
+              disabled={isPending || entry.isVerified}
+              tone="primary"
+            />
+          </div>
         </div>
       </div>
 
