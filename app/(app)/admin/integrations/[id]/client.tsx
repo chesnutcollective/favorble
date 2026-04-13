@@ -606,6 +606,93 @@ function AlertRulesSection({
   );
 }
 
+// ── Upload dropzone (click / drop / paste) ──
+
+function UploadDropZone({
+  onClick,
+  onFile,
+  busy,
+  uploadingThisSlot,
+}: {
+  onClick: () => void;
+  onFile: (file: File) => void;
+  busy: boolean;
+  uploadingThisSlot: boolean;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const [focused, setFocused] = useState(false);
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          onFile(file);
+          return;
+        }
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) onFile(file);
+  };
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const active = dragOver || focused;
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label="Click, drop, or paste image"
+      onClick={onClick}
+      onKeyDown={handleKey}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onPaste={handlePaste}
+      onDragOver={(e) => {
+        e.preventDefault();
+        if (!dragOver) setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+      className="mb-1 flex cursor-pointer flex-col items-center justify-center gap-0.5 rounded-md border-2 border-dashed px-3 py-2.5 text-center outline-none transition-colors disabled:cursor-wait"
+      style={{
+        borderColor: active ? COLORS.brand : COLORS.borderDefault,
+        background: active ? COLORS.brandSubtle : "transparent",
+        opacity: busy && !uploadingThisSlot ? 0.5 : 1,
+      }}
+    >
+      {uploadingThisSlot ? (
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: COLORS.brand, borderTopColor: "transparent" }} />
+      ) : (
+        <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: focused ? COLORS.brand : COLORS.text1 }}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+            <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
+          </svg>
+          Click, drop, or paste image
+        </div>
+      )}
+      <p className="text-[10px]" style={{ color: COLORS.text3 }}>
+        {focused ? "⌘V to paste" : "PNG · SVG · JPEG, up to 500 KB"}
+      </p>
+    </div>
+  );
+}
+
 // ── Logo library strip ──
 
 function LogoLibraryStrip({
@@ -832,12 +919,11 @@ export function IntegrationDetailClient({
     }
   };
 
-  const handleFileUpload = async (
-    slot: "tech" | "host",
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = async (slot: "tech" | "host", file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Not an image file");
+      return;
+    }
 
     setUploadError(null);
     setUploading(slot);
@@ -867,9 +953,18 @@ export function IntegrationDetailClient({
       setUploadError("Upload failed unexpectedly");
     } finally {
       setUploading(null);
-      const ref = slot === "tech" ? fileInputRef : hostFileInputRef;
-      if (ref.current) ref.current.value = "";
     }
+  };
+
+  const handleFileUpload = async (
+    slot: "tech" | "host",
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(slot, file);
+    const ref = slot === "tech" ? fileInputRef : hostFileInputRef;
+    if (ref.current) ref.current.value = "";
   };
 
   const handleFetchFavicon = async (slot: "tech" | "host") => {
@@ -1055,24 +1150,13 @@ export function IntegrationDetailClient({
                   busy={busy}
                   onPick={(path) => handleApplyExisting("tech", path)}
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    fileInputRef.current?.click();
-                  }}
-                  disabled={busy}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 disabled:opacity-50"
-                  style={{ color: COLORS.text1 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.text3 }}>
-                    <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
-                  </svg>
-                  Upload new file
-                </button>
-                <p className="mb-2 ml-7 text-[10px]" style={{ color: COLORS.text3 }}>
-                  PNG · SVG · JPEG, up to 500 KB
-                </p>
-                <div className="border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
+                <UploadDropZone
+                  onClick={() => fileInputRef.current?.click()}
+                  onFile={(file) => processFile("tech", file)}
+                  busy={busy}
+                  uploadingThisSlot={uploading === "tech"}
+                />
+                <div className="mt-2 border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
                   <p className="mb-1.5 text-[11px] font-medium" style={{ color: COLORS.text3 }}>
                     Or fetch favicon from URL
                   </p>
@@ -1127,24 +1211,13 @@ export function IntegrationDetailClient({
                       busy={busy}
                       onPick={(path) => handleApplyExisting("host", path)}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        hostFileInputRef.current?.click();
-                      }}
-                      disabled={busy}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 disabled:opacity-50"
-                      style={{ color: COLORS.text1 }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.text3 }}>
-                        <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z" clipRule="evenodd" />
-                      </svg>
-                      Upload new file
-                    </button>
-                    <p className="mb-2 ml-7 text-[10px]" style={{ color: COLORS.text3 }}>
-                      PNG · SVG · JPEG, up to 500 KB
-                    </p>
-                    <div className="border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
+                    <UploadDropZone
+                      onClick={() => hostFileInputRef.current?.click()}
+                      onFile={(file) => processFile("host", file)}
+                      busy={busy}
+                      uploadingThisSlot={uploading === "host"}
+                    />
+                    <div className="mt-2 border-t pt-2" style={{ borderColor: COLORS.borderSubtle }}>
                       <p className="mb-1.5 text-[11px] font-medium" style={{ color: COLORS.text3 }}>
                         Or fetch favicon from URL
                       </p>
