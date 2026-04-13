@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import {
   createAlertRule,
   updateAlertRule,
   deleteAlertRule,
+  uploadIntegrationLogo,
   type IntegrationDetail,
   type IntegrationEventRow,
   type AlertRuleRow,
@@ -605,13 +606,21 @@ function AlertRulesSection({
 
 export function IntegrationDetailClient({
   detail,
+  customLogoUrl,
 }: {
   detail: IntegrationDetail;
+  customLogoUrl: string | null;
 }) {
   const router = useRouter();
   const { config, categoryLabel } = detail;
   const [verifying, setVerifying] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [logoSrc, setLogoSrc] = useState<string>(
+    customLogoUrl ?? `/${config.logoPath}`,
+  );
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const overallStatus = detail.allRequiredConfigured ? "active" : "pending";
 
@@ -633,6 +642,34 @@ export function IntegrationDetailClient({
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.set("integrationId", config.id);
+      formData.set("file", file);
+
+      const result = await uploadIntegrationLogo(formData);
+      if (result.success && result.signedUrl) {
+        setLogoSrc(result.signedUrl);
+        setLogoError(false);
+      } else {
+        setUploadError(result.error ?? "Upload failed");
+      }
+    } catch {
+      setUploadError("Upload failed unexpectedly");
+    } finally {
+      setUploading(false);
+      // Reset file input so re-selecting the same file triggers onChange
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
       {/* Back link */}
@@ -646,18 +683,57 @@ export function IntegrationDetailClient({
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-4">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-[10px] border" style={{ borderColor: COLORS.borderDefault, background: COLORS.surface }}>
-          {logoError ? (
-            <span className="text-2xl">{config.fallbackIcon}</span>
-          ) : (
-            <Image
-              src={`/${config.logoPath}`}
-              alt={config.name}
-              width={48}
-              height={48}
-              className="h-8 w-8 object-contain"
-              onError={() => setLogoError(true)}
-            />
+        <div className="group relative">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-[10px] border" style={{ borderColor: COLORS.borderDefault, background: COLORS.surface }}>
+            {logoError ? (
+              <span className="text-2xl">{config.fallbackIcon}</span>
+            ) : (
+              <Image
+                src={logoSrc}
+                alt={config.name}
+                width={48}
+                height={48}
+                className="h-8 w-8 object-contain"
+                unoptimized={logoSrc.startsWith("data:") || logoSrc.startsWith("http")}
+                onError={() => setLogoError(true)}
+              />
+            )}
+          </div>
+          {/* Upload overlay */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="absolute inset-0 flex items-center justify-center rounded-[10px] bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100 disabled:cursor-wait"
+            aria-label="Upload custom logo"
+          >
+            {uploading ? (
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="white"
+                className="h-4 w-4"
+              >
+                <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+              </svg>
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml"
+            className="hidden"
+            onChange={handleLogoUpload}
+          />
+          {uploadError && (
+            <div
+              className="absolute left-0 top-full mt-1 whitespace-nowrap rounded px-2 py-1 text-[11px] font-medium"
+              style={{ background: COLORS.badSubtle, color: COLORS.bad }}
+            >
+              {uploadError}
+            </div>
           )}
         </div>
 

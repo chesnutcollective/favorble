@@ -12,6 +12,7 @@ import {
   CATEGORY_DESCRIPTIONS,
   type IntegrationCategory,
 } from "@/lib/integrations/registry";
+import { getCustomLogoUrls } from "@/app/actions/integration-management";
 import { IntegrationsCockpitClient } from "./cockpit-client";
 
 export const metadata: Metadata = {
@@ -55,6 +56,8 @@ export type CockpitSummary = {
 export type CockpitPageData = {
   categories: CategorySection[];
   summary: CockpitSummary;
+  /** Map of integrationId -> signed custom logo URL for integrations with uploaded logos */
+  customLogoUrls: Record<string, string>;
 };
 
 export default async function IntegrationsPage() {
@@ -199,9 +202,14 @@ export default async function IntegrationsPage() {
     };
   });
 
+  // Fetch any custom logo URLs in parallel
+  const allIntegrationIds = INTEGRATION_REGISTRY.map((i) => i.id);
+  const customLogoUrls = await getCustomLogoUrls(allIntegrationIds);
+
   const data: CockpitPageData = {
     categories: categorySections,
     summary,
+    customLogoUrls,
   };
 
   return <IntegrationsCockpitClient data={data} />;

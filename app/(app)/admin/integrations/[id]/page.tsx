@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getIntegrationDetail } from "@/app/actions/integration-management";
+import {
+  getIntegrationDetail,
+  getCustomLogoUrl,
+} from "@/app/actions/integration-management";
 import { IntegrationDetailClient } from "./client";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function IntegrationDetailPage({ params }: Props) {
   const { id } = await params;
-  const detail = await getIntegrationDetail(id);
+  const [detail, customLogoUrl] = await Promise.all([
+    getIntegrationDetail(id),
+    getCustomLogoUrl(id),
+  ]);
 
   if (!detail) {
     notFound();
   }
 
-  return <IntegrationDetailClient detail={detail} />;
+  return (
+    <IntegrationDetailClient detail={detail} customLogoUrl={customLogoUrl} />
+  );
 }

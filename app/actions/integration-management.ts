@@ -14,6 +14,11 @@ import {
 import { eq, and, desc, gte, count, avg, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import {
+  uploadRailwayDocumentAtKey,
+  getRailwaySignedUrl,
+  isRailwayBucketConfigured,
+} from "@/lib/storage/railway-bucket";
 
 // ── Types ──
 
@@ -440,4 +445,197 @@ export async function deleteAlertRule(ruleId: string): Promise<boolean> {
   }
 
   return Boolean(deleted);
+}
+
+// ── Logo Upload ──
+
+const ALLOWED_LOGO_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/svg+xml",
+]);
+const MAX_LOGO_SIZE = 500 * 1024; // 500 KB
+
+/**
+ * Upload a custom integration logo. Stores the file in the Railway bucket
+ * (production) or as a base64 data URL in the event payload (dev fallback).
+ * Records a `config_changed` event for the audit trail.
+ */
+export async function uploadIntegrationLogo(
+  formData: FormData,
+): Promise<{ success: boolean; signedUrl?: string; error?: string }> {
+  const session = await requireSession();
+  const integrationId = formData.get("integrationId");
+  const file = formData.get("file");
+
+  if (typeof integrationId !== "string" || !integrationId) {
+    return { success: false, error: "Missing integrationId" };
+  }
+
+  const config = getIntegration(integrationId);
+  if (!config) {
+    return { success: false, error: "Unknown integration" };
+  }
+
+  if (!(file instanceof File)) {
+    return { success: false, error: "No file provided" };
+  }
+
+  if (!ALLOWED_LOGO_TYPES.has(file.type)) {
+    return {
+      success: false,
+      error: "Invalid file type. Must be PNG, JPEG, or SVG.",
+    };
+  }
+
+  if (file.size > MAX_LOGO_SIZE) {
+    return { success: false, error: "File too large. Maximum size is 500 KB." };
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Determine extension from content type
+  const extMap: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/svg+xml": "svg",
+  };
+  const ext = extMap[file.type] ?? "png";
+
+  let customLogoPath: string;
+  let signedUrl: string;
+
+  if (isRailwayBucketConfigured()) {
+    // Production: upload to Railway bucket
+    const key = `integration-logos/${integrationId}-logo.${ext}`;
+    const result = await uploadRailwayDocumentAtKey(key, buffer, file.type);
+    customLogoPath = result.storagePath;
+    signedUrl = await getRailwaySignedUrl(customLogoPath);
+  } else {
+    // Dev fallback: store as base64 data URL in the event payload
+    const base64 = buffer.toString("base64");
+    customLogoPath = `data:${file.type};base64,${base64}`;
+    signedUrl = customLogoPath;
+  }
+
+  // Record config_changed event with the custom logo path
+  await db.insert(integrationEvents).values({
+    organizationId: session.organizationId,
+    integrationId,
+    eventType: "config_changed",
+    status: "ok",
+    summary: "Logo updated",
+    payload: { customLogoPath },
+  });
+
+  logger.info("Integration logo uploaded", { integrationId });
+
+  revalidatePath(`/admin/integrations/${integrationId}`);
+  revalidatePath("/admin/integrations");
+
+  return { success: true, signedUrl };
+}
+
+/**
+ * Look up whether a custom logo has been uploaded for the given integration.
+ * Returns a signed URL (or data URL in dev) if one exists, null otherwise.
+ */
+export async function getCustomLogoUrl(
+  integrationId: string,
+): Promise<string | null> {
+  const session = await requireSession();
+
+  const [row] = await db
+    .select({ payload: integrationEvents.payload })
+    .from(integrationEvents)
+    .where(
+      and(
+        eq(integrationEvents.organizationId, session.organizationId),
+        eq(integrationEvents.integrationId, integrationId),
+        eq(integrationEvents.eventType, "config_changed"),
+      ),
+    )
+    .orderBy(desc(integrationEvents.createdAt))
+    .limit(1);
+
+  if (!row?.payload) return null;
+
+  const payload = row.payload as Record<string, unknown>;
+  const customLogoPath = payload.customLogoPath;
+  if (typeof customLogoPath !== "string") return null;
+
+  // Data URL (dev fallback) — return directly
+  if (customLogoPath.startsWith("data:")) return customLogoPath;
+
+  // Railway bucket path — sign it
+  try {
+    return await getRailwaySignedUrl(customLogoPath);
+  } catch (err) {
+    logger.warn("Failed to sign custom logo URL", {
+      integrationId,
+      error: err,
+    });
+    return null;
+  }
+}
+
+/**
+ * Batch lookup of custom logo URLs for multiple integrations.
+ * Returns a map of integrationId -> signed URL for those that have custom logos.
+ */
+export async function getCustomLogoUrls(
+  integrationIds: string[],
+): Promise<Record<string, string>> {
+  if (integrationIds.length === 0) return {};
+
+  const session = await requireSession();
+
+  // Find the most recent config_changed event per integration that has a customLogoPath
+  const rows = await db
+    .select({
+      integrationId: integrationEvents.integrationId,
+      payload: integrationEvents.payload,
+    })
+    .from(integrationEvents)
+    .where(
+      and(
+        eq(integrationEvents.organizationId, session.organizationId),
+        eq(integrationEvents.eventType, "config_changed"),
+      ),
+    )
+    .orderBy(desc(integrationEvents.createdAt));
+
+  // Deduplicate: keep only the most recent per integration
+  const latestPerIntegration = new Map<string, string>();
+  for (const row of rows) {
+    if (latestPerIntegration.has(row.integrationId)) continue;
+    const payload = row.payload as Record<string, unknown> | null;
+    const customLogoPath = payload?.customLogoPath;
+    if (typeof customLogoPath === "string") {
+      latestPerIntegration.set(row.integrationId, customLogoPath);
+    }
+  }
+
+  // Sign URLs in parallel
+  const result: Record<string, string> = {};
+  const entries = Array.from(latestPerIntegration.entries()).filter(([id]) =>
+    integrationIds.includes(id),
+  );
+
+  await Promise.all(
+    entries.map(async ([id, path]) => {
+      if (path.startsWith("data:")) {
+        result[id] = path;
+        return;
+      }
+      try {
+        result[id] = await getRailwaySignedUrl(path);
+      } catch {
+        // Skip if signing fails
+      }
+    }),
+  );
+
+  return result;
 }

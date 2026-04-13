@@ -65,14 +65,17 @@ function IntegrationCard({
   card,
   onVerify,
   isPinging,
+  customLogoUrl,
 }: {
   card: IntegrationCardData;
   onVerify: (id: string) => void;
   isPinging: boolean;
+  customLogoUrl?: string;
 }) {
   const router = useRouter();
   const config = STATUS_CONFIG[card.status];
   const [imgError, setImgError] = useState(false);
+  const imgSrc = customLogoUrl ?? `/${card.logoPath}`;
 
   return (
     <Card
@@ -85,11 +88,12 @@ function IntegrationCard({
           <div className="relative flex-shrink-0 w-12 h-12 rounded-lg border border-[rgba(0,0,0,0.06)] bg-white flex items-center justify-center overflow-hidden">
             {!imgError ? (
               <Image
-                src={`/${card.logoPath}`}
+                src={imgSrc}
                 alt={card.name}
                 width={48}
                 height={48}
                 className="object-contain p-1"
+                unoptimized={imgSrc.startsWith("data:") || imgSrc.startsWith("http")}
                 onError={() => setImgError(true)}
               />
             ) : (
@@ -344,6 +348,7 @@ export function IntegrationsCockpitClient({
                 card={card}
                 onVerify={pingIntegration}
                 isPinging={pingingIds.has(card.id)}
+                customLogoUrl={data.customLogoUrls[card.id]}
               />
             ))}
           </div>
