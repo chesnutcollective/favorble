@@ -46,6 +46,43 @@ import {
 
 type Screenshot = { base64: string; width: number; height: number };
 
+/**
+ * Centered loading card shown while a pixel-perfect screenshot is being
+ * captured server-side. Lives at z-index above the FAB; tagged
+ * `data-feedback-widget="true"` so the snapshot serializer hides it during
+ * the brief DOM-serialization phase. Visible to the user during the slow
+ * (1-10s) headless-Chromium render phase.
+ */
+function CaptureProgressOverlay() {
+  return (
+    <div
+      data-feedback-widget="true"
+      className="fixed inset-0 z-[9999999] flex items-center justify-center"
+      style={{ background: "rgba(15,15,20,0.45)", backdropFilter: "blur(2px)" }}
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        className="flex w-[320px] max-w-[90vw] flex-col items-center gap-3 rounded-2xl bg-white px-6 py-5 text-center shadow-2xl"
+      >
+        <span
+          className="inline-block h-8 w-8 animate-spin rounded-full border-[3px] border-t-transparent"
+          style={{ borderColor: "#263c94", borderTopColor: "transparent" }}
+        />
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "#18181a" }}>
+            Capturing pixel-perfect screenshot
+          </p>
+          <p className="mt-1 text-[11px]" style={{ color: "#8b8b97" }}>
+            Rendering your page in headless Chromium so Claude sees exactly
+            what you see. The first one can take 5-10 seconds.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function FeedbackWidget() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -55,8 +92,10 @@ export function FeedbackWidget() {
   const [pin, setPin] = useState<PinnedElement | null>(null);
   const [isAnnotating, setIsAnnotating] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [captureRequested, setCaptureRequested] = useState(false);
   const { captureScreenshot, isCapturing, error: captureError, clearError } =
     useScreenshot();
+  const showCaptureOverlay = captureRequested || isCapturing;
   const {
     isSupported: voiceSupported,
     isRecording,
@@ -76,17 +115,22 @@ export function FeedbackWidget() {
 
   async function handleCaptureClick() {
     clearError();
+    setCaptureRequested(true);
     // Close the dialog first so the widget doesn't end up in the screenshot,
     // capture, then reopen.
     setOpen(false);
     await new Promise((r) => setTimeout(r, 300));
-    const result = await captureScreenshot();
-    setOpen(true);
-    if (result) {
-      setScreenshot(result);
+    try {
+      const result = await captureScreenshot();
+      setOpen(true);
+      if (result) {
+        setScreenshot(result);
+      }
+      // On failure, error stays in `captureError` and the widget renders a
+      // visible retry banner — no toast needed.
+    } finally {
+      setCaptureRequested(false);
     }
-    // On failure, error stays in `captureError` and the widget renders a
-    // visible retry banner — no toast needed.
   }
 
   function handleAnnotateClick() {
@@ -94,10 +138,24 @@ export function FeedbackWidget() {
     setIsAnnotating(true);
   }
 
-  function handlePinSelected(selected: PinnedElement) {
+  async function handlePinSelected(selected: PinnedElement) {
     setPin(selected);
     setIsAnnotating(false);
-    setOpen(true);
+    clearError();
+    setCaptureRequested(true);
+    try {
+      // Also capture a screenshot of the page they were just looking at —
+      // gives Claude visual context for the pinned element. Loading overlay
+      // shows while this runs.
+      const result = await captureScreenshot();
+      setOpen(true);
+      if (result) {
+        setScreenshot(result);
+      }
+      // On failure, the retry banner inside the reopened dialog surfaces it.
+    } finally {
+      setCaptureRequested(false);
+    }
   }
 
   function handleAnnotateCancel() {
@@ -129,9 +187,14 @@ export function FeedbackWidget() {
     // what to do.
     let finalScreenshot = screenshot;
     if (!finalScreenshot) {
+      setCaptureRequested(true);
       setOpen(false);
       await new Promise((r) => setTimeout(r, 300));
-      finalScreenshot = await captureScreenshot();
+      try {
+        finalScreenshot = await captureScreenshot();
+      } finally {
+        setCaptureRequested(false);
+      }
       setOpen(true);
       if (!finalScreenshot) {
         // Error is already surfaced via the retry banner.
@@ -200,6 +263,8 @@ export function FeedbackWidget() {
           onCancel={handleAnnotateCancel}
         />
       )}
+
+      {showCaptureOverlay && <CaptureProgressOverlay />}
 
       <button
         type="button"
