@@ -199,11 +199,13 @@ export async function generateFeedbackExportTokenAction(): Promise<{
 
 /**
  * Build the "Export for Claude" markdown payload. Returns the prompt string
- * with embedded `[[feedback-export]]` blocks for every open item plus the
- * API token + endpoints for callbacks.
+ * with embedded `[[feedback-export]]` blocks plus the API token + endpoints
+ * for status callbacks. Pass `ids` to scope to a specific selection,
+ * `includeStatuses` to filter by status.
  */
 export async function buildClaudeExportAction(input?: {
   includeStatuses?: FeedbackStatus[];
+  ids?: string[];
 }): Promise<{
   success: boolean;
   prompt?: string;
@@ -215,13 +217,18 @@ export async function buildClaudeExportAction(input?: {
     return { success: false, error: "Forbidden" };
   }
 
-  const statuses = input?.includeStatuses ?? ["open"];
   const all = await getFeedbackList({
     organizationId: session.organizationId,
   });
-  const items = all.filter((i) =>
-    statuses.includes(i.status as FeedbackStatus),
-  );
+
+  let items = all;
+  if (input?.ids && input.ids.length > 0) {
+    const idSet = new Set(input.ids);
+    items = items.filter((i) => idSet.has(i.id));
+  } else if (input?.includeStatuses && input.includeStatuses.length > 0) {
+    const statusSet = new Set(input.includeStatuses);
+    items = items.filter((i) => statusSet.has(i.status as FeedbackStatus));
+  }
 
   const token = generateExportToken(session.organizationId);
   const baseUrl =
@@ -231,15 +238,16 @@ export async function buildClaudeExportAction(input?: {
     .map((item) => {
       const ctx = (item.context as Record<string, unknown> | null) ?? {};
       const trimmedCtx: Record<string, unknown> = { ...ctx };
-      // Strip the screenshot base64 from the export — it bloats the prompt.
-      // Triagers can open the admin UI for the visual.
+      // Replace the screenshot base64 with a signed URL so the prompt stays
+      // small. The triager opens the URL in their browser and drags the
+      // image into Claude chat to give the model vision access.
       if (
         trimmedCtx.screenshot &&
         typeof trimmedCtx.screenshot === "object"
       ) {
         const s = trimmedCtx.screenshot as Record<string, unknown>;
         trimmedCtx.screenshot = {
-          omitted: true,
+          url: `${baseUrl}/api/feedback/${item.id}/screenshot?token=${token}`,
           width: s.width,
           height: s.height,
         };
@@ -269,6 +277,16 @@ export async function buildClaudeExportAction(input?: {
     "# Feedback triage",
     "",
     `${items.length} item(s) need triage. For each, investigate the issue, propose a fix, and update its status via the API.`,
+    "",
+    "## How to use the screenshots",
+    "",
+    "Each item with a `screenshot.url` field has a captured pixel-perfect screenshot of the page the user was viewing.",
+    "**Claude can't fetch image URLs into its vision directly** — to give Claude visual access:",
+    "1. Open the screenshot URL in your browser.",
+    "2. Drag the image into your Claude chat (or right-click → Save → attach).",
+    "3. Then paste this prompt and reference the screenshot.",
+    "",
+    "Each URL is signed with the same 48h API token, no extra auth needed.",
     "",
     "## API",
     `- Base: ${baseUrl}`,

@@ -335,46 +335,29 @@ export function FeedbackAdminClient({
   }
 
   function handleExportForClaude(scope: "all-open" | "selected") {
+    if (scope === "selected" && checkedIds.size === 0) {
+      toast.error("Select at least one item to export.");
+      return;
+    }
     startExport(async () => {
-      const result = await buildClaudeExportAction({
-        includeStatuses: scope === "all-open" ? ["open"] : undefined,
-      });
+      const result = await buildClaudeExportAction(
+        scope === "selected"
+          ? { ids: Array.from(checkedIds) }
+          : { includeStatuses: ["open"] },
+      );
       if (!result.success || !result.prompt) {
         toast.error(result.error ?? "Export failed");
         return;
       }
-      // When exporting "selected", further filter the prompt client-side.
-      // For Phase 3 we lean on the server returning all open items, then
-      // strip blocks not in the selected set when scope === "selected".
-      let finalPrompt = result.prompt;
-      if (scope === "selected") {
-        const ids = Array.from(checkedIds);
-        if (ids.length === 0) {
-          toast.error("Select at least one item to export.");
-          return;
-        }
-        // Keep only the blocks whose `id: <uuid>` matches a checked id.
-        const blocks = finalPrompt.split("[[feedback-export]]");
-        const filteredBlocks = [blocks[0]];
-        for (let i = 1; i < blocks.length; i++) {
-          const match = /id:\s+([0-9a-f-]+)/.exec(blocks[i]);
-          if (match && ids.includes(match[1])) {
-            filteredBlocks.push(blocks[i]);
-          }
-        }
-        finalPrompt = filteredBlocks.join("[[feedback-export]]");
-      }
       try {
-        await navigator.clipboard.writeText(finalPrompt);
-        const count =
-          scope === "selected"
-            ? checkedIds.size
-            : (result.itemCount ?? 0);
-        toast.success(`Copied prompt for ${count} item(s) to clipboard.`);
+        await navigator.clipboard.writeText(result.prompt);
+        toast.success(
+          `Copied prompt for ${result.itemCount ?? 0} item(s) to clipboard.`,
+        );
       } catch {
         toast.error("Could not copy — see console.");
         // eslint-disable-next-line no-console
-        console.log(finalPrompt);
+        console.log(result.prompt);
       }
     });
   }
@@ -1159,20 +1142,22 @@ function ScreenshotWithPin({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setEnlarged(true)}
-        className="relative block w-full overflow-hidden rounded-md border"
-      >
-        <Image
-          src={src}
-          alt="Submitted screenshot"
-          width={width ?? 1280}
-          height={height ?? 720}
-          className="h-auto max-h-56 w-full object-contain"
-          unoptimized
-        />
-        {outlinePct && (
+      <div className="flex justify-center overflow-hidden rounded-md border">
+        <button
+          type="button"
+          onClick={() => setEnlarged(true)}
+          className="relative inline-block"
+        >
+          <Image
+            src={src}
+            alt="Submitted screenshot"
+            width={width ?? 1280}
+            height={height ?? 720}
+            className="block h-auto max-h-56 w-auto cursor-zoom-in"
+            style={{ maxWidth: "100%" }}
+            unoptimized
+          />
+          {outlinePct && (
           <span
             className="pointer-events-none absolute"
             style={{
@@ -1190,7 +1175,8 @@ function ScreenshotWithPin({
             style={{ ...pinPct, background: "#d1453b" }}
           />
         )}
-      </button>
+        </button>
+      </div>
       <Dialog open={enlarged} onOpenChange={setEnlarged}>
         <DialogContent className="max-w-5xl">
           <DialogHeader>

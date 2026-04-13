@@ -65,19 +65,20 @@ function ScreenshotPreview({
   const overlays = computePinOverlays(pin, screenshot);
 
   return (
-    <div className="relative overflow-hidden rounded-md border">
+    <div className="relative flex justify-center overflow-hidden rounded-md border">
       <button
         type="button"
         onClick={onZoom}
-        className="block w-full"
+        className="relative inline-block"
         aria-label="View screenshot at full size"
       >
         <Image
           src={`data:image/jpeg;base64,${screenshot.base64}`}
           alt="Screenshot preview — click to zoom"
-          width={480}
-          height={300}
-          className="h-auto max-h-40 w-full cursor-zoom-in object-contain"
+          width={screenshot.width}
+          height={screenshot.height}
+          className="block h-auto max-h-40 w-auto cursor-zoom-in"
+          style={{ maxWidth: "100%" }}
           unoptimized
         />
         {overlays.outline && (
