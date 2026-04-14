@@ -12,7 +12,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon, Shield01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
 import { COLORS } from "@/lib/design-tokens";
@@ -25,7 +25,6 @@ import {
   performanceSnapshots,
   tasks,
 } from "@/db/schema";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import {
@@ -397,32 +396,6 @@ export default async function DashboardPage() {
           </Button>
         }
       />
-
-      {isViewingAs && (
-        <Card
-          style={{
-            borderColor: COLORS.brandMuted,
-            backgroundColor: COLORS.brandSubtle,
-          }}
-        >
-          <CardContent className="p-4 flex items-start gap-3">
-            <HugeiconsIcon icon={Shield01Icon} size={18} color={COLORS.brand} />
-            <div
-              className="text-[12px] leading-5"
-              style={{ color: COLORS.text2 }}
-            >
-              <p className="font-medium" style={{ color: COLORS.text1 }}>
-                Super-admin view
-              </p>
-              <p>
-                You are signed in as {actor.firstName} {actor.lastName} but
-                previewing the {config.label} experience. Actions you take are
-                still audited under your real identity.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Per-persona dispatch */}
       {personaId === "case_manager" ? (
