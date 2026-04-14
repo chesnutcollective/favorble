@@ -81,6 +81,10 @@ export async function getCasesForPicker() {
 
 /**
  * Create a new calendar event.
+ *
+ * `visibleToClient` + `attendanceRequired` (B5) — when true, the event
+ * renders on the claimant's `/portal/appointments` page. Defaults to
+ * false so existing pathways don't leak events onto the client portal.
  */
 export async function createCalendarEvent(data: {
   title: string;
@@ -90,6 +94,10 @@ export async function createCalendarEvent(data: {
   caseId?: string;
   location?: string;
   description?: string;
+  visibleToClient?: boolean;
+  attendanceRequired?: boolean;
+  clientLocationText?: string;
+  clientDescription?: string;
 }) {
   const session = await requireSession();
 
@@ -105,6 +113,10 @@ export async function createCalendarEvent(data: {
       location: data.location || null,
       description: data.description || null,
       createdBy: session.id,
+      visibleToClient: data.visibleToClient === true,
+      attendanceRequired: data.attendanceRequired === true,
+      clientLocationText: data.clientLocationText || null,
+      clientDescription: data.clientDescription || null,
     })
     .returning();
 
@@ -142,6 +154,9 @@ export async function createCalendarEvent(data: {
   });
 
   revalidatePath("/calendar");
+  if (data.visibleToClient === true) {
+    revalidatePath("/portal/appointments");
+  }
   return event;
 }
 
