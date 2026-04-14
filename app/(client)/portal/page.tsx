@@ -6,8 +6,10 @@ import { portalUsers } from "@/db/schema";
 import { ensurePortalSession } from "@/lib/auth/portal-session";
 import { logPortalActivity } from "@/lib/services/portal-activity";
 import { loadPortalStageView } from "@/lib/services/portal-stage-view";
-import { resolveLocale } from "@/lib/i18n/getTranslation";
+import { getPendingNpsForContact } from "@/lib/services/nps-dispatch";
+import { getTranslation, resolveLocale } from "@/lib/i18n/getTranslation";
 import { StageProgressCard } from "@/components/portal/stage-progress-card";
+import { NpsHomeBanner } from "@/components/portal/nps-home-banner";
 import { PORTAL_IMPERSONATE_COOKIE } from "../layout";
 
 /** Within this window after activation, treat visits as a first-run session. */
@@ -45,7 +47,14 @@ export default async function PortalHomePage() {
   await logPortalActivity("view_stage");
 
   const locale = resolveLocale(session.contact.preferredLocale);
+  const t = getTranslation(locale);
   const primaryCase = session.cases[0] ?? null;
+
+  // Pending NPS survey banner. Shown when the dispatcher has already stamped
+  // `sent_at` (delivery attempted) or when the campaign is portal-channel.
+  // Staff impersonation still sees the banner so they can QA the flow.
+  const pendingNps = await getPendingNpsForContact(session.contact.id);
+  const firstPending = pendingNps[0] ?? null;
 
   const stageView = primaryCase
     ? await loadPortalStageView(
@@ -56,15 +65,26 @@ export default async function PortalHomePage() {
 
   if (!primaryCase || !stageView) {
     return (
-      <section className="rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-8">
-        <h1 className="text-[22px] font-semibold text-foreground">
-          {session.contact.firstName || "Welcome"}
-        </h1>
-        <p className="mt-2 text-[17px] text-foreground/70">
-          We&apos;re still setting up your case. Check back shortly — your
-          attorney&apos;s team will reach out with the next step.
-        </p>
-      </section>
+      <div className="space-y-4">
+        {firstPending && (
+          <NpsHomeBanner
+            responseId={firstPending.id}
+            heading={t("portal.nps.banner.heading")}
+            body={t("portal.nps.banner.body")}
+            cta={t("portal.nps.banner.cta")}
+            dismissLabel={t("portal.nps.banner.dismiss")}
+          />
+        )}
+        <section className="rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-8">
+          <h1 className="text-[22px] font-semibold text-foreground">
+            {session.contact.firstName || "Welcome"}
+          </h1>
+          <p className="mt-2 text-[17px] text-foreground/70">
+            We&apos;re still setting up your case. Check back shortly — your
+            attorney&apos;s team will reach out with the next step.
+          </p>
+        </section>
+      </div>
     );
   }
 
@@ -100,6 +120,15 @@ export default async function PortalHomePage() {
 
   return (
     <div className="space-y-6">
+      {firstPending && (
+        <NpsHomeBanner
+          responseId={firstPending.id}
+          heading={t("portal.nps.banner.heading")}
+          body={t("portal.nps.banner.body")}
+          cta={t("portal.nps.banner.cta")}
+          dismissLabel={t("portal.nps.banner.dismiss")}
+        />
+      )}
       <StageProgressCard
         locale={locale}
         stages={dots}

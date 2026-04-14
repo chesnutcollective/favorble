@@ -13,6 +13,8 @@ import {
   users,
   contacts,
   caseContacts,
+  npsCampaigns,
+  npsResponses,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { executeStageWorkflows } from "@/lib/workflow-engine";
@@ -740,13 +742,17 @@ export async function changeCaseStage(data: {
     .where(eq(cases.id, data.caseId));
 
   // Log transition
-  await db.insert(caseStageTransitions).values({
-    caseId: data.caseId,
-    fromStageId: currentCase.currentStageId,
-    toStageId: data.newStageId,
-    transitionedBy: session.id,
-    notes: data.notes,
-  });
+  const [stageTransitionRow] = await db
+    .insert(caseStageTransitions)
+    .values({
+      caseId: data.caseId,
+      fromStageId: currentCase.currentStageId,
+      toStageId: data.newStageId,
+      transitionedBy: session.id,
+      notes: data.notes,
+    })
+    .returning({ id: caseStageTransitions.id });
+  const stageTransitionId = stageTransitionRow?.id ?? null;
 
   // Execute workflows for the new stage
   await executeStageWorkflows(
@@ -839,6 +845,88 @@ export async function changeCaseStage(data: {
       });
     } catch (error) {
       logger.error("portal sms: stage-change notify failed", {
+        caseId: data.caseId,
+        error,
+      });
+    }
+  });
+
+  // Phase 5 A2: NPS auto-enqueue. If any active campaign is wired to the
+  // destination stage, drop an `nps_responses` row (score=null, category=null)
+  // with the scheduled send time in metadata. A cron picks these up later.
+  // Wrapped in `after()` so DB slowness / missing tables never block the
+  // stage change itself.
+  after(async () => {
+    try {
+      const activeCampaigns = await db
+        .select({
+          id: npsCampaigns.id,
+          organizationId: npsCampaigns.organizationId,
+          channel: npsCampaigns.channel,
+          delayDays: npsCampaigns.delayDays,
+        })
+        .from(npsCampaigns)
+        .where(
+          and(
+            eq(npsCampaigns.triggerStageId, data.newStageId),
+            eq(npsCampaigns.isActive, true),
+          ),
+        );
+      if (activeCampaigns.length === 0) return;
+
+      const [claimant] = await db
+        .select({
+          id: contacts.id,
+          organizationId: contacts.organizationId,
+        })
+        .from(caseContacts)
+        .innerJoin(contacts, eq(contacts.id, caseContacts.contactId))
+        .where(
+          and(
+            eq(caseContacts.caseId, data.caseId),
+            eq(caseContacts.relationship, "claimant"),
+          ),
+        )
+        .limit(1);
+      if (!claimant) return;
+
+      for (const campaign of activeCampaigns) {
+        // Scope campaigns to the claimant's org. Silently skip cross-tenant
+        // matches — the trigger stage is shared but campaigns are per-org.
+        if (campaign.organizationId !== claimant.organizationId) continue;
+
+        const scheduledFor = new Date(
+          Date.now() + campaign.delayDays * 24 * 60 * 60 * 1000,
+        );
+
+        try {
+          await db.insert(npsResponses).values({
+            organizationId: claimant.organizationId,
+            caseId: data.caseId,
+            contactId: claimant.id,
+            campaignId: campaign.id,
+            channel: campaign.channel,
+            score: null,
+            category: null,
+            comment: null,
+            sentAt: null,
+            respondedAt: null,
+            metadata: {
+              scheduledFor: scheduledFor.toISOString(),
+              stageTransitionId,
+              source: "stage_transition",
+            },
+          });
+        } catch (err) {
+          logger.error("nps: failed to enqueue response", {
+            caseId: data.caseId,
+            campaignId: campaign.id,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    } catch (error) {
+      logger.error("nps: stage-trigger enqueue failed", {
         caseId: data.caseId,
         error,
       });
