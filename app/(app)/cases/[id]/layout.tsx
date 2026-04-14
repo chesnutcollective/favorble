@@ -10,6 +10,7 @@ import { CaseHoldDialog } from "@/components/cases/case-hold-dialog";
 import { SSNDisplay } from "@/components/cases/ssn-display";
 import { StageSegmentBar } from "@/components/stages/stage-segment-bar";
 import { ViewAsClientButton } from "@/components/portal/view-as-client-button";
+import { ClaimantLocaleChip } from "@/components/portal/claimant-locale-chip";
 import { decrypt, maskSSN } from "@/lib/encryption";
 
 export default async function CaseDetailLayout({
@@ -80,6 +81,9 @@ export default async function CaseDetailLayout({
                 {caseData.claimant
                   ? `${caseData.claimant.firstName} ${caseData.claimant.lastName}`
                   : "Unknown Claimant"}
+                {caseData.claimant?.preferredLocale?.toLowerCase().startsWith("es") ? (
+                  <ClaimantLocaleChip locale={caseData.claimant.preferredLocale} />
+                ) : null}
               </h1>
               <p className="text-sm text-muted-foreground">
                 {caseData.caseNumber}
