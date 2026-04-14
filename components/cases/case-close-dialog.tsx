@@ -22,7 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { closeCase, type CloseCaseReason } from "@/app/actions/cases";
+import { closeCase } from "@/app/actions/cases";
+import type { CloseCaseReason } from "@/lib/cases/constants";
 
 type CaseCloseDialogProps = {
   caseId: string;

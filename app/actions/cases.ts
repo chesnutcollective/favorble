@@ -33,6 +33,14 @@ import {
   shouldAudit,
 } from "@/lib/services/hipaa-audit";
 import * as caseStatusClient from "@/lib/integrations/case-status";
+import {
+  CLOSE_CASE_REASONS,
+  type CloseCaseReason,
+  HOLD_CASE_REASONS,
+  type HoldCaseReason,
+  CASE_CONTACT_RELATIONSHIPS,
+  type CaseContactRelationship,
+} from "@/lib/cases/constants";
 
 export type CaseFilters = {
   search?: string;
@@ -966,19 +974,6 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
   }
 }
 
-/**
- * CaseStatus parity: reason codes for closing a case.
- * These are free-form text stored in `cases.closed_reason`.
- */
-const CLOSE_CASE_REASONS = [
-  "won",
-  "lost",
-  "withdrawn",
-  "referred_out",
-  "other",
-] as const;
-type CloseCaseReason = (typeof CLOSE_CASE_REASONS)[number];
-
 /** Map a CaseStatus-style close reason to the cases.status enum value. */
 function closeReasonToStatus(
   reason: CloseCaseReason,
@@ -1084,13 +1079,6 @@ export async function closeCase(
  * CaseStatus parity: reason codes for placing a case on hold.
  * Stored as free-form text in `cases.hold_reason`.
  */
-const HOLD_CASE_REASONS = [
-  "client_unresponsive",
-  "medical_pending",
-  "awaiting_docs",
-  "other",
-] as const;
-type HoldCaseReason = (typeof HOLD_CASE_REASONS)[number];
 
 /**
  * Place a case on hold with a reason code, optional hold-until date, and notes.
@@ -1173,22 +1161,6 @@ export async function placeCaseOnHold(
   revalidatePath("/cases");
   revalidatePath("/queue");
 }
-
-/**
- * Relationship values accepted on the `case_contacts` join table.
- * Keep in sync with the "+ Add Client" dialog on the case overview.
- */
-const CASE_CONTACT_RELATIONSHIPS = [
-  "claimant",
-  "spouse",
-  "parent",
-  "guardian",
-  "rep_payee",
-  "attorney_in_fact",
-  "other",
-] as const;
-
-type CaseContactRelationship = (typeof CASE_CONTACT_RELATIONSHIPS)[number];
 
 /**
  * Get every contact attached to a case via case_contacts, ordered so primary

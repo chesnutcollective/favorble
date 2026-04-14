@@ -23,7 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { placeCaseOnHold, type HoldCaseReason } from "@/app/actions/cases";
+import { placeCaseOnHold } from "@/app/actions/cases";
+import type { HoldCaseReason } from "@/lib/cases/constants";
 
 type CaseHoldDialogProps = {
   caseId: string;
