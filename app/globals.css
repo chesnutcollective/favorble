@@ -292,11 +292,12 @@
 .ttn-rail-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1 1 0;
   min-height: 0;
+  padding: 4px 0;
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* IE/Edge */
 }
