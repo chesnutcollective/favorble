@@ -9,6 +9,7 @@ import {
   CalendarDays,
   User,
   LogOut,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePortalImpersonation } from "./portal-impersonation-context";
@@ -43,6 +44,11 @@ const NAV_ITEMS: NavItem[] = [
     href: "/portal/documents",
     labelKey: "portal.nav.documents",
     icon: FileText,
+  },
+  {
+    href: "/portal/treatment-log",
+    labelKey: "portal.nav.treatmentLog",
+    icon: Activity,
   },
   { href: "/portal/profile", labelKey: "portal.nav.profile", icon: User },
 ];

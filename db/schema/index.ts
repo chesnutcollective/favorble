@@ -39,3 +39,4 @@ export * from "./google-reviews";
 export * from "./nps";
 export * from "./portal";
 export * from "./document-shares";
+export * from "./client-treatment-entries";

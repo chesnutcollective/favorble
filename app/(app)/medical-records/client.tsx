@@ -37,6 +37,21 @@ import {
   type RfcTrackerRow,
   type TeamWorkloadRow,
 } from "@/app/actions/medical-records";
+import {
+  mergeTreatmentEntryIntoChronology,
+  rejectTreatmentEntry,
+  type ClientTreatmentLogRow,
+  type MergeTreatmentEntryInput,
+} from "@/app/actions/client-treatment-log";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 // ── Design tokens ─────────────────────────────────────────────────
 const BRAND = "#263c94";
@@ -75,6 +90,12 @@ type Props = {
   credentialGroups: ProviderCredentialGroup[];
   rfcRows: RfcTrackerRow[];
   workload: TeamWorkloadRow[];
+  clientTreatmentEntries: ClientTreatmentLogRow[];
+  clientTreatmentCases: Array<{
+    caseId: string;
+    caseNumber: string;
+    claimantName: string;
+  }>;
 };
 
 export function MedicalRecordsClient({
@@ -82,12 +103,17 @@ export function MedicalRecordsClient({
   credentialGroups,
   rfcRows,
   workload,
+  clientTreatmentEntries,
+  clientTreatmentCases,
 }: Props) {
+  const pendingCount = clientTreatmentEntries.filter(
+    (e) => e.status === "pending",
+  ).length;
   return (
     <div className="space-y-6" style={{ fontFamily: "var(--font-dm-sans)" }}>
       <PageHeader
         title="Medical Records"
-        description="Manage MR collection, provider portal credentials, RFC tracking, and color-team workload."
+        description="Manage MR collection, provider portal credentials, RFC tracking, color-team workload, and client-submitted treatment log entries."
       />
 
       <Tabs defaultValue="queue" className="w-full">
@@ -96,6 +122,17 @@ export function MedicalRecordsClient({
           <TabsTrigger value="credentials">Provider Credentials</TabsTrigger>
           <TabsTrigger value="rfc">RFC Tracker</TabsTrigger>
           <TabsTrigger value="workload">Team Workload</TabsTrigger>
+          <TabsTrigger value="client-log">
+            Client Log
+            {pendingCount > 0 ? (
+              <Badge
+                variant="secondary"
+                className="ml-2 h-5 px-1.5 text-[10px]"
+              >
+                {pendingCount}
+              </Badge>
+            ) : null}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="queue" className="mt-6">
@@ -112,6 +149,13 @@ export function MedicalRecordsClient({
 
         <TabsContent value="workload" className="mt-6">
           <WorkloadTab workload={workload} />
+        </TabsContent>
+
+        <TabsContent value="client-log" className="mt-6">
+          <ClientTreatmentLogTab
+            entries={clientTreatmentEntries}
+            cases={clientTreatmentCases}
+          />
         </TabsContent>
       </Tabs>
     </div>
@@ -671,6 +715,535 @@ function WorkloadTab({ workload }: { workload: TeamWorkloadRow[] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+// ── Client Treatment Log ──────────────────────────────────────────
+const REASON_LABELS: Record<string, string> = {
+  primary_care: "Primary care",
+  specialist: "Specialist",
+  er: "Emergency room",
+  hospital: "Hospital",
+  therapy: "Therapy",
+  diagnostic: "Diagnostic",
+  other: "Other",
+};
+
+const CHRONOLOGY_ENTRY_TYPES: Array<{
+  value: MergeTreatmentEntryInput["entryType"];
+  label: string;
+}> = [
+  { value: "office_visit", label: "Office visit" },
+  { value: "hospitalization", label: "Hospitalization" },
+  { value: "emergency", label: "Emergency" },
+  { value: "lab_result", label: "Lab result" },
+  { value: "imaging", label: "Imaging" },
+  { value: "mental_health", label: "Mental health" },
+  { value: "physical_therapy", label: "Physical therapy" },
+  { value: "surgery", label: "Surgery" },
+  { value: "prescription", label: "Prescription" },
+  { value: "diagnosis", label: "Diagnosis" },
+  { value: "functional_assessment", label: "Functional assessment" },
+  { value: "other", label: "Other" },
+];
+
+// Map the claimant reason code → the best-guess chronology entry type.
+function guessEntryType(
+  reason: string | null,
+): MergeTreatmentEntryInput["entryType"] {
+  switch (reason) {
+    case "primary_care":
+    case "specialist":
+      return "office_visit";
+    case "er":
+      return "emergency";
+    case "hospital":
+      return "hospitalization";
+    case "therapy":
+      return "physical_therapy";
+    case "diagnostic":
+      return "lab_result";
+    default:
+      return "other";
+  }
+}
+
+function ClientTreatmentLogTab({
+  entries,
+  cases,
+}: {
+  entries: ClientTreatmentLogRow[];
+  cases: Array<{ caseId: string; caseNumber: string; claimantName: string }>;
+}) {
+  const [caseFilter, setCaseFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("pending");
+
+  const filtered = useMemo(() => {
+    return entries.filter((e) => {
+      if (caseFilter !== "all" && e.caseId !== caseFilter) return false;
+      if (statusFilter !== "all" && e.status !== statusFilter) return false;
+      return true;
+    });
+  }, [entries, caseFilter, statusFilter]);
+
+  if (entries.length === 0) {
+    return (
+      <EmptyState
+        icon={StethoscopeIcon}
+        title="No client-submitted entries"
+        description="When claimants log visits from the portal Treatment Log, pending entries will appear here for review."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div
+        className="flex flex-col gap-3 rounded-[10px] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+        style={{ backgroundColor: SUBTLE_BG }}
+      >
+        <div className="flex items-center gap-2 text-[13px]">
+          <HugeiconsIcon
+            icon={StethoscopeIcon}
+            size={16}
+            style={{ color: BRAND }}
+          />
+          <span className="font-medium" style={{ color: BRAND }}>
+            {filtered.length} {filtered.length === 1 ? "entry" : "entries"}
+          </span>
+          <span className="text-muted-foreground">
+            from clients · review &amp; merge into chronology
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-9 w-[140px] bg-white text-[13px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="merged">Merged</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={caseFilter} onValueChange={setCaseFilter}>
+            <SelectTrigger className="h-9 w-[220px] bg-white text-[13px]">
+              <SelectValue placeholder="Case" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All cases</SelectItem>
+              {cases.map((c) => (
+                <SelectItem key={c.caseId} value={c.caseId}>
+                  {c.claimantName} · {c.caseNumber}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-[10px] border border-dashed border-border bg-background p-8 text-center text-[13px] text-muted-foreground">
+          No entries match the current filters.
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {filtered.map((entry) => (
+            <TreatmentLogEntryCard key={entry.id} entry={entry} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TreatmentLogEntryCard({ entry }: { entry: ClientTreatmentLogRow }) {
+  const visit = new Date(entry.visitDate);
+  const reasonLabel = entry.reason
+    ? (REASON_LABELS[entry.reason] ?? entry.reason)
+    : null;
+
+  const statusColor =
+    entry.status === "merged"
+      ? STATUS_ACTIVE
+      : entry.status === "rejected"
+        ? "#b45309"
+        : BRAND;
+  const statusLabel =
+    entry.status === "merged"
+      ? "Merged"
+      : entry.status === "rejected"
+        ? "Rejected"
+        : "Pending review";
+
+  return (
+    <Card className="rounded-[10px]">
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/cases/${entry.caseId}`}
+                className="truncate text-[15px] font-semibold hover:underline"
+                style={{ color: BRAND }}
+              >
+                {entry.claimantName}
+              </Link>
+              <Badge
+                variant="outline"
+                className="border-border text-[11px] font-normal"
+              >
+                {entry.caseNumber}
+              </Badge>
+              <Badge
+                variant="outline"
+                style={{ color: statusColor, borderColor: statusColor }}
+              >
+                {statusLabel}
+              </Badge>
+              {reasonLabel ? (
+                <Badge
+                  variant="secondary"
+                  className="text-[11px] font-normal"
+                >
+                  {reasonLabel}
+                </Badge>
+              ) : null}
+            </div>
+            <div className="mt-2 grid gap-2 text-[13px]">
+              <div>
+                <span className="text-muted-foreground">Provider: </span>
+                <span className="font-medium">{entry.providerName}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Visit: </span>
+                <span className="font-medium">
+                  {visit.toLocaleDateString()}
+                </span>
+                <span className="ml-3 text-muted-foreground">
+                  Submitted{" "}
+                  {new Date(entry.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              {entry.notes ? (
+                <div className="rounded-lg bg-muted p-2 text-[12px]">
+                  <span className="text-muted-foreground">Notes: </span>
+                  <span className="whitespace-pre-wrap">{entry.notes}</span>
+                </div>
+              ) : null}
+              {entry.receipt ? (
+                <div className="text-[12px] text-muted-foreground">
+                  Receipt attached: {entry.receipt.fileName}
+                </div>
+              ) : null}
+              {entry.status === "merged" && entry.reviewedBy ? (
+                <div className="text-[12px] text-muted-foreground">
+                  Merged by {entry.reviewedBy}
+                  {entry.reviewedAt
+                    ? ` on ${new Date(entry.reviewedAt).toLocaleDateString()}`
+                    : null}
+                </div>
+              ) : null}
+              {entry.status === "rejected" && entry.reviewedBy ? (
+                <div className="text-[12px] text-muted-foreground">
+                  Rejected by {entry.reviewedBy}
+                  {entry.reviewedAt
+                    ? ` on ${new Date(entry.reviewedAt).toLocaleDateString()}`
+                    : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {entry.status === "pending" ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <MergeEntryDialog entry={entry} />
+              <RejectEntryDialog entry={entry} />
+            </div>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MergeEntryDialog({ entry }: { entry: ClientTreatmentLogRow }) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const [entryType, setEntryType] = useState<
+    MergeTreatmentEntryInput["entryType"]
+  >(guessEntryType(entry.reason));
+  const [providerName, setProviderName] = useState(entry.providerName);
+  const [eventDate, setEventDate] = useState(
+    entry.visitDate.split("T")[0] ?? "",
+  );
+  const [summary, setSummary] = useState(
+    entry.notes
+      ? `Client-reported visit: ${entry.notes.slice(0, 200)}`
+      : `Client-reported visit with ${entry.providerName}.`,
+  );
+  const [details, setDetails] = useState(entry.notes ?? "");
+  const [diagnoses, setDiagnoses] = useState("");
+  const [treatments, setTreatments] = useState("");
+  const [medications, setMedications] = useState("");
+
+  function parseList(input: string): string[] | undefined {
+    const list = input
+      .split(/[,;\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return list.length > 0 ? list : undefined;
+  }
+
+  function onSubmit() {
+    if (!summary.trim()) {
+      setError("Summary is required.");
+      return;
+    }
+    setError(null);
+    startTransition(async () => {
+      const result = await mergeTreatmentEntryIntoChronology({
+        entryId: entry.id,
+        entryType,
+        providerName: providerName.trim() || entry.providerName,
+        eventDate,
+        summary: summary.trim(),
+        details: details.trim() || undefined,
+        diagnoses: parseList(diagnoses),
+        treatments: parseList(treatments),
+        medications: parseList(medications),
+      });
+      if ("success" in result && result.success) {
+        toast.success("Merged into chronology");
+        setOpen(false);
+      } else {
+        setError(
+          "error" in result ? result.error : "Merge failed. Please try again.",
+        );
+      }
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="sm"
+          style={{ backgroundColor: BRAND, color: "#fff" }}
+          className="hover:opacity-90"
+        >
+          Merge into chronology
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Merge into chronology</DialogTitle>
+          <DialogDescription>
+            Client reported this visit — fill in ICD codes and normalize the
+            provider name before merging it into the medical chronology.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-4 grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="merge-entry-type">Entry type</Label>
+            <Select
+              value={entryType}
+              onValueChange={(v) =>
+                setEntryType(v as MergeTreatmentEntryInput["entryType"])
+              }
+            >
+              <SelectTrigger id="merge-entry-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CHRONOLOGY_ENTRY_TYPES.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-provider">Provider name (normalized)</Label>
+            <Input
+              id="merge-provider"
+              value={providerName}
+              onChange={(e) => setProviderName(e.target.value)}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-event-date">Event date</Label>
+            <Input
+              id="merge-event-date"
+              type="date"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-summary">Summary *</Label>
+            <Textarea
+              id="merge-summary"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              rows={2}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-details">Details</Label>
+            <Textarea
+              id="merge-details"
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              rows={2}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-diagnoses">
+              Diagnoses / ICD codes (comma-separated)
+            </Label>
+            <Input
+              id="merge-diagnoses"
+              value={diagnoses}
+              onChange={(e) => setDiagnoses(e.target.value)}
+              placeholder="e.g. M54.5, F33.1"
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-treatments">
+              Treatments (comma-separated)
+            </Label>
+            <Input
+              id="merge-treatments"
+              value={treatments}
+              onChange={(e) => setTreatments(e.target.value)}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="merge-medications">
+              Medications (comma-separated)
+            </Label>
+            <Input
+              id="merge-medications"
+              value={medications}
+              onChange={(e) => setMedications(e.target.value)}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        {error ? (
+          <p className="mt-3 text-sm text-destructive">{error}</p>
+        ) : null}
+        <DialogFooter className="mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={onSubmit}
+            disabled={isPending || !summary.trim()}
+            style={{ backgroundColor: BRAND, color: "#fff" }}
+            className="hover:opacity-90"
+          >
+            {isPending ? "Merging…" : "Merge into chronology"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function RejectEntryDialog({ entry }: { entry: ClientTreatmentLogRow }) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  function onSubmit() {
+    if (!reason.trim()) {
+      setError("Please enter a rejection reason.");
+      return;
+    }
+    setError(null);
+    startTransition(async () => {
+      const result = await rejectTreatmentEntry(entry.id, reason.trim());
+      if ("success" in result && result.success) {
+        toast.success("Entry rejected");
+        setOpen(false);
+      } else {
+        setError(
+          "error" in result
+            ? result.error
+            : "Reject failed. Please try again.",
+        );
+      }
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          Reject
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reject treatment entry</DialogTitle>
+          <DialogDescription>
+            The claimant will see a generic follow-up message. Your reason is
+            stored internally so we can reach out with specifics.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-4 grid gap-2">
+          <Label htmlFor="reject-reason">Rejection reason</Label>
+          <Textarea
+            id="reject-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={3}
+            placeholder="e.g. Provider unclear — please confirm name and address."
+            disabled={isPending}
+          />
+        </div>
+        {error ? (
+          <p className="mt-3 text-sm text-destructive">{error}</p>
+        ) : null}
+        <DialogFooter className="mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onSubmit}
+            disabled={isPending || !reason.trim()}
+          >
+            {isPending ? "Rejecting…" : "Reject entry"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
