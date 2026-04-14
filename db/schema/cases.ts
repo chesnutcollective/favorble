@@ -135,6 +135,12 @@ export const cases = pgTable(
 
     closedAt: timestamp("closed_at", { withTimezone: true }),
     closedReason: text("closed_reason"),
+
+    // Hold workflow (CaseStatus parity)
+    holdReason: text("hold_reason"),
+    holdUntil: timestamp("hold_until", { withTimezone: true }),
+    holdBy: uuid("hold_by").references(() => users.id),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

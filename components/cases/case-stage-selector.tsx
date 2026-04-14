@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -9,7 +10,6 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { StageChangeDialog } from "./stage-change-dialog";
 import {
@@ -93,14 +93,28 @@ export function CaseStageSelector({
     if (!selectedStage) return;
 
     startTransition(async () => {
-      await changeCaseStage({
-        caseId,
-        newStageId: selectedStage.id,
-      });
-      setDialogOpen(false);
-      setSelectedStage(null);
-      setStagesLoaded(false);
-      router.refresh();
+      try {
+        const result = await changeCaseStage({
+          caseId,
+          newStageId: selectedStage.id,
+        });
+        if (result?.externalSync === "failed") {
+          toast.warning(
+            "Stage updated locally, but CaseStatus sync failed. Client portal may be out of date.",
+          );
+        } else {
+          toast.success(`Status updated to ${selectedStage.name}`);
+        }
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update status";
+        toast.error(message);
+      } finally {
+        setDialogOpen(false);
+        setSelectedStage(null);
+        setStagesLoaded(false);
+        router.refresh();
+      }
     });
   }
 
@@ -128,12 +142,18 @@ export function CaseStageSelector({
         }}
       >
         <SelectTrigger
-          className="h-auto w-auto gap-1.5 border-none bg-transparent px-2 py-1 text-sm font-medium shadow-none hover:bg-accent focus:ring-0 focus:ring-offset-0"
-          style={{
-            color: currentStageGroupColor ?? undefined,
-          }}
+          aria-label="Update Status"
+          className="h-auto w-auto gap-1.5 border border-border bg-white px-2.5 py-1 text-sm font-medium shadow-none hover:border-[#CCC] focus:ring-0 focus:ring-offset-0"
         >
-          <SelectValue placeholder={currentStageName ?? "No stage"} />
+          <span className="flex items-center gap-1.5">
+            <span className="text-muted-foreground">Update Status:</span>
+            <span
+              className="font-semibold"
+              style={{ color: currentStageGroupColor ?? undefined }}
+            >
+              {currentStageName ?? "No stage"}
+            </span>
+          </span>
         </SelectTrigger>
         <SelectContent>
           {Object.entries(groupedStages).map(([groupName, { stages }]) => (
