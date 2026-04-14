@@ -227,7 +227,8 @@
 
 .ttn-main-area {
   flex: 1;
-  margin-left: var(--sidebar-w, 264px);
+  margin-left: var(--sidebar-w, 376px);
+  transition: margin-left 0.2s ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -255,15 +256,16 @@
 
 /* ── Tier 1: Icon Rail (56px, charcoal) ── */
 .ttn-rail {
-  width: 56px;
-  min-width: 56px;
+  width: 180px;
+  min-width: 180px;
+  transition: width 0.2s ease, min-width 0.2s ease;
   height: calc(100vh - 24px - var(--view-as-banner-h, 0px));
   background: var(--nav-rail-bg, #1C1C1E);
   border-radius: 12px 0 0 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 16px 0;
+  align-items: stretch;
+  padding: 16px 8px;
   user-select: none;
 }
 
@@ -279,6 +281,7 @@
   margin-bottom: 20px;
   flex-shrink: 0;
   text-decoration: none;
+  align-self: center;
 }
 
 .ttn-logo img {
@@ -354,6 +357,7 @@
   background: rgba(255, 255, 255, 0.1);
   margin: 8px 0;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .ttn-rail-spacer {
@@ -362,7 +366,7 @@
 
 /* Rail button */
 .ttn-rail-btn {
-  width: 36px;
+  width: 100%;
   height: 36px;
   border-radius: 8px;
   border: none;
@@ -370,11 +374,24 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, transform 0.15s ease;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 10px;
+  transition: background 0.15s ease, transform 0.15s ease, width 0.2s ease;
   position: relative;
   color: rgba(255, 255, 255, 0.35);
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Rail label */
+.ttn-rail-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .ttn-rail-btn svg {
@@ -594,7 +611,21 @@
 }
 
 .ttn-float[data-collapsed="true"] .ttn-rail {
+  width: 56px;
+  min-width: 56px;
   border-radius: 12px;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.ttn-float[data-collapsed="true"] .ttn-rail-btn {
+  width: 36px;
+  justify-content: center;
+  padding: 0;
+}
+
+.ttn-float[data-collapsed="true"] .ttn-rail-label {
+  display: none;
 }
 
 /* ── Collapse toggle button ── */
