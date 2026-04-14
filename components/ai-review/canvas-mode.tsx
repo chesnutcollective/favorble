@@ -44,12 +44,31 @@ function colorFor(name: string | null): string {
   return PALETTE[hash % PALETTE.length];
 }
 
-export function CanvasMode({ query }: { query: ReviewQuery }) {
+export function CanvasMode({
+  query,
+  initialList,
+  initialQueryKey,
+}: {
+  query: ReviewQuery;
+  /** Server-rendered initial payload to avoid a "Loading…" flash. */
+  initialList?: AiReviewListResult;
+  /** JSON stringified query the initialList was fetched for. */
+  initialQueryKey?: string;
+}) {
   const fetcher = useCallback(
     (q: ReviewQuery) => getReviewEntriesV2({ ...q, pageSize: 500 }),
     [],
   );
-  const { data, loading } = useFetchOnQuery<AiReviewListResult>(query, fetcher);
+  const hydrate =
+    initialList && initialQueryKey === JSON.stringify(query)
+      ? initialList
+      : null;
+  const { data, loading } = useFetchOnQuery<AiReviewListResult>(
+    query,
+    fetcher,
+    200,
+    hydrate,
+  );
   const entries = data?.entries ?? [];
 
   const [hover, setHover] = useState<AiReviewEntry | null>(null);

@@ -149,14 +149,17 @@ export async function PhiSheetWriterDashboard({ actor }: Props) {
               className="font-semibold leading-none tabular-nums"
               style={{ fontSize: 64, letterSpacing: "-0.02em", color: COLORS.text1 }}
             >
-              {hero.drafted30d} sheets · {hero.attorneyWin !== null ? `${hero.attorneyWin}% win` : "—"}
+              {hero.drafted30d} sheets
+              {hero.attorneyWin !== null ? ` · ${hero.attorneyWin}% win` : ""}
             </div>
             <p
               className="mt-3 text-[14px]"
               style={{ color: COLORS.text2, fontFamily: "system-ui", maxWidth: 460 }}
             >
-              Drafted in the last 30 days. Win rate measured on hearings that
-              concluded with one of your sheets in the file.
+              Drafted in the last 30 days.
+              {hero.attorneyWin !== null
+                ? " Win rate measured on hearings that concluded with one of your sheets in the file."
+                : " Win rate will appear once decided hearings accumulate."}
             </p>
           </div>
           <div className="text-right">

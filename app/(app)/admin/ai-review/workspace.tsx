@@ -63,6 +63,7 @@ export function AiReviewWorkspace({
   initialQuery,
   initialFacets,
   initialFocusEntry,
+  initialList,
 }: {
   initialMode: ReviewMode;
   initialView?: string;
@@ -178,9 +179,18 @@ export function AiReviewWorkspace({
             }
           />
         ) : effectiveMode === "table" ? (
-          <TableMode query={effectiveQuery} onChange={setQuery} />
+          <TableMode
+            query={effectiveQuery}
+            onChange={setQuery}
+            initialList={initialList}
+            initialQueryKey={JSON.stringify(initialQuery)}
+          />
         ) : (
-          <CanvasMode query={effectiveQuery} />
+          <CanvasMode
+            query={effectiveQuery}
+            initialList={initialList}
+            initialQueryKey={JSON.stringify(initialQuery)}
+          />
         )}
       </div>
 

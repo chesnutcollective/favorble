@@ -32,6 +32,11 @@ import { EntryDetail } from "./entry-detail";
 type Props = {
   query: ReviewQuery;
   onChange: (next: ReviewQuery) => void;
+  /** Server-rendered first page so the table doesn't flash "Loading…". */
+  initialList?: AiReviewListResult;
+  /** JSON stringified query the initialList was fetched for; used by the
+   * fetch hook to skip the initial refetch when the query hasn't changed. */
+  initialQueryKey?: string;
 };
 
 const COLUMNS = [
@@ -45,7 +50,12 @@ const COLUMNS = [
   { key: "status", label: "Status", width: "w-[90px]" },
 ] as const;
 
-export function TableMode({ query, onChange }: Props) {
+export function TableMode({
+  query,
+  onChange,
+  initialList,
+  initialQueryKey,
+}: Props) {
   const router = useRouter();
   const [drawerEntry, setDrawerEntry] = useState<AiReviewEntry | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -56,7 +66,18 @@ export function TableMode({ query, onChange }: Props) {
     (q: ReviewQuery) => getReviewEntriesV2({ ...q, pageSize: 50 }),
     [],
   );
-  const { data, loading } = useFetchOnQuery<AiReviewListResult>(query, fetcher);
+  // Hydrate from server-rendered list only when the current query matches
+  // the one the payload was fetched for.
+  const hydrate =
+    initialList && initialQueryKey === JSON.stringify(query)
+      ? initialList
+      : null;
+  const { data, loading } = useFetchOnQuery<AiReviewListResult>(
+    query,
+    fetcher,
+    200,
+    hydrate,
+  );
 
   const entries = data?.entries ?? [];
   const totalCount = data?.totalCount ?? 0;

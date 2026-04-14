@@ -135,22 +135,38 @@ export async function AppealsCouncilDashboard({ actor }: Props) {
             >
               Grant Rate · Year to Date
             </div>
-            <div
-              className="font-semibold leading-none tabular-nums"
-              style={{
-                fontSize: 140,
-                letterSpacing: "-0.02em",
-                color: COLORS.text1,
-              }}
-            >
-              {grant.grantRate !== null ? `${grant.grantRate}%` : "—"}
-            </div>
+            {grant.grantRate !== null ? (
+              <div
+                className="font-semibold leading-none tabular-nums"
+                style={{
+                  fontSize: 140,
+                  letterSpacing: "-0.02em",
+                  color: COLORS.text1,
+                }}
+              >
+                {grant.grantRate}%
+              </div>
+            ) : (
+              <div
+                className="font-semibold leading-tight"
+                style={{
+                  fontSize: 28,
+                  letterSpacing: "-0.01em",
+                  color: COLORS.text2,
+                  fontFamily: "system-ui",
+                  maxWidth: 460,
+                }}
+              >
+                No decided briefs this year yet.
+              </div>
+            )}
             <p
               className="mt-3 text-[14px]"
               style={{ color: COLORS.text2, fontFamily: "system-ui", maxWidth: 460 }}
             >
-              {grant.granted} granted · {grant.remanded} remanded · {grant.denied} denied
-              ({grant.total} decided this year)
+              {grant.total > 0
+                ? `${grant.granted} granted · ${grant.remanded} remanded · ${grant.denied} denied (${grant.total} decided this year)`
+                : "Grant rate will appear once the Appeals Council rules on a filed brief."}
             </p>
             {grant.grantRate !== null && (
               <div className="mt-4 max-w-md" style={{ fontFamily: "system-ui" }}>

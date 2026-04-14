@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -83,13 +84,19 @@ export function useReviewState() {
  * server action, so this hook centralizes debounce + abort + loading.
  *
  * Caller passes the fetcher; we handle the rest.
+ *
+ * Pass `initialData` to hydrate from a server-rendered payload — the hook
+ * will skip the initial fetch when the query hasn't changed since
+ * hydration, which avoids the "Loading… forever because data is still
+ * null" flash on first paint. Subsequent query changes fetch as usual.
  */
 export function useFetchOnQuery<T>(
   query: ReviewQuery,
   fetcher: (q: ReviewQuery) => Promise<T>,
   debounceMs = 200,
+  initialData: T | null = null,
 ): { data: T | null; loading: boolean; reload: () => void } {
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null>(initialData);
   const [loading, setLoading] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
 
@@ -97,7 +104,18 @@ export function useFetchOnQuery<T>(
   // render, but the canonical string only changes when filters do.
   const key = JSON.stringify(query);
 
+  // Remember which key the initialData corresponds to so we only skip the
+  // first fetch while the query still matches. Once consumed, clear the
+  // ref so future effect runs behave normally.
+  const hydratedKeyRef = useRef<string | null>(
+    initialData != null ? key : null,
+  );
+
   useEffect(() => {
+    if (hydratedKeyRef.current === key && reloadToken === 0) {
+      hydratedKeyRef.current = null;
+      return;
+    }
     let cancelled = false;
     const handle = setTimeout(async () => {
       setLoading(true);

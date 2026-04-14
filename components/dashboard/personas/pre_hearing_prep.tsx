@@ -139,8 +139,11 @@ export async function PreHearingPrepDashboard({ actor }: Props) {
             value={overallPct}
             size={120}
             strokeWidth={10}
-            color={accent}
-            trackColor="rgba(255,255,255,0.35)"
+            // Persona `accent` is dark navy and the hero background is a
+            // dark-navy gradient — the ring would be invisible. Use the
+            // emerald highlight so the filled arc stays readable.
+            color={COLORS.emerald}
+            trackColor="rgba(255,255,255,0.25)"
             centerLabel={`${overallPct}%`}
             centerSubtitle="prep"
           />
