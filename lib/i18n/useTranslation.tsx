@@ -21,12 +21,12 @@
  */
 
 import * as React from "react";
+import { DEFAULT_LOCALE, type Locale, SUPPORTED_LOCALES } from "./messages";
 import {
-  DEFAULT_LOCALE,
-  type Locale,
-  SUPPORTED_LOCALES,
-} from "./messages";
-import { getTranslation, type Translator, resolveLocale } from "./getTranslation";
+  getTranslation,
+  type Translator,
+  resolveLocale,
+} from "./getTranslation";
 
 const STORAGE_KEY = "favorble_locale";
 const URL_PARAM = "lang";

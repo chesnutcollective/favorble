@@ -451,10 +451,7 @@ export async function addUnbilledTimeToInvoice(input: {
   return { imported, totalCents };
 }
 
-export async function sendInvoice(input: {
-  id: string;
-  email: string;
-}) {
+export async function sendInvoice(input: { id: string; email: string }) {
   const session = await requireSession();
 
   await db
@@ -474,6 +471,66 @@ export async function sendInvoice(input: {
 
   revalidatePath("/billing/invoices");
   revalidatePath(`/billing/invoices/${input.id}`);
+}
+
+// ---------- Expenses ----------
+
+export async function getExpenses() {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({
+        id: expenses.id,
+        description: expenses.description,
+        amountCents: expenses.amountCents,
+        expenseType: expenses.expenseType,
+        reimbursable: expenses.reimbursable,
+        incurredDate: expenses.incurredDate,
+        billedAt: expenses.billedAt,
+        caseId: expenses.caseId,
+        caseNumber: cases.caseNumber,
+      })
+      .from(expenses)
+      .leftJoin(cases, eq(expenses.caseId, cases.id))
+      .where(eq(expenses.organizationId, session.organizationId))
+      .orderBy(desc(expenses.incurredDate))
+      .limit(200);
+    return rows;
+  } catch (err) {
+    logger.error("getExpenses failed", { error: err });
+    return [];
+  }
+}
+
+export async function createExpense(input: {
+  caseId?: string;
+  description: string;
+  amountCents: number;
+  expenseType?:
+    | "filing_fee"
+    | "medical_record_fee"
+    | "copy"
+    | "mileage"
+    | "other";
+  reimbursable?: boolean;
+  incurredDate?: Date;
+}) {
+  const session = await requireSession();
+  const [row] = await db
+    .insert(expenses)
+    .values({
+      organizationId: session.organizationId,
+      caseId: input.caseId,
+      description: input.description,
+      amountCents: input.amountCents,
+      expenseType: input.expenseType ?? "other",
+      reimbursable: input.reimbursable ?? true,
+      incurredDate: input.incurredDate ?? new Date(),
+      createdBy: session.id,
+    })
+    .returning();
+  revalidatePath("/billing");
+  return row;
 }
 
 // ---------- Pickers ----------

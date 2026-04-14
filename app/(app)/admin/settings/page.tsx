@@ -12,6 +12,7 @@ import {
 import { eq, count, and, isNull } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -136,9 +137,9 @@ export default async function SettingsPage() {
                 <h3 className="text-[15px] font-semibold text-[#171717]">
                   {org?.name ?? "—"}
                 </h3>
-                <button className="text-[11px] font-medium text-[#0070F3] hover:text-[#005BB5] transition-colors duration-200">
+                <Button variant="link" className="text-[11px] font-medium text-[#0070F3] hover:text-[#005BB5] h-auto p-0">
                   Edit
-                </button>
+                </Button>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
@@ -326,7 +327,7 @@ export default async function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-[#FECACA] bg-[#FEE2E2]/30 hover:border-[#FCA5A5]">
+      <Card className="border-[#FECACA] bg-[#FEE2E2]/30 hover:border-[#FCA5A5] transition-colors duration-200">
         <CardContent className="p-6">
           <div className="text-[12px] font-medium text-[#991B1B] uppercase tracking-[0.05em] mb-1">
             Danger Zone
@@ -345,9 +346,9 @@ export default async function SettingsPage() {
                   Download a complete archive of your organization data.
                 </p>
               </div>
-              <button className="shrink-0 text-[12px] font-medium text-[#171717] border border-[#EAEAEA] rounded-md px-3 py-1.5 bg-white hover:bg-[#FAFAFA] transition-colors duration-200">
+              <Button variant="outline" size="sm" className="shrink-0 text-[12px] font-medium">
                 Export
-              </button>
+              </Button>
             </div>
 
             <div className="flex items-center justify-between rounded-lg border border-[#FECACA] bg-white p-4">
@@ -359,9 +360,9 @@ export default async function SettingsPage() {
                   Permanently delete this organization and all of its data.
                 </p>
               </div>
-              <button className="shrink-0 text-[12px] font-medium text-white bg-[#EE0000] border border-[#EE0000] rounded-md px-3 py-1.5 hover:bg-[#CC0000] transition-colors duration-200">
+              <Button variant="destructive" size="sm" className="shrink-0 text-[12px] font-medium">
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         </CardContent>

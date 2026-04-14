@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth/session";
-import {
-  getTrustAccounts,
-  getTrustTransactions,
-} from "@/app/actions/trust";
+import { getTrustAccounts, getTrustTransactions } from "@/app/actions/trust";
 import { getCasePicker } from "@/app/actions/billing";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
@@ -44,8 +41,7 @@ export default async function TrustPage() {
       )
         .flat()
         .sort(
-          (a, b) =>
-            b.transactionDate.getTime() - a.transactionDate.getTime(),
+          (a, b) => b.transactionDate.getTime() - a.transactionDate.getTime(),
         )
         .slice(0, 20)
     : [];
@@ -55,9 +51,7 @@ export default async function TrustPage() {
       <PageHeader
         title="Trust Accounting"
         description="IOLTA trust accounts, deposits, withdrawals, and reconciliation."
-        actions={
-          <RecordTransactionDialog accounts={accounts} cases={cases} />
-        }
+        actions={<RecordTransactionDialog accounts={accounts} cases={cases} />}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -124,11 +118,11 @@ export default async function TrustPage() {
 
           <Card>
             <CardContent className="p-5">
-              <h2 className="text-sm font-semibold mb-3">Recent Transactions</h2>
+              <h2 className="text-sm font-semibold mb-3">
+                Recent Transactions
+              </h2>
               {allTx.length === 0 ? (
-                <p className="text-xs text-[#666] py-4">
-                  No transactions yet.
-                </p>
+                <p className="text-xs text-[#666] py-4">No transactions yet.</p>
               ) : (
                 <ul className="divide-y divide-[#EAEAEA]">
                   {allTx.map((t) => {

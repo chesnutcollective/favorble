@@ -5,12 +5,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Clock01Icon,
@@ -124,7 +119,8 @@ function formatCountdown(targetIso: string | null) {
   const target = new Date(targetIso);
   const now = new Date();
   const diffMs = target.getTime() - now.getTime();
-  if (diffMs < 0) return { text: "In progress / past", color: "#666", isUrgent: false };
+  if (diffMs < 0)
+    return { text: "In progress / past", color: "#666", isUrgent: false };
 
   const diffHours = diffMs / (1000 * 60 * 60);
   const diffDays = diffHours / 24;
@@ -165,7 +161,11 @@ function InfoItem({
   );
 }
 
-export function HearingWorkspaceClient({ data }: { data: HearingWorkspaceData }) {
+export function HearingWorkspaceClient({
+  data,
+}: {
+  data: HearingWorkspaceData;
+}) {
   const [countdown, setCountdown] = useState(() =>
     formatCountdown(data.hearingStartIso),
   );
@@ -211,11 +211,7 @@ export function HearingWorkspaceClient({ data }: { data: HearingWorkspaceData })
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <HugeiconsIcon
-            icon={Clock01Icon}
-            size={18}
-            color={countdown.color}
-          />
+          <HugeiconsIcon icon={Clock01Icon} size={18} color={countdown.color} />
           <div className="min-w-0">
             <p
               className="text-sm font-semibold truncate"
@@ -503,9 +499,11 @@ export function HearingWorkspaceClient({ data }: { data: HearingWorkspaceData })
                               <Link
                                 key={d.caseId}
                                 href={`/cases/${d.caseId}`}
-                                className="flex items-center justify-between border-b border-[#EAEAEA] py-1.5 text-sm hover:bg-[#F8F9FC]"
+                                className="flex items-center justify-between border-b border-[#EAEAEA] py-1.5 text-sm hover:bg-[#F8F9FC] transition-colors duration-200"
                               >
-                                <span className="font-medium">{d.caseNumber}</span>
+                                <span className="font-medium">
+                                  {d.caseNumber}
+                                </span>
                                 <span className="text-xs text-muted-foreground">
                                   {d.closedAt
                                     ? new Date(d.closedAt).toLocaleDateString()
@@ -544,9 +542,7 @@ export function HearingWorkspaceClient({ data }: { data: HearingWorkspaceData })
                     <h3 className="font-medium text-foreground">
                       Medical &amp; SSA Correspondence
                     </h3>
-                    <Badge variant="outline">
-                      {data.documentTotal} total
-                    </Badge>
+                    <Badge variant="outline">{data.documentTotal} total</Badge>
                   </div>
 
                   {data.documentCategories.length === 0 ? (
@@ -637,8 +633,8 @@ export function HearingWorkspaceClient({ data }: { data: HearingWorkspaceData })
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        No PHI sheet has been generated for this case yet.
-                        Open the PHI Writer to draft one before the hearing.
+                        No PHI sheet has been generated for this case yet. Open
+                        the PHI Writer to draft one before the hearing.
                       </p>
                       <Button asChild>
                         <Link href={`/phi-writer/${data.caseId}`}>
@@ -776,10 +772,7 @@ function SidebarLink({
     );
   }
   return (
-    <Link
-      href={href}
-      className="block text-sm text-primary hover:underline"
-    >
+    <Link href={href} className="block text-sm text-primary hover:underline">
       {label}
     </Link>
   );

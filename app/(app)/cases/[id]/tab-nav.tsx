@@ -25,9 +25,7 @@ export function CaseTabNav({ caseId }: { caseId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav
-      className="flex gap-1 border-b border-[#EAEAEA] overflow-x-auto bg-background -mx-3 px-3 sm:mx-0 sm:px-0 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
+    <nav className="flex gap-1 border-b border-[#EAEAEA] overflow-x-auto bg-background -mx-3 px-3 sm:mx-0 sm:px-0 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tabs.map((tab) => {
         const href = `/cases/${caseId}/${tab.segment}`;
         const isActive = pathname.endsWith(`/${tab.segment}`);

@@ -177,11 +177,7 @@ export function AljStatsClient({ rows }: { rows: AljStatsRow[] }) {
                   keyName="hearingCount"
                   align="right"
                 />
-                <SortHeader
-                  label="Win Rate"
-                  keyName="winRate"
-                  align="right"
-                />
+                <SortHeader label="Win Rate" keyName="winRate" align="right" />
                 <SortHeader
                   label="Avg Duration"
                   keyName="avgDurationMinutes"
@@ -220,9 +216,7 @@ export function AljStatsClient({ rows }: { rows: AljStatsRow[] }) {
                           winRateColor(row.winRate, total),
                         )}
                       >
-                        {total > 0
-                          ? `${(row.winRate * 100).toFixed(1)}%`
-                          : "—"}
+                        {total > 0 ? `${(row.winRate * 100).toFixed(1)}%` : "—"}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-[#666]">
                         {formatDuration(row.avgDurationMinutes)}

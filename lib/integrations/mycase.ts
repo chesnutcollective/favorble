@@ -215,7 +215,9 @@ async function myCaseFetch<T>(
     }
   }
 
-  throw lastError ?? new Error(`MyCase fetch failed after ${MAX_RETRIES} retries`);
+  throw (
+    lastError ?? new Error(`MyCase fetch failed after ${MAX_RETRIES} retries`)
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -349,9 +351,11 @@ export function mapCaseStatus(
 
   if (s === "open" || s === "active" || s === "pending") return "active";
   if (s === "on hold" || s === "on_hold" || s === "paused") return "on_hold";
-  if (s === "closed" || s === "closed - won" || s === "won") return "closed_won";
+  if (s === "closed" || s === "closed - won" || s === "won")
+    return "closed_won";
   if (s === "closed - lost" || s === "lost") return "closed_lost";
-  if (s === "closed - withdrawn" || s === "withdrawn") return "closed_withdrawn";
+  if (s === "closed - withdrawn" || s === "withdrawn")
+    return "closed_withdrawn";
 
   // Default: treat unknown as active so nothing is lost
   return "active";
@@ -362,7 +366,17 @@ export function mapCaseStatus(
  */
 export function mapLeadStatus(
   myCaseStatus: string,
-): "new" | "contacted" | "intake_scheduled" | "intake_in_progress" | "contract_sent" | "contract_signed" | "converted" | "declined" | "unresponsive" | "disqualified" {
+):
+  | "new"
+  | "contacted"
+  | "intake_scheduled"
+  | "intake_in_progress"
+  | "contract_sent"
+  | "contract_signed"
+  | "converted"
+  | "declined"
+  | "unresponsive"
+  | "disqualified" {
   const s = myCaseStatus.toLowerCase().trim();
 
   if (s === "new" || s === "pending") return "new";

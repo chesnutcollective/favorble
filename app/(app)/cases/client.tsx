@@ -61,6 +61,7 @@ type CaseRow = {
   ssaOffice: string | null;
   createdAt: string;
   updatedAt: string;
+  atRisk?: boolean;
   claimant: { firstName: string; lastName: string } | null;
   assignedStaff: {
     userId: string;
@@ -638,8 +639,13 @@ export function CasesListClient({
                           ? `${c.claimant.lastName}, ${c.claimant.firstName}`
                           : "Unknown"}
                       </p>
-                      <p className="text-[12px] text-[#999] font-mono">
+                      <p className="text-[12px] text-[#999] font-mono flex items-center gap-2">
                         {c.caseNumber}
+                        {c.atRisk && (
+                          <span className="inline-flex items-center rounded-full bg-[rgba(209,69,59,0.10)] px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-[#d1453b]">
+                            At risk
+                          </span>
+                        )}
                       </p>
                     </Link>
                   </TableCell>

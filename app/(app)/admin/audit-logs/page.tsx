@@ -66,9 +66,10 @@ export default async function AuditLogsPage({
 
   const filters: AuditLogFilters = {
     userId: params.userId || undefined,
-    entityType: params.entityType && params.entityType !== "all"
-      ? params.entityType
-      : undefined,
+    entityType:
+      params.entityType && params.entityType !== "all"
+        ? params.entityType
+        : undefined,
     actionPattern: params.action || undefined,
     startDate,
     endDate,
@@ -93,7 +94,9 @@ export default async function AuditLogsPage({
         userId: params.userId ?? "",
         entityType: params.entityType ?? "all",
         action: params.action ?? "",
-        range: params.range ?? (params.startDate || params.endDate ? "custom" : "7d"),
+        range:
+          params.range ??
+          (params.startDate || params.endDate ? "custom" : "7d"),
         startDate: params.startDate ?? "",
         endDate: params.endDate ?? "",
         severity: params.severity ?? "all",

@@ -34,7 +34,10 @@ export function buildRailwayDocumentKey(
  * Build the full storage_path string stored in the documents table.
  * Format: railway://{bucket-name}/{key}
  */
-export function buildRailwayStoragePath(bucketName: string, key: string): string {
+export function buildRailwayStoragePath(
+  bucketName: string,
+  key: string,
+): string {
   return `${RAILWAY_STORAGE_PREFIX}${bucketName}/${key}`;
 }
 

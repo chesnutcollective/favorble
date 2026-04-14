@@ -28,10 +28,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
 
   return (
     <div
-      className={cn(
-        "inline-flex items-center gap-2",
-        className,
-      )}
+      className={cn("inline-flex items-center gap-2", className)}
       aria-label={t("common.languageToggle")}
     >
       <span className="sr-only">{t("common.languageToggle")}</span>

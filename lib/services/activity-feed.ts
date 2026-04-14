@@ -132,7 +132,10 @@ async function fetchDocumentProcessingActivity(): Promise<ActivityItem[]> {
         fileName: documents.fileName,
       })
       .from(documentProcessingResults)
-      .leftJoin(documents, eq(documents.id, documentProcessingResults.documentId))
+      .leftJoin(
+        documents,
+        eq(documents.id, documentProcessingResults.documentId),
+      )
       .orderBy(desc(documentProcessingResults.updatedAt))
       .limit(PER_SOURCE_LIMIT);
 
@@ -284,9 +287,7 @@ async function fetchAuditLogActivity(): Promise<ActivityItem[]> {
     return rows.map((row): ActivityItem => {
       const action = row.action.toLowerCase();
       const status: ActivityItem["status"] =
-        action.includes("delete") || action.includes("fail")
-          ? "warn"
-          : "info";
+        action.includes("delete") || action.includes("fail") ? "warn" : "info";
 
       const category: ActivityItem["category"] = mapEntityTypeToCategory(
         row.entityType,
@@ -309,9 +310,7 @@ async function fetchAuditLogActivity(): Promise<ActivityItem[]> {
   }
 }
 
-function mapEntityTypeToCategory(
-  entityType: string,
-): ActivityItem["category"] {
+function mapEntityTypeToCategory(entityType: string): ActivityItem["category"] {
   const t = entityType.toLowerCase();
   if (t.includes("case")) return "case";
   if (t.includes("document")) return "document";
@@ -337,19 +336,14 @@ function formatAuditAction(action: string): string {
 export async function fetchActivityFeed(
   limit: number = DEFAULT_LIMIT,
 ): Promise<ActivityItem[]> {
-  const [
-    ereItems,
-    docProcItems,
-    chronItems,
-    userItems,
-    auditItems,
-  ] = await Promise.all([
-    fetchEreJobActivity(),
-    fetchDocumentProcessingActivity(),
-    fetchChronologyActivity(),
-    fetchUserSignInActivity(),
-    fetchAuditLogActivity(),
-  ]);
+  const [ereItems, docProcItems, chronItems, userItems, auditItems] =
+    await Promise.all([
+      fetchEreJobActivity(),
+      fetchDocumentProcessingActivity(),
+      fetchChronologyActivity(),
+      fetchUserSignInActivity(),
+      fetchAuditLogActivity(),
+    ]);
 
   const merged = [
     ...ereItems,
@@ -360,8 +354,7 @@ export async function fetchActivityFeed(
   ];
 
   merged.sort(
-    (a, b) =>
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
 
   return merged.slice(0, limit);

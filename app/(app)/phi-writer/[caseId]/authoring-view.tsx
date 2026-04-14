@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -254,7 +255,10 @@ export function PhiAuthoringView({
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="rounded-md p-2"
-            style={{ backgroundColor: "rgba(255,255,255,0.5)", color: tone.color }}
+            style={{
+              backgroundColor: "rgba(255,255,255,0.5)",
+              color: tone.color,
+            }}
           >
             <HugeiconsIcon icon={CalendarCheckOut01Icon} size={20} />
           </div>
@@ -383,15 +387,9 @@ export function PhiAuthoringView({
             <CardContent className="p-4 space-y-2 text-sm">
               <KV label="Hearing Date" value={fmtDate(bundle.hearingDate)} />
               <KV label="ALJ" value={bundle.adminLawJudge ?? "—"} />
-              <KV
-                label="Hearing Office"
-                value={bundle.hearingOffice ?? "—"}
-              />
+              <KV label="Hearing Office" value={bundle.hearingOffice ?? "—"} />
               <KV label="SSA Office" value={bundle.ssaOffice ?? "—"} />
-              <KV
-                label="SSA Claim #"
-                value={bundle.ssaClaimNumber ?? "—"}
-              />
+              <KV label="SSA Claim #" value={bundle.ssaClaimNumber ?? "—"} />
               <KV
                 label="Application"
                 value={
@@ -411,10 +409,7 @@ export function PhiAuthoringView({
                 label="Date Last Insured"
                 value={fmtDate(bundle.dateLastInsured)}
               />
-              <KV
-                label="Current Stage"
-                value={bundle.stageName ?? "—"}
-              />
+              <KV label="Current Stage" value={bundle.stageName ?? "—"} />
             </CardContent>
           </Card>
 
@@ -425,7 +420,8 @@ export function PhiAuthoringView({
                 Documents ({bundle.documents.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 max-h-[320px] overflow-auto">
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[320px]">
               {bundle.documents.length === 0 ? (
                 <p className="p-4 text-xs text-muted-foreground">
                   No documents on file.
@@ -457,6 +453,7 @@ export function PhiAuthoringView({
                   ))}
                 </ul>
               )}
+              </ScrollArea>
             </CardContent>
           </Card>
 
@@ -502,10 +499,7 @@ export function PhiAuthoringView({
               style={{ backgroundColor: ACCENT_SOFT }}
             >
               <div className="flex items-center justify-between">
-                <CardTitle
-                  className="text-base"
-                  style={{ color: ACCENT }}
-                >
+                <CardTitle className="text-base" style={{ color: ACCENT }}>
                   PHI Sheet Draft
                 </CardTitle>
                 {bundle.phiSheetStartedAt && (
@@ -519,25 +513,19 @@ export function PhiAuthoringView({
               <DraftField
                 label="Case Overview"
                 value={draft.caseOverview}
-                onChange={(v) =>
-                  setDraft((d) => ({ ...d, caseOverview: v }))
-                }
+                onChange={(v) => setDraft((d) => ({ ...d, caseOverview: v }))}
                 placeholder="Summarize the claim, alleged onset, and how we got to hearing…"
               />
               <DraftField
                 label="Medical Summary"
                 value={draft.medicalSummary}
-                onChange={(v) =>
-                  setDraft((d) => ({ ...d, medicalSummary: v }))
-                }
+                onChange={(v) => setDraft((d) => ({ ...d, medicalSummary: v }))}
                 placeholder="High-level summary of treatment history and supporting evidence…"
               />
               <DraftField
                 label="Primary Impairments"
                 value={draft.impairments}
-                onChange={(v) =>
-                  setDraft((d) => ({ ...d, impairments: v }))
-                }
+                onChange={(v) => setDraft((d) => ({ ...d, impairments: v }))}
                 placeholder="List severe impairments, listings considered, functional limitations…"
               />
               <DraftField
@@ -598,7 +586,8 @@ export function PhiAuthoringView({
                 Medical Chronology ({sortedChronology.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 max-h-[820px] overflow-auto">
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[820px]">
               {sortedChronology.length === 0 ? (
                 <p className="p-4 text-xs text-muted-foreground">
                   No chronology entries yet.
@@ -667,6 +656,7 @@ export function PhiAuthoringView({
                   ))}
                 </ul>
               )}
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>
