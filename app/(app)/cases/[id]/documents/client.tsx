@@ -21,6 +21,7 @@ import {
   deleteDocument,
 } from "@/app/actions/documents";
 import { triggerLangExtract } from "@/app/actions/extract";
+import { ShareWithClientButton } from "@/components/documents/share-with-client-button";
 
 type Template = {
   id: string;
@@ -31,11 +32,16 @@ type Template = {
   templateContent: string | null;
 };
 
+// Extended row shape — the page passes pre-computed `shareCount` per row so
+// the share-with-client control can render its badge.
+type DocumentItemWithShare = DocumentItem & { shareCount?: number };
+
 type CaseDocumentsClientProps = {
   caseId: string;
   organizationId: string;
   userId: string;
-  initialDocuments: DocumentItem[];
+  claimantName: string;
+  initialDocuments: DocumentItemWithShare[];
   templates: Template[];
   caseData: {
     claimantName: string;
@@ -53,12 +59,14 @@ export function CaseDocumentsClient({
   caseId,
   organizationId,
   userId,
+  claimantName,
   initialDocuments,
   templates,
   caseData,
 }: CaseDocumentsClientProps) {
   const router = useRouter();
-  const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
+  const [documents, setDocuments] =
+    useState<DocumentItemWithShare[]>(initialDocuments);
   const [showUpload, setShowUpload] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<{
     fileName: string;
@@ -230,6 +238,16 @@ export function CaseDocumentsClient({
         <DocumentUpload onUpload={handleUpload} className="mb-4" />
       )}
 
+      {/* Client visibility — share firm-owned docs to /portal/documents. */}
+      <ClientVisibilitySection
+        documents={documents.filter(
+          // Don't offer "share" on documents the client uploaded themselves
+          // or on Chronicle metadata stubs with no backing PDF.
+          (d) => d.source !== "case_status" && !d.isMetadataOnly,
+        )}
+        claimantName={claimantName}
+      />
+
       <DocumentList
         documents={documents}
         onPreview={handlePreview}
@@ -276,6 +294,68 @@ export function CaseDocumentsClient({
         onGenerated={handleTemplateGenerated}
       />
     </div>
+  );
+}
+
+/**
+ * Firm-side "who can see what" surface. Lists every firm-owned document on
+ * this case and lets staff flip it into /portal/documents with a single
+ * click. Kept visually compact so it doesn't dwarf the main DocumentList —
+ * most cases will only have a handful of documents worth sharing.
+ */
+function ClientVisibilitySection({
+  documents,
+  claimantName,
+}: {
+  documents: DocumentItemWithShare[];
+  claimantName: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  if (documents.length === 0) return null;
+
+  const sharedCount = documents.reduce(
+    (acc, d) => acc + (d.shareCount ?? 0),
+    0,
+  );
+
+  return (
+    <details
+      open={expanded}
+      onToggle={(e) => setExpanded((e.target as HTMLDetailsElement).open)}
+      className="rounded-md border border-[#EAEAEA] bg-white"
+    >
+      <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground">
+        <span>
+          Client portal visibility
+          {sharedCount > 0 ? (
+            <span className="ml-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+              {sharedCount} shared
+            </span>
+          ) : null}
+        </span>
+        <span className="text-[12px] text-muted-foreground">
+          {expanded ? "Hide" : "Manage"}
+        </span>
+      </summary>
+      <ul className="divide-y divide-[#EAEAEA] border-t border-[#EAEAEA]">
+        {documents.map((doc) => (
+          <li
+            key={doc.id}
+            className="flex items-center justify-between gap-3 px-4 py-2.5"
+          >
+            <span className="min-w-0 flex-1 truncate text-sm text-foreground">
+              {doc.fileName}
+            </span>
+            <ShareWithClientButton
+              documentId={doc.id}
+              fileName={doc.fileName}
+              claimantName={claimantName}
+              initialShareCount={doc.shareCount ?? 0}
+            />
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

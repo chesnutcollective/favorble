@@ -36,6 +36,14 @@ export const documents = pgTable(
     version: integer("version").notNull().default(1),
     parentDocumentId: uuid("parent_document_id"),
     isConfidential: boolean("is_confidential").notNull().default(false),
+    /**
+     * Denormalized flag set by shareDocumentWithClient when at least one
+     * active (non-revoked) document_shares row exists. Enables the cases
+     * documents view to badge + filter without joining document_shares on
+     * every render. Source of truth is still document_shares — this flag is
+     * best-effort.
+     */
+    visibleToClient: boolean("visible_to_client").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
