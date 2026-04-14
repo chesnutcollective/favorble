@@ -8,11 +8,8 @@ import { Message01Icon } from "@hugeicons/core-free-icons";
 import * as caseStatusIntegration from "@/lib/integrations/case-status";
 import { MessageFeed } from "./message-feed";
 import { MessagesFilterStrip } from "./filter-strip";
-import {
-  getMessages,
-  parseMessageFilters,
-  type MessageRow,
-} from "@/app/actions/messages";
+import { getMessages, type MessageRow } from "@/app/actions/messages";
+import { parseMessageFilters } from "@/lib/messages/filters";
 
 export const metadata: Metadata = {
   title: "Messages",
