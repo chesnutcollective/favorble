@@ -6,9 +6,12 @@ import {
   chatChannelMembers,
   chatMessages,
   users,
+  cases,
+  contacts,
+  caseContacts,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
-import { and, eq, desc, or, gt, sql, count } from "drizzle-orm";
+import { and, eq, desc, or, gt, sql, count, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 
@@ -189,6 +192,135 @@ export async function sendMessage(channelId: string, content: string) {
     return row;
   } catch (err) {
     logger.error("sendMessage failed", { error: err });
+    throw err;
+  }
+}
+
+/**
+ * Get or create the case-scoped team chat channel for a case.
+ *
+ * Case chat channels are keyed on `chat_channels.caseId` with
+ * channelType="case". We look up the first existing channel for the case in
+ * the current org; if none exists, we create one named after the claimant
+ * (falling back to the case number) and auto-join the current user so they
+ * can post right away.
+ */
+export async function getOrCreateCaseChannel(caseId: string): Promise<{
+  id: string;
+  name: string;
+}> {
+  const session = await requireSession();
+
+  // 1. Verify the case exists in this org (guards against cross-org access).
+  const [caseRow] = await db
+    .select({
+      id: cases.id,
+      caseNumber: cases.caseNumber,
+    })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!caseRow) {
+    throw new Error("Case not found");
+  }
+
+  // 2. Look for an existing case channel.
+  const [existing] = await db
+    .select({ id: chatChannels.id, name: chatChannels.name })
+    .from(chatChannels)
+    .where(
+      and(
+        eq(chatChannels.organizationId, session.organizationId),
+        eq(chatChannels.channelType, "case"),
+        eq(chatChannels.caseId, caseId),
+      ),
+    )
+    .limit(1);
+
+  if (existing) {
+    // Ensure the current user has a membership row so unread counts work.
+    await db
+      .insert(chatChannelMembers)
+      .values({
+        channelId: existing.id,
+        userId: session.id,
+      })
+      .onConflictDoNothing({
+        target: [chatChannelMembers.channelId, chatChannelMembers.userId],
+      });
+
+    return existing;
+  }
+
+  // 3. Build a human-friendly channel name: "Claimant Name · CASE-123".
+  let claimantLabel: string | null = null;
+  try {
+    const [primary] = await db
+      .select({
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+      })
+      .from(caseContacts)
+      .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+      .where(
+        and(
+          eq(caseContacts.caseId, caseId),
+          eq(caseContacts.isPrimary, true),
+          eq(caseContacts.relationship, "claimant"),
+        ),
+      )
+      .limit(1);
+    if (primary) {
+      claimantLabel =
+        [primary.firstName, primary.lastName].filter(Boolean).join(" ").trim() ||
+        null;
+    }
+  } catch (err) {
+    logger.warn("getOrCreateCaseChannel: claimant lookup failed", {
+      error: err,
+    });
+  }
+
+  const channelName = claimantLabel
+    ? `${claimantLabel} · ${caseRow.caseNumber}`
+    : caseRow.caseNumber;
+
+  try {
+    const [created] = await db
+      .insert(chatChannels)
+      .values({
+        organizationId: session.organizationId,
+        name: channelName,
+        description: `Case-scoped team chat for ${caseRow.caseNumber}`,
+        channelType: "case",
+        caseId,
+        isPrivate: false,
+        createdBy: session.id,
+      })
+      .returning({ id: chatChannels.id, name: chatChannels.name });
+
+    // Auto-join the creator so unread counts start fresh.
+    await db
+      .insert(chatChannelMembers)
+      .values({
+        channelId: created.id,
+        userId: session.id,
+        lastReadAt: new Date(),
+      })
+      .onConflictDoNothing({
+        target: [chatChannelMembers.channelId, chatChannelMembers.userId],
+      });
+
+    return created;
+  } catch (err) {
+    logger.error("getOrCreateCaseChannel failed", { error: err, caseId });
     throw err;
   }
 }

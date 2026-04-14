@@ -6,6 +6,7 @@ export * from "./cases";
 export * from "./contacts";
 export * from "./custom-fields";
 export * from "./workflows";
+export * from "./case-workflow-overrides";
 export * from "./tasks";
 export * from "./documents";
 export * from "./communications";
