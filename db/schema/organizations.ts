@@ -5,6 +5,9 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   settings: jsonb("settings").default({}),
+  // Optional per-org override for the "please leave us a Google review" body.
+  // When NULL the code falls back to the built-in default template.
+  reviewRequestTemplate: text("review_request_template"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

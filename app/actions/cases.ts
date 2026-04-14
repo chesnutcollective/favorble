@@ -46,6 +46,7 @@ import {
   type CaseContactRelationship,
 } from "@/lib/cases/constants";
 import { notifyStageChange } from "@/lib/services/portal-sms";
+import { maybeSendAutoReviewRequest } from "@/lib/services/review-request";
 
 export type CaseFilters = {
   search?: string;
@@ -1320,6 +1321,28 @@ export async function closeCase(
     reason,
     status: newStatus,
   });
+
+  // Fire-and-forget: if this is a closed_won and the org has Google
+  // Reviews connected + auto-request enabled, ask for a review. The helper
+  // gates itself on connection + org setting and writes a review_requests
+  // row for audit.
+  if (newStatus === "closed_won") {
+    const snapshot = {
+      caseId,
+      organizationId: session.organizationId,
+      userId: session.id,
+    };
+    after(async () => {
+      try {
+        await maybeSendAutoReviewRequest(snapshot);
+      } catch (err) {
+        logger.error("closeCase: auto review request failed", {
+          caseId: snapshot.caseId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    });
+  }
 
   revalidatePath(`/cases/${caseId}`);
   revalidatePath("/cases");
