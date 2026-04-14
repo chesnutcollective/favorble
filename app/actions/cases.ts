@@ -7,6 +7,8 @@ import {
   caseStageGroups,
   caseAssignments,
   caseStageTransitions,
+  caseSavedViews,
+  communications,
   users,
   contacts,
   caseContacts,
@@ -36,12 +38,63 @@ export type CaseFilters = {
   stageGroupId?: string;
   assignedToId?: string;
   team?: string;
+  practiceArea?: string;
+  language?: string;
+  unreadOnly?: boolean;
+  urgency?: string;
 };
 
 export type Pagination = {
   page: number;
   pageSize: number;
 };
+
+// Module-level caches for feature detection. The messaging agent building
+// the communications schema in parallel may or may not have added
+// `urgency` + `read_at` columns, and the contacts agent may or may not have
+// added `preferred_locale`. We probe once per process and remember the result
+// so the case list query degrades gracefully.
+let _contactsHasLocale: boolean | null = null;
+let _commsHasReadAt: boolean | null = null;
+let _commsHasUrgency: boolean | null = null;
+
+async function columnExists(
+  tableName: string,
+  columnName: string,
+): Promise<boolean> {
+  try {
+    const result = await db.execute(sql`
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = ${tableName}
+        AND column_name = ${columnName}
+      LIMIT 1
+    `);
+    // drizzle-orm returns { rows: [...] } for db.execute on pg
+    const rows = (result as unknown as { rows?: unknown[] }).rows ?? [];
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function contactsHasLocale(): Promise<boolean> {
+  if (_contactsHasLocale !== null) return _contactsHasLocale;
+  _contactsHasLocale = await columnExists("contacts", "preferred_locale");
+  return _contactsHasLocale;
+}
+
+async function commsHasReadAt(): Promise<boolean> {
+  if (_commsHasReadAt !== null) return _commsHasReadAt;
+  _commsHasReadAt = await columnExists("communications", "read_at");
+  return _commsHasReadAt;
+}
+
+async function commsHasUrgency(): Promise<boolean> {
+  if (_commsHasUrgency !== null) return _commsHasUrgency;
+  _commsHasUrgency = await columnExists("communications", "urgency");
+  return _commsHasUrgency;
+}
 
 /**
  * Get paginated cases with filters.
@@ -51,7 +104,7 @@ export async function getCases(
   pagination: Pagination = { page: 1, pageSize: 50 },
 ) {
   const session = await requireSession();
-  const conditions = [
+  const conditions: Array<ReturnType<typeof sql> | ReturnType<typeof eq>> = [
     eq(cases.organizationId, session.organizationId),
     isNull(cases.deletedAt),
   ];
@@ -74,12 +127,92 @@ export async function getCases(
     conditions.push(eq(cases.currentStageId, filters.stageId));
   }
 
+  if (filters.practiceArea) {
+    conditions.push(eq(cases.applicationTypePrimary, filters.practiceArea));
+  }
+
+  if (filters.team) {
+    // Match cases whose current stage is owned by this team. Using EXISTS keeps
+    // both the page + count queries consistent without requiring caseStages in
+    // the count query's FROM list.
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1 FROM ${caseStages}
+        WHERE ${caseStages.id} = ${cases.currentStageId}
+          AND ${caseStages.owningTeam} = ${filters.team}
+      )`,
+    );
+  }
+
+  // assignedToId: restrict to cases that have an active assignment for the user.
+  if (filters.assignedToId) {
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1 FROM ${caseAssignments}
+        WHERE ${caseAssignments.caseId} = ${cases.id}
+          AND ${caseAssignments.userId} = ${filters.assignedToId}
+          AND ${caseAssignments.unassignedAt} IS NULL
+      )`,
+    );
+  }
+
+  // Language filter — only applies if contacts.preferred_locale column exists.
+  if (filters.language && (await contactsHasLocale())) {
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1 FROM ${caseContacts}
+        INNER JOIN ${contacts} ON ${contacts.id} = ${caseContacts.contactId}
+        WHERE ${caseContacts.caseId} = ${cases.id}
+          AND ${caseContacts.isPrimary} = true
+          AND ${sql.raw("contacts.preferred_locale")} = ${filters.language}
+      )`,
+    );
+  }
+
+  // Unread-messages toggle — only applies if communications.read_at exists.
+  if (filters.unreadOnly && (await commsHasReadAt())) {
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1 FROM ${communications}
+        WHERE ${communications.caseId} = ${cases.id}
+          AND ${communications.direction} = 'inbound'
+          AND ${sql.raw("communications.read_at")} IS NULL
+      )`,
+    );
+  }
+
+  // Message urgency — only applies if communications.urgency exists.
+  if (filters.urgency && (await commsHasUrgency())) {
+    conditions.push(
+      sql`(
+        SELECT ${sql.raw("c2.urgency")}
+        FROM ${communications} c2
+        WHERE c2.case_id = ${cases.id}
+        ORDER BY c2.created_at DESC
+        LIMIT 1
+      ) = ${filters.urgency}`,
+    );
+  }
+
   if (filters.search) {
     const searchTerm = `%${filters.search}%`;
     conditions.push(
       or(
         ilike(cases.caseNumber, searchTerm),
         ilike(cases.ssaClaimNumber, searchTerm),
+        // Match claimant name or phone via primary contact.
+        sql`EXISTS (
+          SELECT 1 FROM ${caseContacts}
+          INNER JOIN ${contacts} ON ${contacts.id} = ${caseContacts.contactId}
+          WHERE ${caseContacts.caseId} = ${cases.id}
+            AND ${caseContacts.isPrimary} = true
+            AND (
+              ${contacts.firstName} ILIKE ${searchTerm}
+              OR ${contacts.lastName} ILIKE ${searchTerm}
+              OR ${contacts.phone} ILIKE ${searchTerm}
+              OR (${contacts.firstName} || ' ' || ${contacts.lastName}) ILIKE ${searchTerm}
+            )
+        )`,
       )!,
     );
   }
@@ -756,4 +889,118 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
     logger.error("Failed to decrypt SSN", { caseId, error: err });
     return null;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Saved views (case list filter snapshots)
+// ---------------------------------------------------------------------------
+
+export type SavedViewFilters = Record<string, unknown>;
+export type SavedViewSort = { sortBy?: string; sortDir?: "asc" | "desc" };
+
+export type SavedView = {
+  id: string;
+  name: string;
+  filters: SavedViewFilters;
+  sort: SavedViewSort;
+  isShared: boolean;
+  isOwner: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/**
+ * List saved views visible to the current user:
+ *   - views they own
+ *   - shared views inside their organization
+ */
+export async function listSavedViews(): Promise<SavedView[]> {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({
+        id: caseSavedViews.id,
+        userId: caseSavedViews.userId,
+        name: caseSavedViews.name,
+        filters: caseSavedViews.filters,
+        sort: caseSavedViews.sort,
+        isShared: caseSavedViews.isShared,
+        createdAt: caseSavedViews.createdAt,
+        updatedAt: caseSavedViews.updatedAt,
+      })
+      .from(caseSavedViews)
+      .where(
+        and(
+          eq(caseSavedViews.organizationId, session.organizationId),
+          or(
+            eq(caseSavedViews.userId, session.id),
+            eq(caseSavedViews.isShared, true),
+          )!,
+        ),
+      )
+      .orderBy(asc(caseSavedViews.name));
+
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      filters: (r.filters ?? {}) as SavedViewFilters,
+      sort: (r.sort ?? {}) as SavedViewSort,
+      isShared: r.isShared,
+      isOwner: r.userId === session.id,
+      userId: r.userId,
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+    }));
+  } catch (err) {
+    logger.warn("listSavedViews failed", { error: err });
+    return [];
+  }
+}
+
+export async function saveView(input: {
+  name: string;
+  filters: SavedViewFilters;
+  sort?: SavedViewSort;
+  isShared?: boolean;
+}) {
+  const session = await requireSession();
+  const name = input.name.trim();
+  if (!name) throw new Error("Name is required");
+
+  const [row] = await db
+    .insert(caseSavedViews)
+    .values({
+      organizationId: session.organizationId,
+      userId: session.id,
+      name,
+      filters: input.filters ?? {},
+      sort: input.sort ?? {},
+      isShared: input.isShared ?? false,
+    })
+    .returning();
+
+  revalidatePath("/cases");
+  return {
+    id: row.id,
+    name: row.name,
+    filters: (row.filters ?? {}) as SavedViewFilters,
+    sort: (row.sort ?? {}) as SavedViewSort,
+    isShared: row.isShared,
+  };
+}
+
+export async function deleteSavedView(id: string) {
+  const session = await requireSession();
+  // Only the owner can delete their view; scope to their org for safety.
+  await db
+    .delete(caseSavedViews)
+    .where(
+      and(
+        eq(caseSavedViews.id, id),
+        eq(caseSavedViews.organizationId, session.organizationId),
+        eq(caseSavedViews.userId, session.id),
+      ),
+    );
+  revalidatePath("/cases");
 }
