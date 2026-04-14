@@ -40,3 +40,4 @@ export * from "./nps";
 export * from "./portal";
 export * from "./document-shares";
 export * from "./collab-shares";
+export * from "./client-treatment-entries";

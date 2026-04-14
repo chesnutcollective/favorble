@@ -175,6 +175,7 @@ export const messages: Record<Locale, TranslationTree> = {
         messages: "Messages",
         documents: "Documents",
         appointments: "Appointments",
+        treatmentLog: "Treatment log",
         profile: "Profile",
       },
       home: {
@@ -466,6 +467,7 @@ export const messages: Record<Locale, TranslationTree> = {
         messages: "Mensajes",
         documents: "Documentos",
         appointments: "Citas",
+        treatmentLog: "Registro médico",
         profile: "Perfil",
       },
       home: {
