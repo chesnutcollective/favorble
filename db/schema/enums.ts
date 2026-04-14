@@ -132,6 +132,8 @@ export const communicationTypeEnum = pgEnum("communication_type", [
   "phone_inbound",
   "phone_outbound",
   "note",
+  "sms_outbound",
+  "sms_inbound",
 ]);
 
 export const customFieldTypeEnum = pgEnum("custom_field_type", [

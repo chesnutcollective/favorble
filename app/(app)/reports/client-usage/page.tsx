@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireSession } from "@/lib/auth/session";
+import { getClientUsageReport } from "@/app/actions/client-usage";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
+import { StatsCard } from "@/components/shared/stats-card";
 import {
   Table,
   TableBody,
@@ -11,502 +11,211 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { COLORS } from "@/lib/design-tokens";
-import {
-  getClientUsage,
-  type ClientUsageData,
-  type ClientUsagePeriod,
-} from "@/app/actions/client-usage";
+import type { ActivationPeriod } from "@/app/actions/client-activation";
 
 export const metadata: Metadata = {
-  title: "Client Usage",
+  title: "Client Portal Usage",
 };
 
-type SearchParams = Promise<{ period?: "day" | "week" | "month" }>;
+const PERIOD_LABELS: Record<ActivationPeriod, string> = {
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+  "90d": "Last 90 days",
+  all: "All time",
+};
 
-function emptyState(period: ClientUsagePeriod): ClientUsageData {
-  return {
-    period,
-    periodStart: new Date().toISOString(),
-    periodEnd: new Date().toISOString(),
-    tiles: {
-      totalClients: 0,
-      activatedClients: 0,
-      engagementRate: 0,
-      adoption: { mobile: 0, web: 0, sms: 0 },
-    },
-    funnel: [
-      {
-        key: "new_contacts",
-        label: "New contacts",
-        count: 0,
-        stub: false,
-      },
-      { key: "invited", label: "Invited", count: 0, stub: true },
-      { key: "activated", label: "Activated", count: 0, stub: true },
-      { key: "engaged", label: "Engaged", count: 0, stub: true },
-      { key: "closed", label: "Closed", count: 0, stub: false },
-    ],
-    perCase: [],
-    staleClients: [],
-  };
+function isValidPeriod(value: string | undefined): value is ActivationPeriod {
+  return value === "7d" || value === "30d" || value === "90d" || value === "all";
 }
 
-export default async function ClientUsagePage({
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatPercent(ratio: number): string {
+  return `${Math.round(ratio * 100)}%`;
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "invited":
+      return "Invited";
+    case "active":
+      return "Active";
+    case "suspended":
+      return "Suspended";
+    case "deactivated":
+      return "Deactivated";
+    default:
+      return status;
+  }
+}
+
+export default async function ClientUsageReportPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   await requireSession();
-  const sp = await searchParams;
-  const period: ClientUsagePeriod =
-    sp.period === "day" || sp.period === "month" ? sp.period : "week";
+  const params = await searchParams;
+  const period: ActivationPeriod = isValidPeriod(params.period)
+    ? params.period
+    : "30d";
 
-  let data: ClientUsageData = emptyState(period);
+  let report: Awaited<ReturnType<typeof getClientUsageReport>> = {
+    metrics: {
+      period,
+      periodStart: null,
+      invited: 0,
+      activated: 0,
+      engaged: 0,
+      closed: 0,
+      activationRate: 0,
+      engagementRate: 0,
+    },
+    rows: [],
+  };
   try {
-    data = await getClientUsage(period);
+    report = await getClientUsageReport(period);
   } catch {
-    // DB unavailable → keep empty state
+    // DB unavailable — render zeros.
   }
 
-  const { tiles, funnel, perCase, staleClients } = data;
-  const funnelMax = Math.max(1, ...funnel.map((s) => s.count));
+  const { metrics, rows } = report;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Client Usage"
-        description="How clients engage with the firm and portal. Portal-driven metrics light up once the client portal ships."
+        title="Client Portal Usage"
+        description={`Activation funnel and per-claimant engagement — ${PERIOD_LABELS[period]}.`}
       />
 
       {/* Period filter */}
-      <Card>
-        <CardContent className="p-5">
-          <div>
-            <p
-              className="text-xs uppercase tracking-wide mb-2"
-              style={{ color: COLORS.text3 }}
-            >
-              Period
-            </p>
-            <div className="flex gap-2">
-              {(["day", "week", "month"] as const).map((p) => (
-                <Link
-                  key={p}
-                  href={`/reports/client-usage?period=${p}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
-                  style={{
-                    borderColor:
-                      p === period ? COLORS.brand : COLORS.borderDefault,
-                    color: p === period ? COLORS.brand : COLORS.text2,
-                    background:
-                      p === period ? COLORS.brandSubtle : "transparent",
-                  }}
-                >
-                  {p}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* KPI tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <MetricTile label="Total clients" value={tiles.totalClients} />
-        <MetricTile
-          label="Activated clients"
-          value={tiles.activatedClients}
-          stub
-        />
-        <MetricTile
-          label="Engagement rate"
-          value={tiles.engagementRate}
-          suffix="%"
-          stub
-        />
-        <AdoptionTile adoption={tiles.adoption} />
+      <div className="flex gap-2 flex-wrap">
+        {(Object.keys(PERIOD_LABELS) as ActivationPeriod[]).map((p) => (
+          <a
+            key={p}
+            href={`/reports/client-usage?period=${p}`}
+            className={
+              "rounded-md border px-3 py-1 text-[13px] transition-colors " +
+              (p === period
+                ? "border-[#1d72b8] bg-[rgba(29,114,184,0.08)] text-[#185f9b]"
+                : "border-[#EAEAEA] bg-white text-[#666] hover:border-[#CCC]")
+            }
+          >
+            {PERIOD_LABELS[p]}
+          </a>
+        ))}
       </div>
 
-      {/* Client funnel */}
-      <Card>
-        <CardContent className="p-0">
-          <div
-            className="px-6 py-3 border-b flex items-center justify-between gap-3"
-            style={{ borderColor: COLORS.borderSubtle }}
-          >
-            <div>
-              <h2
-                className="text-sm font-semibold"
-                style={{ color: COLORS.text1 }}
-              >
-                Client funnel · {period}
-              </h2>
-              <p className="text-xs" style={{ color: COLORS.text3 }}>
-                New contacts → Invited → Activated → Engaged → Closed.
-              </p>
-            </div>
-          </div>
-          <div className="px-6 py-5 space-y-3">
-            {funnel.map((stage) => {
-              const pct = Math.round((stage.count / funnelMax) * 100);
-              return (
-                <div key={stage.key} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span style={{ color: COLORS.text2 }}>
-                        {stage.label}
-                      </span>
-                      {stage.stub && <ShipsWithPortalPill />}
-                    </div>
-                    <span
-                      className="tabular-nums font-semibold"
-                      style={{ color: COLORS.text1 }}
-                    >
-                      {stage.count.toLocaleString()}
-                    </span>
-                  </div>
-                  <div
-                    className="h-2.5 rounded-full overflow-hidden"
-                    style={{ background: COLORS.borderSubtle }}
-                  >
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${Math.max(stage.count > 0 ? 4 : 0, pct)}%`,
-                        background: stage.stub ? COLORS.text4 : COLORS.brand,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Funnel */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="Invited"
+          value={metrics.invited}
+          subtitle="invitations sent"
+        />
+        <StatsCard
+          title="Activated"
+          value={metrics.activated}
+          subtitle={`${formatPercent(metrics.activationRate)} activation rate`}
+        />
+        <StatsCard
+          title="Engaged"
+          value={metrics.engaged}
+          subtitle={`${formatPercent(metrics.engagementRate)} of activated`}
+        />
+        <StatsCard
+          title="Closed"
+          value={metrics.closed}
+          subtitle="cases closed in period"
+        />
+      </div>
 
-      {/* Per-case engagement */}
-      <Card>
-        <CardContent className="p-0">
-          <div
-            className="px-6 py-3 border-b"
-            style={{ borderColor: COLORS.borderSubtle }}
-          >
-            <h2
-              className="text-sm font-semibold"
-              style={{ color: COLORS.text1 }}
-            >
-              Top cases by recent activity
-            </h2>
-            <p className="text-xs" style={{ color: COLORS.text3 }}>
-              Sorted by most recent firm communication. Client-message tracking
-              ships with the portal.
-            </p>
-          </div>
-          <Table>
-            <TableHeader>
+      {/* Per-claimant table */}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Claimant</TableHead>
+              <TableHead>Case</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="hidden md:table-cell">Invited</TableHead>
+              <TableHead className="hidden md:table-cell">Activated</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Last login
+              </TableHead>
+              <TableHead className="text-right">Logins</TableHead>
+              <TableHead className="text-right">30d events</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
               <TableRow>
-                <TableHead>Case #</TableHead>
-                <TableHead>Claimant</TableHead>
-                <TableHead>Last firm message</TableHead>
-                <TableHead>
-                  <span className="inline-flex items-center gap-1.5">
-                    Last client message
-                    <ShipsWithPortalPill />
-                  </span>
-                </TableHead>
-                <TableHead className="text-right">Days since</TableHead>
+                <TableCell
+                  colSpan={8}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No portal users yet. Send invites from a contact record to
+                  populate this report.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {perCase.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-[#999] py-6"
-                  >
-                    No case activity in this window
+            ) : (
+              rows.map((r) => (
+                <TableRow key={r.portalUserId}>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-foreground">
+                        {r.lastName}, {r.firstName}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {r.email}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {r.caseNumber ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={
+                        "inline-block rounded-[3px] border px-1.5 py-px text-[10px] font-medium uppercase tracking-[0.04em] " +
+                        (r.status === "active"
+                          ? "border-[#1d72b8]/30 bg-[rgba(29,114,184,0.08)] text-[#185f9b]"
+                          : r.status === "invited"
+                            ? "border-[#EAEAEA] bg-[#FAFAFA] text-[#999]"
+                            : "border-[#EE0000]/30 bg-[rgba(238,0,0,0.08)] text-[#EE0000]")
+                      }
+                    >
+                      {statusLabel(r.status)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                    {formatDate(r.invitedAt)}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                    {formatDate(r.activatedAt)}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                    {formatDate(r.lastLoginAt)}
+                  </TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                    {r.loginCount}
+                  </TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                    {r.activityCount30d}
                   </TableCell>
                 </TableRow>
-              ) : (
-                perCase.map((r) => (
-                  <TableRow key={r.caseId}>
-                    <TableCell>
-                      <Link
-                        href={`/cases/${r.caseId}`}
-                        className="hover:underline"
-                        style={{ color: COLORS.brand }}
-                      >
-                        {r.caseNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell style={{ color: COLORS.text2 }}>
-                      {r.claimantName}
-                    </TableCell>
-                    <TableCell
-                      className="tabular-nums"
-                      style={{ color: COLORS.text2 }}
-                    >
-                      {r.lastFirmMessageAt
-                        ? new Date(r.lastFirmMessageAt).toLocaleDateString()
-                        : "—"}
-                    </TableCell>
-                    <TableCell style={{ color: COLORS.text3 }}>—</TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      <span
-                        style={{
-                          color:
-                            r.daysSinceLastInteraction == null
-                              ? COLORS.text3
-                              : r.daysSinceLastInteraction >= 14
-                                ? COLORS.bad
-                                : r.daysSinceLastInteraction >= 7
-                                  ? COLORS.warn
-                                  : COLORS.text2,
-                        }}
-                      >
-                        {r.daysSinceLastInteraction ?? "—"}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Stale clients */}
-      <Card>
-        <CardContent className="p-0">
-          <div
-            className="px-6 py-3 border-b"
-            style={{ borderColor: COLORS.borderSubtle }}
-          >
-            <h2
-              className="text-sm font-semibold"
-              style={{ color: COLORS.text1 }}
-            >
-              Stale clients · 14+ days without contact
-            </h2>
-            <p className="text-xs" style={{ color: COLORS.text3 }}>
-              Clients with no recorded interaction in two weeks or more. Based
-              on communications only — portal activity will fold in once the
-              portal ships.
-            </p>
-          </div>
-          {staleClients.length === 0 ? (
-            <div className="px-6 py-8 text-center">
-              <p className="text-sm" style={{ color: COLORS.text3 }}>
-                No stale clients right now.
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Claimant</TableHead>
-                  <TableHead>Case #</TableHead>
-                  <TableHead>Last interaction</TableHead>
-                  <TableHead className="text-right">Days stale</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {staleClients.map((r, i) => (
-                  <TableRow key={`${r.caseId ?? "no-case"}-${i}`}>
-                    <TableCell style={{ color: COLORS.text1 }}>
-                      {r.claimantName}
-                    </TableCell>
-                    <TableCell>
-                      {r.caseId && r.caseNumber ? (
-                        <Link
-                          href={`/cases/${r.caseId}`}
-                          className="hover:underline"
-                          style={{ color: COLORS.brand }}
-                        >
-                          {r.caseNumber}
-                        </Link>
-                      ) : (
-                        <span style={{ color: COLORS.text3 }}>—</span>
-                      )}
-                    </TableCell>
-                    <TableCell
-                      className="tabular-nums"
-                      style={{ color: COLORS.text2 }}
-                    >
-                      {r.lastInteractionAt
-                        ? new Date(r.lastInteractionAt).toLocaleDateString()
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      <span
-                        style={{
-                          color:
-                            r.daysStale >= 30
-                              ? COLORS.bad
-                              : r.daysStale >= 14
-                                ? COLORS.warn
-                                : COLORS.text2,
-                        }}
-                      >
-                        {r.daysStale}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
-  );
-}
-
-function ShipsWithPortalPill() {
-  return (
-    <span
-      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium uppercase tracking-wide"
-      style={{
-        color: COLORS.text3,
-        background: COLORS.borderSubtle,
-      }}
-      title="This metric activates once the client portal ships."
-    >
-      Ships with portal
-    </span>
-  );
-}
-
-function MetricTile({
-  label,
-  value,
-  suffix,
-  sub,
-  stub,
-}: {
-  label: string;
-  value: number;
-  suffix?: string;
-  sub?: string;
-  stub?: boolean;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <p
-            className="text-[11px] uppercase tracking-wide"
-            style={{ color: COLORS.text3 }}
-          >
-            {label}
-          </p>
-          {stub && <ShipsWithPortalPill />}
-        </div>
-        <p
-          className="mt-1 text-2xl font-semibold tabular-nums"
-          style={{ color: stub ? COLORS.text3 : COLORS.text1 }}
-        >
-          {value.toLocaleString()}
-          {suffix ?? ""}
-        </p>
-        {sub && (
-          <p className="mt-0.5 text-xs" style={{ color: COLORS.text3 }}>
-            {sub}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdoptionTile({
-  adoption,
-}: {
-  adoption: { mobile: number; web: number; sms: number };
-}) {
-  const total = adoption.mobile + adoption.web + adoption.sms;
-  const slices: Array<{
-    key: "mobile" | "web" | "sms";
-    label: string;
-    color: string;
-  }> = [
-    { key: "mobile", label: "Mobile", color: COLORS.brand },
-    { key: "web", label: "Web", color: COLORS.ok },
-    { key: "sms", label: "SMS", color: COLORS.warn },
-  ];
-
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <p
-            className="text-[11px] uppercase tracking-wide"
-            style={{ color: COLORS.text3 }}
-          >
-            Adoption split
-          </p>
-          <ShipsWithPortalPill />
-        </div>
-        <div className="mt-2 flex items-center gap-3">
-          <StubPie />
-          <ul className="space-y-1 flex-1 min-w-0">
-            {slices.map((s) => {
-              const v = adoption[s.key];
-              const pct = total > 0 ? Math.round((v / total) * 100) : 0;
-              return (
-                <li
-                  key={s.key}
-                  className="flex items-center gap-1.5 text-[11px]"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-2 w-2 rounded-sm"
-                    style={{ backgroundColor: s.color }}
-                  />
-                  <span style={{ color: COLORS.text2 }} className="flex-1">
-                    {s.label}
-                  </span>
-                  <span
-                    className="tabular-nums"
-                    style={{ color: COLORS.text3 }}
-                  >
-                    {pct}%
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/** Placeholder pie — a muted donut shape so the card has visual anchor. */
-function StubPie() {
-  const size = 44;
-  const r = 18;
-  const cx = size / 2;
-  const cy = size / 2;
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      aria-hidden="true"
-    >
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={COLORS.text4} strokeWidth={6} />
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="none"
-        stroke={COLORS.borderSubtle}
-        strokeWidth={6}
-        strokeDasharray={`${(2 * Math.PI * r) / 3} ${2 * Math.PI * r}`}
-        transform={`rotate(-90 ${cx} ${cy})`}
-      />
-    </svg>
   );
 }

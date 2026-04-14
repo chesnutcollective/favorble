@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { getContacts } from "@/app/actions/contacts";
+import {
+  getContacts,
+  getPortalStatusForContacts,
+} from "@/app/actions/contacts";
 import { PageHeader } from "@/components/shared/page-header";
 import { ContactsListClient } from "./client";
 
@@ -36,6 +39,19 @@ export default async function ContactsPage({
     // DB unavailable
   }
 
+  // Portal status map for the visible claimants. Non-claimant rows can
+  // request it but we only render the column meaningfully for claimants
+  // (invites are case-scoped).
+  const claimantIds = contactsResult.contacts
+    .filter((c) => c.contactType === "claimant")
+    .map((c) => c.id);
+  let portalStatusMap: Record<string, string> = {};
+  try {
+    portalStatusMap = await getPortalStatusForContacts(claimantIds);
+  } catch {
+    portalStatusMap = {};
+  }
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -46,6 +62,13 @@ export default async function ContactsPage({
         contacts={contactsResult.contacts.map((c) => ({
           ...c,
           createdAt: c.createdAt.toISOString(),
+          portalStatus:
+            (portalStatusMap[c.id] as
+              | "never"
+              | "invited"
+              | "active"
+              | "suspended"
+              | undefined) ?? "never",
         }))}
         total={contactsResult.total}
         page={contactsResult.page}

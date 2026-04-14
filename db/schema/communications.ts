@@ -37,6 +37,12 @@ export const communications = pgTable(
     toAddress: text("to_address"),
     externalMessageId: text("external_message_id"),
     sourceSystem: text("source_system"),
+    /**
+     * High-level source of the communication — e.g. 'portal', 'case_status',
+     * 'twilio_inbound'. Added in migration 0025 so we can filter portal-sent
+     * SMS from staff-side Twilio traffic without parsing metadata blobs.
+     */
+    sourceType: text("source_type"),
     metadata: jsonb("metadata").default({}),
     userId: uuid("user_id").references(() => users.id),
 

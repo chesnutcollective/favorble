@@ -1,7 +1,13 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { communications, cases } from "@/db/schema";
+import { after } from "next/server";
+import {
+  caseContacts,
+  cases,
+  communications,
+  contacts,
+} from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -9,6 +15,7 @@ import { logger } from "@/lib/logger/server";
 import * as caseStatusClient from "@/lib/integrations/case-status";
 import { logCommunicationEvent } from "@/lib/services/hipaa-audit";
 import { enqueueOutboundMessageReview } from "@/lib/services/message-qa";
+import { notifyNewMessage } from "@/lib/services/portal-sms";
 import type { MessageFilters } from "@/lib/messages/filters";
 
 export type MessageRow = {
@@ -161,6 +168,40 @@ export async function sendCaseMessage(data: {
   if (data.visibleToClient === true) {
     revalidatePath("/portal/messages");
   }
+
+  // Portal SMS notification — fire in the background so the staff user's
+  // send is never gated on Twilio latency. If no claimant is linked, or
+  // they've opted out, or Twilio isn't configured, sendPortalSms degrades
+  // gracefully.
+  after(async () => {
+    try {
+      const [claimant] = await db
+        .select({
+          id: contacts.id,
+          preferredLocale: contacts.preferredLocale,
+        })
+        .from(caseContacts)
+        .innerJoin(contacts, eq(contacts.id, caseContacts.contactId))
+        .where(
+          and(
+            eq(caseContacts.caseId, data.caseId),
+            eq(caseContacts.relationship, "claimant"),
+          ),
+        )
+        .limit(1);
+      if (!claimant) return;
+      await notifyNewMessage({
+        contactId: claimant.id,
+        caseId: data.caseId,
+        preferredLocale: claimant.preferredLocale,
+      });
+    } catch (error) {
+      logger.error("portal sms: new-message notify failed", {
+        caseId: data.caseId,
+        error,
+      });
+    }
+  });
 
   return {
     id: message.id,
