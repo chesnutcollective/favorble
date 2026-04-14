@@ -1,6 +1,8 @@
 import { getCaseFieldValues } from "@/app/actions/custom-fields";
+import { getCaseById } from "@/app/actions/cases";
 import { requireSession } from "@/lib/auth/session";
 import { EditableFieldsForm } from "./editable-fields-form";
+import { ReferralSourceField } from "./referral-source-field";
 
 export default async function CaseFieldsPage({
   params,
@@ -12,9 +14,13 @@ export default async function CaseFieldsPage({
 
   // Get all field values (no team filter — show all teams with tabs)
   let fieldValues: Awaited<ReturnType<typeof getCaseFieldValues>> = [];
+  let caseData: Awaited<ReturnType<typeof getCaseById>> = null;
 
   try {
-    fieldValues = await getCaseFieldValues(caseId);
+    [fieldValues, caseData] = await Promise.all([
+      getCaseFieldValues(caseId),
+      getCaseById(caseId),
+    ]);
   } catch {
     // DB unavailable
   }
@@ -48,10 +54,17 @@ export default async function CaseFieldsPage({
   }));
 
   return (
-    <EditableFieldsForm
-      caseId={caseId}
-      fieldValues={serializedFieldValues}
-      userTeam={user.team ?? null}
-    />
+    <div className="space-y-4">
+      <ReferralSourceField
+        caseId={caseId}
+        initialSource={caseData?.referralSource ?? null}
+        initialContactId={caseData?.referralContactId ?? null}
+      />
+      <EditableFieldsForm
+        caseId={caseId}
+        fieldValues={serializedFieldValues}
+        userTeam={user.team ?? null}
+      />
+    </div>
   );
 }

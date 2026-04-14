@@ -133,6 +133,18 @@ export const cases = pgTable(
       withTimezone: true,
     }),
 
+    // AI Summary (persisted, surfaced on case overview)
+    aiSummary: text("ai_summary"),
+    aiSummaryGeneratedAt: timestamp("ai_summary_generated_at", {
+      withTimezone: true,
+    }),
+    aiSummaryModel: text("ai_summary_model"),
+    aiSummaryVersion: integer("ai_summary_version").default(0),
+
+    // Referral source (free-text + optional contact link)
+    referralSource: text("referral_source"),
+    referralContactId: uuid("referral_contact_id"),
+
     closedAt: timestamp("closed_at", { withTimezone: true }),
     closedReason: text("closed_reason"),
     createdAt: timestamp("created_at", { withTimezone: true })

@@ -27,7 +27,11 @@ import {
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
-import { logPhiAccess, shouldAudit } from "@/lib/services/hipaa-audit";
+import {
+  logPhiAccess,
+  logPhiModification,
+  shouldAudit,
+} from "@/lib/services/hipaa-audit";
 
 export type CaseFilters = {
   search?: string;
@@ -227,6 +231,14 @@ export async function getCaseById(id: string) {
       chronicleUrl: cases.chronicleUrl,
       chronicleLastSyncAt: cases.chronicleLastSyncAt,
       caseStatusExternalId: cases.caseStatusExternalId,
+      // AI Summary (persisted for prominent overview display)
+      aiSummary: cases.aiSummary,
+      aiSummaryGeneratedAt: cases.aiSummaryGeneratedAt,
+      aiSummaryModel: cases.aiSummaryModel,
+      aiSummaryVersion: cases.aiSummaryVersion,
+      // Referral source
+      referralSource: cases.referralSource,
+      referralContactId: cases.referralContactId,
       closedAt: cases.closedAt,
       closedReason: cases.closedReason,
       createdAt: cases.createdAt,
@@ -756,4 +768,283 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
     logger.error("Failed to decrypt SSN", { caseId, error: err });
     return null;
   }
+}
+
+/**
+ * Relationship values accepted on the `case_contacts` join table.
+ * Keep in sync with the "+ Add Client" dialog on the case overview.
+ */
+export const CASE_CONTACT_RELATIONSHIPS = [
+  "claimant",
+  "spouse",
+  "parent",
+  "guardian",
+  "rep_payee",
+  "attorney_in_fact",
+  "other",
+] as const;
+
+export type CaseContactRelationship = (typeof CASE_CONTACT_RELATIONSHIPS)[number];
+
+/**
+ * Get every contact attached to a case via case_contacts, ordered so primary
+ * + claimant rise to the top. Used by the extended "Parties" section on the
+ * case overview.
+ */
+export async function getCaseContacts(caseId: string) {
+  const session = await requireSession();
+
+  // Guard: confirm the case belongs to the caller's org.
+  const [caseRow] = await db
+    .select({ id: cases.id })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!caseRow) return [];
+
+  const rows = await db
+    .select({
+      id: caseContacts.id,
+      contactId: contacts.id,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      email: contacts.email,
+      phone: contacts.phone,
+      relationship: caseContacts.relationship,
+      isPrimary: caseContacts.isPrimary,
+      createdAt: caseContacts.createdAt,
+    })
+    .from(caseContacts)
+    .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+    .where(eq(caseContacts.caseId, caseId));
+
+  // Sort: primary claimant first, then other primaries, then everything else
+  // alphabetically by last name.
+  return rows.sort((a, b) => {
+    const aWeight =
+      (a.isPrimary ? 0 : 10) + (a.relationship === "claimant" ? 0 : 1);
+    const bWeight =
+      (b.isPrimary ? 0 : 10) + (b.relationship === "claimant" ? 0 : 1);
+    if (aWeight !== bWeight) return aWeight - bWeight;
+    return a.lastName.localeCompare(b.lastName);
+  });
+}
+
+/**
+ * Lightweight contact search for the "+ Add Client" dialog. Returns up to 20
+ * active contacts matching the query, scoped to the caller's org.
+ */
+export async function searchContactsForCase(query: string) {
+  const session = await requireSession();
+  const q = query.trim();
+
+  const whereClauses = [
+    eq(contacts.organizationId, session.organizationId),
+    isNull(contacts.deletedAt),
+  ];
+  if (q.length > 0) {
+    const searchTerm = `%${q}%`;
+    whereClauses.push(
+      or(
+        ilike(contacts.firstName, searchTerm),
+        ilike(contacts.lastName, searchTerm),
+        ilike(contacts.email, searchTerm),
+      )!,
+    );
+  }
+
+  return db
+    .select({
+      id: contacts.id,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      email: contacts.email,
+      phone: contacts.phone,
+      contactType: contacts.contactType,
+    })
+    .from(contacts)
+    .where(and(...whereClauses))
+    .orderBy(asc(contacts.lastName), asc(contacts.firstName))
+    .limit(20);
+}
+
+/**
+ * Attach an existing contact to a case with a given relationship, optionally
+ * marking them as the primary party. If `isPrimary` is true, every other
+ * `case_contacts` row for this case has `is_primary` cleared first so the
+ * invariant "at most one primary" holds.
+ */
+export async function addContactToCase(
+  caseId: string,
+  contactId: string,
+  relationship: CaseContactRelationship,
+  isPrimary: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireSession();
+
+  // Authorize: the case and contact must both belong to the caller's org.
+  const [caseRow] = await db
+    .select({ id: cases.id })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!caseRow) return { ok: false, error: "Case not found." };
+
+  const [contactRow] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(
+      and(
+        eq(contacts.id, contactId),
+        eq(contacts.organizationId, session.organizationId),
+        isNull(contacts.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!contactRow) return { ok: false, error: "Contact not found." };
+
+  // Reject duplicate (caseId, contactId, relationship) — unique index would
+  // also catch this but we want a friendlier error than a raw DB exception.
+  const [existing] = await db
+    .select({ id: caseContacts.id })
+    .from(caseContacts)
+    .where(
+      and(
+        eq(caseContacts.caseId, caseId),
+        eq(caseContacts.contactId, contactId),
+        eq(caseContacts.relationship, relationship),
+      ),
+    )
+    .limit(1);
+
+  if (existing) {
+    return {
+      ok: false,
+      error: "This contact is already attached with that relationship.",
+    };
+  }
+
+  if (isPrimary) {
+    // Clear any other primary for this case before inserting.
+    await db
+      .update(caseContacts)
+      .set({ isPrimary: false })
+      .where(
+        and(
+          eq(caseContacts.caseId, caseId),
+          eq(caseContacts.isPrimary, true),
+        ),
+      );
+  }
+
+  await db.insert(caseContacts).values({
+    caseId,
+    contactId,
+    relationship,
+    isPrimary,
+  });
+
+  // HIPAA: contact attachment is a PHI modification event.
+  await logPhiModification({
+    organizationId: session.organizationId,
+    userId: session.id,
+    entityType: "case",
+    entityId: caseId,
+    operation: "update",
+    caseId,
+    changes: {
+      after: { addedContactId: contactId, relationship, isPrimary },
+    },
+    metadata: { action: "case_contact_added" },
+  });
+
+  logger.info("Contact attached to case", {
+    caseId,
+    contactId,
+    relationship,
+    isPrimary,
+  });
+
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath(`/cases/${caseId}/overview`);
+  return { ok: true };
+}
+
+/**
+ * Update the referral source for a case. `source` is free-text (e.g. "Google",
+ * "Referral from John Doe"), `contactId` optionally links to a contact row.
+ * Pass null/undefined to clear either field.
+ */
+export async function editCaseReferral(
+  caseId: string,
+  source: string | null,
+  contactId?: string | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireSession();
+
+  const [caseRow] = await db
+    .select({ id: cases.id })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!caseRow) return { ok: false, error: "Case not found." };
+
+  if (contactId) {
+    // Validate the contact belongs to the same org before linking.
+    const [contactRow] = await db
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.id, contactId),
+          eq(contacts.organizationId, session.organizationId),
+          isNull(contacts.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!contactRow) return { ok: false, error: "Referral contact not found." };
+  }
+
+  await db
+    .update(cases)
+    .set({
+      referralSource: source && source.trim().length > 0 ? source.trim() : null,
+      referralContactId: contactId ?? null,
+      updatedAt: new Date(),
+      updatedBy: session.id,
+    })
+    .where(eq(cases.id, caseId));
+
+  logger.info("Case referral updated", {
+    caseId,
+    hasSource: Boolean(source),
+    hasContact: Boolean(contactId),
+  });
+
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath(`/cases/${caseId}/overview`);
+  revalidatePath(`/cases/${caseId}/fields`);
+  return { ok: true };
 }
