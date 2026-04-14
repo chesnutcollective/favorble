@@ -31,6 +31,7 @@ import {
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import { logExtractionReview } from "@/lib/services/hipaa-audit";
 
 export type FilingFilter =
   | "all"
@@ -608,3 +609,168 @@ export async function oneClickFile(
 
 // Suppress unused import warning: inArray reserved for future bulk-file action.
 void inArray;
+
+/**
+ * Filing-specific reject reason codes. Kept as a string-literal union so the
+ * client dialog and server action share the exact same vocabulary. Adding a
+ * new code here automatically lights it up in the reject dialog.
+ */
+export const FILING_REJECT_REASON_CODES = [
+  "missing_signature",
+  "wrong_form_version",
+  "incomplete_evidence",
+  "incorrect_ssn",
+  "duplicate_submission",
+  "other",
+] as const;
+
+export type FilingRejectReasonCode = (typeof FILING_REJECT_REASON_CODES)[number];
+
+/** Human-readable labels for the reason codes — used in the dropdown. */
+export const FILING_REJECT_REASON_LABELS: Record<FilingRejectReasonCode, string> = {
+  missing_signature: "Missing signature",
+  wrong_form_version: "Wrong form version",
+  incomplete_evidence: "Incomplete evidence",
+  incorrect_ssn: "Incorrect SSN",
+  duplicate_submission: "Duplicate submission",
+  other: "Other",
+};
+
+/**
+ * Lightweight row for filing picker UIs (reject dialog). Sorted with the
+ * oldest-pending filing first so the "act on oldest" pattern gets a sensible
+ * default selection.
+ */
+export type PendingFilingRow = {
+  taskId: string;
+  caseId: string;
+  caseNumber: string;
+  claimantName: string;
+  taskTitle: string;
+  daysWaiting: number;
+};
+
+/** Return all pending filings ordered oldest-first. */
+export async function getPendingFilings(): Promise<PendingFilingRow[]> {
+  const queue = await getFilingQueue("all");
+  // Oldest = longest daysWaiting. The queue is ordered by due date asc, so
+  // re-sort here to be explicit about the semantics callers rely on.
+  return queue
+    .map((r) => ({
+      taskId: r.taskId,
+      caseId: r.caseId,
+      caseNumber: r.caseNumber,
+      claimantName: r.claimantName,
+      taskTitle: r.taskTitle,
+      daysWaiting: r.daysWaiting,
+    }))
+    .sort((a, b) => b.daysWaiting - a.daysWaiting);
+}
+
+/**
+ * Reject a filing task with a required reason code and optional notes. Marks
+ * the underlying task as `blocked` (our enum doesn't have `rejected`, so
+ * blocked is the closest terminal-not-completed state), stamps the rejection
+ * context onto the task's description, and writes a HIPAA audit row via
+ * `logExtractionReview` so reviewer rejections are reconstructable alongside
+ * AI-extraction rejections.
+ *
+ * Requires an active session + scopes the update to the caller's org.
+ */
+export async function rejectFiling(
+  filingId: string,
+  reasonCode: FilingRejectReasonCode,
+  notes?: string,
+): Promise<{ success: boolean; message?: string }> {
+  const session = await requireSession();
+
+  if (!FILING_REJECT_REASON_CODES.includes(reasonCode)) {
+    return { success: false, message: "Invalid reason code" };
+  }
+
+  try {
+    const [filingTask] = await db
+      .select({
+        id: tasks.id,
+        caseId: tasks.caseId,
+        title: tasks.title,
+        description: tasks.description,
+        status: tasks.status,
+      })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.id, filingId),
+          eq(tasks.organizationId, session.organizationId),
+          isNull(tasks.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!filingTask) {
+      return { success: false, message: "Filing not found" };
+    }
+
+    const rejectedAt = new Date().toISOString();
+    const label = FILING_REJECT_REASON_LABELS[reasonCode];
+    const trimmedNotes = notes?.trim() || "";
+    const rejectionStamp =
+      `\n\n[Rejected ${rejectedAt} — ${label}${reasonCode === "other" ? "" : ` (${reasonCode})`}]` +
+      (trimmedNotes ? `\nNotes: ${trimmedNotes}` : "");
+
+    await db
+      .update(tasks)
+      .set({
+        status: "blocked",
+        description: `${filingTask.description ?? ""}${rejectionStamp}`.trim(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(tasks.id, filingTask.id),
+          eq(tasks.organizationId, session.organizationId),
+        ),
+      );
+
+    // HIPAA-style audit row — mirrors the ai-review reject path so downstream
+    // audit exports stay uniform.
+    await logExtractionReview({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "filing_task",
+      entityId: filingTask.id,
+      caseId: filingTask.caseId,
+      decision: "reject",
+      reason: trimmedNotes ? `${reasonCode}: ${trimmedNotes}` : reasonCode,
+      severity: "warning",
+      metadata: {
+        filingTaskTitle: filingTask.title,
+        reasonCode,
+        notes: trimmedNotes || null,
+      },
+    });
+
+    logger.info("Filing rejected", {
+      filingId: filingTask.id,
+      caseId: filingTask.caseId,
+      reasonCode,
+      userId: session.id,
+    });
+
+    revalidatePath("/filing");
+    revalidatePath("/dashboard");
+    revalidatePath(`/cases/${filingTask.caseId}`);
+
+    return {
+      success: true,
+      message: `Rejected: ${label}`,
+    };
+  } catch (error) {
+    logger.error("rejectFiling failed", {
+      filingId,
+      reasonCode,
+      error,
+    });
+    return { success: false, message: "Could not reject filing" };
+  }
+}

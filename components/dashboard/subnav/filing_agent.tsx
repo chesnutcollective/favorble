@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   SubnavShell,
   SubnavSectionLabel,
@@ -8,10 +9,13 @@ import {
   SubnavRecentList,
   SubnavAnchorBlock,
 } from "./_primitives";
+import { FilingRejectDialog } from "./filing-reject-dialog";
 import { COLORS } from "@/lib/design-tokens";
 import type { FilingAgentSubnavData } from "@/lib/dashboard-subnav/types";
 
 export function FilingAgentSubnav({ data }: { data: FilingAgentSubnavData }) {
+  const [rejectOpen, setRejectOpen] = useState(false);
+
   return (
     <SubnavShell title="QA Reviewer">
       <SubnavSectionLabel>Quick Actions</SubnavSectionLabel>
@@ -20,14 +24,13 @@ export function FilingAgentSubnav({ data }: { data: FilingAgentSubnavData }) {
           { label: "Approve top of queue", href: "/filing" },
           {
             label: "Reject + reason",
-            href: "/filing?action=reject",
-            disabled: true,
-            hint: "Coming soon — needs a reason-code picker",
+            onClick: () => setRejectOpen(true),
           },
           { label: "ERE console", href: "/admin/integrations" },
           { label: "Retry failed", href: "/filing?filter=failed" },
         ]}
       />
+      <FilingRejectDialog open={rejectOpen} onOpenChange={setRejectOpen} />
 
       {/* Anchor: Confidence threshold + error clusters */}
       <SubnavSectionLabel>Auto-Approval Threshold</SubnavSectionLabel>

@@ -32,9 +32,9 @@ export type ActionItem = {
   /** Server-action wrapper. When set, button runs it via useTransition + toast. */
   onAction?: () => Promise<{ success: boolean; message?: string }>;
   /**
-   * Plain synchronous click handler — used when the button opens a local
-   * dialog/popover. No toast, no useTransition wrapping. Mutually exclusive
-   * with `onAction` (if both are set, `onAction` wins).
+   * Pure-client click handler — used when the button opens a local
+   * dialog/popover. No toast, no useTransition wrapping. Ignored if
+   * `onAction` or `href` is set.
    */
   onClick?: () => void;
   /** Toast text on success (overrides the action's returned message) */
