@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useState, useTransition, useEffect } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -55,12 +61,18 @@ import {
   bulkChangeCaseStage,
   bulkAssignCases,
   assignStaffToCase,
+  listSavedViews,
+  type SavedView,
 } from "@/app/actions/cases";
 import { PageHeader } from "@/components/shared/page-header";
 import {
   ColumnVisibilityMenu,
   type ColumnDef,
 } from "@/components/ui/column-visibility-menu";
+import {
+  SavedViewsMenu,
+  type ViewDescriptor,
+} from "@/components/cases/saved-views-menu";
 
 type CaseRow = {
   id: string;
@@ -124,6 +136,24 @@ const TEAMS = [
   "administration",
 ] as const;
 
+const LANGUAGE_OPTIONS: { value: string; label: string }[] = [
+  { value: "en", label: "English" },
+  { value: "es", label: "Spanish" },
+];
+
+const URGENCY_OPTIONS: { value: string; label: string }[] = [
+  { value: "low", label: "Low" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+];
+
+const SEEDED_VIEWS = [
+  { id: "my-cases", name: "My cases" },
+  { id: "on-hold", name: "On hold" },
+  { id: "closed-this-month", name: "Closed this month" },
+];
+
 function formatRelativeTime(dateStr: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
@@ -149,10 +179,17 @@ export function CasesListClient({
   pageSize,
   stages,
   orgUsers,
+  practiceAreas,
+  savedViews: initialSavedViews,
   initialSearch,
   initialStageId,
   initialTeam,
   initialAssignedTo,
+  initialPractice,
+  initialLanguage,
+  initialUnread,
+  initialUrgency,
+  initialView,
   initialSortBy,
   initialSortDir,
   initialAction,
@@ -163,10 +200,17 @@ export function CasesListClient({
   pageSize: number;
   stages: Stage[];
   orgUsers: OrgUser[];
+  practiceAreas: string[];
+  savedViews: SavedView[];
   initialSearch: string;
   initialStageId: string;
   initialTeam: string;
   initialAssignedTo: string;
+  initialPractice: string;
+  initialLanguage: string;
+  initialUnread: boolean;
+  initialUrgency: string;
+  initialView: string;
   initialSortBy: string;
   initialSortDir: "asc" | "desc";
   initialAction?: string;
@@ -176,13 +220,55 @@ export function CasesListClient({
   const [stageFilter, setStageFilter] = useState(initialStageId);
   const [teamFilter, setTeamFilter] = useState(initialTeam);
   const [assignedToFilter, setAssignedToFilter] = useState(initialAssignedTo);
+  const [practiceFilter, setPracticeFilter] = useState(initialPractice);
+  const [languageFilter, setLanguageFilter] = useState(initialLanguage);
+  const [unreadFilter, setUnreadFilter] = useState(initialUnread);
+  const [urgencyFilter, setUrgencyFilter] = useState(initialUrgency);
+  const [view, setView] = useState(initialView);
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDir, setSortDir] = useState<"asc" | "desc">(initialSortDir);
+  const [savedViews, setSavedViews] = useState<SavedView[]>(initialSavedViews);
 
   // Sync when URL searchParams change (e.g., sidebar panel navigation)
   useEffect(() => {
     setStageFilter(initialStageId);
   }, [initialStageId]);
+
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    setTeamFilter(initialTeam);
+  }, [initialTeam]);
+
+  useEffect(() => {
+    setAssignedToFilter(initialAssignedTo);
+  }, [initialAssignedTo]);
+
+  useEffect(() => {
+    setPracticeFilter(initialPractice);
+  }, [initialPractice]);
+
+  useEffect(() => {
+    setLanguageFilter(initialLanguage);
+  }, [initialLanguage]);
+
+  useEffect(() => {
+    setUnreadFilter(initialUnread);
+  }, [initialUnread]);
+
+  useEffect(() => {
+    setUrgencyFilter(initialUrgency);
+  }, [initialUrgency]);
+
+  useEffect(() => {
+    setView(initialView);
+  }, [initialView]);
+
+  useEffect(() => {
+    setSavedViews(initialSavedViews);
+  }, [initialSavedViews]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [newCaseOpen, setNewCaseOpen] = useState(false);
@@ -231,30 +317,68 @@ export function CasesListClient({
   const initialStages = stages.filter((s) => s.isInitial);
   const attorneys = orgUsers.filter((u) => u.role === "attorney");
 
-  function applyFilters(overrides?: {
+  type FilterOverrides = {
     search?: string;
     stage?: string;
     team?: string;
     assignedTo?: string;
+    practice?: string;
+    language?: string;
+    unread?: boolean;
+    urgency?: string;
+    view?: string;
     sortBy?: string;
     sortDir?: string;
     page?: number;
-  }) {
-    const params = new URLSearchParams();
-    const s = overrides?.search ?? search;
-    const st = overrides?.stage ?? stageFilter;
-    const tm = overrides?.team ?? teamFilter;
-    const at = overrides?.assignedTo ?? assignedToFilter;
-    const sb = overrides?.sortBy ?? sortBy;
-    const sd = overrides?.sortDir ?? sortDir;
-    const p = overrides?.page ?? 1;
-    if (s) params.set("search", s);
-    if (st) params.set("stage", st);
-    if (tm) params.set("team", tm);
-    if (at) params.set("assignedTo", at);
-    if (sb !== "updatedAt") params.set("sortBy", sb);
-    if (sd !== "desc") params.set("sortDir", sd);
-    if (p > 1) params.set("page", String(p));
+  };
+
+  const buildParams = useCallback(
+    (overrides?: FilterOverrides) => {
+      const params = new URLSearchParams();
+      const s = overrides?.search ?? search;
+      const st = overrides?.stage ?? stageFilter;
+      const tm = overrides?.team ?? teamFilter;
+      const at = overrides?.assignedTo ?? assignedToFilter;
+      const pr = overrides?.practice ?? practiceFilter;
+      const lg = overrides?.language ?? languageFilter;
+      const un =
+        overrides?.unread !== undefined ? overrides.unread : unreadFilter;
+      const ur = overrides?.urgency ?? urgencyFilter;
+      const vw = overrides?.view ?? view;
+      const sb = overrides?.sortBy ?? sortBy;
+      const sd = overrides?.sortDir ?? sortDir;
+      const p = overrides?.page ?? 1;
+      if (s) params.set("search", s);
+      if (st) params.set("stage", st);
+      if (tm) params.set("team", tm);
+      if (at) params.set("assignedTo", at);
+      if (pr) params.set("practice", pr);
+      if (lg) params.set("language", lg);
+      if (un) params.set("unread", "1");
+      if (ur) params.set("urgency", ur);
+      if (vw) params.set("view", vw);
+      if (sb !== "updatedAt") params.set("sortBy", sb);
+      if (sd !== "desc") params.set("sortDir", sd);
+      if (p > 1) params.set("page", String(p));
+      return params;
+    },
+    [
+      search,
+      stageFilter,
+      teamFilter,
+      assignedToFilter,
+      practiceFilter,
+      languageFilter,
+      unreadFilter,
+      urgencyFilter,
+      view,
+      sortBy,
+      sortDir,
+    ],
+  );
+
+  function applyFilters(overrides?: FilterOverrides) {
+    const params = buildParams(overrides);
     router.push(`/cases?${params.toString()}`);
   }
 
@@ -263,6 +387,11 @@ export function CasesListClient({
     setStageFilter("");
     setTeamFilter("");
     setAssignedToFilter("");
+    setPracticeFilter("");
+    setLanguageFilter("");
+    setUnreadFilter(false);
+    setUrgencyFilter("");
+    setView("");
     router.push("/cases");
   }
 
@@ -395,7 +524,77 @@ export function CasesListClient({
     });
   }
 
-  const hasFilters = search || stageFilter || teamFilter || assignedToFilter;
+  const hasFilters =
+    search ||
+    stageFilter ||
+    teamFilter ||
+    assignedToFilter ||
+    practiceFilter ||
+    languageFilter ||
+    unreadFilter ||
+    urgencyFilter ||
+    view;
+
+  // Snapshot of the current filter state for saved-views
+  const currentFilters = {
+    search,
+    stage: stageFilter,
+    team: teamFilter,
+    assignedTo: assignedToFilter,
+    practice: practiceFilter,
+    language: languageFilter,
+    unread: unreadFilter,
+    urgency: urgencyFilter,
+    page: 1,
+  };
+  const currentSort = { sortBy, sortDir };
+
+  function handleViewSelect(descriptor: ViewDescriptor) {
+    if (descriptor.kind === "seeded") {
+      const params = new URLSearchParams();
+      params.set("view", descriptor.id);
+      router.replace(`/cases?${params.toString()}`);
+      return;
+    }
+    const f = descriptor.view.filters as Record<string, unknown>;
+    const s = descriptor.view.sort as {
+      sortBy?: string;
+      sortDir?: "asc" | "desc";
+    };
+    const params = new URLSearchParams();
+    const asStr = (v: unknown) => (typeof v === "string" && v ? v : "");
+    const asBool = (v: unknown) => v === true || v === "1" || v === "true";
+    const setIf = (k: string, v: string) => {
+      if (v) params.set(k, v);
+    };
+    setIf("search", asStr(f.search));
+    setIf("stage", asStr(f.stage));
+    setIf("team", asStr(f.team));
+    setIf("assignedTo", asStr(f.assignedTo));
+    setIf("practice", asStr(f.practice));
+    setIf("language", asStr(f.language));
+    if (asBool(f.unread)) params.set("unread", "1");
+    setIf("urgency", asStr(f.urgency));
+    if (s?.sortBy && s.sortBy !== "updatedAt") params.set("sortBy", s.sortBy);
+    if (s?.sortDir && s.sortDir !== "desc") params.set("sortDir", s.sortDir);
+    const p =
+      typeof f.page === "number" && f.page > 1
+        ? String(f.page)
+        : typeof f.page === "string" && Number(f.page) > 1
+          ? String(f.page)
+          : "";
+    if (p) params.set("page", p);
+    router.replace(`/cases?${params.toString()}`);
+  }
+
+  async function refreshSavedViews() {
+    try {
+      const fresh = await listSavedViews();
+      setSavedViews(fresh);
+    } catch {
+      // ignore
+    }
+  }
 
   function SortIcon({ column }: { column: string }) {
     if (sortBy !== column) return null;
@@ -502,6 +701,15 @@ export function CasesListClient({
 
       {/* Filters */}
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+        <SavedViewsMenu
+          seededViews={SEEDED_VIEWS}
+          savedViews={savedViews}
+          activeViewId={view || null}
+          currentFilters={currentFilters}
+          currentSort={currentSort}
+          onSelect={handleViewSelect}
+          onRefresh={refreshSavedViews}
+        />
         <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-sm">
           <HugeiconsIcon
             icon={Search01Icon}
@@ -509,7 +717,7 @@ export function CasesListClient({
             className="absolute left-2.5 top-2.5 text-muted-foreground"
           />
           <Input
-            placeholder="Search cases..."
+            placeholder="Search name, phone, case #..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
@@ -572,10 +780,77 @@ export function CasesListClient({
             ))}
           </SelectContent>
         </Select>
+        {practiceAreas.length > 0 && (
+          <Select
+            value={practiceFilter}
+            onValueChange={(v) => {
+              setPracticeFilter(v);
+              applyFilters({ practice: v });
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectValue placeholder="All Practice Areas" />
+            </SelectTrigger>
+            <SelectContent>
+              {practiceAreas.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        <Select
+          value={languageFilter}
+          onValueChange={(v) => {
+            setLanguageFilter(v);
+            applyFilters({ language: v });
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectValue placeholder="All Languages" />
+          </SelectTrigger>
+          <SelectContent>
+            {LANGUAGE_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={urgencyFilter}
+          onValueChange={(v) => {
+            setUrgencyFilter(v);
+            applyFilters({ urgency: v });
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectValue placeholder="All Urgencies" />
+          </SelectTrigger>
+          <SelectContent>
+            {URGENCY_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <label className="inline-flex items-center gap-2 px-2 text-sm">
+          <Checkbox
+            checked={unreadFilter}
+            onCheckedChange={(v) => {
+              const next = v === true;
+              setUnreadFilter(next);
+              applyFilters({ unread: next });
+            }}
+          />
+          Unread messages only
+        </label>
         {hasFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
             <HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" />
-            Clear
+            Clear all filters
           </Button>
         )}
         <div className="sm:ml-auto">
