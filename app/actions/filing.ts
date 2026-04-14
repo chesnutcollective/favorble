@@ -32,6 +32,11 @@ import {
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 import { logExtractionReview } from "@/lib/services/hipaa-audit";
+import {
+  FILING_REJECT_REASON_CODES,
+  FILING_REJECT_REASON_LABELS,
+  type FilingRejectReasonCode,
+} from "@/lib/filing/constants";
 
 export type FilingFilter =
   | "all"
@@ -615,26 +620,10 @@ void inArray;
  * client dialog and server action share the exact same vocabulary. Adding a
  * new code here automatically lights it up in the reject dialog.
  */
-export const FILING_REJECT_REASON_CODES = [
-  "missing_signature",
-  "wrong_form_version",
-  "incomplete_evidence",
-  "incorrect_ssn",
-  "duplicate_submission",
-  "other",
-] as const;
-
-export type FilingRejectReasonCode = (typeof FILING_REJECT_REASON_CODES)[number];
-
-/** Human-readable labels for the reason codes — used in the dropdown. */
-export const FILING_REJECT_REASON_LABELS: Record<FilingRejectReasonCode, string> = {
-  missing_signature: "Missing signature",
-  wrong_form_version: "Wrong form version",
-  incomplete_evidence: "Incomplete evidence",
-  incorrect_ssn: "Incorrect SSN",
-  duplicate_submission: "Duplicate submission",
-  other: "Other",
-};
+// FILING_REJECT_REASON_CODES, FILING_REJECT_REASON_LABELS, and the type
+// FilingRejectReasonCode live in @/lib/filing/constants because Next.js
+// forbids non-async-function exports from `"use server"` files. The
+// type is imported at the top of this file for the action signature.
 
 /**
  * Lightweight row for filing picker UIs (reject dialog). Sorted with the

@@ -970,14 +970,14 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
  * CaseStatus parity: reason codes for closing a case.
  * These are free-form text stored in `cases.closed_reason`.
  */
-export const CLOSE_CASE_REASONS = [
+const CLOSE_CASE_REASONS = [
   "won",
   "lost",
   "withdrawn",
   "referred_out",
   "other",
 ] as const;
-export type CloseCaseReason = (typeof CLOSE_CASE_REASONS)[number];
+type CloseCaseReason = (typeof CLOSE_CASE_REASONS)[number];
 
 /** Map a CaseStatus-style close reason to the cases.status enum value. */
 function closeReasonToStatus(
@@ -1084,13 +1084,13 @@ export async function closeCase(
  * CaseStatus parity: reason codes for placing a case on hold.
  * Stored as free-form text in `cases.hold_reason`.
  */
-export const HOLD_CASE_REASONS = [
+const HOLD_CASE_REASONS = [
   "client_unresponsive",
   "medical_pending",
   "awaiting_docs",
   "other",
 ] as const;
-export type HoldCaseReason = (typeof HOLD_CASE_REASONS)[number];
+type HoldCaseReason = (typeof HOLD_CASE_REASONS)[number];
 
 /**
  * Place a case on hold with a reason code, optional hold-until date, and notes.
@@ -1173,14 +1173,12 @@ export async function placeCaseOnHold(
   revalidatePath("/cases");
   revalidatePath("/queue");
 }
-  }
-}
 
 /**
  * Relationship values accepted on the `case_contacts` join table.
  * Keep in sync with the "+ Add Client" dialog on the case overview.
  */
-export const CASE_CONTACT_RELATIONSHIPS = [
+const CASE_CONTACT_RELATIONSHIPS = [
   "claimant",
   "spouse",
   "parent",
@@ -1190,7 +1188,7 @@ export const CASE_CONTACT_RELATIONSHIPS = [
   "other",
 ] as const;
 
-export type CaseContactRelationship = (typeof CASE_CONTACT_RELATIONSHIPS)[number];
+type CaseContactRelationship = (typeof CASE_CONTACT_RELATIONSHIPS)[number];
 
 /**
  * Get every contact attached to a case via case_contacts, ordered so primary

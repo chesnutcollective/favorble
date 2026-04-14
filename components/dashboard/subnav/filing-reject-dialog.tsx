@@ -24,11 +24,13 @@ import { Label } from "@/components/ui/label";
 import {
   rejectFiling,
   getPendingFilings,
+  type PendingFilingRow,
+} from "@/app/actions/filing";
+import {
   FILING_REJECT_REASON_CODES,
   FILING_REJECT_REASON_LABELS,
   type FilingRejectReasonCode,
-  type PendingFilingRow,
-} from "@/app/actions/filing";
+} from "@/lib/filing/constants";
 
 type Props = {
   open: boolean;
