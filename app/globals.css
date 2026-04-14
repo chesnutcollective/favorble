@@ -212,9 +212,16 @@
 }
 
 /* ── App layout ── */
+:root {
+  --view-as-banner-h: 0px;
+}
+.has-view-as-banner {
+  --view-as-banner-h: 36px;
+}
+
 .ttn-app-layout {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - var(--view-as-banner-h));
   background: var(--bg-root, #FAFAFA);
 }
 
@@ -224,16 +231,17 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: margin-left 0.2s ease;
 }
 
 /* ── Floating sidebar wrapper ── */
 .ttn-float {
   position: fixed;
-  top: 0;
+  top: var(--view-as-banner-h, 0);
   left: 0;
   z-index: 40;
   padding: 12px 0 12px 12px;
-  height: 100vh;
+  height: calc(100vh - var(--view-as-banner-h, 0px));
   display: flex;
   flex-shrink: 0;
 }
@@ -249,7 +257,7 @@
 .ttn-rail {
   width: 56px;
   min-width: 56px;
-  height: calc(100vh - 24px);
+  height: calc(100vh - 24px - var(--view-as-banner-h, 0px));
   background: var(--nav-rail-bg, #1C1C1E);
   border-radius: 12px 0 0 12px;
   display: flex;
@@ -286,6 +294,58 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.ttn-rail-group::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
+}
+
+/* Subtle fade at top/bottom of scrollable icon area */
+.ttn-rail-scroll-mask {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 12px,
+    black calc(100% - 12px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 12px,
+    black calc(100% - 12px),
+    transparent 100%
+  );
+}
+
+/* ── Rail tooltips ──
+ * No max-width + overflow:visible so the dark pill always hugs the full
+ * label, even long ones like "Post-Hearing Processing". width:max-content
+ * lets the tooltip size itself to its text; white-space:nowrap keeps it
+ * on one line (tweak to `normal` + word-break if you ever want wrapping).
+ */
+.ttn-tooltip,
+.ttn-tooltip[data-radix-popper-content-wrapper] {
+  z-index: 50;
+  overflow: visible !important;
+  border-radius: 8px;
+  background: #111113;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  padding: 6px 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.12);
+  width: max-content;
+  max-width: min(calc(100vw - 80px), 360px);
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .ttn-rail-divider {
@@ -297,7 +357,7 @@
 }
 
 .ttn-rail-spacer {
-  flex: 1;
+  flex: 0;
 }
 
 /* Rail button */
@@ -366,6 +426,107 @@
   background: #007AFF;
 }
 
+/* Notification badge (count) */
+.ttn-notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FFF;
+  background: var(--nav-accent, #263c94);
+  border: 1.5px solid var(--nav-rail-bg, #1C1C1E);
+  border-radius: 8px;
+  padding: 0 3px;
+  font-family: var(--font-mono);
+}
+
+/* Changelog panel styles */
+.ttn-changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ttn-changelog-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.12s ease;
+}
+
+.ttn-changelog-item:hover {
+  background: #F3F4F6;
+}
+
+.ttn-changelog-item-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ttn-changelog-type {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.ttn-changelog-type.feat { background: rgba(29,114,184,0.12); color: #185f9b; }
+.ttn-changelog-type.fix { background: rgba(239,68,68,0.10); color: #DC2626; }
+.ttn-changelog-type.chore { background: rgba(156,163,175,0.15); color: #6B7280; }
+.ttn-changelog-type.docs { background: rgba(139,92,246,0.10); color: #7C3AED; }
+.ttn-changelog-type.other { background: rgba(156,163,175,0.15); color: #6B7280; }
+
+.ttn-changelog-time {
+  font-size: 10px;
+  color: #9CA3AF;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-mono, 'Geist Mono', monospace);
+}
+
+.ttn-changelog-subject {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ttn-changelog-footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.ttn-changelog-footer a {
+  font-size: 11px;
+  font-weight: 500;
+  color: #185f9b;
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+
+.ttn-changelog-footer a:hover {
+  color: #263c94;
+}
+
 /* ── User avatar in rail ── */
 .ttn-rail-avatar {
   width: 30px;
@@ -412,13 +573,47 @@
 .ttn-panel {
   width: 184px;
   min-width: 184px;
-  height: calc(100vh - 24px);
+  height: calc(100vh - 24px - var(--view-as-banner-h, 0px));
   background: var(--bg-card, #FAFAFA);
   border-radius: 0 12px 12px 0;
   display: flex;
   flex-direction: column;
   user-select: none;
   overflow: hidden;
+  transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
+}
+
+/* ── Collapsed state ── */
+.ttn-float[data-collapsed="true"] .ttn-panel {
+  width: 0;
+  min-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ttn-float[data-collapsed="true"] .ttn-rail {
+  border-radius: 12px;
+}
+
+/* ── Collapse toggle button ── */
+.ttn-collapse-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  transition: background 0.15s ease, color 0.15s ease;
+  margin-bottom: 4px;
+}
+
+.ttn-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Search trigger */
@@ -549,18 +744,18 @@
 /* ── Dashboard: Quick Actions ── */
 .ttn-quick-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 6px;
   margin-bottom: 16px;
 }
 
 .ttn-quick-action-btn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 4px;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   background: #FFF;
@@ -576,12 +771,17 @@
 
 .ttn-quick-action-btn svg {
   color: #263c94;
+  flex-shrink: 0;
 }
 
 .ttn-quick-action-btn span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Today's Numbers */
@@ -1052,6 +1252,16 @@
 ::-webkit-scrollbar-thumb { background: #D4D4D4; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #A3A3A3; }
 
+/* Hidden scrollbars (default) — scroll functionality preserved */
+html.scrollbars-hidden,
+html.scrollbars-hidden * {
+  scrollbar-width: none !important; /* Firefox */
+}
+html.scrollbars-hidden::-webkit-scrollbar,
+html.scrollbars-hidden *::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Edge */
+}
+
 /* ── Selection ── */
 ::selection { background: #D1D5DB; color: #171717; }
 
@@ -1151,5 +1361,77 @@ pre {
 		max-width: 100% !important;
 		padding: 0 !important;
 		margin: 0 !important;
+	}
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Dashboard primitive animations
+ * Used by RadialGauge, LiveTicker, StageFlowCards, etc.
+ * All animations honour prefers-reduced-motion (see media query below).
+ * ───────────────────────────────────────────────────────────────────────── */
+
+@keyframes dash-breathe {
+	0% { opacity: 0.35; transform: scale(1); }
+	50% { opacity: 0; transform: scale(1.18); }
+	100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes dash-arc-draw {
+	from { stroke-dashoffset: var(--dash-arc-len, 360); }
+	to   { stroke-dashoffset: var(--dash-arc-target, 0); }
+}
+
+@keyframes dash-ticker-scroll {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+
+@keyframes dash-pellet-flow {
+	from { transform: translateX(0); opacity: 0; }
+	10%  { opacity: 1; }
+	90%  { opacity: 1; }
+	to   { transform: translateX(var(--pellet-distance, 100%)); opacity: 0; }
+}
+
+@keyframes dash-pulse-dot {
+	0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+	50%      { box-shadow: 0 0 0 6px transparent; opacity: 0.85; }
+}
+
+@keyframes dash-fade-up {
+	from { opacity: 0; transform: translateY(6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.dash-breathe {
+	animation: dash-breathe var(--dash-breathe-cadence, 3s) ease-out infinite;
+}
+.dash-arc-draw {
+	animation: dash-arc-draw 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.dash-ticker {
+	animation: dash-ticker-scroll var(--dash-ticker-duration, 60s) linear infinite;
+}
+.dash-ticker:hover {
+	animation-play-state: paused;
+}
+.dash-pellet {
+	animation: dash-pellet-flow var(--dash-pellet-duration, 1.2s) linear infinite;
+}
+.dash-pulse-dot {
+	animation: dash-pulse-dot 2s ease-in-out infinite;
+}
+.dash-fade-up {
+	animation: dash-fade-up 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dash-breathe,
+	.dash-arc-draw,
+	.dash-ticker,
+	.dash-pellet,
+	.dash-pulse-dot,
+	.dash-fade-up {
+		animation: none !important;
 	}
 }

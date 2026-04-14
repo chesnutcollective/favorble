@@ -344,7 +344,10 @@ export const PIPELINE_STAGES: PipelineStage[] = [
 /**
  * Returns stages grouped by their pipeline group, preserving display order.
  */
-export function getStagesByGroup(): Record<PipelineStageGroup, PipelineStage[]> {
+export function getStagesByGroup(): Record<
+  PipelineStageGroup,
+  PipelineStage[]
+> {
   const grouped: Record<PipelineStageGroup, PipelineStage[]> = {
     NEW_LEADS: [],
     QUALIFICATION: [],

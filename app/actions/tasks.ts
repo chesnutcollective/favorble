@@ -227,9 +227,7 @@ export async function completeTask(taskId: string) {
   await db
     .update(tasks)
     .set({ status: "pending", updatedAt: new Date() })
-    .where(
-      and(eq(tasks.dependsOnTaskId, taskId), eq(tasks.status, "blocked")),
-    );
+    .where(and(eq(tasks.dependsOnTaskId, taskId), eq(tasks.status, "blocked")));
 
   // Auto-advance: check if all workflow tasks for this case's current stage are done
   await checkAndAutoAdvance(taskId, session.id, session.organizationId);

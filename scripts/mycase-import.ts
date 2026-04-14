@@ -214,15 +214,27 @@ function mapCaseStatus(
   const s = myCaseStatus.toLowerCase().trim();
   if (s === "open" || s === "active" || s === "pending") return "active";
   if (s === "on hold" || s === "on_hold" || s === "paused") return "on_hold";
-  if (s === "closed" || s === "closed - won" || s === "won") return "closed_won";
+  if (s === "closed" || s === "closed - won" || s === "won")
+    return "closed_won";
   if (s === "closed - lost" || s === "lost") return "closed_lost";
-  if (s === "closed - withdrawn" || s === "withdrawn") return "closed_withdrawn";
+  if (s === "closed - withdrawn" || s === "withdrawn")
+    return "closed_withdrawn";
   return "active";
 }
 
 function mapLeadStatus(
   myCaseStatus: string,
-): "new" | "contacted" | "intake_scheduled" | "intake_in_progress" | "contract_sent" | "contract_signed" | "converted" | "declined" | "unresponsive" | "disqualified" {
+):
+  | "new"
+  | "contacted"
+  | "intake_scheduled"
+  | "intake_in_progress"
+  | "contract_sent"
+  | "contract_signed"
+  | "converted"
+  | "declined"
+  | "unresponsive"
+  | "disqualified" {
   const s = myCaseStatus.toLowerCase().trim();
   if (s === "new" || s === "pending") return "new";
   if (s === "contacted" || s === "in progress") return "contacted";
@@ -259,7 +271,9 @@ function getDb() {
     .trim();
 
   if (!url) {
-    throw new Error("DATABASE_URL or POSTGRES_URL environment variable is required");
+    throw new Error(
+      "DATABASE_URL or POSTGRES_URL environment variable is required",
+    );
   }
 
   const client = postgres(url, {
@@ -343,16 +357,23 @@ async function importContacts(
         created++;
       }
     } catch (error) {
-      logError(`Failed to import contact ${mc.id} (${mc.first_name} ${mc.last_name})`, error);
+      logError(
+        `Failed to import contact ${mc.id} (${mc.first_name} ${mc.last_name})`,
+        error,
+      );
       skipped++;
     }
 
     if ((created + updated + skipped) % 500 === 0) {
-      log(`  Contacts progress: ${created + updated + skipped}/${myCaseContacts.length}`);
+      log(
+        `  Contacts progress: ${created + updated + skipped}/${myCaseContacts.length}`,
+      );
     }
   }
 
-  log(`Contacts done: ${created} created, ${updated} updated, ${skipped} skipped`);
+  log(
+    `Contacts done: ${created} created, ${updated} updated, ${skipped} skipped`,
+  );
   return idMap;
 }
 
@@ -424,7 +445,9 @@ async function importCases(
         currentStageId: defaultStageId,
         stageEnteredAt: mc.open_date ? new Date(mc.open_date) : new Date(),
         closedAt,
-        closedReason: status.startsWith("closed") ? `Imported from MyCase (${mc.status})` : null,
+        closedReason: status.startsWith("closed")
+          ? `Imported from MyCase (${mc.status})`
+          : null,
         // Store MyCase ID in the Case Status external ID field for reference
         caseStatusExternalId: `mycase:${mc.id}`,
         updatedAt: new Date(),
@@ -454,7 +477,9 @@ async function importCases(
     }
 
     if ((created + updated + skipped) % 500 === 0) {
-      log(`  Cases progress: ${created + updated + skipped}/${myCaseCases.length}`);
+      log(
+        `  Cases progress: ${created + updated + skipped}/${myCaseCases.length}`,
+      );
     }
   }
 
@@ -533,12 +558,17 @@ async function importLeads(
         created++;
       }
     } catch (error) {
-      logError(`Failed to import lead ${mc.id} (${mc.first_name} ${mc.last_name})`, error);
+      logError(
+        `Failed to import lead ${mc.id} (${mc.first_name} ${mc.last_name})`,
+        error,
+      );
       skipped++;
     }
 
     if ((created + updated + skipped) % 500 === 0) {
-      log(`  Leads progress: ${created + updated + skipped}/${myCaseLeads.length}`);
+      log(
+        `  Leads progress: ${created + updated + skipped}/${myCaseLeads.length}`,
+      );
     }
   }
 
@@ -582,7 +612,9 @@ async function ensureDefaultStage(
   }
 
   // Create a minimal stage group and stage for import
-  log("No case stages found. Creating default stage group and stage for import...");
+  log(
+    "No case stages found. Creating default stage group and stage for import...",
+  );
 
   const [group] = await db
     .insert(schema.caseStageGroups)
@@ -692,10 +724,19 @@ async function main(): Promise<void> {
     log("\n--- Phase 2: Importing into Favorble database ---");
 
     // Import contacts first (cases may reference them)
-    const contactIdMap = await importContacts(db, organizationId, myCaseContacts);
+    const contactIdMap = await importContacts(
+      db,
+      organizationId,
+      myCaseContacts,
+    );
 
     // Import cases
-    const caseIdMap = await importCases(db, organizationId, myCaseCases, defaultStageId);
+    const caseIdMap = await importCases(
+      db,
+      organizationId,
+      myCaseCases,
+      defaultStageId,
+    );
 
     // Import leads
     const leadIdMap = await importLeads(db, organizationId, myCaseLeads);
@@ -724,7 +765,8 @@ async function main(): Promise<void> {
               caseId: favorbleCaseId,
               contactId: favorbleContactId,
               relationship: mapContactType(contact.contact_type),
-              isPrimary: contact.contact_type?.toLowerCase().includes("client") ?? false,
+              isPrimary:
+                contact.contact_type?.toLowerCase().includes("client") ?? false,
             })
             .onConflictDoNothing();
           linked++;
@@ -733,7 +775,9 @@ async function main(): Promise<void> {
         }
       }
     }
-    log(`Case-contact links: ${linked} created, ${linkSkipped} skipped (duplicates)`);
+    log(
+      `Case-contact links: ${linked} created, ${linkSkipped} skipped (duplicates)`,
+    );
 
     // -----------------------------------------------------------------------
     // Summary

@@ -1,0 +1,202 @@
+[
+  {
+    "sha": "c5b6c70c12a2371f5bcf80d6f729e02a7b04e252",
+    "summary": "Adds 14 placeholder n8n workflow shells plus the LangExtract Python worker service.",
+    "details": "Two pieces shipping together.\n\n**14 n8n workflow shells (06-19).** Empty workflow placeholders with TODO documentation in sticky notes, covering planned AI automations, document processing, and cross-system sync work. They serve as scaffolding for future activation.\n\n**`services/langextract-worker/`.** New Python FastAPI service for structured data extraction from SSA documents using Google's LangExtract library. Mock mode auto-enables when `GEMINI_API_KEY` is unset, returning realistic responses with char-interval source grounding. Includes Dockerfile, requirements.txt, railway.toml, .dockerignore, env.example, the `extractors.py` and `main.py` source.",
+    "userImpact": "Establishes the worker service that all subsequent extraction features call. Without `GEMINI_API_KEY`, the worker returns mock data so the pipeline can be developed locally.",
+    "riskNotes": "Mock mode is fine for dev; ensure `GEMINI_API_KEY` is set on Railway before depending on real extractions.",
+    "bullets": ["14 n8n workflow placeholder shells", "FastAPI langextract-worker service", "Mock mode when GEMINI_API_KEY absent", "Char-interval source grounding for traceable extractions"]
+  },
+  {
+    "sha": "0f1b27eac0c1ac0ec4ca6b9a0fbe40a65bce949a",
+    "summary": "Adds five n8n workflow definitions for orchestration: MyCase sync, ERE scheduler, CaseStatus router, lead intake, and a daily digest.",
+    "details": "Five n8n workflows for the orchestration layer:\n\n1. **MyCase → Favorble incremental sync** every 15 minutes\n2. **ERE scrape scheduler** for active hearings every 2 hours\n3. **CaseStatus webhook router** with secret verification\n4. **Lead intake** from website forms\n5. **Daily digest** of overdue tasks (weekdays 8am)\n\nAll deployed to n8n at `https://n8n-staging-b24a.up.railway.app/`.",
+    "userImpact": "The orchestration layer is in place — once endpoints + credentials are live, these workflows fire automatically.",
+    "riskNotes": "Workflows in the n8n instance need their secrets configured before activation.",
+    "bullets": ["5 orchestration workflows defined as JSON", "Includes MyCase sync, ERE scheduler, CaseStatus router", "Lead intake + daily digest", "Deployed to staging n8n at Railway"]
+  },
+  {
+    "sha": "a4eb33e59e71e402c980f937968397c276d78f6b",
+    "summary": "Paginated MyCase API client with rate-limiting + retries, plus bulk-import script and CaseStatus/Outlook setup docs.",
+    "details": "Adds: `lib/integrations/mycase.ts` (paginated API client with rate limiting + retries); `scripts/mycase-import.ts` (bulk import for cases, contacts, leads); inline setup instructions for CaseStatus and Azure AD/Outlook in their respective integration files.",
+    "userImpact": "Devs have a documented, retry-safe path to import an entire MyCase tenant in bulk, plus runbooks for wiring CaseStatus webhooks and Outlook OAuth.",
+    "riskNotes": "Bulk import can hit MyCase rate limits with very large tenants — the client handles retries but tune the page size if you see throttling.",
+    "bullets": ["Paginated MyCase REST client with retry logic", "Bulk import script for cases/contacts/leads", "CaseStatus + Outlook setup docs inline"]
+  },
+  {
+    "sha": "9c6372dd52bfe61165a0eb4818dfdb4c8e92806b",
+    "summary": "ERE services switch to @hono/node-server because Bun's default Hono pattern doesn't run on Node.js.",
+    "details": "Hono's `export default { port, fetch }` pattern only works under Bun. Node.js requires the `@hono/node-server` `serve()` function. Updated both the ere-browser and ere-orchestrator services to use it.",
+    "userImpact": "ERE services boot correctly on Railway (Node.js) instead of crashing with the Bun-specific entry pattern.",
+    "riskNotes": "",
+    "bullets": ["Switch to @hono/node-server serve() entry point", "Both ere-browser and ere-orchestrator updated"]
+  },
+  {
+    "sha": "f93fd6e633b8e6193784ecfb22b038d8c6999f3a",
+    "summary": "Activates the ERE pipeline — fixes job-type enum mismatch, displays scraped SSA data on the case SSA tab, and auto-fills empty fields from scrapes.",
+    "details": "Three fixes that put the ERE integration into a working state.\n\n- Fix the job type enum mismatch in the orchestrator (was rejecting all jobs).\n- Add a scraped-SSA-data display card on the case SSA tab so users can actually see what was pulled.\n- Add reconciliation logic to the webhook handler: inserts `scraped_case_data`, then auto-fills empty case fields from the scrape results.",
+    "userImpact": "Cases now show their scraped SSA data; empty fields auto-populate from ERE scrapes; the orchestrator stops silently rejecting every queued job.",
+    "riskNotes": "Auto-fill only writes to empty fields — confirm that's the right policy before trusting it for full sync.",
+    "bullets": ["Fixed orchestrator job-type enum mismatch", "Scraped SSA data card on case SSA tab", "Auto-reconciliation fills empty case fields from scrapes"]
+  },
+  {
+    "sha": "45587f708251f1b844ae7358a0d8b2118b407212",
+    "summary": "Updates CLAUDE.md with deployment URLs, infrastructure details, and team conventions.",
+    "details": "Documentation-only update. Refreshes CLAUDE.md with the latest production/staging URLs, Railway/Vercel/Clerk team identifiers, deployment workflow, and required env vars so any developer (and Claude) starts with accurate context.",
+    "userImpact": "No runtime change. Improves AI assistant accuracy and onboarding clarity.",
+    "riskNotes": "",
+    "bullets": ["Refreshed deployment URLs and infrastructure mapping", "Updated team and credential references", "Improves AI / new-dev onboarding accuracy"]
+  },
+  {
+    "sha": "5bd30a851baa9aabc48d93a27e7f0cc8a3dd2a6a",
+    "summary": "Replaces the demo cookie auth with full Clerk authentication.",
+    "details": "Adds `ClerkProvider` to the root layout, protects routes via `clerkMiddleware`, and rewrites `session.ts` to look up users by Clerk's `authUserId` (with email fallback for first-time linking when an existing seeded user signs in via Clerk for the first time).",
+    "userImpact": "Real authentication via Clerk — sign-up, sign-in, sessions, and SSO all work properly. Existing seeded user accounts link to their Clerk identity via email match on first sign-in.",
+    "riskNotes": "Clerk dev instances reject `*.vercel.app` domains and will redirect-loop on staging until a custom domain is added (mitigated by the `ENABLE_CLERK_AUTH` flag in commit `140ea69`).",
+    "bullets": ["ClerkProvider in root layout + clerkMiddleware route protection", "session.ts rewritten to look up by authUserId", "Email-fallback first-time linking for seeded users", "Replaces the demo cookie auth"]
+  },
+  {
+    "sha": "8fbe0b71756916bd8b430673c9045cd4e951ae65",
+    "summary": "Adds Next.js framework hint to vercel.json so deploys configure correctly.",
+    "details": "Tiny config change: `vercel.json` now declares the framework as `nextjs` so Vercel applies the right defaults (build command, output dir, function runtime).",
+    "userImpact": "Deploys configure correctly without manual settings overrides.",
+    "riskNotes": "",
+    "bullets": ["Adds 'framework: nextjs' to vercel.json", "Vercel applies correct Next.js build defaults"]
+  },
+  {
+    "sha": "0ad5289d23d106379eb76081af2c72090ed80934",
+    "summary": "Tracks env, .vercel config, and Claude files in git so a fresh clone works immediately on another machine.",
+    "details": "Private-repo convenience commit: removes most of `.gitignore` so `.env.local`, `CLAUDE.local.md`, `.vercel/.env.development.local`, `.vercel/.env.production.local`, `supabase/.temp/cli-latest`, and `tsconfig.tsbuildinfo` get committed. Lets a fresh clone (or new dev machine) work without re-pulling secrets via `vercel env pull`.",
+    "userImpact": "Onboarding a new machine: just `git clone` and everything works. No more chasing env files.",
+    "riskNotes": "Committing env files is risky in any non-private context. This was reverted later (`3637b17`) when the security trade-off was reconsidered. Any historical secret in those committed files should be considered leaked.",
+    "bullets": ["Untracks gitignored env/config files", "Allows fresh clone to work immediately", "Reverted later (3637b17) for security"]
+  },
+  {
+    "sha": "589e7558ff6a0ef7a4f604a052080d8da7603214",
+    "summary": "GitHub Actions workflow posts a code-fingerprint to the Gloo Collaborator QA dashboard on every push to main/staging.",
+    "details": "Adds `.github/workflows/qa-sync.yml`. On each push to main or staging, computes a fingerprint of routes, server actions, components, and DB schema, and POSTs it to the Gloo Collaborator QA dashboard. Used to detect when the app has changed since its last QA pass.",
+    "userImpact": "QA dashboard always knows the current shape of the app — when there's a delta, QA is notified instead of finding out at the next pass.",
+    "riskNotes": "Workflow needs the Collab dashboard secret in GitHub repo secrets to actually post.",
+    "bullets": ["GitHub Actions workflow on push to main/staging", "Computes route/action/component/schema fingerprint", "POSTs delta to Collab QA dashboard"]
+  },
+  {
+    "sha": "5e46569b9bb821ac9ac9ac091632ef6f6c00faf1",
+    "summary": "Seeds rich cross-data for every contact type — case links, comms, calendar events, chronology, audit trail.",
+    "details": "New seed script populates comprehensive data across all contacts so every profile has enough to fill its Social Profile sections:\n\n- 35 case_contacts links (attorneys, providers, SSA offices, experts)\n- 37 communications (welcome letters, referrals, hearing notices, etc.)\n- 29 calendar events (hearings, CE exams, meetings, testimony dates)\n- 14 medical chronology entries across 3 providers with clinical detail\n- 124 audit log entries (create + update events per contact)\n\nClaimants get communications, events, documents (from prior seed). Providers get medical chronology + appointments + patient cases. Attorneys get referral emails + fee discussions + linked cases. SSA offices get hearing notices + decisions. Experts get testimony scheduling + hearing events.",
+    "userImpact": "Every contact detail page now has real, type-appropriate content to render — useful for design review and demoing.",
+    "riskNotes": "",
+    "bullets": ["35 case_contacts links across 5 contact types", "37 communications, 29 calendar events", "14 medical chronology entries, 124 audit rows", "Type-appropriate data for demoing every contact section"]
+  },
+  {
+    "sha": "0bc5e83664a370bdc9002e0ad6adf541a36e6e5b",
+    "summary": "Complete rebuild of the contact detail page into a 9-section Social Profile layout that adapts per contact type.",
+    "details": "Replaces the contact stub with a comprehensive Social Profile layout. Data fetched in parallel: contact record, associated cases via caseContacts join (with stage names), claimant names per case, last 5 communications across linked cases, last 6 documents, last 8 audit log entries, medical chronology entries (providers), upcoming calendar events.\n\n**9 sections (conditionally rendered).**\n1. Hero — 96px avatar, name, type-specific subtitle, contact pills, email/edit action buttons, gradient background.\n2. Bio — auto-generated summary based on contact type + data.\n3. Cases — 2-column card grid with stage badges + relationship labels.\n4. Upcoming Events — timeline with type badges and case links.\n5. Documents — 3-column grid with file-type colors, categories.\n6. Communications — chronological feed with direction arrows.\n7. Medical Chronology — provider-only, with entry type dots.\n8. Activity — audit log timeline with action-colored dots.\n9. Notes — placeholder for future feature.\n\nAdapts per type (claimant / provider / attorney / SSA / expert) — different subtitles, bio text, and visible sections. Medical chronology only renders for providers; RFC/functional data referenced in claimant bios.",
+    "userImpact": "Contacts feel like full LinkedIn-style profiles instead of basic info cards — at a glance you can see everything that's happened with that person across the firm.",
+    "riskNotes": "",
+    "bullets": ["9-section Social Profile layout", "Type-adaptive (claimant/provider/attorney/SSA/expert)", "All data fetched in parallel", "Provider profiles include medical chronology", "Auto-generated bio per contact type"]
+  },
+  {
+    "sha": "2fa197d53a60137840f478901d4b17f33f55168e",
+    "summary": "Contact list rows are now clickable — opens the contact detail page.",
+    "details": "Each row in the contacts list now navigates to `/contacts/{id}` on click, opening the full contact detail page. Two-line change.",
+    "userImpact": "You can finally click a row in the contacts list to open the detail page instead of having to navigate manually.",
+    "riskNotes": "",
+    "bullets": ["Contact rows open /contacts/{id} on click", "2-line change"]
+  },
+  {
+    "sha": "deefd812a49dfd4eedd74bed55b61cc2de6a2a1d",
+    "summary": "Updates the OpenGraph preview image to match the new glass login design.",
+    "details": "Replaces the old Hogan Smith Law blue logo with a glass card on a dark gradient background matching the new login aesthetic. Shows F monogram, Favorble wordmark, subtitle, and 4 feature highlights with emerald dots.",
+    "userImpact": "Links shared on Slack, Twitter, etc. show a preview image consistent with the rebrand instead of a stale logo.",
+    "riskNotes": "",
+    "bullets": ["New OG image matches glass login aesthetic", "Includes wordmark + feature highlights"]
+  },
+  {
+    "sha": "b998fcc921b5401814cea68013ed6c7820e38088",
+    "summary": "Animation system overhaul — fixed shadcn overlay animations, shimmer skeletons, button press feedback, page transitions, count-ups, and scroll reveals.",
+    "details": "**Foundation.** Installed `tw-animate-css` which fixes all broken shadcn overlay animations (Dialog, Sheet, DropdownMenu, Tooltip, Select now animate properly). Added `prefers-reduced-motion` media query (kills all motion for a11y). Deleted dead toast keyframes. Updated fade-up to translateY(4px) (was 8px — too much travel).\n\n**Skeleton loading.** Replaced `animate-pulse` with a directional shimmer sweep (1.5s linear). Shimmer communicates 'content loading' more clearly than a uniform pulse.\n\n**Button press.** Added `active:scale-[0.97]` for tactile click feedback. Fixed `transition-all` → `transition-[color,bg,border,transform]` for performance.\n\n**Page transitions.** New `PageTransition` component wraps children, keyed by pathname. 200ms fade-up on every route change. No exit animation (App Router limitation).\n\n**Dashboard count-up.** New `useCountUp` hook: 0 → target over 400ms with ease-out cubic curve. Uses `requestAnimationFrame`, respects `prefers-reduced-motion`. Applied to Active Cases, Pending Tasks, Avg Days to Hearing.\n\n**Scroll reveals.** New `RevealOnScroll` component with `IntersectionObserver`. Dashboard's Intelligence, Evidence, Activity, Trends sections fade in as user scrolls. Triggers once.",
+    "userImpact": "The whole app feels noticeably more polished — overlays fade in properly, dashboard numbers count up, sections reveal as you scroll, and clicking buttons gives tactile feedback. Accessibility preserved via prefers-reduced-motion.",
+    "riskNotes": "",
+    "bullets": ["tw-animate-css fixes shadcn overlay animations", "Shimmer-sweep skeletons replace pulse", "Page transition fade on route change", "Count-up hook for dashboard stats", "RevealOnScroll for dashboard sections", "Respects prefers-reduced-motion"]
+  },
+  {
+    "sha": "f30190beec417d27f2c87a09fd0b813747c0b0cb",
+    "summary": "New glass-photo login screen replaces the old split-panel design.",
+    "details": "CSS-only abstract gradient background (dark blues, teals, grays) simulating a blurred architectural scene. Frosted glass login panel with backdrop-filter blur, 16px radius, subtle shadow.\n\n**Inside the panel:** black 'F' square + 'Favorble' wordmark, 'Welcome back' heading with separator, email/password inputs with emerald focus states, password show/hide toggle with eye icons, Remember me checkbox + forgot password link, dark sign-in button (#1C1C1E), Google + Microsoft social login buttons with real brand SVG icons, 'Favorble — Powered by Hogan Smith' footer, fade-in animation on panel load. Demo sign-in still works (`admin@hogansmith.com`).",
+    "userImpact": "First impression of the app is dramatically more premium. The glass aesthetic carries through the rest of the visual system.",
+    "riskNotes": "",
+    "bullets": ["Frosted-glass login panel on gradient backdrop", "Email/password + Google + Microsoft login buttons", "Real brand SVG icons", "Password show/hide toggle", "Demo sign-in still functional"]
+  },
+  {
+    "sha": "3e85e5f7bca2259d400931a6bf30fcba33719c91",
+    "summary": "Fills four previously-empty pages with real content — workflows seed, lead detail rebuild, admin settings, and templates.",
+    "details": "**Seed (`seed-workflows-templates.ts`).** 6 workflow templates with 24 task templates (intake, filing, hearing prep, post-hearing, favorable decision, denial response). 8 document templates with merge fields (retainer, SSA-1696, medical records request, pre-hearing brief, welcome letter, fee agreement, CE follow-up, AC brief).\n\n**Lead detail page (`/leads/[id]/client.tsx`).** Complete rewrite matching Vercel Light design. Left column: avatar, status dot, email/phone/source, notes card. Pipeline progress bar: New → Contacted → Intake → Contract Sent → Signed. Right column: contracts section, intake form data. Actions: edit, delete, advance, convert to case. New server actions `updateLead()`, `deleteLead()`.\n\n**Admin settings (`/admin/settings`).** Organization card (logo placeholder, member count from DB, edit link), Account card (avatar initials, last login, styled role/team badges), Quick Stats card (4 real DB counts: cases, contacts, docs, tasks), Danger Zone card (export + delete buttons, styled but non-functional). All counts queried in parallel.",
+    "userImpact": "Four previously-blank pages now have meaningful content. The lead detail page in particular goes from a stub to a proper Vercel-Light styled detail view with pipeline progress.",
+    "riskNotes": "Danger Zone delete/export buttons are non-functional — make sure no one assumes they work yet.",
+    "bullets": ["6 workflow templates + 24 task templates seeded", "8 document templates with merge fields", "Lead detail rewritten with pipeline progress + actions", "Admin settings page populated with real DB counts", "All-parallel DB queries"]
+  },
+  {
+    "sha": "9b9f3c8a7e2e797abd6084d4e90261f0f91d058f",
+    "summary": "Builds out the contact detail page from a stub heading to a real info card + linked cases list.",
+    "details": "Was a bare `<h1>Contact</h1>`. Now shows a contact info card (avatar, name, type, mailto email, tel phone, address, created date) and an associated cases list (case number, current stage, relationship type, last updated, each linking to the case detail page). Replaced more comprehensively in commit `0bc5e83`.",
+    "userImpact": "Contact detail has real data instead of an empty heading. Refined further in `0bc5e83` to the full Social Profile layout.",
+    "riskNotes": "",
+    "bullets": ["Contact info card with mailto/tel links", "Associated cases list with stage badges", "Foundation for the full Social Profile rebuild"]
+  },
+  {
+    "sha": "9c9ab3350d07f469c5982be3eaa07ac5463aa6f1",
+    "summary": "Fixes the global search not displaying results — frontend was reading the old API response shape.",
+    "details": "Search API returns `{ results: { cases: [...] }, topHit: {...} }` but the frontend was reading `data.cases` directly (old format). Updated `APISearchResults` interface to match the new nested format. `transformAPIResults` now reads from `data.results.*`. Added all 7 entity types to transform (was missing events + messages). Fixed field names (`name → fullName`, caseId join fields, etc.). `topHit` unwrapped correctly. Suggestions fetch also handles new format.",
+    "userImpact": "Search results actually appear when you type instead of the palette being empty.",
+    "riskNotes": "",
+    "bullets": ["APISearchResults interface matches new nested response", "All 7 entity types parsed (added events + messages)", "Field name corrections", "topHit + suggestions unwrap correctly"]
+  },
+  {
+    "sha": "9c51b304799d498ceee33cb179c670b60974dbd8",
+    "summary": "Fixes a build failure by wrapping TwoTierNav in Suspense (CasesPanel uses useSearchParams).",
+    "details": "`CasesPanel` inside `TwoTierNav` calls `useSearchParams()`, which requires a Suspense boundary during static generation. Wrapped `TwoTierNav` in `<Suspense>` in the app layout. Also added `force-dynamic` to the `/my-queue` redirect page.",
+    "userImpact": "Build succeeds again.",
+    "riskNotes": "",
+    "bullets": ["TwoTierNav now wrapped in Suspense in app layout", "force-dynamic on /my-queue redirect page", "Resolves Next.js 16 static-generation crash"]
+  },
+  {
+    "sha": "aeec0e0b79ebd8f482dca9999375be8970cb850a",
+    "summary": "Cmd+K palette now shows recent items, suggested cases/contacts/tasks, and Quick Actions before you type.",
+    "details": "When the palette opens, it immediately shows: recent items (from localStorage), 6 suggested recent cases/contacts/tasks fetched from DB, and Quick Actions (New Case, New Lead, etc.). The API now handles `q=*` as a 'browse mode' returning recent items across all entity types sorted by recency, without requiring a 2-character minimum query.",
+    "userImpact": "Cmd+K is useful from the moment it opens. You can jump to recent work or fire a quick action without typing anything.",
+    "riskNotes": "",
+    "bullets": ["Recent items shown on open", "6 suggested cases/contacts/tasks pre-fetched", "Quick Actions row with New Case / New Lead", "API q=* browse mode returns recent items"]
+  },
+  {
+    "sha": "2fb5a38f0bb010924170c2b256beea7de5927dc3",
+    "summary": "Linear/Raycast-style global command palette — 7 entity types, scoped filters, preview panel, 20 commands.",
+    "details": "Complete rebuild of global search.\n\n**Search API (`/api/search`).** 7 entity types in parallel: cases, contacts, tasks, documents, leads, calendar events, messages. Relevance scoring: exact match (100), starts-with (80), contains (50), secondary field (30) — sorted within each group. **Top Hit** highest-scored result promoted above grouped results. Search fields cover case #, claimant name, SSN last 4, SSA claim #, contact details, task title, file name, lead name, event title, message subject/body. Type-filter param for scoped search. Per-entity try/catch for resilience.\n\n**Command Palette (`global-search.tsx`).** Dual mode: search (default) + commands (type `>` prefix). 20 commands: create actions (new case/lead/task) + navigation (all pages) + admin (all settings pages). Filter chips: All | Cases | Contacts | Tasks | Leads | Docs | Events | Messages with `Cmd+1-8` shortcuts. **Preview panel** — 260px right panel with type-specific details, Tab to toggle, 150ms fade transition, hidden on mobile. **Recent items** — localStorage tracking (max 20), shown on empty query sorted by recency. **Top Hit** special section above grouped results. Rich result rows: type icon + title + subtitle + metadata badges. Keyboard: ↑↓ navigate, Enter open, Tab preview, Esc clear/close. No-results state with suggestions + quick create. 200ms debounce, min 2 chars, loading state. Vercel Light styling: 680px dialog, 12px radius, subtle shadow.",
+    "userImpact": "Cmd+K becomes a real productivity tool — search anything across the app, navigate anywhere, fire any create action, with keyboard navigation and a preview pane. Linear/Raycast-tier UX.",
+    "riskNotes": "Per-entity parallel search adds DB load — caps and try/catch make it resilient but watch query latency at scale.",
+    "bullets": ["7 entity types searched in parallel", "20 navigation + create + admin commands", "Filter chips with Cmd+1-8 shortcuts", "Preview panel with Tab toggle", "Top Hit promotion above grouped results", "Recent items + 200ms debounce + min-2-char"]
+  },
+  {
+    "sha": "06d468a2c46a6d779a8b3fe3ee6447231800fa36",
+    "summary": "Ten sidebar-panel fixes — auto-open dialogs, deep-linked filters, live data on Reports, semantic Document links, complete Settings panel.",
+    "details": "Ten fixes shipping together, each addressing a specific clickability/data issue in the sidebar context panels.\n\n**Fix 1 — `?action=new` auto-opens create dialogs.** Cases and Leads pages read `searchParams.action`, auto-opens the new-X dialog.\n\n**Fix 2 — Leads pipeline links differentiated.** Each stage links to `/leads?status={key}` instead of bare `/leads`. Page scrolls kanban to the matching column via `scrollIntoView`.\n\n**Fix 3 — Contacts filter pills work in-panel.** Pills filter the displayed list AND navigate via `router.push`. Contacts now clickable Links to `/contacts/{id}`. Shows email/phone secondary line.\n\n**Fix 4 — Calendar shows full agenda + deep-linked days.** Shows up to 5 events (was 1), 'and X more' overflow. Day circles link to `/calendar?date=YYYY-MM-DD`. '+' button for quick event creation. Events show case number.\n\n**Fix 5 — Cases panel active state highlighting.** Current stage filter highlighted in emerald. 'All Cases' link at top with total count. Click active stage to clear filter.\n\n**Fix 6 — Email panel unmatched badge + highlights.** Red notification badge with real unmatched count. Email items link to `/email?highlight={id}`. Email page scrolls + highlights matching email. 'Review unmatched' link when on unmatched tab.\n\n**Fix 7 — Queue tasks deep-link to detail sheet.** Tasks link to `/queue?task={id}`. Auto-opens task detail sheet, scrolls to row, 3-second emerald highlight ring.\n\n**Fix 8 — Documents entries are semantic Links.** Source filters changed from `div+router.push` to `<Link>`. Recent uploads are clickable Links with case numbers. Case context shown: `HS-2026-1015 · 2h ago`.\n\n**Fix 9 — Reports live stats + clickable.** Replaced hardcoded 67%/142/$45K with real computed values. Stats link to corresponding report pages. Changed chevrons › to arrows → for consistency.\n\n**Fix 10 — Settings panel complete.** Added `/admin/settings` as 'General' (first item). Added descriptions under each item. Reordered by usage frequency. Settings gear now links to `/admin/settings`. Removed fake toggle switches.",
+    "userImpact": "Every link in every sidebar panel now actually does what you'd expect — opens dialogs, deep-links into filtered views, highlights selected items, shows real data instead of placeholders.",
+    "riskNotes": "",
+    "bullets": ["?action=new auto-opens create dialogs (Cases, Leads)", "Pipeline stage links scroll kanban to matching column", "Calendar days deep-link to /calendar?date=YYYY-MM-DD", "Queue tasks open detail sheet + 3s highlight ring", "Reports show real computed stats, not hardcoded values", "Settings panel reorganized + fake toggles removed"]
+  },
+  {
+    "sha": "bd0fd9e0a6b835890d08809c91fadd328df2325c",
+    "summary": "Sidebar filter clicks now update the page's filter state even when you're already on that page (useState was ignoring updated initial props).",
+    "details": "**Root cause.** `useState` only reads `initialValue` once on mount. When the sidebar panel does `router.push('/documents?source=template')` while you're already on `/documents`, the server component re-renders with new searchParams but the client component ignores the updated prop.\n\n**Fix.** Added `useEffect` sync for every client that reads `initial*` props:\n- `documents/client.tsx`: sync `sourceFilter` with `initialSource`\n- `contacts/client.tsx`: sync `typeFilter` with `initialType`, search with `initialSearch`\n- `cases/client.tsx`: sync `stageFilter` with `initialStageId`\n- `queue/client.tsx`: sync `activeTab` with `initialTab`",
+    "userImpact": "Clicking a filter pill in the sidebar while you're already on that page now actually applies the filter, instead of silently doing nothing.",
+    "riskNotes": "",
+    "bullets": ["useEffect sync between initial props and local state", "Fixed on documents, contacts, cases, queue clients", "Now responds to in-page sidebar navigation"]
+  },
+  {
+    "sha": "4bcb43c2c8e21519c16e83ad71e455814d7c35fa",
+    "summary": "Fixes three broken sidebar panel click-throughs — Reports links, Documents source filters, Contacts type pills.",
+    "details": "**Reports.** Fixed `href` from `/reports?view=` to `/reports/` (correct path). Fixed slugs: `team-performance → team-member`, `case-trends → cases-over-time`.\n\n**Documents.** Replaced hardcoded categories with source-based filtering (matches the page). Source clicks navigate via `router.push(/documents?source=)`. Removed phantom 'pending review' text. Real document counts from navData.\n\n**Contacts.** Filter pills navigate via `router.push(/contacts?type=)` instead of local state. Added proper enum mapping (Claimants → claimant, Providers → medical_provider, etc.). Added the missing 'Experts' type filter.",
+    "userImpact": "Three panels that previously had broken or placeholder links now work correctly and reflect real counts.",
+    "riskNotes": "",
+    "bullets": ["Reports panel links use correct slugs and paths", "Documents source filters match the page's actual filter logic", "Contacts panel adds Experts and uses proper enum mapping"]
+  }
+]

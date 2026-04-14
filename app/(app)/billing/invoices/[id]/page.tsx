@@ -210,8 +210,7 @@ export default async function InvoiceDetailPage({
                         {formatCurrency(p.amountCents)}
                       </p>
                       <p className="text-[#666]">
-                        {p.paymentMethod} ·{" "}
-                        {p.paymentDate.toLocaleDateString()}
+                        {p.paymentMethod} · {p.paymentDate.toLocaleDateString()}
                       </p>
                     </li>
                   ))}

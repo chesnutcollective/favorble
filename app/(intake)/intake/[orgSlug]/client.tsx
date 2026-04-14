@@ -307,8 +307,7 @@ function IntakeShell({
               type="button"
               disabled={submitting}
               onClick={() => {
-                if (validateStep(step))
-                  setStep((s) => (s + 1) as typeof s);
+                if (validateStep(step)) setStep((s) => (s + 1) as typeof s);
               }}
               style={{ backgroundColor: BRAND, borderColor: BRAND }}
               className="hover:brightness-110"
@@ -323,9 +322,7 @@ function IntakeShell({
               style={{ backgroundColor: BRAND, borderColor: BRAND }}
               className="hover:brightness-110"
             >
-              {submitting
-                ? t("common.saving")
-                : t("intake.step5.submitButton")}
+              {submitting ? t("common.saving") : t("intake.step5.submitButton")}
             </Button>
           )}
         </CardFooter>
@@ -343,19 +340,14 @@ function IntakeShell({
 
 // ─── Step indicator ────────────────────────────────────────────────────
 
-function StepIndicator({
-  current,
-  total,
-}: {
-  current: number;
-  total: number;
-}) {
+function StepIndicator({ current, total }: { current: number; total: number }) {
   const { t } = useTranslation();
   return (
     <div>
       <div className="mb-2 flex items-center justify-between text-xs font-medium text-muted-foreground">
         <span>
-          {t("intake.progress.step")} {current} {t("intake.progress.of")} {total}
+          {t("intake.progress.step")} {current} {t("intake.progress.of")}{" "}
+          {total}
         </span>
         <span>{Math.round((current / total) * 100)}%</span>
       </div>
@@ -393,7 +385,9 @@ function Step1({
   return (
     <>
       <CardHeader>
-        <CardTitle style={{ color: BRAND }}>{t("intake.step1.title")}</CardTitle>
+        <CardTitle style={{ color: BRAND }}>
+          {t("intake.step1.title")}
+        </CardTitle>
         <CardDescription>{t("intake.step1.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -576,7 +570,9 @@ function Step2({
   return (
     <>
       <CardHeader>
-        <CardTitle style={{ color: BRAND }}>{t("intake.step2.title")}</CardTitle>
+        <CardTitle style={{ color: BRAND }}>
+          {t("intake.step2.title")}
+        </CardTitle>
         <CardDescription>{t("intake.step2.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -628,10 +624,7 @@ function Step2({
                 inputMode="numeric"
               />
             </Field>
-            <Field
-              id="earnings"
-              label={t("intake.step2.monthlyEarnings")}
-            >
+            <Field id="earnings" label={t("intake.step2.monthlyEarnings")}>
               <Input
                 id="earnings"
                 value={state.monthlyEarnings}
@@ -715,7 +708,9 @@ function Step3({
   return (
     <>
       <CardHeader>
-        <CardTitle style={{ color: BRAND }}>{t("intake.step3.title")}</CardTitle>
+        <CardTitle style={{ color: BRAND }}>
+          {t("intake.step3.title")}
+        </CardTitle>
         <CardDescription>{t("intake.step3.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -742,11 +737,16 @@ function Step3({
                 </button>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field id={`provider-name-${i}`} label={t("intake.step3.providerName")}>
+                <Field
+                  id={`provider-name-${i}`}
+                  label={t("intake.step3.providerName")}
+                >
                   <Input
                     id={`provider-name-${i}`}
                     value={p.name}
-                    onChange={(e) => updateProvider(i, { name: e.target.value })}
+                    onChange={(e) =>
+                      updateProvider(i, { name: e.target.value })
+                    }
                   />
                 </Field>
                 <Field
@@ -763,7 +763,10 @@ function Step3({
                 </Field>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <Field id={`provider-phone-${i}`} label={t("intake.step3.providerPhone")}>
+                <Field
+                  id={`provider-phone-${i}`}
+                  label={t("intake.step3.providerPhone")}
+                >
                   <Input
                     id={`provider-phone-${i}`}
                     type="tel"
@@ -773,11 +776,16 @@ function Step3({
                     }
                   />
                 </Field>
-                <Field id={`provider-city-${i}`} label={t("intake.step3.providerCity")}>
+                <Field
+                  id={`provider-city-${i}`}
+                  label={t("intake.step3.providerCity")}
+                >
                   <Input
                     id={`provider-city-${i}`}
                     value={p.city}
-                    onChange={(e) => updateProvider(i, { city: e.target.value })}
+                    onChange={(e) =>
+                      updateProvider(i, { city: e.target.value })
+                    }
                   />
                 </Field>
                 <Field
@@ -845,7 +853,9 @@ function Step4({
   return (
     <>
       <CardHeader>
-        <CardTitle style={{ color: BRAND }}>{t("intake.step4.title")}</CardTitle>
+        <CardTitle style={{ color: BRAND }}>
+          {t("intake.step4.title")}
+        </CardTitle>
         <CardDescription>{t("intake.step4.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -872,27 +882,29 @@ function Step4({
                 </button>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field id={`job-employer-${i}`} label={t("intake.step4.employer")}>
+                <Field
+                  id={`job-employer-${i}`}
+                  label={t("intake.step4.employer")}
+                >
                   <Input
                     id={`job-employer-${i}`}
                     value={j.employer}
-                    onChange={(e) =>
-                      updateJob(i, { employer: e.target.value })
-                    }
+                    onChange={(e) => updateJob(i, { employer: e.target.value })}
                   />
                 </Field>
                 <Field id={`job-title-${i}`} label={t("intake.step4.jobTitle")}>
                   <Input
                     id={`job-title-${i}`}
                     value={j.jobTitle}
-                    onChange={(e) =>
-                      updateJob(i, { jobTitle: e.target.value })
-                    }
+                    onChange={(e) => updateJob(i, { jobTitle: e.target.value })}
                   />
                 </Field>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field id={`job-start-${i}`} label={t("intake.step4.startDate")}>
+                <Field
+                  id={`job-start-${i}`}
+                  label={t("intake.step4.startDate")}
+                >
                   <Input
                     id={`job-start-${i}`}
                     value={j.startDate}
@@ -967,7 +979,9 @@ function Step5({
   return (
     <>
       <CardHeader>
-        <CardTitle style={{ color: BRAND }}>{t("intake.step5.title")}</CardTitle>
+        <CardTitle style={{ color: BRAND }}>
+          {t("intake.step5.title")}
+        </CardTitle>
         <CardDescription>{t("intake.step5.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -1102,7 +1116,10 @@ function SuccessView({ referenceNumber }: { referenceNumber: string }) {
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
-      <h1 className="mb-3 text-2xl font-semibold tracking-tight" style={{ color: BRAND }}>
+      <h1
+        className="mb-3 text-2xl font-semibold tracking-tight"
+        style={{ color: BRAND }}
+      >
         {t("intake.success.title")}
       </h1>
       <p className="mb-6 text-sm leading-relaxed text-muted-foreground">

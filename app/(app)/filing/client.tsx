@@ -102,9 +102,7 @@ function getDueBadge(dueDate: string | null): {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (due < now) return { label: "Overdue", color: STATUS_OVERDUE };
-  const diffDays = Math.ceil(
-    (due.getTime() - today.getTime()) / 86400000,
-  );
+  const diffDays = Math.ceil((due.getTime() - today.getTime()) / 86400000);
   if (diffDays === 0) return { label: "Today", color: STATUS_IN_PROGRESS };
   if (diffDays === 1) return { label: "Tomorrow", color: STATUS_IN_PROGRESS };
   if (diffDays <= 7) return { label: `${diffDays}d`, color: STATUS_READY };
@@ -124,9 +122,7 @@ export function FilingClient({
   const [sortField, setSortField] = useState<SortField>("dueDateAsc");
   const [rowsState, setRowsState] = useState<FilingQueueRow[]>(initialQueue);
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
-  const [dialogTarget, setDialogTarget] = useState<FilingQueueRow | null>(
-    null,
-  );
+  const [dialogTarget, setDialogTarget] = useState<FilingQueueRow | null>(null);
   const [caseIdForTemplate, setCaseIdForTemplate] = useState<string>("");
   const [templateStatus, setTemplateStatus] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(100);
@@ -164,8 +160,7 @@ export function FilingClient({
       }
       if (sortField === "priorityDesc") {
         return (
-          (PRIORITY_ORDER[a.priority] ?? 2) -
-          (PRIORITY_ORDER[b.priority] ?? 2)
+          (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
         );
       }
       // createdAsc (oldest daysWaiting highest -> pushed to top)
@@ -193,9 +188,7 @@ export function FilingClient({
           target.applicationType,
         );
         // Remove the row from local state — already hidden via pendingIds.
-        setRowsState((prev) =>
-          prev.filter((r) => r.taskId !== target.taskId),
-        );
+        setRowsState((prev) => prev.filter((r) => r.taskId !== target.taskId));
       } catch (err) {
         // Rollback optimistic hide on failure
         setPendingIds((prev) => {
@@ -215,10 +208,7 @@ export function FilingClient({
     }
     startTransition(async () => {
       try {
-        const result = await applyFilingTemplate(
-          caseIdForTemplate,
-          templateId,
-        );
+        const result = await applyFilingTemplate(caseIdForTemplate, templateId);
         setTemplateStatus(`Applied "${result.templateName}"`);
       } catch {
         setTemplateStatus("Template apply failed");
@@ -330,9 +320,7 @@ export function FilingClient({
                   color={ACCENT}
                 />
               </div>
-              <h3 className="mt-4 text-sm font-semibold">
-                Filing queue clear
-              </h3>
+              <h3 className="mt-4 text-sm font-semibold">Filing queue clear</h3>
               <p className="mt-1 text-xs text-[#666]">
                 Nothing to file for this filter.
               </p>
@@ -364,7 +352,7 @@ export function FilingClient({
                     return (
                       <TableRow
                         key={row.taskId}
-                        className="hover:bg-[rgba(38,60,148,0.04)]"
+                        className="hover:bg-[rgba(38,60,148,0.04)] transition-colors duration-200"
                       >
                         <TableCell className="font-mono text-xs">
                           <Link
@@ -405,9 +393,7 @@ export function FilingClient({
                         <TableCell className="text-xs">
                           <span
                             className={
-                              row.daysWaiting > 30
-                                ? "font-semibold"
-                                : ""
+                              row.daysWaiting > 30 ? "font-semibold" : ""
                             }
                             style={{
                               color:
@@ -478,8 +464,7 @@ export function FilingClient({
                     size="sm"
                     onClick={() => setVisibleCount((v) => v + 100)}
                   >
-                    Load more ({filteredSorted.length - visibleCount}{" "}
-                    remaining)
+                    Load more ({filteredSorted.length - visibleCount} remaining)
                   </Button>
                 </div>
               )}
@@ -539,10 +524,7 @@ export function FilingClient({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <HugeiconsIcon icon={File01Icon} size={16} color={ACCENT} />
-                <h2
-                  className="text-sm font-semibold"
-                  style={{ color: ACCENT }}
-                >
+                <h2 className="text-sm font-semibold" style={{ color: ACCENT }}>
                   Application Templates
                 </h2>
               </div>
@@ -674,21 +656,14 @@ export function FilingClient({
             </div>
           )}
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogTarget(null)}
-            >
+            <Button variant="outline" onClick={() => setDialogTarget(null)}>
               Cancel
             </Button>
             <Button
               onClick={handleConfirmFile}
               style={{ backgroundColor: ACCENT, color: "#ffffff" }}
             >
-              <HugeiconsIcon
-                icon={Sent02Icon}
-                size={12}
-                className="mr-1"
-              />
+              <HugeiconsIcon icon={Sent02Icon} size={12} className="mr-1" />
               Confirm & File
             </Button>
           </DialogFooter>

@@ -2,8 +2,36 @@
 
 import { useTransition, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { completeTask } from "@/app/actions/tasks";
+import {
+  createMedicalRecordsRequestDraft,
+  createClientLetterDraft,
+  createCallScriptDraft,
+  createTaskInstructionsDraft,
+  createRfcLetterDraft,
+  createStatusUpdateDraft,
+} from "@/app/actions/ai-drafts";
 
 type Task = {
   id: string;
@@ -19,9 +47,68 @@ type Task = {
   createdAt: string;
 };
 
-export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
+type DraftArtifactKind =
+  | "medical_records_request"
+  | "client_letter"
+  | "call_script"
+  | "task_instructions"
+  | "rfc_letter"
+  | "status_update";
+
+type DraftDialogState = {
+  open: boolean;
+  kind: DraftArtifactKind | null;
+  taskId: string | null;
+  status: "idle" | "generating" | "success" | "error";
+  error: string | null;
+  draftId: string | null;
+  // Kind-specific form fields
+  provider: string;
+  recordsSought: string;
+  dateRange: string;
+  purpose: string;
+  tone: "warm" | "formal" | "neutral";
+  callType:
+    | "client_update"
+    | "provider_followup"
+    | "ssa_inquiry"
+    | "denial_notification"
+    | "hearing_prep"
+    | "welcome_call"
+    | "fee_collection"
+    | "coaching_conversation";
+  scenario: string;
+  counterparty: string;
+};
+
+const EMPTY_DIALOG: DraftDialogState = {
+  open: false,
+  kind: null,
+  taskId: null,
+  status: "idle",
+  error: null,
+  draftId: null,
+  provider: "",
+  recordsSought: "",
+  dateRange: "",
+  purpose: "",
+  tone: "warm",
+  callType: "client_update",
+  scenario: "",
+  counterparty: "",
+};
+
+export function CaseTasksClient({
+  caseId,
+  tasks,
+}: {
+  caseId: string;
+  tasks: Task[];
+}) {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
+  const [dialog, setDialog] = useState<DraftDialogState>(EMPTY_DIALOG);
+  const [isDraftPending, startDraftTransition] = useTransition();
 
   const openTasks = tasks.filter(
     (t) =>
@@ -43,8 +130,138 @@ export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
     });
   }
 
+  function openDraftDialog(kind: DraftArtifactKind, taskId: string | null) {
+    setDialog({
+      ...EMPTY_DIALOG,
+      open: true,
+      kind,
+      taskId,
+    });
+  }
+
+  function closeDraftDialog() {
+    setDialog(EMPTY_DIALOG);
+  }
+
+  function submitDraft() {
+    if (!dialog.kind) return;
+    const kind = dialog.kind;
+    startDraftTransition(async () => {
+      setDialog((prev) => ({ ...prev, status: "generating", error: null }));
+      try {
+        let draftId: string | null = null;
+        switch (kind) {
+          case "medical_records_request": {
+            const res = await createMedicalRecordsRequestDraft({
+              caseId,
+              provider: dialog.provider,
+              recordsSought: dialog.recordsSought,
+              dateRange: dialog.dateRange || undefined,
+            });
+            draftId = res.draftId;
+            break;
+          }
+          case "client_letter": {
+            const res = await createClientLetterDraft({
+              caseId,
+              purpose: dialog.purpose,
+              tone: dialog.tone,
+            });
+            draftId = res.draftId;
+            break;
+          }
+          case "call_script": {
+            const res = await createCallScriptDraft({
+              caseId,
+              callType: dialog.callType,
+              scenario: dialog.scenario,
+              counterparty: dialog.counterparty,
+            });
+            draftId = res.draftId;
+            break;
+          }
+          case "task_instructions": {
+            if (!dialog.taskId) throw new Error("Task id required");
+            const res = await createTaskInstructionsDraft({
+              taskId: dialog.taskId,
+              caseId,
+            });
+            draftId = res.draftId;
+            break;
+          }
+          case "rfc_letter": {
+            const res = await createRfcLetterDraft({
+              caseId,
+              provider: dialog.provider,
+            });
+            draftId = res.draftId;
+            break;
+          }
+          case "status_update": {
+            const res = await createStatusUpdateDraft({ caseId });
+            draftId = res.draftId;
+            break;
+          }
+        }
+        if (!draftId) throw new Error("Draft generation failed");
+        setDialog((prev) => ({
+          ...prev,
+          status: "success",
+          draftId,
+        }));
+      } catch (err) {
+        setDialog((prev) => ({
+          ...prev,
+          status: "error",
+          error: err instanceof Error ? err.message : "Draft failed",
+        }));
+      }
+    });
+  }
+
   return (
     <div className="space-y-4">
+      {/* Draft-artifact dropdown at the top */}
+      <div className="flex items-center justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline">
+              Generate AI draft
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuLabel>Case-level artifacts</DropdownMenuLabel>
+            <DropdownMenuItem
+              onSelect={() => openDraftDialog("status_update", null)}
+            >
+              Client status update
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => openDraftDialog("client_letter", null)}
+            >
+              Client letter
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => openDraftDialog("call_script", null)}
+            >
+              Call script
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Medical records</DropdownMenuLabel>
+            <DropdownMenuItem
+              onSelect={() => openDraftDialog("medical_records_request", null)}
+            >
+              Medical records request
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => openDraftDialog("rfc_letter", null)}
+            >
+              RFC letter to provider
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {openTasks.length === 0 && doneTasks.length === 0 && (
         <div
           className="flex flex-col items-center justify-center py-8 text-center"
@@ -67,7 +284,7 @@ export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
           {openTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-start gap-3 rounded-md p-2 hover:bg-accent"
+              className="flex items-start gap-3 rounded-md p-2 hover:bg-accent transition-colors duration-200"
             >
               <Checkbox
                 className="mt-0.5"
@@ -105,6 +322,14 @@ export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
               >
                 {task.priority}
               </Badge>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs shrink-0"
+                onClick={() => openDraftDialog("task_instructions", task.id)}
+              >
+                AI help
+              </Button>
             </div>
           ))}
         </div>
@@ -132,6 +357,283 @@ export function CaseTasksClient({ tasks }: { caseId: string; tasks: Task[] }) {
           </div>
         </div>
       )}
+
+      {/* Draft dialog */}
+      <Dialog open={dialog.open} onOpenChange={(o) => !o && closeDraftDialog()}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{dialogTitleForKind(dialog.kind)}</DialogTitle>
+            <DialogDescription>
+              The AI will read the full case file and produce a draft for a
+              human reviewer. Nothing is sent directly.
+            </DialogDescription>
+          </DialogHeader>
+
+          {dialog.status === "success" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-foreground">
+                Draft created successfully. Find it in the Drafts inbox.
+              </p>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={closeDraftDialog}>
+                  Close
+                </Button>
+                {dialog.draftId && (
+                  <Button asChild>
+                    <a href={`/drafts/${dialog.draftId}`}>Review draft</a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {dialog.kind === "medical_records_request" && (
+                  <>
+                    <FieldLabel label="Provider">
+                      <Input
+                        value={dialog.provider}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            provider: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Dr. Jane Smith, Lakewood Family Medicine"
+                      />
+                    </FieldLabel>
+                    <FieldLabel label="Records sought">
+                      <Textarea
+                        rows={3}
+                        value={dialog.recordsSought}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            recordsSought: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. All office visit notes, imaging, labs, and functional assessments"
+                      />
+                    </FieldLabel>
+                    <FieldLabel label="Date range (optional)">
+                      <Input
+                        value={dialog.dateRange}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            dateRange: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. 2022-01-01 to present"
+                      />
+                    </FieldLabel>
+                  </>
+                )}
+
+                {dialog.kind === "client_letter" && (
+                  <>
+                    <FieldLabel label="Purpose">
+                      <Textarea
+                        rows={3}
+                        value={dialog.purpose}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            purpose: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Confirm hearing date and prep expectations"
+                      />
+                    </FieldLabel>
+                    <FieldLabel label="Tone">
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={dialog.tone}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            tone: e.target.value as DraftDialogState["tone"],
+                          }))
+                        }
+                      >
+                        <option value="warm">Warm</option>
+                        <option value="formal">Formal</option>
+                        <option value="neutral">Neutral</option>
+                      </select>
+                    </FieldLabel>
+                  </>
+                )}
+
+                {dialog.kind === "call_script" && (
+                  <>
+                    <FieldLabel label="Call type">
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={dialog.callType}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            callType: e.target
+                              .value as DraftDialogState["callType"],
+                          }))
+                        }
+                      >
+                        <option value="client_update">Client update</option>
+                        <option value="provider_followup">
+                          Provider follow-up
+                        </option>
+                        <option value="ssa_inquiry">SSA inquiry</option>
+                        <option value="denial_notification">
+                          Denial notification
+                        </option>
+                        <option value="hearing_prep">
+                          Hearing preparation
+                        </option>
+                        <option value="welcome_call">
+                          Welcome call (new client)
+                        </option>
+                        <option value="fee_collection">Fee collection</option>
+                        <option value="coaching_conversation">
+                          Coaching conversation
+                        </option>
+                      </select>
+                    </FieldLabel>
+                    <FieldLabel label="Counterparty">
+                      <Input
+                        value={dialog.counterparty}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            counterparty: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Cleveland Hearing Office"
+                      />
+                    </FieldLabel>
+                    <FieldLabel label="Scenario">
+                      <Textarea
+                        rows={3}
+                        value={dialog.scenario}
+                        onChange={(e) =>
+                          setDialog((p) => ({
+                            ...p,
+                            scenario: e.target.value,
+                          }))
+                        }
+                        placeholder="What do you need from this call?"
+                      />
+                    </FieldLabel>
+                  </>
+                )}
+
+                {dialog.kind === "task_instructions" && (
+                  <p className="text-sm text-muted-foreground">
+                    The AI will read this task and generate step-by-step
+                    instructions for the assignee, pulling relevant details from
+                    the case file.
+                  </p>
+                )}
+
+                {dialog.kind === "rfc_letter" && (
+                  <FieldLabel label="Provider">
+                    <Input
+                      value={dialog.provider}
+                      onChange={(e) =>
+                        setDialog((p) => ({ ...p, provider: e.target.value }))
+                      }
+                      placeholder="e.g. Dr. Jane Smith"
+                    />
+                  </FieldLabel>
+                )}
+
+                {dialog.kind === "status_update" && (
+                  <p className="text-sm text-muted-foreground">
+                    The AI will generate a short, friendly status update for the
+                    client using what&apos;s in the case file right now.
+                  </p>
+                )}
+
+                {dialog.status === "error" && dialog.error && (
+                  <p className="text-sm text-destructive">{dialog.error}</p>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button variant="ghost" onClick={closeDraftDialog}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={submitDraft}
+                  disabled={isDraftPending || !isFormValid(dialog)}
+                >
+                  {dialog.status === "generating"
+                    ? "Generating..."
+                    : "Generate draft"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+function FieldLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium">{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function dialogTitleForKind(kind: DraftArtifactKind | null): string {
+  switch (kind) {
+    case "medical_records_request":
+      return "Draft medical records request";
+    case "client_letter":
+      return "Draft client letter";
+    case "call_script":
+      return "Draft call script";
+    case "task_instructions":
+      return "Draft task instructions";
+    case "rfc_letter":
+      return "Draft RFC letter";
+    case "status_update":
+      return "Draft client status update";
+    default:
+      return "Generate AI draft";
+  }
+}
+
+function isFormValid(dialog: DraftDialogState): boolean {
+  switch (dialog.kind) {
+    case "medical_records_request":
+      return (
+        dialog.provider.trim().length > 0 &&
+        dialog.recordsSought.trim().length > 0
+      );
+    case "client_letter":
+      return dialog.purpose.trim().length > 0;
+    case "call_script":
+      return (
+        dialog.counterparty.trim().length > 0 &&
+        dialog.scenario.trim().length > 0
+      );
+    case "task_instructions":
+      return dialog.taskId !== null;
+    case "rfc_letter":
+      return dialog.provider.trim().length > 0;
+    case "status_update":
+      return true;
+    default:
+      return false;
+  }
 }

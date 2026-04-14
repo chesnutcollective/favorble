@@ -46,7 +46,8 @@ export const intakeFormTranslations = {
     disabilityType: "Type of Disability",
     disabilityTypePlaceholder: "e.g. Back injury, Depression, Heart condition",
     workHistory: "Work History",
-    workHistoryPlaceholder: "Describe your most recent jobs and why you stopped working.",
+    workHistoryPlaceholder:
+      "Describe your most recent jobs and why you stopped working.",
     currentlyWorking: "Currently Working?",
     priorClaims: "Have you filed prior disability claims?",
     yes: "Yes",

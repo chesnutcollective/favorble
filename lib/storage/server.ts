@@ -182,10 +182,7 @@ export async function getDocumentSignedUrl(
   // pre-signed URL as storage_path. A background ingest job downloads
   // and rewrites this to railway://. Until then, hand the URL straight
   // back to the client — it's already a valid download URL.
-  if (
-    storagePath.startsWith("http://") ||
-    storagePath.startsWith("https://")
-  ) {
+  if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) {
     return storagePath;
   }
 

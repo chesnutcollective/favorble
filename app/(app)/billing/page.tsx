@@ -4,12 +4,16 @@ import { requireSession } from "@/lib/auth/session";
 import {
   getBillingMetrics,
   getTimeEntries,
+  getExpenses,
   getInvoices,
+  getCasePicker,
 } from "@/app/actions/billing";
+import { NewExpenseDialog } from "@/components/billing/new-expense-dialog";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/shared/stats-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -24,6 +28,22 @@ export const dynamic = "force-dynamic";
 
 const PRIMARY = "#263c94";
 
+const EXPENSE_TYPE_LABELS: Record<string, string> = {
+  filing_fee: "Filing Fee",
+  medical_record_fee: "Medical Record",
+  copy: "Copy",
+  mileage: "Mileage",
+  other: "Other",
+};
+
+const EXPENSE_TYPE_COLORS: Record<string, string> = {
+  filing_fee: "#263c94",
+  medical_record_fee: "#1d72b8",
+  copy: "#6b7280",
+  mileage: "#cf8a00",
+  other: "#52525e",
+};
+
 function formatCurrency(cents: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -35,18 +55,24 @@ function formatCurrency(cents: number) {
 export default async function BillingPage() {
   await requireSession();
 
-  const [metrics, recentTime, recentInvoices] = await Promise.all([
-    getBillingMetrics().catch(() => ({
-      hoursThisWeek: 0,
-      outstandingCents: 0,
-      outstandingCount: 0,
-      paidThisMonthCents: 0,
-    })),
-    getTimeEntries().catch(() => []),
-    getInvoices().catch(() => []),
-  ]);
+  const [metrics, recentTime, recentExpenses, recentInvoices, casesForPicker] =
+    await Promise.all([
+      getBillingMetrics().catch(() => ({
+        hoursThisWeek: 0,
+        outstandingCents: 0,
+        outstandingCount: 0,
+        paidThisMonthCents: 0,
+      })),
+      getTimeEntries().catch(() => []),
+      getExpenses().catch(() => []),
+      getInvoices().catch(() => []),
+      getCasePicker().catch(() => []),
+    ]);
 
-  const hasAnyData = recentTime.length > 0 || recentInvoices.length > 0;
+  const hasAnyData =
+    recentTime.length > 0 ||
+    recentExpenses.length > 0 ||
+    recentInvoices.length > 0;
 
   return (
     <div className="space-y-6">
@@ -134,10 +160,49 @@ export default async function BillingPage() {
                 />
                 Expenses
               </h2>
+              <NewExpenseDialog cases={casesForPicker} />
             </div>
-            <p className="text-xs text-[#666] py-4">
-              Expense tracking coming soon.
-            </p>
+            {recentExpenses.length === 0 ? (
+              <p className="text-xs text-[#666] py-4">No expenses yet.</p>
+            ) : (
+              <ul className="divide-y divide-[#EAEAEA]">
+                {recentExpenses.slice(0, 5).map((exp) => (
+                  <li key={exp.id} className="py-2 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium truncate">{exp.description}</p>
+                      <span className="tabular-nums whitespace-nowrap font-medium">
+                        {formatCurrency(exp.amountCents)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-1.5 py-0"
+                        style={{
+                          color:
+                            EXPENSE_TYPE_COLORS[exp.expenseType] ?? "#52525e",
+                          backgroundColor: `${EXPENSE_TYPE_COLORS[exp.expenseType] ?? "#52525e"}14`,
+                        }}
+                      >
+                        {EXPENSE_TYPE_LABELS[exp.expenseType] ??
+                          exp.expenseType}
+                      </Badge>
+                      {exp.reimbursable && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0"
+                        >
+                          Reimbursable
+                        </Badge>
+                      )}
+                      <span className="text-[#666] ml-auto">
+                        {exp.caseNumber ?? "No case"}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
 

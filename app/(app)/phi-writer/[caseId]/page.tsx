@@ -3,10 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  getPhiWriterCaseData,
-  getPhiWriters,
-} from "@/app/actions/phi-writer";
+import { getPhiWriterCaseData, getPhiWriters } from "@/app/actions/phi-writer";
 import { PhiAuthoringView } from "./authoring-view";
 
 export const metadata: Metadata = {

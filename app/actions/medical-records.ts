@@ -8,10 +8,12 @@ import {
   caseAssignments,
   providerCredentials,
   rfcRequests,
+  contacts,
+  caseContacts,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { encrypt } from "@/lib/encryption";
-import { and, asc, desc, eq, gte, isNull, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 
@@ -20,13 +22,7 @@ import { logger } from "@/lib/logger/server";
  * are stored in cases.mrTeamColor as free-form text. Kept non-exported
  * because "use server" files can only export async functions (Next 16+).
  */
-const MR_TEAM_COLORS = [
-  "blue",
-  "orange",
-  "green",
-  "yellow",
-  "purple",
-] as const;
+const MR_TEAM_COLORS = ["blue", "orange", "green", "yellow", "purple"] as const;
 
 export type MrTeamColor = (typeof MR_TEAM_COLORS)[number];
 
@@ -120,19 +116,65 @@ export async function getMrQueue(): Promise<MrQueueRow[]> {
       ),
     );
 
-  return rows
-    .filter((r) => r.hearingDate && r.mrStatus !== "complete")
+  const filtered = rows.filter(
+    (r) => r.hearingDate && r.mrStatus !== "complete",
+  );
+
+  // For cases where leads didn't provide a name, fall back to primary
+  // contact from case_contacts -> contacts (Chronicle-imported cases).
+  const caseIdsWithoutLeadName = filtered
+    .filter((r) => !r.firstName && !r.lastName)
+    .map((r) => r.caseId);
+
+  const contactNameMap = new Map<
+    string,
+    { firstName: string; lastName: string }
+  >();
+  if (caseIdsWithoutLeadName.length > 0) {
+    const contactRows = await db
+      .select({
+        caseId: caseContacts.caseId,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        relationship: caseContacts.relationship,
+      })
+      .from(caseContacts)
+      .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+      .where(
+        and(
+          inArray(caseContacts.caseId, caseIdsWithoutLeadName),
+          eq(caseContacts.isPrimary, true),
+        ),
+      );
+    for (const c of contactRows) {
+      const existing = contactNameMap.get(c.caseId);
+      if (!existing || c.relationship === "claimant") {
+        contactNameMap.set(c.caseId, {
+          firstName: c.firstName,
+          lastName: c.lastName,
+        });
+      }
+    }
+  }
+
+  return filtered
     .map((r) => {
       const hearing = r.hearingDate ? new Date(r.hearingDate) : null;
       const daysUntil = hearing
-        ? Math.ceil(
-            (hearing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-          )
+        ? Math.ceil((hearing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
         : null;
-      const claimant =
-        r.firstName && r.lastName
-          ? `${r.firstName} ${r.lastName}`
-          : (r.firstName ?? r.lastName ?? "Unknown claimant");
+      let claimant: string;
+      if (r.firstName || r.lastName) {
+        claimant =
+          r.firstName && r.lastName
+            ? `${r.firstName} ${r.lastName}`
+            : (r.firstName ?? r.lastName ?? "Unknown claimant");
+      } else {
+        const contact = contactNameMap.get(r.caseId);
+        claimant = contact
+          ? `${contact.firstName} ${contact.lastName}`.trim()
+          : "Unknown claimant";
+      }
       const specialistName =
         r.specialistFirstName && r.specialistLastName
           ? `${r.specialistFirstName} ${r.specialistLastName}`
@@ -266,20 +308,67 @@ export async function getRfcTracker(): Promise<RfcTrackerRow[]> {
     .where(eq(rfcRequests.organizationId, session.organizationId))
     .orderBy(asc(rfcRequests.dueDate), desc(rfcRequests.createdAt));
 
-  return rows.map((r) => ({
-    id: r.id,
-    caseId: r.caseId,
-    caseNumber: r.caseNumber,
-    claimant:
-      r.firstName && r.lastName
-        ? `${r.firstName} ${r.lastName}`
-        : (r.firstName ?? r.lastName ?? "Unknown claimant"),
-    rfcStatus: r.status,
-    rfcProvider: r.providerName,
-    rfcDueDate: r.dueDate ? r.dueDate.toISOString() : null,
-    requestedAt: r.requestedAt ? r.requestedAt.toISOString() : null,
-    receivedAt: r.receivedAt ? r.receivedAt.toISOString() : null,
-  }));
+  // Fall back to case_contacts -> contacts for Chronicle-imported cases
+  const rfcCaseIdsWithoutLeadName = rows
+    .filter((r) => !r.firstName && !r.lastName)
+    .map((r) => r.caseId);
+
+  const rfcContactNameMap = new Map<
+    string,
+    { firstName: string; lastName: string }
+  >();
+  if (rfcCaseIdsWithoutLeadName.length > 0) {
+    const contactRows = await db
+      .select({
+        caseId: caseContacts.caseId,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        relationship: caseContacts.relationship,
+      })
+      .from(caseContacts)
+      .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+      .where(
+        and(
+          inArray(caseContacts.caseId, rfcCaseIdsWithoutLeadName),
+          eq(caseContacts.isPrimary, true),
+        ),
+      );
+    for (const c of contactRows) {
+      const existing = rfcContactNameMap.get(c.caseId);
+      if (!existing || c.relationship === "claimant") {
+        rfcContactNameMap.set(c.caseId, {
+          firstName: c.firstName,
+          lastName: c.lastName,
+        });
+      }
+    }
+  }
+
+  return rows.map((r) => {
+    let claimant: string;
+    if (r.firstName || r.lastName) {
+      claimant =
+        r.firstName && r.lastName
+          ? `${r.firstName} ${r.lastName}`
+          : (r.firstName ?? r.lastName ?? "Unknown claimant");
+    } else {
+      const contact = rfcContactNameMap.get(r.caseId);
+      claimant = contact
+        ? `${contact.firstName} ${contact.lastName}`.trim()
+        : "Unknown claimant";
+    }
+    return {
+      id: r.id,
+      caseId: r.caseId,
+      caseNumber: r.caseNumber,
+      claimant,
+      rfcStatus: r.status,
+      rfcProvider: r.providerName,
+      rfcDueDate: r.dueDate ? r.dueDate.toISOString() : null,
+      requestedAt: r.requestedAt ? r.requestedAt.toISOString() : null,
+      receivedAt: r.receivedAt ? r.receivedAt.toISOString() : null,
+    };
+  });
 }
 
 /**

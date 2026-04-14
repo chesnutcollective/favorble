@@ -15,8 +15,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { documentId } = await context.params;
 
     const url = new URL(request.url);
-    const extractionType = (url.searchParams.get("type") ??
-      "medical_record") as
+    const extractionType = (url.searchParams.get("type") ?? "medical_record") as
       | "medical_record"
       | "status_report"
       | "decision_letter"
@@ -30,7 +29,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error ?? "Processing failed", processingId: result.processingId },
+        {
+          error: result.error ?? "Processing failed",
+          processingId: result.processingId,
+        },
         { status: 500 },
       );
     }

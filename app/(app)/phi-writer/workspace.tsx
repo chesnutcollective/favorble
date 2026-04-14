@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -254,7 +255,10 @@ export function PhiWriterWorkspace({
         >
           <CardHeader
             className="pb-3"
-            style={{ backgroundColor: SURFACE, borderBottom: "1px solid #eef0f5" }}
+            style={{
+              backgroundColor: SURFACE,
+              borderBottom: "1px solid #eef0f5",
+            }}
           >
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-base">
@@ -301,7 +305,8 @@ export function PhiWriterWorkspace({
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="p-0 max-h-[640px] overflow-auto">
+          <CardContent className="p-0">
+            <ScrollArea className="max-h-[640px]">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 No cases match the current filters.
@@ -317,7 +322,7 @@ export function PhiWriterWorkspace({
                         type="button"
                         onClick={() => setSelectedId(row.caseId)}
                         className={cn(
-                          "w-full text-left px-4 py-3 transition-colors",
+                          "w-full text-left px-4 py-3 transition-colors duration-200",
                           isSelected ? "" : "hover:bg-muted/40",
                         )}
                         style={{
@@ -373,6 +378,7 @@ export function PhiWriterWorkspace({
                 })}
               </ul>
             )}
+            </ScrollArea>
           </CardContent>
         </Card>
 
@@ -609,9 +615,7 @@ function InfoRow({
         {icon ? <HugeiconsIcon icon={icon} size={11} /> : null}
         {label}
       </p>
-      <p className="text-sm text-foreground mt-0.5 truncate">
-        {value ?? "—"}
-      </p>
+      <p className="text-sm text-foreground mt-0.5 truncate">{value ?? "—"}</p>
     </div>
   );
 }

@@ -303,8 +303,7 @@ export default async function CaseSsaPage({
                   SSA Data (from ERE)
                 </h3>
                 <p className="text-sm text-[#666]">
-                  Last scraped{" "}
-                  {latestScrape.createdAt.toLocaleDateString()}
+                  Last scraped {latestScrape.createdAt.toLocaleDateString()}
                 </p>
               </div>
               {latestScrape.reconciledAt ? (
@@ -314,10 +313,7 @@ export default async function CaseSsaPage({
               )}
             </div>
             <div className="grid gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-b [&>*]:border-border/40 [&>*:nth-last-child(-n+3)]:border-b-0">
-              <InfoItem
-                label="Claim Status"
-                value={latestScrape.claimStatus}
-              />
+              <InfoItem label="Claim Status" value={latestScrape.claimStatus} />
               <InfoItem
                 label="Hearing Date"
                 value={
@@ -336,9 +332,7 @@ export default async function CaseSsaPage({
               />
               <InfoItem
                 label="Documents on File"
-                value={
-                  latestScrape.documentsOnFile?.toString() ?? null
-                }
+                value={latestScrape.documentsOnFile?.toString() ?? null}
               />
             </div>
           </CardContent>

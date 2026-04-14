@@ -28,6 +28,10 @@ export type PersonaId =
   | "medical_records"
   | "phi_sheet_writer"
   | "reviewer"
+  | "fee_collection"
+  | "appeals_council"
+  | "post_hearing"
+  | "pre_hearing_prep"
   | "viewer";
 
 export type PersonaConfig = {
@@ -70,6 +74,9 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     // Admin sees everything — they manage the whole app
     nav: [
       "dashboard",
+      "supervisor",
+      "coaching",
+      "drafts",
       "cases",
       "leads",
       "queue",
@@ -150,14 +157,7 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     label: "Filing Agent",
     shortLabel: "Filer",
     defaultRoute: "/filing",
-    nav: [
-      "dashboard",
-      "filing",
-      "queue",
-      "cases",
-      "documents",
-      "team-chat",
-    ],
+    nav: ["dashboard", "filing", "queue", "cases", "documents", "team-chat"],
     workspaceDescription:
       "Ready-to-file queue for SSDI/SSI applications with one-click stage transitions.",
     primaryKpi: {
@@ -249,6 +249,9 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     defaultRoute: "/dashboard/exec",
     nav: [
       "dashboard",
+      "supervisor",
+      "coaching",
+      "drafts",
       "cases",
       "reports",
       "hearings",
@@ -260,6 +263,89 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     primaryKpi: {
       label: "Firm Win Rate",
       subtitle: "Trailing 30 days",
+    },
+  },
+
+  fee_collection: {
+    label: "Fee Collection",
+    shortLabel: "Fees",
+    defaultRoute: "/fee-collection",
+    nav: [
+      "dashboard",
+      "fee-collection",
+      "cases",
+      "contacts",
+      "documents",
+      "billing",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Fee petitions filed with SSA after favorable decisions, through approval and collection.",
+    primaryKpi: {
+      label: "Delinquent Petitions",
+      subtitle: "Approved > 30 days unpaid",
+    },
+  },
+
+  appeals_council: {
+    label: "Appeals Council",
+    shortLabel: "AC",
+    defaultRoute: "/appeals-council",
+    nav: [
+      "dashboard",
+      "appeals-council",
+      "cases",
+      "documents",
+      "drafts",
+      "calendar",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Appeals Council brief pipeline — unfavorable decisions tracked through drafting, review, and filing.",
+    primaryKpi: {
+      label: "Urgent Deadlines",
+      subtitle: "Within 7 days of AC filing deadline",
+    },
+  },
+
+  post_hearing: {
+    label: "Post-Hearing Processing",
+    shortLabel: "Post-Hearing",
+    defaultRoute: "/post-hearing",
+    nav: [
+      "dashboard",
+      "post-hearing",
+      "hearings",
+      "cases",
+      "documents",
+      "messages",
+      ...UNIVERSAL_NAV,
+    ],
+    workspaceDescription:
+      "Process hearing outcomes — notify clients, advance stages, and close the loop on decisions.",
+    primaryKpi: {
+      label: "Awaiting Processing",
+      subtitle: "Outcomes not yet worked",
+    },
+  },
+
+  pre_hearing_prep: {
+    label: "Pre-Hearing Prep",
+    shortLabel: "Pre-Hearing",
+    defaultRoute: "/phi-writer",
+    nav: [
+      "dashboard",
+      "phi-writer",
+      "cases",
+      "documents",
+      "hearings",
+      "team-chat",
+    ],
+    workspaceDescription:
+      "Author pre-hearing briefs and PHI sheets for upcoming hearings, sorted by hearing urgency.",
+    primaryKpi: {
+      label: "Briefs This Week",
+      subtitle: "Hearings within 14 days",
     },
   },
 
@@ -290,6 +376,10 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
   "medical_records",
   "phi_sheet_writer",
   "reviewer",
+  "fee_collection",
+  "appeals_council",
+  "post_hearing",
+  "pre_hearing_prep",
 ];
 
 /**
@@ -297,7 +387,5 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
  * isn't in our enum (defensive — shouldn't happen in practice).
  */
 export function getPersonaConfig(personaId: string): PersonaConfig {
-  return (
-    PERSONA_CONFIG[personaId as PersonaId] ?? PERSONA_CONFIG.viewer
-  );
+  return PERSONA_CONFIG[personaId as PersonaId] ?? PERSONA_CONFIG.viewer;
 }

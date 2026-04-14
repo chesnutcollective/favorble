@@ -1,0 +1,202 @@
+[
+  {
+    "sha": "f551b8cddd7f7b9a9ded8c488c903b6dda3f89b1",
+    "summary": "Cleanup pass — central design tokens, deduped detection helpers, removed orphan routes, and an N+1 query fix.",
+    "details": "Cohesiveness audit shipping in five strands.\n\n- New `lib/design-tokens.ts` becomes the canonical color/spacing source. Mail client + 4 dashboard sections migrated off hardcoded `#1d72b8` / `#263c94` literals.\n- Mail (physical) vs Email (electronic) clarified: JSDoc headers, page metadata, distinct PageHeader titles ('Physical Mail', 'Electronic Email').\n- Duplicate detection consolidated: `lib/services/lead-dedup.ts` rewritten to absorb contact-variant + fuzzy/soundex helpers; `duplicate-detection.ts` deleted; leads client now uses 0–100 score.\n- Dead code removed: unused `lib/services/document-processing.ts` (zero call sites; `document-processor.ts` is the real pipeline). Orphan routes deleted: `/my-queue` (redirect-only), `/import` (unused wizard), `lib/import/fields.ts`.\n- N+1 in `updateCaseFieldValues` fixed via batch SELECT with `inArray` + Map lookup.\n- `fetchEntryForAudit` renamed to `getEntryForAudit` for action naming consistency.\n- `.gitignore` excludes `.vercel`, `.local-seed/`, `chronicle-scrape/`, `*.chronicle.json`.",
+    "userImpact": "No visible feature changes. Codebase is smaller, easier to maintain, and noticeably faster on the case-edit path that previously did N+1 queries.",
+    "riskNotes": "Deleted routes (`/my-queue`, `/import`) were redirect-only or unused but check for any external links pointing there.",
+    "bullets": ["Central lib/design-tokens.ts replaces scattered hex literals", "Dedup helpers consolidated into one file", "Orphan routes and unused services removed", "N+1 fix on updateCaseFieldValues", "Mail vs Email distinction clarified in copy"]
+  },
+  {
+    "sha": "407ec63f452ef89628ef3c9277207305af4597a7",
+    "summary": "Phase 4 scaffolds (billing/trust/team-chat schema + pages) and a comprehensive seed dataset across hearings, leads, mail, RFCs, ERE, and audit logs.",
+    "details": "Two parallel workstreams shipping together.\n\n**Phase 4 scaffold (MyCase replacement prep).** New schema files for billing (time_entries, expenses, invoices, invoice_line_items, payments), trust (trust_accounts, trust_transactions), and team-chat (chat_channels, chat_channel_members, chat_messages) — 10 new tables and 6 enums. New routes: `/billing` (top-level summary), `/billing/time`, `/billing/invoices`, `/billing/invoices/[id]`, `/trust`, `/team-chat` (Slack-style two-pane). Server actions for all three. Migration `0004_blushing_gressill.sql` applied (80 statements, 10 tables, 6 enums, indexes). Nav gets Billing, Trust, Team Chat rail items.\n\n**Realistic seed data.** 30 new hearings across the next 60 days with 10 ALJs, 10 ODAR offices, in-person/video/phone modes. 50 new leads spread across all 32 pipeline stages. 25 outbound mail entries with tracking numbers. 15 inbound mail documents tagged for processing. 10 provider portal credentials (Emory, Piedmont, Wellstar, etc.). 12 RFC requests across 4 statuses. 3 ERE credentials + 20 ERE jobs. 50 new audit log entries. 30 new communications. All 50 cases now have hearing_office, admin_law_judge, application_type, alleged_onset_date, date_last_insured. 20 cases have hearing_date set pointing at the new hearings. 15 leads got pipeline_stage backfilled. Idempotent script with deterministic faker seed 1337.",
+    "userImpact": "Three large feature areas (billing, trust, team chat) now have route scaffolding and database schema ready for the next phase to fill in. The whole app feels alive thanks to the seed data — leads, hearings, mail, audits, and chronology now have realistic populated content.",
+    "riskNotes": "Migration 0004 is large. Seed script is idempotent but specifically targets staging — never run against production.",
+    "bullets": ["10 new tables for billing, trust, team-chat", "Migration 0004 applied to staging", "Comprehensive seed: hearings, leads, mail, RFCs, ERE, audits", "Idempotent seed script with deterministic faker", "Nav rail gets 3 new items"]
+  },
+  {
+    "sha": "cff1d22479e8728e37fc6f0aec01cce25b607895",
+    "summary": "Vercel build fix — moves sync constants out of a 'use server' file (Server Actions must be async).",
+    "details": "Wave 5 added `LeadStatus`, `LEAD_STATUS_GROUPS`, `ALL_LEAD_STATUSES`, `LEAD_STATUS_CATEGORY_COLORS`, and `getLeadStatusCategory()` to `app/actions/leads.ts` — all sync runtime values. Vercel/Turbopack rejects non-async exports from `'use server'` files with `Server Actions must be async functions`.\n\nMoved them to `lib/leads/status.ts` (a regular module). `leads.ts` imports from there for internal use; consumers now import directly from `@/lib/leads/status`.",
+    "userImpact": "Unblocks the staging deploy that was failing on every push.",
+    "riskNotes": "",
+    "bullets": ["Sync constants moved to lib/leads/status.ts", "leads.ts now imports them internally", "Fixes Vercel staging build error"]
+  },
+  {
+    "sha": "5ddd6b590c306ef78b3e38c633d2144639475be6",
+    "summary": "Wave 5 polish — 32-stage lead pipeline, fuzzy duplicate detection, English/Spanish intake, and 5 partial indexes for performance.",
+    "details": "Three coordinated workstreams.\n\n**Lead pipeline (REQ-005: 60 → 95).** Expanded `leads.status` enum from 10 to 35 values, organized into 8 categories. New `leads.pipeline_stage` text column with parallel pipeline config in `lib/services/lead-pipeline-config.ts` (32 stages, 5 groups: NEW LEADS / QUALIFICATION / INTAKE / DECISION / CONVERSION). Rewrote leads kanban: grouped horizontal scroll, drag-drop across any stage, per-card stage selector, Find Duplicates dialog. Server actions: `getLeadsByStage`, `updateLeadStage`.\n\n**Duplicate detection + Spanish.** `lib/services/lead-dedup.ts` provides confidence-scored fuzzy matching (exact email/phone = 100, name+DOB = 95, name+city = 70, soundex = 60) with inline Levenshtein + soundex implementations. `createLead` now runs dedup, returns `duplicate_suspected` status when high-confidence match found, allows acknowledged bypass. New `/intake/[orgSlug]` public intake page with English/Spanish toggle (`lib/i18n/intake-forms.ts`), language saved per session.\n\n**Performance.** `app/actions/tasks.ts` adds hard LIMIT caps (200/500/500), bulk-update for dependent task unblock (was N+1), parallel `bulkCompleteTasks`. `cases.ts` parallelizes primary contacts + assignments queries. `force-dynamic` added to `/queue`, `/cases`, `/dashboard` pages. New migration adds 5 partial indexes for hot paths (cases org+status, tasks assignee+status+due, documents case+source, contacts org+type, communications case+created), all on `WHERE deleted_at IS NULL`.\n\nMigrations applied to staging Postgres: `0003_expand_lead_status.sql` (28 ALTER TYPE ADD VALUE), `0003_demonic_robin_chapel.sql` (4 ALTER TABLE ADD COLUMN, 1 index), `0004_performance_indexes.sql` (5 CREATE INDEX IF NOT EXISTS).",
+    "userImpact": "Intake teams get a 32-stage pipeline matching how the firm actually qualifies leads, plus a fuzzy duplicate detector that catches near-matches before they create messy data. Spanish-speaking clients get a self-serve intake form. Queue/case/dashboard pages noticeably faster.",
+    "riskNotes": "Adding 28 enum values can't be reversed easily without downtime — confirm the new statuses are correct before pushing to prod.",
+    "bullets": ["Lead pipeline expanded to 32 stages in 5 groups", "Confidence-scored fuzzy duplicate detection", "English/Spanish self-serve intake page", "5 partial indexes on hot query paths", "force-dynamic on queue/cases/dashboard"]
+  },
+  {
+    "sha": "9622aa23c96b2573f52c818ecc7ae3c43e4170b7",
+    "summary": "Wave 4 — real PDF text extraction, expanded LangExtract worker, AI review queue, and HIPAA audit trail.",
+    "details": "Three coordinated workstreams.\n\n**Real PDF text extraction (FR-AI-1: 40 → 95).** `loadDocumentText()` stub replaced with real `pdf-parse v2` integration. Supports HTTP/HTTPS URLs, data: URLs (base64 + URL-encoded), text files, JSON. Truncates to 200K chars for LLM safety. ERE webhook routes extractions by filename: `decision*/favorable/denial` → decision_letter, `status/report` → status_report, default → medical_record. New `app/actions/extract.ts` server actions for manual extraction. 'Reprocess with AI' button on document list rows.\n\n**LangExtract worker upgrades (FR-AI-6/7/8).** Enhanced `decision_letter` extractor adds rfc_findings, severe_impairment, listing_match, past_relevant_work, normalized decision_type. New `phi_sheet_draft` extractor with 8 entity classes (claimant_summary, alleged_impairment, key_medical_evidence, work_history_summary, vocational_factor, hearing_strategy_note, question_for_alj, witness_recommended). New `appeal_brief` extractor (case_caption, alj_decision_date, issue_on_appeal, error_alleged, relief_requested). New endpoints `POST /extract/phi-sheet-draft` and `POST /extract/appeal-brief`. `lib/integrations/langextract.ts` ExtractionType union expanded to 6 types with typed wrapper functions.\n\n**AI review queue + HIPAA audit (NFR-AI-2/3/5).** `/admin/ai-review` page: tabbed list of unverified AI extractions, confidence filter, expandable rows with source document + char-interval highlights, single + bulk approve/reject/edit, stats cards (pending, approved/rejected this week, avg confidence with trend). `lib/services/hipaa-audit.ts` provides centralized PHI audit helpers: `logPhiAccess()` with debouncing (60s default), `logPhiModification()` for create/update/delete, `logExtractionReview()`. `lib/services/phi-access-control.ts` adds role-based PHI field gating with `maskSsn()` and `maskDob()`. PHI access points instrumented: `getCaseById` (debounced), `revealCaseSSN` (always logged, warning), `testEreCredential`, `submitEreScrapeJob` (warning), `getChronologyEntries` (debounced), `exportChronology` (always, warning), `processDocument` (modification log).",
+    "userImpact": "PDFs are actually read instead of having their filenames extracted. Decision letters, PHI sheets, and appeal briefs are extracted into structured data ready for review. Reviewers get an inbox to approve or correct AI output. Every PHI access is logged for HIPAA compliance.",
+    "riskNotes": "PHI audit logging adds DB writes on every PHI read — debouncing limits this, but watch for log table growth at scale.",
+    "bullets": ["Real pdf-parse v2 PDF extraction", "3 new structured extractors (PHI sheet, appeal brief, enhanced decision)", "AI review queue with bulk approve/edit", "HIPAA audit helpers with debouncing", "Role-based PHI field gating (SSN, DOB masking)"]
+  },
+  {
+    "sha": "2240c7b7166177235e2d28a9f49a5835bc7b4f8b",
+    "summary": "Build fix — moves CASFLOW_FIELDS constant out of a 'use server' file (Next.js 16 enforces async-only exports there).",
+    "details": "Next.js 16 enforces that `'use server'` files may only export async functions at runtime. Wave 1-3 work introduced `/medical-records` and reshaped `/import`, but two files still exported plain constants, breaking the last three staging preview builds with `A 'use server' file can only export async functions, found object`.\n\nMoved `CASFLOW_FIELDS` from `app/actions/import.ts` to a new non-`'use server'` module at `lib/import/fields.ts`. Updated the import in `app/(app)/import/client.tsx`. `MR_TEAM_COLORS` was already a local const so didn't need changes. Type-only exports remain fine because TypeScript erases them.",
+    "userImpact": "Unblocks staging preview deploys that had been failing on the import wizard.",
+    "riskNotes": "",
+    "bullets": ["CASFLOW_FIELDS moved to lib/import/fields.ts", "Type-only exports unaffected", "Local pnpm build now passes cleanly"]
+  },
+  {
+    "sha": "1574e2beb4e8c67715f7704a6f72eafbca93a26c",
+    "summary": "Wave 3 — executive dashboard, ALJ analytics, and a full audit log viewer.",
+    "details": "Three new analytics workspaces.\n\n**Executive Dashboard (`/dashboard/exec`).** Six hero metric cards: active cases, won this month, win rate 90d, open hearings this week, avg time-to-hearing, revenue placeholder. Hearing forecast bar chart for next 12 weeks with capacity line. Sortable rep performance table (37 attorneys side-by-side). Team health grid (7 teams with task counts + member count). Risk alerts list (overdue tasks, missing PHI sheets, hearings within 14d without docs, missing medical records). Reviewer/Leadership 55 → 90.\n\n**Win Rate + ALJ Analytics.** `/reports/win-rates` overview with filter bar (period × dimension), 4 headline cards, color-coded horizontal bar chart, sortable detailed table, group by Rep / ALJ / Office / Hearing Type, URL search params for shareable views. `/reports/alj-stats` searchable list of every ALJ encountered. `/reports/alj-stats/[aljName]` ALJ detail page with quarterly trend line chart, office breakdown, full case list. Attorney 75 → 90, Reviewer 90 → 95.\n\n**Audit Log Viewer (`/admin/audit-logs`).** Filter bar (user, entity type, action search, date range, severity), stats cards (total, today, most active user/entity), sortable paginated table with avatars + severity badges, expandable rows with before/after JSON diff, CSV export (10k row cap), URL search params for shareable filters. Admin 75 → 95.\n\nNo schema changes — uses existing `audit_log`, `cases`, `calendar_events`, `tasks`, `users`, `case_assignments` tables.",
+    "userImpact": "Leadership gets a single-pane exec dashboard. Attorneys can drill into any ALJ's history before a hearing. Admins get a full searchable audit log with diff view and CSV export — useful for compliance reviews and incident investigations.",
+    "riskNotes": "CSV export is capped at 10k rows. For larger exports the DB query approach would need pagination.",
+    "bullets": ["Executive dashboard with 6 KPIs + hearing forecast", "Win rate analytics with Rep/ALJ/Office/Type grouping", "Per-ALJ deep dive with quarterly trends", "Audit log viewer with diff view + CSV export", "URL params for shareable filtered views"]
+  },
+  {
+    "sha": "d266535269f2d37ce0a3a2312baad6b5496494a2",
+    "summary": "Replaces the placeholder mark with the official Hogan Smith Law badge (transparent PNG) in the nav rail.",
+    "details": "Pulls the real 'HOGAN SMITH LAW' badge (transparent PNG, 317×227) from hogansmithssd.com and swaps it into the icon rail in place of `hogansmith-mark.svg`. The `.ttn-logo` container becomes a 44×32 rounded rectangle matching the badge's ~1.4:1 aspect ratio so the wordmark renders crisp without distortion.",
+    "userImpact": "The brand badge in the nav now matches the firm's actual logo with proper proportions.",
+    "riskNotes": "",
+    "bullets": ["Official Hogan Smith Law badge replaces placeholder", "44×32 container matches badge's aspect ratio", "100KB transparent PNG"]
+  },
+  {
+    "sha": "235833d346e8e7a309a6bb082e632715d436148d",
+    "summary": "Applies the persona-workspaces schema migration to staging — encrypted MR vault, RFC tracking, outbound mail, and 7 new case columns.",
+    "details": "Drizzle migration 0002 creates: `provider_credentials` table (encrypted MR portal vault), `rfc_requests` table (Request for Functional Capacity tracking), `outbound_mail` table (mail clerk certified tracking), 7 new columns on `cases` (hearing_date, mr_status, mr_team_color, phi_sheet_status, phi_sheet_writer_id, phi_sheet_started_at, phi_sheet_completed_at), and 3 new indexes for hearing_date and PHI sheet queries.\n\nApplied to staging via `scripts/apply-migration.ts` which parses statement-breakpoints and runs each statement directly, bypassing drizzle-kit's interactive TTY prompts.",
+    "userImpact": "Schema change only — sets up the database for the persona workspaces shipping in the next commit.",
+    "riskNotes": "",
+    "bullets": ["Migration 0002 applied to staging", "3 new tables: provider_credentials, rfc_requests, outbound_mail", "7 new case columns for hearing/MR/PHI tracking", "3 new indexes"]
+  },
+  {
+    "sha": "d551b0d3f97d6acd924befb95f90569e792a349c",
+    "summary": "Replaces the gradient F placeholder in the rail with the brand-blue Hogan Smith mark SVG.",
+    "details": "Swaps the blue-gradient 'F' placeholder for `hogansmith-mark.svg` (brand-blue square with the white HS glyph baked in). Drops the CSS gradient background since the mark is self-contained, and fits the 30×30 container with `object-fit: contain`.",
+    "userImpact": "The rail's brand mark now reads as Hogan Smith instead of the generic Favorble F.",
+    "riskNotes": "",
+    "bullets": ["F placeholder replaced with HS mark", "Removed CSS gradient backing", "Mark fits 30×30 container with object-fit: contain"]
+  },
+  {
+    "sha": "d345f7b81c5ce9e8152c24ce2b71e7f793fc17e5",
+    "summary": "Wave 2 — five new persona workspaces (PHI Writer, MR, Mail Clerk, Hearings, Filing) each with their own routes, server actions, and UI.",
+    "details": "Built 5 new persona workspaces, each addressing pain points from the persona audit.\n\n**1. PHI Sheet Writer (`/phi-writer`, `/phi-writer/[caseId]`).** Hearing-date-sorted assignment queue with workload metrics. Three-pane authoring view: case sidebar, draft form, chronology. Status pipeline: unassigned → assigned → in_progress → in_review → complete. Sticky countdown banner (red <14d, amber <30d, blue >30d). PHI Writer 55 → 90.\n\n**2. Medical Records (`/medical-records`, 4 tabs).** MR Queue auto-prioritized by hearing date. Provider Credentials encrypted vault (AES-256-GCM, never decrypted to UI). RFC Tracker for Request for Functional Capacity forms. Team Workload dashboard for 5 color-coded teams (Blue/Orange/Green/Yellow/Purple). MR Specialist 45 → 85.\n\n**3. Mail Clerk (`/mail`).** Fuzzy case search (name, SSN last 4, case number, DOB). Inbound mail queue with age coloring (urgent ≥7 days). Outbound mail tracking with certified numbers. Process mail dialog with category selection. Mail Clerk 20 → 75.\n\n**4. Attorney Hearings (`/hearings`, `/hearings/[caseId]`).** Today/Tomorrow hero cards + This Week + Upcoming. Hearing prep workspace with 5 tabs: Overview, Medical, ALJ Profile, Documents, PHI Sheet. ALJ stats: total hearings, win rate, recent decisions. Mode of appearance inferred from event description. Prep status: ready / partial / not ready. Attorney 35 → 75.\n\n**5. Filing Agent (`/filing`).** Performance-optimized filing queue (parallel queries, indexed). 4 metric cards: Ready to File / In Progress / Submitted Today / Due This Week. Filter chips by application type. One-click filing with auto stage transition + audit log. Application templates sidebar. Filing Agent 40 → 80.\n\nNew schema (applied in next commit): `provider_credentials`, `rfc_requests`, `outbound_mail` tables; new case columns for PHI/hearing/MR. Nav gets 5 new rail items.",
+    "userImpact": "Five entire teams (PHI writers, MR specialists, mail clerks, attorneys, filing agents) get dedicated workspaces purpose-built for their actual day-to-day work, replacing makeshift workflows on generic case pages.",
+    "riskNotes": "Provider credentials use AES-256-GCM — encryption keys must be set in env vars. UI never decrypts to display so credentials cannot be recovered if the encryption key is lost.",
+    "bullets": ["PHI Writer with countdown banner + 3-pane authoring", "MR workspace with encrypted credentials vault + RFC tracker", "Mail Clerk with fuzzy case search + inbound queue aging", "Hearings workspace with ALJ profile tab", "Filing Agent with one-click file + auto stage transition"]
+  },
+  {
+    "sha": "cd533002182d1ace817114d477a4503c19dd84d1",
+    "summary": "Comprehensive mobile responsiveness pass — entire app audited at phone widths and fixed.",
+    "details": "Swarm-audited every section at 360-430px phone viewports. Overall mobile score lifted from ~44/100 to ~85/100 without regressing desktop layout.\n\n**Shared primitives.** Dialog: w-full max-w-lg → w-[calc(100%-1rem)] + max-h-[calc(100dvh-2rem)]. Sheet: full-width on mobile with viewport-safe max-width. Table: responsive padding + edge-to-edge horizontal scroll. DropdownMenu: max-w-[calc(100vw-1rem)]. PageHeader: stacks vertically on mobile. DataTable: search full-width, pagination stacks.\n\n**Layout + globals.** Header padding responsive. App shell padding `p-3 sm:p-4 md:p-8`. globals.css: `--sidebar-w: 0px` at ≤1023px, `overflow-x: hidden` at ≤640px.\n\n**Dashboard (biggest win).** Stat cards 5-col → 1/2/3/5 responsive. Pipeline & Outcomes stack. DenialReasons 4-col → 2-col on mobile. Fixed label widths → responsive `w-20 sm:w-[130px]`.\n\n**CRM (cases, contacts, leads).** Filter bars stack vertically. All `w-[200px]` selects → responsive. Contacts table hides Email/Phone columns on mobile. Leads kanban stacks on mobile, scrolls horizontally on desktop. Case tab-nav: 44px min touch targets, edge-to-edge scroll.\n\n**Productivity (calendar, documents, email).** Calendar nav header stacks; week view min-w reduced. Create-event dialog grids stack. Document preview Sheet full-width on mobile. Email rows stack from/to/timestamp with truncation.\n\n**Workflow (queue, import, reports).** Queue tab list scrolls horizontally. Import wizard: step labels hide on mobile (active only). Reports charts: date inputs stack; YAxis width 140 → 100.\n\n**Auth + admin.** Login: clamped width + padding. Admin integrations Cockpit: 8-col counters → 4-col → 2-col, main grids collapse below 900px. Admin users invite dialog: name fields stack on mobile.",
+    "userImpact": "The whole app is now usable on phones — dialogs fit, tables scroll, kanbans stack, and touch targets meet the 44px minimum. Mobile usability score roughly doubled.",
+    "riskNotes": "",
+    "bullets": ["Mobile score lifted ~44 → ~85 across the board", "Shared primitives (Dialog, Sheet, Table, DropdownMenu) responsive", "Dashboard, CRM, productivity, workflow, auth all touched", "44px touch targets on case tab nav", "No new typecheck or lint errors"]
+  },
+  {
+    "sha": "bb2db8ff12be243dc2465f89aa7298202103bfc0",
+    "summary": "Wave 1 activation — new MyCase sync endpoint and two activated webhook-triggered n8n workflows.",
+    "details": "**`/api/sync/mycase` endpoint** for the n8n MyCase sync workflow to bulk-upsert cases, contacts, and leads. Auth via `FAVORBLE_SYNC_TOKEN` header. Idempotent (deduped by external ID).\n\n**Activated 2 webhook-triggered n8n workflows** that don't need external credentials yet (Lead Intake + CaseStatus Router). They start receiving events the moment a webhook fires.\n\nSet `ORCHESTRATOR_API_KEY`, `MYCASE_API_KEY` (placeholder), `CASESTATUS_WEBHOOK_SECRET` (placeholder), `FAVORBLE_BASE_URL` on the n8n service so workflows have what they need to run. Endpoint returns 401 until `FAVORBLE_SYNC_TOKEN` is set on Vercel.",
+    "userImpact": "Lead intake and CaseStatus events now flow into the system automatically. MyCase data can be bulk-upserted via the new endpoint.",
+    "riskNotes": "Set `FAVORBLE_SYNC_TOKEN` on Vercel before relying on the endpoint. Placeholder credentials in env should be rotated when real ones are issued.",
+    "bullets": ["/api/sync/mycase endpoint with token auth", "Idempotent bulk upsert (cases, contacts, leads)", "2 webhook n8n workflows activated", "n8n env vars set for orchestrator + MyCase + CaseStatus"]
+  },
+  {
+    "sha": "fe0bd8f873be8e4470f6d1a83eddcab66ee99f80",
+    "summary": "LangExtract chronology backfill script — runs Gemini extraction across all seeded medical-looking documents.",
+    "details": "Wave 1 activation. Runs Gemini 2.5 Flash extraction against all seeded medical-looking documents and creates corresponding `medical_chronology_entries` rows. Idempotent (skips documents already with completed processing results) and retries on transient 502/503 from Gemini.\n\nBumped staging from 1 → 58 chronology entries.",
+    "userImpact": "Staging now has 58 chronology entries with real provider/date/diagnosis data extracted from PDFs, instead of the prior single seed entry.",
+    "riskNotes": "Hits Gemini API rate limits on large batches. Script is idempotent so re-running is safe.",
+    "bullets": ["Backfills chronology from existing seeded medical PDFs", "Gemini 2.5 Flash via langextract-worker", "Idempotent + retries on 502/503", "Staging chronology count: 1 → 58"]
+  },
+  {
+    "sha": "aebb807775ffcac4a31cec54e0961205cf2644b0",
+    "summary": "Full rebrand to Hogan Smith blue (#263c94) — replaces ~330 color references across 38 files.",
+    "details": "**Brand palette** (replaces old `#3b5998` accent): brand-600 `#263c94` (primary), brand-700 `#1f3280` (hover), `rgba(38,60,148,*)` for transparency variants.\n\n**Status palette** (replaces ALL greens): `status-ok` `#1d72b8` (teal-leaning blue, distinct hue from brand), `status-ok hover` `#185f9b`, `rgba(29,114,184,*)` transparency variants, `#e6f1fa` for light status backgrounds (replaces `#ECFDF5`).\n\nThe teal-blue status color was chosen instead of a tint of brand because hue separation matters: a lighter shade of `#263c94` would read as 'selected button', not 'healthy state'. A 27-degree hue shift to cyan-teal preserves the 'go/safe/alive' reading without being green.\n\nFiles changed: 25 TSX files (inline styles, Tailwind classes), 8 component files (panels, dashboard sections, charts), `app/globals.css` (CSS custom properties + @theme inline brand scale), `design-system/tokens.css` (added brand palette), 6 concept HTML mockups, `concepts/styleguide.html`, `app/(app)/admin/integrations/cockpit.tsx` (CSS-in-JS COCKPIT_CSS). Reference files in `styleguides/` and `mockups/` are NOT touched — they're static design artifacts.",
+    "userImpact": "Every screen now reads as Hogan Smith (deep blue) instead of generic Favorble (green). The 'healthy/OK' indicators stay clearly distinct from the brand color so they don't read as inert UI elements.",
+    "riskNotes": "Heavy diff across 38 files. Worth a visual sweep across every page after deploy to catch any missed color literals.",
+    "bullets": ["Brand color now Hogan Smith blue #263c94", "Status-OK switched from green to teal-blue #1d72b8", "Hue separation chosen to keep 'healthy' visually distinct", "~330 color references migrated", "Old design tokens preserved for reference files"]
+  },
+  {
+    "sha": "26ee8e11052cd11bb79de0fbcc74c8004a5b1b57",
+    "summary": "Operations cockpit now pulls real data from Railway GraphQL, n8n API, and the database — no more hardcoded values.",
+    "details": "Three new fetchers replace hardcoded values in the integrations cockpit.\n\n- `lib/services/railway-status.ts` queries Railway GraphQL for live service deployment statuses, last deploy times, public URLs.\n- `lib/services/n8n-status.ts` queries n8n API for the real workflow list with active state, trigger type detection, last execution timestamps from `/api/v1/executions`.\n- `lib/services/activity-feed.ts` merges recent events from `ere_jobs`, `document_processing_results`, `medical_chronology_entries`, `audit_log`, and user logins, sorted by timestamp.\n\n`integrations-status.ts` composes all three sources alongside existing DB counts to build a fully real-data `ServiceHealth` array.\n\nThe cockpit page now renders: service grid with real Railway statuses (e.g. ere-cron actually CRASHED while others are SUCCESS), counter strip with real DB counts and real n8n totals, activity feed driven by real audit log + LangExtract events, workflows section with real n8n workflow list with toggles and relative last-execution timestamps.",
+    "userImpact": "Admins finally see ground-truth status of every service instead of dashboards lying about everything being green.",
+    "riskNotes": "Railway GraphQL and n8n API both require credentials in env. Without them, the cockpit gracefully degrades but loses real-status accuracy.",
+    "bullets": ["Real Railway GraphQL service health", "Real n8n workflow list + last-execution times", "Activity feed merges 5 real event sources", "Removes all hardcoded dashboard values", "Status reflects actual reality (CRASHED vs SUCCESS)"]
+  },
+  {
+    "sha": "dd5da817e50d9f9d4b2173f7d26fe052022145ff",
+    "summary": "Secondary nav panel now switches only on click instead of hover — fixes the twitchy hover-to-switch behavior.",
+    "details": "The second nav panel was switching on rail-button hover, which felt twitchy as users moused over icons. Now it only changes when you click a rail button (which navigates and updates `activeRailId` from the URL).",
+    "userImpact": "Hovering over rail icons no longer rapidly flips through panels. The panel only changes when you actually navigate.",
+    "riskNotes": "",
+    "bullets": ["Removed hover handler from rail buttons", "Panel only switches on click (via URL change)"]
+  },
+  {
+    "sha": "140ea699f4e9edf842f93a34bfff4c93966788f0",
+    "summary": "Gates Clerk auth behind ENABLE_CLERK_AUTH env flag — falls back to a demo user when off so staging works without a custom domain.",
+    "details": "Clerk dev instances don't allow `*.vercel.app` domains, causing a redirect loop on `staging-favorble.vercel.app`. Until a real custom domain is added to Clerk, gate enforcement behind `ENABLE_CLERK_AUTH=true`.\n\nWhen the flag is unset (default), middleware initializes Clerk context but doesn't call `auth.protect()`, and `session.ts` falls back to a demo user (the seeded `admin@hogansmith.com` or a hardcoded fallback). To re-enable: set `ENABLE_CLERK_AUTH=true` on Vercel after adding a real domain to the Clerk dashboard.",
+    "userImpact": "Staging deploys work end-to-end again; you log in as the demo admin instead of being redirected in a loop.",
+    "riskNotes": "When `ENABLE_CLERK_AUTH` is false there is no real auth. Never disable in production.",
+    "bullets": ["Clerk gated behind ENABLE_CLERK_AUTH", "Falls back to demo admin user when off", "Fixes redirect loop on *.vercel.app", "Set flag on Vercel after adding real domain"]
+  },
+  {
+    "sha": "41d97994dfd49729edf5ee6814ac4981b23e7d16",
+    "summary": "New live-data Operations Cockpit replaces the old 5-card integrations page (also adds 5 design-concept HTML mockups).",
+    "details": "Full replacement of the previous static integrations page with a real-time operations cockpit (based on concept v1).\n\n**New components.** `lib/services/integrations-status.ts` aggregates live data from Railway services (health pings), DB (row counts), and integration configs. `app/(app)/admin/integrations/cockpit.tsx` client component with live UTC clock, status dots, alerts, service grid, activity feed, workflows section, queue depths, footer metrics. Server component fetches status and hydrates the cockpit.\n\n**Features.** Live UTC clock + last-updated ticker. Red alert banner when any service is degraded. 8-metric counter strip pulling real DB counts. Service health grid with pulsing status dots, CPU/MEM/uptime, Run Now buttons. Recent activity feed driven by real counts. n8n workflows section with toggles. BullMQ queue depths visualization. Footer with full DB stats.\n\nAlso adds 5 HTML design concepts (cockpit, checklist, hybrid, stream, metrics) to `concepts/` for future reference.",
+    "userImpact": "Admins get a NASA-mission-control style view of system health instead of a static card grid. Activity, workflows, queues, and per-service status are all visible at a glance.",
+    "riskNotes": "Live polling of Railway/n8n APIs has rate-limit considerations at scale. Initial pass uses short intervals — tune in production.",
+    "bullets": ["Live ops cockpit replaces static integrations page", "Service health grid with pulsing status dots", "Activity feed + n8n workflows + queue depths", "Live UTC clock and last-updated ticker", "5 alternative HTML concepts saved for reference"]
+  },
+  {
+    "sha": "a1a218698792ec22f2f69e6954e262f9abc44b75",
+    "summary": "Three test/verification scripts for the LangExtract pipeline (ERE → LangExtract → chronology).",
+    "details": "`scripts/run-langextract-pipeline.ts` demonstrates the full ERE → LangExtract → chronology flow against staging data. Verified end-to-end: calls Gemini 2.5 Flash via langextract-worker, saves `document_processing_results`, auto-creates `medical_chronology_entries`. Also adds `test-doc-pipeline.ts` and `test-process-doc.ts` for narrower smoke tests.",
+    "userImpact": "Devs can verify the full extraction pipeline against real staging data with one command.",
+    "riskNotes": "",
+    "bullets": ["Pipeline verification script (ERE → extract → chronology)", "Two narrower smoke-test scripts", "Validates Gemini 2.5 Flash integration end-to-end"]
+  },
+  {
+    "sha": "4db29ab3b325e33957096e71ce96413b581fb4e2",
+    "summary": "Lockfile sync for the @hono/node-server dependency.",
+    "details": "Adds `@hono/node-server` entries to `pnpm-lock.yaml` to keep CI installs deterministic. Pure lockfile change — no source edits.",
+    "userImpact": "No user-visible change — internal dependency hygiene.",
+    "riskNotes": "",
+    "bullets": ["pnpm-lock.yaml updated", "No source code touched"]
+  },
+  {
+    "sha": "14cf97303e7d7b4b48d1d03c5b11c35d7690aa1c",
+    "summary": "First wiring of the ERE → LangExtract → medical chronology pipeline.",
+    "details": "Initial integration: when ERE downloads a medical record, it now flows through ERE webhook → save document → LangExtract → save processing result → create chronology entry with provider / date / diagnoses / medications.\n\nNew pieces: `lib/integrations/langextract.ts` (HTTP client for langextract-worker), `lib/services/document-processor.ts` (end-to-end document processing). ERE webhook fires fire-and-forget LangExtract processing on doc download. `/api/documents/[id]/process` endpoint implements real extraction.",
+    "userImpact": "First automated path from raw ERE-scraped PDF to structured chronology row. Medical records arrive and get parsed without human intervention.",
+    "riskNotes": "Uses fire-and-forget, which doesn't survive Lambda freezes — fixed in a later commit (`8e97138`) that wraps it in `after()`.",
+    "bullets": ["First end-to-end ERE → chronology automation", "lib/integrations/langextract.ts client", "Auto-creates chronology entries with structured fields", "Manual reprocess via /api/documents/[id]/process"]
+  },
+  {
+    "sha": "ca82197cdf3ad6ea4ec4238fec827ebeb8aa2488",
+    "summary": "LangExtract worker now coerces None attributes to {} so the Pydantic model accepts them.",
+    "details": "LangExtract's library sometimes returns extractions with `attributes=None`, which the Pydantic model rejected. Coerce None to `{}` via a field validator so those extractions don't fail validation.",
+    "userImpact": "Some PDFs that previously failed extraction with cryptic Pydantic errors now extract successfully.",
+    "riskNotes": "",
+    "bullets": ["Field validator coerces attributes=None to {}", "Fixes Pydantic validation rejection"]
+  },
+  {
+    "sha": "23dfed78339dcbd4535682be4bae765496185aaf",
+    "summary": "Empty commit to trigger a fresh build of the langextract-worker service.",
+    "details": "Empty commit. Pushed to nudge the langextract-worker service into rebuilding with a clean cache after a previous build issue.",
+    "userImpact": "No user-visible change — internal CI rebuild trigger.",
+    "riskNotes": "",
+    "bullets": ["Empty commit to trigger langextract-worker rebuild"]
+  },
+  {
+    "sha": "607f3db7ba992e46699e7ed219491e35353368cc",
+    "summary": "Empty commit to trigger a langextract-worker rebuild.",
+    "details": "Empty commit. Pushed to trigger Railway to rebuild and redeploy the langextract-worker service.",
+    "userImpact": "No user-visible change — internal CI rebuild trigger.",
+    "riskNotes": "",
+    "bullets": ["Empty commit to trigger langextract-worker rebuild"]
+  }
+]

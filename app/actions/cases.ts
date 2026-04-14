@@ -36,6 +36,8 @@ export type CaseFilters = {
   stageGroupId?: string;
   assignedToId?: string;
   team?: string;
+  sortBy?: "caseNumber" | "updatedAt" | "createdAt" | "stage" | "assignedTo";
+  sortDir?: "asc" | "desc";
 };
 
 export type Pagination = {
@@ -84,6 +86,60 @@ export async function getCases(
     );
   }
 
+  // Team filter — owningTeam lives on caseStages (the team that owns the
+  // stage the case is in), not on cases itself. The LEFT JOIN with
+  // caseStages below brings it into scope.
+  if (filters.team) {
+    conditions.push(
+      sql`${caseStages.owningTeam} = ${filters.team}`,
+    );
+  }
+
+  // Assigned-to filter — restrict to cases whose primary current assignment
+  // matches the user. Uses a subquery instead of a join to avoid duplicating
+  // case rows when a case has multiple assignments.
+  if (filters.assignedToId) {
+    conditions.push(
+      inArray(
+        cases.id,
+        db
+          .select({ caseId: caseAssignments.caseId })
+          .from(caseAssignments)
+          .where(
+            and(
+              eq(caseAssignments.userId, filters.assignedToId),
+              eq(caseAssignments.isPrimary, true),
+              isNull(caseAssignments.unassignedAt),
+            ),
+          ),
+      ),
+    );
+  }
+
+  // Dynamic ordering — map the allowed sort keys to their concrete SQL
+  // column; unknown keys fall back to the safe "most recently updated first"
+  // default so bad ?sortBy values don't blow up the page.
+  const sortDir: "asc" | "desc" = filters.sortDir === "asc" ? "asc" : "desc";
+  const orderFn = sortDir === "asc" ? asc : desc;
+  const orderColumn =
+    filters.sortBy === "caseNumber"
+      ? cases.caseNumber
+      : filters.sortBy === "createdAt"
+        ? cases.createdAt
+        : filters.sortBy === "stage"
+          ? caseStages.displayOrder
+          : filters.sortBy === "assignedTo"
+            ? sql`
+                (SELECT ${users.firstName}
+                 FROM ${caseAssignments}
+                 INNER JOIN ${users} ON ${users.id} = ${caseAssignments.userId}
+                 WHERE ${caseAssignments.caseId} = ${cases.id}
+                   AND ${caseAssignments.isPrimary} = true
+                   AND ${caseAssignments.unassignedAt} IS NULL
+                 LIMIT 1)
+              `
+            : cases.updatedAt;
+
   const offset = (pagination.page - 1) * pagination.pageSize;
 
   const [caseRows, totalResult] = await Promise.all([
@@ -110,12 +166,13 @@ export async function getCases(
         eq(caseStages.stageGroupId, caseStageGroups.id),
       )
       .where(and(...conditions))
-      .orderBy(desc(cases.updatedAt))
+      .orderBy(orderFn(orderColumn))
       .limit(pagination.pageSize)
       .offset(offset),
     db
       .select({ total: count() })
       .from(cases)
+      .leftJoin(caseStages, eq(cases.currentStageId, caseStages.id))
       .where(and(...conditions)),
   ]);
 
