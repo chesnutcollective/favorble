@@ -6,6 +6,7 @@ import {
   integer,
   numeric,
   jsonb,
+  boolean,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -65,6 +66,20 @@ export const communications = pgTable(
     qaNotes: text("qa_notes"),
     qaReviewedAt: timestamp("qa_reviewed_at", { withTimezone: true }),
 
+    // B4: inbox triage fields (plain text so we can iterate on values without
+    // needing a migration per change). Validated at the action layer via
+    // `URGENCY_VALUES` / `CATEGORY_VALUES` in app/actions/messages.ts.
+    urgency: text("urgency").default("normal"),
+    category: text("category"),
+
+    // D3: distinguishes workflow-generated messages from human-sent ones so
+    // the follow-up nudger can skip anything sent by a template.
+    isAutomated: boolean("is_automated").default(false).notNull(),
+
+    // Provenance marker — e.g. "workflow:{templateId}", "human", "case_status".
+    // Nullable for legacy rows.
+    sourceType: text("source_type"),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -79,5 +94,8 @@ export const communications = pgTable(
     index("idx_comms_thread").on(table.threadId),
     index("idx_comms_sentiment").on(table.sentimentLabel),
     index("idx_comms_read").on(table.readAt),
+    index("idx_comms_urgency").on(table.urgency),
+    index("idx_comms_category").on(table.category),
+    index("idx_comms_is_automated").on(table.isAutomated),
   ],
 );

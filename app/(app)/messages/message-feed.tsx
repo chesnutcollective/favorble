@@ -18,6 +18,9 @@ type Message = {
   createdAt: string;
   caseId: string | null;
   caseNumber: string | null;
+  urgency?: string | null;
+  category?: string | null;
+  readAt?: string | null;
 };
 
 const TYPE_CONFIG: Record<string, { label: string }> = {

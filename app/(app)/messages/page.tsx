@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth/session";
-import { db } from "@/db/drizzle";
-import { communications, cases } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -10,48 +7,49 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Message01Icon } from "@hugeicons/core-free-icons";
 import * as caseStatusIntegration from "@/lib/integrations/case-status";
 import { MessageFeed } from "./message-feed";
+import { MessagesFilterStrip } from "./filter-strip";
+import {
+  getMessages,
+  parseMessageFilters,
+  type MessageRow,
+} from "@/app/actions/messages";
 
 export const metadata: Metadata = {
   title: "Messages",
 };
 
-async function fetchRecentMessages(organizationId: string) {
-  return db
-    .select({
-      id: communications.id,
-      type: communications.type,
-      subject: communications.subject,
-      body: communications.body,
-      fromAddress: communications.fromAddress,
-      sourceSystem: communications.sourceSystem,
-      createdAt: communications.createdAt,
-      caseId: communications.caseId,
-      caseNumber: cases.caseNumber,
-    })
-    .from(communications)
-    .leftJoin(cases, eq(communications.caseId, cases.id))
-    .where(eq(communications.organizationId, organizationId))
-    .orderBy(desc(communications.createdAt))
-    .limit(100);
-}
+type SearchParams = Promise<{
+  highlight?: string;
+  urgency?: string;
+  category?: string;
+  unread?: string;
+}>;
 
 export default async function MessagesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ highlight?: string }>;
+  searchParams: SearchParams;
 }) {
   const params = await searchParams;
   const user = await requireSession();
   const isConfigured = caseStatusIntegration.isConfigured();
 
-  // Get recent communications
-  let recentMessages: Awaited<ReturnType<typeof fetchRecentMessages>> = [];
+  const filters = parseMessageFilters({
+    urgency: params.urgency,
+    category: params.category,
+    unread: params.unread,
+  });
+
+  let recentMessages: MessageRow[] = [];
 
   try {
-    recentMessages = await fetchRecentMessages(user.organizationId);
+    recentMessages = await getMessages(filters);
   } catch {
     // DB unavailable
   }
+
+  const hasActiveFilters =
+    !!filters.urgency || !!filters.category || !!filters.unreadOnly;
 
   return (
     <div className="space-y-6">
@@ -89,18 +87,25 @@ export default async function MessagesPage({
         </Card>
       )}
 
+      <MessagesFilterStrip
+        urgency={filters.urgency}
+        category={filters.category}
+        unread={filters.unreadOnly}
+      />
+
       {recentMessages.length === 0 ? (
         <EmptyState
           icon={Message01Icon}
-          title="No messages yet"
-          description="Messages from clients via Case Status will appear here."
+          title={hasActiveFilters ? "No messages match your filters" : "No messages yet"}
+          description={
+            hasActiveFilters
+              ? "Try clearing a filter or adjusting the urgency/category selection."
+              : "Messages from clients via Case Status will appear here."
+          }
         />
       ) : (
         <MessageFeed
-          messages={recentMessages.map((msg) => ({
-            ...msg,
-            createdAt: msg.createdAt.toISOString(),
-          }))}
+          messages={recentMessages}
           highlightId={params.highlight}
         />
       )}
