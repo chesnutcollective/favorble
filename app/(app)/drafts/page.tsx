@@ -22,6 +22,58 @@ const ACTIVE_STATUSES = [
   "error",
 ] as const;
 
+type AiDraftStatus =
+  | "generating"
+  | "draft_ready"
+  | "in_review"
+  | "approved"
+  | "sent"
+  | "rejected"
+  | "error";
+
+type AiDraftType =
+  | "client_message"
+  | "client_letter"
+  | "call_script"
+  | "appeal_form"
+  | "reconsideration_request"
+  | "pre_hearing_brief"
+  | "appeals_council_brief"
+  | "medical_records_request"
+  | "fee_petition"
+  | "task_instructions"
+  | "status_update"
+  | "rfc_letter"
+  | "coaching_conversation"
+  | "other";
+
+const ALL_STATUSES = new Set<AiDraftStatus>([
+  "generating",
+  "draft_ready",
+  "in_review",
+  "approved",
+  "sent",
+  "rejected",
+  "error",
+]);
+
+const ALL_TYPES = new Set<AiDraftType>([
+  "client_message",
+  "client_letter",
+  "call_script",
+  "appeal_form",
+  "reconsideration_request",
+  "pre_hearing_brief",
+  "appeals_council_brief",
+  "medical_records_request",
+  "fee_petition",
+  "task_instructions",
+  "status_update",
+  "rfc_letter",
+  "coaching_conversation",
+  "other",
+]);
+
 const LABEL_BY_TYPE: Record<string, string> = {
   client_message: "Client message",
   client_letter: "Client letter",
@@ -55,10 +107,30 @@ const STATUS_VARIANT: Record<
 export default async function DraftsInboxPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ mine?: string }>;
+  searchParams?: Promise<{
+    mine?: string;
+    type?: string;
+    confidence?: string;
+    status?: string;
+  }>;
 }) {
   const params = (await searchParams) ?? {};
   const session = await requireSession();
+
+  const rawType = params.type?.trim();
+  const typeFilter: AiDraftType | null =
+    rawType && ALL_TYPES.has(rawType as AiDraftType)
+      ? (rawType as AiDraftType)
+      : null;
+  const lowConfidenceOnly = params.confidence === "low";
+  // If a specific status is requested, narrow the IN() list; otherwise keep
+  // the default ACTIVE_STATUSES list (generating/draft_ready/in_review/error).
+  const statusFilter: AiDraftStatus[] =
+    params.status &&
+    params.status.length > 0 &&
+    ALL_STATUSES.has(params.status as AiDraftStatus)
+      ? [params.status as AiDraftStatus]
+      : [...ACTIVE_STATUSES];
 
   let rows: Array<{
     id: string;
@@ -74,6 +146,14 @@ export default async function DraftsInboxPage({
   }> = [];
 
   try {
+    const conditions = [
+      eq(aiDrafts.organizationId, session.organizationId),
+      inArray(aiDrafts.status, statusFilter),
+    ];
+    if (typeFilter) {
+      conditions.push(eq(aiDrafts.type, typeFilter));
+    }
+
     rows = await db
       .select({
         id: aiDrafts.id,
@@ -89,12 +169,7 @@ export default async function DraftsInboxPage({
       })
       .from(aiDrafts)
       .leftJoin(cases, eq(aiDrafts.caseId, cases.id))
-      .where(
-        and(
-          eq(aiDrafts.organizationId, session.organizationId),
-          inArray(aiDrafts.status, [...ACTIVE_STATUSES]),
-        ),
-      )
+      .where(and(...conditions))
       .orderBy(desc(aiDrafts.createdAt))
       .limit(200);
   } catch {
@@ -102,9 +177,21 @@ export default async function DraftsInboxPage({
   }
 
   const mineOnly = params.mine === "1";
-  const filtered = mineOnly
-    ? rows.filter((r) => r.assignedReviewerId === session.id)
-    : rows;
+  // Note: low-confidence filter is a placeholder — the aiDrafts table has no
+  // confidence column yet. When it lands, filter here on `< 60` + active
+  // statuses; for now the filter is a no-op and returns the same list.
+  const filtered = (() => {
+    let out = rows;
+    if (mineOnly) out = out.filter((r) => r.assignedReviewerId === session.id);
+    if (lowConfidenceOnly) {
+      // No confidence column yet — keep existing rows but narrow to active
+      // statuses so the count matches the nav panel's semantics.
+      out = out.filter((r) =>
+        (ACTIVE_STATUSES as readonly string[]).includes(r.status),
+      );
+    }
+    return out;
+  })();
 
   const reviewerIds = [
     ...new Set(

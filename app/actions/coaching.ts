@@ -9,7 +9,7 @@ import {
   users,
   trainingGaps,
 } from "@/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth/session";
@@ -44,6 +44,15 @@ export type CoachingFlagListItem = {
   supervisorName: string | null;
 };
 
+export type CoachingFlagFilters = {
+  /** Filter by severity band. "high" → severity >= 6. */
+  severity?: "high";
+  /** Filter by classification. "none" → NULL classification. */
+  classification?: "people" | "process" | "none";
+  /** Time window relative to now. "7d" → last 7 days (applied to resolvedAt). */
+  window?: "7d";
+};
+
 /**
  * List coaching flags visible to the current session user. Admins see
  * every flag in the org; everyone else sees the flags where they are
@@ -51,6 +60,7 @@ export type CoachingFlagListItem = {
  */
 export async function getCoachingFlags(
   status?: CoachingFlagStatus,
+  filters: CoachingFlagFilters = {},
 ): Promise<CoachingFlagListItem[]> {
   const session = await requireSession();
 
@@ -60,6 +70,18 @@ export async function getCoachingFlags(
   }
   if (session.role !== "admin") {
     conditions.push(eq(coachingFlags.supervisorUserId, session.id));
+  }
+  if (filters.severity === "high") {
+    conditions.push(gte(coachingFlags.severity, 6));
+  }
+  if (filters.classification === "none") {
+    conditions.push(isNull(coachingFlags.classification));
+  } else if (filters.classification) {
+    conditions.push(eq(coachingFlags.classification, filters.classification));
+  }
+  if (filters.window === "7d") {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    conditions.push(gte(coachingFlags.resolvedAt, sevenDaysAgo));
   }
 
   const subjectUser = alias(users, "subject_user");

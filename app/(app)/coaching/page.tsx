@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCoachingFlags } from "@/app/actions/coaching";
+import {
+  getCoachingFlags,
+  type CoachingFlagStatus,
+  type CoachingFlagFilters,
+} from "@/app/actions/coaching";
 import { PageHeader } from "@/components/shared/page-header";
 import {
   Table,
@@ -35,10 +39,44 @@ function severityBand(
   return "critical";
 }
 
-export default async function CoachingPage() {
+const VALID_STATUSES: CoachingFlagStatus[] = [
+  "open",
+  "in_progress",
+  "resolved",
+  "dismissed",
+];
+
+export default async function CoachingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    severity?: string;
+    status?: string;
+    classification?: string;
+    window?: string;
+  }>;
+}) {
+  const params = (await searchParams) ?? {};
+
+  const status: CoachingFlagStatus =
+    params.status && VALID_STATUSES.includes(params.status as CoachingFlagStatus)
+      ? (params.status as CoachingFlagStatus)
+      : "open";
+
+  const filters: CoachingFlagFilters = {};
+  if (params.severity === "high") filters.severity = "high";
+  if (
+    params.classification === "people" ||
+    params.classification === "process" ||
+    params.classification === "none"
+  ) {
+    filters.classification = params.classification;
+  }
+  if (params.window === "7d") filters.window = "7d";
+
   let flags: Awaited<ReturnType<typeof getCoachingFlags>> = [];
   try {
-    flags = await getCoachingFlags("open");
+    flags = await getCoachingFlags(status, filters);
   } catch {
     // DB unavailable
   }

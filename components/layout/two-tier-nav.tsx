@@ -527,7 +527,6 @@ const settingsNav: SettingsItem[] = [
 /* ─── Determine active rail item from pathname ─── */
 
 function getActiveRailId(pathname: string, items: RailItem[]): string {
-  if (pathname.startsWith("/admin")) return "settings";
   if (pathname.startsWith("/changelog")) return "changelog";
   for (const item of items) {
     if (item.id === "dashboard") {
@@ -536,6 +535,7 @@ function getActiveRailId(pathname: string, items: RailItem[]): string {
     }
     if (pathname.startsWith(item.href)) return item.id;
   }
+  if (pathname.startsWith("/admin")) return "settings";
   return items[0]?.id ?? "dashboard";
 }
 
@@ -966,6 +966,24 @@ export function TwoTierNav({
               navData={navData}
             />
 
+            {/* Supervisor Panel */}
+            <SupervisorPanel
+              active={visiblePanel === "supervisor"}
+              navData={navData}
+            />
+
+            {/* Coaching Panel */}
+            <CoachingPanel
+              active={visiblePanel === "coaching"}
+              navData={navData}
+            />
+
+            {/* AI Drafts Panel */}
+            <AiDraftsPanel
+              active={visiblePanel === "drafts"}
+              navData={navData}
+            />
+
             {/* Changelog Panel */}
             <ChangelogPanel
               active={visiblePanel === "changelog"}
@@ -996,6 +1014,9 @@ export function TwoTierNav({
                     "billing",
                     "trust",
                     "team-chat",
+                    "supervisor",
+                    "coaching",
+                    "drafts",
                   ].includes(item.id),
               )
               .map((item) => (
@@ -3836,6 +3857,387 @@ function TeamChatPanel({
       <div style={{ padding: "12px 12px 0" }}>
         <Link href="/team-chat" style={panelFooterLinkStyle}>
           Open team chat &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Supervisor ─── */
+
+function SupervisorPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.supervisorSummary;
+  const topOverloaded = s?.topOverloaded ?? [];
+  const maxOpen = Math.max(
+    1,
+    ...topOverloaded.map((r) => r.openTaskCount),
+  );
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Supervisor</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.openEvents ?? 0} open events &middot; {s?.highRisk ?? 0} high-risk
+      </div>
+
+      <PanelCounterRow
+        href="/reports/risk"
+        label="High-risk cases"
+        value={s?.highRisk ?? 0}
+        tone={s && s.highRisk > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/admin/compliance"
+        label="Compliance findings"
+        sublabel="bar · ethics · HIPAA"
+        value={s?.openFindings ?? 0}
+        tone={s && s.openFindings > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching"
+        label="Coaching flags"
+        value={s?.openFlags ?? 0}
+        tone={s && s.openFlags > 0 ? "warn" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>Review queue</div>
+      <PanelCounterRow
+        href="/admin/supervisor/drafts"
+        label="Drafts awaiting review"
+        value={s?.openDrafts ?? 0}
+        tone={s && s.openDrafts > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/cases?filter=supervisor-events"
+        label="Supervisor events"
+        sublabel="across all cases"
+        value={s?.openEvents ?? 0}
+      />
+
+      <div style={panelSubHeaderStyle}>Top overloaded</div>
+      {topOverloaded.length === 0 ? (
+        <div style={{ padding: "6px 12px", fontSize: 11, color: "#999" }}>
+          No overload detected
+        </div>
+      ) : (
+        <div style={{ padding: "2px 12px 8px" }}>
+          {topOverloaded.map((row) => {
+            const pct = Math.round(
+              (row.openTaskCount / maxOpen) * 100,
+            );
+            return (
+              <Link
+                key={row.userId}
+                href={`/admin/supervisor/workload?user=${row.userId}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 0",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "#1C1C1E",
+                    flex: "0 0 40%",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {row.name}
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    height: 4,
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      height: "100%",
+                      width: `${pct}%`,
+                      backgroundColor: "#185f9b",
+                    }}
+                  />
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "monospace",
+                    color: "#EE0000",
+                    fontWeight: 600,
+                    minWidth: 20,
+                    textAlign: "right",
+                  }}
+                >
+                  {row.overdueTaskCount}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      <div
+        style={{
+          padding: "12px 12px 0",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <Link href="/admin/supervisor" style={panelFooterLinkStyle}>
+          Open supervisor hub &rarr;
+        </Link>
+        <Link href="/admin/supervisor/workload" style={panelFooterLinkStyle}>
+          Workload matrix &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Coaching ─── */
+
+function CoachingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.coachingSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Coaching</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.openTotal ?? 0} open &middot; {s?.inProgress ?? 0} in progress
+      </div>
+
+      <PanelCounterRow
+        href="/coaching?severity=high"
+        label="Needs attention"
+        sublabel="severity ≥ 6"
+        value={s?.openHighSeverity ?? 0}
+        tone={s && s.openHighSeverity > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching?status=in_progress"
+        label="In progress"
+        value={s?.inProgress ?? 0}
+      />
+      <PanelCounterRow
+        href="/coaching?status=resolved&window=7d"
+        label="Resolved this week"
+        value={s?.resolvedThisWeek ?? 0}
+        tone={s && s.resolvedThisWeek > 0 ? "success" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>Problem Type</div>
+      <PanelCounterRow
+        href="/coaching?classification=people"
+        label="People problems"
+        value={s?.peopleCount ?? 0}
+        tone={s && s.peopleCount > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching?classification=process"
+        label="Process problems"
+        value={s?.processCount ?? 0}
+      />
+      {(s?.unclassifiedCount ?? 0) > 0 && (
+        <PanelCounterRow
+          href="/coaching?classification=none"
+          label="Unclassified"
+          value={s?.unclassifiedCount ?? 0}
+          tone="warn"
+        />
+      )}
+
+      <div style={panelSubHeaderStyle}>Training Gaps</div>
+      <PanelCounterRow
+        href="/coaching/training-gaps"
+        label="Role-level gaps"
+        sublabel="≥50% below target"
+        value={s?.trainingGapCount ?? 0}
+        tone={s && s.trainingGapCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/coaching" style={panelFooterLinkStyle}>
+          View all flags &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── AI Drafts ─── */
+
+const AI_DRAFT_SHORT_LABEL: Record<string, string> = {
+  client_message: "Client msg",
+  client_letter: "Letter",
+  call_script: "Call script",
+  appeal_form: "Appeal",
+  reconsideration_request: "Recon req",
+  pre_hearing_brief: "Brief",
+  appeals_council_brief: "AC brief",
+  medical_records_request: "MR request",
+  fee_petition: "Fee pet.",
+  task_instructions: "Task instr.",
+  status_update: "Status",
+  rfc_letter: "RFC letter",
+  coaching_conversation: "Coaching",
+  other: "Other",
+};
+
+function AiDraftsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.aiDraftsSummary;
+
+  const topTypes = Object.entries(s?.byType ?? {})
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const needsReviewTone =
+    s && s.errorCount > 0
+      ? "urgent"
+      : s && s.needsReview > 0
+        ? "warn"
+        : "default";
+
+  const recent = s?.recent ?? [];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">AI Drafts</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.myQueue ?? 0} mine &middot; {s?.needsReview ?? 0} in review
+      </div>
+
+      <PanelCounterRow
+        href="/drafts?mine=1"
+        label="My queue"
+        value={s?.myQueue ?? 0}
+      />
+      <PanelCounterRow
+        href="/drafts?status=draft_ready"
+        label="Needs review"
+        value={s?.needsReview ?? 0}
+        tone={needsReviewTone}
+      />
+      <PanelCounterRow
+        href="/drafts?confidence=low"
+        label="Low confidence"
+        value={s?.lowConfidence ?? 0}
+        tone={s && s.lowConfidence > 0 ? "urgent" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>By type</div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 6,
+          padding: "4px 12px 10px",
+          fontSize: 10,
+          fontFamily: "monospace",
+        }}
+      >
+        {topTypes.length === 0 ? (
+          <span style={{ fontSize: 10, color: "#999" }}>No active drafts</span>
+        ) : (
+          topTypes.map(([type, n]) => (
+            <Link
+              key={type}
+              href={`/drafts?type=${type}`}
+              style={{ textDecoration: "none", color: "#185f9b" }}
+            >
+              {AI_DRAFT_SHORT_LABEL[type] ?? type} {n}
+            </Link>
+          ))
+        )}
+      </div>
+
+      <div style={panelSubHeaderStyle}>Recent</div>
+      {recent.length === 0 ? (
+        <div style={{ padding: "6px 12px", fontSize: 11, color: "#999" }}>
+          No recent drafts
+        </div>
+      ) : (
+        recent.map((r) => (
+          <Link
+            key={r.id}
+            href={`/drafts/${r.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div className="ttn-msg-preview">
+              <div className="ttn-msg-avatar">{r.authorInitials}</div>
+              <div className="ttn-msg-body">
+                <div
+                  className="ttn-msg-subject"
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {r.title}
+                </div>
+                <div
+                  className="ttn-msg-snippet"
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontFamily: "monospace",
+                      backgroundColor: "rgba(24,95,155,0.1)",
+                      color: "#185f9b",
+                      padding: "1px 4px",
+                      borderRadius: 3,
+                    }}
+                  >
+                    {AI_DRAFT_SHORT_LABEL[r.type] ?? r.type}
+                  </span>
+                  {r.caseNumber && <span>#{r.caseNumber}</span>}
+                </div>
+              </div>
+              <span className="ttn-msg-time">
+                {formatRelativeTime(r.createdAt)}
+              </span>
+            </div>
+          </Link>
+        ))
+      )}
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/drafts" style={panelFooterLinkStyle}>
+          Open drafts inbox &rarr;
         </Link>
       </div>
     </div>

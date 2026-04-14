@@ -23,6 +23,9 @@ import {
   chatChannels,
   chatChannelMembers,
   chatMessages,
+  coachingFlags,
+  trainingGaps,
+  aiDrafts,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import {
@@ -35,8 +38,17 @@ import {
   desc,
   asc,
   count,
+  inArray,
   sql,
 } from "drizzle-orm";
+import {
+  getWorkloadMatrix,
+  getOpenSupervisorEventCount,
+  getOpenCoachingFlagCount,
+  getOpenComplianceFindingCount,
+  getHighRiskCaseCount,
+  getOpenDraftCount,
+} from "@/app/actions/workload-matrix";
 
 /* ─── Types ─── */
 
@@ -201,6 +213,47 @@ export type TeamChatSummary = {
   dmUnreadCount: number;
 };
 
+export type SupervisorNavSummary = {
+  openEvents: number;
+  highRisk: number;
+  openFindings: number;
+  openFlags: number;
+  openDrafts: number;
+  topOverloaded: Array<{
+    userId: string;
+    name: string;
+    overdueTaskCount: number;
+    openTaskCount: number;
+  }>;
+};
+
+export type CoachingNavSummary = {
+  openTotal: number;
+  openHighSeverity: number;
+  inProgress: number;
+  resolvedThisWeek: number;
+  peopleCount: number;
+  processCount: number;
+  unclassifiedCount: number;
+  trainingGapCount: number;
+};
+
+export type AiDraftsNavSummary = {
+  myQueue: number;
+  needsReview: number;
+  lowConfidence: number;
+  errorCount: number;
+  byType: Record<string, number>;
+  recent: Array<{
+    id: string;
+    title: string;
+    type: string;
+    caseNumber: string | null;
+    authorInitials: string;
+    createdAt: string;
+  }>;
+};
+
 export type NavPanelData = {
   stageCounts: StageCounts[];
   taskSummary: TaskSummary;
@@ -219,6 +272,9 @@ export type NavPanelData = {
   billingSummary: BillingSummary;
   trustSummary: TrustSummary;
   teamChatSummary: TeamChatSummary;
+  supervisorSummary?: SupervisorNavSummary;
+  coachingSummary?: CoachingNavSummary;
+  aiDraftsSummary?: AiDraftsNavSummary;
 };
 
 /* ─── Sub-queries ─── */
@@ -1156,6 +1212,282 @@ async function getTeamChatSummary(
   };
 }
 
+/* ─── Supervisor / Coaching / AI Drafts nav summaries ─── */
+
+const SUPERVISOR_ROLES = new Set(["admin", "reviewer"]);
+
+async function getSupervisorNavSummary(
+  role: string,
+): Promise<SupervisorNavSummary | undefined> {
+  if (!SUPERVISOR_ROLES.has(role)) return undefined;
+  try {
+    const [
+      matrix,
+      openEvents,
+      openFlags,
+      openFindings,
+      highRisk,
+      openDrafts,
+    ] = await Promise.all([
+      getWorkloadMatrix(),
+      getOpenSupervisorEventCount(),
+      getOpenCoachingFlagCount(),
+      getOpenComplianceFindingCount(),
+      getHighRiskCaseCount(),
+      getOpenDraftCount(),
+    ]);
+
+    const topOverloaded = [...matrix]
+      .sort((a, b) => {
+        if (b.overdueTaskCount !== a.overdueTaskCount) {
+          return b.overdueTaskCount - a.overdueTaskCount;
+        }
+        return b.openTaskCount - a.openTaskCount;
+      })
+      .slice(0, 3)
+      .map((r) => ({
+        userId: r.userId,
+        name: r.name,
+        overdueTaskCount: r.overdueTaskCount,
+        openTaskCount: r.openTaskCount,
+      }));
+
+    return {
+      openEvents,
+      highRisk,
+      openFindings,
+      openFlags,
+      openDrafts,
+      topOverloaded,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+async function getCoachingNavSummary(
+  organizationId: string,
+  userId: string,
+  role: string,
+): Promise<CoachingNavSummary | undefined> {
+  if (!SUPERVISOR_ROLES.has(role)) return undefined;
+  try {
+    const visibilityConds =
+      role === "admin"
+        ? [eq(coachingFlags.organizationId, organizationId)]
+        : [
+            eq(coachingFlags.organizationId, organizationId),
+            eq(coachingFlags.supervisorUserId, userId),
+          ];
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      openTotalRow,
+      highSevRow,
+      inProgressRow,
+      resolvedWeekRow,
+      peopleRow,
+      processRow,
+      unclassifiedRow,
+      trainingGapRow,
+    ] = await Promise.all([
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            inArray(coachingFlags.status, ["open", "in_progress"]),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            inArray(coachingFlags.status, ["open", "in_progress"]),
+            gte(coachingFlags.severity, 6),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(...visibilityConds, eq(coachingFlags.status, "in_progress")),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            eq(coachingFlags.status, "resolved"),
+            gte(coachingFlags.resolvedAt, sevenDaysAgo),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            inArray(coachingFlags.status, ["open", "in_progress"]),
+            eq(coachingFlags.classification, "people"),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            inArray(coachingFlags.status, ["open", "in_progress"]),
+            eq(coachingFlags.classification, "process"),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(coachingFlags)
+        .where(
+          and(
+            ...visibilityConds,
+            inArray(coachingFlags.status, ["open", "in_progress"]),
+            isNull(coachingFlags.classification),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(trainingGaps)
+        .where(eq(trainingGaps.organizationId, organizationId)),
+    ]);
+
+    return {
+      openTotal: openTotalRow[0]?.n ?? 0,
+      openHighSeverity: highSevRow[0]?.n ?? 0,
+      inProgress: inProgressRow[0]?.n ?? 0,
+      resolvedThisWeek: resolvedWeekRow[0]?.n ?? 0,
+      peopleCount: peopleRow[0]?.n ?? 0,
+      processCount: processRow[0]?.n ?? 0,
+      unclassifiedCount: unclassifiedRow[0]?.n ?? 0,
+      trainingGapCount: trainingGapRow[0]?.n ?? 0,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+const AI_DRAFTS_ACTIVE_STATUSES = [
+  "generating",
+  "draft_ready",
+  "in_review",
+  "error",
+] as const;
+
+async function getAiDraftsNavSummary(
+  organizationId: string,
+  userId: string,
+): Promise<AiDraftsNavSummary | undefined> {
+  try {
+    const orgCond = eq(aiDrafts.organizationId, organizationId);
+
+    const [myQueueRow, needsReviewRow, errorRow, byTypeRows, recentRows] =
+      await Promise.all([
+        db
+          .select({ n: count() })
+          .from(aiDrafts)
+          .where(
+            and(
+              orgCond,
+              eq(aiDrafts.assignedReviewerId, userId),
+              inArray(aiDrafts.status, [...AI_DRAFTS_ACTIVE_STATUSES]),
+            ),
+          ),
+        db
+          .select({ n: count() })
+          .from(aiDrafts)
+          .where(
+            and(
+              orgCond,
+              inArray(aiDrafts.status, ["draft_ready", "in_review"]),
+            ),
+          ),
+        db
+          .select({ n: count() })
+          .from(aiDrafts)
+          .where(and(orgCond, eq(aiDrafts.status, "error"))),
+        db
+          .select({ type: aiDrafts.type, n: count() })
+          .from(aiDrafts)
+          .where(
+            and(
+              orgCond,
+              inArray(aiDrafts.status, [...AI_DRAFTS_ACTIVE_STATUSES]),
+            ),
+          )
+          .groupBy(aiDrafts.type),
+        db
+          .select({
+            id: aiDrafts.id,
+            title: aiDrafts.title,
+            type: aiDrafts.type,
+            caseNumber: cases.caseNumber,
+            createdAt: aiDrafts.createdAt,
+            approvedBy: aiDrafts.approvedBy,
+            reviewerFirstName: users.firstName,
+            reviewerLastName: users.lastName,
+          })
+          .from(aiDrafts)
+          .leftJoin(cases, eq(aiDrafts.caseId, cases.id))
+          .leftJoin(users, eq(aiDrafts.assignedReviewerId, users.id))
+          .where(orgCond)
+          .orderBy(desc(aiDrafts.createdAt))
+          .limit(3),
+      ]);
+
+    const byType: Record<string, number> = {};
+    for (const r of byTypeRows) {
+      byType[r.type] = r.n;
+    }
+
+    const recent = recentRows.map((r) => {
+      const first = r.reviewerFirstName ?? "";
+      const last = r.reviewerLastName ?? "";
+      const name = `${first} ${last}`.trim();
+      const initials = name
+        ? name
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((p) => p[0])
+            .join("")
+            .toUpperCase()
+        : "AI";
+      return {
+        id: r.id,
+        title: r.title,
+        type: r.type,
+        caseNumber: r.caseNumber ?? null,
+        authorInitials: initials,
+        createdAt:
+          r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
+      };
+    });
+
+    return {
+      myQueue: myQueueRow[0]?.n ?? 0,
+      needsReview: needsReviewRow[0]?.n ?? 0,
+      lowConfidence: 0,
+      errorCount: errorRow[0]?.n ?? 0,
+      byType,
+      recent,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 /* ─── Main aggregator ─── */
 
 export async function getNavPanelData(): Promise<NavPanelData> {
@@ -1181,6 +1513,9 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     billingSummary,
     trustSummary,
     teamChatSummary,
+    supervisorSummary,
+    coachingSummary,
+    aiDraftsSummary,
   ] = await Promise.all([
     getStageCounts(orgId).catch((): StageCounts[] => []),
     getTaskSummary(userId).catch(
@@ -1293,6 +1628,9 @@ export async function getNavPanelData(): Promise<NavPanelData> {
         dmUnreadCount: 0,
       }),
     ),
+    getSupervisorNavSummary(session.role).catch(() => undefined),
+    getCoachingNavSummary(orgId, userId, session.role).catch(() => undefined),
+    getAiDraftsNavSummary(orgId, userId).catch(() => undefined),
   ]);
 
   return {
@@ -1313,5 +1651,8 @@ export async function getNavPanelData(): Promise<NavPanelData> {
     billingSummary,
     trustSummary,
     teamChatSummary,
+    supervisorSummary,
+    coachingSummary,
+    aiDraftsSummary,
   };
 }
