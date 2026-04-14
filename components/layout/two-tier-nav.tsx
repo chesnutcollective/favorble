@@ -872,12 +872,6 @@ export function TwoTierNav({
 
         {/* ── Tier 2: Context Panel ── */}
         <aside className="ttn-panel">
-          {/* Search trigger */}
-          <div className="ttn-search-trigger">
-            <span className="ttn-search-placeholder">Search...</span>
-            <kbd className="ttn-search-badge">{"\u2318"}K</kbd>
-          </div>
-
           <div className="ttn-panel-content-wrapper">
             {/* Dashboard Panel — per-persona via dispatcher */}
             <PersonaDashboardPanelWrapper
