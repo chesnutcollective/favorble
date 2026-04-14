@@ -28,6 +28,12 @@ export const contacts = pgTable(
     state: text("state"),
     zip: text("zip"),
     contactType: text("contact_type").notNull().default("claimant"),
+    /**
+     * Preferred portal/communications locale. Two-letter code (en, es, …).
+     * Added in migration 0022 for the client portal foundation; defaults to
+     * 'en' for existing rows.
+     */
+    preferredLocale: text("preferred_locale").notNull().default("en"),
     metadata: jsonb("metadata").default({}),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
