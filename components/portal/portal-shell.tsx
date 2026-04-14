@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePortalImpersonation } from "./portal-impersonation-context";
+import { PortalLocaleProvider, usePortalT } from "./use-portal-t";
 
 export type PortalShellProps = {
   claimantName: string;
@@ -22,16 +23,28 @@ export type PortalShellProps = {
 
 type NavItem = {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/portal", label: "Home", icon: Home },
-  { href: "/portal/messages", label: "Messages", icon: MessageSquare },
-  { href: "/portal/appointments", label: "Calendar", icon: CalendarDays },
-  { href: "/portal/documents", label: "Documents", icon: FileText },
-  { href: "/portal/profile", label: "Profile", icon: User },
+  { href: "/portal", labelKey: "portal.nav.home", icon: Home },
+  {
+    href: "/portal/messages",
+    labelKey: "portal.nav.messages",
+    icon: MessageSquare,
+  },
+  {
+    href: "/portal/appointments",
+    labelKey: "portal.nav.appointments",
+    icon: CalendarDays,
+  },
+  {
+    href: "/portal/documents",
+    labelKey: "portal.nav.documents",
+    icon: FileText,
+  },
+  { href: "/portal/profile", labelKey: "portal.nav.profile", icon: User },
 ];
 
 function isActivePath(pathname: string | null, href: string): boolean {
@@ -42,10 +55,29 @@ function isActivePath(pathname: string | null, href: string): boolean {
 
 /**
  * Top bar + responsive navigation (left rail on desktop, bottom tabs on mobile).
- * This is the ONLY chrome Wave 1 ships for the portal — Wave 2 pages render as
- * children and inherit the layout.
+ * Wraps children in a PortalLocaleProvider so nested client components can
+ * call `usePortalT()` without each having to fetch the locale again.
  */
 export function PortalShell({
+  claimantName,
+  caseNumber,
+  locale,
+  children,
+}: PortalShellProps) {
+  return (
+    <PortalLocaleProvider locale={locale}>
+      <PortalShellInner
+        claimantName={claimantName}
+        caseNumber={caseNumber}
+        locale={locale}
+      >
+        {children}
+      </PortalShellInner>
+    </PortalLocaleProvider>
+  );
+}
+
+function PortalShellInner({
   claimantName,
   caseNumber,
   locale,
@@ -170,6 +202,7 @@ function DesktopNavLink({
   active: boolean;
 }) {
   const Icon = item.icon;
+  const { t } = usePortalT();
   return (
     <Link
       href={item.href}
@@ -181,12 +214,13 @@ function DesktopNavLink({
       )}
     >
       <Icon className="size-5" />
-      <span>{item.label}</span>
+      <span>{t(item.labelKey)}</span>
     </Link>
   );
 }
 
 function MobileBottomNav({ pathname }: { pathname: string | null }) {
+  const { t } = usePortalT();
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E2D8] bg-white/95 backdrop-blur lg:hidden"
@@ -209,7 +243,7 @@ function MobileBottomNav({ pathname }: { pathname: string | null }) {
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="size-5" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             </li>
           );

@@ -457,6 +457,7 @@ export async function getCaseById(id: string) {
   if (!caseRow) return null;
 
   // Get primary contact
+  const localeExposed = await contactsHasLocale();
   const [primaryContact] = await db
     .select({
       contactId: contacts.id,
@@ -468,6 +469,9 @@ export async function getCaseById(id: string) {
       city: contacts.city,
       state: contacts.state,
       zip: contacts.zip,
+      preferredLocale: localeExposed
+        ? contacts.preferredLocale
+        : sql<string>`'en'`,
     })
     .from(caseContacts)
     .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))

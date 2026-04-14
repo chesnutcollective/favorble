@@ -169,6 +169,118 @@ export const messages: Record<Locale, TranslationTree> = {
       newLead: "New Lead",
       language: "Language",
     },
+    portal: {
+      nav: {
+        home: "Home",
+        messages: "Messages",
+        documents: "Documents",
+        appointments: "Appointments",
+        profile: "Profile",
+      },
+      home: {
+        welcome: "Your case",
+        heading: "Your case is in progress",
+        caseNumber: "Case",
+        lastUpdated: "Last updated {time}",
+        whatsHappening: "What's happening now",
+        whatsNext: "What's next",
+        whatsNextNone: "You're in the final stage.",
+        expectedTimeline: "Expected: about {days} days",
+        sendMessage: "Send a message",
+        timelineTitle: "Your journey so far",
+        timelineEmpty: "No stage changes yet.",
+        currentStageFallback: "Your case is moving through our process.",
+        nextStageLabel: "Next",
+        defaultStageDescription:
+          "Your team is working on this stage of your case.",
+        stageComplete: "Complete",
+        stageCurrent: "In progress",
+        stageUpcoming: "Upcoming",
+      },
+      welcome: {
+        back: "Back",
+        next: "Continue",
+        finish: "Go to my case",
+        skipMessage: "Skip for now",
+        stepOf: "Step {current} of {total}",
+        screen1: {
+          title: "Hello {firstName}",
+          subtitle:
+            "Welcome to your client portal. We'll walk through a quick tour so you know where everything is.",
+          languageLabel: "What language would you like to use?",
+          english: "English",
+          spanish: "Español",
+        },
+        screen2: {
+          title: "Confirm your info",
+          subtitle:
+            "Tell us how to reach you. We only show the last 4 of your SSN and your date of birth so you know we have the right record.",
+          readOnlyHint:
+            "If any of this is wrong, ask your attorney to update it.",
+          nameLabel: "Name",
+          dobLabel: "Date of birth",
+          ssnLabel: "SSN (last 4)",
+          phoneLabel: "Phone number",
+          emailLabel: "Email",
+          preferredChannelLabel: "Preferred way to contact you",
+          channelEmail: "Email",
+          channelPhone: "Phone",
+          channelText: "Text message",
+          saveError: "We couldn't save your changes. Please try again.",
+          saving: "Saving…",
+        },
+        screen3: {
+          title: "How your case moves",
+          subtitle:
+            "Your case moves through five phases. Here's what each one looks like.",
+          swipeHint: "Swipe to see each phase",
+        },
+        screen4: {
+          title: "Message us anytime",
+          subtitle:
+            "When you have a question, your team is one tap away. You'll always see our reply here in the portal.",
+          firstMessageLabel: "Want to send us a first message? (Optional)",
+          firstMessagePlaceholder:
+            "Type your question or anything you'd like us to know…",
+          sendFirstMessage: "Send first message",
+          goToCase: "Go to my case",
+          sendingError: "We couldn't save that message. Please try again.",
+          messageSent: "Got it — we'll be in touch shortly.",
+        },
+      },
+      chips: {
+        readsSpanish: "Reads Spanish",
+        readsSpanishHelp:
+          "This client reads Spanish — drafts can be translated before sending.",
+      },
+      stageGroupDefaults: {
+        intake: {
+          name: "Getting started",
+          description:
+            "We gather your information and open your case.",
+        },
+        application: {
+          name: "Application",
+          description:
+            "We prepare and file your disability application with Social Security.",
+        },
+        reconsideration: {
+          name: "Reconsideration",
+          description:
+            "If the initial decision isn't favorable, we file for reconsideration.",
+        },
+        hearing: {
+          name: "Hearing",
+          description:
+            "We prepare you for a hearing in front of a judge.",
+        },
+        decision: {
+          name: "Decision",
+          description:
+            "The judge issues a decision and we help you with next steps.",
+        },
+      },
+    },
   },
 
   es: {
@@ -317,6 +429,122 @@ export const messages: Record<Locale, TranslationTree> = {
     leads: {
       newLead: "Nuevo Prospecto",
       language: "Idioma",
+    },
+    portal: {
+      nav: {
+        home: "Inicio",
+        messages: "Mensajes",
+        documents: "Documentos",
+        appointments: "Citas",
+        profile: "Perfil",
+      },
+      home: {
+        welcome: "Su caso",
+        heading: "Su caso está en progreso",
+        caseNumber: "Caso",
+        lastUpdated: "Última actualización: {time}",
+        whatsHappening: "Lo que sucede ahora",
+        whatsNext: "Lo que sigue",
+        whatsNextNone: "Usted está en la etapa final.",
+        expectedTimeline: "Plazo estimado: cerca de {days} días",
+        sendMessage: "Enviar un mensaje",
+        timelineTitle: "Su camino hasta ahora",
+        timelineEmpty: "Aún no hay cambios de etapa.",
+        currentStageFallback:
+          "Su caso avanza a través de nuestro proceso.",
+        nextStageLabel: "Siguiente",
+        defaultStageDescription:
+          "Su equipo está trabajando en esta etapa de su caso.",
+        stageComplete: "Completo",
+        stageCurrent: "En progreso",
+        stageUpcoming: "Próximo",
+      },
+      welcome: {
+        back: "Atrás",
+        next: "Continuar",
+        finish: "Ir a mi caso",
+        skipMessage: "Omitir por ahora",
+        stepOf: "Paso {current} de {total}",
+        screen1: {
+          title: "Hola {firstName}",
+          subtitle:
+            "Bienvenido/a a su portal de cliente. Le mostraremos un recorrido breve para que sepa dónde está todo.",
+          languageLabel: "¿En qué idioma prefiere leer?",
+          english: "English",
+          spanish: "Español",
+        },
+        screen2: {
+          title: "Confirme su información",
+          subtitle:
+            "Díganos cómo comunicarnos con usted. Solo mostramos los últimos 4 de su Seguro Social y su fecha de nacimiento para que sepa que tenemos su expediente correcto.",
+          readOnlyHint:
+            "Si algo de esto está mal, pídale a su abogado que lo actualice.",
+          nameLabel: "Nombre",
+          dobLabel: "Fecha de nacimiento",
+          ssnLabel: "Seguro Social (últimos 4)",
+          phoneLabel: "Teléfono",
+          emailLabel: "Correo electrónico",
+          preferredChannelLabel: "Forma preferida de contactarle",
+          channelEmail: "Correo electrónico",
+          channelPhone: "Teléfono",
+          channelText: "Mensaje de texto",
+          saveError:
+            "No pudimos guardar sus cambios. Por favor intente de nuevo.",
+          saving: "Guardando…",
+        },
+        screen3: {
+          title: "Cómo avanza su caso",
+          subtitle:
+            "Su caso pasa por cinco fases. Esto es lo que sucede en cada una.",
+          swipeHint: "Deslice para ver cada fase",
+        },
+        screen4: {
+          title: "Escríbanos cuando quiera",
+          subtitle:
+            "Cuando tenga una pregunta, su equipo está a un toque de distancia. Siempre verá nuestra respuesta aquí en el portal.",
+          firstMessageLabel:
+            "¿Quiere enviarnos un primer mensaje? (Opcional)",
+          firstMessagePlaceholder:
+            "Escriba su pregunta o lo que quiera que sepamos…",
+          sendFirstMessage: "Enviar primer mensaje",
+          goToCase: "Ir a mi caso",
+          sendingError:
+            "No pudimos guardar ese mensaje. Por favor intente de nuevo.",
+          messageSent: "Recibido — le escribiremos pronto.",
+        },
+      },
+      chips: {
+        readsSpanish: "Lee en español",
+        readsSpanishHelp:
+          "Este cliente lee en español — los borradores pueden traducirse antes de enviarse.",
+      },
+      stageGroupDefaults: {
+        intake: {
+          name: "Inicio",
+          description:
+            "Recopilamos su información y abrimos su caso.",
+        },
+        application: {
+          name: "Solicitud",
+          description:
+            "Preparamos y presentamos su solicitud de incapacidad al Seguro Social.",
+        },
+        reconsideration: {
+          name: "Reconsideración",
+          description:
+            "Si la decisión inicial no es favorable, solicitamos una reconsideración.",
+        },
+        hearing: {
+          name: "Audiencia",
+          description:
+            "Lo preparamos para una audiencia ante un juez.",
+        },
+        decision: {
+          name: "Decisión",
+          description:
+            "El juez emite su decisión y le ayudamos con los siguientes pasos.",
+        },
+      },
     },
   },
 };
