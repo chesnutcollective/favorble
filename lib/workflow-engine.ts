@@ -9,6 +9,7 @@ import {
   auditLog,
   users,
   cases,
+  aiDrafts,
 } from "@/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
@@ -174,6 +175,56 @@ export async function executeStageWorkflows(
       taskIds.push(newTask.id);
     }
 
+    // 4b. D3 — if the template has a client-message body configured,
+    // stage it as an ai_drafts row for reviewer approval. Auto-sending
+    // is deliberately NOT done here; a human must approve via /drafts.
+    let draftId: string | null = null;
+    if (workflow.sendClientMessage && workflow.clientMessageTemplate) {
+      try {
+        const [caseRow] = await db
+          .select({
+            caseNumber: cases.caseNumber,
+          })
+          .from(cases)
+          .where(eq(cases.id, caseId))
+          .limit(1);
+
+        // Minimal interpolation: support {{caseNumber}} placeholder.
+        const body = workflow.clientMessageTemplate.replace(
+          /\{\{caseNumber\}\}/g,
+          caseRow?.caseNumber ?? "",
+        );
+
+        const [draft] = await db
+          .insert(aiDrafts)
+          .values({
+            organizationId,
+            caseId,
+            type: "client_message",
+            status: "draft_ready",
+            title: `${workflow.name} — auto-draft`,
+            body,
+            assignedReviewerId: triggeredByUserId,
+            promptVersion: `workflow:${workflow.id}`,
+            model: "template",
+            structuredFields: {
+              sourceType: "workflow",
+              workflowTemplateId: workflow.id,
+              triggerStageId: newStageId,
+              isAutomated: true,
+            },
+          })
+          .returning({ id: aiDrafts.id });
+        draftId = draft?.id ?? null;
+      } catch (err) {
+        logger.warn("Failed to stage workflow client-message draft", {
+          workflowId: workflow.id,
+          caseId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     // 5. Log the workflow execution
     await db.insert(auditLog).values({
       organizationId,
@@ -186,6 +237,7 @@ export async function executeStageWorkflows(
         stageId: newStageId,
         tasksCreated: taskIds.length,
         taskIds,
+        clientMessageDraftId: draftId,
       },
     });
 
