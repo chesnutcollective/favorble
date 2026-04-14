@@ -1,12 +1,22 @@
 import Link from "next/link";
 import { getCaseById } from "@/app/actions/cases";
+import { getCaseDocuments } from "@/app/actions/documents";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { CaseTabNav } from "./tab-nav";
 import { CaseStageSelector } from "@/components/cases/case-stage-selector";
 import { SSNDisplay } from "@/components/cases/ssn-display";
+import { InviteCollaboratorButton } from "@/components/collab-shares/invite-collaborator-button";
 import { decrypt, maskSSN } from "@/lib/encryption";
+import { requireSession } from "@/lib/auth/session";
+
+const INVITE_ROLES = new Set([
+  "admin",
+  "attorney",
+  "case_manager",
+  "medical_records",
+]);
 
 export default async function CaseDetailLayout({
   children,
@@ -57,6 +67,27 @@ export default async function CaseDetailLayout({
     (g) => g.id === currentGroupId,
   );
 
+  // Collab-invite affordance — shown only to roles that can manage shares.
+  const session = await requireSession();
+  const canInviteCollaborator = INVITE_ROLES.has(session.role);
+  let collabDocOptions: Array<{
+    id: string;
+    fileName: string;
+    category: string | null;
+  }> = [];
+  if (canInviteCollaborator) {
+    try {
+      const docs = await getCaseDocuments(id);
+      collabDocOptions = docs.map((d) => ({
+        id: d.id,
+        fileName: d.fileName,
+        category: d.category,
+      }));
+    } catch {
+      // Non-fatal; dialog will render with empty doc list.
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Back link */}
@@ -87,12 +118,20 @@ export default async function CaseDetailLayout({
                 )}
               </p>
             </div>
-            <CaseStageSelector
-              caseId={caseData.id}
-              currentStageId={caseData.currentStageId}
-              currentStageName={caseData.stageName}
-              currentStageGroupColor={caseData.stageGroupColor}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              {canInviteCollaborator && (
+                <InviteCollaboratorButton
+                  caseId={caseData.id}
+                  availableDocuments={collabDocOptions}
+                />
+              )}
+              <CaseStageSelector
+                caseId={caseData.id}
+                currentStageId={caseData.currentStageId}
+                currentStageName={caseData.stageName}
+                currentStageGroupColor={caseData.stageGroupColor}
+              />
+            </div>
           </div>
 
           {/* Progress Bar */}

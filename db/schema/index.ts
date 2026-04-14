@@ -19,3 +19,4 @@ export * from "./mail";
 export * from "./billing";
 export * from "./trust";
 export * from "./team-chat";
+export * from "./collab-shares";

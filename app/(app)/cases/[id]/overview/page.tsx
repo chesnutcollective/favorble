@@ -1,10 +1,15 @@
 import { getCaseById, getCaseActivity } from "@/app/actions/cases";
 import { getCaseTasks } from "@/app/actions/tasks";
 import { getCaseDocuments } from "@/app/actions/documents";
+import { listCollaboratorShares } from "@/app/actions/collab-shares";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Timeline, type TimelineEvent } from "@/components/shared/timeline";
+import {
+  CollabSharesList,
+  type CollabShareListItem,
+} from "@/components/collab-shares/collab-shares-list";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -19,13 +24,15 @@ export default async function CaseOverviewPage({
   let tasks: Awaited<ReturnType<typeof getCaseTasks>> = [];
   let activity: Awaited<ReturnType<typeof getCaseActivity>> = [];
   let docs: Awaited<ReturnType<typeof getCaseDocuments>> = [];
+  let collabShares: Awaited<ReturnType<typeof listCollaboratorShares>> = [];
 
   try {
-    [caseData, tasks, activity, docs] = await Promise.all([
+    [caseData, tasks, activity, docs, collabShares] = await Promise.all([
       getCaseById(caseId),
       getCaseTasks(caseId),
       getCaseActivity(caseId),
       getCaseDocuments(caseId),
+      listCollaboratorShares(caseId),
     ]);
   } catch {
     // DB unavailable
@@ -167,6 +174,31 @@ export default async function CaseOverviewPage({
           <Timeline events={timelineEvents} />
         </CardContent>
       </Card>
+
+      {/* External collaborators / scoped shares */}
+      <div className="lg:col-span-2">
+        <CollabSharesList
+          shares={collabShares.map<CollabShareListItem>((s) => ({
+            id: s.id,
+            subject: s.subject,
+            createdAt: s.createdAt.toISOString(),
+            expiresAt: s.expiresAt.toISOString(),
+            revokedAt: s.revokedAt ? s.revokedAt.toISOString() : null,
+            createdByName: s.createdByName,
+            recipients: s.recipients.map((r) => ({
+              id: r.id,
+              email: r.email,
+              name: r.name,
+              role: r.role,
+              viewedAt: r.viewedAt ? r.viewedAt.toISOString() : null,
+              respondedAt: r.respondedAt ? r.respondedAt.toISOString() : null,
+            })),
+            viewCount: s.viewCount,
+            documentCount: s.documentCount,
+            unreadMessageCount: s.unreadMessageCount,
+          }))}
+        />
+      </div>
     </div>
   );
 }
