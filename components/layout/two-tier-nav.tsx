@@ -3130,6 +3130,38 @@ function ReportsPanel({
         </svg>
       ),
     },
+    {
+      name: "ROI",
+      slug: "roi",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#185f9b"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93V18h-2v1.93A7.996 7.996 0 0 1 4.07 13H6v-2H4.07A7.996 7.996 0 0 1 11 4.07V6h2V4.07A7.996 7.996 0 0 1 19.93 11H18v2h1.93A7.996 7.996 0 0 1 13 19.93zM15.5 11h-3V8h-1v3H8l4 4 4-4h-.5z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Staff Usage",
+      slug: "staff-usage",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="#185f9b"
+          width="14"
+          height="14"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
