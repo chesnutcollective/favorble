@@ -1,4 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
+import { signInAsDemo } from "@/actions/auth";
+
+const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
 
 export default function LoginPage() {
   return (
@@ -23,25 +26,29 @@ export default function LoginPage() {
         padding: "clamp(12px, 5vw, 20px)",
       }}
     >
-      <SignIn
-        routing="hash"
-        forceRedirectUrl="/dashboard"
-        appearance={{
-          elements: {
-            rootBox: {
-              width: "100%",
-              maxWidth: "min(400px, 100%)",
+      {AUTH_ENABLED ? (
+        <SignIn
+          routing="hash"
+          forceRedirectUrl="/dashboard"
+          appearance={{
+            elements: {
+              rootBox: {
+                width: "100%",
+                maxWidth: "min(400px, 100%)",
+              },
+              card: {
+                background: "rgba(255, 255, 255, 0.85)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+                borderRadius: 16,
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+              },
             },
-            card: {
-              background: "rgba(255, 255, 255, 0.85)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255, 255, 255, 0.5)",
-              borderRadius: 16,
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-            },
-          },
-        }}
-      />
+          }}
+        />
+      ) : (
+        <DemoSignInCard />
+      )}
       <p
         style={{
           marginTop: 24,
@@ -50,6 +57,79 @@ export default function LoginPage() {
         }}
       >
         Favorble — Powered by Hogan Smith
+      </p>
+    </div>
+  );
+}
+
+function DemoSignInCard() {
+  return (
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "min(400px, 100%)",
+        background: "rgba(255, 255, 255, 0.9)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 255, 255, 0.5)",
+        borderRadius: 16,
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+        padding: 28,
+        textAlign: "center",
+      }}
+    >
+      <h1
+        style={{
+          fontSize: 20,
+          fontWeight: 600,
+          color: "#18181a",
+          margin: 0,
+          marginBottom: 8,
+          letterSpacing: "-0.02em",
+        }}
+      >
+        Signed out
+      </h1>
+      <p
+        style={{
+          fontSize: 13,
+          color: "#666",
+          margin: 0,
+          marginBottom: 20,
+          lineHeight: 1.5,
+        }}
+      >
+        This environment runs in demo mode — no password required. Click
+        below to continue as the demo admin user.
+      </p>
+      <form action={signInAsDemo}>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "10px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: "#263c94",
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: 14,
+            cursor: "pointer",
+            transition: "background 0.15s ease",
+          }}
+        >
+          Sign in as demo admin
+        </button>
+      </form>
+      <p
+        style={{
+          marginTop: 16,
+          fontSize: 11,
+          color: "#8b8b97",
+          lineHeight: 1.5,
+        }}
+      >
+        Set <code style={{ fontFamily: "'Geist Mono', monospace" }}>ENABLE_CLERK_AUTH=true</code> in
+        your env vars to enable real authentication.
       </p>
     </div>
   );

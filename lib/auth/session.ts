@@ -1,11 +1,13 @@
 import "server-only";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
+const DEMO_SIGNED_OUT_COOKIE = "favorble_demo_signed_out";
 
 export type SessionUser = {
   id: string;
@@ -115,6 +117,12 @@ async function findOrCreateUser(
 
 export async function getSession(): Promise<SessionUser | null> {
   if (!AUTH_ENABLED) {
+    // Demo mode — respect the sign-out cookie so the Sign Out button
+    // actually produces a signed-out state on staging / local dev.
+    const cookieStore = await cookies();
+    if (cookieStore.get(DEMO_SIGNED_OUT_COOKIE)?.value === "1") {
+      return null;
+    }
     return getDemoUser();
   }
   const { userId } = await auth();
