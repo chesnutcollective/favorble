@@ -26,8 +26,10 @@ import {
   inArray,
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { logPhiAccess, shouldAudit } from "@/lib/services/hipaa-audit";
+import { notifyStageChange } from "@/lib/services/portal-sms";
 
 export type CaseFilters = {
   search?: string;
@@ -469,6 +471,44 @@ export async function changeCaseStage(data: {
   revalidatePath(`/cases/${data.caseId}`);
   revalidatePath("/cases");
   revalidatePath("/queue");
+
+  // Portal SMS notification — fire in the background. No-ops when the
+  // claimant has no phone, is opted out, or Twilio isn't configured.
+  after(async () => {
+    try {
+      const [claimant] = await db
+        .select({
+          id: contacts.id,
+          preferredLocale: contacts.preferredLocale,
+        })
+        .from(caseContacts)
+        .innerJoin(contacts, eq(contacts.id, caseContacts.contactId))
+        .where(
+          and(
+            eq(caseContacts.caseId, data.caseId),
+            eq(caseContacts.relationship, "claimant"),
+          ),
+        )
+        .limit(1);
+      if (!claimant) return;
+      const [stage] = await db
+        .select({ name: caseStages.name })
+        .from(caseStages)
+        .where(eq(caseStages.id, data.newStageId))
+        .limit(1);
+      await notifyStageChange({
+        contactId: claimant.id,
+        caseId: data.caseId,
+        stageName: stage?.name ?? null,
+        preferredLocale: claimant.preferredLocale,
+      });
+    } catch (error) {
+      logger.error("portal sms: stage-change notify failed", {
+        caseId: data.caseId,
+        error,
+      });
+    }
+  });
 }
 
 /**

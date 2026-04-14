@@ -34,6 +34,16 @@ export const contacts = pgTable(
      * 'en' for existing rows.
      */
     preferredLocale: text("preferred_locale").notNull().default("en"),
+    /**
+     * SMS consent. Wave 2 (migration 0025) — nullable timestamps so we can
+     * distinguish "never set" from "explicitly opted in/out at time T".
+     *
+     * Portal SMS notifications MUST be skipped when smsOptOutAt is set.
+     * smsOptInAt is stamped when the claimant first accepts the consent
+     * language on the portal welcome flow.
+     */
+    smsOptOutAt: timestamp("sms_opt_out_at", { withTimezone: true }),
+    smsOptInAt: timestamp("sms_opt_in_at", { withTimezone: true }),
     metadata: jsonb("metadata").default({}),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

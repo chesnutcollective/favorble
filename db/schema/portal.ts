@@ -136,6 +136,45 @@ export const portalActivityEvents = pgTable(
   ],
 );
 
+/**
+ * Short-lived magic-link tokens used by the SMS notification channel (Wave 2).
+ * Each outbound portal SMS that deep-links into a page (new message, stage
+ * change, appointment reminder) mints a token here. When the claimant taps
+ * the link we validate the hash, establish a Clerk session, mark the token
+ * consumed, and redirect to `path`.
+ *
+ * Tokens are 32-byte hex and stored as SHA-256 hashes — the raw value only
+ * ever lives in the URL. TTL defaults to 15 minutes.
+ */
+export const portalMagicLinks = pgTable(
+  "portal_magic_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    contactId: uuid("contact_id")
+      .notNull()
+      .references(() => contacts.id),
+    /** Path (e.g. '/portal/messages?thread=…') the link redirects to. */
+    path: text("path").notNull(),
+    /** SHA-256 of the raw token; raw value only lives in the URL. */
+    tokenHash: text("token_hash").notNull(),
+    /** Free-form campaign/event string for analytics. */
+    campaign: text("campaign"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_portal_magic_links_token").on(table.tokenHash),
+    index("idx_portal_magic_links_expires").on(table.expiresAt),
+    index("idx_portal_magic_links_contact").on(table.contactId),
+  ],
+);
+
 export type PortalUserRow = typeof portalUsers.$inferSelect;
 export type NewPortalUserRow = typeof portalUsers.$inferInsert;
 export type ClientInvitationRow = typeof clientInvitations.$inferSelect;
@@ -143,3 +182,5 @@ export type NewClientInvitationRow = typeof clientInvitations.$inferInsert;
 export type PortalActivityEventRow = typeof portalActivityEvents.$inferSelect;
 export type NewPortalActivityEventRow =
   typeof portalActivityEvents.$inferInsert;
+export type PortalMagicLinkRow = typeof portalMagicLinks.$inferSelect;
+export type NewPortalMagicLinkRow = typeof portalMagicLinks.$inferInsert;

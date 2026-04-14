@@ -11,10 +11,12 @@ import {
   medicalChronologyEntries,
   calendarEvents,
   users,
+  portalUsers,
 } from "@/db/schema";
 import { eq, and, isNull, inArray, desc, gte, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { PortalInviteRowButton } from "@/components/portal/portal-invite-row-button";
 
 // ─── Data fetchers ───────────────────────────────────────────────
 
@@ -188,6 +190,31 @@ async function getUpcomingEvents(caseIds: string[], organizationId: string) {
     )
     .orderBy(calendarEvents.startAt)
     .limit(5);
+}
+
+async function getPortalStatusForContact(
+  contactId: string,
+  organizationId: string,
+): Promise<"never" | "invited" | "active" | "suspended"> {
+  try {
+    const [row] = await db
+      .select({ status: portalUsers.status })
+      .from(portalUsers)
+      .where(
+        and(
+          eq(portalUsers.contactId, contactId),
+          eq(portalUsers.organizationId, organizationId),
+        ),
+      )
+      .limit(1);
+    if (!row) return "never";
+    if (row.status === "active") return "active";
+    if (row.status === "invited") return "invited";
+    if (row.status === "suspended") return "suspended";
+    return "never";
+  } catch {
+    return "never";
+  }
 }
 
 async function getUserMap(userIds: string[]) {
@@ -386,6 +413,7 @@ export default async function ContactDetailPage({
   let activityLog: Awaited<ReturnType<typeof getRecentActivity>> = [];
   let medEntries: Awaited<ReturnType<typeof getMedicalEntries>> = [];
   let upcomingEvents: Awaited<ReturnType<typeof getUpcomingEvents>> = [];
+  let portalStatus: "never" | "invited" | "active" | "suspended" = "never";
 
   const fetchers: Promise<void>[] = [
     getCaseClaimantNames(caseIds)
@@ -420,6 +448,16 @@ export default async function ContactDetailPage({
       getMedicalEntries(fullName, caseIds)
         .then((r) => {
           medEntries = r;
+        })
+        .catch(() => {}),
+    );
+  }
+
+  if (contact.contactType === "claimant") {
+    fetchers.push(
+      getPortalStatusForContact(contactId, user.organizationId)
+        .then((s) => {
+          portalStatus = s;
         })
         .catch(() => {}),
     );
@@ -627,6 +665,12 @@ export default async function ContactDetailPage({
             >
               Edit
             </Link>
+            {contact.contactType === "claimant" && contact.email && (
+              <PortalInviteRowButton
+                contactId={contactId}
+                status={portalStatus}
+              />
+            )}
           </div>
         </div>
       </div>

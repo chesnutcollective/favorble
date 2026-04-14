@@ -17,6 +17,10 @@ const isPublicRoute = createRouteMatcher([
   // Invite accept flow must be reachable without a Clerk session — that's
   // the whole point: the claimant lands here before they have an account.
   "/portal/invite/(.*)",
+  // Magic-link redemption arrives from an SMS before the claimant has a
+  // session cookie. The handler itself establishes one (or redirects to
+  // /login) after validating the token.
+  "/portal/link/(.*)",
 ]);
 
 const isPortalRoute = createRouteMatcher(["/portal(.*)"]);
