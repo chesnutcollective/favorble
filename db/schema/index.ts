@@ -38,3 +38,4 @@ export * from "./case-saved-views";
 export * from "./google-reviews";
 export * from "./nps";
 export * from "./portal";
+export * from "./document-shares";

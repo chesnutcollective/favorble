@@ -3,6 +3,7 @@ import {
   getCaseDocuments,
   getDocumentTemplates,
 } from "@/app/actions/documents";
+import { listActiveDocumentShareCounts } from "@/app/actions/document-shares";
 import { getCaseById } from "@/app/actions/cases";
 import { CaseDocumentsClient } from "./client";
 
@@ -28,6 +29,15 @@ export default async function CaseDocumentsPage({
     // DB unavailable
   }
 
+  // Batch-load active share counts for every doc on the page so each row can
+  // render a "Shared · N" badge without an N+1 call.
+  let shareCounts: Record<string, number> = {};
+  try {
+    shareCounts = await listActiveDocumentShareCounts(docs.map((d) => d.id));
+  } catch {
+    // Non-fatal — fall back to all zeros.
+  }
+
   const claimantName = caseData?.claimant
     ? `${caseData.claimant.firstName} ${caseData.claimant.lastName}`
     : "Unknown Claimant";
@@ -37,6 +47,7 @@ export default async function CaseDocumentsPage({
       caseId={caseId}
       organizationId={user.organizationId}
       userId={user.id}
+      claimantName={claimantName}
       initialDocuments={docs.map((d) => ({
         id: d.id,
         fileName: d.fileName,
@@ -46,6 +57,7 @@ export default async function CaseDocumentsPage({
         source: d.source,
         createdAt: d.createdAt.toISOString(),
         isMetadataOnly: d.storagePath.startsWith("chronicle://"),
+        shareCount: shareCounts[d.id] ?? 0,
       }))}
       templates={templates.map((t) => ({
         id: t.id,
