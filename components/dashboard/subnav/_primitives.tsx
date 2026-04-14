@@ -31,6 +31,12 @@ export type ActionItem = {
   icon?: React.ReactNode;
   /** Server-action wrapper. When set, button runs it via useTransition + toast. */
   onAction?: () => Promise<{ success: boolean; message?: string }>;
+  /**
+   * Pure-client click handler. Use when the button only needs to open a
+   * dialog / set local state (no server mutation). Ignored if `onAction`
+   * or `href` is set.
+   */
+  onClick?: () => void;
   /** Toast text on success (overrides the action's returned message) */
   successText?: string;
   /** When true, render with accent treatment (use sparingly) */
@@ -82,6 +88,20 @@ function SubnavActionGridItem({ action }: { action: ActionItem }) {
         baseClass={baseClass}
         baseStyle={baseStyle}
       />
+    );
+  }
+
+  if (action.onClick) {
+    return (
+      <button
+        type="button"
+        className={baseClass}
+        style={baseStyle}
+        onClick={action.onClick}
+      >
+        {action.icon ?? <DefaultActionIcon />}
+        <span>{action.label}</span>
+      </button>
     );
   }
 
