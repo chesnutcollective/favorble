@@ -45,6 +45,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { logger } from "@/lib/logger/server";
+import { AiAdoptionTile } from "@/components/dashboard/ai-adoption-tile";
+import { getAiSavings } from "@/lib/services/ai-savings";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -318,7 +320,10 @@ export default async function DashboardPage() {
   const persona = await requireEffectivePersona();
   const { actor, config, isViewingAs, personaId } = persona;
 
-  const kpi = await computePrimaryKpi(personaId, actor.organizationId);
+  const [kpi, aiSavings] = await Promise.all([
+    computePrimaryKpi(personaId, actor.organizationId),
+    getAiSavings(actor.organizationId, 7),
+  ]);
 
   // Build the quick-link cards from the persona's nav order, skipping the
   // dashboard entry itself and falling back to the universal items if
@@ -412,6 +417,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI adoption tile — hours/$ saved + AI-enabled cases this week */}
+      <AiAdoptionTile data={aiSavings} sinceDays={7} />
 
       {/* Quick-link cards — the persona's primary workspaces */}
       {navItems.length > 0 && (
