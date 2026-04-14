@@ -224,6 +224,7 @@ export const aiDraftTypeEnum = pgEnum("ai_draft_type", [
   "status_update",
   "rfc_letter",
   "coaching_conversation",
+  "phi_sheet",
   "other",
 ]);
 
