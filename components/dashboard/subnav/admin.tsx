@@ -47,7 +47,7 @@ export function AdminSubnav({ data }: { data: AdminSubnavData }) {
                 key={i}
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   gap: 6,
                   fontSize: 11,
                 }}
@@ -59,6 +59,7 @@ export function AdminSubnav({ data }: { data: AdminSubnavData }) {
                     height: 6,
                     borderRadius: "50%",
                     background: c.healthy ? COLORS.emerald : COLORS.bad,
+                    marginTop: 5,
                   }}
                 />
                 <span
@@ -66,10 +67,12 @@ export function AdminSubnav({ data }: { data: AdminSubnavData }) {
                     flex: 1,
                     minWidth: 0,
                     color: COLORS.text1,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    // Let long underscored job names wrap anywhere instead of
+                    // getting chopped with an ellipsis in the narrow panel.
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
                     fontFamily: "monospace",
+                    lineHeight: 1.35,
                   }}
                 >
                   {c.name}
@@ -80,6 +83,7 @@ export function AdminSubnav({ data }: { data: AdminSubnavData }) {
                     color: COLORS.text3,
                     flexShrink: 0,
                     fontVariantNumeric: "tabular-nums",
+                    marginTop: 2,
                   }}
                 >
                   {c.lastRunAgo}
