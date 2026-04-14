@@ -9,6 +9,7 @@ import { CaseCloseDialog } from "@/components/cases/case-close-dialog";
 import { CaseHoldDialog } from "@/components/cases/case-hold-dialog";
 import { SSNDisplay } from "@/components/cases/ssn-display";
 import { StageSegmentBar } from "@/components/stages/stage-segment-bar";
+import { ViewAsClientButton } from "@/components/portal/view-as-client-button";
 import { decrypt, maskSSN } from "@/lib/encryption";
 
 export default async function CaseDetailLayout({
@@ -99,6 +100,11 @@ export default async function CaseDetailLayout({
               />
               <CaseHoldDialog caseId={caseData.id} />
               <CaseCloseDialog caseId={caseData.id} />
+              {caseData.claimant?.contactId ? (
+                <ViewAsClientButton
+                  contactId={caseData.claimant.contactId}
+                />
+              ) : null}
             </div>
           </div>
 
