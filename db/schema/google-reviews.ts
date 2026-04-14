@@ -13,6 +13,46 @@ import { contacts } from "./contacts";
 import { users } from "./users";
 
 /**
+ * Google OAuth connection per organization. One row per org (UNIQUE on
+ * organization_id). Stores the tokens + resolved identifiers needed to hit
+ * the My Business Account Management + Business Information + My Business
+ * Review APIs.
+ *
+ * `starting_review_count` is the baseline captured at connect time so the
+ * dashboard can render "reviews added since you connected" instead of
+ * replaying the full back-catalog.
+ */
+export const googleOauthConnections = pgTable(
+  "google_oauth_connections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .unique()
+      .references(() => organizations.id),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token").notNull(),
+    tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+    // GMB identifiers — populated during the callback handler after we call
+    // the accounts + locations APIs.
+    placeId: text("place_id"),
+    accountId: text("account_id"),
+    locationId: text("location_id"),
+    startingReviewCount: integer("starting_review_count")
+      .notNull()
+      .default(0),
+    connectedAt: timestamp("connected_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    connectedBy: uuid("connected_by")
+      .notNull()
+      .references(() => users.id),
+    lastSyncAt: timestamp("last_sync_at", { withTimezone: true }),
+  },
+  (table) => [index("idx_google_oauth_org").on(table.organizationId)],
+);
+
+/**
  * Google Reviews pulled from Google Business Profile.
  *
  * Phase 1 (C4): schema + admin config card + viewing page only.

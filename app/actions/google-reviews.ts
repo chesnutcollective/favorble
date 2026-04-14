@@ -3,7 +3,9 @@
 import { db } from "@/db/drizzle";
 import {
   googleReviews,
+  googleOauthConnections,
   reviewRequests,
+  organizations,
   cases,
   caseContacts,
   contacts,
@@ -12,6 +14,8 @@ import { requireSession } from "@/lib/auth/session";
 import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
+import { hasOauthEnv } from "@/lib/integrations/google-oauth";
+import { syncGoogleReviews } from "@/lib/services/google-reviews-sync";
 
 /**
  * High-level counters for the Google Reviews dashboard.
@@ -55,14 +59,18 @@ export async function getReviewsOverview(
       ),
     );
 
-  // "Starting review count" is a manually configured baseline stored on the
-  // organization settings blob. Until the admin card writes it, treat as 0.
-  // When the OAuth integration ships it will seed this to the count that
-  // already exists on GMB at connect time.
-  const startingCount = 0;
+  // Pull the starting count from the OAuth connection row — seeded at
+  // connect time, editable from the admin card.
+  const [connection] = await db
+    .select({
+      startingReviewCount: googleOauthConnections.startingReviewCount,
+    })
+    .from(googleOauthConnections)
+    .where(eq(googleOauthConnections.organizationId, session.organizationId))
+    .limit(1);
 
   return {
-    startingCount,
+    startingCount: connection?.startingReviewCount ?? 0,
     currentCount: Number(currentRow?.count ?? 0),
     avgRating: Number(currentRow?.avg ?? 0),
     requestsSent: Number(requestsRow?.count ?? 0),
@@ -229,4 +237,184 @@ export async function sendReviewRequest(
 
   revalidatePath("/reports/reviews");
   return { ok: true, id: created.id };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Admin / connection status
+// ─────────────────────────────────────────────────────────────
+
+export type GoogleReviewsConnectionStatus = {
+  isConnected: boolean;
+  envConfigured: boolean;
+  placeId: string | null;
+  accountId: string | null;
+  locationId: string | null;
+  startingReviewCount: number;
+  connectedAt: string | null;
+  lastSyncAt: string | null;
+  autoRequest: boolean;
+  reviewRequestTemplate: string | null;
+};
+
+type OrgSettingsReviews = {
+  googleReviews?: { autoRequest?: boolean };
+};
+
+export async function getGoogleReviewsConnection(): Promise<GoogleReviewsConnectionStatus> {
+  const session = await requireSession();
+
+  const [connection] = await db
+    .select()
+    .from(googleOauthConnections)
+    .where(eq(googleOauthConnections.organizationId, session.organizationId))
+    .limit(1);
+
+  const [org] = await db
+    .select({
+      settings: organizations.settings,
+      reviewRequestTemplate: organizations.reviewRequestTemplate,
+    })
+    .from(organizations)
+    .where(eq(organizations.id, session.organizationId))
+    .limit(1);
+
+  const settings = (org?.settings ?? {}) as OrgSettingsReviews;
+
+  return {
+    isConnected: Boolean(connection),
+    envConfigured: hasOauthEnv(),
+    placeId: connection?.placeId ?? null,
+    accountId: connection?.accountId ?? null,
+    locationId: connection?.locationId ?? null,
+    startingReviewCount: connection?.startingReviewCount ?? 0,
+    connectedAt: connection?.connectedAt?.toISOString() ?? null,
+    lastSyncAt: connection?.lastSyncAt?.toISOString() ?? null,
+    autoRequest: Boolean(settings.googleReviews?.autoRequest),
+    reviewRequestTemplate: org?.reviewRequestTemplate ?? null,
+  };
+}
+
+function requireAdminSession() {
+  return requireSession().then((s) => {
+    if (s.role !== "admin") {
+      throw new Error("Admin role required");
+    }
+    return s;
+  });
+}
+
+export async function disconnectGoogleReviews(): Promise<{
+  ok: true;
+} | { ok: false; error: string }> {
+  const session = await requireAdminSession();
+  try {
+    await db
+      .delete(googleOauthConnections)
+      .where(eq(googleOauthConnections.organizationId, session.organizationId));
+    revalidatePath("/admin/integrations/google-reviews");
+    revalidatePath("/reports/reviews");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+export async function refreshGoogleReviewsNow(): Promise<
+  | { ok: true; fetched: number; inserted: number; updated: number }
+  | { ok: false; error: string }
+> {
+  const session = await requireAdminSession();
+  const result = await syncGoogleReviews(session.organizationId);
+  if (!result.ok) {
+    return { ok: false, error: result.reason };
+  }
+  revalidatePath("/admin/integrations/google-reviews");
+  revalidatePath("/reports/reviews");
+  return {
+    ok: true,
+    fetched: result.fetched,
+    inserted: result.inserted,
+    updated: result.updated,
+  };
+}
+
+export async function updateStartingReviewCount(
+  count: number,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireAdminSession();
+  const clamped = Math.max(0, Math.floor(Number(count) || 0));
+  try {
+    await db
+      .update(googleOauthConnections)
+      .set({ startingReviewCount: clamped })
+      .where(
+        eq(googleOauthConnections.organizationId, session.organizationId),
+      );
+    revalidatePath("/admin/integrations/google-reviews");
+    revalidatePath("/reports/reviews");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+export async function updateAutoRequestToggle(
+  enabled: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireAdminSession();
+  try {
+    const [org] = await db
+      .select({ settings: organizations.settings })
+      .from(organizations)
+      .where(eq(organizations.id, session.organizationId))
+      .limit(1);
+    const currentSettings = (org?.settings ?? {}) as Record<string, unknown>;
+    const existingGoogle =
+      (currentSettings.googleReviews as Record<string, unknown> | undefined) ??
+      {};
+    const nextSettings = {
+      ...currentSettings,
+      googleReviews: { ...existingGoogle, autoRequest: enabled },
+    };
+    await db
+      .update(organizations)
+      .set({ settings: nextSettings, updatedAt: new Date() })
+      .where(eq(organizations.id, session.organizationId));
+    revalidatePath("/admin/integrations/google-reviews");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+export async function updateReviewRequestTemplate(
+  template: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireAdminSession();
+  try {
+    const trimmed = template.trim();
+    await db
+      .update(organizations)
+      .set({
+        reviewRequestTemplate: trimmed.length > 0 ? trimmed : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, session.organizationId));
+    revalidatePath("/admin/integrations/google-reviews");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 }
