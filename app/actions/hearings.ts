@@ -7,6 +7,7 @@ import {
   caseAssignments,
   caseContacts,
   contacts,
+  hearingOutcomes,
   medicalChronologyEntries,
   documents,
 } from "@/db/schema";
@@ -22,6 +23,9 @@ import {
   count,
   inArray,
 } from "drizzle-orm";
+import { logger } from "@/lib/logger/server";
+import { logPhiModification } from "@/lib/services/hipaa-audit";
+import { revalidatePath } from "next/cache";
 
 /**
  * Return type for hearing list queries.
@@ -504,4 +508,258 @@ async function getAljStatsInner(aljName: string) {
  */
 export async function getAljStats(aljName: string) {
   return getAljStatsInner(aljName);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Post-hearing outcome logging (attorney persona)
+// ─────────────────────────────────────────────────────────────
+
+export type HearingOutcomeValue =
+  | "fully_favorable"
+  | "partially_favorable"
+  | "unfavorable"
+  | "dismissed"
+  | "case_closed";
+
+const VALID_HEARING_OUTCOMES: HearingOutcomeValue[] = [
+  "fully_favorable",
+  "partially_favorable",
+  "unfavorable",
+  "dismissed",
+  "case_closed",
+];
+
+export type HearingActionResult<T = undefined> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+};
+
+function canLogOutcome(role: string | null | undefined): boolean {
+  if (!role) return false;
+  return ["admin", "attorney", "appeals_council"].includes(role);
+}
+
+/**
+ * Log a post-hearing outcome from the attorney's sub-nav. Inserts a
+ * row into `hearing_outcomes` anchored to the case's most recent
+ * hearing event (or today if no event is on file), and advances the
+ * case status for terminal outcomes. Optional ALJ name writes back
+ * onto the case record so ALJ stats update immediately.
+ */
+export async function logHearingOutcome(
+  caseId: string,
+  outcome: HearingOutcomeValue,
+  notes?: string,
+  aljName?: string,
+): Promise<HearingActionResult> {
+  const session = await requireSession();
+  if (!canLogOutcome(session.role)) {
+    return { success: false, message: "Not authorized" };
+  }
+  if (!VALID_HEARING_OUTCOMES.includes(outcome)) {
+    return { success: false, message: "Invalid outcome" };
+  }
+
+  try {
+    const [caseRow] = await db
+      .select({
+        id: cases.id,
+        organizationId: cases.organizationId,
+        hearingDate: cases.hearingDate,
+        aljOnCase: cases.adminLawJudge,
+      })
+      .from(cases)
+      .where(
+        and(
+          eq(cases.id, caseId),
+          eq(cases.organizationId, session.organizationId),
+          isNull(cases.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!caseRow) return { success: false, message: "Case not found" };
+
+    // Find the most recent hearing event for anchoring the outcome.
+    const [lastHearing] = await db
+      .select({
+        startAt: calendarEvents.startAt,
+      })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.caseId, caseId),
+          eq(calendarEvents.eventType, "hearing" as const),
+          isNull(calendarEvents.deletedAt),
+        ),
+      )
+      .orderBy(desc(calendarEvents.startAt))
+      .limit(1);
+
+    const now = new Date();
+    const hearingDate =
+      lastHearing?.startAt ?? caseRow.hearingDate ?? now;
+
+    const [inserted] = await db
+      .insert(hearingOutcomes)
+      .values({
+        organizationId: caseRow.organizationId,
+        caseId,
+        hearingDate,
+        outcome,
+        outcomeReceivedAt: now,
+        processedBy: session.id,
+        notes: notes ?? null,
+      })
+      .returning({ id: hearingOutcomes.id });
+
+    // Optionally back-fill the ALJ name onto the case so ALJ stats
+    // reflect the hearing immediately.
+    const caseUpdate: Record<string, unknown> = { updatedAt: now, updatedBy: session.id };
+    if (aljName && aljName.trim().length > 0) {
+      caseUpdate.adminLawJudge = aljName.trim();
+    }
+
+    // Advance case status on terminal outcomes.
+    if (outcome === "fully_favorable" || outcome === "partially_favorable") {
+      caseUpdate.status = "closed_won";
+      caseUpdate.closedAt = now;
+      caseUpdate.closedReason = `hearing_${outcome}`;
+    } else if (outcome === "unfavorable" || outcome === "dismissed") {
+      // Keep active so the appeals-council pipeline can pick it up;
+      // the AC flow (recordAppealsOutcome) is responsible for terminal
+      // closure. We just stamp closedReason for audit if terminal.
+    } else if (outcome === "case_closed") {
+      caseUpdate.status = "closed_withdrawn";
+      caseUpdate.closedAt = now;
+      caseUpdate.closedReason = "case_closed_post_hearing";
+    }
+
+    if (Object.keys(caseUpdate).length > 2 || aljName) {
+      await db.update(cases).set(caseUpdate).where(eq(cases.id, caseId));
+    }
+
+    await logPhiModification({
+      organizationId: caseRow.organizationId,
+      userId: session.id,
+      entityType: "hearing_outcome",
+      entityId: inserted.id,
+      caseId,
+      operation: "create",
+      action: "hearing_outcome_logged",
+      metadata: {
+        outcome,
+        hasNotes: !!notes,
+        aljName: aljName ?? null,
+      },
+    });
+
+    revalidatePath("/hearings");
+    revalidatePath("/post-hearing");
+    revalidatePath(`/cases/${caseId}`);
+
+    return { success: true, message: `Outcome logged: ${outcome}` };
+  } catch (err) {
+    logger.error("logHearingOutcome failed", {
+      caseId,
+      outcome,
+      error: err,
+    });
+    return { success: false, message: "Could not log outcome" };
+  }
+}
+
+/**
+ * Compact dropdown payload — cases that have an upcoming or recent
+ * hearing and are candidates for "Log outcome".
+ */
+export type LoggableHearingCase = {
+  caseId: string;
+  caseNumber: string;
+  claimantName: string;
+  aljName: string | null;
+  hearingDate: string | null;
+};
+
+export async function getLoggableHearingCases(): Promise<LoggableHearingCase[]> {
+  const session = await requireSession();
+  try {
+    const now = new Date();
+    const fourteenAgo = new Date(now.getTime() - 14 * 86_400_000);
+    const thirtyAhead = new Date(now.getTime() + 30 * 86_400_000);
+
+    const rows = await db
+      .select({
+        caseId: calendarEvents.caseId,
+        caseNumber: cases.caseNumber,
+        aljName: calendarEvents.adminLawJudge,
+        caseAlj: cases.adminLawJudge,
+        startAt: calendarEvents.startAt,
+      })
+      .from(calendarEvents)
+      .innerJoin(cases, eq(calendarEvents.caseId, cases.id))
+      .where(
+        and(
+          eq(calendarEvents.organizationId, session.organizationId),
+          eq(calendarEvents.eventType, "hearing" as const),
+          isNull(calendarEvents.deletedAt),
+          isNull(cases.deletedAt),
+          gte(calendarEvents.startAt, fourteenAgo),
+          lte(calendarEvents.startAt, thirtyAhead),
+        ),
+      )
+      .orderBy(desc(calendarEvents.startAt))
+      .limit(50);
+
+    const uniqByCase = new Map<string, LoggableHearingCase>();
+    const caseIds = Array.from(
+      new Set(
+        rows
+          .map((r) => r.caseId)
+          .filter((id): id is string => !!id),
+      ),
+    );
+
+    const claimantRows =
+      caseIds.length > 0
+        ? await db
+            .select({
+              caseId: caseContacts.caseId,
+              firstName: contacts.firstName,
+              lastName: contacts.lastName,
+            })
+            .from(caseContacts)
+            .innerJoin(contacts, eq(caseContacts.contactId, contacts.id))
+            .where(
+              and(
+                inArray(caseContacts.caseId, caseIds),
+                eq(caseContacts.relationship, "claimant"),
+                eq(caseContacts.isPrimary, true),
+              ),
+            )
+        : [];
+    const claimantMap = new Map<string, string>();
+    for (const c of claimantRows) {
+      claimantMap.set(
+        c.caseId,
+        `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || "Unknown Claimant",
+      );
+    }
+
+    for (const r of rows) {
+      if (!r.caseId) continue;
+      if (uniqByCase.has(r.caseId)) continue;
+      uniqByCase.set(r.caseId, {
+        caseId: r.caseId,
+        caseNumber: r.caseNumber ?? "—",
+        claimantName: claimantMap.get(r.caseId) ?? "Unknown Claimant",
+        aljName: r.aljName ?? r.caseAlj ?? null,
+        hearingDate: r.startAt ? new Date(r.startAt).toISOString() : null,
+      });
+    }
+    return Array.from(uniqByCase.values()).slice(0, 25);
+  } catch (err) {
+    logger.error("getLoggableHearingCases failed", { error: err });
+    return [];
+  }
 }
