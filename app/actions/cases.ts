@@ -7,6 +7,7 @@ import {
   caseStageGroups,
   caseAssignments,
   caseStageTransitions,
+  caseChecklistProgress,
   users,
   contacts,
   caseContacts,
@@ -376,6 +377,29 @@ export async function getCaseById(id: string) {
     .where(eq(caseStageGroups.organizationId, session.organizationId))
     .orderBy(asc(caseStageGroups.displayOrder));
 
+  // D5: all stages in the CURRENT group, in order — powers the per-stage
+  // progress bar so users can see their position within the group (not just
+  // across 5 group buckets).
+  const stagesInCurrentGroup = caseRow.stageGroupId
+    ? await db
+        .select({
+          id: caseStages.id,
+          name: caseStages.name,
+          code: caseStages.code,
+          color: caseStages.color,
+          displayOrder: caseStages.displayOrder,
+        })
+        .from(caseStages)
+        .where(
+          and(
+            eq(caseStages.stageGroupId, caseRow.stageGroupId),
+            eq(caseStages.organizationId, session.organizationId),
+            isNull(caseStages.deletedAt),
+          ),
+        )
+        .orderBy(asc(caseStages.displayOrder))
+    : [];
+
   // HIPAA: record that this user viewed a case detail view containing PHI.
   // Debounced per (user, case) to avoid flooding on rapid refreshes.
   const phiFields: string[] = [];
@@ -403,6 +427,7 @@ export async function getCaseById(id: string) {
     claimant: primaryContact ?? null,
     assignedStaff,
     stageGroups,
+    stagesInCurrentGroup,
   };
 }
 
@@ -502,6 +527,7 @@ export async function changeCaseStage(data: {
   caseId: string;
   newStageId: string;
   notes?: string;
+  forceAdvance?: boolean;
 }): Promise<{ externalSync: "ok" | "failed" | "skipped" }> {
   const session = await requireSession();
 
@@ -514,6 +540,54 @@ export async function changeCaseStage(data: {
     .where(eq(cases.id, data.caseId));
 
   if (!currentCase) throw new Error("Case not found");
+
+  // D4: gate advance on required checklist items of the FROM stage.
+  // If any required item is not marked `done` on this case, refuse the
+  // transition unless forceAdvance is passed.
+  if (!data.forceAdvance && currentCase.currentStageId) {
+    const [fromStage] = await db
+      .select({
+        name: caseStages.name,
+        clientChecklistItems: caseStages.clientChecklistItems,
+      })
+      .from(caseStages)
+      .where(eq(caseStages.id, currentCase.currentStageId))
+      .limit(1);
+
+    const requiredItems = (fromStage?.clientChecklistItems ?? []).filter(
+      (item) => item.required,
+    );
+
+    if (requiredItems.length > 0) {
+      const progressRows = await db
+        .select({
+          itemKey: caseChecklistProgress.itemKey,
+          status: caseChecklistProgress.status,
+        })
+        .from(caseChecklistProgress)
+        .where(
+          and(
+            eq(caseChecklistProgress.caseId, data.caseId),
+            eq(
+              caseChecklistProgress.stageId,
+              currentCase.currentStageId,
+            ),
+          ),
+        );
+
+      const doneKeys = new Set(
+        progressRows.filter((r) => r.status === "done").map((r) => r.itemKey),
+      );
+      const missing = requiredItems.filter((item) => !doneKeys.has(item.key));
+
+      if (missing.length > 0) {
+        const labels = missing.map((item) => item.label).join(", ");
+        throw new Error(
+          `Cannot advance stage — required checklist items incomplete: ${labels}`,
+        );
+      }
+    }
+  }
 
   // Update case stage
   await db
@@ -1422,5 +1496,167 @@ export async function editCaseReferral(
   revalidatePath(`/cases/${caseId}`);
   revalidatePath(`/cases/${caseId}/overview`);
   revalidatePath(`/cases/${caseId}/fields`);
+  return { ok: true };
+}
+
+/**
+ * D4 — Get the current checklist definition (from case_stages) and the
+ * per-item progress rows for a given case + stage. The caller uses this to
+ * render the Stage Checklist card.
+ */
+export async function getStageChecklistProgress(
+  caseId: string,
+  stageId: string,
+) {
+  const session = await requireSession();
+
+  // Load the checklist definition off the stage row.
+  const [stageRow] = await db
+    .select({
+      clientChecklistItems: caseStages.clientChecklistItems,
+    })
+    .from(caseStages)
+    .where(
+      and(
+        eq(caseStages.id, stageId),
+        eq(caseStages.organizationId, session.organizationId),
+      ),
+    )
+    .limit(1);
+
+  const items = stageRow?.clientChecklistItems ?? [];
+
+  // Load progress rows for this case/stage.
+  const progress = await db
+    .select({
+      itemKey: caseChecklistProgress.itemKey,
+      status: caseChecklistProgress.status,
+      completedAt: caseChecklistProgress.completedAt,
+      completedBy: caseChecklistProgress.completedBy,
+    })
+    .from(caseChecklistProgress)
+    .where(
+      and(
+        eq(caseChecklistProgress.caseId, caseId),
+        eq(caseChecklistProgress.stageId, stageId),
+      ),
+    );
+
+  const progressByKey = new Map(progress.map((p) => [p.itemKey, p]));
+
+  // Merge definition + status into a single view model.
+  const merged = items.map((item) => {
+    const p = progressByKey.get(item.key);
+    return {
+      key: item.key,
+      label: item.label,
+      required: item.required,
+      status: (p?.status ?? "pending") as "pending" | "done" | "skipped",
+      completedAt: p?.completedAt ?? null,
+      completedBy: p?.completedBy ?? null,
+    };
+  });
+
+  const requiredTotal = merged.filter((i) => i.required).length;
+  const requiredDone = merged.filter(
+    (i) => i.required && i.status === "done",
+  ).length;
+
+  return {
+    items: merged,
+    requiredTotal,
+    requiredDone,
+  };
+}
+
+/**
+ * D4 — Toggle a checklist item between `done` and `pending`.
+ *
+ * Upserts a row in case_checklist_progress keyed by
+ * (case_id, stage_id, item_key). Only items declared on the stage's
+ * `client_checklist_items` are accepted.
+ */
+export async function toggleChecklistItem(
+  caseId: string,
+  stageId: string,
+  itemKey: string,
+  done: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireSession();
+
+  // Verify the case belongs to the org (cheap guard — keeps this action
+  // scoped to the caller's tenant).
+  const [caseRow] = await db
+    .select({ id: cases.id })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!caseRow) return { ok: false, error: "Case not found" };
+
+  // Verify the item is declared on this stage.
+  const [stageRow] = await db
+    .select({
+      clientChecklistItems: caseStages.clientChecklistItems,
+    })
+    .from(caseStages)
+    .where(
+      and(
+        eq(caseStages.id, stageId),
+        eq(caseStages.organizationId, session.organizationId),
+      ),
+    )
+    .limit(1);
+
+  const items = stageRow?.clientChecklistItems ?? [];
+  if (!items.some((i) => i.key === itemKey)) {
+    return { ok: false, error: "Checklist item not found on this stage" };
+  }
+
+  const nextStatus: "pending" | "done" = done ? "done" : "pending";
+  const now = new Date();
+
+  // Upsert. Prefer UPDATE-then-INSERT to keep this portable; the unique
+  // index on (case_id, stage_id, item_key) makes this collision-safe.
+  const [existing] = await db
+    .select({ id: caseChecklistProgress.id })
+    .from(caseChecklistProgress)
+    .where(
+      and(
+        eq(caseChecklistProgress.caseId, caseId),
+        eq(caseChecklistProgress.stageId, stageId),
+        eq(caseChecklistProgress.itemKey, itemKey),
+      ),
+    )
+    .limit(1);
+
+  if (existing) {
+    await db
+      .update(caseChecklistProgress)
+      .set({
+        status: nextStatus,
+        completedBy: done ? session.id : null,
+        completedAt: done ? now : null,
+        updatedAt: now,
+      })
+      .where(eq(caseChecklistProgress.id, existing.id));
+  } else {
+    await db.insert(caseChecklistProgress).values({
+      caseId,
+      stageId,
+      itemKey,
+      status: nextStatus,
+      completedBy: done ? session.id : null,
+      completedAt: done ? now : null,
+    });
+  }
+
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath(`/cases/${caseId}/overview`);
   return { ok: true };
 }

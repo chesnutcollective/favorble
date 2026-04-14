@@ -2,6 +2,7 @@ import {
   getCaseById,
   getCaseActivity,
   getCaseContacts,
+  getStageChecklistProgress,
 } from "@/app/actions/cases";
 import { getCaseTasks } from "@/app/actions/tasks";
 import { getCaseDocuments } from "@/app/actions/documents";
@@ -11,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Timeline, type TimelineEvent } from "@/components/shared/timeline";
 import { AiSummaryCard } from "@/components/cases/ai-summary-card";
 import { AddClientDialog } from "@/components/cases/add-client-dialog";
+import { StageChecklistCard } from "@/components/cases/stage-checklist-card";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -52,6 +54,22 @@ export default async function CaseOverviewPage({
   }
 
   if (!caseData) notFound();
+
+  // D4: stage checklist progress for the case's current stage. Loaded
+  // serially after getCaseById because we need the stageId. Swallow DB
+  // failures — the card will render an empty state.
+  let checklist: Awaited<ReturnType<typeof getStageChecklistProgress>> | null =
+    null;
+  if (caseData.currentStageId) {
+    try {
+      checklist = await getStageChecklistProgress(
+        caseId,
+        caseData.currentStageId,
+      );
+    } catch {
+      checklist = null;
+    }
+  }
 
   const openTasks = tasks.filter(
     (t) => t.status !== "completed" && t.status !== "skipped",
@@ -97,6 +115,20 @@ export default async function CaseOverviewPage({
             {caseData.referralSource}
           </span>
         </p>
+      )}
+
+      {/* D4 — Stage Checklist. Rendered above Parties so it's the first
+          thing the case owner sees after the AI summary. Required items
+          gate stage advance via `changeCaseStage`. */}
+      {checklist && caseData.currentStageId && (
+        <StageChecklistCard
+          caseId={caseId}
+          stageId={caseData.currentStageId}
+          stageName={caseData.stageName ?? "Current stage"}
+          items={checklist.items}
+          requiredTotal={checklist.requiredTotal}
+          requiredDone={checklist.requiredDone}
+        />
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">

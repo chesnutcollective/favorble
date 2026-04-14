@@ -8,6 +8,7 @@ import { CaseStageSelector } from "@/components/cases/case-stage-selector";
 import { CaseCloseDialog } from "@/components/cases/case-close-dialog";
 import { CaseHoldDialog } from "@/components/cases/case-hold-dialog";
 import { SSNDisplay } from "@/components/cases/ssn-display";
+import { StageSegmentBar } from "@/components/stages/stage-segment-bar";
 import { decrypt, maskSSN } from "@/lib/encryption";
 
 export default async function CaseDetailLayout({
@@ -101,39 +102,29 @@ export default async function CaseDetailLayout({
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="flex items-center gap-1">
-            {caseData.stageGroups.map((group, i) => {
-              const isCompleted = i < currentGroupIndex;
-              const isCurrent = i === currentGroupIndex;
-              return (
-                <div
-                  key={group.id}
-                  className="flex-1 h-2 rounded-full"
+          {/* D5 — Per-stage Progress Bar.
+              Group label stays above so users still get group context, then a
+              segment bar shows every INDIVIDUAL stage within the group. */}
+          <div className="space-y-1.5">
+            {caseData.stageGroupName && (
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-[11px] font-medium uppercase tracking-wide"
                   style={{
-                    backgroundColor: isCompleted
-                      ? "#000"
-                      : isCurrent
-                        ? "transparent"
-                        : "#EAEAEA",
-                    border: isCurrent ? "1.5px solid #000" : "none",
+                    color: caseData.stageGroupColor ?? undefined,
                   }}
-                  title={group.name}
-                />
-              );
-            })}
-          </div>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] sm:text-xs text-muted-foreground">
-            {caseData.stageGroups.map((group, i) => (
-              <span
-                key={group.id}
-                className={
-                  i === currentGroupIndex ? "font-medium text-foreground" : ""
-                }
-              >
-                {group.name}
-              </span>
-            ))}
+                >
+                  {caseData.stageGroupName}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  (Group {currentGroupIndex + 1} of {caseData.stageGroups.length})
+                </span>
+              </div>
+            )}
+            <StageSegmentBar
+              stages={caseData.stagesInCurrentGroup}
+              currentStageId={caseData.currentStageId}
+            />
           </div>
         </div>
 

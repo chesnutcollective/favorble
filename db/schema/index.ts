@@ -3,6 +3,7 @@ export * from "./organizations";
 export * from "./users";
 export * from "./leads";
 export * from "./cases";
+export * from "./case-checklist-progress";
 export * from "./contacts";
 export * from "./custom-fields";
 export * from "./workflows";

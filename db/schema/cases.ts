@@ -5,6 +5,7 @@ import {
   timestamp,
   integer,
   boolean,
+  jsonb,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -55,6 +56,14 @@ export const caseStages = pgTable(
     isInitial: boolean("is_initial").notNull().default(false),
     isTerminal: boolean("is_terminal").notNull().default(false),
     allowedNextStageIds: uuid("allowed_next_stage_ids").array(),
+    // D4: client-visible checklist items that gate stage advance. Each item is
+    // `{ key, label, required }`; when `required` is true the item must be
+    // marked `done` on case_checklist_progress before the case can leave this
+    // stage (unless forceAdvance is passed to changeCaseStage).
+    clientChecklistItems: jsonb("client_checklist_items")
+      .$type<Array<{ key: string; label: string; required: boolean }>>()
+      .default([])
+      .notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
