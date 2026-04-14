@@ -3243,7 +3243,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
         }}
       >
         <Link
-          href="/reports/pipeline-funnel"
+          href="/reports/win-rates"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}
@@ -3254,7 +3254,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
           </div>
         </Link>
         <Link
-          href="/reports/cases-by-stage"
+          href="/cases"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}
@@ -3265,7 +3265,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
           </div>
         </Link>
         <Link
-          href="/reports/task-completion"
+          href="/queue"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}

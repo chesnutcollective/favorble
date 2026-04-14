@@ -371,7 +371,7 @@ export async function IntakeAgentDashboard({ actor }: Props) {
           </div>
         </Link>
         <Link
-          href="/intake"
+          href="/leads?source=intake_form"
           className="block rounded-[10px] border p-4 hover:border-[#999] transition-colors"
           style={{ borderColor: COLORS.borderDefault, background: "#fff" }}
         >
