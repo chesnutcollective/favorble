@@ -62,32 +62,31 @@ export function AdminSubnav({ data }: { data: AdminSubnavData }) {
                     marginTop: 5,
                   }}
                 />
-                <span
-                  style={{
-                    flex: 1,
-                    minWidth: 0,
-                    color: COLORS.text1,
-                    // Let long underscored job names wrap anywhere instead of
-                    // getting chopped with an ellipsis in the narrow panel.
-                    overflowWrap: "anywhere",
-                    wordBreak: "break-word",
-                    fontFamily: "monospace",
-                    lineHeight: 1.35,
-                  }}
-                >
-                  {c.name}
-                </span>
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: COLORS.text3,
-                    flexShrink: 0,
-                    fontVariantNumeric: "tabular-nums",
-                    marginTop: 2,
-                  }}
-                >
-                  {c.lastRunAgo}
-                </span>
+                {/* Name on top, timestamp stacked below — gives the full row
+                    width to the job name so underscored names fit on one line */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      color: COLORS.text1,
+                      overflowWrap: "anywhere",
+                      wordBreak: "break-word",
+                      fontFamily: "monospace",
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {c.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: COLORS.text3,
+                      fontVariantNumeric: "tabular-nums",
+                      marginTop: 1,
+                    }}
+                  >
+                    {c.lastRunAgo}
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
