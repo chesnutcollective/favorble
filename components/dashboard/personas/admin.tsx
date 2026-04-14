@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { and, count, desc, eq, gte, isNull } from "drizzle-orm";
 
 import { db } from "@/db/drizzle";
@@ -16,6 +17,11 @@ import { RadialGauge } from "@/components/dashboard/charts/radial-gauge";
 import { LiveTicker, type TickerItem } from "@/components/dashboard/primitives/live-ticker";
 import { StreakBadge } from "@/components/dashboard/primitives/streak-badge";
 import type { SessionUser } from "@/lib/auth/session";
+import {
+  INTEGRATION_REGISTRY,
+  getIntegration,
+} from "@/lib/integrations/registry";
+import { getCustomLogoUrls } from "@/app/actions/integration-management";
 
 type Props = { actor: SessionUser };
 const accent = PERSONA_ACCENTS.admin.accent;
@@ -198,12 +204,23 @@ function relativeTime(d: Date | null): string {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export async function AdminDashboard({ actor }: Props) {
-  const [integrity, ecg, constellation, counters, audit] = await Promise.all([
+  const allIntegrationIds = INTEGRATION_REGISTRY.map((i) => i.id);
+  const [
+    integrity,
+    ecg,
+    constellation,
+    counters,
+    audit,
+    customLogoUrls,
+  ] = await Promise.all([
     loadOvernightIntegrity(actor.organizationId),
     loadEcgEvents(),
     loadServiceConstellation(),
     loadOpsCounters(actor.organizationId),
     loadAuditTail(actor.organizationId),
+    getCustomLogoUrls(allIntegrationIds).catch(
+      () => ({}) as Record<string, { tech: { url: string; storagePath: string } | null; host: { url: string; storagePath: string } | null }>,
+    ),
   ]);
 
   const okCount = constellation.filter((s) => s.state === "ok").length;
@@ -307,33 +324,109 @@ export async function AdminDashboard({ actor }: Props) {
             >
               Status Constellation
             </h3>
-            <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               {constellation.map((s) => {
+                const config = getIntegration(s.id);
                 const tone =
-                  s.state === "bad" ? COLORS.bad : s.state === "warn" ? COLORS.warn : COLORS.emerald;
+                  s.state === "bad"
+                    ? COLORS.bad
+                    : s.state === "warn"
+                      ? COLORS.warn
+                      : COLORS.emerald;
+                const custom = customLogoUrls[s.id];
+                const techLogo =
+                  custom?.tech?.url ??
+                  (config ? `/${config.logoPath}` : null);
+                const hostLogo = config?.hostLogoPath
+                  ? custom?.host?.url ?? `/${config.hostLogoPath}`
+                  : null;
+                const displayName = config?.shortName ?? s.id;
+
                 return (
-                  <div
+                  <Link
                     key={s.id}
-                    className="rounded-[8px] border p-3 flex items-center gap-2"
+                    href={`/admin/integrations/${s.id}`}
+                    className="group rounded-[10px] border bg-white p-3 flex items-center gap-3 transition-colors hover:border-[#BBB]"
                     style={{
                       borderColor: COLORS.borderDefault,
                       borderLeftColor: tone,
-                      borderLeftWidth: 2,
+                      borderLeftWidth: 3,
                     }}
                   >
-                    <span
-                      className={`h-2 w-2 rounded-full shrink-0 ${s.state !== "ok" ? "dash-pulse-dot" : ""}`}
-                      style={{ background: tone, color: tone }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12px] font-medium truncate" style={{ color: COLORS.text1 }}>
-                        {s.id}
+                    {/* Logo + optional host badge overlay */}
+                    <div className="relative flex-shrink-0 w-10 h-10">
+                      <div
+                        className="w-10 h-10 rounded-lg border flex items-center justify-center overflow-hidden"
+                        style={{
+                          borderColor: COLORS.borderSubtle,
+                          background: "#FFF",
+                        }}
+                      >
+                        {techLogo ? (
+                          <Image
+                            src={techLogo}
+                            alt={displayName}
+                            width={40}
+                            height={40}
+                            className="object-contain p-1"
+                            unoptimized={
+                              techLogo.startsWith("data:") ||
+                              techLogo.startsWith("http")
+                            }
+                          />
+                        ) : (
+                          <span className="text-sm">
+                            {config?.fallbackIcon ?? "•"}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px]" style={{ color: COLORS.text3 }}>
+                      {hostLogo && (
+                        <div
+                          className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-md bg-white ring-2 ring-white flex items-center justify-center overflow-hidden shadow-sm"
+                          title={
+                            config?.hostName
+                              ? `Hosted on ${config.hostName}`
+                              : undefined
+                          }
+                        >
+                          <Image
+                            src={hostLogo}
+                            alt={config?.hostName ?? "Host"}
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                            unoptimized={
+                              hostLogo.startsWith("data:") ||
+                              hostLogo.startsWith("http")
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Name + status */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`h-2 w-2 rounded-full shrink-0 ${s.state !== "ok" ? "dash-pulse-dot" : ""}`}
+                          style={{ background: tone }}
+                        />
+                        <div
+                          className="text-[12px] font-medium truncate"
+                          style={{ color: COLORS.text1 }}
+                        >
+                          {displayName}
+                        </div>
+                      </div>
+                      <div
+                        className="text-[10px] mt-0.5 truncate"
+                        style={{ color: COLORS.text3 }}
+                      >
+                        {config?.hostName ? `${config.hostName} · ` : ""}
                         {relativeTime(s.lastEvent)} ago
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
