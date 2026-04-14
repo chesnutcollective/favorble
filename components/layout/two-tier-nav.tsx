@@ -587,7 +587,7 @@ export function TwoTierNav({
     localStorage.setItem("ttn-sidebar-collapsed", String(collapsed));
     document.documentElement.style.setProperty(
       "--sidebar-w",
-      collapsed ? "80px" : "264px",
+      collapsed ? "80px" : "376px",
     );
   }, [collapsed]);
 
@@ -687,6 +687,7 @@ export function TwoTierNav({
                       className={`ttn-rail-btn${active ? " active" : ""}`}
                     >
                       {item.icon}
+                      <span className="ttn-rail-label">{item.label}</span>
                       {item.notification && <span className="ttn-notif-dot" />}
                     </Link>
                   </TooltipTrigger>
