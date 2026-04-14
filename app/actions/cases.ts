@@ -645,6 +645,96 @@ export async function bulkChangeCaseStage(
 }
 
 /**
+ * Bulk assign a user as the primary "attorney" for multiple cases. Existing
+ * primary attorney assignments are soft-unassigned (unassignedAt set) so
+ * uniqueness on (case_id, user_id, role) is preserved. If the target user is
+ * already assigned (re-activated), the existing row is reused.
+ */
+export async function bulkAssignCases(caseIds: string[], userId: string) {
+  const session = await requireSession();
+  if (caseIds.length === 0) return;
+
+  // Validate the user belongs to the same org and is active.
+  const [targetUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(
+      and(
+        eq(users.id, userId),
+        eq(users.organizationId, session.organizationId),
+        eq(users.isActive, true),
+      ),
+    )
+    .limit(1);
+
+  if (!targetUser) {
+    throw new Error("Target user not found or inactive");
+  }
+
+  const now = new Date();
+
+  for (const caseId of caseIds) {
+    // Unassign current primary attorneys on this case (soft).
+    await db
+      .update(caseAssignments)
+      .set({ unassignedAt: now })
+      .where(
+        and(
+          eq(caseAssignments.caseId, caseId),
+          eq(caseAssignments.isPrimary, true),
+          eq(caseAssignments.role, "attorney"),
+          isNull(caseAssignments.unassignedAt),
+        ),
+      );
+
+    // Insert the new primary attorney assignment. If a row already exists for
+    // (case_id, user_id, role) reactivate it rather than failing the unique
+    // index.
+    const [existing] = await db
+      .select({ id: caseAssignments.id })
+      .from(caseAssignments)
+      .where(
+        and(
+          eq(caseAssignments.caseId, caseId),
+          eq(caseAssignments.userId, userId),
+          eq(caseAssignments.role, "attorney"),
+        ),
+      )
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(caseAssignments)
+        .set({
+          isPrimary: true,
+          unassignedAt: null,
+          assignedAt: now,
+        })
+        .where(eq(caseAssignments.id, existing.id));
+    } else {
+      await db.insert(caseAssignments).values({
+        caseId,
+        userId,
+        role: "attorney",
+        isPrimary: true,
+      });
+    }
+
+    await db
+      .update(cases)
+      .set({ updatedAt: now, updatedBy: session.id })
+      .where(eq(cases.id, caseId));
+  }
+
+  logger.info("Cases bulk assigned", {
+    caseCount: caseIds.length,
+    userId,
+  });
+
+  revalidatePath("/cases");
+}
+
+/**
  * Get allowed next stages for a case. Returns the current stage's
  * allowedNextStageIds resolved to full stage objects, grouped by stage group.
  * If allowedNextStageIds is null/empty, returns ALL stages (unrestricted).
