@@ -245,6 +245,23 @@ async function computePrimaryKpi(
         };
       }
 
+      case "post_hearing": {
+        const { hearingOutcomes } = await import("@/db/schema");
+        const [pendingRow] = await db
+          .select({ n: count() })
+          .from(hearingOutcomes)
+          .where(
+            and(
+              eq(hearingOutcomes.organizationId, organizationId),
+              eq(hearingOutcomes.status, "pending_review"),
+            ),
+          );
+        return {
+          value: String(pendingRow?.n ?? 0),
+          subtitle: "Outcomes awaiting reviewer approval",
+        };
+      }
+
       case "reviewer": {
         const [wonRow] = await db
           .select({ n: count() })
