@@ -83,9 +83,8 @@ export const communications = pgTable(
     // the follow-up nudger can skip anything sent by a template.
     isAutomated: boolean("is_automated").default(false).notNull(),
 
-    // Provenance marker — e.g. "workflow:{templateId}", "human", "case_status".
-    // Nullable for legacy rows.
-    sourceType: text("source_type"),
+    // (sourceType is declared earlier — provenance marker for workflow /
+    // case_status / portal_sms origins, unified across Phase 2 + Phase 4.)
 
     // Portal (B1) — outbound messages only surface on the client portal when
     // staff explicitly toggles "Visible to client" on the composer. Inbound
