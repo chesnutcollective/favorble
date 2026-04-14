@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useMemo, useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,6 +26,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Table,
   TableBody,
   TableCell,
@@ -38,14 +47,20 @@ import {
   PlusSignIcon,
   ArrowDown01Icon,
   ArrowUp01Icon,
+  ArrowDown02Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import {
   createCase,
   bulkChangeCaseStage,
+  bulkAssignCases,
   assignStaffToCase,
 } from "@/app/actions/cases";
 import { PageHeader } from "@/components/shared/page-header";
+import {
+  ColumnVisibilityMenu,
+  type ColumnDef,
+} from "@/components/ui/column-visibility-menu";
 
 type CaseRow = {
   id: string;
@@ -181,7 +196,29 @@ export function CasesListClient({
 
   const [bulkStageOpen, setBulkStageOpen] = useState(false);
   const [bulkStageId, setBulkStageId] = useState("");
+  const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
+  const [bulkAssignUserId, setBulkAssignUserId] = useState("");
+  const [bulkHoldOpen, setBulkHoldOpen] = useState(false);
+  const [bulkHoldReason, setBulkHoldReason] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  // Column visibility — the menu persists its own selection to localStorage.
+  // Keys mirror the table's TableHead/Cell pairs below. `select` is always
+  // visible (row checkbox column).
+  const columnDefs: ColumnDef[] = useMemo(
+    () => [
+      { key: "select", label: "Select", alwaysVisible: true },
+      { key: "claimant", label: "Claimant", defaultVisible: true },
+      { key: "stage", label: "Stage", defaultVisible: true },
+      { key: "assignedTo", label: "Assigned To", defaultVisible: true },
+      { key: "updatedAt", label: "Last Activity", defaultVisible: true },
+    ],
+    [],
+  );
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
+    () => new Set(columnDefs.map((c) => c.key)),
+  );
+  const isCol = (key: string) => visibleColumns.has(key);
 
   // New case form state
   const [ncFirstName, setNcFirstName] = useState("");
@@ -297,6 +334,46 @@ export function CasesListClient({
       setBulkStageOpen(false);
       setBulkStageId("");
     });
+  }
+
+  function handleBulkAssign() {
+    if (!bulkAssignUserId) return;
+    const ids = Array.from(selectedIds);
+    startTransition(async () => {
+      try {
+        await bulkAssignCases(ids, bulkAssignUserId);
+        toast.success(
+          `Assigned ${ids.length} case${ids.length > 1 ? "s" : ""}`,
+        );
+        setSelectedIds(new Set());
+        setBulkAssignOpen(false);
+        setBulkAssignUserId("");
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : "Failed to assign cases",
+        );
+      }
+    });
+  }
+
+  async function handleBulkPlaceOnHold() {
+    // Server action for bulk-place-on-hold isn't wired yet. Per spec, fall
+    // back to copying the selected IDs to the clipboard and surfacing a toast
+    // so the user can follow up manually.
+    const ids = Array.from(selectedIds);
+    try {
+      await navigator.clipboard.writeText(ids.join("\n"));
+      toast.info(
+        "Action coming — selected case IDs copied to clipboard",
+        bulkHoldReason
+          ? { description: `Reason noted: ${bulkHoldReason}` }
+          : undefined,
+      );
+    } catch {
+      toast.info("Action coming — bulk hold is not yet wired up");
+    }
+    setBulkHoldOpen(false);
+    setBulkHoldReason("");
   }
 
   async function handleCreateCase() {
@@ -501,21 +578,59 @@ export function CasesListClient({
             Clear
           </Button>
         )}
+        <div className="sm:ml-auto">
+          <ColumnVisibilityMenu
+            storageKey="favorble.cases.visibleColumns.v1"
+            columns={columnDefs}
+            onChange={setVisibleColumns}
+          />
+        </div>
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Bar — consolidated dropdown */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-md border bg-accent px-4 py-2">
           <span className="text-sm font-medium">
             {selectedIds.size} selected
           </span>
           <Separator orientation="vertical" className="h-5" />
-          <Dialog open={bulkStageOpen} onOpenChange={setBulkStageOpen}>
-            <DialogTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button size="sm" variant="default">
-                Change Stage
+                Bulk actions ({selectedIds.size})
+                <HugeiconsIcon
+                  icon={ArrowDown02Icon}
+                  size={12}
+                  className="ml-1.5"
+                />
               </Button>
-            </DialogTrigger>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuItem onSelect={() => setBulkStageOpen(true)}>
+                Change stage…
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setBulkAssignOpen(true)}>
+                Assign to…
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExportCsv()}>
+                Export CSV
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => setBulkHoldOpen(true)}>
+                Place on hold…
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            Clear
+          </Button>
+
+          {/* Change Stage dialog */}
+          <Dialog open={bulkStageOpen} onOpenChange={setBulkStageOpen}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Change Stage</DialogTitle>
@@ -554,16 +669,87 @@ export function CasesListClient({
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button size="sm" variant="outline" onClick={handleExportCsv}>
-            Export CSV
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setSelectedIds(new Set())}
-          >
-            Clear
-          </Button>
+
+          {/* Assign To dialog */}
+          <Dialog open={bulkAssignOpen} onOpenChange={setBulkAssignOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Assign Cases</DialogTitle>
+                <DialogDescription>
+                  Assign {selectedIds.size} case
+                  {selectedIds.size > 1 ? "s" : ""} to a team member. They will
+                  become the primary attorney.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Select
+                  value={bulkAssignUserId}
+                  onValueChange={setBulkAssignUserId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {orgUsers.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.firstName} {u.lastName}
+                        {u.role ? ` (${u.role})` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setBulkAssignOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleBulkAssign}
+                  disabled={!bulkAssignUserId || isPending}
+                >
+                  {isPending ? "Assigning..." : "Assign"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Place on Hold dialog */}
+          <Dialog open={bulkHoldOpen} onOpenChange={setBulkHoldOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Place on Hold</DialogTitle>
+                <DialogDescription>
+                  Optionally record a reason. Hold wiring is still in progress —
+                  we&apos;ll copy the selected case IDs to your clipboard so you
+                  can follow up manually.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-1.5">
+                <Label htmlFor="hold-reason">Hold reason (optional)</Label>
+                <Textarea
+                  id="hold-reason"
+                  value={bulkHoldReason}
+                  onChange={(e) => setBulkHoldReason(e.target.value)}
+                  placeholder="e.g. Awaiting medical records"
+                  rows={3}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setBulkHoldOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleBulkPlaceOnHold} disabled={isPending}>
+                  Place on Hold
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 
@@ -580,41 +766,49 @@ export function CasesListClient({
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead
-                className="cursor-pointer select-none"
-                onClick={() => handleSort("claimant")}
-              >
-                Claimant
-                <SortIcon column="claimant" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer select-none"
-                onClick={() => handleSort("stage")}
-              >
-                Stage
-                <SortIcon column="stage" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer select-none"
-                onClick={() => handleSort("assignedTo")}
-              >
-                Assigned To
-                <SortIcon column="assignedTo" />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer select-none"
-                onClick={() => handleSort("updatedAt")}
-              >
-                Last Activity
-                <SortIcon column="updatedAt" />
-              </TableHead>
+              {isCol("claimant") && (
+                <TableHead
+                  className="cursor-pointer select-none"
+                  onClick={() => handleSort("claimant")}
+                >
+                  Claimant
+                  <SortIcon column="claimant" />
+                </TableHead>
+              )}
+              {isCol("stage") && (
+                <TableHead
+                  className="cursor-pointer select-none"
+                  onClick={() => handleSort("stage")}
+                >
+                  Stage
+                  <SortIcon column="stage" />
+                </TableHead>
+              )}
+              {isCol("assignedTo") && (
+                <TableHead
+                  className="cursor-pointer select-none"
+                  onClick={() => handleSort("assignedTo")}
+                >
+                  Assigned To
+                  <SortIcon column="assignedTo" />
+                </TableHead>
+              )}
+              {isCol("updatedAt") && (
+                <TableHead
+                  className="cursor-pointer select-none"
+                  onClick={() => handleSort("updatedAt")}
+                >
+                  Last Activity
+                  <SortIcon column="updatedAt" />
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {cases.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={Math.max(visibleColumns.size, 1)}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No cases found.
@@ -632,58 +826,66 @@ export function CasesListClient({
                       onCheckedChange={() => toggleSelect(c.id)}
                     />
                   </TableCell>
-                  <TableCell>
-                    <Link href={`/cases/${c.id}`} className="block">
-                      <p className="font-medium text-foreground">
-                        {c.claimant
-                          ? `${c.claimant.lastName}, ${c.claimant.firstName}`
-                          : "Unknown"}
-                      </p>
-                      <p className="text-[12px] text-[#999] font-mono flex items-center gap-2">
-                        {c.caseNumber}
-                        {c.atRisk && (
-                          <span className="inline-flex items-center rounded-full bg-[rgba(209,69,59,0.10)] px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-[#d1453b]">
-                            At risk
+                  {isCol("claimant") && (
+                    <TableCell>
+                      <Link href={`/cases/${c.id}`} className="block">
+                        <p className="font-medium text-foreground">
+                          {c.claimant
+                            ? `${c.claimant.lastName}, ${c.claimant.firstName}`
+                            : "Unknown"}
+                        </p>
+                        <p className="text-[12px] text-[#999] font-mono flex items-center gap-2">
+                          {c.caseNumber}
+                          {c.atRisk && (
+                            <span className="inline-flex items-center rounded-full bg-[rgba(209,69,59,0.10)] px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-[#d1453b]">
+                              At risk
+                            </span>
+                          )}
+                        </p>
+                      </Link>
+                    </TableCell>
+                  )}
+                  {isCol("stage") && (
+                    <TableCell>
+                      {c.stageName && (
+                        <span className="inline-flex items-center gap-[6px] text-[13px]">
+                          <span
+                            className="inline-block h-[6px] w-[6px] shrink-0 rounded-full"
+                            style={{
+                              backgroundColor:
+                                c.stageColor ?? c.stageGroupColor ?? "#888",
+                            }}
+                          />
+                          {c.stageName}
+                        </span>
+                      )}
+                    </TableCell>
+                  )}
+                  {isCol("assignedTo") && (
+                    <TableCell>
+                      {c.assignedStaff.length > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#EAEAEA] text-[9px] font-semibold text-[#171717]">
+                            {c.assignedStaff[0].firstName.charAt(0)}
+                            {c.assignedStaff[0].lastName.charAt(0)}
                           </span>
-                        )}
-                      </p>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {c.stageName && (
-                      <span className="inline-flex items-center gap-[6px] text-[13px]">
-                        <span
-                          className="inline-block h-[6px] w-[6px] shrink-0 rounded-full"
-                          style={{
-                            backgroundColor:
-                              c.stageColor ?? c.stageGroupColor ?? "#888",
-                          }}
-                        />
-                        {c.stageName}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {c.assignedStaff.length > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#EAEAEA] text-[9px] font-semibold text-[#171717]">
-                          {c.assignedStaff[0].firstName.charAt(0)}
-                          {c.assignedStaff[0].lastName.charAt(0)}
+                          <span className="text-[13px] text-foreground">
+                            {c.assignedStaff[0].firstName.charAt(0)}.{" "}
+                            {c.assignedStaff[0].lastName}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[13px] text-muted-foreground">
+                          Unassigned
                         </span>
-                        <span className="text-[13px] text-foreground">
-                          {c.assignedStaff[0].firstName.charAt(0)}.{" "}
-                          {c.assignedStaff[0].lastName}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-[13px] text-muted-foreground">
-                        Unassigned
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-[12px] text-[#666] font-mono">
-                    {formatRelativeTime(c.updatedAt)}
-                  </TableCell>
+                      )}
+                    </TableCell>
+                  )}
+                  {isCol("updatedAt") && (
+                    <TableCell className="text-[12px] text-[#666] font-mono">
+                      {formatRelativeTime(c.updatedAt)}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
