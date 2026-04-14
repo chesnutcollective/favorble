@@ -6,6 +6,7 @@ import {
   integer,
   boolean,
   index,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
 import { users } from "./users";
@@ -62,14 +63,29 @@ export const npsResponses = pgTable(
       .notNull()
       .references(() => contacts.id),
     campaignId: uuid("campaign_id").references(() => npsCampaigns.id),
-    score: integer("score").notNull(),
-    // 'promoter' | 'passive' | 'detractor' (CHECK constraint in migration)
-    category: text("category").notNull(),
+    /**
+     * Nullable until the claimant actually submits. Rows are enqueued on
+     * stage transition with score/category = null, and filled in by
+     * `submitNpsResponse`.
+     */
+    score: integer("score"),
+    // 'promoter' | 'passive' | 'detractor' (CHECK in migration, nullable
+    // while the survey is pending)
+    category: text("category"),
     comment: text("comment"),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     respondedAt: timestamp("responded_at", { withTimezone: true }),
     // 'email' | 'sms' | 'portal'
     channel: text("channel").notNull(),
+    /**
+     * Delivery / scheduling metadata. Known keys:
+     *   - scheduledFor: ISO timestamp; dispatcher only sends once now >= this
+     *   - stageTransitionId: uuid of the triggering transition (for audit)
+     *   - skipped: 'no_twilio' | 'no_phone' | 'opted_out' — reason send was
+     *     not actually delivered
+     *   - linkUrl, magicLinkId, twilioSid: populated after dispatch attempt
+     */
+    metadata: jsonb("metadata").default({}).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -111,3 +127,13 @@ export const npsActionItems = pgTable(
     index("idx_nps_action_items_status").on(table.status),
   ],
 );
+
+// Table-level types live here with a `Record` suffix to avoid colliding with
+// the UI-shaped `NpsResponseRow` / `NpsActionItemRow` types exported by
+// `app/actions/nps.ts`.
+export type NpsCampaignRecord = typeof npsCampaigns.$inferSelect;
+export type NewNpsCampaignRecord = typeof npsCampaigns.$inferInsert;
+export type NpsResponseRecord = typeof npsResponses.$inferSelect;
+export type NewNpsResponseRecord = typeof npsResponses.$inferInsert;
+export type NpsActionItemRecord = typeof npsActionItems.$inferSelect;
+export type NewNpsActionItemRecord = typeof npsActionItems.$inferInsert;

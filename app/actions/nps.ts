@@ -6,11 +6,18 @@ import {
   npsActionItems,
   npsCampaigns,
   cases,
+  caseStages,
+  caseAssignments,
   contacts,
   users,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { ensurePortalSession } from "@/lib/auth/portal-session";
+import { logPortalActivity } from "@/lib/services/portal-activity";
+import { logPhiModification } from "@/lib/services/hipaa-audit";
+import { logger } from "@/lib/logger/server";
+import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 /**
  * Hard-coded industry benchmark NPS for legal services.
@@ -135,8 +142,12 @@ export async function getNpsOverview(period = 90): Promise<NpsOverview> {
       .limit(3);
 
     topPositiveComments = positive
-      .filter((r) => r.comment !== null)
-      .map((r) => ({ id: r.id, score: r.score, comment: r.comment as string }));
+      .filter((r) => r.comment !== null && r.score !== null)
+      .map((r) => ({
+        id: r.id,
+        score: r.score as number,
+        comment: r.comment as string,
+      }));
 
     // Top 3 negative comments (lowest score, non-empty)
     const negative = await db
@@ -158,8 +169,12 @@ export async function getNpsOverview(period = 90): Promise<NpsOverview> {
       .limit(3);
 
     topNegativeComments = negative
-      .filter((r) => r.comment !== null)
-      .map((r) => ({ id: r.id, score: r.score, comment: r.comment as string }));
+      .filter((r) => r.comment !== null && r.score !== null)
+      .map((r) => ({
+        id: r.id,
+        score: r.score as number,
+        comment: r.comment as string,
+      }));
 
     // 90-day score trend (daily buckets)
     const trendCutoff = periodCutoff(90) ?? new Date(0);
@@ -229,7 +244,13 @@ export async function getNpsResponses(
   const session = await requireSession();
   const cutoff = periodCutoff(filters.periodDays ?? 0);
 
-  const conds = [eq(npsResponses.organizationId, session.organizationId)];
+  // Only surface answered surveys (post A2, rows are enqueued with
+  // score/category null at stage transition and filled in on submit).
+  const conds = [
+    eq(npsResponses.organizationId, session.organizationId),
+    sql`${npsResponses.score} IS NOT NULL`,
+    sql`${npsResponses.category} IS NOT NULL`,
+  ];
   if (filters.category) {
     conds.push(eq(npsResponses.category, filters.category));
   }
@@ -258,22 +279,24 @@ export async function getNpsResponses(
       .orderBy(desc(npsResponses.createdAt))
       .limit(250);
 
-    return rows.map((r) => {
-      const claimantName =
-        [r.claimantFirst, r.claimantLast].filter(Boolean).join(" ").trim() ||
-        null;
-      return {
-        id: r.id,
-        score: r.score,
-        category: r.category as NpsCategory,
-        comment: r.comment,
-        caseId: r.caseId,
-        caseNumber: r.caseNumber ?? null,
-        claimantName,
-        respondedAt: r.respondedAt ? r.respondedAt.toISOString() : null,
-        channel: r.channel,
-      };
-    });
+    return rows
+      .filter((r) => r.score !== null && r.category !== null)
+      .map((r) => {
+        const claimantName =
+          [r.claimantFirst, r.claimantLast].filter(Boolean).join(" ").trim() ||
+          null;
+        return {
+          id: r.id,
+          score: r.score as number,
+          category: r.category as NpsCategory,
+          comment: r.comment,
+          caseId: r.caseId,
+          caseNumber: r.caseNumber ?? null,
+          claimantName,
+          respondedAt: r.respondedAt ? r.respondedAt.toISOString() : null,
+          channel: r.channel,
+        };
+      });
   } catch {
     return [];
   }
@@ -391,5 +414,380 @@ export async function getActiveCampaignCount(): Promise<number> {
     return row ? Number(row.count) : 0;
   } catch {
     return 0;
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// Phase 5 A2: campaign management + survey submission.
+// ───────────────────────────────────────────────────────────────
+
+export type CampaignChannel = "email" | "sms" | "portal";
+
+export type NpsCampaignListRow = {
+  id: string;
+  name: string;
+  channel: CampaignChannel;
+  delayDays: number;
+  triggerStageId: string | null;
+  triggerStageName: string | null;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export async function listNpsCampaigns(): Promise<NpsCampaignListRow[]> {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({
+        id: npsCampaigns.id,
+        name: npsCampaigns.name,
+        channel: npsCampaigns.channel,
+        delayDays: npsCampaigns.delayDays,
+        triggerStageId: npsCampaigns.triggerStageId,
+        triggerStageName: caseStages.name,
+        isActive: npsCampaigns.isActive,
+        createdAt: npsCampaigns.createdAt,
+      })
+      .from(npsCampaigns)
+      .leftJoin(caseStages, eq(caseStages.id, npsCampaigns.triggerStageId))
+      .where(eq(npsCampaigns.organizationId, session.organizationId))
+      .orderBy(desc(npsCampaigns.createdAt));
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      channel: r.channel as CampaignChannel,
+      delayDays: r.delayDays,
+      triggerStageId: r.triggerStageId ?? null,
+      triggerStageName: r.triggerStageName ?? null,
+      isActive: r.isActive,
+      createdAt: r.createdAt.toISOString(),
+    }));
+  } catch (error) {
+    logger.error("listNpsCampaigns failed", { error });
+    return [];
+  }
+}
+
+export async function listTriggerStageOptions(): Promise<
+  { id: string; name: string }[]
+> {
+  const session = await requireSession();
+  try {
+    const rows = await db
+      .select({ id: caseStages.id, name: caseStages.name })
+      .from(caseStages)
+      .where(
+        and(
+          eq(caseStages.organizationId, session.organizationId),
+          isNull(caseStages.deletedAt),
+        ),
+      )
+      .orderBy(caseStages.displayOrder);
+    return rows;
+  } catch {
+    return [];
+  }
+}
+
+export type CreateNpsCampaignInput = {
+  name: string;
+  triggerStageId: string | null;
+  delayDays: number;
+  channel: CampaignChannel;
+};
+
+export async function createNpsCampaign(
+  input: CreateNpsCampaignInput,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const session = await requireSession();
+  if (session.role !== "admin") {
+    return { ok: false, error: "Only admins can create campaigns" };
+  }
+  const name = input.name.trim();
+  if (!name) return { ok: false, error: "Name is required" };
+  if (!["email", "sms", "portal"].includes(input.channel)) {
+    return { ok: false, error: "Invalid channel" };
+  }
+  const delayDays = Number.isFinite(input.delayDays)
+    ? Math.max(0, Math.floor(input.delayDays))
+    : 0;
+
+  try {
+    const [row] = await db
+      .insert(npsCampaigns)
+      .values({
+        organizationId: session.organizationId,
+        name,
+        triggerStageId: input.triggerStageId,
+        delayDays,
+        channel: input.channel,
+        isActive: true,
+        createdBy: session.id,
+      })
+      .returning({ id: npsCampaigns.id });
+
+    await logPhiModification({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "nps_campaign",
+      entityId: row.id,
+      operation: "create",
+      action: "nps_campaign_created",
+      metadata: {
+        name,
+        triggerStageId: input.triggerStageId,
+        channel: input.channel,
+        delayDays,
+      },
+    });
+
+    revalidatePath("/admin/settings/nps-campaigns");
+    return { ok: true, id: row.id };
+  } catch (error) {
+    logger.error("createNpsCampaign failed", { error });
+    return { ok: false, error: "Failed to create campaign" };
+  }
+}
+
+export async function toggleNpsCampaign(
+  id: string,
+  isActive: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  const session = await requireSession();
+  if (session.role !== "admin") {
+    return { ok: false, error: "Only admins can modify campaigns" };
+  }
+  try {
+    const [existing] = await db
+      .select({ id: npsCampaigns.id })
+      .from(npsCampaigns)
+      .where(
+        and(
+          eq(npsCampaigns.id, id),
+          eq(npsCampaigns.organizationId, session.organizationId),
+        ),
+      )
+      .limit(1);
+    if (!existing) return { ok: false, error: "Not found" };
+
+    await db
+      .update(npsCampaigns)
+      .set({ isActive })
+      .where(eq(npsCampaigns.id, id));
+
+    await logPhiModification({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "nps_campaign",
+      entityId: id,
+      operation: "update",
+      action: isActive ? "nps_campaign_activated" : "nps_campaign_deactivated",
+      metadata: { isActive },
+    });
+
+    revalidatePath("/admin/settings/nps-campaigns");
+    return { ok: true };
+  } catch (error) {
+    logger.error("toggleNpsCampaign failed", { error });
+    return { ok: false, error: "Failed to update" };
+  }
+}
+
+export async function deleteNpsCampaign(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const session = await requireSession();
+  if (session.role !== "admin") {
+    return { ok: false, error: "Only admins can delete campaigns" };
+  }
+  try {
+    const [existing] = await db
+      .select({ id: npsCampaigns.id })
+      .from(npsCampaigns)
+      .where(
+        and(
+          eq(npsCampaigns.id, id),
+          eq(npsCampaigns.organizationId, session.organizationId),
+        ),
+      )
+      .limit(1);
+    if (!existing) return { ok: false, error: "Not found" };
+
+    await db.delete(npsCampaigns).where(eq(npsCampaigns.id, id));
+
+    await logPhiModification({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "nps_campaign",
+      entityId: id,
+      operation: "delete",
+      action: "nps_campaign_deleted",
+    });
+
+    revalidatePath("/admin/settings/nps-campaigns");
+    return { ok: true };
+  } catch (error) {
+    logger.error("deleteNpsCampaign failed", { error });
+    return { ok: false, error: "Failed to delete" };
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
+// Client survey submission (called from /portal/nps/[responseId]).
+// ───────────────────────────────────────────────────────────────
+
+function categoryForScore(score: number): NpsCategory {
+  if (score >= 9) return "promoter";
+  if (score >= 7) return "passive";
+  return "detractor";
+}
+
+export type SubmitNpsResponseResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+/**
+ * Submit a score+comment from the claimant's survey page.
+ *
+ * Guarded by `ensurePortalSession` — the caller must be the claimant whose
+ * contact_id is on the row (or a staff impersonator; impersonated submits
+ * are rejected to avoid polluting analytics with staff test clicks).
+ *
+ * Detractor rule: if score ≤ 6, an nps_action_items row is opened against
+ * the case's primary attorney (falls back to the first active assignment).
+ */
+export async function submitNpsResponse(
+  responseId: string,
+  score: number,
+  comment: string | null,
+): Promise<SubmitNpsResponseResult> {
+  const session = await ensurePortalSession();
+
+  if (!responseId) return { ok: false, error: "Missing responseId" };
+  if (!Number.isFinite(score) || score < 0 || score > 10) {
+    return { ok: false, error: "Invalid score" };
+  }
+  if (session.isImpersonating) {
+    // Don't let staff browsing the portal submit fake NPS data.
+    return { ok: false, error: "Impersonation cannot submit" };
+  }
+
+  try {
+    const [row] = await db
+      .select({
+        id: npsResponses.id,
+        organizationId: npsResponses.organizationId,
+        caseId: npsResponses.caseId,
+        contactId: npsResponses.contactId,
+        respondedAt: npsResponses.respondedAt,
+        metadata: npsResponses.metadata,
+      })
+      .from(npsResponses)
+      .where(eq(npsResponses.id, responseId))
+      .limit(1);
+
+    if (!row) return { ok: false, error: "Survey not found" };
+    if (row.contactId !== session.contact.id) {
+      return { ok: false, error: "Forbidden" };
+    }
+    if (row.respondedAt) {
+      return { ok: false, error: "Already submitted" };
+    }
+
+    const normalizedScore = Math.round(score);
+    const category = categoryForScore(normalizedScore);
+    const trimmedComment = comment?.trim() || null;
+    const now = new Date();
+
+    const existingMeta =
+      row.metadata && typeof row.metadata === "object"
+        ? (row.metadata as Record<string, unknown>)
+        : {};
+
+    await db
+      .update(npsResponses)
+      .set({
+        score: normalizedScore,
+        category,
+        comment: trimmedComment,
+        respondedAt: now,
+        // If the row was never dispatched (pure portal channel), backfill
+        // sent_at so the analytics denominator counts it correctly.
+        sentAt: sql`COALESCE(${npsResponses.sentAt}, ${now})`,
+        metadata: { ...existingMeta, submittedVia: "portal" },
+      })
+      .where(eq(npsResponses.id, responseId));
+
+    await logPhiModification({
+      organizationId: row.organizationId,
+      userId: null,
+      entityType: "nps_response",
+      entityId: responseId,
+      caseId: row.caseId ?? null,
+      operation: "update",
+      action: "nps_response_submitted",
+      metadata: {
+        score: normalizedScore,
+        category,
+        hasComment: !!trimmedComment,
+      },
+    });
+
+    // Detractor → auto-create an action item for follow-up.
+    if (category === "detractor") {
+      try {
+        let assigneeUserId: string | null = null;
+        const [primary] = await db
+          .select({
+            userId: caseAssignments.userId,
+            role: users.role,
+            isPrimary: caseAssignments.isPrimary,
+          })
+          .from(caseAssignments)
+          .leftJoin(users, eq(users.id, caseAssignments.userId))
+          .where(
+            and(
+              eq(caseAssignments.caseId, row.caseId),
+              isNull(caseAssignments.unassignedAt),
+            ),
+          )
+          .orderBy(
+            desc(caseAssignments.isPrimary),
+            sql`CASE WHEN ${users.role} = 'attorney' THEN 0 ELSE 1 END`,
+          )
+          .limit(1);
+        if (primary) {
+          assigneeUserId = primary.userId;
+        }
+
+        await db.insert(npsActionItems).values({
+          responseId: row.id,
+          status: "open",
+          assignedToUserId: assigneeUserId,
+          notes: trimmedComment
+            ? `Detractor score ${normalizedScore}. Comment: ${trimmedComment.slice(0, 500)}`
+            : `Detractor score ${normalizedScore}.`,
+        });
+      } catch (err) {
+        logger.error("submitNpsResponse: action item insert failed", {
+          responseId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        // Don't fail the submit — the score is still recorded.
+      }
+    }
+
+    await logPortalActivity("submit_nps", "nps_response", responseId, {
+      score: normalizedScore,
+      category,
+    });
+
+    return { ok: true };
+  } catch (error) {
+    logger.error("submitNpsResponse failed", {
+      responseId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return { ok: false, error: "Failed to submit" };
   }
 }

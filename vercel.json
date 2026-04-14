@@ -59,6 +59,10 @@
     {
       "path": "/api/cron/changelog-backfill",
       "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/cron/nps-dispatch",
+      "schedule": "0 10 * * *"
     }
   ]
 }

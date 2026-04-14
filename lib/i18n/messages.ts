@@ -280,6 +280,36 @@ export const messages: Record<Locale, TranslationTree> = {
             "The judge issues a decision and we help you with next steps.",
         },
       },
+      nps: {
+        banner: {
+          heading: "How are we doing?",
+          body: "Share quick feedback — it takes less than 30 seconds.",
+          cta: "Share feedback",
+          dismiss: "Dismiss",
+        },
+        survey: {
+          title: "How likely are you to recommend us?",
+          subtitle:
+            "On a scale of 0 to 10, how likely are you to recommend Hogan Smith to a friend or family member with a disability claim?",
+          scaleLowLabel: "Not at all likely",
+          scaleHighLabel: "Extremely likely",
+          commentLabel: "What's the main reason for your score? (Optional)",
+          commentPlaceholder:
+            "Tell us what we could do better or what we did well…",
+          submit: "Submit feedback",
+          submitting: "Submitting…",
+          alreadyReceived: "Thanks — we already have your feedback on this survey.",
+          alreadyReceivedBack: "Back to your case",
+          notFoundTitle: "Survey not found",
+          notFoundBody:
+            "This survey link may have expired. Please return to your case.",
+        },
+        thanks: {
+          title: "Thank you",
+          body: "Your feedback helps us improve. A member of our team will follow up if needed.",
+          back: "Back to your case",
+        },
+      },
     },
   },
 
@@ -543,6 +573,37 @@ export const messages: Record<Locale, TranslationTree> = {
           name: "Decisión",
           description:
             "El juez emite su decisión y le ayudamos con los siguientes pasos.",
+        },
+      },
+      nps: {
+        banner: {
+          heading: "¿Cómo vamos?",
+          body: "Comparta su opinión — toma menos de 30 segundos.",
+          cta: "Dejar comentarios",
+          dismiss: "Descartar",
+        },
+        survey: {
+          title: "¿Qué tan probable es que nos recomiende?",
+          subtitle:
+            "En una escala del 0 al 10, ¿qué tan probable es que recomiende a Hogan Smith a un amigo o familiar con un reclamo por incapacidad?",
+          scaleLowLabel: "Nada probable",
+          scaleHighLabel: "Sumamente probable",
+          commentLabel: "¿Cuál es la razón principal de su puntuación? (Opcional)",
+          commentPlaceholder:
+            "Cuéntenos qué podríamos hacer mejor o qué hicimos bien…",
+          submit: "Enviar comentarios",
+          submitting: "Enviando…",
+          alreadyReceived:
+            "Gracias — ya recibimos su respuesta para esta encuesta.",
+          alreadyReceivedBack: "Volver a su caso",
+          notFoundTitle: "Encuesta no encontrada",
+          notFoundBody:
+            "Este enlace de encuesta puede haber expirado. Por favor regrese a su caso.",
+        },
+        thanks: {
+          title: "Gracias",
+          body: "Sus comentarios nos ayudan a mejorar. Un miembro de nuestro equipo le contactará si es necesario.",
+          back: "Volver a su caso",
         },
       },
     },
