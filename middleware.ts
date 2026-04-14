@@ -25,6 +25,8 @@ const isPublicRoute = createRouteMatcher([
   // the `(client)` layout / auth gate so the landing explanation actually
   // renders instead of looping through ensurePortalSession.
   "/portal/paused",
+  // B3 — magic-link external collaborator surface (token-gated, not Clerk).
+  "/collab(.*)",
 ]);
 
 const isPortalRoute = createRouteMatcher(["/portal(.*)"]);
