@@ -15,7 +15,7 @@ import {
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { executeStageWorkflows } from "@/lib/workflow-engine";
-import { eq, and, isNull, desc, count, asc, sql } from "drizzle-orm";
+import { eq, and, isNull, desc, count, asc, sql, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 import {
@@ -834,4 +834,233 @@ export async function deleteLead(id: string) {
 
   logger.info("Lead deleted", { leadId: id });
   revalidatePath("/leads");
+}
+
+// ─── Intake-floor quick actions ────────────────────────────────────────
+
+/**
+ * Reason codes surfaced in the Intake Floor "Decline w/ reason" dialog.
+ * Map each to the closest LeadStatus enum value so downstream analytics
+ * (decline-reason trends in the subnav) still work. Kept module-local
+ * because this file is "use server" — only async function exports are
+ * allowed across the boundary.
+ */
+const DECLINE_REASON_TO_STATUS: Record<string, LeadStatus> = {
+  not_qualified: "disqualified",
+  not_ssdi_case: "declined_other",
+  too_late: "declined_age",
+  duplicate: "disqualified",
+  other: "declined_other",
+};
+
+/**
+ * Return the oldest still-actionable intake lead for the current org. Used by
+ * the Intake Floor subnav so quick actions (decline, welcome call) can pick a
+ * lead without forcing the user to navigate to the kanban first.
+ */
+export async function getOldestIntakeLead(): Promise<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+} | null> {
+  const session = await requireSession();
+
+  const actionableStatuses: LeadStatus[] = [
+    ...LEAD_STATUS_GROUPS.initial,
+    ...LEAD_STATUS_GROUPS.qualifying,
+    ...LEAD_STATUS_GROUPS.intake,
+  ];
+
+  const [row] = await db
+    .select({
+      id: leads.id,
+      firstName: leads.firstName,
+      lastName: leads.lastName,
+      phone: leads.phone,
+    })
+    .from(leads)
+    .where(
+      and(
+        eq(leads.organizationId, session.organizationId),
+        isNull(leads.deletedAt),
+        inArray(leads.status, actionableStatuses),
+      ),
+    )
+    .orderBy(asc(leads.createdAt))
+    .limit(1);
+
+  return row ?? null;
+}
+
+/**
+ * Decline a lead with a structured reason code + optional notes. Writes a
+ * HIPAA audit row so the decision is reconstructable. Mirrors the
+ * `logExtractionReview` shape used by AI review actions.
+ */
+export async function declineLead(
+  leadId: string,
+  reasonCode: string,
+  notes?: string,
+): Promise<{ success: boolean; message?: string }> {
+  const session = await requireSession();
+
+  const mappedStatus = DECLINE_REASON_TO_STATUS[reasonCode] ?? "declined_other";
+
+  const [existing] = await db
+    .select({
+      id: leads.id,
+      firstName: leads.firstName,
+      lastName: leads.lastName,
+      metadata: leads.metadata,
+    })
+    .from(leads)
+    .where(
+      and(
+        eq(leads.id, leadId),
+        eq(leads.organizationId, session.organizationId),
+        isNull(leads.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) {
+    return { success: false, message: "Lead not found" };
+  }
+
+  const priorMetadata =
+    (existing.metadata as Record<string, unknown> | null) ?? {};
+  const nextMetadata: Record<string, unknown> = {
+    ...priorMetadata,
+    declineReason: reasonCode,
+    declineNotes: notes ?? null,
+    declinedBy: session.id,
+    declinedAt: new Date().toISOString(),
+  };
+
+  await db
+    .update(leads)
+    .set({
+      status: mappedStatus,
+      metadata: nextMetadata,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(leads.id, leadId),
+        eq(leads.organizationId, session.organizationId),
+      ),
+    );
+
+  try {
+    await db.insert(auditLog).values({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "lead",
+      entityId: leadId,
+      action: "lead_declined",
+      metadata: {
+        category: "intake_decision",
+        severity: "warning",
+        reasonCode,
+        mappedStatus,
+        notes: notes ?? null,
+      },
+    });
+  } catch (err) {
+    logger.warn("Failed to write lead_declined audit log", { err });
+  }
+
+  logger.info("Lead declined", { leadId, reasonCode, mappedStatus });
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/dashboard");
+
+  return {
+    success: true,
+    message: `Declined ${existing.firstName} ${existing.lastName}`,
+  };
+}
+
+/**
+ * Log a welcome-call outcome against a lead. Writes an audit-log entry so the
+ * call appears on the lead's activity timeline and also bumps
+ * `lastContactedAt` so the outreach cadence is accurate.
+ */
+export async function logIntakeCall(
+  leadId: string,
+  outcome: "successful" | "no_answer",
+  durationSeconds: number,
+): Promise<{ success: boolean; message?: string }> {
+  const session = await requireSession();
+
+  const [existing] = await db
+    .select({
+      id: leads.id,
+      firstName: leads.firstName,
+      lastName: leads.lastName,
+    })
+    .from(leads)
+    .where(
+      and(
+        eq(leads.id, leadId),
+        eq(leads.organizationId, session.organizationId),
+        isNull(leads.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) {
+    return { success: false, message: "Lead not found" };
+  }
+
+  await db
+    .update(leads)
+    .set({
+      lastContactedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(leads.id, leadId),
+        eq(leads.organizationId, session.organizationId),
+      ),
+    );
+
+  try {
+    await db.insert(auditLog).values({
+      organizationId: session.organizationId,
+      userId: session.id,
+      entityType: "lead",
+      entityId: leadId,
+      action: "intake_welcome_call",
+      metadata: {
+        category: "communication",
+        severity: "info",
+        outcome,
+        durationSeconds,
+        direction: "outbound",
+        method: "phone",
+      },
+    });
+  } catch (err) {
+    logger.warn("Failed to write intake_welcome_call audit log", { err });
+  }
+
+  logger.info("Intake welcome call logged", {
+    leadId,
+    outcome,
+    durationSeconds,
+  });
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/dashboard");
+
+  return {
+    success: true,
+    message:
+      outcome === "successful"
+        ? `Logged call with ${existing.firstName} ${existing.lastName}`
+        : `Logged no-answer for ${existing.firstName} ${existing.lastName}`,
+  };
 }
