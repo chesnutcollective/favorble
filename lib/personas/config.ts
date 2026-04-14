@@ -27,7 +27,6 @@ export type PersonaId =
   | "mail_clerk"
   | "medical_records"
   | "phi_sheet_writer"
-  | "post_hearing"
   | "reviewer"
   | "fee_collection"
   | "appeals_council"
@@ -244,26 +243,6 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     },
   },
 
-  post_hearing: {
-    label: "Post-Hearing Reviewer",
-    shortLabel: "Post-Hearing",
-    defaultRoute: "/dashboard",
-    nav: [
-      "dashboard",
-      "hearings",
-      "cases",
-      "documents",
-      "reports",
-      ...UNIVERSAL_NAV,
-    ],
-    workspaceDescription:
-      "Review hearing outcome notifications, approve decisions for processing, and override AI-flagged anomalies.",
-    primaryKpi: {
-      label: "Outcomes to Review",
-      subtitle: "Pending hearing decisions + AI anomalies",
-    },
-  },
-
   reviewer: {
     label: "Reviewer",
     shortLabel: "Leadership",
@@ -396,7 +375,6 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
   "mail_clerk",
   "medical_records",
   "phi_sheet_writer",
-  "post_hearing",
   "reviewer",
   "fee_collection",
   "appeals_council",

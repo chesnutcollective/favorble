@@ -10,7 +10,6 @@ export * from "./tasks";
 export * from "./documents";
 export * from "./communications";
 export * from "./calendar";
-export * from "./hearing-outcomes";
 export * from "./audit";
 export * from "./ere";
 export * from "./document-processing";
