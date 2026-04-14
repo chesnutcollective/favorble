@@ -27,7 +27,12 @@ import {
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
-import { logPhiAccess, shouldAudit } from "@/lib/services/hipaa-audit";
+import {
+  logPhiAccess,
+  logPhiModification,
+  shouldAudit,
+} from "@/lib/services/hipaa-audit";
+import * as caseStatusClient from "@/lib/integrations/case-status";
 
 export type CaseFilters = {
   search?: string;
@@ -417,16 +422,23 @@ export async function createCase(data: {
 
 /**
  * Change a case's stage and trigger workflows.
+ *
+ * Also mirrors the new stage to the external CaseStatus "Pizza Tracker"
+ * portal when configured. External sync failures are logged but never
+ * block the local stage change.
  */
 export async function changeCaseStage(data: {
   caseId: string;
   newStageId: string;
   notes?: string;
-}) {
+}): Promise<{ externalSync: "ok" | "failed" | "skipped" }> {
   const session = await requireSession();
 
   const [currentCase] = await db
-    .select({ currentStageId: cases.currentStageId })
+    .select({
+      currentStageId: cases.currentStageId,
+      caseStatusExternalId: cases.caseStatusExternalId,
+    })
     .from(cases)
     .where(eq(cases.id, data.caseId));
 
@@ -466,9 +478,52 @@ export async function changeCaseStage(data: {
     toStageId: data.newStageId,
   });
 
+  // Mirror stage to CaseStatus portal (best-effort; never block local change).
+  let externalSync: "ok" | "failed" | "skipped" = "skipped";
+  if (
+    currentCase.caseStatusExternalId &&
+    caseStatusClient.isConfigured()
+  ) {
+    try {
+      const [newStage] = await db
+        .select({
+          stageName: caseStages.name,
+          clientVisibleName: caseStageGroups.clientVisibleName,
+          clientVisibleDescription: caseStageGroups.clientVisibleDescription,
+          groupName: caseStageGroups.name,
+        })
+        .from(caseStages)
+        .innerJoin(
+          caseStageGroups,
+          eq(caseStages.stageGroupId, caseStageGroups.id),
+        )
+        .where(eq(caseStages.id, data.newStageId))
+        .limit(1);
+
+      if (newStage) {
+        const displayName =
+          newStage.clientVisibleName ?? newStage.groupName ?? newStage.stageName;
+        const ok = await caseStatusClient.updateCaseStage(
+          currentCase.caseStatusExternalId,
+          displayName,
+          newStage.clientVisibleDescription ?? undefined,
+        );
+        externalSync = ok ? "ok" : "failed";
+      }
+    } catch (error) {
+      logger.error("CaseStatus stage sync threw", {
+        caseId: data.caseId,
+        error,
+      });
+      externalSync = "failed";
+    }
+  }
+
   revalidatePath(`/cases/${data.caseId}`);
   revalidatePath("/cases");
   revalidatePath("/queue");
+
+  return { externalSync };
 }
 
 /**
@@ -756,4 +811,212 @@ export async function revealCaseSSN(caseId: string): Promise<string | null> {
     logger.error("Failed to decrypt SSN", { caseId, error: err });
     return null;
   }
+}
+
+/**
+ * CaseStatus parity: reason codes for closing a case.
+ * These are free-form text stored in `cases.closed_reason`.
+ */
+export const CLOSE_CASE_REASONS = [
+  "won",
+  "lost",
+  "withdrawn",
+  "referred_out",
+  "other",
+] as const;
+export type CloseCaseReason = (typeof CLOSE_CASE_REASONS)[number];
+
+/** Map a CaseStatus-style close reason to the cases.status enum value. */
+function closeReasonToStatus(
+  reason: CloseCaseReason,
+): "closed_won" | "closed_lost" | "closed_withdrawn" {
+  switch (reason) {
+    case "won":
+      return "closed_won";
+    case "lost":
+      return "closed_lost";
+    case "withdrawn":
+      return "closed_withdrawn";
+    case "referred_out":
+    case "other":
+    default:
+      // No dedicated enum value for these; bucket them as withdrawn so the
+      // case leaves the active pipeline. The granular reason is preserved in
+      // `closed_reason`.
+      return "closed_withdrawn";
+  }
+}
+
+/**
+ * Close a case with a reason code and optional notes.
+ * Writes HIPAA audit trail and revalidates case detail paths.
+ */
+export async function closeCase(
+  caseId: string,
+  reason: CloseCaseReason,
+  notes?: string,
+): Promise<void> {
+  const session = await requireSession();
+
+  if (!CLOSE_CASE_REASONS.includes(reason)) {
+    throw new Error(`Invalid close reason: ${reason}`);
+  }
+
+  const [existing] = await db
+    .select({
+      id: cases.id,
+      status: cases.status,
+      closedReason: cases.closedReason,
+    })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) throw new Error("Case not found");
+
+  const newStatus = closeReasonToStatus(reason);
+  const now = new Date();
+
+  await db
+    .update(cases)
+    .set({
+      status: newStatus,
+      closedAt: now,
+      closedReason: reason,
+      // Clear any prior hold state when closing.
+      holdReason: null,
+      holdUntil: null,
+      holdBy: null,
+      updatedAt: now,
+      updatedBy: session.id,
+    })
+    .where(eq(cases.id, caseId));
+
+  await logPhiModification({
+    organizationId: session.organizationId,
+    userId: session.id,
+    entityType: "case",
+    entityId: caseId,
+    caseId,
+    operation: "update",
+    action: "case.close",
+    changes: {
+      before: { status: existing.status, closedReason: existing.closedReason },
+      after: { status: newStatus, closedReason: reason, closedAt: now },
+    },
+    metadata: {
+      closeReason: reason,
+      notes: notes ?? null,
+    },
+  });
+
+  logger.info("Case closed", {
+    caseId,
+    reason,
+    status: newStatus,
+  });
+
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath("/cases");
+  revalidatePath("/queue");
+}
+
+/**
+ * CaseStatus parity: reason codes for placing a case on hold.
+ * Stored as free-form text in `cases.hold_reason`.
+ */
+export const HOLD_CASE_REASONS = [
+  "client_unresponsive",
+  "medical_pending",
+  "awaiting_docs",
+  "other",
+] as const;
+export type HoldCaseReason = (typeof HOLD_CASE_REASONS)[number];
+
+/**
+ * Place a case on hold with a reason code, optional hold-until date, and notes.
+ * Writes HIPAA audit trail and revalidates case detail paths.
+ */
+export async function placeCaseOnHold(
+  caseId: string,
+  reason: HoldCaseReason,
+  holdUntil?: Date | null,
+  notes?: string,
+): Promise<void> {
+  const session = await requireSession();
+
+  if (!HOLD_CASE_REASONS.includes(reason)) {
+    throw new Error(`Invalid hold reason: ${reason}`);
+  }
+
+  const [existing] = await db
+    .select({
+      id: cases.id,
+      status: cases.status,
+      holdReason: cases.holdReason,
+    })
+    .from(cases)
+    .where(
+      and(
+        eq(cases.id, caseId),
+        eq(cases.organizationId, session.organizationId),
+        isNull(cases.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) throw new Error("Case not found");
+
+  const now = new Date();
+
+  await db
+    .update(cases)
+    .set({
+      status: "on_hold",
+      holdReason: reason,
+      holdUntil: holdUntil ?? null,
+      holdBy: session.id,
+      updatedAt: now,
+      updatedBy: session.id,
+    })
+    .where(eq(cases.id, caseId));
+
+  await logPhiModification({
+    organizationId: session.organizationId,
+    userId: session.id,
+    entityType: "case",
+    entityId: caseId,
+    caseId,
+    operation: "update",
+    action: "case.place_on_hold",
+    changes: {
+      before: { status: existing.status, holdReason: existing.holdReason },
+      after: {
+        status: "on_hold",
+        holdReason: reason,
+        holdUntil: holdUntil ?? null,
+      },
+    },
+    metadata: {
+      holdReason: reason,
+      holdUntil: holdUntil ? holdUntil.toISOString() : null,
+      notes: notes ?? null,
+    },
+  });
+
+  logger.info("Case placed on hold", {
+    caseId,
+    reason,
+    holdUntil: holdUntil ? holdUntil.toISOString() : null,
+  });
+
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath("/cases");
+  revalidatePath("/queue");
 }

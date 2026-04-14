@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { CaseTabNav } from "./tab-nav";
 import { CaseStageSelector } from "@/components/cases/case-stage-selector";
+import { CaseCloseDialog } from "@/components/cases/case-close-dialog";
+import { CaseHoldDialog } from "@/components/cases/case-hold-dialog";
 import { SSNDisplay } from "@/components/cases/ssn-display";
 import { decrypt, maskSSN } from "@/lib/encryption";
 
@@ -87,12 +89,16 @@ export default async function CaseDetailLayout({
                 )}
               </p>
             </div>
-            <CaseStageSelector
-              caseId={caseData.id}
-              currentStageId={caseData.currentStageId}
-              currentStageName={caseData.stageName}
-              currentStageGroupColor={caseData.stageGroupColor}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <CaseStageSelector
+                caseId={caseData.id}
+                currentStageId={caseData.currentStageId}
+                currentStageName={caseData.stageName}
+                currentStageGroupColor={caseData.stageGroupColor}
+              />
+              <CaseHoldDialog caseId={caseData.id} />
+              <CaseCloseDialog caseId={caseData.id} />
+            </div>
           </div>
 
           {/* Progress Bar */}
