@@ -8,12 +8,12 @@ import { VIEW_AS_COOKIE_NAME } from "@/lib/personas/effective-persona";
 
 const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
 
-/**
- * Cookie used to simulate a signed-out state when Clerk auth is disabled
- * (ENABLE_CLERK_AUTH !== "true"). The session loader checks for this cookie
- * and returns null rather than the default demo user.
- */
-export const DEMO_SIGNED_OUT_COOKIE = "favorble_demo_signed_out";
+// Cookie used to simulate a signed-out state when Clerk auth is disabled
+// (ENABLE_CLERK_AUTH !== "true"). The session loader at lib/auth/session.ts
+// checks for this cookie by the same name and returns null rather than the
+// default demo user. Kept as a local constant (not exported) because
+// "use server" files can only export async functions.
+const DEMO_SIGNED_OUT_COOKIE = "favorble_demo_signed_out";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
