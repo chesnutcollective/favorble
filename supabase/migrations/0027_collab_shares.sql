@@ -1,9 +1,10 @@
--- B3: External collaborator shares + scoped messaging + doc sharing.
--- Adds four tables:
---   * collab_shares            — one row per magic-link share
---   * collab_share_recipients  — recipients of a share (per-email stamps)
---   * collab_share_messages    — bi-directional message thread scoped to share
---   * document_shares          — which docs are visible under which share
+-- B3: External collaborator shares + scoped messaging.
+--
+-- Adds three new tables (collab_shares, collab_share_recipients,
+-- collab_share_messages) and extends the existing document_shares table
+-- (created in migration 0024 for Phase 4 client portal) with a
+-- collab_share_id column so the same join-table can scope docs to either
+-- a portal contact OR an external collaborator.
 --
 -- Security:
 --   - Tokens are handed out as 32-byte hex values via magic link; only the
@@ -11,7 +12,11 @@
 --   - `expires_at` is required; `revoked_at` captures explicit revocation.
 --     The public route MUST enforce both.
 
-CREATE TABLE "collab_shares" (
+-- ─────────────────────────────────────────────────────────────
+-- collab_shares
+-- ─────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "collab_shares" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"organization_id" uuid NOT NULL,
 	"case_id" uuid NOT NULL,
@@ -25,7 +30,37 @@ CREATE TABLE "collab_shares" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "collab_share_recipients" (
+
+DO $$ BEGIN
+  ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_organization_id_organizations_id_fk"
+    FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_case_id_cases_id_fk"
+    FOREIGN KEY ("case_id") REFERENCES "public"."cases"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_revoked_by_users_id_fk"
+    FOREIGN KEY ("revoked_by") REFERENCES "public"."users"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_created_by_users_id_fk"
+    FOREIGN KEY ("created_by") REFERENCES "public"."users"("id");
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+
+CREATE INDEX IF NOT EXISTS "idx_collab_shares_case" ON "collab_shares" USING btree ("case_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_collab_shares_token_hash" ON "collab_shares" USING btree ("token_hash");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_collab_shares_active" ON "collab_shares" USING btree ("case_id") WHERE "revoked_at" IS NULL;--> statement-breakpoint
+
+-- ─────────────────────────────────────────────────────────────
+-- collab_share_recipients
+-- ─────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "collab_share_recipients" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"share_id" uuid NOT NULL,
 	"email" text NOT NULL,
@@ -36,7 +71,19 @@ CREATE TABLE "collab_share_recipients" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "collab_share_messages" (
+DO $$ BEGIN
+  ALTER TABLE "collab_share_recipients" ADD CONSTRAINT "collab_share_recipients_share_id_collab_shares_id_fk"
+    FOREIGN KEY ("share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_collab_recipients_share" ON "collab_share_recipients" USING btree ("share_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_collab_recipients_email" ON "collab_share_recipients" USING btree ("email");--> statement-breakpoint
+
+-- ─────────────────────────────────────────────────────────────
+-- collab_share_messages
+-- ─────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "collab_share_messages" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"share_id" uuid NOT NULL,
 	"from_email" text NOT NULL,
@@ -46,37 +93,32 @@ CREATE TABLE "collab_share_messages" (
 	"read_by_firm_at" timestamp with time zone
 );
 --> statement-breakpoint
-CREATE TABLE "document_shares" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"organization_id" uuid NOT NULL,
-	"document_id" uuid NOT NULL,
-	"case_id" uuid NOT NULL,
-	"collab_share_id" uuid,
-	"shared_with_contact_id" uuid,
-	"created_by" uuid,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"revoked_at" timestamp with time zone
-);
+DO $$ BEGIN
+  ALTER TABLE "collab_share_messages" ADD CONSTRAINT "collab_share_messages_share_id_collab_shares_id_fk"
+    FOREIGN KEY ("share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 --> statement-breakpoint
-ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_case_id_cases_id_fk" FOREIGN KEY ("case_id") REFERENCES "public"."cases"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_revoked_by_users_id_fk" FOREIGN KEY ("revoked_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collab_shares" ADD CONSTRAINT "collab_shares_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collab_share_recipients" ADD CONSTRAINT "collab_share_recipients_share_id_collab_shares_id_fk" FOREIGN KEY ("share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "collab_share_messages" ADD CONSTRAINT "collab_share_messages_share_id_collab_shares_id_fk" FOREIGN KEY ("share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_case_id_cases_id_fk" FOREIGN KEY ("case_id") REFERENCES "public"."cases"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_collab_share_id_collab_shares_id_fk" FOREIGN KEY ("collab_share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "idx_collab_shares_case" ON "collab_shares" USING btree ("case_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "idx_collab_shares_token_hash" ON "collab_shares" USING btree ("token_hash");--> statement-breakpoint
-CREATE INDEX "idx_collab_shares_active" ON "collab_shares" USING btree ("case_id") WHERE "revoked_at" IS NULL;--> statement-breakpoint
-CREATE INDEX "idx_collab_recipients_share" ON "collab_share_recipients" USING btree ("share_id");--> statement-breakpoint
-CREATE INDEX "idx_collab_recipients_email" ON "collab_share_recipients" USING btree ("email");--> statement-breakpoint
-CREATE INDEX "idx_collab_messages_share" ON "collab_share_messages" USING btree ("share_id");--> statement-breakpoint
-CREATE INDEX "idx_collab_messages_share_created" ON "collab_share_messages" USING btree ("share_id","created_at");--> statement-breakpoint
-CREATE INDEX "idx_doc_shares_doc" ON "document_shares" USING btree ("document_id");--> statement-breakpoint
-CREATE INDEX "idx_doc_shares_case" ON "document_shares" USING btree ("case_id");--> statement-breakpoint
-CREATE INDEX "idx_doc_shares_collab" ON "document_shares" USING btree ("collab_share_id");--> statement-breakpoint
-CREATE INDEX "idx_doc_shares_contact" ON "document_shares" USING btree ("shared_with_contact_id");
+CREATE INDEX IF NOT EXISTS "idx_collab_messages_share" ON "collab_share_messages" USING btree ("share_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_collab_messages_share_created" ON "collab_share_messages" USING btree ("share_id","created_at");--> statement-breakpoint
+
+-- ─────────────────────────────────────────────────────────────
+-- document_shares — extend Phase 4 table with collab_share_id column.
+-- Phase 4 (migration 0024) made shared_with_contact_id NOT NULL; we relax
+-- that here so a row can be scoped to a collab share instead. Application
+-- layer enforces "exactly one of contact / collab_share is set".
+-- ─────────────────────────────────────────────────────────────
+
+ALTER TABLE "document_shares"
+  ADD COLUMN IF NOT EXISTS "collab_share_id" uuid;
+--> statement-breakpoint
+ALTER TABLE "document_shares"
+  ALTER COLUMN "shared_with_contact_id" DROP NOT NULL;
+--> statement-breakpoint
+
+DO $$ BEGIN
+  ALTER TABLE "document_shares" ADD CONSTRAINT "document_shares_collab_share_id_collab_shares_id_fk"
+    FOREIGN KEY ("collab_share_id") REFERENCES "public"."collab_shares"("id") ON DELETE cascade;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+
+CREATE INDEX IF NOT EXISTS "idx_doc_shares_collab" ON "document_shares" USING btree ("collab_share_id");

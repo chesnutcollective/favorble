@@ -10,7 +10,6 @@ import { sql } from "drizzle-orm";
 import { organizations } from "./organizations";
 import { users } from "./users";
 import { cases } from "./cases";
-import { documents } from "./documents";
 
 /**
  * External collaborator shares — scoped, magic-link-backed access for third
@@ -112,45 +111,7 @@ export const collabShareMessages = pgTable(
   ],
 );
 
-/**
- * Document shares — join table for expressing "which docs are visible on
- * which share mechanism". Phase 4 will grow this table; for now, collab
- * shares use `collabShareId` to scope access to one external party.
- *
- * Exactly one of the share-target columns should be set on any row. The
- * `sharedWithContactId` column is reserved for the Phase 4 client-portal
- * use case and left untyped (no FK) so Phase 4 can wire it to the right
- * table without touching this migration.
- */
-export const documentShares = pgTable(
-  "document_shares",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    organizationId: uuid("organization_id")
-      .notNull()
-      .references(() => organizations.id),
-    documentId: uuid("document_id")
-      .notNull()
-      .references(() => documents.id, { onDelete: "cascade" }),
-    caseId: uuid("case_id")
-      .notNull()
-      .references(() => cases.id),
-    /** Collab share this document row is scoped to (external collaborator). */
-    collabShareId: uuid("collab_share_id").references(() => collabShares.id, {
-      onDelete: "cascade",
-    }),
-    /** Reserved for Phase 4 client-portal use. */
-    sharedWithContactId: uuid("shared_with_contact_id"),
-    createdBy: uuid("created_by").references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    revokedAt: timestamp("revoked_at", { withTimezone: true }),
-  },
-  (table) => [
-    index("idx_doc_shares_doc").on(table.documentId),
-    index("idx_doc_shares_case").on(table.caseId),
-    index("idx_doc_shares_collab").on(table.collabShareId),
-    index("idx_doc_shares_contact").on(table.sharedWithContactId),
-  ],
-);
+// `documentShares` is declared in db/schema/document-shares.ts (Phase 4).
+// B3 extends it with a `collabShareId` column via migration 0027 — see the
+// canonical schema for the typed surface used by both Phase 4 portal sharing
+// and B3 collaborator scoping.

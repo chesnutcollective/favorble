@@ -261,7 +261,9 @@ export async function revokeDocumentShare(
 export type DocumentShareSummary = {
   id: string;
   documentId: string;
-  sharedWithContactId: string;
+  // Nullable since B3 introduced collab-share-scoped rows that omit
+  // sharedWithContactId. Phase 4 portal shares always set it.
+  sharedWithContactId: string | null;
   sharedWithName: string | null;
   canDownload: boolean;
   expiresAt: string | null;

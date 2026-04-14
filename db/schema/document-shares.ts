@@ -12,6 +12,7 @@ import { contacts } from "./contacts";
 import { documents } from "./documents";
 import { users } from "./users";
 import { portalUsers } from "./portal";
+import { collabShares } from "./collab-shares";
 
 /**
  * E4 (Wave 2): Client document sharing.
@@ -41,9 +42,22 @@ export const documentShares = pgTable(
     caseId: uuid("case_id")
       .notNull()
       .references(() => cases.id),
-    sharedWithContactId: uuid("shared_with_contact_id")
-      .notNull()
-      .references(() => contacts.id),
+    /**
+     * Phase 4: client-portal sharing (claimant contact). Required when the
+     * row scopes a doc to a portal user. Nullable so B3 collaborator-scoped
+     * rows can omit it.
+     */
+    sharedWithContactId: uuid("shared_with_contact_id").references(
+      () => contacts.id,
+    ),
+    /**
+     * B3: external collaborator sharing — when set, the row scopes a doc to
+     * a magic-link share rather than a portal contact. Exactly one of
+     * `sharedWithContactId` / `collabShareId` should be set per row.
+     */
+    collabShareId: uuid("collab_share_id").references(() => collabShares.id, {
+      onDelete: "cascade",
+    }),
     /**
      * Nullable: a share can exist before the claimant accepts their invite.
      * The portal list query primarily filters by sharedWithContactId so this
@@ -65,6 +79,7 @@ export const documentShares = pgTable(
     index("idx_document_shares_contact").on(table.sharedWithContactId),
     index("idx_document_shares_case").on(table.caseId),
     index("idx_document_shares_org").on(table.organizationId),
+    index("idx_doc_shares_collab").on(table.collabShareId),
     // The partial index (WHERE revoked_at IS NULL) is declared in the raw SQL
     // migration — Drizzle can't express partial indexes in the schema DSL
     // without losing clarity, so we let the migration be the source of truth

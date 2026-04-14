@@ -309,7 +309,7 @@ async function main() {
     .from(schema.npsResponses)
     .where(eq(schema.npsResponses.organizationId, organizationId));
 
-  let insertedNps: { id: string; category: string; contactId: string }[] = [];
+  let insertedNps: { id: string; category: string | null; contactId: string }[] = [];
 
   if ((existingNps[0]?.c ?? 0) >= 8) {
     console.log(`  skip: already has ${existingNps[0]?.c} responses`);
