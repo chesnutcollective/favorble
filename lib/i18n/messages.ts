@@ -77,7 +77,8 @@ export const messages: Record<Locale, TranslationTree> = {
         dateOfBirth: "Date of birth",
         dateOfBirthHelp: "MM/DD/YYYY",
         ssnLast4: "Last 4 digits of Social Security Number",
-        ssnLast4Help: "Used to look up your SSA records. Your full SSN is never required.",
+        ssnLast4Help:
+          "Used to look up your SSA records. Your full SSN is never required.",
         email: "Email address",
         phone: "Phone number",
         phoneHelp: "Best number to reach you during business hours",
@@ -92,8 +93,7 @@ export const messages: Record<Locale, TranslationTree> = {
       },
       step2: {
         title: "About Your Disability",
-        description:
-          "Help us understand what is keeping you from working.",
+        description: "Help us understand what is keeping you from working.",
         disabilityStartDate: "When did your disability begin?",
         disabilityStartDateHelp:
           "Enter the approximate date you could no longer work due to your health.",
@@ -124,7 +124,8 @@ export const messages: Record<Locale, TranslationTree> = {
         providerCity: "City",
         providerLastVisit: "Approximate date of last visit",
         noProvidersYet: "No providers added yet.",
-        providerHelp: "Add at least one provider if you have received medical care.",
+        providerHelp:
+          "Add at least one provider if you have received medical care.",
       },
       step4: {
         title: "Work History",
@@ -241,8 +242,7 @@ export const messages: Record<Locale, TranslationTree> = {
       },
       step2: {
         title: "Sobre su Incapacidad",
-        description:
-          "Ayúdenos a entender qué le impide trabajar.",
+        description: "Ayúdenos a entender qué le impide trabajar.",
         disabilityStartDate: "¿Cuándo comenzó su incapacidad?",
         disabilityStartDateHelp:
           "Ingrese la fecha aproximada en la que ya no pudo trabajar debido a su salud.",
@@ -288,8 +288,7 @@ export const messages: Record<Locale, TranslationTree> = {
         endDate: "Fecha de finalización",
         currentJob: "Todavía trabajo aquí",
         duties: "Tareas principales",
-        dutiesPlaceholder:
-          "Describa brevemente lo que hacía en un día típico",
+        dutiesPlaceholder: "Describa brevemente lo que hacía en un día típico",
         noJobsYet: "Aún no ha agregado ningún trabajo.",
       },
       step5: {

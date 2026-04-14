@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { usePathname } from "next/navigation";
 import {
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -29,16 +30,17 @@ export function ViewAsMenu({
   isViewingAs: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
 
   const handleSelect = (personaId: string) => {
     startTransition(() => {
-      void setViewAsPersona(personaId);
+      void setViewAsPersona(personaId, pathname);
     });
   };
 
   const handleExit = () => {
     startTransition(() => {
-      void exitViewAs();
+      void exitViewAs(pathname);
     });
   };
 

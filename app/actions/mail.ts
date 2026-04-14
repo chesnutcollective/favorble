@@ -10,16 +10,7 @@ import {
   outboundMail,
 } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  ilike,
-  isNull,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 

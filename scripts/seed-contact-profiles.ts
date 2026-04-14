@@ -106,9 +106,7 @@ async function main() {
     where: eq(schema.auditLog.action, SEED_MARKER),
   });
   if (markerCheck) {
-    console.log(
-      "\nContact profile seed already ran (found marker). Skipping.",
-    );
+    console.log("\nContact profile seed already ran (found marker). Skipping.");
     console.log("To re-seed, delete the marker from audit_log.");
     await client.end();
     return;
@@ -185,7 +183,10 @@ async function main() {
   for (let i = 0; i < attorneys.length; i++) {
     const attorney = attorneys[i];
     if ((contactToCases.get(attorney.id) || []).length > 0) continue;
-    const casesToLink = [casePool[i % casePool.length], casePool[(i + 5) % casePool.length]];
+    const casesToLink = [
+      casePool[i % casePool.length],
+      casePool[(i + 5) % casePool.length],
+    ];
     for (const c of casesToLink) {
       try {
         await db.insert(schema.caseContacts).values({
@@ -305,7 +306,8 @@ async function main() {
   for (const claimant of targetClaimants) {
     const caseId = getCaseForContact(claimant.id);
     const claimantName = `${claimant.firstName} ${claimant.lastName}`;
-    const claimantEmail = claimant.email || `${claimant.firstName.toLowerCase()}@email.com`;
+    const claimantEmail =
+      claimant.email || `${claimant.firstName.toLowerCase()}@email.com`;
 
     // Communications (3-5 per claimant)
     const claimantComms = [
@@ -453,138 +455,307 @@ async function main() {
   let medChronCreated = 0;
   let providerEventsCreated = 0;
 
-  const providerSpecialties: Record<string, { providerType: string; facilityName: string }> = {
-    "Mitchell": { providerType: "Primary Care Physician", facilityName: "Southeast Family Medicine" },
-    "Chang": { providerType: "Orthopedic Surgeon", facilityName: "Alabama Orthopedic Associates" },
-    "Gonzalez": { providerType: "Psychiatrist", facilityName: "Birmingham Behavioral Health Center" },
-    "Patel": { providerType: "Neurologist", facilityName: "Southern Neurology Institute" },
-    "Freeman": { providerType: "Pain Management Specialist", facilityName: "Advanced Pain Solutions" },
+  const providerSpecialties: Record<
+    string,
+    { providerType: string; facilityName: string }
+  > = {
+    Mitchell: {
+      providerType: "Primary Care Physician",
+      facilityName: "Southeast Family Medicine",
+    },
+    Chang: {
+      providerType: "Orthopedic Surgeon",
+      facilityName: "Alabama Orthopedic Associates",
+    },
+    Gonzalez: {
+      providerType: "Psychiatrist",
+      facilityName: "Birmingham Behavioral Health Center",
+    },
+    Patel: {
+      providerType: "Neurologist",
+      facilityName: "Southern Neurology Institute",
+    },
+    Freeman: {
+      providerType: "Pain Management Specialist",
+      facilityName: "Advanced Pain Solutions",
+    },
   };
 
-  const medChronTemplates: Record<string, Array<{
-    entryType: "office_visit" | "lab_result" | "imaging" | "prescription" | "diagnosis" | "mental_health" | "physical_therapy";
-    summary: string;
-    details: string;
-    diagnoses: string[];
-    treatments: string[];
-    medications: string[];
-  }>> = {
-    "Mitchell": [
+  const medChronTemplates: Record<
+    string,
+    Array<{
+      entryType:
+        | "office_visit"
+        | "lab_result"
+        | "imaging"
+        | "prescription"
+        | "diagnosis"
+        | "mental_health"
+        | "physical_therapy";
+      summary: string;
+      details: string;
+      diagnoses: string[];
+      treatments: string[];
+      medications: string[];
+    }>
+  > = {
+    Mitchell: [
       {
         entryType: "office_visit",
-        summary: "Patient presents with chronic lower back pain radiating to left leg, worsening over past 3 months",
-        details: "Patient reports inability to sit for more than 20 minutes or stand for more than 15 minutes. Pain rated 7/10 on VAS scale. Positive straight leg raise test bilaterally. Decreased range of motion in lumbar spine. Referred for MRI and orthopedic consultation.",
-        diagnoses: ["M54.5 - Low back pain", "M54.41 - Lumbago with sciatica, left side", "G89.29 - Other chronic pain"],
-        treatments: ["Physical therapy referral", "Orthopedic consultation referral", "Activity modification counseling"],
-        medications: ["Gabapentin 300mg TID", "Meloxicam 15mg daily", "Cyclobenzaprine 10mg at bedtime"],
+        summary:
+          "Patient presents with chronic lower back pain radiating to left leg, worsening over past 3 months",
+        details:
+          "Patient reports inability to sit for more than 20 minutes or stand for more than 15 minutes. Pain rated 7/10 on VAS scale. Positive straight leg raise test bilaterally. Decreased range of motion in lumbar spine. Referred for MRI and orthopedic consultation.",
+        diagnoses: [
+          "M54.5 - Low back pain",
+          "M54.41 - Lumbago with sciatica, left side",
+          "G89.29 - Other chronic pain",
+        ],
+        treatments: [
+          "Physical therapy referral",
+          "Orthopedic consultation referral",
+          "Activity modification counseling",
+        ],
+        medications: [
+          "Gabapentin 300mg TID",
+          "Meloxicam 15mg daily",
+          "Cyclobenzaprine 10mg at bedtime",
+        ],
       },
       {
         entryType: "lab_result",
-        summary: "Comprehensive metabolic panel and CBC with differential - results within normal limits",
-        details: "All values within reference ranges. Glucose 95 mg/dL, BUN 14, Creatinine 0.9, AST 22, ALT 19. CBC unremarkable. No signs of infection or metabolic disorder. Continue current medication regimen.",
+        summary:
+          "Comprehensive metabolic panel and CBC with differential - results within normal limits",
+        details:
+          "All values within reference ranges. Glucose 95 mg/dL, BUN 14, Creatinine 0.9, AST 22, ALT 19. CBC unremarkable. No signs of infection or metabolic disorder. Continue current medication regimen.",
         diagnoses: ["Z00.00 - Encounter for general adult medical examination"],
-        treatments: ["Continue current medication regimen", "Follow-up in 3 months"],
+        treatments: [
+          "Continue current medication regimen",
+          "Follow-up in 3 months",
+        ],
         medications: [],
       },
       {
         entryType: "office_visit",
-        summary: "Follow-up visit for chronic pain management and medication review",
-        details: "Patient reports medications are providing moderate relief. Pain reduced from 7/10 to 5/10. Still has difficulty with prolonged sitting and standing. MRI results reviewed showing disc herniation at L4-L5. Discussion of treatment options including epidural steroid injections.",
-        diagnoses: ["M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region", "M54.5 - Low back pain"],
-        treatments: ["Epidural steroid injection referral", "Continue physical therapy"],
-        medications: ["Gabapentin increased to 400mg TID", "Meloxicam 15mg daily", "Lidocaine patches PRN"],
+        summary:
+          "Follow-up visit for chronic pain management and medication review",
+        details:
+          "Patient reports medications are providing moderate relief. Pain reduced from 7/10 to 5/10. Still has difficulty with prolonged sitting and standing. MRI results reviewed showing disc herniation at L4-L5. Discussion of treatment options including epidural steroid injections.",
+        diagnoses: [
+          "M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region",
+          "M54.5 - Low back pain",
+        ],
+        treatments: [
+          "Epidural steroid injection referral",
+          "Continue physical therapy",
+        ],
+        medications: [
+          "Gabapentin increased to 400mg TID",
+          "Meloxicam 15mg daily",
+          "Lidocaine patches PRN",
+        ],
       },
       {
         entryType: "prescription",
         summary: "New prescription for tramadol for breakthrough pain episodes",
-        details: "Patient experiencing breakthrough pain not adequately controlled by current regimen. Prescribed tramadol 50mg for use during acute flare-ups. Discussed risks, side effects, and importance of not driving while taking this medication. Patient understands and agrees to treatment plan.",
+        details:
+          "Patient experiencing breakthrough pain not adequately controlled by current regimen. Prescribed tramadol 50mg for use during acute flare-ups. Discussed risks, side effects, and importance of not driving while taking this medication. Patient understands and agrees to treatment plan.",
         diagnoses: ["M54.5 - Low back pain", "G89.29 - Other chronic pain"],
         treatments: ["Medication adjustment"],
-        medications: ["Tramadol 50mg PRN (max 200mg/day)", "Gabapentin 400mg TID", "Meloxicam 15mg daily"],
+        medications: [
+          "Tramadol 50mg PRN (max 200mg/day)",
+          "Gabapentin 400mg TID",
+          "Meloxicam 15mg daily",
+        ],
       },
       {
         entryType: "office_visit",
-        summary: "Quarterly follow-up - functional limitations assessment for disability documentation",
-        details: "Patient continues to experience significant functional limitations. Unable to lift more than 10 pounds. Cannot sit for more than 30 minutes or stand for more than 20 minutes without position changes. Has difficulty with bending, stooping, and twisting. Compliant with all treatment recommendations. RFC form completed for attorney.",
-        diagnoses: ["M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region", "M54.5 - Low back pain", "G89.29 - Other chronic pain"],
-        treatments: ["Continue current treatment plan", "RFC form completed", "Follow-up in 3 months"],
-        medications: ["Gabapentin 400mg TID", "Meloxicam 15mg daily", "Tramadol 50mg PRN", "Lidocaine patches PRN"],
+        summary:
+          "Quarterly follow-up - functional limitations assessment for disability documentation",
+        details:
+          "Patient continues to experience significant functional limitations. Unable to lift more than 10 pounds. Cannot sit for more than 30 minutes or stand for more than 20 minutes without position changes. Has difficulty with bending, stooping, and twisting. Compliant with all treatment recommendations. RFC form completed for attorney.",
+        diagnoses: [
+          "M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region",
+          "M54.5 - Low back pain",
+          "G89.29 - Other chronic pain",
+        ],
+        treatments: [
+          "Continue current treatment plan",
+          "RFC form completed",
+          "Follow-up in 3 months",
+        ],
+        medications: [
+          "Gabapentin 400mg TID",
+          "Meloxicam 15mg daily",
+          "Tramadol 50mg PRN",
+          "Lidocaine patches PRN",
+        ],
       },
     ],
-    "Chang": [
+    Chang: [
       {
         entryType: "office_visit",
-        summary: "Initial orthopedic consultation for chronic lower back pain with radiculopathy",
-        details: "Referred by Dr. Mitchell for evaluation. Physical examination reveals limited range of motion in lumbar spine, positive Lasegue sign on the left. Neurological exam shows decreased sensation in L5 distribution. Reviewed MRI showing L4-L5 disc herniation with nerve root compression.",
-        diagnoses: ["M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region", "M51.06 - Disc herniation, lumbar region"],
-        treatments: ["Epidural steroid injection series recommended", "Surgical consultation if conservative treatment fails"],
+        summary:
+          "Initial orthopedic consultation for chronic lower back pain with radiculopathy",
+        details:
+          "Referred by Dr. Mitchell for evaluation. Physical examination reveals limited range of motion in lumbar spine, positive Lasegue sign on the left. Neurological exam shows decreased sensation in L5 distribution. Reviewed MRI showing L4-L5 disc herniation with nerve root compression.",
+        diagnoses: [
+          "M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region",
+          "M51.06 - Disc herniation, lumbar region",
+        ],
+        treatments: [
+          "Epidural steroid injection series recommended",
+          "Surgical consultation if conservative treatment fails",
+        ],
         medications: [],
       },
       {
         entryType: "imaging",
-        summary: "MRI of lumbar spine shows L4-L5 disc herniation with moderate central canal stenosis",
-        details: "MRI Lumbar Spine without contrast: L4-L5 level shows a broad-based disc protrusion with left paracentral component causing moderate central canal stenosis and left lateral recess narrowing. The left L5 nerve root appears compressed. L5-S1 shows mild disc bulge without significant stenosis. No evidence of fracture or tumor. Marrow signal is normal.",
-        diagnoses: ["M51.06 - Disc herniation, lumbar region", "M48.06 - Spinal stenosis, lumbar region"],
-        treatments: ["Correlate clinically", "Consider epidural steroid injections"],
+        summary:
+          "MRI of lumbar spine shows L4-L5 disc herniation with moderate central canal stenosis",
+        details:
+          "MRI Lumbar Spine without contrast: L4-L5 level shows a broad-based disc protrusion with left paracentral component causing moderate central canal stenosis and left lateral recess narrowing. The left L5 nerve root appears compressed. L5-S1 shows mild disc bulge without significant stenosis. No evidence of fracture or tumor. Marrow signal is normal.",
+        diagnoses: [
+          "M51.06 - Disc herniation, lumbar region",
+          "M48.06 - Spinal stenosis, lumbar region",
+        ],
+        treatments: [
+          "Correlate clinically",
+          "Consider epidural steroid injections",
+        ],
         medications: [],
       },
       {
         entryType: "office_visit",
-        summary: "Post-injection follow-up - partial improvement after first epidural steroid injection",
-        details: "Patient received first lumbar epidural steroid injection 2 weeks ago. Reports approximately 40% improvement in radicular symptoms. Still experiencing axial low back pain. Recommends second injection in the series. If no further improvement, may need to discuss surgical options including microdiscectomy.",
-        diagnoses: ["M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region"],
-        treatments: ["Second epidural steroid injection scheduled", "Continue physical therapy", "Work restrictions: no lifting over 10 lbs"],
+        summary:
+          "Post-injection follow-up - partial improvement after first epidural steroid injection",
+        details:
+          "Patient received first lumbar epidural steroid injection 2 weeks ago. Reports approximately 40% improvement in radicular symptoms. Still experiencing axial low back pain. Recommends second injection in the series. If no further improvement, may need to discuss surgical options including microdiscectomy.",
+        diagnoses: [
+          "M51.16 - Intervertebral disc disorders with radiculopathy, lumbar region",
+        ],
+        treatments: [
+          "Second epidural steroid injection scheduled",
+          "Continue physical therapy",
+          "Work restrictions: no lifting over 10 lbs",
+        ],
         medications: ["Meloxicam 15mg daily"],
       },
       {
         entryType: "imaging",
         summary: "X-ray bilateral knees showing moderate degenerative changes",
-        details: "Standing AP and lateral views of bilateral knees: Moderate narrowing of the medial joint space bilaterally, right greater than left. Small osteophyte formation at the tibial spines and femoral condyles bilaterally. No acute fracture or dislocation. Patellofemoral joints show mild changes. Soft tissues unremarkable.",
+        details:
+          "Standing AP and lateral views of bilateral knees: Moderate narrowing of the medial joint space bilaterally, right greater than left. Small osteophyte formation at the tibial spines and femoral condyles bilaterally. No acute fracture or dislocation. Patellofemoral joints show mild changes. Soft tissues unremarkable.",
         diagnoses: ["M17.0 - Bilateral primary osteoarthritis of knee"],
-        treatments: ["Consider corticosteroid injections", "Knee braces recommended"],
+        treatments: [
+          "Consider corticosteroid injections",
+          "Knee braces recommended",
+        ],
         medications: [],
       },
     ],
-    "Gonzalez": [
+    Gonzalez: [
       {
         entryType: "mental_health",
-        summary: "Initial psychiatric evaluation - major depressive disorder with anxiety features",
-        details: "Patient presents with persistent depressed mood, anhedonia, insomnia, poor concentration, and feelings of worthlessness for approximately 8 months. PHQ-9 score: 19 (moderately severe). GAD-7 score: 14 (moderate). History of trauma related to workplace injury. Reports difficulty with daily activities, social withdrawal, and inability to maintain employment. No active suicidal ideation.",
-        diagnoses: ["F33.1 - Major depressive disorder, recurrent, moderate", "F41.1 - Generalized anxiety disorder", "F43.10 - Post-traumatic stress disorder, unspecified"],
-        treatments: ["Psychotherapy referral - CBT recommended", "Medication management initiated", "Follow-up in 4 weeks"],
-        medications: ["Sertraline 50mg daily", "Hydroxyzine 25mg PRN for anxiety"],
+        summary:
+          "Initial psychiatric evaluation - major depressive disorder with anxiety features",
+        details:
+          "Patient presents with persistent depressed mood, anhedonia, insomnia, poor concentration, and feelings of worthlessness for approximately 8 months. PHQ-9 score: 19 (moderately severe). GAD-7 score: 14 (moderate). History of trauma related to workplace injury. Reports difficulty with daily activities, social withdrawal, and inability to maintain employment. No active suicidal ideation.",
+        diagnoses: [
+          "F33.1 - Major depressive disorder, recurrent, moderate",
+          "F41.1 - Generalized anxiety disorder",
+          "F43.10 - Post-traumatic stress disorder, unspecified",
+        ],
+        treatments: [
+          "Psychotherapy referral - CBT recommended",
+          "Medication management initiated",
+          "Follow-up in 4 weeks",
+        ],
+        medications: [
+          "Sertraline 50mg daily",
+          "Hydroxyzine 25mg PRN for anxiety",
+        ],
       },
       {
         entryType: "mental_health",
-        summary: "Follow-up psychiatric visit - medication adjustment, partial response to sertraline",
-        details: "Patient reports some improvement in mood since starting sertraline. PHQ-9 score decreased to 15. Sleep still significantly disrupted. Anxiety episodes occurring 3-4 times per week. Started CBT with therapist. Tolerating medication without significant side effects. Increasing sertraline dose.",
-        diagnoses: ["F33.1 - Major depressive disorder, recurrent, moderate", "F41.1 - Generalized anxiety disorder"],
-        treatments: ["Continue CBT weekly", "Medication dose increase", "Sleep hygiene counseling"],
-        medications: ["Sertraline increased to 100mg daily", "Hydroxyzine 25mg PRN", "Trazodone 50mg at bedtime for insomnia"],
+        summary:
+          "Follow-up psychiatric visit - medication adjustment, partial response to sertraline",
+        details:
+          "Patient reports some improvement in mood since starting sertraline. PHQ-9 score decreased to 15. Sleep still significantly disrupted. Anxiety episodes occurring 3-4 times per week. Started CBT with therapist. Tolerating medication without significant side effects. Increasing sertraline dose.",
+        diagnoses: [
+          "F33.1 - Major depressive disorder, recurrent, moderate",
+          "F41.1 - Generalized anxiety disorder",
+        ],
+        treatments: [
+          "Continue CBT weekly",
+          "Medication dose increase",
+          "Sleep hygiene counseling",
+        ],
+        medications: [
+          "Sertraline increased to 100mg daily",
+          "Hydroxyzine 25mg PRN",
+          "Trazodone 50mg at bedtime for insomnia",
+        ],
       },
       {
         entryType: "mental_health",
-        summary: "Psychiatric follow-up - functional capacity assessment for disability claim",
-        details: "Patient has been in treatment for 6 months. While mood has partially improved (PHQ-9: 12), significant functional limitations persist. Patient has marked difficulty with concentration and task persistence. Social functioning remains impaired. Cannot handle normal work stress. Frequently misses appointments due to anxiety about leaving home. Mental Residual Functional Capacity form completed.",
-        diagnoses: ["F33.1 - Major depressive disorder, recurrent, moderate", "F41.1 - Generalized anxiety disorder", "F43.10 - Post-traumatic stress disorder"],
-        treatments: ["Continue current treatment", "MRFC completed for attorney", "Consider adding buspirone"],
-        medications: ["Sertraline 100mg daily", "Trazodone 50mg at bedtime", "Hydroxyzine 25mg PRN"],
+        summary:
+          "Psychiatric follow-up - functional capacity assessment for disability claim",
+        details:
+          "Patient has been in treatment for 6 months. While mood has partially improved (PHQ-9: 12), significant functional limitations persist. Patient has marked difficulty with concentration and task persistence. Social functioning remains impaired. Cannot handle normal work stress. Frequently misses appointments due to anxiety about leaving home. Mental Residual Functional Capacity form completed.",
+        diagnoses: [
+          "F33.1 - Major depressive disorder, recurrent, moderate",
+          "F41.1 - Generalized anxiety disorder",
+          "F43.10 - Post-traumatic stress disorder",
+        ],
+        treatments: [
+          "Continue current treatment",
+          "MRFC completed for attorney",
+          "Consider adding buspirone",
+        ],
+        medications: [
+          "Sertraline 100mg daily",
+          "Trazodone 50mg at bedtime",
+          "Hydroxyzine 25mg PRN",
+        ],
       },
       {
         entryType: "prescription",
-        summary: "Prescription update - adding buspirone for persistent anxiety symptoms",
-        details: "Anxiety symptoms remain significant despite sertraline and hydroxyzine. Adding buspirone for long-term anxiety management. Reviewed potential interactions. Patient educated on gradual onset of effect (2-4 weeks). Continue all other medications as prescribed.",
+        summary:
+          "Prescription update - adding buspirone for persistent anxiety symptoms",
+        details:
+          "Anxiety symptoms remain significant despite sertraline and hydroxyzine. Adding buspirone for long-term anxiety management. Reviewed potential interactions. Patient educated on gradual onset of effect (2-4 weeks). Continue all other medications as prescribed.",
         diagnoses: ["F41.1 - Generalized anxiety disorder"],
         treatments: ["Medication augmentation"],
-        medications: ["Buspirone 10mg BID", "Sertraline 100mg daily", "Trazodone 50mg at bedtime", "Hydroxyzine 25mg PRN"],
+        medications: [
+          "Buspirone 10mg BID",
+          "Sertraline 100mg daily",
+          "Trazodone 50mg at bedtime",
+          "Hydroxyzine 25mg PRN",
+        ],
       },
       {
         entryType: "mental_health",
-        summary: "Quarterly psychiatric review - documented ongoing functional limitations",
-        details: "Patient continues with moderate depression and anxiety symptoms despite maximal medical treatment. GAD-7: 12. PHQ-9: 11. Cognitive deficits noted in concentration and memory tasks during clinical interview. Patient reports inability to manage household finances, difficulty following multi-step instructions, and significant social isolation. Prognosis for return to competitive employment is guarded.",
-        diagnoses: ["F33.1 - Major depressive disorder, recurrent, moderate", "F41.1 - Generalized anxiety disorder", "F43.10 - Post-traumatic stress disorder"],
-        treatments: ["Continue current medications and CBT", "Updated treatment summary provided to attorney", "Follow-up in 3 months"],
-        medications: ["Sertraline 100mg daily", "Buspirone 10mg BID", "Trazodone 50mg at bedtime", "Hydroxyzine 25mg PRN"],
+        summary:
+          "Quarterly psychiatric review - documented ongoing functional limitations",
+        details:
+          "Patient continues with moderate depression and anxiety symptoms despite maximal medical treatment. GAD-7: 12. PHQ-9: 11. Cognitive deficits noted in concentration and memory tasks during clinical interview. Patient reports inability to manage household finances, difficulty following multi-step instructions, and significant social isolation. Prognosis for return to competitive employment is guarded.",
+        diagnoses: [
+          "F33.1 - Major depressive disorder, recurrent, moderate",
+          "F41.1 - Generalized anxiety disorder",
+          "F43.10 - Post-traumatic stress disorder",
+        ],
+        treatments: [
+          "Continue current medications and CBT",
+          "Updated treatment summary provided to attorney",
+          "Follow-up in 3 months",
+        ],
+        medications: [
+          "Sertraline 100mg daily",
+          "Buspirone 10mg BID",
+          "Trazodone 50mg at bedtime",
+          "Hydroxyzine 25mg PRN",
+        ],
       },
     ],
   };
@@ -677,7 +848,8 @@ async function main() {
 
   for (const attorney of targetAttorneys) {
     const attorneyName = `${attorney.firstName} ${attorney.lastName}`;
-    const attorneyEmail = attorney.email || `${attorney.lastName.toLowerCase()}@lawfirm.com`;
+    const attorneyEmail =
+      attorney.email || `${attorney.lastName.toLowerCase()}@lawfirm.com`;
     const caseId = getCaseForContact(attorney.id);
 
     const attorneyComms = [
@@ -845,7 +1017,8 @@ async function main() {
 
   for (const expert of experts.slice(0, 2)) {
     const expertName = `${expert.firstName} ${expert.lastName}`;
-    const expertEmail = expert.email || `${expert.lastName.toLowerCase()}@vocationalexperts.com`;
+    const expertEmail =
+      expert.email || `${expert.lastName.toLowerCase()}@vocationalexperts.com`;
     const caseIds = contactToCases.get(expert.id) || [casePool[0].id];
 
     // Calendar events - testimony dates
@@ -988,7 +1161,9 @@ async function main() {
     }
   }
 
-  console.log(`  Created ${auditCreated} audit log entries across ${contacts.length} contacts`);
+  console.log(
+    `  Created ${auditCreated} audit log entries across ${contacts.length} contacts`,
+  );
 
   // -----------------------------------------------------------------------
   // 11. Insert seed marker
@@ -1012,8 +1187,12 @@ async function main() {
 
   console.log("\n=== Contact Profile Enrichment Complete ===");
   console.log(`  Case links created: ${linksCreated}`);
-  console.log(`  Communications: ${commsCreated + attorneyCommsCreated + ssaCommsCreated + expertCommsCreated}`);
-  console.log(`  Calendar events: ${eventsCreated + providerEventsCreated + ssaEventsCreated + expertEventsCreated}`);
+  console.log(
+    `  Communications: ${commsCreated + attorneyCommsCreated + ssaCommsCreated + expertCommsCreated}`,
+  );
+  console.log(
+    `  Calendar events: ${eventsCreated + providerEventsCreated + ssaEventsCreated + expertEventsCreated}`,
+  );
   console.log(`  Medical chronology entries: ${medChronCreated}`);
   console.log(`  Audit log entries: ${auditCreated}`);
 

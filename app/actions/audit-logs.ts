@@ -45,10 +45,7 @@ export type AuditLogListResult = {
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 500;
 
-function buildWhereClause(
-  organizationId: string,
-  filters: AuditLogFilters,
-) {
+function buildWhereClause(organizationId: string, filters: AuditLogFilters) {
   const conditions = [eq(auditLog.organizationId, organizationId)];
 
   if (filters.userId) {

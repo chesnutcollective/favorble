@@ -60,7 +60,7 @@ export default async function MessagesPage({
         description="Client messages from Case Status across all cases."
       />
 
-      {!isConfigured && (
+      {!isConfigured && user.role === "admin" && (
         <Card className="border-[#eaeaea]">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -71,11 +71,17 @@ export default async function MessagesPage({
               />
               <div>
                 <p className="text-sm font-medium text-[#171717]">
-                  Case Status not configured
+                  Case-status integration is not yet configured
                 </p>
                 <p className="text-sm text-[#666]">
-                  Set CASE_STATUS_API_KEY in your environment to enable
-                  bidirectional messaging.
+                  Add your API key in{" "}
+                  <a
+                    href="/admin/integrations"
+                    className="underline hover:text-[#171717]"
+                  >
+                    /admin/integrations
+                  </a>{" "}
+                  to enable bidirectional messaging.
                 </p>
               </div>
             </div>

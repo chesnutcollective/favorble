@@ -322,7 +322,12 @@ function scoreCandidate(args: {
   if (
     args.inFirst &&
     args.inLast &&
-    namesAreFuzzyMatch(args.inFirst, args.inLast, args.candFirst, args.candLast) &&
+    namesAreFuzzyMatch(
+      args.inFirst,
+      args.inLast,
+      args.candFirst,
+      args.candLast,
+    ) &&
     args.inArea &&
     args.candArea &&
     args.inArea === args.candArea

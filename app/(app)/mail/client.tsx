@@ -95,10 +95,7 @@ function formatDate(iso: string | null): string {
   });
 }
 
-function formatClaimant(
-  first: string | null,
-  last: string | null,
-): string {
+function formatClaimant(first: string | null, last: string | null): string {
   if (!first && !last) return "Unassigned";
   return `${last ?? ""}${last && first ? ", " : ""}${first ?? ""}`.trim();
 }
@@ -129,9 +126,7 @@ export function MailWorkspaceClient({
   return (
     <div className="space-y-6">
       {/* Top: Quick search */}
-      <CaseSearchSection
-        onOpenProcessing={(item) => setProcessingItem(item)}
-      />
+      <CaseSearchSection onOpenProcessing={(item) => setProcessingItem(item)} />
 
       {/* Middle: Inbound queue */}
       <InboundQueueSection
@@ -306,9 +301,7 @@ function CaseSearchSection({
                     "flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors",
                     active ? "" : "hover:bg-[#FAFAFC]",
                   )}
-                  style={
-                    active ? { backgroundColor: BRAND_SOFT } : undefined
-                  }
+                  style={active ? { backgroundColor: BRAND_SOFT } : undefined}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
@@ -367,10 +360,7 @@ function CaseSearchSection({
         )}
       </div>
 
-      <SelectedCasePanel
-        result={selected}
-        onClose={() => setSelected(null)}
-      />
+      <SelectedCasePanel result={selected} onClose={() => setSelected(null)} />
     </Card>
   );
 }
@@ -399,8 +389,7 @@ function SelectedCasePanel({
           <code
             className="text-[12px] text-[#333]"
             style={{
-              fontFamily:
-                "ui-monospace, SFMono-Regular, Menlo, monospace",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
             }}
           >
             {result.caseNumber}
@@ -411,8 +400,8 @@ function SelectedCasePanel({
         </Button>
       </div>
       <p className="mt-2 text-[12px] text-[#555]">
-        Next step: scan the physical mail into the inbound queue, then attach
-        it to this case from the queue below.
+        Next step: scan the physical mail into the inbound queue, then attach it
+        to this case from the queue below.
       </p>
     </div>
   );
@@ -480,7 +469,7 @@ function InboundQueueSection({
             return (
               <li
                 key={item.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC]"
+                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC] transition-colors duration-200"
               >
                 <div
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
@@ -616,7 +605,7 @@ function OutboundQueueSection({
             return (
               <li
                 key={m.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC]"
+                className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-[#FAFAFC] transition-colors duration-200"
               >
                 <div
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
@@ -721,9 +710,7 @@ function ProcessMailDialog({
 
   useEffect(() => {
     if (item) {
-      setCategory(
-        (item.category as MailCategory | null) ?? "medical_record",
-      );
+      setCategory((item.category as MailCategory | null) ?? "medical_record");
       setNotes(item.notes ?? "");
       setError(null);
     }
@@ -770,13 +757,8 @@ function ProcessMailDialog({
                 {item.fileName}
               </p>
               <p className="text-[12px] text-[#666]">
-                {item.caseNumber
-                  ? `${item.caseNumber} · `
-                  : "Unassigned · "}
-                {formatClaimant(
-                  item.claimantFirstName,
-                  item.claimantLastName,
-                )}
+                {item.caseNumber ? `${item.caseNumber} · ` : "Unassigned · "}
+                {formatClaimant(item.claimantFirstName, item.claimantLastName)}
               </p>
             </div>
 
@@ -792,13 +774,11 @@ function ProcessMailDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(Object.keys(CATEGORY_LABELS) as MailCategory[]).map(
-                    (k) => (
-                      <SelectItem key={k} value={k}>
-                        {CATEGORY_LABELS[k]}
-                      </SelectItem>
-                    ),
-                  )}
+                  {(Object.keys(CATEGORY_LABELS) as MailCategory[]).map((k) => (
+                    <SelectItem key={k} value={k}>
+                      {CATEGORY_LABELS[k]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -1010,7 +990,7 @@ function AddOutboundDialog({
                     {caseResults.map((r) => (
                       <li
                         key={r.caseId}
-                        className="cursor-pointer px-2.5 py-1.5 text-[13px] hover:bg-[#FAFAFC]"
+                        className="cursor-pointer px-2.5 py-1.5 text-[13px] hover:bg-[#FAFAFC] transition-colors duration-200"
                         onClick={() => {
                           setSelectedCase(r);
                           setRecipient(
@@ -1069,13 +1049,13 @@ function AddOutboundDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(
-                    Object.keys(MAIL_TYPE_LABELS) as OutboundMailType[]
-                  ).map((k) => (
-                    <SelectItem key={k} value={k}>
-                      {MAIL_TYPE_LABELS[k]}
-                    </SelectItem>
-                  ))}
+                  {(Object.keys(MAIL_TYPE_LABELS) as OutboundMailType[]).map(
+                    (k) => (
+                      <SelectItem key={k} value={k}>
+                        {MAIL_TYPE_LABELS[k]}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -1101,16 +1081,13 @@ function AddOutboundDialog({
               onChange={(e) => setTrackingNumber(e.target.value)}
               placeholder="9400 1000 0000 0000 0000 00"
               style={{
-                fontFamily:
-                  "ui-monospace, SFMono-Regular, Menlo, monospace",
+                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
               }}
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[12px] font-medium text-[#444]">
-              Notes
-            </label>
+            <label className="text-[12px] font-medium text-[#444]">Notes</label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

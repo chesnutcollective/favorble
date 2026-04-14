@@ -127,10 +127,7 @@ export async function GET(request: NextRequest) {
     logger.error("Cron ingest-retry query failed", {
       error: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json(
-      { error: "Query failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
 
   logger.info("Cron ingest-retry sweep started", {

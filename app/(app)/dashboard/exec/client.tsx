@@ -148,7 +148,11 @@ function HeadlineSection({ metrics }: { metrics: HeadlineMetrics }) {
           label="Hearings This Week"
           value={fmtNum(metrics.openHearingsThisWeek)}
           sublabel="next 7 days"
-          accent={metrics.openHearingsThisWeek > WEEKLY_CAPACITY ? "urgent" : "default"}
+          accent={
+            metrics.openHearingsThisWeek > WEEKLY_CAPACITY
+              ? "urgent"
+              : "default"
+          }
         />
         <HeroCard
           label="Avg Time to Hearing"
@@ -395,7 +399,10 @@ function RepPerformanceSection({ reps }: { reps: RepPerformanceRow[] }) {
                           : "1px solid rgba(38,60,148,0.06)",
                     }}
                   >
-                    <td className="px-4 py-3 font-medium" style={{ color: "#18181a" }}>
+                    <td
+                      className="px-4 py-3 font-medium"
+                      style={{ color: "#18181a" }}
+                    >
                       {rep.name}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
@@ -438,8 +445,7 @@ function RepPerformanceSection({ reps }: { reps: RepPerformanceRow[] }) {
 // ---------------------------------------------------------------------------
 function TeamCard({ team }: { team: TeamHealth }) {
   const label = TEAM_LABELS[team.team] ?? team.team;
-  const overdueColor =
-    team.overdueTasks > 0 ? URGENT : "#8b8b97";
+  const overdueColor = team.overdueTasks > 0 ? URGENT : "#8b8b97";
 
   return (
     <div
@@ -452,10 +458,7 @@ function TeamCard({ team }: { team: TeamHealth }) {
       }}
     >
       <div className="flex items-center justify-between gap-2">
-        <div
-          className="text-[13px] font-semibold"
-          style={{ color: "#18181a" }}
-        >
+        <div className="text-[13px] font-semibold" style={{ color: "#18181a" }}>
           {label}
         </div>
         <div

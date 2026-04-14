@@ -583,7 +583,11 @@ export function QueueClient({
       )}
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="-mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="-mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto"
+        >
           <TabsList>
             <TabsTrigger value="all">All {counts.all}</TabsTrigger>
             <TabsTrigger value="overdue" className="text-red-600">

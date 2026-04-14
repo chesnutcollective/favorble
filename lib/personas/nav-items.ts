@@ -34,6 +34,28 @@ export const NAV_ITEM_REGISTRY: Record<string, NavItemMeta> = {
     description: "Firm overview and welcome screen",
     iconName: "DashboardSquare01Icon",
   },
+  supervisor: {
+    id: "supervisor",
+    label: "Supervisor",
+    href: "/admin/supervisor",
+    description: "Monitor team performance, workload, and case risk",
+    iconName: "BinocularsIcon",
+  },
+  coaching: {
+    id: "coaching",
+    label: "Coaching",
+    href: "/coaching",
+    description:
+      "Open coaching flags, training gaps, and AI-drafted conversations",
+    iconName: "Megaphone01Icon",
+  },
+  drafts: {
+    id: "drafts",
+    label: "AI Drafts",
+    href: "/drafts",
+    description: "Review and approve AI-drafted letters, messages, and filings",
+    iconName: "File01Icon",
+  },
   cases: {
     id: "cases",
     label: "Cases",
@@ -152,6 +174,27 @@ export const NAV_ITEM_REGISTRY: Record<string, NavItemMeta> = {
     href: "/team-chat",
     description: "Internal team channels and DMs",
     iconName: "BubbleChatIcon",
+  },
+  "fee-collection": {
+    id: "fee-collection",
+    label: "Fee Collection",
+    href: "/fee-collection",
+    description: "Fee petitions filed with SSA after favorable decisions",
+    iconName: "DollarCircleIcon",
+  },
+  "appeals-council": {
+    id: "appeals-council",
+    label: "Appeals Council",
+    href: "/appeals-council",
+    description: "AC brief pipeline and 65-day deadline tracking",
+    iconName: "BalanceScaleIcon",
+  },
+  "post-hearing": {
+    id: "post-hearing",
+    label: "Post-Hearing",
+    href: "/post-hearing",
+    description: "Process hearing outcomes and close the loop on decisions",
+    iconName: "CheckmarkBadge01Icon",
   },
 };
 

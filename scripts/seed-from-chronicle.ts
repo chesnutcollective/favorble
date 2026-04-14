@@ -65,10 +65,7 @@ import {
   buildRailwayStoragePath,
   railwayBucketConfigured,
 } from "../lib/storage/railway-bucket-shared";
-import {
-  S3Client,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 // ---------- Guardrails ----------
 
@@ -158,7 +155,7 @@ function shiftDob(iso: string | null | undefined): Date | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  const shiftYears = (faker.number.int({ min: -3, max: 3 }) || 0);
+  const shiftYears = faker.number.int({ min: -3, max: 3 }) || 0;
   d.setFullYear(d.getFullYear() + shiftYears);
   return d;
 }
@@ -245,7 +242,9 @@ async function main() {
   ) as Record<string, ChronicleBundle>;
 
   // Discover which PDFs we actually have on disk
-  const pdfFiles = new Set(fs.readdirSync(PDF_DIR).filter((f) => f.endsWith(".pdf")));
+  const pdfFiles = new Set(
+    fs.readdirSync(PDF_DIR).filter((f) => f.endsWith(".pdf")),
+  );
   console.log(`Found ${pdfFiles.size} local PDFs`);
 
   // ----- Load org + users + stages -----
@@ -262,9 +261,7 @@ async function main() {
     where: eq(schema.users.organizationId, organizationId),
   });
   if (users.length === 0) {
-    throw new Error(
-      'No users found. Run the base seed first.',
-    );
+    throw new Error("No users found. Run the base seed first.");
   }
   const defaultUserId = users[0].id;
 
@@ -273,12 +270,18 @@ async function main() {
   });
   const stageByCode = new Map(stages.map((s) => [s.code, s]));
   if (stages.length === 0) {
-    throw new Error('No case_stages found. Run the base seed first.');
+    throw new Error("No case_stages found. Run the base seed first.");
   }
 
   // ----- Build the 10-client plan -----
   const plan: Array<{ chronicleId: number; segment: string }> = [];
-  for (const segment of ["hearing", "appeals", "reconsideration", "initial", "decisions"]) {
+  for (const segment of [
+    "hearing",
+    "appeals",
+    "reconsideration",
+    "initial",
+    "decisions",
+  ]) {
     const entries = lists[segment] ?? [];
     for (const entry of entries.slice(0, 2)) {
       if (typeof entry.id === "number") {
@@ -312,10 +315,14 @@ async function main() {
     }
 
     const detail = bundle.detail as Record<string, unknown>;
-    const statusReport = (detail.latest_status_report ??
-      {}) as Record<string, unknown>;
-    const clientStatus = (detail.latest_client_status ??
-      {}) as Record<string, unknown>;
+    const statusReport = (detail.latest_status_report ?? {}) as Record<
+      string,
+      unknown
+    >;
+    const clientStatus = (detail.latest_client_status ?? {}) as Record<
+      string,
+      unknown
+    >;
     const claimType = (statusReport.claim_type || clientStatus.claim_type) as
       | string
       | null;
@@ -371,7 +378,8 @@ async function main() {
         dateOfBirth: dob,
         applicationTypePrimary: primary,
         applicationTypeSecondary: secondary,
-        hearingOffice: (statusReport.office_with_jurisdiction as string) ?? null,
+        hearingOffice:
+          (statusReport.office_with_jurisdiction as string) ?? null,
         adminLawJudge: (statusReport.alj_full_name as string) ?? null,
         hearingDate,
         allegedOnsetDate: parseDate(clientStatus.alleged_onset as string),
@@ -449,8 +457,7 @@ async function main() {
         organizationId,
         caseId: caseRow.id,
         fileName:
-          doc.ssa_file_name ??
-          `${doc.name ?? "document"}_${doc.id}.pdf`,
+          doc.ssa_file_name ?? `${doc.name ?? "document"}_${doc.id}.pdf`,
         fileType: "application/pdf",
         fileSizeBytes: fileSize,
         storagePath,
@@ -458,10 +465,9 @@ async function main() {
         source: "chronicle",
         sourceExternalId: doc.id,
         description: doc.document_type_data?.title ?? doc.name,
-        tags: [
-          doc.section_name,
-          doc.document_type_key,
-        ].filter((t): t is string => !!t),
+        tags: [doc.section_name, doc.document_type_key].filter(
+          (t): t is string => !!t,
+        ),
         metadata: {
           chronicle_doc_id: doc.id,
           chronicle_section: doc.section_name,
@@ -484,7 +490,8 @@ async function main() {
         eventType: "hearing",
         startAt: hearingDate,
         endAt: new Date(hearingDate.getTime() + 60 * 60 * 1000),
-        hearingOffice: (statusReport.office_with_jurisdiction as string) ?? null,
+        hearingOffice:
+          (statusReport.office_with_jurisdiction as string) ?? null,
         adminLawJudge: (statusReport.alj_full_name as string) ?? null,
         location: (statusReport.claimant_location as string) ?? null,
         createdBy: defaultUserId,

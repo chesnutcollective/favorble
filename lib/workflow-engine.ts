@@ -7,9 +7,16 @@ import {
   tasks,
   caseAssignments,
   auditLog,
+  users,
+  cases,
 } from "@/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
+import {
+  computeDeadlineDate,
+  getDeadlineRuleForEvent,
+  type DeadlineRule,
+} from "@/lib/services/ssa-deadlines";
 
 /**
  * Add business days to a date, skipping weekends.
@@ -195,6 +202,288 @@ export async function executeStageWorkflows(
       caseId,
       tasksCreated: taskIds.length,
     });
+  }
+
+  return results;
+}
+
+/**
+ * Resolve an assignee for an event-triggered workflow task. Priority
+ * extends the stage-based resolver by also considering the SSA
+ * deadline rule's ownerRole.
+ */
+async function resolveEventAssignee(
+  template: TaskTemplate,
+  assignments: Assignment[],
+  organizationId: string,
+  rule: DeadlineRule | null,
+): Promise<string | null> {
+  if (template.assignToUserId) return template.assignToUserId;
+
+  if (template.assignToRole) {
+    const match = assignments.find((a) => a.role === template.assignToRole);
+    if (match) return match.userId;
+  }
+
+  if (rule?.ownerRole) {
+    try {
+      const roleValue = rule.ownerRole as (typeof users.$inferSelect)["role"];
+      const [byRole] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(
+          and(
+            eq(users.organizationId, organizationId),
+            eq(users.role, roleValue),
+            eq(users.isActive, true),
+          ),
+        )
+        .limit(1);
+      if (byRole) return byRole.id;
+    } catch (err) {
+      logger.warn("resolveEventAssignee role lookup failed", {
+        ownerRole: rule.ownerRole,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+
+    const assigned = assignments.find((a) => a.role === rule.ownerRole);
+    if (assigned) return assigned.userId;
+  }
+
+  return assignments[0]?.userId ?? null;
+}
+
+export type EventWorkflowInput = {
+  eventType: string;
+  caseId: string;
+  organizationId: string;
+  eventPayload?: unknown;
+  triggeredByUserId?: string | null;
+  /** Optional explicit trigger date for the deadline computation. */
+  triggerDate?: Date;
+  /** Optional supervisor event id to stamp on created tasks. */
+  sourceEventId?: string | null;
+};
+
+/**
+ * Execute all active workflows triggered by a supervisor event (SA-5).
+ *
+ * Mirrors `executeStageWorkflows` but loads workflows where
+ * `triggerType = 'event_detected'`. When the event maps to an SSA
+ * deadline rule, the due date is computed via `computeDeadlineDate`.
+ * Every created task is stamped with `sourceEventId`. If no admin
+ * workflow matches, a synthetic fallback task is still created so the
+ * deadline always has an owner.
+ */
+export async function executeEventWorkflows(
+  input: EventWorkflowInput,
+): Promise<WorkflowExecutionResult[]> {
+  const {
+    eventType,
+    caseId,
+    organizationId,
+    triggeredByUserId,
+    sourceEventId,
+  } = input;
+  const triggerDate = input.triggerDate ?? new Date();
+  const rule = getDeadlineRuleForEvent(eventType);
+  const results: WorkflowExecutionResult[] = [];
+
+  const workflows = await db
+    .select()
+    .from(workflowTemplates)
+    .where(
+      and(
+        eq(workflowTemplates.triggerType, "event_detected"),
+        eq(workflowTemplates.organizationId, organizationId),
+        eq(workflowTemplates.isActive, true),
+      ),
+    );
+
+  const matching = workflows.filter((w) => {
+    const cfg = (w.triggerConfig ?? {}) as Record<string, unknown>;
+    const cfgType = cfg.eventType;
+    if (!cfgType) return true;
+    return cfgType === eventType;
+  });
+
+  const assignments = await db
+    .select()
+    .from(caseAssignments)
+    .where(
+      and(
+        eq(caseAssignments.caseId, caseId),
+        isNull(caseAssignments.unassignedAt),
+      ),
+    );
+
+  const deadlineDate = rule ? computeDeadlineDate(triggerDate, rule) : null;
+
+  for (const workflow of matching) {
+    const taskTemplates = await db
+      .select()
+      .from(workflowTaskTemplates)
+      .where(eq(workflowTaskTemplates.workflowTemplateId, workflow.id))
+      .orderBy(workflowTaskTemplates.displayOrder);
+
+    const createdTaskIds: Record<string, string> = {};
+    const taskIds: string[] = [];
+
+    for (const template of taskTemplates) {
+      const assigneeId = await resolveEventAssignee(
+        template,
+        assignments,
+        organizationId,
+        rule,
+      );
+
+      const dueDate = deadlineDate
+        ? deadlineDate
+        : template.dueBusinessDaysOnly
+          ? addBusinessDays(new Date(), template.dueDaysOffset)
+          : addCalendarDays(new Date(), template.dueDaysOffset);
+
+      const dependsOnTaskId = template.dependsOnTemplateId
+        ? (createdTaskIds[template.dependsOnTemplateId] ?? null)
+        : null;
+
+      const [newTask] = await db
+        .insert(tasks)
+        .values({
+          organizationId,
+          caseId,
+          title: template.title,
+          description: template.description,
+          status: dependsOnTaskId ? "blocked" : "pending",
+          priority: template.priority,
+          assignedToId: assigneeId,
+          dueDate,
+          workflowTemplateId: workflow.id,
+          workflowTaskTemplateId: template.id,
+          isAutoGenerated: true,
+          dependsOnTaskId,
+          createdBy: triggeredByUserId ?? null,
+        })
+        .returning();
+
+      // Stamp source_event_id via raw SQL — the schema file doesn't
+      // currently expose this column on the tasks table even though
+      // it lives in the database.
+      if (sourceEventId) {
+        await db.execute(sql`
+          UPDATE tasks SET source_event_id = ${sourceEventId}
+          WHERE id = ${newTask.id}
+        `);
+      }
+
+      createdTaskIds[template.id] = newTask.id;
+      taskIds.push(newTask.id);
+    }
+
+    await db.insert(auditLog).values({
+      organizationId,
+      userId: triggeredByUserId ?? null,
+      entityType: "workflow",
+      entityId: workflow.id,
+      action: "workflow_executed_event",
+      changes: {
+        caseId,
+        eventType,
+        tasksCreated: taskIds.length,
+        taskIds,
+      },
+    });
+
+    results.push({
+      workflowId: workflow.id,
+      workflowName: workflow.name,
+      tasksCreated: taskIds.length,
+      taskIds,
+    });
+
+    logger.info("Event workflow executed", {
+      workflowId: workflow.id,
+      eventType,
+      caseId,
+      tasksCreated: taskIds.length,
+    });
+  }
+
+  if (rule && deadlineDate && matching.length === 0) {
+    try {
+      const [caseRow] = await db
+        .select({ id: cases.id })
+        .from(cases)
+        .where(eq(cases.id, caseId))
+        .limit(1);
+      if (caseRow) {
+        const syntheticTemplate: TaskTemplate = {
+          id: "synthetic",
+          workflowTemplateId: "synthetic",
+          title: rule.label,
+          description: rule.description,
+          assignToTeam: null,
+          assignToRole: null,
+          assignToUserId: null,
+          priority: "high",
+          dueDaysOffset: rule.daysFromTrigger,
+          dueBusinessDaysOnly: false,
+          displayOrder: 0,
+          dependsOnTemplateId: null,
+          createdAt: new Date(),
+        };
+        const assigneeId = await resolveEventAssignee(
+          syntheticTemplate,
+          assignments,
+          organizationId,
+          rule,
+        );
+
+        const [newTask] = await db
+          .insert(tasks)
+          .values({
+            organizationId,
+            caseId,
+            title: rule.label,
+            description: rule.description,
+            status: "pending",
+            priority: "high",
+            assignedToId: assigneeId,
+            dueDate: deadlineDate,
+            isAutoGenerated: true,
+            createdBy: triggeredByUserId ?? null,
+          })
+          .returning();
+
+        if (sourceEventId) {
+          await db.execute(sql`
+            UPDATE tasks SET source_event_id = ${sourceEventId}
+            WHERE id = ${newTask.id}
+          `);
+        }
+
+        results.push({
+          workflowId: "ssa_deadline_fallback",
+          workflowName: rule.label,
+          tasksCreated: 1,
+          taskIds: [newTask.id],
+        });
+
+        logger.info("SSA deadline fallback task created", {
+          eventType,
+          caseId,
+          taskId: newTask.id,
+          dueDate: deadlineDate.toISOString(),
+        });
+      }
+    } catch (err) {
+      logger.warn("SSA deadline fallback task failed", {
+        error: err instanceof Error ? err.message : String(err),
+        eventType,
+        caseId,
+      });
+    }
   }
 
   return results;
