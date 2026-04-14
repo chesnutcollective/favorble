@@ -4,6 +4,8 @@ import { requireSession } from "@/lib/auth/session";
 import {
   getLeaderboard,
   getCompositeLeaderboard,
+  getMessagingFrequencyLeaderboard,
+  getResponseTimeLeaderboard,
 } from "@/app/actions/leaderboards";
 import { ROLE_METRICS } from "@/lib/services/role-metrics";
 import { PageHeader } from "@/components/shared/page-header";
@@ -24,13 +26,22 @@ export const metadata: Metadata = {
   title: "Leaderboards",
 };
 
+type LeaderboardView = "composite" | "messaging" | "response_time";
+
 type SearchParams = Promise<{
   role?: string;
   metric?: string;
   period?: "day" | "week" | "month";
+  view?: LeaderboardView;
 }>;
 
 const DEFAULT_ROLE = "case_manager";
+
+const VIEW_LABELS: Record<LeaderboardView, string> = {
+  composite: "Composite + metric",
+  messaging: "Messaging frequency",
+  response_time: "Response time",
+};
 
 export default async function LeaderboardsPage({
   searchParams,
@@ -47,14 +58,27 @@ export default async function LeaderboardsPage({
       ? sp.metric
       : (pack.metrics[0]?.metricKey ?? "");
   const period = sp.period ?? "week";
+  const view: LeaderboardView = (
+    sp.view === "messaging" || sp.view === "response_time"
+      ? sp.view
+      : "composite"
+  ) as LeaderboardView;
 
   let rows: Awaited<ReturnType<typeof getLeaderboard>> = [];
   let compositeRows: Awaited<ReturnType<typeof getCompositeLeaderboard>> = [];
+  let messagingRows: Awaited<ReturnType<typeof getMessagingFrequencyLeaderboard>> = [];
+  let responseTimeRows: Awaited<ReturnType<typeof getResponseTimeLeaderboard>> = [];
   try {
-    [rows, compositeRows] = await Promise.all([
-      metricKey ? getLeaderboard(role, metricKey, period) : Promise.resolve([]),
-      getCompositeLeaderboard(role, period),
-    ]);
+    if (view === "composite") {
+      [rows, compositeRows] = await Promise.all([
+        metricKey ? getLeaderboard(role, metricKey, period) : Promise.resolve([]),
+        getCompositeLeaderboard(role, period),
+      ]);
+    } else if (view === "messaging") {
+      messagingRows = await getMessagingFrequencyLeaderboard(period);
+    } else {
+      responseTimeRows = await getResponseTimeLeaderboard(period);
+    }
   } catch {
     // DB unavailable
   }
@@ -74,10 +98,45 @@ export default async function LeaderboardsPage({
     <div className="space-y-6">
       <PageHeader
         title="Leaderboards"
-        description="Rank team members by composite score or a single metric. Use the selectors to switch roles and metrics."
+        description="Rank team members by composite score, messaging frequency, or response time. Use the selectors to switch view, role, and period."
       />
 
-      {/* Filter tiles */}
+      {/* View tabs */}
+      <div
+        role="tablist"
+        aria-label="Leaderboard view"
+        className="flex flex-wrap items-center gap-2"
+      >
+        {(Object.keys(VIEW_LABELS) as LeaderboardView[]).map((v) => {
+          const isActive = view === v;
+          const qs = new URLSearchParams();
+          qs.set("view", v);
+          qs.set("period", period);
+          if (v === "composite") {
+            qs.set("role", role);
+            if (metricKey) qs.set("metric", metricKey);
+          }
+          return (
+            <Link
+              key={v}
+              href={`/reports/leaderboards?${qs.toString()}`}
+              role="tab"
+              aria-selected={isActive}
+              className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs font-medium transition"
+              style={{
+                borderColor: isActive ? COLORS.brand : COLORS.borderDefault,
+                color: isActive ? "#fff" : COLORS.text2,
+                background: isActive ? COLORS.brand : "transparent",
+              }}
+            >
+              {VIEW_LABELS[v]}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Filter tiles (composite view only — messaging/response are org-wide) */}
+      {view === "composite" ? (
       <Card>
         <CardContent className="p-5 space-y-4">
           <div>
@@ -147,7 +206,7 @@ export default async function LeaderboardsPage({
               {(["day", "week", "month"] as const).map((p) => (
                 <Link
                   key={p}
-                  href={`/reports/leaderboards?role=${role}&metric=${metricKey}&period=${p}`}
+                  href={`/reports/leaderboards?role=${role}&metric=${metricKey}&period=${p}&view=composite`}
                   className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
                   style={{
                     borderColor:
@@ -164,7 +223,189 @@ export default async function LeaderboardsPage({
           </div>
         </CardContent>
       </Card>
+      ) : (
+        // Period-only filter bar for messaging/response-time views
+        <Card>
+          <CardContent className="p-5">
+            <div>
+              <p
+                className="text-xs uppercase tracking-wide mb-2"
+                style={{ color: COLORS.text3 }}
+              >
+                Period
+              </p>
+              <div className="flex gap-2">
+                {(["day", "week", "month"] as const).map((p) => (
+                  <Link
+                    key={p}
+                    href={`/reports/leaderboards?view=${view}&period=${p}`}
+                    className="inline-flex items-center px-3 py-1.5 rounded-md border text-xs capitalize"
+                    style={{
+                      borderColor:
+                        p === period ? COLORS.brand : COLORS.borderDefault,
+                      color: p === period ? COLORS.brand : COLORS.text2,
+                      background:
+                        p === period ? COLORS.brandSubtle : "transparent",
+                    }}
+                  >
+                    {p}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
+      {view === "messaging" ? (
+        <Card>
+          <CardContent className="p-0">
+            <div
+              className="px-6 py-3 border-b"
+              style={{ borderColor: COLORS.borderSubtle }}
+            >
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: COLORS.text1 }}
+              >
+                Messaging frequency
+              </h2>
+              <p className="text-xs" style={{ color: COLORS.text3 }}>
+                Outbound messages sent per user · {period} window · higher is better
+              </p>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10">#</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead className="text-right">Outbound</TableHead>
+                  <TableHead className="text-right">Per day</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {messagingRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center text-[#999] py-6"
+                    >
+                      No outbound messages in this window
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  messagingRows.map((r) => (
+                    <TableRow key={r.userId}>
+                      <TableCell className="tabular-nums">{r.rank}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/reports/team-performance/${r.userId}`}
+                          className="hover:underline"
+                          style={{ color: COLORS.brand }}
+                        >
+                          {r.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-xs text-[#666] capitalize">
+                        {r.role.replace(/_/g, " ")}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-semibold">
+                        {r.outboundCount}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[#666]">
+                        {r.dailyAvg}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : view === "response_time" ? (
+        <Card>
+          <CardContent className="p-0">
+            <div
+              className="px-6 py-3 border-b"
+              style={{ borderColor: COLORS.borderSubtle }}
+            >
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: COLORS.text1 }}
+              >
+                Response time
+              </h2>
+              <p className="text-xs" style={{ color: COLORS.text3 }}>
+                Avg + median time to respond to inbound · {period} window ·
+                lower is better
+              </p>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10">#</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead className="text-right">Avg (min)</TableHead>
+                  <TableHead className="text-right">Median (min)</TableHead>
+                  <TableHead className="text-right">Responses</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {responseTimeRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-[#999] py-6"
+                    >
+                      No responses logged in this window
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  responseTimeRows.map((r) => {
+                    const tone =
+                      r.avgResponseMinutes <= 60
+                        ? COLORS.ok
+                        : r.avgResponseMinutes <= 240
+                          ? COLORS.warn
+                          : COLORS.bad;
+                    return (
+                      <TableRow key={r.userId}>
+                        <TableCell className="tabular-nums">{r.rank}</TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/reports/team-performance/${r.userId}`}
+                            className="hover:underline"
+                            style={{ color: COLORS.brand }}
+                          >
+                            {r.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-xs text-[#666] capitalize">
+                          {r.role.replace(/_/g, " ")}
+                        </TableCell>
+                        <TableCell
+                          className="text-right tabular-nums font-semibold"
+                          style={{ color: tone }}
+                        >
+                          {r.avgResponseMinutes}
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums text-[#666]">
+                          {r.medianResponseMinutes}
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums text-[#666]">
+                          {r.responseCount}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Composite leaderboard */}
         <Card>
@@ -331,8 +572,10 @@ export default async function LeaderboardsPage({
           </CardContent>
         </Card>
       </div>
+      )}
 
-      {/* How scores are calculated */}
+      {/* How scores are calculated (composite view only) */}
+      {view === "composite" ? (
       <Card>
         <CardContent className="p-5">
           <h3
@@ -443,6 +686,7 @@ export default async function LeaderboardsPage({
           </div>
         </CardContent>
       </Card>
+      ) : null}
     </div>
   );
 }

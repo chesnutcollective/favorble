@@ -596,3 +596,180 @@ export async function getAllUsersPerformance(): Promise<
     };
   });
 }
+
+// ---------------------------------------------------------------------------
+// CaseStatus C7: messaging-frequency + response-time leaderboards
+// Org-wide (not role-scoped). Pull directly from the communications table
+// rather than the daily snapshot rollup so they reflect "today" too.
+// ---------------------------------------------------------------------------
+
+export type MessagingLeaderboardRow = {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  /** Count of outbound communications authored by this user in the period. */
+  outboundCount: number;
+  /** Average outbound-per-day over the period (rounded to 1 decimal). */
+  dailyAvg: number;
+  rank: number;
+};
+
+export type ResponseTimeLeaderboardRow = {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  /** Avg response time in minutes (lower is better). */
+  avgResponseMinutes: number;
+  /** Number of responses used in the avg. */
+  responseCount: number;
+  /** Median response time in minutes for the same window. */
+  medianResponseMinutes: number;
+  rank: number;
+};
+
+function periodStart(period: LeaderboardPeriod): Date {
+  const now = new Date();
+  const start = new Date(now);
+  if (period === "day") {
+    start.setHours(0, 0, 0, 0);
+  } else if (period === "week") {
+    start.setDate(start.getDate() - 7);
+    start.setHours(0, 0, 0, 0);
+  } else {
+    start.setDate(start.getDate() - 30);
+    start.setHours(0, 0, 0, 0);
+  }
+  return start;
+}
+
+function periodDays(period: LeaderboardPeriod): number {
+  return period === "day" ? 1 : period === "week" ? 7 : 30;
+}
+
+/**
+ * Messaging-frequency leaderboard — counts outbound communications authored
+ * by each user in the period. Higher is better.
+ */
+export async function getMessagingFrequencyLeaderboard(
+  period: LeaderboardPeriod,
+): Promise<MessagingLeaderboardRow[]> {
+  const session = await requireSession();
+  const since = periodStart(period);
+  const days = periodDays(period);
+
+  try {
+    const rows = await db
+      .select({
+        userId: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        role: users.role,
+        outboundCount: sql<number>`count(*)::int`,
+      })
+      .from(users)
+      .innerJoin(
+        sql`communications`,
+        sql`communications.user_id = ${users.id}`,
+      )
+      .where(
+        and(
+          eq(users.organizationId, session.organizationId),
+          sql`communications.organization_id = ${session.organizationId}`,
+          sql`communications.direction = 'outbound'`,
+          sql`communications.created_at >= ${since}`,
+          isNull(users.deletedAt),
+        ),
+      )
+      .groupBy(users.id, users.firstName, users.lastName, users.email, users.role)
+      .orderBy(desc(sql`count(*)`))
+      .limit(50);
+
+    return rows.map((r, i) => ({
+      userId: r.userId,
+      name: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() || r.email,
+      email: r.email,
+      role: r.role,
+      outboundCount: Number(r.outboundCount),
+      dailyAvg: Math.round((Number(r.outboundCount) / days) * 10) / 10,
+      rank: i + 1,
+    }));
+  } catch (err) {
+    // Missing tables / cols → empty state rather than a 500.
+    console.warn("[leaderboards] messaging frequency failed", err);
+    return [];
+  }
+}
+
+/**
+ * Response-time leaderboard — avg response-time in minutes per responder
+ * within the period. Lower is better.
+ */
+export async function getResponseTimeLeaderboard(
+  period: LeaderboardPeriod,
+): Promise<ResponseTimeLeaderboardRow[]> {
+  const session = await requireSession();
+  const since = periodStart(period);
+
+  try {
+    const rows = await db.execute<{
+      user_id: string;
+      first_name: string;
+      last_name: string;
+      email: string;
+      role: string;
+      avg_seconds: number;
+      median_seconds: number;
+      response_count: number;
+    }>(sql`
+      SELECT
+        u.id AS user_id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.role,
+        avg(c.response_time_seconds)::int AS avg_seconds,
+        (percentile_cont(0.5) WITHIN GROUP (ORDER BY c.response_time_seconds))::int AS median_seconds,
+        count(*)::int AS response_count
+      FROM users u
+      INNER JOIN communications c ON c.responded_by = u.id
+      WHERE u.organization_id = ${session.organizationId}
+        AND u.deleted_at IS NULL
+        AND c.organization_id = ${session.organizationId}
+        AND c.responded_at IS NOT NULL
+        AND c.response_time_seconds IS NOT NULL
+        AND c.responded_at >= ${since}
+      GROUP BY u.id, u.first_name, u.last_name, u.email, u.role
+      HAVING count(*) >= 1
+      ORDER BY avg_seconds ASC
+      LIMIT 50
+    `);
+
+    const resolved = (rows as unknown as Array<{
+      user_id: string;
+      first_name: string | null;
+      last_name: string | null;
+      email: string;
+      role: string;
+      avg_seconds: number;
+      median_seconds: number;
+      response_count: number;
+    }>);
+
+    return resolved.map((r, i) => ({
+      userId: r.user_id,
+      name: `${r.first_name ?? ""} ${r.last_name ?? ""}`.trim() || r.email,
+      email: r.email,
+      role: r.role,
+      avgResponseMinutes: Math.round((r.avg_seconds / 60) * 10) / 10,
+      medianResponseMinutes: Math.round((r.median_seconds / 60) * 10) / 10,
+      responseCount: r.response_count,
+      rank: i + 1,
+    }));
+  } catch (err) {
+    console.warn("[leaderboards] response time failed", err);
+    return [];
+  }
+}
