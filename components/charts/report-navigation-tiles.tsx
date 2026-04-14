@@ -52,6 +52,12 @@ const REPORTS = [
     description: "Every ALJ encountered with outcome patterns and trends.",
     icon: "⚖️",
   },
+  {
+    id: "reviews",
+    title: "Google Reviews",
+    description: "Reputation tracking and review-request targets.",
+    icon: "⭐",
+  },
 ] as const;
 
 export function ReportNavigationTiles() {
