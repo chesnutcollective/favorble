@@ -83,8 +83,16 @@ export async function getMessages(
 /**
  * Send an outbound message on a case.
  * Inserts into communications and optionally forwards to Case Status.
+ *
+ * `visibleToClient` (B1) — when true, this message also renders on the
+ * claimant's portal thread at `/portal/messages`. Defaults to false so
+ * existing callers don't accidentally leak internal comms.
  */
-export async function sendCaseMessage(data: { caseId: string; body: string }) {
+export async function sendCaseMessage(data: {
+  caseId: string;
+  body: string;
+  visibleToClient?: boolean;
+}) {
   const session = await requireSession();
 
   // Insert local record
@@ -98,12 +106,14 @@ export async function sendCaseMessage(data: { caseId: string; body: string }) {
       body: data.body,
       fromAddress: `${session.firstName} ${session.lastName}`,
       userId: session.id,
+      visibleToClient: data.visibleToClient === true,
     })
     .returning();
 
   logger.info("Outbound message sent", {
     messageId: message.id,
     caseId: data.caseId,
+    visibleToClient: data.visibleToClient === true,
   });
 
   // QA-2: schedule a Claude quality review of the outbound message once
@@ -148,6 +158,9 @@ export async function sendCaseMessage(data: { caseId: string; body: string }) {
   });
 
   revalidatePath(`/cases/${data.caseId}/messages`);
+  if (data.visibleToClient === true) {
+    revalidatePath("/portal/messages");
+  }
 
   return {
     id: message.id,

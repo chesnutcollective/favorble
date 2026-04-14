@@ -93,6 +93,10 @@ type Props = {
     caseId?: string;
     location?: string;
     description?: string;
+    // B5 — portal visibility toggles. Default false so existing pathways
+    // don't leak events onto the client portal.
+    visibleToClient?: boolean;
+    attendanceRequired?: boolean;
   }) => Promise<unknown>;
   onSyncOutlook: () => Promise<{ imported: number; error?: string }>;
   onSendReminder: (
@@ -141,6 +145,9 @@ export function CalendarGrid({
   const [newCaseId, setNewCaseId] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [newNotes, setNewNotes] = useState("");
+  // B5: portal visibility flags (default off)
+  const [newVisibleToClient, setNewVisibleToClient] = useState(false);
+  const [newAttendanceRequired, setNewAttendanceRequired] = useState(false);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -246,6 +253,8 @@ export function CalendarGrid({
     setNewCaseId("");
     setNewLocation("");
     setNewNotes("");
+    setNewVisibleToClient(false);
+    setNewAttendanceRequired(false);
     setShowCreateDialog(true);
   }
 
@@ -262,6 +271,8 @@ export function CalendarGrid({
       caseId: newCaseId || undefined,
       location: newLocation || undefined,
       description: newNotes || undefined,
+      visibleToClient: newVisibleToClient,
+      attendanceRequired: newAttendanceRequired,
     });
 
     // Refresh events
@@ -828,6 +839,42 @@ export function CalendarGrid({
                   className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   placeholder="Optional notes"
                 />
+              </div>
+
+              {/* B5: portal visibility toggles */}
+              <div className="space-y-2 rounded-md border border-border bg-muted/40 p-3">
+                <p className="text-xs font-medium text-foreground">
+                  Client portal
+                </p>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={newVisibleToClient}
+                    onChange={(e) => setNewVisibleToClient(e.target.checked)}
+                    className="size-4 rounded border-border text-primary focus:ring-1 focus:ring-ring"
+                  />
+                  <span>Show on client portal</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={newAttendanceRequired}
+                    onChange={(e) => setNewAttendanceRequired(e.target.checked)}
+                    disabled={!newVisibleToClient}
+                    className="size-4 rounded border-border text-primary focus:ring-1 focus:ring-ring disabled:opacity-40"
+                  />
+                  <span
+                    className={
+                      newVisibleToClient ? "" : "text-muted-foreground"
+                    }
+                  >
+                    Attendance required
+                  </span>
+                </label>
+                <p className="text-[11px] text-muted-foreground">
+                  When enabled, claimants see this event on /portal/appointments
+                  and can confirm it.
+                </p>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">

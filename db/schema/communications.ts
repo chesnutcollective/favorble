@@ -14,6 +14,7 @@ import { sql } from "drizzle-orm";
 import { organizations } from "./organizations";
 import { cases } from "./cases";
 import { users } from "./users";
+import { portalUsers } from "./portal";
 import {
   communicationTypeEnum,
   sentimentLabelEnum,
@@ -80,6 +81,19 @@ export const communications = pgTable(
     // Nullable for legacy rows.
     sourceType: text("source_type"),
 
+    // Portal (B1) — outbound messages only surface on the client portal when
+    // staff explicitly toggles "Visible to client" on the composer. Inbound
+    // messages from the portal set this to true so the staff side can
+    // distinguish them from email/SMS inbound.
+    visibleToClient: boolean("visible_to_client").default(false).notNull(),
+
+    // Portal (B1) — for inbound messages sent via the portal composer, the
+    // id of the portal_users row that sent it. Null for all other inbound
+    // (email/SMS/API) and outbound traffic.
+    sentByPortalUserId: uuid("sent_by_portal_user_id").references(
+      () => portalUsers.id,
+    ),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -97,5 +111,7 @@ export const communications = pgTable(
     index("idx_comms_urgency").on(table.urgency),
     index("idx_comms_category").on(table.category),
     index("idx_comms_is_automated").on(table.isAutomated),
+    index("idx_comms_visible_to_client").on(table.visibleToClient),
+    index("idx_comms_portal_sender").on(table.sentByPortalUserId),
   ],
 );

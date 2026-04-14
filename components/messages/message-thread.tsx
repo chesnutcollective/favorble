@@ -61,7 +61,11 @@ type Props = {
   standalone: SerializedMessage[];
   caseId: string;
   isConfigured: boolean;
-  onSendMessage: (data: { caseId: string; body: string }) => Promise<
+  onSendMessage: (data: {
+    caseId: string;
+    body: string;
+    visibleToClient?: boolean;
+  }) => Promise<
     | SerializedMessage
     | {
         id: string;
@@ -118,6 +122,9 @@ export function MessageThread({
 }: Props) {
   const [body, setBody] = useState("");
   const [composeThreadId, setComposeThreadId] = useState<string | null>(null);
+  // B1: whether to surface the outbound message on the client portal.
+  // Default to unchecked so staff must opt-in per send.
+  const [visibleToClient, setVisibleToClient] = useState(false);
   const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -352,10 +359,16 @@ export function MessageThread({
     setQaPreview(null);
     setQaError(null);
     setQaPendingSend(null);
+    const sendVisibleToClient = visibleToClient;
+    setVisibleToClient(false);
 
     startTransition(async () => {
       addOptimistic(optimisticMsg);
-      await onSendMessage({ caseId, body: trimmed });
+      await onSendMessage({
+        caseId,
+        body: trimmed,
+        visibleToClient: sendVisibleToClient,
+      });
     });
   }
 
@@ -448,19 +461,30 @@ export function MessageThread({
           rows={3}
           className="border-0 p-0 focus-visible:ring-0 resize-none"
         />
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
             {isConfigured
               ? "Messages will be sent via Case Status"
               : "Messages are recorded locally only"}
           </p>
-          <Button
-            size="sm"
-            onClick={handleSend}
-            disabled={!body.trim() || isPending || qaChecking}
-          >
-            {qaChecking ? "Checking..." : isPending ? "Sending..." : "Send"}
-          </Button>
+          <div className="flex items-center gap-3">
+            <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground select-none">
+              <input
+                type="checkbox"
+                checked={visibleToClient}
+                onChange={(e) => setVisibleToClient(e.target.checked)}
+                className="size-3.5 rounded border-border text-primary focus:ring-1 focus:ring-ring"
+              />
+              Visible to client
+            </label>
+            <Button
+              size="sm"
+              onClick={handleSend}
+              disabled={!body.trim() || isPending || qaChecking}
+            >
+              {qaChecking ? "Checking..." : isPending ? "Sending..." : "Send"}
+            </Button>
+          </div>
         </div>
       </div>
 

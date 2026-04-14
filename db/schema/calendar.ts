@@ -10,6 +10,7 @@ import {
 import { organizations } from "./organizations";
 import { cases } from "./cases";
 import { users } from "./users";
+import { portalUsers } from "./portal";
 import { calendarEventTypeEnum } from "./enums";
 
 export const calendarEvents = pgTable(
@@ -33,6 +34,26 @@ export const calendarEvents = pgTable(
     reminderSent: boolean("reminder_sent").notNull().default(false),
     reminderConfig: jsonb("reminder_config").default({}),
     createdBy: uuid("created_by").references(() => users.id),
+
+    // Portal (B5) — whether this event surfaces on the client portal.
+    visibleToClient: boolean("visible_to_client").notNull().default(false),
+    // Portal (B5) — whether the claimant's attendance is required (shows a
+    // prominent badge on the portal card).
+    attendanceRequired: boolean("attendance_required").notNull().default(false),
+    // Portal (B5) — staff-authored location string shown to the client. Falls
+    // back to `location` if null.
+    clientLocationText: text("client_location_text"),
+    // Portal (B5) — staff-authored description shown to the client. Falls
+    // back to `description` if null.
+    clientDescription: text("client_description"),
+    // Portal (B5) — timestamp when the claimant confirmed the appointment via
+    // the portal. Null = not confirmed.
+    clientConfirmedAt: timestamp("client_confirmed_at", { withTimezone: true }),
+    // Portal (B5) — portal_user_id that clicked Confirm.
+    clientConfirmedBy: uuid("client_confirmed_by").references(
+      () => portalUsers.id,
+    ),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -50,6 +71,7 @@ export const calendarEvents = pgTable(
       table.eventType,
       table.startAt,
     ),
+    index("idx_events_visible_to_client").on(table.visibleToClient),
   ],
 );
 

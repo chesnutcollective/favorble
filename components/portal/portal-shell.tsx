@@ -6,6 +6,7 @@ import {
   Home,
   MessageSquare,
   FileText,
+  CalendarDays,
   User,
   LogOut,
 } from "lucide-react";
@@ -28,6 +29,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: "/portal", label: "Home", icon: Home },
   { href: "/portal/messages", label: "Messages", icon: MessageSquare },
+  { href: "/portal/appointments", label: "Calendar", icon: CalendarDays },
   { href: "/portal/documents", label: "Documents", icon: FileText },
   { href: "/portal/profile", label: "Profile", icon: User },
 ];
