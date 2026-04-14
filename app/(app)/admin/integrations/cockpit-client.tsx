@@ -55,6 +55,12 @@ const STATUS_CONFIG = {
       "bg-[rgba(209,69,59,0.10)] text-[#d1453b] border-[rgba(209,69,59,0.2)] hover:bg-[rgba(209,69,59,0.10)]",
     dot: "bg-[#d1453b]",
   },
+  sunset: {
+    label: "Sunset — native portal active",
+    className:
+      "bg-[rgba(100,100,112,0.08)] text-[#52525e] border-[rgba(100,100,112,0.2)] hover:bg-[rgba(100,100,112,0.08)]",
+    dot: "bg-[#8b8b97]",
+  },
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -75,6 +75,21 @@ export type IntegrationConfig = {
   webhookPath?: string;
   /** Tags for filtering */
   tags: string[];
+  /**
+   * Lifecycle marker. When set to 'sunset' the integration is being retired
+   * in favor of a native Favorble surface. The cockpit renders a muted
+   * "Sunset — native <surface> active" indicator, and any inbound webhook
+   * defaults to returning 410 Gone unless a per-integration env flag
+   * explicitly re-enables it (see ENABLE_CASESTATUS_WEBHOOK for the
+   * reference implementation in Phase 6).
+   */
+  lifecycle?: "active" | "sunset";
+  /**
+   * Human-readable explanation of the sunset state, shown in the cockpit
+   * indicator + integration detail page. Only consulted when
+   * `lifecycle === 'sunset'`.
+   */
+  sunsetNote?: string;
 };
 
 export const CATEGORY_LABELS: Record<IntegrationCategory, string> = {
@@ -221,7 +236,10 @@ export const INTEGRATION_REGISTRY: IntegrationConfig[] = [
     ],
     dependencies: [],
     webhookPath: "/api/webhooks/case-status",
-    tags: ["client-facing", "messaging", "critical"],
+    tags: ["client-facing", "messaging", "legacy"],
+    lifecycle: "sunset",
+    sunsetNote:
+      "Sunset — native portal active. Set ENABLE_CASESTATUS_WEBHOOK=true to keep the CaseStatus bridge running during transition.",
   },
   {
     id: "mycase",

@@ -367,7 +367,11 @@ function RescheduleDialog({
           before sending.
         </p>
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+          <label htmlFor="reschedule-message" className="sr-only">
+            Message to your legal team
+          </label>
           <textarea
+            id="reschedule-message"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={5}

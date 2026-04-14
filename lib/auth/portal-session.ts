@@ -59,7 +59,8 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 type LoadResult =
   | { kind: "ok"; session: PortalSession }
   | { kind: "redirect"; to: string }
-  | { kind: "forbidden" };
+  | { kind: "forbidden" }
+  | { kind: "suspended" };
 
 async function loadPortalUserByContactId(
   contactId: string,
@@ -376,7 +377,10 @@ async function loadPortalSession(opts?: {
     return { kind: "forbidden" };
   }
 
-  if (portalUser.status === "suspended" || portalUser.status === "deactivated") {
+  if (portalUser.status === "suspended") {
+    return { kind: "suspended" };
+  }
+  if (portalUser.status === "deactivated") {
     return { kind: "forbidden" };
   }
 
@@ -413,6 +417,10 @@ export async function ensurePortalSession(opts?: {
 }): Promise<PortalSession> {
   const result = await loadPortalSession(opts);
   if (result.kind === "redirect") redirect(result.to);
+  // Suspended and fully forbidden paths both redirect to a dedicated surface
+  // so the claimant sees an explanation instead of a raw 404. The paused
+  // page itself is a public (non-gated) route under /portal/paused.
+  if (result.kind === "suspended") redirect("/portal/paused");
   if (result.kind === "forbidden") notFound();
   return result.session;
 }

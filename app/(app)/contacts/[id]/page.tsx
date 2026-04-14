@@ -17,6 +17,7 @@ import { eq, and, isNull, inArray, desc, gte, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortalInviteRowButton } from "@/components/portal/portal-invite-row-button";
+import { PortalAccessButton } from "@/components/portal/portal-access-button";
 
 // ─── Data fetchers ───────────────────────────────────────────────
 
@@ -671,6 +672,13 @@ export default async function ContactDetailPage({
                 status={portalStatus}
               />
             )}
+            {contact.contactType === "claimant" &&
+              portalStatus !== "never" && (
+                <PortalAccessButton
+                  contactId={contactId}
+                  status={portalStatus}
+                />
+              )}
           </div>
         </div>
       </div>

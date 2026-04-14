@@ -48,6 +48,14 @@ export const portalUsers = pgTable(
     activatedAt: timestamp("activated_at", { withTimezone: true }),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     loginCount: integer("login_count").notNull().default(0),
+    /**
+     * Phase 6 — portal access revocation audit columns. Set when staff pauses
+     * a claimant's portal access. `status` remains the source of truth for
+     * the auth gate; these columns just record who/when/why.
+     */
+    suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+    suspendedReason: text("suspended_reason"),
+    suspendedBy: uuid("suspended_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

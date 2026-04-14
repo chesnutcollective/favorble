@@ -73,12 +73,31 @@ async function resolveCaseId(
 /**
  * Webhook receiver for Case Status events.
  *
- * Handles:
+ * SUNSET NOTICE (Phase 6)
+ * -----------------------
+ * This integration is being sunset. The native Favorble portal (/portal) is
+ * now the authoritative client-facing surface — it handles bidirectional
+ * messaging, document sharing, stage visibility, and appointment
+ * confirmations directly, so the CaseStatus bridge is no longer required.
+ *
+ * The route is disabled by default and returns HTTP 410 Gone. To keep the
+ * bridge active during a firm's transition period, set
+ *   ENABLE_CASESTATUS_WEBHOOK=true
+ * in the environment. The admin integrations cockpit also renders a
+ * "Sunset — native portal active" indicator so staff can see the state.
+ *
+ * Handles (when enabled):
  * - Inbound client messages -> communications table
  * - Document uploads from clients -> documents table
  * - Status updates -> case stage mapping
  */
 export async function POST(request: NextRequest) {
+  // Phase 6 — feature-flagged kill switch. Default off; firms that still rely
+  // on the CaseStatus bridge can opt in explicitly by setting the env var.
+  if (process.env.ENABLE_CASESTATUS_WEBHOOK !== "true") {
+    return new Response("Disabled", { status: 410 });
+  }
+
   try {
     const rawBody = await request.text();
     const signature = request.headers.get("x-casestatus-signature");

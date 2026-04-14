@@ -36,11 +36,14 @@ export type IntegrationCardData = {
   hostName?: string;
   category: IntegrationCategory;
   tags: string[];
-  status: "connected" | "configured" | "missing_config" | "error";
+  status: "connected" | "configured" | "missing_config" | "error" | "sunset";
   lastVerifiedAt: string | null;
   lastVerifiedStatus: string | null;
   lastLatencyMs: number | null;
   hasHealthCheck: boolean;
+  /** Phase 6 — when lifecycle='sunset' in the registry, render a muted
+   * "Sunset — native portal active" indicator instead of the normal dot. */
+  sunsetNote?: string | null;
 };
 
 export type CategorySection = {
@@ -144,7 +147,12 @@ export default async function IntegrationsPage() {
 
       // Determine status
       let status: IntegrationCardData["status"];
-      if (
+      if (integration.lifecycle === "sunset") {
+        // Phase 6 — lifecycle wins over env/health state so sunset
+        // integrations render consistently even if an opt-in firm still has
+        // the env vars set.
+        status = "sunset";
+      } else if (
         latestEvent &&
         latestEvent.createdAt >= thirtyMinAgo &&
         latestEvent.status === "ok"
@@ -174,6 +182,10 @@ export default async function IntegrationsPage() {
         case "error":
           summary.errors++;
           break;
+        case "sunset":
+          // Don't count sunset integrations toward the summary pills;
+          // they're deliberately out-of-lifecycle.
+          break;
       }
 
       const hasHealthCheck = Boolean(
@@ -198,6 +210,7 @@ export default async function IntegrationsPage() {
         lastVerifiedStatus: latestEvent ? latestEvent.status : null,
         lastLatencyMs: latestEvent ? latestEvent.latencyMs : null,
         hasHealthCheck,
+        sunsetNote: integration.sunsetNote ?? null,
       };
     });
 

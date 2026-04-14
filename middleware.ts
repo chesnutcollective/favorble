@@ -21,6 +21,10 @@ const isPublicRoute = createRouteMatcher([
   // session cookie. The handler itself establishes one (or redirects to
   // /login) after validating the token.
   "/portal/link/(.*)",
+  // Phase 6 — suspended portal users are redirected here. Must live outside
+  // the `(client)` layout / auth gate so the landing explanation actually
+  // renders instead of looping through ensurePortalSession.
+  "/portal/paused",
 ]);
 
 const isPortalRoute = createRouteMatcher(["/portal(.*)"]);

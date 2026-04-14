@@ -17,13 +17,20 @@ export function ProfileLocalePicker({ current }: { current: string }) {
   const normalized = current.toLowerCase().startsWith("es") ? "es" : "en";
 
   return (
-    <div className="inline-flex rounded-full bg-[#F0EBE3] p-1">
+    <div
+      role="radiogroup"
+      aria-label="Preferred language"
+      className="inline-flex rounded-full bg-[#F0EBE3] p-1"
+    >
       {LOCALES.map((loc) => {
         const active = loc.value === normalized;
         return (
           <button
             key={loc.value}
             type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={`Switch portal language to ${loc.label}`}
             disabled={isImpersonating || isPending || active}
             onClick={() => {
               startTransition(async () => {

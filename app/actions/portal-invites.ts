@@ -333,6 +333,153 @@ export async function findActiveInvitationByToken(
 }
 
 /**
+ * Phase 6 — pause a claimant's portal access. Sets portal_users.status to
+ * 'suspended' and stamps suspended_at / suspended_by / suspended_reason. The
+ * next time the claimant visits /portal they land on the "paused" page
+ * (/app/(client)/layout.tsx consults status and bounces suspended users).
+ *
+ * Permission: admin, attorney, case_manager, intake_agent.
+ * Idempotent — calling on an already-suspended user is a no-op return.
+ */
+export async function revokePortalAccess(
+  contactId: string,
+  reason?: string,
+): Promise<{ ok: boolean; error?: string; portalUserId?: string }> {
+  if (!contactId) return { ok: false, error: "Missing contactId" };
+  const actor = await requireSession();
+  if (!canSendInvites(actor.role)) {
+    return { ok: false, error: "Not allowed to change portal access" };
+  }
+
+  const [portalUser] = await db
+    .select({
+      id: portalUsers.id,
+      organizationId: portalUsers.organizationId,
+      contactId: portalUsers.contactId,
+      status: portalUsers.status,
+    })
+    .from(portalUsers)
+    .where(eq(portalUsers.contactId, contactId))
+    .limit(1);
+
+  if (!portalUser) {
+    return { ok: false, error: "Contact has no portal account" };
+  }
+  if (portalUser.organizationId !== actor.organizationId) {
+    return {
+      ok: false,
+      error: "Contact belongs to a different organization",
+    };
+  }
+
+  if (portalUser.status === "suspended") {
+    return { ok: true, portalUserId: portalUser.id };
+  }
+
+  try {
+    await db
+      .update(portalUsers)
+      .set({
+        status: "suspended",
+        suspendedAt: new Date(),
+        suspendedReason: reason ?? null,
+        suspendedBy: actor.id,
+      })
+      .where(eq(portalUsers.id, portalUser.id));
+  } catch (error) {
+    logger.error("portal: revoke access failed", {
+      portalUserId: portalUser.id,
+      error,
+    });
+    return { ok: false, error: "Failed to pause portal access" };
+  }
+
+  await logPhiModification({
+    organizationId: portalUser.organizationId,
+    userId: actor.id,
+    entityType: "portal_user",
+    entityId: portalUser.id,
+    caseId: null,
+    operation: "update",
+    action: "portal_access_revoked",
+    metadata: {
+      contactId: portalUser.contactId,
+      reason: reason ?? null,
+    },
+  });
+
+  return { ok: true, portalUserId: portalUser.id };
+}
+
+/**
+ * Phase 6 — re-enable a paused portal account. Flips status back to 'active'
+ * (if the claimant had activated) or 'invited' (if they never did) and
+ * clears the suspension audit columns.
+ */
+export async function restorePortalAccess(
+  contactId: string,
+): Promise<{ ok: boolean; error?: string; portalUserId?: string }> {
+  if (!contactId) return { ok: false, error: "Missing contactId" };
+  const actor = await requireSession();
+  if (!canSendInvites(actor.role)) {
+    return { ok: false, error: "Not allowed to change portal access" };
+  }
+
+  const [portalUser] = await db
+    .select({
+      id: portalUsers.id,
+      organizationId: portalUsers.organizationId,
+      activatedAt: portalUsers.activatedAt,
+    })
+    .from(portalUsers)
+    .where(eq(portalUsers.contactId, contactId))
+    .limit(1);
+
+  if (!portalUser) {
+    return { ok: false, error: "Contact has no portal account" };
+  }
+  if (portalUser.organizationId !== actor.organizationId) {
+    return {
+      ok: false,
+      error: "Contact belongs to a different organization",
+    };
+  }
+
+  const nextStatus = portalUser.activatedAt ? "active" : "invited";
+
+  try {
+    await db
+      .update(portalUsers)
+      .set({
+        status: nextStatus,
+        suspendedAt: null,
+        suspendedReason: null,
+        suspendedBy: null,
+      })
+      .where(eq(portalUsers.id, portalUser.id));
+  } catch (error) {
+    logger.error("portal: restore access failed", {
+      portalUserId: portalUser.id,
+      error,
+    });
+    return { ok: false, error: "Failed to restore portal access" };
+  }
+
+  await logPhiModification({
+    organizationId: portalUser.organizationId,
+    userId: actor.id,
+    entityType: "portal_user",
+    entityId: portalUser.id,
+    caseId: null,
+    operation: "update",
+    action: "portal_access_restored",
+    metadata: { contactId, nextStatus },
+  });
+
+  return { ok: true, portalUserId: portalUser.id };
+}
+
+/**
  * Called from the accept flow once Clerk confirms the new user. Marks the
  * portal_users row active and stamps the invitation as accepted.
  *

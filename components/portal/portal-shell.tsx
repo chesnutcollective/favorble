@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -86,8 +87,30 @@ function PortalShellInner({
   const pathname = usePathname();
   const { isImpersonating } = usePortalImpersonation();
 
+  // Phase 6 a11y — reflect the claimant's preferred locale on <html lang>.
+  // The root layout renders lang="en" on initial HTML for SEO/bot crawlers;
+  // we adjust it in place once the portal session-resolved locale is known
+  // so screen readers pronounce page content correctly.
+  useEffect(() => {
+    const normalized = locale?.toLowerCase().startsWith("es") ? "es" : "en";
+    if (
+      typeof document !== "undefined" &&
+      document.documentElement.lang !== normalized
+    ) {
+      document.documentElement.lang = normalized;
+    }
+  }, [locale]);
+
   return (
     <div className="min-h-screen bg-[#F7F5F2] text-foreground">
+      {/* Phase 6 a11y — skip-to-content link surfaces only on keyboard focus. */}
+      <a
+        href="#portal-main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-[#104e60] focus:px-4 focus:py-2 focus:text-white focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       <PortalTopBar
         claimantName={claimantName}
         caseNumber={caseNumber}
@@ -111,7 +134,13 @@ function PortalShellInner({
           </nav>
         </aside>
 
-        <main className="min-w-0 flex-1">{children}</main>
+        <main
+          id="portal-main-content"
+          tabIndex={-1}
+          className="min-w-0 flex-1 focus:outline-none"
+        >
+          {children}
+        </main>
       </div>
 
       <MobileBottomNav pathname={pathname} />
@@ -135,9 +164,13 @@ function PortalTopBar({
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/portal"
+          aria-label="Favorble portal home"
           className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-foreground"
         >
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#104e60] text-[12px] font-bold text-white">
+          <span
+            aria-hidden="true"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#104e60] text-[12px] font-bold text-white"
+          >
             F
           </span>
           <span className="hidden sm:inline">Favorble</span>
@@ -163,9 +196,10 @@ function PortalTopBar({
           {!isImpersonating ? (
             <Link
               href="/logout"
+              aria-label="Log out of portal"
               className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-[12px] font-medium text-foreground/80 hover:border-[#CCC]"
             >
-              <LogOut className="size-3.5" />
+              <LogOut aria-hidden="true" className="size-3.5" />
               <span className="hidden sm:inline">Logout</span>
             </Link>
           ) : null}
@@ -206,6 +240,7 @@ function DesktopNavLink({
   return (
     <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-medium transition-colors",
         active
@@ -213,7 +248,7 @@ function DesktopNavLink({
           : "text-foreground/70 hover:bg-white hover:text-foreground",
       )}
     >
-      <Icon className="size-5" />
+      <Icon aria-hidden="true" className="size-5" />
       <span>{t(item.labelKey)}</span>
     </Link>
   );
@@ -242,7 +277,7 @@ function MobileBottomNav({ pathname }: { pathname: string | null }) {
                 )}
                 aria-current={active ? "page" : undefined}
               >
-                <Icon className="size-5" />
+                <Icon aria-hidden="true" className="size-5" />
                 <span>{t(item.labelKey)}</span>
               </Link>
             </li>
