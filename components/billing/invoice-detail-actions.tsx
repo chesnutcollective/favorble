@@ -18,12 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,19 +73,16 @@ export function InvoiceHeaderActions({
 
   return (
     <div className="flex items-center gap-2">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button variant="outline" size="sm" disabled>
-                <HugeiconsIcon icon={FileDownloadIcon} size={14} />
-                Download PDF
-              </Button>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>Coming soon</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Button asChild variant="outline" size="sm">
+        <a
+          href={`/api/billing/invoices/${invoiceId}/pdf`}
+          download
+          rel="noopener"
+        >
+          <HugeiconsIcon icon={FileDownloadIcon} size={14} />
+          Download PDF
+        </a>
+      </Button>
 
       <SendInvoiceDialog
         invoiceId={invoiceId}

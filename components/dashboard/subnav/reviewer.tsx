@@ -23,9 +23,8 @@ export function ReviewerSubnav({ data }: { data: ReviewerSubnavData }) {
           { label: "Risk queue", href: "/reports/risk" },
           {
             label: "Export PDF",
-            href: "/dashboard/exec",
-            disabled: true,
-            hint: "Coming soon — board-packet PDF export",
+            href: "/dashboard/exec/board-packet",
+            hint: "Pick a case, then download the board-packet PDF",
           },
         ]}
       />
