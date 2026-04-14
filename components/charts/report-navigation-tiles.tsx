@@ -58,6 +58,12 @@ const REPORTS = [
     description: "Reputation tracking and review-request targets.",
     icon: "⭐",
   },
+  {
+    id: "nps",
+    title: "NPS Analytics",
+    description: "Net Promoter Score trends, comments, and action items.",
+    icon: "📣",
+  },
 ] as const;
 
 export function ReportNavigationTiles() {
