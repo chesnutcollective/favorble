@@ -52,6 +52,12 @@ const REPORTS = [
     description: "Every ALJ encountered with outcome patterns and trends.",
     icon: "⚖️",
   },
+  {
+    id: "nps",
+    title: "NPS Analytics",
+    description: "Net Promoter Score trends, comments, and action items.",
+    icon: "📣",
+  },
 ] as const;
 
 export function ReportNavigationTiles() {
