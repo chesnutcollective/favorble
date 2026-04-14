@@ -63,7 +63,7 @@ export function ViewAsBanner({
 
   return (
     <div
-      className="sticky top-0 z-50 flex h-9 w-full items-center justify-between gap-4 bg-amber-400 px-4 text-[12px] font-medium text-amber-950 shadow-sm"
+      className="sticky top-0 z-50 flex h-9 w-full items-center justify-between gap-4 bg-amber-400 pl-4 pr-16 sm:pr-20 text-[12px] font-medium text-amber-950 shadow-sm"
       role="status"
       aria-live="polite"
     >

@@ -375,8 +375,11 @@ export function FeedbackWidget() {
         data-feedback-widget="true"
         aria-label="Send feedback"
         title="Send feedback"
-        className="fixed bottom-16 right-3 z-[999999] flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-6 sm:right-6"
-        style={{ backgroundColor: "#263c94" }}
+        className="fixed right-3 z-[999999] flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:right-6"
+        style={{
+          backgroundColor: "#263c94",
+          bottom: "max(1rem, env(safe-area-inset-bottom))",
+        }}
       >
         <HugeiconsIcon icon={MessageAdd01Icon} size={22} />
       </button>

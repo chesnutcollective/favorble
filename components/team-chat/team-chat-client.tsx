@@ -425,9 +425,10 @@ export function TeamChatClient({
             })}
           </div>
 
-          {/* Compose input */}
+          {/* Compose input — extra right padding keeps the Send button
+              clear of the fixed feedback FAB in the bottom-right corner. */}
           <div
-            className="border-t border-[#EAEAEA] p-3 shrink-0"
+            className="border-t border-[#EAEAEA] p-3 pr-20 sm:pr-24 shrink-0"
             style={{ backgroundColor: COLORS.surface }}
           >
             <form onSubmit={handleSend}>
