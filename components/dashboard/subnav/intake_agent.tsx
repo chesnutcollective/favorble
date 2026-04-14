@@ -1,15 +1,37 @@
 "use client";
 
+import Link from "next/link";
 import {
   SubnavShell,
   SubnavSectionLabel,
-  SubnavActionGrid,
   SubnavStatRow,
   SubnavRecentList,
   SubnavAnchorBlock,
 } from "./_primitives";
+import { IntakeDeclineDialog } from "./intake-decline-dialog";
+import { IntakeWelcomeCallDialog } from "./intake-welcome-call-dialog";
 import { COLORS } from "@/lib/design-tokens";
 import type { IntakeAgentSubnavData } from "@/lib/dashboard-subnav/types";
+
+function QuickActionIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width="14"
+      height="14"
+      aria-hidden
+    >
+      <path
+        d="M9 5l7 7-7 7"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+    </svg>
+  );
+}
 
 export function IntakeAgentSubnav({ data }: { data: IntakeAgentSubnavData }) {
   const buckets = data.aiConfidenceBuckets;
@@ -19,24 +41,38 @@ export function IntakeAgentSubnav({ data }: { data: IntakeAgentSubnavData }) {
   return (
     <SubnavShell title="Intake Floor">
       <SubnavSectionLabel>Quick Actions</SubnavSectionLabel>
-      <SubnavActionGrid
-        actions={[
-          {
-            label: "Welcome call",
-            href: "/leads?action=welcome",
-            disabled: true,
-            hint: "Coming soon — wires to call-script + log call",
-          },
-          { label: "Send contract", href: "/leads?status=contract_sent" },
-          {
-            label: "Decline w/ reason",
-            href: "/leads?action=decline",
-            disabled: true,
-            hint: "Coming soon — needs a reason picker dialog",
-          },
-          { label: "Open Spanish form", href: "/intake/hogansmith?lang=es" },
-        ]}
-      />
+      <div className="ttn-quick-actions">
+        <IntakeWelcomeCallDialog
+          trigger={
+            <button type="button" className="ttn-quick-action-btn">
+              <QuickActionIcon />
+              <span>Welcome call</span>
+            </button>
+          }
+        />
+        <Link
+          href="/leads?status=contract_sent"
+          className="ttn-quick-action-btn"
+        >
+          <QuickActionIcon />
+          <span>Send contract</span>
+        </Link>
+        <IntakeDeclineDialog
+          trigger={
+            <button type="button" className="ttn-quick-action-btn">
+              <QuickActionIcon />
+              <span>Decline w/ reason</span>
+            </button>
+          }
+        />
+        <Link
+          href="/intake/hogansmith?lang=es"
+          className="ttn-quick-action-btn"
+        >
+          <QuickActionIcon />
+          <span>Open Spanish form</span>
+        </Link>
+      </div>
 
       {/* Anchor: AI confidence histogram — borderline = where humans focus */}
       <SubnavSectionLabel>AI Triage · 30d</SubnavSectionLabel>
@@ -125,7 +161,9 @@ export function IntakeAgentSubnav({ data }: { data: IntakeAgentSubnavData }) {
                 }}
               >
                 <span>{r.reason}</span>
-                <span style={{ fontVariantNumeric: "tabular-nums" }}>{r.count}</span>
+                <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {r.count}
+                </span>
               </div>
             ))}
           </div>
