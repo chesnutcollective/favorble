@@ -140,7 +140,14 @@ export const appealsCouncilBriefs = pgTable(
     reviewCompletedAt: timestamp("review_completed_at", {
       withTimezone: true,
     }),
+    // Approve-and-file pipeline marker — set when an approved draft is
+    // handed off to the filing queue. Kept distinct from `filedAt` so we
+    // can track queue lag vs. actual SSA acceptance.
+    filingQueuedAt: timestamp("filing_queued_at", { withTimezone: true }),
     filedAt: timestamp("filed_at", { withTimezone: true }),
+
+    // Link back to the ai_draft row that was approved for this filing.
+    draftId: uuid("draft_id"),
 
     // Outcome (when AC decides)
     outcomeAt: timestamp("outcome_at", { withTimezone: true }),
