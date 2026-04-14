@@ -1,0 +1,344 @@
+[
+  {
+    "sha": "f582cff4242b2d00f3300855af0e04c7cfa19c9b",
+    "summary": "Admins can now grab an integration logo straight from a website URL instead of uploading a file.",
+    "details": "Adds a second option to the logo edit menu on integration detail pages. Previously admins could only upload a PNG, SVG, or JPEG by hand. Now they can paste in a domain like `clerk.com` and the server fetches that site's favicon at 128px resolution, uploads it to the Railway storage bucket, and saves it as the integration's logo.\n\nThe server validates the response (rejects anything under 500 bytes, which is Google's signal for 'no favicon found') and falls back to a base64 data URL in dev environments without a configured bucket. Every fetch is recorded as a `config_changed` event with the source domain so there's an audit trail of which logos came from where.\n\nThe pencil overlay on the logo now opens a small floating menu instead of triggering a file picker directly. Admins choose either path; the menu closes on outside click or after a successful fetch.",
+    "userImpact": "Setting up integration branding takes seconds instead of minutes — no more hunting down PNG files or asking design for a logo. Just paste the vendor's URL.",
+    "riskNotes": "Favicon quality varies by site. If a vendor's favicon is low-res or generic, file upload remains the better choice for that integration.",
+    "bullets": [
+      "New 'Fetch from URL' option in the logo edit menu",
+      "Pulls 128px favicons via Google's favicon service",
+      "Stored in Railway bucket with full audit trail",
+      "Falls back to data URLs in local dev",
+      "File upload path still available as before"
+    ]
+  },
+  {
+    "sha": "23db267d68adaba6b643776d5c00f4cba99a7a06",
+    "summary": "Fixes a hydration warning that fired when the email side panel rendered case links inside email links.",
+    "details": "The EmailPanel was nesting one `<Link>` (the case link) inside another `<Link>` (the email highlight), which produces invalid HTML — anchors can't contain other anchors. React caught this during hydration and logged a mismatch error, even though the visible behavior worked.\n\nThe inner case link now renders as a `<span role=\"link\">` that navigates via `window.location.href` on click or Enter. Visual styling, click handling, and `stopPropagation` are preserved; the markup is now valid.",
+    "userImpact": "No visible change. The hydration warning that occasionally appeared in the browser console is gone, and the email panel is now strictly conformant HTML.",
+    "riskNotes": "",
+    "bullets": [
+      "Replaced nested anchor with span role='link'",
+      "Click and keyboard navigation preserved",
+      "Eliminates React hydration mismatch warning",
+      "Markup is now valid HTML"
+    ]
+  },
+  {
+    "sha": "10f43fbbfc1d50b6665df55aa8c1a1f1f7211c9c",
+    "summary": "Admins can upload custom logos for any integration card by clicking the pencil overlay on the logo image.",
+    "details": "Clicking the pencil icon on any integration logo (on both the cockpit grid and the detail page header) now opens a file picker. Admins can upload PNG, SVG, or JPEG files up to 500KB. The image stores in the Railway bucket at a deterministic path (`integration-logos/{integrationId}-logo.{ext}`) so each integration owns exactly one slot.\n\nIn dev environments without bucket credentials, the file is encoded as a base64 data URL and stored inline in the integration event payload — so the upload UI works end-to-end without infrastructure setup.\n\nEach upload writes a `config_changed` event into `integration_events` with the storage path in the JSONB payload. That row serves dual duty: it's both the pointer the renderer uses to find the latest custom logo and the audit record showing who changed it and when. No new schema or migration was needed.\n\nBoth the cockpit cards and the detail page header look up the most recent `customLogoPath` event and render the signed Railway URL when present, falling back to the static placeholder otherwise. External and data URLs use `unoptimized` on `next/image` to skip the optimization proxy.",
+    "userImpact": "Integration cards now look properly branded instead of generic. Anyone with admin access can swap in real vendor logos in a few seconds without touching code or assets.",
+    "riskNotes": "Logos persist in the Railway bucket — switching to a different storage backend later requires migrating the existing files.",
+    "bullets": [
+      "Pencil icon on every integration logo opens file picker",
+      "Accepts PNG, SVG, and JPEG up to 500KB",
+      "Stored in Railway bucket with deterministic path",
+      "Audit trail via config_changed events",
+      "Dev fallback to inline data URLs"
+    ]
+  },
+  {
+    "sha": "628573e2c5ee58fd34da64319d74c951a201a31c",
+    "summary": "The 'What's New' icon in the nav now opens the full changelog page instead of a small panel.",
+    "details": "Previously, clicking the megaphone icon in the icon rail toggled a secondary nav panel showing the most recent commits. That was useful but felt cramped — there's a full `/changelog` page with a much richer timeline view.\n\nThe icon now navigates directly to `/changelog`. The unread count badge on the icon clears automatically the moment the user lands on the page (detected by `pathname.startsWith('/changelog')`). The hover tooltip still reads 'What's new'.",
+    "userImpact": "Clicking the changelog icon takes you straight to the full timeline instead of a cramped sidebar — easier to skim multiple updates and read full commit details.",
+    "riskNotes": "",
+    "bullets": [
+      "Megaphone icon now links directly to /changelog",
+      "Unread badge clears on page entry",
+      "Tooltip and badge styling unchanged"
+    ]
+  },
+  {
+    "sha": "f34bb87b5490f8d3d2c61d95346981937c7eaedf",
+    "summary": "Final pass to make every cron job run exactly once a day so deploys to Vercel Hobby succeed.",
+    "details": "Follow-up to the previous fix that downgraded sub-daily crons. A few crons were still running multiple times per day (e.g. every 8h or 12h), which Vercel Hobby also rejects. This commit normalizes all twelve cron schedules to single-fire-per-day windows staggered across the early morning hours.\n\nAfter this change every entry in `vercel.json` matches the pattern `M H * * *` with a unique `H` value, so deploys go through cleanly on the Hobby plan.",
+    "userImpact": "Staging and preview deploys stop failing with the 'Hobby accounts are limited to daily cron jobs' error. Background scans (deadlines, risk, integration health, etc.) still run — just once per day instead of multiple times.",
+    "riskNotes": "Anything that previously relied on within-the-day cron freshness (e.g. 8-hour integration health checks) now lags up to 24 hours. Upgrade to Pro to restore higher frequencies.",
+    "bullets": [
+      "All 12 crons now strictly once-daily",
+      "Staggered across early morning hours",
+      "Deploys to Vercel Hobby succeed again",
+      "Pro plan still required for sub-daily schedules"
+    ]
+  },
+  {
+    "sha": "7091a88b3fe3ebac4b4024e827d9ccf9ee060cab",
+    "summary": "Drops cron frequencies down to comply with Vercel Hobby's 'one run per day max' rule that was silently blocking every deploy.",
+    "details": "Vercel started rejecting any deploy on the Hobby plan that includes a sub-daily cron (`*/5`, `*/10`, `*/15`, `*/30` minutes, or hourly). Both `git push` auto-deploys and manual `vercel deploy` failed with: *'Hobby accounts are limited to daily cron jobs.'*\n\nDowngraded each schedule to the minimum compliant frequency while preserving relative ordering between cron groups:\n\n- Every 5 minutes → every 8 hours (integration-health)\n- Every 10 minutes → every 12 hours (integration-alerts)\n- Every 15 minutes → every 6 hours (ingest-retry, transcription-retry)\n- Every 30 minutes → every 4 hours (escalate-overdue)\n- Hourly → daily at 6 and 7 AM (deadline-scan, risk-scan)\n\nAlready-daily crons (performance-rollup, compliance-scan, coaching-scan, integration-cleanup, stagnant-scan) were left alone.",
+    "userImpact": "Deploys go through again. Background processes still run, just less often — overdue tasks and deadlines refresh on a 24-hour cycle instead of hourly.",
+    "riskNotes": "Reduced cron frequency means longer detection windows for failing webhooks, overdue tasks, and integration outages. Acceptable for staging; consider upgrading to Pro for production.",
+    "bullets": [
+      "Fixes the silent deploy block on Vercel Hobby",
+      "All sub-daily schedules downgraded to compliant frequencies",
+      "Relative ordering between cron groups preserved",
+      "Pro plan unlocks original frequencies"
+    ]
+  },
+  {
+    "sha": "a1e46c21b6cceb8fcb254d274e0048cc13a67754",
+    "summary": "New persistent changelog experience: a megaphone icon in the nav with unread count, a quick panel preview, and a full timeline page.",
+    "details": "Adds a complete 'What's New' surface to the app. Three pieces:\n\n**Nav rail icon.** A megaphone above the settings gear shows a circular badge with the count of commits since the user last viewed the changelog. The badge uses the nav-accent color and a monospace font, with a subtle border that blends into the rail background. Count is computed client-side by comparing commit dates against a `lastViewedAt` timestamp in localStorage.\n\n**Compact panel.** Clicking the icon opens a 'What's New' panel in the secondary nav showing the eight most recent commits. Each row has a colored type badge (feat/fix/chore/docs), the stripped subject line, and a relative timestamp like '2h ago'. A 'View full changelog →' link drops into the full page.\n\n**Full changelog page.** A new `/changelog` route with a server-rendered timeline. Commits are bucketed into Today / This Week / This Month / then by calendar month. Each entry has a left timeline dot colored by type, a type badge pill, the subject, author + relative time, and a clickable 7-character SHA that links to GitHub. Multi-line commit bodies expand inline via a 'Show details' toggle. A 'Load more commits' button paginates through GitHub history with `useTransition`. Both the panel and page mark commits as read in localStorage on mount.\n\n**Server action.** `getChangelogCommits()` hits the GitHub commits API on the staging branch with optional `GITHUB_TOKEN` auth, parses conventional-commit prefixes into typed badges, and caches results for 5 minutes via `unstable_cache`. Failures return an empty array so the UI never crashes.",
+    "userImpact": "Anyone using the app can see what shipped recently without leaving it — the badge tells you something is new, the panel shows what at a glance, and the full page lets you skim weeks of work organized by date.",
+    "riskNotes": "Without a `GITHUB_TOKEN` env var, GitHub limits unauthenticated requests to ~60/hour, which can cause the changelog to show empty under heavy use.",
+    "bullets": [
+      "Megaphone icon in nav rail with unread badge",
+      "8-commit preview panel with type badges",
+      "Full /changelog page with time-bucketed timeline",
+      "Pulls live commit history from GitHub",
+      "Per-user 'last viewed' tracking via localStorage"
+    ]
+  },
+  {
+    "sha": "4a1bf26e5afbdb990eb67275149613454c9ee163",
+    "summary": "Massive overhaul of the integrations admin: real branding, categories, live health checks, per-integration deep dives, webhook logs, usage charts, and automated alerting.",
+    "details": "Three-phase rebuild that turns the integrations page from a passive 'is it green or red' display into a full infrastructure management surface.\n\n**Phase 1 — Registry, logos, redesigned cockpit.** A new `lib/integrations/registry.ts` file defines 18 integrations across 5 categories (Data Pipeline, Communication, AI & ML, Infrastructure, Auth & Identity). Each entry knows its name, tagline, environment variables (with secret/required flags), powered features, dependencies, webhook path, tags, and docs URL. Nineteen branded placeholder SVG logos ship in `public/integrations/` (replaceable with real artwork). The cockpit card grid is now grouped by category with section headers, 48px logos, status badges, tag pills, last-verified timestamps, individual Verify buttons, and a 'Verify All' button that pings every health-checkable service in parallel.\n\n**Phase 2 — Per-integration detail pages.** Each integration gets its own page at `/admin/integrations/[id]` with a two-column layout: About (description, powered features, dependencies), Configuration (env-var status with masked secrets and 'Set in Vercel' hints), Health History (sparkline, uptime %, recent checks table), Webhook Deliveries (filterable log with expandable JSON payloads), and Alert Rules (CRUD with enable/disable). A new `app/actions/integration-management.ts` exposes the server actions; `lib/services/integration-event-logger.ts` provides the helper that ERE, CaseStatus, Chronicle, and CallTools webhooks call via `after()` for non-blocking logging.\n\n**Phase 3 — Usage analytics + alerting.** `lib/services/integration-analytics.ts` computes 24-hour hourly breakdowns, uptime %, p95 latency, and sparkline data. Three new cron jobs were added: `integration-health` (pings every 5 min), `integration-alerts` (evaluates rules every 10 min and fires admin notifications when failure thresholds are breached), and `integration-cleanup` (TTL prune events older than 30 days). Seven default alert rules cover the critical integrations (ERE, CaseStatus, LangExtract, Postgres, Anthropic, MyCase, Vercel). Schema migration 0010 adds the `integration_events` and `integration_alert_rules` tables.",
+    "userImpact": "Admins finally get the full picture of every external service the app depends on — current status, recent failures, webhook payloads, latency trends, and configurable alerts. Diagnosing 'is something broken' takes seconds instead of grepping logs.",
+    "riskNotes": "Several new cron jobs were added with sub-daily frequencies, which later required downgrading for Hobby-plan compliance. Alert rules can fire admin notifications — review thresholds before going to production.",
+    "bullets": [
+      "18-integration registry with categories, logos, tags",
+      "Per-integration pages with health, webhooks, analytics",
+      "Three new crons: health pings, alerting, event cleanup",
+      "7 default alert rules for critical integrations",
+      "Webhook delivery log with expandable JSON payloads",
+      "New tables: integration_events, integration_alert_rules"
+    ]
+  },
+  {
+    "sha": "0057a7bbe5f59625eac21d93687606388abbe653",
+    "summary": "First commit of the changelog page — the time-bucketed timeline UI that lists every recent commit.",
+    "details": "Initial scaffolding for the `/changelog` route. Adds the server `page.tsx` that fetches commits from GitHub via the existing changelog action, the `client.tsx` that renders the timeline (Today / This Week / This Month / by-month buckets), a `loading.tsx` skeleton matching the page shape, and the `app/actions/changelog.ts` server action with conventional-commit parsing and `unstable_cache` for 5-minute caching.\n\nThis lays down the foundation that later commits build on (icon, unread badge, accordion details).",
+    "userImpact": "Establishes the changelog page itself. Anyone visiting `/changelog` sees a clean timeline of recent commits grouped by time period.",
+    "riskNotes": "",
+    "bullets": [
+      "New /changelog route with server-rendered page",
+      "Time-bucketed timeline (today/week/month/by-month)",
+      "Loading skeleton matches final layout",
+      "Server action with 5-minute GitHub cache"
+    ]
+  },
+  {
+    "sha": "01409b2d894de081d3de61f699b606e761ae7284",
+    "summary": "Icon rail now scrolls when there are too many icons and every icon gets a one-line tooltip explaining what it does.",
+    "details": "The nav rail was overflowing on smaller laptop screens once the persona system added more icons. Two improvements landed together:\n\n**Scrollable middle section.** The avatar/initials bubble at the top and the settings gear at the bottom are now pinned (`shrink-0`); the icon group between them is `flex-1 overflow-y-auto`. A subtle 12px CSS `mask-image` gradient fades the top and bottom edges so users can tell there's more to scroll to. The scrollbar itself is hidden by the global scrollbars-hidden CSS.\n\n**Tooltips on every icon.** Uses the existing shadcn/Radix `Tooltip` component with a 150ms delay and right-side placement. Each of the 24 icons gets a polished one-liner — for example: 'Dashboard — your daily command center', 'Cases — every active case at a glance', 'Supervisor — monitor team performance & case health'. The avatar tooltip and settings tooltip are also configured. A single `TooltipProvider` wraps the entire `<nav>`. The avatar tooltip nests inside the dropdown menu so hover (tooltip) and click (dropdown) work together.",
+    "userImpact": "On smaller screens the rail no longer chops off icons. New users get hover hints on every icon so they can learn the nav without clicking around.",
+    "riskNotes": "",
+    "bullets": [
+      "Rail scrolls when icons exceed viewport height",
+      "Avatar and settings stay pinned at top/bottom",
+      "Subtle gradient fade signals scrollability",
+      "24 polished one-line tooltips on every icon",
+      "Single TooltipProvider for performance"
+    ]
+  },
+  {
+    "sha": "4908c107e598a943a870e6d0c609b832c96233c4",
+    "summary": "Sweeping polish pass — every page got a loading skeleton, hover transitions are consistent, and six specialty workspaces were brought up to gold-standard quality.",
+    "details": "Three parallel agents worked over the entire app to even out the polish floor. Three streams of work:\n\n**Loading skeletons (62 new files, 79 total).** Every `page.tsx` now has a sibling `loading.tsx` whose skeleton shapes match the actual page layout. Table pages get header + filter bar + row shapes. Detail pages get back link + header + content card shapes. Grid pages get stat card shapes. Chat/message pages get two-panel sidebar + content layouts. Suspense boundaries finally have meaningful fallbacks instead of blank screens.\n\n**Transition consistency (15 files fixed).** Added `duration-200` to drafts card hover, fixed audit-logs redundant hover state, replaced raw `overflow-auto` with `ScrollArea` in PHI Writer, converted admin/settings raw `<button>` to shadcn `<Button>`, added `transition-colors duration-200` to ten high-traffic files (hearings, mail, filing, cases/tasks, ai-review, qa pages, drafts).\n\n**Workspace polish (8 files, 6 specialty pages).** Empty states with icon + message for every tab in fee-collection, appeals-council, post-hearing, supervisor. Clickable table rows with hover background and cursor-pointer + Link wrapping. All hardcoded hex colors replaced with design tokens (`text-muted-foreground`, `bg-muted`, `text-brand-600`, `text-urgent`, `bg-warning/10`). Supervisor grid corrected from 5-cols to 3-cols. Coaching severity colors moved to semantic tokens. Stats cards reformatted to match the gold-standard pattern. Shared `stats-card.tsx` and `empty-state.tsx` updated to use tokens.",
+    "userImpact": "The whole app feels noticeably more polished — loading states no longer flash blank, hover effects are smooth and consistent, and the specialty workspaces look like first-class pages instead of afterthoughts.",
+    "riskNotes": "Token migration changes how some colors render. If the design system tokens get retuned, the whole app will follow — generally desirable, but worth knowing if you've been pixel-matching against screenshots.",
+    "bullets": [
+      "62 new loading.tsx skeletons across the app",
+      "Consistent 200ms hover transitions on key surfaces",
+      "Empty states added to every specialty workspace tab",
+      "Hardcoded hex colors replaced with semantic design tokens",
+      "Supervisor grid layout fixed (5-col → 3-col)"
+    ]
+  },
+  {
+    "sha": "b2bc73f479096263618598d8e83abe9d65c0ef4a",
+    "summary": "Polish-only pass over six specialty workspace pages — empty states, hover effects, and a switch from hardcoded colors to design tokens.",
+    "details": "Targeted sweep across the appeals-council, fee-collection, post-hearing, supervisor, and coaching pages plus the shared StatsCard and EmptyState components. Replaces blank empty states with centered icon + message + description on every tab. Adds hover background and cursor-pointer to all data table rows, then wraps each row in `<Link className=\"contents\">` so the full row is a clickable navigation target.\n\nReplaces every hardcoded hex color (`#666`, `#3a0000`, `#ffe5e0`, `#0066cc`, etc.) with semantic design tokens (`text-muted-foreground`, `text-brand-600`, `text-urgent`, `bg-muted`, `border-border`). Also fixes a layout bug — supervisor was using `grid-cols-5` for stat cards which made each card too narrow on standard widths; now it's `grid-cols-3`. Coaching stat cards reformatted to match the StatsCard gold standard. Strips a few unused Card/CardContent imports left over from previous refactors.",
+    "userImpact": "These six workspaces look and feel native to the app instead of like first-draft pages. Empty tabs are friendly, rows are clearly clickable, and color usage stays in lockstep with the rest of the app.",
+    "riskNotes": "",
+    "bullets": [
+      "Empty states added on every tab in 6 workspaces",
+      "Table rows now have proper hover + click states",
+      "Hardcoded hex colors replaced with design tokens",
+      "Supervisor stat grid fixed to 3 columns",
+      "Coaching cards reformatted to gold standard"
+    ]
+  },
+  {
+    "sha": "f51c2f5c54e874812459428fa36ffd1d4d6abdbf",
+    "summary": "Twelve-fix audit pass that took the app from ~40% functional to ~95% — biggest win was unblocking the case detail crash that affected every persona.",
+    "details": "Persona-workflow UX sweep where twelve agents ran in parallel, one per audit finding. Highlights:\n\n- **F1 — Case detail crash fixed.** A `DOMMatrix` error was thrown at module-eval time because a PDF dependency was being loaded statically. Dynamic-imported it inside the function body, which unblocked all 9 case detail tabs for every persona.\n- **F2 — All 6 persona pages confirmed to exist.** The 404s users were seeing came from stale staging deploys, not missing routes. Re-deployed.\n- **F3 — Claimant names resolve in filing + MR queues.** Chronicle-imported cases store claimants in `case_contacts → contacts`, not `leads`. Added a fallback join.\n- **F4 — Billing seed data.** $90k across 15 invoices, 50 time entries, 20 expenses, 46 line items, 8 payments.\n- **F5 — Trust seed data.** $154k across 2 IOLTA accounts, 30 mixed-state transactions.\n- **F6 — Functional team-chat UI.** Two-panel layout with channel sidebar (with unread badges), message list, and compose input. Seed creates 3 channels + sample messages.\n- **F7 — 8 SSD document templates seeded** (fee agreements, briefs, correspondence, forms with merge fields).\n- **F8 — Expense tracking UI.** Replaces 'coming soon' on the billing page with a real expense list + create dialog.\n- **F9 — /supervisor workspace built** with stats + 4-tab interface.\n- **F10 — Loading + error states** added to all route segments (11 loading.tsx + 15 error.tsx).\n- **F11 — All 7 create dialogs verified** working end-to-end (New Case, Lead, Invoice, Time Entry, Expense, Calendar Event, Invite User).\n- **F12 — All drag-drop interactions verified** (lead kanban, admin stage reorder, document upload).",
+    "userImpact": "Case detail pages stopped crashing across every persona, claimant names display correctly in queues, billing/trust/team-chat look like real features instead of stubs, and the supervisor workspace exists. Effectively the largest single-PR usability lift to date.",
+    "riskNotes": "Many of the fixes touch widely-used surfaces. Worth eyeballing case detail tabs, the filing queue, and team chat right after deploy.",
+    "bullets": [
+      "Fixed DOMMatrix crash blocking every case detail page",
+      "Claimant names resolve via fallback contacts join",
+      "Billing, trust, and team-chat now functional with seed data",
+      "Loading + error boundaries on every route segment",
+      "All 7 create dialogs verified end-to-end",
+      "Supervisor workspace built (stats + 4-tab interface)"
+    ]
+  },
+  {
+    "sha": "e98d56a497a9fd5ff736b31b2457436f5fb7833e",
+    "summary": "Adds Skeleton-based loading states and error boundaries to 15 high-traffic route segments.",
+    "details": "Drops a `loading.tsx` (Skeleton component matching the page's actual content shape) and a client-side `error.tsx` (warning icon + error digest + retry button) into the cases, cases/[id], leads, queue, hearings, filing, medical-records, billing, trust, documents, email, contacts, calendar, reports, and admin route segments.\n\nLoading skeletons mirror each page's layout — table headers + rows for list pages, sidebar + content for two-pane layouts, etc. Error boundaries follow the existing pattern: a friendly icon, the digest hash for debugging, and a button to recover. Total: 26 new files.",
+    "userImpact": "When a page is loading, you see content-shaped placeholders instead of a blank screen. When something errors, you get a clear retry path instead of a stack trace.",
+    "riskNotes": "",
+    "bullets": [
+      "26 new loading.tsx + error.tsx files",
+      "Skeletons match each page's actual content shape",
+      "Error boundaries show digest + retry button",
+      "Covers 15 highest-traffic route segments"
+    ]
+  },
+  {
+    "sha": "8161927520305895420d31d4756ae0c31e56bbd9",
+    "summary": "Filing queue and medical records page now show real claimant names for Chronicle-imported cases instead of 'Unknown Claimant'.",
+    "details": "Both pages joined cases through `cases.leadId → leads`, but Chronicle-imported cases don't have a lead record — their claimant lives in `case_contacts → contacts`. Result: every Chronicle case showed 'Unknown Claimant'.\n\nAdded a fallback path: when the leads join produces no match, the queries also look up the primary contact via `case_contacts`. Same approach the cases list page already uses, now applied consistently to filing and MR.",
+    "userImpact": "Anyone working filing or medical records queues can identify cases by name again. No more 'Unknown Claimant' rows for Chronicle imports.",
+    "riskNotes": "",
+    "bullets": [
+      "Chronicle-imported cases now display real names",
+      "Adds case_contacts fallback to filing and MR queries",
+      "Matches the pattern used by the cases list page"
+    ]
+  },
+  {
+    "sha": "1a45005aaabe50716fa5193640073db1015a7746",
+    "summary": "Scrollbars are hidden by default everywhere in the app; users can re-enable them in Settings > Preferences.",
+    "details": "A global CSS rule on the `<html>` element hides all scrollbar chrome (Firefox `scrollbar-width: none`, WebKit `::-webkit-scrollbar { display: none }`) while keeping scroll functionality intact. The rule uses `!important` to win over component-level scrollbar styles.\n\nThe app reads a `favorble_scrollbars` cookie server-side in `app/layout.tsx` and applies the hide class to `<html>` by default — so there's no flash of visible scrollbars during hydration. A new `app/actions/preferences.ts` exposes `setScrollbarPreference` / `getScrollbarPreference`, backed by a 1-year `sameSite=lax` cookie.\n\nA new Settings > Preferences page presents a Switch toggle styled like the existing notification preferences. Toggling it gives instant feedback by directly toggling the DOM class plus a `router.refresh()` to sync the cookie. The settings nav panel gains a 'Preferences' link.\n\nNo database changes; no per-component edits needed — the global selector covers all current and future scrollable elements.",
+    "userImpact": "The app looks cleaner by default — no more grey scrollbar tracks competing with content. Users who prefer the classic look can re-enable them in Settings > Preferences with one click.",
+    "riskNotes": "If a user is mid-scroll in a list and can't tell content extends below the fold, they may miss it. Consider adding subtle scroll affordances on long lists.",
+    "bullets": [
+      "Global CSS hides scrollbar chrome on every element",
+      "Server-side cookie read avoids hydration flash",
+      "Settings > Preferences gives users a toggle",
+      "1-year cookie persists the choice",
+      "No schema or per-component changes needed"
+    ]
+  },
+  {
+    "sha": "f2bdc51eb179256685c66d6eabe035206d7baff0",
+    "summary": "Closes every remaining gap in the AI Supervisor build plan — all 29 stories now score 90 or above.",
+    "details": "Final gap-fill pass that bumps fifteen sub-90 stories into the 90s by filling in the last missing pieces. Highlights:\n\n- **CM-3 (80→90):** Reply classifier fires unconditionally on inbound messages.\n- **QA-2 (80→90):** Pre-send QA preview rendered inline in the message thread.\n- **SM-2 (80→90):** Five additional SSA deadline rules added (7 of 9 now actively scanned).\n- **SA-2 (80→90):** HTML/PDF export with firm letterhead for AI drafts.\n- **PR-2 (80→90):** Ten new compliance rules (14 total, all real — no placeholders).\n- **SA-1 (85→90):** Structured 'what to do next' content in event notifications.\n- **SA-4 (80→90):** Eight-scenario call script library wired into the Claude prompt.\n- **SA-6 (85→90):** Auto-link judges from ERE scraper with case-insensitive dedup.\n- **SA-7 (85→90):** Context-rich escalation notification bodies (case + assignee detail).\n- **SM-4 (80→90):** Plain-English reassignment rationale per recommendation.\n- **RP-1/2/4/5 (85→90):** Period selector + CSV export, composite score explanation, trend badges, handoff SLA badges with drill-through.\n- **PR-3 (85→90):** Bottleneck rows expand to show stuck cases with dwell time.",
+    "userImpact": "The Supervisor module is feature-complete by the planning rubric. Reports have CSV exports and trend badges, drafts can be exported as branded PDFs, escalation notifications include enough context to act on, and the message thread has pre-send QA built in.",
+    "riskNotes": "Many surfaces touched in one commit — worth verifying CSV exports and PDF export end-to-end.",
+    "bullets": [
+      "All 29 supervisor stories now score 90+",
+      "PDF export with firm letterhead for AI drafts",
+      "10 new real compliance rules (14 total)",
+      "8-scenario call script library wired in",
+      "Bottleneck rows expand with stuck-case detail",
+      "Trend + SLA badges across reports"
+    ]
+  },
+  {
+    "sha": "4226673866210580fd36acaec0bf0f9501f1d3b8",
+    "summary": "Polish pass on four supervisor stories — threaded messaging, sentiment time-series charts, AI-written pattern narratives, and AI-suggested next actions for stagnant cases.",
+    "details": "Four discrete improvements:\n\n**CM-1 — Threaded messages (85→95).** `message-thread.tsx` rewritten so messages with the same `threadId` group into collapsible thread cards (showing participants, count, time range). Within a thread, messages render chronologically with inbound/outbound styling. Standalone messages (no `threadId`) drop to the bottom. New 'Reply in thread' and 'Start new thread' controls; the client mints `threadId`s on the fly so `sendCaseMessage` didn't need a signature change.\n\n**QA-3 — Sentiment time-series (85→95).** New `stacked-bar.tsx` chart (inline SVG, no charting lib), following the Sparkline pattern. Backed by `sentiment-analytics.ts` actions: `getOrgSentimentTrend(daysBack)` returns per-day distribution with zero-day padding; `getCaseSentimentTimeline(caseId)` for single-case views. The QA client-health page renders a 30-day org sentiment stacked bar; case overview cards now render a per-case sentiment sparkline colored by the most recent label.\n\n**RP-3 — AI pattern narratives (80→90).** `pattern-narrative.ts` calls Claude to turn pattern analysis into a single-sentence narrative ('Cases assigned to this user move ~3 days slower than peers in the discovery stage.'), keyed by `(role:metricKey:kind)` with a 10-minute in-memory cache. Falls back to a deterministic string when Claude is unconfigured.\n\n**SM-3 — AI next-action for stagnant cases (80→90).** `stagnant-suggestions.ts` calls Claude with `buildCaseContext` and asks for ONE concrete next action (person by role, action verb, timeframe). The stagnant-scan cron now writes that recommendation per case instead of a hardcoded string.",
+    "userImpact": "Messages with replies finally look threaded instead of flattened. QA team gets a real sentiment trend chart instead of a snapshot. Performance reports explain *why* a metric is interesting in plain English. Stagnant cases come with a concrete next-step suggestion instead of generic 'follow up'.",
+    "riskNotes": "Pattern narratives and stagnant suggestions both call Claude — costs accrue per call, in-memory cache only lives per server instance. Watch token usage.",
+    "bullets": [
+      "Threaded message UI replaces flat message list",
+      "30-day org sentiment stacked bar chart",
+      "Per-case sentiment sparkline on overview",
+      "AI-written narratives explain pattern verdicts",
+      "AI-suggested next action for stagnant cases"
+    ]
+  },
+  {
+    "sha": "d3888fc23e7b515cf672fa4b93aef76699ff47d1",
+    "summary": "Risk scorer upgraded from 7 to 12 signals plus six real SSA workflow templates so the event_detected trigger has something to fire.",
+    "details": "Two pieces shipped together.\n\n**Risk scorer v2.** Five new signals added: `risk_trajectory` (8 pts — flags cases that are getting worse, not just currently bad, by classifying the trend across audit-log score history), `missed_ssa_deadlines` (20 pts capped — 10 per missed SSA-event-sourced task), `unresolved_events` (16 pts capped — 4 per open supervisor event), `compliance_findings` (15 pts capped — 6 critical / 3 high / 1 medium per finding), and `sentiment_trend` (12 pts — last 5 inbound comms, full weight if ≥3 are negative).\n\nExisting weights recalibrated so the total max raw score is 143; the published 0-100 score normalizes via `round(raw * 100 / 143)`. Band thresholds (low/medium/high/critical) unchanged. Each scorer run writes an audit_log row so the trajectory signal has history to read.\n\n**AI narrative.** When score ≥ 60 and `ANTHROPIC_API_KEY` is set, calls Claude with `buildCaseContext` to generate 2-3 sentences explaining the top three contributing factors. Stored as the first entry in the `factors` JSONB with key `ai_narrative`. The `/reports/risk` page renders that narrative as a 'Why' sub-row under each high/critical case.\n\n**Workflow seed.** Six SSA-event templates with `triggerType='event_detected'`: denial_received (3 tasks), unfavorable_decision (4 tasks), favorable_decision (3 tasks), hearing_scheduled (5 tasks with relative day offsets), appeal_deadline_approaching (1 urgent task), new_medical_evidence (2 tasks). Idempotent on org+name. Eighteen task templates total.",
+    "userImpact": "Risk scores reflect more reality (active deadlines missed, open events piling up, sentiment souring) and the worst cases now come with a plain-English 'why this is risky'. The event-driven workflow trigger fires real task lists when SSA events come in, instead of being a no-op.",
+    "riskNotes": "Score normalization changed (denominator 143). Existing dashboards comparing old vs new scores will see a discontinuity — `scorer_version` flips to v2 in the persisted row so you can filter.",
+    "bullets": [
+      "5 new risk signals: trajectory, deadlines, events, compliance, sentiment",
+      "Score now normalized over a 143-pt max",
+      "AI 'Why this is risky' narrative for high/critical cases",
+      "6 SSA event-driven workflow templates seeded",
+      "scorer_version='v2' marks recalibrated rows"
+    ]
+  },
+  {
+    "sha": "f0dca65e111b9bcbc3ed1050ac3a3e2c803968ee",
+    "summary": "Coaching module backed by a 47-recipe library — every role × metric pair now gets app-specific action plans instead of generic advice.",
+    "details": "Replaces hand-maintained generic coaching content with a structured library of 47 recipes covering every metric in `ROLE_METRICS` for the 12 non-admin roles.\n\n**Recipe shape.** Each entry has: a notification-grade `diagnosis`, three to four `actionSteps` (label, description, expected outcome, timeframe), `talkingPoints` for coaching conversations, `trainingResources`, and `commonRootCauses`. All content references real app surfaces — `/mr/queue`, `/filing/pre-flight`, the AI draft feature, the template library — instead of generic 'work harder' advice.\n\n**Wiring.**\n- `coaching-detection.ts`: replaces the `ACTION_STEPS` map with `getRecipe(role, metricKey)` lookups. Flag summaries pull from `recipe.diagnosis`; suggested action steps store the full structured objects; `detectTrainingGaps` formats `trainingResources` + `commonRootCauses` into numbered-list recommendations.\n- `coaching-draft.ts`: both `draftCoachingConversation` and `draftCoachingCallScript` receive structured recipe context (talking points, root causes, etc.) in the Claude prompt with explicit instructions to reference them by name rather than improvising.\n- `coaching/[flagId]/page.tsx`: server-side recipe lookup powers three new cards above the existing actions — Action Plan (checkboxes per step), Common Root Causes (bullet list), Training Resources (bullet list).\n\nGeneric fallback retained for any (role, metric) pair not yet in the library.",
+    "userImpact": "When a manager opens a coaching flag, they see a tailored action plan that names the actual screens, features, and metrics involved — not generic 'have a conversation' boilerplate. Coaching call scripts written by Claude reference real coaching steps instead of improvising.",
+    "riskNotes": "47 recipes is a lot of curated content. Future role/metric additions need a recipe authored or they fall to the generic path.",
+    "bullets": [
+      "47 app-specific coaching recipes",
+      "Each recipe: diagnosis, action steps, talking points, root causes",
+      "Coaching pages render Action Plan / Root Causes / Resources cards",
+      "Claude prompts now grounded in recipe context",
+      "All four coaching stories (CC-1 through CC-4) → 90"
+    ]
+  },
+  {
+    "sha": "04f1eeb197980dea8b8f799384210b561052a331",
+    "summary": "Real email and SMS notification delivery via Resend and Twilio — activates when API keys are present, falls back gracefully when not.",
+    "details": "Wires the two missing notification channels into the existing notification dispatcher.\n\n**delivery-channels.ts** has three functions:\n- `deliverEmail({userId, subject, body})` POSTs to `https://api.resend.com/emails` with bearer auth and an HTML body. Reads `RESEND_FROM_EMAIL` (defaults to `notifications@favorble.app`).\n- `deliverSms({userId, body})` POSTs to Twilio's Messages endpoint with Basic auth and a form-urlencoded body. Truncates messages to 320 chars (2 SMS segments). Reads the user's phone via raw SQL (the users schema doesn't yet have a phone column) and fails gracefully when missing.\n- `deliverPush` is a documented stub for OneSignal.\n\n**notification-dispatcher.ts** walks `notification_deliveries` rows where `sentAt IS NULL`, respects per-user preferences (channel toggles + muted event types via dedupe-key prefix matching, never mutes in-app), stamps `sentAt` on both success and failure so we don't busy-retry, and persists the provider's `externalId` in metadata. `enqueueNotificationDispatch(id)` runs the dispatcher in `after()` so it doesn't block the originating request.\n\n**notify.ts** — `createNotification` now calls `enqueueNotificationDispatch` after creating the rows, so every existing caller automatically gets email + SMS without code changes.\n\n**UI.**\n- `/settings/notifications` server page with email/SMS/push toggles and a checkbox grid covering all 18 supervisor event types.\n- The notification bell shows a small `DeliveryDot` (green/amber/red for ok/mixed/fail) next to each row's title for non-in-app notifications.\n\n**docs/notification-channels.md** documents Resend signup, sender domain verification, Twilio credentials, and cost estimates (Resend free 3k/mo, Twilio ~$0.0079/msg). No new npm dependencies — uses raw fetch against both providers.",
+    "userImpact": "Adding `RESEND_API_KEY` and `TWILIO_*` env vars instantly turns on real email and SMS notifications across the whole app. Users get a per-channel mute UI and can opt out of specific event types. The notification bell shows whether each notification actually delivered.",
+    "riskNotes": "SMS costs ~$0.0079/msg via Twilio — review notification volume before enabling in production. Sender domain verification on Resend is required for deliverability.",
+    "bullets": [
+      "Resend integration for email (free 3k/mo tier)",
+      "Twilio integration for SMS",
+      "Per-user channel toggles + muted event types",
+      "after()-based async delivery (non-blocking)",
+      "Delivery status dot in the notification bell",
+      "Falls back to in-app-only when keys are absent"
+    ]
+  },
+  {
+    "sha": "f9a9c2d56541354a83008b1bc8032f74e4e16af8",
+    "summary": "Ten previously-stubbed metric collectors now query real data, and three new persona workspaces (fee-collection, appeals-council, post-hearing) expose that data to their teams.",
+    "details": "Two parallel pieces.\n\n**Real metric collectors.** Ten metrics in `lib/services/metric-collectors.ts` now query the supervisor_domains tables instead of returning placeholder zeros: fee_petition_filing_days, fee_collection_rate, delinquent_fee_followup_compliance, ac_briefs_submitted_per_week, ac_briefs_on_time_rate, ac_grant_rate, prehearing_briefs_drafted_per_week, brief_on_time_rate, post_hearing_processing_days, client_notification_compliance. Each is a real SQL aggregation against the right tables. `evidence_incorporation_rate` remains stubbed (it requires semantic LLM analysis of brief text against the medical-records corpus and is out of scope here).\n\n**New workspaces.**\n- `/fee-collection` — 4 tabs (pending, filed, approved, delinquent). Delinquent = approved + outstanding + >30 days since approval.\n- `/appeals-council` — 5 tabs (pending, drafting, in review, filed, decided). Red pill when daysRemaining ≤ 7.\n- `/post-hearing` — 4 tabs (awaiting, clientNotified, stageAdvanced, completed) with a lifecycle progress-dots indicator.\n\nEach workspace is backed by its own action file (`fee-collection.ts`, `appeals-council.ts`, `post-hearing.ts`) returning bucketed data ready for the tabs.\n\n**Persona config + nav.** Added `fee_collection`, `appeals_council`, `post_hearing`, and `pre_hearing_prep` entries to `PERSONA_CONFIG` with the right defaultRoute, nav items, workspaceDescription, and primaryKpi. Extended `VIEW_AS_PERSONAS` so admins can preview each. `pre_hearing_prep` reuses `/phi-writer` as its workspace. Three new icons added to the rail (DollarCircle, BalanceScale, CheckmarkBadge01).",
+    "userImpact": "The fee-collection, appeals-council, and post-hearing teams have dedicated workspaces showing exactly the cases that need their attention, with real metrics behind them. Performance reports for these roles now show real numbers instead of zeros.",
+    "riskNotes": "evidence_incorporation_rate still returns a stub. Anyone consuming that metric should know it's not yet real.",
+    "bullets": [
+      "10 metric collectors query real supervisor_domains data",
+      "/fee-collection workspace with delinquency tracking",
+      "/appeals-council workspace with deadline urgency pills",
+      "/post-hearing workspace with lifecycle progress dots",
+      "4 new personas wired into the nav system"
+    ]
+  },
+  {
+    "sha": "62376d6b0b8aee093a370ab993aac044d711e9cd",
+    "summary": "Real Deepgram nova-2 transcription replaces the stub call-transcript worker — falls back to a labeled stub when the API key isn't set.",
+    "details": "Activates real transcription when `DEEPGRAM_API_KEY` is present.\n\n**call-transcription.ts.**\n- `transcribeWithDeepgram(audioUrlOrBuffer, opts)` POSTs to `api.deepgram.com/v1/listen` with nova-2, punctuate, diarize, smart_format, and utterances enabled. Accepts either a URL or a Buffer.\n- Groups consecutive same-speaker utterances into segments (`speaker, startMs, endMs, text, confidence`) so the viewer UI can render speaker-separated turns.\n- `transcribeRecording(recordingId)` branches on the API key. Without it: writes a labeled stub with `provider='stub_no_api_key'`. With it: calls Deepgram and persists the real transcript. Either path chains to `enqueueCallQcReview`.\n- On error: status flips to `error` so the retry cron picks it up.\n- A small clamp helper makes confidence values fit `numeric(4,3)`.\n\n**Stub warning UI.** The QA call detail page shows a banner when the provider is a stub, naming the exact env var that unblocks real transcription. When provider is `deepgram`, a 'Transcribed by Deepgram' pill renders in the transcript header.\n\n**Retry cron.** New `/api/cron/transcription-retry` route, CRON_SECRET-authenticated, queries `callRecordings` where status is `error` or `pending_transcription` and `createdAt > now - 7 days`, caps at 20 per run, returns a summary JSON.\n\n**vercel.json.** Consolidated all nine supervisor crons into the crons array (several had been dropped during parallel agent builds). Schedules: ingest-retry (15m), transcription-retry (15m), escalate-overdue (30m), deadline-scan (1h), risk-scan (:15), stagnant-scan (4h), performance-rollup (2am), compliance-scan (3:30am), coaching-scan (4am).",
+    "userImpact": "Setting `DEEPGRAM_API_KEY` switches call recordings from text stubs to real, speaker-separated transcripts. The QA team can review actual call audio with proper diarization. The retry cron means transient Deepgram failures self-heal within 15 minutes.",
+    "riskNotes": "Deepgram nova-2 has per-minute pricing — review call volume before enabling. The cron schedules added here were later downgraded for Hobby-plan compliance.",
+    "bullets": [
+      "Real Deepgram nova-2 transcription with diarization",
+      "Speaker-grouped segments for the viewer UI",
+      "Labeled stub fallback when API key absent",
+      "New transcription-retry cron picks up failures",
+      "QA call detail page shows provider badge"
+    ]
+  },
+  {
+    "sha": "8ad7fb738b1d24f59aef65701c300d5f44cfe705",
+    "summary": "Three new domain tables backing fee collection, appeals council, and post-hearing metrics that were previously stubbed.",
+    "details": "Schema-only commit. Adds the foundation that the next commit's metric collectors and workspaces depend on.\n\n**fee_petitions** — fee petitions filed with SSA after favorable decisions. Tracks the lifecycle from `favorable_decision_date` → `filedAt` → `approvedAt` → `collectedAmountCents`. Feeds the fee-collection team workspace and per-member metrics.\n\n**fee_collection_follow_ups** — recorded follow-up contacts on pending or delinquent fees. Drives the `delinquent_fee_followup_compliance` metric.\n\n**appeals_council_briefs** — AC brief pipeline with deadline tracking against the 65-day SSA rule. Tracks draft → review → filed → outcome lifecycle, with `outcome ∈ {granted, denied, remanded}` and the issues identified from the ALJ decision.\n\n**hearing_outcomes** — post-hearing processing lifecycle. Captures hearing outcome, client notification timestamp, stage advancement, processing completion. Feeds the post-hearing team metrics.\n\nAlso restores migration journal entries for 0008 and 0009 that kept getting reset by parallel agent stash/pop cycles during the build.",
+    "userImpact": "Pure schema. Sets the stage for real fee-collection / AC / post-hearing workspaces in the very next commit.",
+    "riskNotes": "Migration 0009 is shipped here. If applied out of order with parallel feature branches, expect conflicts.",
+    "bullets": [
+      "fee_petitions table with full lifecycle tracking",
+      "fee_collection_follow_ups for delinquency compliance",
+      "appeals_council_briefs with 65-day deadline tracking",
+      "hearing_outcomes for post-hearing lifecycle",
+      "Migration 0009 (already applied to staging)"
+    ]
+  },
+  {
+    "sha": "c4985b1c1dba8a90825694bc522291a9c1065907",
+    "summary": "Empty test commit to verify the staging deploy webhook fires correctly.",
+    "details": "No code change. Created solely to push a commit through the staging branch and confirm that the Vercel deploy webhook responds. Useful when debugging CI/CD pipeline issues without altering application behavior.",
+    "userImpact": "No user-visible change — internal CI verification only.",
+    "riskNotes": "",
+    "bullets": [
+      "Empty commit to trigger staging deploy",
+      "No application code modified"
+    ]
+  }
+]

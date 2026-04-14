@@ -18,7 +18,11 @@ export default async function PublicIntakePage({
   const { lang } = await searchParams;
 
   const [org] = await db
-    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+    .select({
+      id: organizations.id,
+      name: organizations.name,
+      slug: organizations.slug,
+    })
     .from(organizations)
     .where(
       and(eq(organizations.slug, orgSlug), isNull(organizations.deletedAt)),

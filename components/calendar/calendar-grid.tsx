@@ -117,7 +117,7 @@ export function CalendarGrid({
   initialDay,
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>(
-    initialDay ? "day" : "month",
+    initialDay ? "day" : "week",
   );
   const [currentDate, setCurrentDate] = useState(
     new Date(initialYear, initialMonth, initialDay ?? 1),

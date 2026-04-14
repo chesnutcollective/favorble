@@ -6,7 +6,10 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { ViewAsBanner } from "@/components/layout/view-as-banner";
 import { getActiveCaseCount } from "@/app/actions/cases";
 import { getNavPanelData } from "@/app/actions/nav-data";
+import { getChangelogCommits } from "@/app/actions/changelog";
+import { getDashboardSubnavData } from "@/app/actions/dashboard-subnav";
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 export default async function AppLayout({
   children,
@@ -14,9 +17,15 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const persona = await requireEffectivePersona();
-  const [casesCount, navData] = await Promise.all([
+  const [casesCount, navData, changelogResult, subnavData] = await Promise.all([
     getActiveCaseCount(),
     getNavPanelData().catch(() => undefined),
+    getChangelogCommits().catch(() => ({ commits: [], hasMore: false })),
+    getDashboardSubnavData(
+      persona.personaId,
+      persona.actor.organizationId,
+      persona.actor.id,
+    ).catch(() => undefined),
   ]);
 
   const isAdmin = persona.actorPersonaId === "admin";
@@ -27,19 +36,22 @@ export default async function AppLayout({
       {persona.isViewingAs && (
         <ViewAsBanner
           personaLabel={persona.config.label}
+          personaId={persona.personaId}
           actorName={actorName}
         />
       )}
-      <div className="ttn-app-layout">
+      <div className={`ttn-app-layout${persona.isViewingAs ? " has-view-as-banner" : ""}`}>
         <Suspense>
           <TwoTierNav
             user={persona.actor}
             casesCount={casesCount}
             navData={navData}
+            subnavData={subnavData}
             personaNav={persona.config.nav}
             isAdmin={isAdmin}
             currentPersonaId={persona.personaId}
             isViewingAs={persona.isViewingAs}
+            changelogCommits={changelogResult.commits}
           />
         </Suspense>
         <main className="ttn-main-area">
@@ -49,6 +61,7 @@ export default async function AppLayout({
           </div>
         </main>
       </div>
+      {isAdmin && <FeedbackWidget />}
     </ThemeWrapper>
   );
 }

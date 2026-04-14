@@ -28,6 +28,10 @@ export default async function TeamChatPage() {
     caseId: c.caseId,
     isPrivate: c.isPrivate,
     createdAt: c.createdAt,
+    lastMessageContent: c.lastMessageContent ?? null,
+    lastMessageAt: c.lastMessageAt ?? null,
+    lastMessageAuthor: c.lastMessageAuthor ?? null,
+    unreadCount: c.unreadCount ?? 0,
   }));
 
   const firstChannel = channels[0];

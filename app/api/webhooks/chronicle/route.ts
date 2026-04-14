@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import { documents, cases } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
+import { logIntegrationEvent } from "@/lib/services/integration-event-logger";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -271,6 +273,34 @@ export async function POST(request: NextRequest) {
         logger.warn("Unknown Chronicle event type", { eventType });
       }
     }
+
+    // Log the webhook event for the integration analytics layer.
+    const capturedEventType = eventType;
+    const capturedBody = body;
+    after(async () => {
+      try {
+        const resolved = await resolveCaseByClaimantId(
+          capturedBody.claimantId,
+        );
+        if (resolved) {
+          await logIntegrationEvent({
+            organizationId: resolved.organizationId,
+            integrationId: "chronicle",
+            eventType: "webhook_received",
+            status: "ok",
+            httpStatus: 200,
+            summary: `Webhook: ${capturedEventType}`,
+            webhookPath: "/api/webhooks/chronicle",
+            webhookEventType: capturedEventType,
+            payload: capturedBody,
+          });
+        }
+      } catch (logErr) {
+        logger.warn("Failed to log Chronicle webhook event", {
+          error: logErr instanceof Error ? logErr.message : String(logErr),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

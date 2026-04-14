@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useCallback, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 import {
   DocumentList,
@@ -64,6 +64,7 @@ export function CaseDocumentsClient({
     fileName: string;
     fileType: string;
     signedUrl: string;
+    initialPage?: number;
   } | null>(null);
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
@@ -103,18 +104,40 @@ export function CaseDocumentsClient({
     [caseId, organizationId, userId],
   );
 
-  const handlePreview = useCallback(async (doc: DocumentItem) => {
-    const result = await getDocumentUrl(doc.id);
-    if (result.url) {
-      setPreviewDoc({
-        fileName: doc.fileName,
-        fileType: doc.fileType,
-        signedUrl: result.url,
-      });
-      return;
+  const handlePreview = useCallback(
+    async (doc: DocumentItem, page?: number) => {
+      const result = await getDocumentUrl(doc.id);
+      if (result.url) {
+        setPreviewDoc({
+          fileName: doc.fileName,
+          fileType: doc.fileType,
+          signedUrl: result.url,
+          initialPage: page,
+        });
+        return;
+      }
+      toast.error(result.error ?? "Could not open document");
+    },
+    [],
+  );
+
+  // Auto-open a document when the URL has ?doc=<id>&page=<N>. This is
+  // the deep-link target for passage-level search hits — the palette
+  // navigates here, the effect opens the preview at the right page.
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const docId = searchParams.get("doc");
+    const pageRaw = searchParams.get("page");
+    if (!docId) return;
+    const page = pageRaw ? Number(pageRaw) : undefined;
+    const doc = documents.find((d) => d.id === docId);
+    if (doc) {
+      handlePreview(doc, page);
     }
-    toast.error(result.error ?? "Could not open document");
-  }, []);
+    // Intentionally one-shot on mount / param change — we do NOT want
+    // to keep re-firing this when previewDoc state updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, documents]);
 
   const handleDownload = useCallback(async (doc: DocumentItem) => {
     const result = await getDocumentUrl(doc.id);
@@ -234,6 +257,7 @@ export function CaseDocumentsClient({
               fileName={previewDoc.fileName}
               fileType={previewDoc.fileType}
               signedUrl={previewDoc.signedUrl}
+              initialPage={previewDoc.initialPage}
               onClose={() => setPreviewDoc(null)}
             />
           )}

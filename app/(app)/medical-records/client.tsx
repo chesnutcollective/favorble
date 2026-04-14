@@ -8,12 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -150,9 +145,7 @@ function MrQueueTab({ rows }: { rows: MrQueueRow[] }) {
           <span className="font-medium" style={{ color: BRAND }}>
             {rows.length} cases queued
           </span>
-          <span className="text-muted-foreground">
-            sorted by hearing date
-          </span>
+          <span className="text-muted-foreground">sorted by hearing date</span>
         </div>
       </div>
 
@@ -343,9 +336,7 @@ function CredentialsTab({ groups }: { groups: ProviderCredentialGroup[] }) {
                             {cred.lastUsedAt && (
                               <span>
                                 Last used{" "}
-                                {new Date(
-                                  cred.lastUsedAt,
-                                ).toLocaleDateString()}
+                                {new Date(cred.lastUsedAt).toLocaleDateString()}
                               </span>
                             )}
                           </div>
@@ -703,10 +694,7 @@ function TeamCard({ team }: { team: TeamWorkloadRow }) {
           >
             {meta.label}
           </div>
-          <span
-            className="text-[11px] font-medium"
-            style={{ color: "#666" }}
-          >
+          <span className="text-[11px] font-medium" style={{ color: "#666" }}>
             Team
           </span>
         </div>

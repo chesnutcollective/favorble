@@ -43,6 +43,34 @@
       "when": 1775852479432,
       "tag": "0005_fine_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775940576555,
+      "tag": "0008_calm_krista_starr",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1775954598307,
+      "tag": "0009_large_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1776076858840,
+      "tag": "0010_awesome_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1776087688316,
+      "tag": "0011_short_mister_fear",
+      "breakpoints": true
     }
   ]
 }

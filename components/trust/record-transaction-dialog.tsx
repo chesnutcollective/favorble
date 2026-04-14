@@ -65,9 +65,7 @@ export function RecordTransactionDialog({
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const [accountId, setAccountId] = useState<string>(
-    accounts[0]?.id ?? "",
-  );
+  const [accountId, setAccountId] = useState<string>(accounts[0]?.id ?? "");
   const [type, setType] = useState<"deposit" | "withdrawal">("deposit");
   const [amount, setAmount] = useState<string>("");
   const [caseId, setCaseId] = useState<string>(NO_CASE_VALUE);
@@ -121,9 +119,7 @@ export function RecordTransactionDialog({
           await recordWithdrawal(payload);
         }
         toast.success(
-          type === "deposit"
-            ? "Deposit recorded."
-            : "Withdrawal recorded.",
+          type === "deposit" ? "Deposit recorded." : "Withdrawal recorded.",
         );
         resetForm();
         setOpen(false);

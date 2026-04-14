@@ -210,7 +210,8 @@ export async function getWinRatesByDimension(
   }
 
   // alj | office — both live on cases directly
-  const column = dimension === "alj" ? sql`c.admin_law_judge` : sql`c.hearing_office`;
+  const column =
+    dimension === "alj" ? sql`c.admin_law_judge` : sql`c.hearing_office`;
   const fallback = dimension === "alj" ? "Unassigned ALJ" : "Unknown Office";
 
   const rows = await db.execute<{
@@ -391,9 +392,7 @@ export async function getAllAljStats(): Promise<AljStatsRow[]> {
       won,
       lost,
       avgDurationMinutes:
-        r.avg_duration_minutes !== null
-          ? Number(r.avg_duration_minutes)
-          : null,
+        r.avg_duration_minutes !== null ? Number(r.avg_duration_minutes) : null,
       lastHearingDate: lastDate,
       recentDecisions: recentByAlj.get(r.alj_name) ?? [],
     };
@@ -542,7 +541,10 @@ export async function getAljDetail(aljName: string): Promise<AljDetail | null> {
         NULLIF(TRIM(CONCAT(l.first_name, ' ', l.last_name)), '') AS claimant_name
       FROM cases c
       LEFT JOIN leads l ON l.id = c.lead_id
-      WHERE c.id IN (${sql.join(caseIds.map((id) => sql`${id}`), sql`, `)})
+      WHERE c.id IN (${sql.join(
+        caseIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})
     `);
     for (const row of nameRows) {
       if (row.claimant_name) nameMap.set(row.case_id, row.claimant_name);
@@ -571,4 +573,3 @@ export async function getAljDetail(aljName: string): Promise<AljDetail | null> {
     allCases,
   };
 }
-

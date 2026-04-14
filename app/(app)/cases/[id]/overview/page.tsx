@@ -1,10 +1,13 @@
 import { getCaseById, getCaseActivity } from "@/app/actions/cases";
 import { getCaseTasks } from "@/app/actions/tasks";
 import { getCaseDocuments } from "@/app/actions/documents";
+import { getCaseSentimentTimeline } from "@/app/actions/sentiment-analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Timeline, type TimelineEvent } from "@/components/shared/timeline";
+import { Sparkline } from "@/components/charts/sparkline";
+import { COLORS } from "@/lib/design-tokens";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -19,13 +22,16 @@ export default async function CaseOverviewPage({
   let tasks: Awaited<ReturnType<typeof getCaseTasks>> = [];
   let activity: Awaited<ReturnType<typeof getCaseActivity>> = [];
   let docs: Awaited<ReturnType<typeof getCaseDocuments>> = [];
+  let sentimentPoints: Awaited<ReturnType<typeof getCaseSentimentTimeline>> =
+    [];
 
   try {
-    [caseData, tasks, activity, docs] = await Promise.all([
+    [caseData, tasks, activity, docs, sentimentPoints] = await Promise.all([
       getCaseById(caseId),
       getCaseTasks(caseId),
       getCaseActivity(caseId),
       getCaseDocuments(caseId),
+      getCaseSentimentTimeline(caseId, 30),
     ]);
   } catch {
     // DB unavailable
@@ -48,8 +54,52 @@ export default async function CaseOverviewPage({
     actor: a.userName ?? undefined,
   }));
 
+  // QA-3: per-case sentiment sparkline (last 30 days). Shows the
+  // weighted sentiment trace so PMs can see at a glance whether the
+  // claimant relationship is heating up or cooling down. Hidden when
+  // there's no analyzed data yet.
+  const sentimentValues = sentimentPoints.map((p) => p.weight);
+  const latestSentiment = sentimentPoints.at(-1)?.label ?? null;
+  const sentimentStrokeColor = (() => {
+    if (!latestSentiment) return COLORS.text4;
+    if (latestSentiment === "positive") return COLORS.ok;
+    if (latestSentiment === "neutral") return COLORS.text3;
+    if (latestSentiment === "confused") return COLORS.brand;
+    if (latestSentiment === "frustrated") return COLORS.warn;
+    return COLORS.bad;
+  })();
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* Sentiment timeline (QA-3) */}
+      <Card className="lg:col-span-2">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Sentiment trend</CardTitle>
+            <span className="text-xs text-muted-foreground">
+              {sentimentPoints.length === 0
+                ? "No analyzed messages yet"
+                : `${sentimentPoints.length} signals · last 30 days`}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <Sparkline
+              data={sentimentValues}
+              width={240}
+              height={36}
+              stroke={sentimentStrokeColor}
+            />
+            {latestSentiment && (
+              <Badge variant="outline" className="text-xs capitalize">
+                {latestSentiment.replace("_", " ")}
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Open Tasks */}
       <Card>
         <CardHeader className="pb-3">

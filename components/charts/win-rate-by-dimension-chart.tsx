@@ -24,11 +24,7 @@ function barColor(winRate: number): string {
   return "#d1453b";
 }
 
-export function WinRateByDimensionChart({
-  data,
-}: {
-  data: WinRateChartRow[];
-}) {
+export function WinRateByDimensionChart({ data }: { data: WinRateChartRow[] }) {
   if (data.length === 0) {
     return (
       <p className="text-sm text-[#666] py-8 text-center">

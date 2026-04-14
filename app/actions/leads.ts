@@ -671,10 +671,7 @@ export async function updateLead(
       updatedAt: new Date(),
     })
     .where(
-      and(
-        eq(leads.id, id),
-        eq(leads.organizationId, session.organizationId),
-      ),
+      and(eq(leads.id, id), eq(leads.organizationId, session.organizationId)),
     );
 
   logger.info("Lead updated", { leadId: id });
@@ -776,7 +773,9 @@ export async function updateLeadStage(leadId: string, stageId: string) {
  * Return all active leads grouped by their pipeline stage. Every known stage
  * (from the pipeline config) is returned, even if empty.
  */
-export async function getLeadsByStage(): Promise<Map<string, typeof leads.$inferSelect[]>> {
+export async function getLeadsByStage(): Promise<
+  Map<string, (typeof leads.$inferSelect)[]>
+> {
   const session = await requireSession();
 
   const rows = await db
@@ -790,7 +789,7 @@ export async function getLeadsByStage(): Promise<Map<string, typeof leads.$infer
     )
     .orderBy(desc(leads.createdAt));
 
-  const map = new Map<string, typeof leads.$inferSelect[]>();
+  const map = new Map<string, (typeof leads.$inferSelect)[]>();
   for (const stage of PIPELINE_STAGES) {
     map.set(stage.id, []);
   }
@@ -830,10 +829,7 @@ export async function deleteLead(id: string) {
       updatedAt: new Date(),
     })
     .where(
-      and(
-        eq(leads.id, id),
-        eq(leads.organizationId, session.organizationId),
-      ),
+      and(eq(leads.id, id), eq(leads.organizationId, session.organizationId)),
     );
 
   logger.info("Lead deleted", { leadId: id });

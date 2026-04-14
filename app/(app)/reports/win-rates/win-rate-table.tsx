@@ -11,10 +11,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-} from "@hugeicons/core-free-icons";
+import { ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
 
 export type WinRateTableRow = {
   name: string;
@@ -117,7 +114,11 @@ export function WinRateTable({
       <TableHeader>
         <TableRow>
           <SortHeader label={dimensionLabel} keyName="name" />
-          <SortHeader label="Decisions" keyName="totalDecisions" align="right" />
+          <SortHeader
+            label="Decisions"
+            keyName="totalDecisions"
+            align="right"
+          />
           <SortHeader label="Won" keyName="won" align="right" />
           <SortHeader label="Lost" keyName="lost" align="right" />
           <SortHeader label="Win Rate" keyName="winRate" align="right" />

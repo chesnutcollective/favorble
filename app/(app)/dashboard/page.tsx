@@ -1,37 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, count, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowRight01Icon,
-  CheckmarkCircle01Icon,
-  DashboardSquare01Icon,
-  Folder01Icon,
-  UserAdd01Icon,
-  CheckListIcon,
-  Calendar03Icon,
-  Message01Icon,
-  Mail01Icon,
-  UserGroupIcon,
-  File01Icon,
-  ChartLineData01Icon,
-  CourtHouseIcon,
-  InboxUploadIcon,
-  Note01Icon,
-  Hospital01Icon,
-  InboxIcon,
-  Invoice01Icon,
-  SafeIcon,
-  BubbleChatIcon,
-  Shield01Icon,
-} from "@hugeicons/core-free-icons";
+  and,
+  asc,
+  count,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
+  sql,
+} from "drizzle-orm";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 import { requireEffectivePersona } from "@/lib/personas/effective-persona";
-import {
-  NAV_ITEM_REGISTRY,
-  resolveNavItems,
-  type NavItemMeta,
-} from "@/lib/personas/nav-items";
 import { COLORS } from "@/lib/design-tokens";
 import { db } from "@/db/drizzle";
 import {
@@ -39,49 +22,44 @@ import {
   cases,
   ereCredentials,
   leads,
+  performanceSnapshots,
   tasks,
 } from "@/db/schema";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
+import {
+  computeCompositeScore,
+  evaluateMetric,
+  getRoleMetricPack,
+  type RoleMetricDefinition,
+} from "@/lib/services/role-metrics";
 import { logger } from "@/lib/logger/server";
+import {
+  DefaultDashboard,
+  type DefaultDashboardProps,
+} from "@/components/dashboard/personas/default";
+import { CaseManagerDashboard } from "@/components/dashboard/personas/case_manager";
+import { AttorneyDashboard } from "@/components/dashboard/personas/attorney";
+import { ReviewerDashboard } from "@/components/dashboard/personas/reviewer";
+import { AdminDashboard } from "@/components/dashboard/personas/admin";
+import { IntakeAgentDashboard } from "@/components/dashboard/personas/intake_agent";
+import { FilingAgentDashboard } from "@/components/dashboard/personas/filing_agent";
+import { MailClerkDashboard } from "@/components/dashboard/personas/mail_clerk";
+import { MedicalRecordsDashboard } from "@/components/dashboard/personas/medical_records";
+import { PhiSheetWriterDashboard } from "@/components/dashboard/personas/phi_sheet_writer";
+import { FeeCollectionDashboard } from "@/components/dashboard/personas/fee_collection";
+import { AppealsCouncilDashboard } from "@/components/dashboard/personas/appeals_council";
+import { PostHearingDashboard } from "@/components/dashboard/personas/post_hearing";
+import { PreHearingPrepDashboard } from "@/components/dashboard/personas/pre_hearing_prep";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-// Map icon-name strings from NAV_ITEM_REGISTRY to the real hugeicons objects.
-// Keeping this local to the server component avoids a second client-side
-// bundle and sidesteps the serialization boundary.
-const NAV_ICONS: Record<string, unknown> = {
-  DashboardSquare01Icon,
-  Folder01Icon,
-  UserAdd01Icon,
-  CheckListIcon,
-  Calendar03Icon,
-  Message01Icon,
-  Mail01Icon,
-  UserGroupIcon,
-  File01Icon,
-  ChartLineData01Icon,
-  CourtHouseIcon,
-  InboxUploadIcon,
-  Note01Icon,
-  Hospital01Icon,
-  InboxIcon,
-  Invoice01Icon,
-  SafeIcon,
-  BubbleChatIcon,
-};
+// ───────────────────────────────────────────────────────────────────────────
+// Shared KPI computation (still used by the DefaultDashboard fallback)
+// ───────────────────────────────────────────────────────────────────────────
 
-// ---------------------------------------------------------------------------
-// KPI computation
-// ---------------------------------------------------------------------------
-
-type KpiValue = {
-  value: string;
-  subtitle?: string;
-};
-
+type KpiValue = { value: string; subtitle?: string };
 const FALLBACK_KPI: KpiValue = { value: "—" };
 
 async function computePrimaryKpi(
@@ -104,14 +82,7 @@ async function computePrimaryKpi(
   try {
     switch (personaId) {
       case "admin": {
-        // System health — integrations-status.ts has getIntegrationsStatus()
-        // but that's heavy (pings Railway, n8n, etc). For a fast welcome
-        // screen we surface ERE credential count as a cheap proxy and fall
-        // back to a literal "All systems operational" message if even that
-        // query fails.
-        const [totalRow] = await db
-          .select({ n: count() })
-          .from(ereCredentials);
+        const [totalRow] = await db.select({ n: count() }).from(ereCredentials);
         const [activeRow] = await db
           .select({ n: count() })
           .from(ereCredentials)
@@ -167,9 +138,6 @@ async function computePrimaryKpi(
       }
 
       case "filing_agent": {
-        // Re-use getFilingMetrics() — it's already the canonical "ready to
-        // file" count used by /filing. We lazy-import so a typecheck issue
-        // in that module never blocks the dashboard from loading.
         const { getFilingMetrics } = await import("@/app/actions/filing");
         const metrics = await getFilingMetrics();
         return {
@@ -216,7 +184,6 @@ async function computePrimaryKpi(
               isNull(cases.deletedAt),
               gte(cases.hearingDate, now),
               lte(cases.hearingDate, thirtyDaysOut),
-              // Anything not already complete counts as queue depth
               sql`COALESCE(${cases.mrStatus}, 'not_started') <> 'complete'`,
             ),
           );
@@ -277,9 +244,8 @@ async function computePrimaryKpi(
             subtitle: "No closed cases in the last 30 days",
           };
         }
-        const pct = Math.round((won / total) * 100);
         return {
-          value: `${pct}%`,
+          value: `${Math.round((won / total) * 100)}%`,
           subtitle: `${won} won of ${total} closed · trailing 30d`,
         };
       }
@@ -310,34 +276,112 @@ async function computePrimaryKpi(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
+// ───────────────────────────────────────────────────────────────────────────
+// Role metric block — used by DefaultDashboard fallback
+// ───────────────────────────────────────────────────────────────────────────
+
+async function loadRoleMetricBlock(
+  personaId: string,
+  userId: string,
+): Promise<DefaultDashboardProps["metricBlock"]> {
+  const pack = getRoleMetricPack(personaId);
+  if (pack.metrics.length === 0) {
+    return {
+      personaLabel: pack.label,
+      metrics: [],
+      compositeScore: null,
+      hasSnapshotData: false,
+    };
+  }
+
+  const metricKeys = pack.metrics.map((m) => m.metricKey);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+
+  let rows: Array<{
+    metricKey: string;
+    value: string | number;
+    periodStart: Date;
+  }> = [];
+
+  try {
+    rows = await db
+      .select({
+        metricKey: performanceSnapshots.metricKey,
+        value: performanceSnapshots.value,
+        periodStart: performanceSnapshots.periodStart,
+      })
+      .from(performanceSnapshots)
+      .where(
+        and(
+          eq(performanceSnapshots.userId, userId),
+          inArray(performanceSnapshots.metricKey, metricKeys),
+          gte(performanceSnapshots.periodStart, sevenDaysAgo),
+        ),
+      )
+      .orderBy(asc(performanceSnapshots.periodStart));
+  } catch (error) {
+    logger.error("Failed to load role metric snapshots", { personaId, error });
+  }
+
+  const byKey = new Map<string, number[]>();
+  for (const r of rows) {
+    const arr = byKey.get(r.metricKey) ?? [];
+    arr.push(Number(r.value));
+    byKey.set(r.metricKey, arr);
+  }
+
+  const metricCards = pack.metrics.map((metric) => {
+    const series = byKey.get(metric.metricKey) ?? [];
+    const current = series.length > 0 ? series[series.length - 1] : null;
+    const band = current !== null ? evaluateMetric(metric, current) : null;
+    return {
+      metric,
+      currentValue: current,
+      sparkline: series,
+      band,
+    };
+  });
+
+  const valueMap: Record<string, number> = {};
+  for (const card of metricCards) {
+    if (card.currentValue !== null) {
+      valueMap[card.metric.metricKey] = card.currentValue;
+    }
+  }
+  const hasSnapshotData = Object.keys(valueMap).length > 0;
+  const compositeScore = hasSnapshotData
+    ? computeCompositeScore(personaId, valueMap)
+    : null;
+
+  return {
+    personaLabel: pack.label,
+    metrics: metricCards,
+    compositeScore,
+    hasSnapshotData,
+  };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Page (dispatcher)
+// ───────────────────────────────────────────────────────────────────────────
+
+// Reference imports that the role-metrics block surface relies on through type
+// inference (TS will erase the named imports below if we don't reference them).
+type _RoleMetricRef = RoleMetricDefinition;
 
 export default async function DashboardPage() {
   const persona = await requireEffectivePersona();
   const { actor, config, isViewingAs, personaId } = persona;
 
-  const kpi = await computePrimaryKpi(personaId, actor.organizationId);
-
-  // Build the quick-link cards from the persona's nav order, skipping the
-  // dashboard entry itself and falling back to the universal items if
-  // somehow nothing resolves (defensive — shouldn't happen).
-  const navItems: NavItemMeta[] = resolveNavItems(
-    config.nav.filter((id) => id !== "dashboard"),
-  ).slice(0, 4);
-
   const welcomeTitle = isViewingAs
     ? `Viewing as ${config.label}`
     : `Welcome, ${actor.firstName}`;
-
-  const welcomeSubtitle = config.workspaceDescription;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={welcomeTitle}
-        description={welcomeSubtitle}
+        description={config.workspaceDescription}
         actions={
           <Button
             asChild
@@ -353,133 +397,67 @@ export default async function DashboardPage() {
         }
       />
 
-      {isViewingAs && (
-        <Card
-          style={{
-            borderColor: COLORS.brandMuted,
-            backgroundColor: COLORS.brandSubtle,
-          }}
-        >
-          <CardContent className="p-4 flex items-start gap-3">
-            <HugeiconsIcon
-              icon={Shield01Icon}
-              size={18}
-              color={COLORS.brand}
-            />
-            <div className="text-[12px] leading-5" style={{ color: COLORS.text2 }}>
-              <p className="font-medium" style={{ color: COLORS.text1 }}>
-                Super-admin view
-              </p>
-              <p>
-                You are signed in as {actor.firstName} {actor.lastName} but
-                previewing the {config.label} experience. Actions you take are
-                still audited under your real identity.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Primary KPI card — centered, oversized number */}
-      <div className="flex justify-center">
-        <Card className="w-full max-w-xl">
-          <CardContent className="p-10 flex flex-col items-center text-center gap-3">
-            <div
-              className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.08em]"
-              style={{ color: COLORS.text2 }}
-            >
-              <HugeiconsIcon
-                icon={CheckmarkCircle01Icon}
-                size={14}
-                color={COLORS.brand}
-              />
-              {config.primaryKpi.label}
-            </div>
-            <div
-              className="text-[56px] sm:text-[72px] font-semibold leading-none tracking-[-1.5px]"
-              style={{ color: COLORS.text1 }}
-            >
-              {kpi.value}
-            </div>
-            {(kpi.subtitle ?? config.primaryKpi.subtitle) && (
-              <p
-                className="text-[13px] max-w-md"
-                style={{ color: COLORS.text2 }}
-              >
-                {kpi.subtitle ?? config.primaryKpi.subtitle}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick-link cards — the persona's primary workspaces */}
-      {navItems.length > 0 && (
-        <div>
-          <h2
-            className="text-[13px] font-semibold mb-3 uppercase tracking-[0.06em]"
-            style={{ color: COLORS.text2 }}
-          >
-            Your Workspaces
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {navItems.map((item) => {
-              const Icon =
-                (NAV_ICONS[item.iconName] as typeof DashboardSquare01Icon) ??
-                DashboardSquare01Icon;
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="group block focus:outline-none"
-                >
-                  <Card className="h-full transition-colors group-hover:border-[#CCC] group-focus-visible:border-[#999]">
-                    <CardContent className="p-5 flex flex-col gap-2">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-[7px]"
-                        style={{
-                          backgroundColor: COLORS.brandSubtle,
-                          color: COLORS.brand,
-                        }}
-                      >
-                        <HugeiconsIcon
-                          icon={Icon}
-                          size={18}
-                          color={COLORS.brand}
-                        />
-                      </div>
-                      <p
-                        className="text-[14px] font-semibold mt-1"
-                        style={{ color: COLORS.text1 }}
-                      >
-                        {item.label}
-                      </p>
-                      <p
-                        className="text-[12px] leading-5"
-                        style={{ color: COLORS.text2 }}
-                      >
-                        {item.description}
-                      </p>
-                      <div
-                        className="mt-2 flex items-center gap-1 text-[12px] font-medium"
-                        style={{ color: COLORS.brand }}
-                      >
-                        Open
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+      {/* Per-persona dispatch */}
+      {personaId === "case_manager" ? (
+        <CaseManagerDashboard actor={actor} />
+      ) : personaId === "attorney" ? (
+        <AttorneyDashboard actor={actor} />
+      ) : personaId === "reviewer" ? (
+        <ReviewerDashboard actor={actor} />
+      ) : personaId === "admin" ? (
+        <AdminDashboard actor={actor} />
+      ) : personaId === "intake_agent" ? (
+        <IntakeAgentDashboard actor={actor} />
+      ) : personaId === "filing_agent" ? (
+        <FilingAgentDashboard actor={actor} />
+      ) : personaId === "mail_clerk" ? (
+        <MailClerkDashboard actor={actor} />
+      ) : personaId === "medical_records" ? (
+        <MedicalRecordsDashboard actor={actor} />
+      ) : personaId === "phi_sheet_writer" ? (
+        <PhiSheetWriterDashboard actor={actor} />
+      ) : personaId === "fee_collection" ? (
+        <FeeCollectionDashboard actor={actor} />
+      ) : personaId === "appeals_council" ? (
+        <AppealsCouncilDashboard actor={actor} />
+      ) : personaId === "post_hearing" ? (
+        <PostHearingDashboard actor={actor} />
+      ) : personaId === "pre_hearing_prep" ? (
+        <PreHearingPrepDashboard actor={actor} />
+      ) : (
+        // Fallback to the original generic layout for personas not yet built
+        <DefaultDashboardWrapper
+          personaId={personaId}
+          orgId={actor.organizationId}
+          userId={actor.id}
+          config={config}
+        />
       )}
     </div>
   );
 }
 
-// Silence unused-import warnings for the registry type import — we reference
-// NAV_ITEM_REGISTRY indirectly through resolveNavItems but want the named
-// type available for future extensions.
-void NAV_ITEM_REGISTRY;
+async function DefaultDashboardWrapper({
+  personaId,
+  orgId,
+  userId,
+  config,
+}: {
+  personaId: string;
+  orgId: string;
+  userId: string;
+  config: DefaultDashboardProps["config"];
+}) {
+  const [kpi, metricBlock] = await Promise.all([
+    computePrimaryKpi(personaId, orgId),
+    loadRoleMetricBlock(personaId, userId).catch(() => null),
+  ]);
+  return (
+    <DefaultDashboard
+      config={config}
+      kpiValue={kpi.value}
+      kpiSubtitle={kpi.subtitle}
+      metricBlock={metricBlock}
+    />
+  );
+}

@@ -127,7 +127,10 @@ export const timeEntries = pgTable(
     index("idx_time_entries_user").on(table.userId),
     index("idx_time_entries_case").on(table.caseId),
     index("idx_time_entries_invoice").on(table.invoiceId),
-    index("idx_time_entries_org_date").on(table.organizationId, table.entryDate),
+    index("idx_time_entries_org_date").on(
+      table.organizationId,
+      table.entryDate,
+    ),
     index("idx_time_entries_org_billed").on(
       table.organizationId,
       table.billedAt,
@@ -189,9 +192,7 @@ export const invoiceLineItems = pgTable(
     ),
     sourceExpenseId: uuid("source_expense_id").references(() => expenses.id),
   },
-  (table) => [
-    index("idx_invoice_line_items_invoice").on(table.invoiceId),
-  ],
+  (table) => [index("idx_invoice_line_items_invoice").on(table.invoiceId)],
 );
 
 // ---------- Payments ----------
@@ -207,7 +208,9 @@ export const payments = pgTable(
       .notNull()
       .references(() => invoices.id),
     amountCents: integer("amount_cents").notNull(),
-    paymentMethod: paymentMethodEnum("payment_method").notNull().default("check"),
+    paymentMethod: paymentMethodEnum("payment_method")
+      .notNull()
+      .default("check"),
     paymentDate: timestamp("payment_date", { withTimezone: true })
       .defaultNow()
       .notNull(),

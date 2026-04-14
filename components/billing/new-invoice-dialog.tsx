@@ -155,7 +155,8 @@ export function NewInvoiceDialog({ cases, clients }: NewInvoiceDialogProps) {
                 <SelectContent>
                   <SelectItem value={NO_CLIENT}>No client contact</SelectItem>
                   {clients.map((c) => {
-                    const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim();
+                    const name =
+                      `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim();
                     return (
                       <SelectItem key={c.id} value={c.id}>
                         {name || c.email || "Unnamed"}

@@ -19,3 +19,4 @@ Thumbs.db
 .local-seed/
 chronicle-scrape/
 *.chronicle.json
+.env*.local

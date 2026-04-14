@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { logger } from "@/lib/logger/server";
 import { db } from "@/db/drizzle";
 import { communications, documents, cases, caseStages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { enqueueIngestAndProcessing } from "@/lib/services/enqueue-processing";
+import { logCommunicationEvent } from "@/lib/services/hipaa-audit";
+import { enqueueCommunicationAnalysis } from "@/lib/services/sentiment";
+import {
+  extractActionItemsFromMessage,
+  classifyClientConfirmationReply,
+} from "@/lib/services/message-intake";
+import { logIntegrationEvent } from "@/lib/services/integration-event-logger";
 import crypto from "node:crypto";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -121,25 +129,79 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        await db.insert(communications).values({
-          organizationId: resolved.organizationId,
-          caseId: resolved.caseId,
-          type: "message_inbound",
-          direction: "inbound",
-          body: body.content ?? body.body ?? null,
-          fromAddress: body.from ?? body.sender ?? null,
-          subject: body.subject ?? null,
-          externalMessageId: body.messageId ?? body.id ?? null,
-          sourceSystem: "case_status",
-          metadata: {
-            rawEvent: eventType,
-            receivedAt: new Date().toISOString(),
-          },
-        });
+        const [insertedComm] = await db
+          .insert(communications)
+          .values({
+            organizationId: resolved.organizationId,
+            caseId: resolved.caseId,
+            type: "message_inbound",
+            direction: "inbound",
+            body: body.content ?? body.body ?? null,
+            fromAddress: body.from ?? body.sender ?? null,
+            subject: body.subject ?? null,
+            externalMessageId: body.messageId ?? body.id ?? null,
+            sourceSystem: "case_status",
+            metadata: {
+              rawEvent: eventType,
+              receivedAt: new Date().toISOString(),
+            },
+          })
+          .returning({ id: communications.id });
 
         logger.info("Case Status message persisted", {
           caseId: resolved.caseId,
         });
+
+        // CM-5: audit the inbound message so it threads into the case
+        // activity timeline. No actor — this is a system-triggered event.
+        if (insertedComm) {
+          await logCommunicationEvent({
+            organizationId: resolved.organizationId,
+            actorUserId: null,
+            caseId: resolved.caseId,
+            communicationId: insertedComm.id,
+            direction: "inbound",
+            method: "case_status",
+            metadata: {
+              externalMessageId: body.messageId ?? body.id ?? null,
+              from: body.from ?? body.sender ?? null,
+            },
+          });
+        }
+
+        // QA-3: run sentiment analysis after the webhook has responded so
+        // the LLM call doesn't block the upstream case-status system.
+        if (insertedComm) {
+          enqueueCommunicationAnalysis({
+            communicationId: insertedComm.id,
+          });
+        }
+
+        // CM-3: On EVERY inbound message, attempt to classify it as a
+        // reply to a pending client confirmation task. The classifier
+        // itself checks whether any `pending_client_confirmation` tasks
+        // exist and no-ops if there are none, so we always call it
+        // rather than gating on a pre-check (which could miss tasks
+        // created between the pre-check and the classifier call).
+        // After classification, extract any new action items from the
+        // message. Both run via after() so we never block the webhook.
+        if (insertedComm) {
+          const commId = insertedComm.id;
+          after(async () => {
+            try {
+              // Always attempt classification — the function returns
+              // null when there are no pending_client_confirmation
+              // tasks so there is no wasted LLM call in that case.
+              await classifyClientConfirmationReply(commId);
+              await extractActionItemsFromMessage(commId);
+            } catch (err) {
+              logger.error("case-status message intake failed", {
+                commId,
+                error: err instanceof Error ? err.message : String(err),
+              });
+            }
+          });
+        }
         break;
       }
 
@@ -284,6 +346,32 @@ export async function POST(request: NextRequest) {
         logger.warn("Unknown Case Status event type", { eventType });
       }
     }
+
+    // Log the webhook event for the integration detail page.
+    const capturedEventType = eventType;
+    const capturedBody = body;
+    after(async () => {
+      try {
+        const resolved = await resolveCaseId(capturedBody.caseId);
+        if (resolved) {
+          await logIntegrationEvent({
+            organizationId: resolved.organizationId,
+            integrationId: "case-status",
+            eventType: "webhook_received",
+            status: "ok",
+            httpStatus: 200,
+            summary: `Webhook: ${capturedEventType}`,
+            webhookPath: "/api/webhooks/case-status",
+            webhookEventType: capturedEventType,
+            payload: capturedBody,
+          });
+        }
+      } catch (logErr) {
+        logger.warn("Failed to log CaseStatus webhook event", {
+          error: logErr instanceof Error ? logErr.message : String(logErr),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

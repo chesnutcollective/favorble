@@ -23,19 +23,19 @@ export function StatsCard({
   return (
     <div
       className={cn(
-        "bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200",
+        "bg-white border border-border rounded-md p-5 hover:border-muted-foreground/40 transition-colors duration-200",
         className,
       )}
     >
-      <p className="text-xs text-[#666] mb-2">{title}</p>
+      <p className="text-xs text-muted-foreground mb-2">{title}</p>
       <p className="text-[28px] font-bold tracking-[-1px] leading-[1.1] tabular-nums [font-feature-settings:'tnum']">
         {value}
       </p>
       {trend && (
-        <p className="mt-2 text-xs font-mono text-[#666]">
+        <p className="mt-2 text-xs font-mono text-muted-foreground">
           <span
             className={cn(
-              trend.value >= 0 ? "text-[#1d72b8]" : "text-[#EE0000]",
+              trend.value >= 0 ? "text-status-ok" : "text-urgent",
             )}
           >
             {trend.value >= 0 ? "+" : ""}
@@ -45,10 +45,10 @@ export function StatsCard({
         </p>
       )}
       {subtitle && (
-        <p className="mt-2 text-xs font-mono text-[#666]">
+        <p className="mt-2 text-xs font-mono text-muted-foreground">
           {subtitleVariant === "danger" ? (
             <>
-              <span className="text-[#EE0000]">{subtitle.split(" ")[0]}</span>{" "}
+              <span className="text-urgent">{subtitle.split(" ")[0]}</span>{" "}
               {subtitle.split(" ").slice(1).join(" ")}
             </>
           ) : (

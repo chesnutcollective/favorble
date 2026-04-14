@@ -17,7 +17,10 @@ import {
   messages,
 } from "./messages";
 
-export type Translator = (key: string, vars?: Record<string, string | number>) => string;
+export type Translator = (
+  key: string,
+  vars?: Record<string, string | number>,
+) => string;
 
 /**
  * Resolve a dotted key (e.g. "intake.step1.firstName") against a translation tree.

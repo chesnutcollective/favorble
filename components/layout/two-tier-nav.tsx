@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -15,9 +15,47 @@ import {
 import { logout } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import type { NavPanelData } from "@/app/actions/nav-data";
+import type { CommitEntry } from "@/app/actions/changelog";
+import { PersonaDashboardSubnav } from "@/components/dashboard/subnav";
+import type { DashboardSubnavData } from "@/lib/dashboard-subnav/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ThemeSwitcher } from "./theme-switcher";
 import { ViewAsMenu } from "./view-as-menu";
 import type { PersonaId } from "@/lib/personas/config";
+
+/* ─── Tooltip descriptions ─── */
+
+const railTooltips: Record<string, string> = {
+  dashboard: "Dashboard \u2014 your daily command center",
+  supervisor: "Supervisor \u2014 monitor team performance & case health",
+  coaching: "Coaching \u2014 flags, action plans & training gaps",
+  drafts: "AI Drafts \u2014 review & approve AI-generated documents",
+  cases: "Cases \u2014 every active case at a glance",
+  leads: "Leads \u2014 intake pipeline & new prospects",
+  queue: "Queue \u2014 your personal task list",
+  calendar: "Calendar \u2014 hearings, deadlines & appointments",
+  messages: "Messages \u2014 client conversations",
+  email: "Email \u2014 Outlook integration",
+  contacts: "Contacts \u2014 claimants, providers & counsel",
+  documents: "Documents \u2014 case files & uploads",
+  reports: "Reports \u2014 analytics, win rates & ALJ stats",
+  hearings: "Hearings \u2014 upcoming hearing prep",
+  filing: "Filing \u2014 SSDI/SSI application queue",
+  "phi-writer": "PHI Writer \u2014 pre-hearing intelligence sheets",
+  "medical-records": "Medical Records \u2014 MR collection & RFC tracking",
+  mail: "Mail \u2014 physical mail processing",
+  billing: "Billing \u2014 time, invoices & payments",
+  trust: "Trust \u2014 IOLTA accounts & transactions",
+  "team-chat": "Team Chat \u2014 internal channels",
+  "fee-collection": "Fee Collection \u2014 petitions & collections",
+  "appeals-council": "Appeals Council \u2014 AC brief pipeline",
+  "post-hearing": "Post-Hearing \u2014 outcome processing",
+};
 
 /* ─── Rail nav items ─── */
 
@@ -319,6 +357,102 @@ const mainNav: RailItem[] = [
       </svg>
     ),
   },
+  {
+    id: "fee-collection",
+    label: "Fee Collection",
+    href: "/fee-collection",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.88 15.76V19h-1.75v-1.29c-1.12-.24-2.1-.95-2.17-2.2h1.28c.07.73.58 1.3 1.88 1.3 1.39 0 1.7-.69 1.7-1.13 0-.59-.32-1.15-1.94-1.54-1.81-.44-3.05-1.18-3.05-2.67 0-1.25.99-2.06 2.21-2.33V7.84h1.75v1.32c1.33.32 2 1.33 2.04 2.42h-1.28c-.04-.77-.45-1.3-1.59-1.3-1.1 0-1.77.5-1.77 1.21 0 .62.48 1.03 1.95 1.4 1.47.37 3.04.99 3.04 2.83-.01 1.34-1.01 2.07-2.3 2.34z" />
+      </svg>
+    ),
+  },
+  {
+    id: "appeals-council",
+    label: "Appeals Council",
+    href: "/appeals-council",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 3c-.55 0-1 .45-1 1v.28c-1.16.41-2 1.51-2 2.82v.01l-4 8.89c0 2 2 3 4 3s4-1 4-3l-4-8.89v-.01c0-.65.41-1.2 1-1.41V20H5v2h14v-2h-6V5.72c.59.21 1 .76 1 1.41v.01l-4 8.89c0 2 2 3 4 3s4-1 4-3l-4-8.89v-.01c0-1.31-.84-2.41-2-2.82V4c0-.55-.45-1-1-1zm-5 7.33L8.6 14H5.4L7 10.33zm10 0L18.6 14h-3.2L17 10.33z" />
+      </svg>
+    ),
+  },
+  {
+    id: "post-hearing",
+    label: "Post-Hearing",
+    href: "/post-hearing",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+      </svg>
+    ),
+  },
+  {
+    id: "supervisor",
+    label: "Supervisor",
+    href: "/admin/supervisor",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
+      </svg>
+    ),
+  },
+  {
+    id: "coaching",
+    label: "Coaching",
+    href: "/coaching",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8h-2.08a1.5 1.5 0 0 0-1.42 1L13 13.5V22h7zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm2 16v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z" />
+      </svg>
+    ),
+  },
+  {
+    id: "drafts",
+    label: "AI Drafts",
+    href: "/drafts",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        width="18"
+        height="18"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+      </svg>
+    ),
+  },
 ];
 
 const settingsIcon = (
@@ -379,6 +513,11 @@ const settingsNav: SettingsItem[] = [
     description: "Search system event history",
   },
   {
+    label: "Feedback",
+    href: "/admin/feedback",
+    description: "Triage bugs, feature requests, UX issues",
+  },
+  {
     label: "AI Review",
     href: "/admin/ai-review",
     description: "Verify AI-extracted data",
@@ -388,7 +527,7 @@ const settingsNav: SettingsItem[] = [
 /* ─── Determine active rail item from pathname ─── */
 
 function getActiveRailId(pathname: string, items: RailItem[]): string {
-  if (pathname.startsWith("/admin")) return "settings";
+  if (pathname.startsWith("/changelog")) return "changelog";
   for (const item of items) {
     if (item.id === "dashboard") {
       if (pathname === "/dashboard" || pathname === "/") return "dashboard";
@@ -396,6 +535,7 @@ function getActiveRailId(pathname: string, items: RailItem[]): string {
     }
     if (pathname.startsWith(item.href)) return item.id;
   }
+  if (pathname.startsWith("/admin")) return "settings";
   return items[0]?.id ?? "dashboard";
 }
 
@@ -405,14 +545,18 @@ export function TwoTierNav({
   user,
   casesCount,
   navData,
+  subnavData,
   personaNav,
   isAdmin,
   currentPersonaId,
   isViewingAs,
+  changelogCommits,
 }: {
   user: SessionUser;
   casesCount?: number;
   navData?: NavPanelData;
+  /** Per-persona dashboard sub-nav data (discriminated union) */
+  subnavData?: import("@/lib/dashboard-subnav/types").DashboardSubnavData;
   /**
    * Ordered list of rail item IDs this persona is allowed to see.
    * Items not in this list are hidden. Ordering follows this array.
@@ -428,8 +572,24 @@ export function TwoTierNav({
   currentPersonaId: PersonaId;
   /** True when the admin is actively previewing another persona. */
   isViewingAs: boolean;
+  /** Recent commits for the changelog panel. */
+  changelogCommits?: CommitEntry[];
 }) {
   const pathname = usePathname();
+
+  // Sidebar collapse state — default expanded, persisted in localStorage
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem("ttn-sidebar-collapsed");
+    if (stored === "true") setCollapsed(true);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("ttn-sidebar-collapsed", String(collapsed));
+    document.documentElement.style.setProperty(
+      "--sidebar-w",
+      collapsed ? "80px" : "264px",
+    );
+  }, [collapsed]);
 
   // Build a persona-scoped rail in the persona's preferred order.
   // Items not in personaNav are hidden. Unknown IDs are silently skipped.
@@ -453,7 +613,37 @@ export function TwoTierNav({
   }, [personaNav, railItemsById]);
 
   const activeRailId = getActiveRailId(pathname, visibleRailItems);
-  const visiblePanel = activeRailId;
+
+  // Panel override: allows non-route panels (e.g. changelog) to show temporarily
+  const [panelOverride, setPanelOverride] = useState<string | null>(null);
+  // Reset override when the route changes
+  useEffect(() => {
+    setPanelOverride(null);
+  }, [pathname]);
+  const visiblePanel = panelOverride ?? activeRailId;
+
+  // Unread changelog badge: compare commit dates against localStorage timestamp.
+  // Clear when user navigates to /changelog.
+  const [changelogUnread, setChangelogUnread] = useState(0);
+  useEffect(() => {
+    if (!changelogCommits?.length) return;
+    // If the user is currently on /changelog, mark everything as read
+    if (pathname.startsWith("/changelog")) {
+      localStorage.setItem("changelog:lastViewedAt", new Date().toISOString());
+      setChangelogUnread(0);
+      return;
+    }
+    const lastViewed = localStorage.getItem("changelog:lastViewedAt");
+    if (!lastViewed) {
+      setChangelogUnread(changelogCommits.length);
+      return;
+    }
+    const lastViewedDate = new Date(lastViewed).getTime();
+    const unread = changelogCommits.filter(
+      (c) => new Date(c.date).getTime() > lastViewedDate,
+    ).length;
+    setChangelogUnread(unread);
+  }, [changelogCommits, pathname]);
 
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
@@ -464,9 +654,10 @@ export function TwoTierNav({
   }
 
   return (
-    <div className="ttn-float">
+    <div className="ttn-float" data-collapsed={collapsed}>
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
+        <TooltipProvider delayDuration={0}>
         <nav className="ttn-rail">
           {/* Logo */}
           <Link
@@ -483,20 +674,30 @@ export function TwoTierNav({
             />
           </Link>
 
-          {/* Main nav icons */}
-          <div className="ttn-rail-group">
+          {/* Main nav icons — scrollable with fade mask */}
+          <div className="ttn-rail-group ttn-rail-scroll-mask">
             {visibleRailItems.map((item) => {
               const active = isRailActive(item);
+              const tip = railTooltips[item.id] ?? item.label;
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`ttn-rail-btn${active ? " active" : ""}`}
-                  title={item.label}
-                >
-                  {item.icon}
-                  {item.notification && <span className="ttn-notif-dot" />}
-                </Link>
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={`ttn-rail-btn${active ? " active" : ""}`}
+                    >
+                      {item.icon}
+                      {item.notification && <span className="ttn-notif-dot" />}
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    sideOffset={10}
+                    className="ttn-tooltip"
+                  >
+                    {tip}
+                  </TooltipContent>
+                </Tooltip>
               );
             })}
           </div>
@@ -504,18 +705,64 @@ export function TwoTierNav({
           <div className="ttn-rail-divider" />
           <div className="ttn-rail-spacer" />
 
+          {/* Collapse / expand toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="ttn-collapse-btn"
+                onClick={() => setCollapsed((c) => !c)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  width="16"
+                  height="16"
+                  style={{
+                    transform: collapsed ? "rotate(180deg)" : undefined,
+                    transition: "transform 0.2s ease",
+                  }}
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              sideOffset={10}
+              className="ttn-tooltip"
+            >
+              {collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            </TooltipContent>
+          </Tooltip>
+
           {/* User avatar */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="ttn-rail-avatar"
-                type="button"
-                title={`${user.firstName} ${user.lastName}`}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="ttn-rail-avatar"
+                    type="button"
+                  >
+                    <span>{initials}</span>
+                    <span className="ttn-status-dot" />
+                  </button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={10}
+                className="ttn-tooltip"
               >
-                <span>{initials}</span>
-                <span className="ttn-status-dot" />
-              </button>
-            </DropdownMenuTrigger>
+                Your profile & view-as
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent
               side="right"
               align="end"
@@ -566,31 +813,70 @@ export function TwoTierNav({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Changelog / what's new — navigates to /changelog */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/changelog"
+                className={`ttn-rail-btn${pathname.startsWith("/changelog") ? " active" : ""}`}
+                style={{ position: "relative" }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="18"
+                  height="18"
+                >
+                  <path d="M20 2v3h-2V3H6v2H4V2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1zM4 7h16v10H4V7zm0 12h16v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1zM8 9v2h8V9H8zm0 4v2h5v-2H8z" />
+                </svg>
+                {changelogUnread > 0 && (
+                  <span className="ttn-notif-badge">
+                    {changelogUnread > 9 ? "9+" : changelogUnread}
+                  </span>
+                )}
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              sideOffset={10}
+              className="ttn-tooltip"
+            >
+              What&apos;s new
+            </TooltipContent>
+          </Tooltip>
+
           {/* Settings gear — only shown to admins (actor, not previewed persona) */}
           {isAdmin && (
-            <Link
-              href="/admin/settings"
-              className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
-              title="Settings"
-            >
-              {settingsIcon}
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/admin/settings"
+                  className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
+                >
+                  {settingsIcon}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={10}
+                className="ttn-tooltip"
+              >
+                Settings &mdash; firm configuration & admin
+              </TooltipContent>
+            </Tooltip>
           )}
         </nav>
+        </TooltipProvider>
 
         {/* ── Tier 2: Context Panel ── */}
         <aside className="ttn-panel">
-          {/* Search trigger */}
-          <div className="ttn-search-trigger">
-            <span className="ttn-search-placeholder">Search...</span>
-            <kbd className="ttn-search-badge">{"\u2318"}K</kbd>
-          </div>
-
           <div className="ttn-panel-content-wrapper">
-            {/* Dashboard Panel */}
-            <DashboardPanel
+            {/* Dashboard Panel — per-persona via dispatcher */}
+            <PersonaDashboardPanelWrapper
               active={visiblePanel === "dashboard"}
               casesCount={casesCount}
+              subnavData={subnavData}
             />
 
             {/* Cases Panel */}
@@ -648,10 +934,7 @@ export function TwoTierNav({
             />
 
             {/* Filing Panel */}
-            <FilingPanel
-              active={visiblePanel === "filing"}
-              navData={navData}
-            />
+            <FilingPanel active={visiblePanel === "filing"} navData={navData} />
 
             {/* PHI Writer Panel */}
             <PhiWriterPanel
@@ -675,15 +958,37 @@ export function TwoTierNav({
             />
 
             {/* Trust Panel */}
-            <TrustPanel
-              active={visiblePanel === "trust"}
-              navData={navData}
-            />
+            <TrustPanel active={visiblePanel === "trust"} navData={navData} />
 
             {/* Team Chat Panel */}
             <TeamChatPanel
               active={visiblePanel === "team-chat"}
               navData={navData}
+            />
+
+            {/* Supervisor Panel */}
+            <SupervisorPanel
+              active={visiblePanel === "supervisor"}
+              navData={navData}
+            />
+
+            {/* Coaching Panel */}
+            <CoachingPanel
+              active={visiblePanel === "coaching"}
+              navData={navData}
+            />
+
+            {/* AI Drafts Panel */}
+            <AiDraftsPanel
+              active={visiblePanel === "drafts"}
+              navData={navData}
+            />
+
+            {/* Changelog Panel */}
+            <ChangelogPanel
+              active={visiblePanel === "changelog"}
+              commits={changelogCommits}
+              onMarkViewed={() => setChangelogUnread(0)}
             />
 
             {/* Default panels for any remaining items without a custom panel */}
@@ -709,6 +1014,9 @@ export function TwoTierNav({
                     "billing",
                     "trust",
                     "team-chat",
+                    "supervisor",
+                    "coaching",
+                    "drafts",
                   ].includes(item.id),
               )
               .map((item) => (
@@ -787,6 +1095,32 @@ function getEventColor(eventType: string | null): string {
     default:
       return "#185f9b";
   }
+}
+
+/**
+ * Wrapper that picks per-persona dashboard sub-nav when subnavData is provided,
+ * otherwise falls back to the legacy hardcoded DashboardPanel. The wrapper
+ * preserves the `active` class state Radix-style panel switching expects.
+ */
+function PersonaDashboardPanelWrapper({
+  active,
+  casesCount,
+  subnavData,
+}: {
+  active: boolean;
+  casesCount?: number;
+  subnavData?: DashboardSubnavData;
+}) {
+  if (!subnavData) {
+    return <DashboardPanel active={active} casesCount={casesCount} />;
+  }
+  // The dispatcher's SubnavShell already renders ttn-panel-content active;
+  // wrap in a div that hides it when not active.
+  return (
+    <div style={{ display: active ? undefined : "none" }}>
+      <PersonaDashboardSubnav data={subnavData} />
+    </div>
+  );
 }
 
 function DashboardPanel({
@@ -1754,40 +2088,58 @@ function CalendarPanel({
             <div
               style={{
                 display: "flex",
-                alignItems: "flex-start",
-                gap: 8,
-                padding: "8px 12px",
+                flexDirection: "column",
+                gap: 2,
+                padding: "8px 10px",
+                borderLeft: `3px solid ${event.color}`,
+                marginBottom: 2,
+                minWidth: 0,
               }}
             >
-              <span
+              {/* Time — full-width row on top */}
+              <div
                 style={{
                   fontSize: 10,
                   fontFamily: "monospace",
                   color: "#999",
-                  whiteSpace: "nowrap",
-                  marginTop: 1,
-                  minWidth: 54,
+                  fontWeight: 600,
                 }}
               >
                 {event.time}
-              </span>
+              </div>
+              {/* Title — full width, wraps if long */}
               <div
                 style={{
-                  width: 3,
-                  alignSelf: "stretch",
-                  borderRadius: 2,
-                  backgroundColor: event.color,
-                  flexShrink: 0,
+                  fontSize: 12,
+                  color: "#1C1C1E",
+                  lineHeight: 1.35,
                 }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: "#1C1C1E" }}>
-                  {event.title}
-                </div>
+              >
+                {event.title}
+              </div>
+              {/* Meta — case + type badge on one compact row */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 2,
+                  minWidth: 0,
+                }}
+              >
                 {event.caseName && (
-                  <div style={{ fontSize: 10, color: "#999", marginTop: 1 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#999",
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {event.caseName}
-                  </div>
+                  </span>
                 )}
                 <span
                   style={{
@@ -1800,7 +2152,8 @@ function CalendarPanel({
                     borderRadius: 3,
                     padding: "0 4px",
                     lineHeight: "16px",
-                    marginTop: 3,
+                    marginLeft: event.caseName ? "auto" : 0,
+                    flexShrink: 0,
                   }}
                 >
                   {event.type}
@@ -2070,13 +2423,29 @@ function EmailPanel({
                         }}
                       >
                         {email.caseId ? (
-                          <Link
-                            href={`/cases/${email.caseId}`}
-                            style={{ color: "#185f9b", textDecoration: "none" }}
-                            onClick={(ev) => ev.stopPropagation()}
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            style={{
+                              color: "#185f9b",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                            }}
+                            onClick={(ev) => {
+                              ev.preventDefault();
+                              ev.stopPropagation();
+                              window.location.href = `/cases/${email.caseId}`;
+                            }}
+                            onKeyDown={(ev) => {
+                              if (ev.key === "Enter") {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                window.location.href = `/cases/${email.caseId}`;
+                              }
+                            }}
                           >
                             &rarr; {email.caseLink}
-                          </Link>
+                          </span>
                         ) : (
                           <>&rarr; {email.caseLink}</>
                         )}
@@ -2874,7 +3243,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
         }}
       >
         <Link
-          href="/reports/pipeline-funnel"
+          href="/reports/win-rates"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}
@@ -2885,7 +3254,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
           </div>
         </Link>
         <Link
-          href="/reports/cases-by-stage"
+          href="/cases"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}
@@ -2896,7 +3265,7 @@ function ReportsQuickStats({ navData }: { navData?: NavPanelData }) {
           </div>
         </Link>
         <Link
-          href="/reports/task-completion"
+          href="/queue"
           style={boxStyle}
           onMouseEnter={onEnter}
           onMouseLeave={onLeave}
@@ -3344,7 +3713,9 @@ function BillingPanel({
         href="/billing/time"
         label="Unbilled time"
         sublabel={
-          s ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}` : undefined
+          s
+            ? `${s.unbilledTimeCount} entr${s.unbilledTimeCount === 1 ? "y" : "ies"}`
+            : undefined
         }
         value={`${unbilledHours}h`}
       />
@@ -3352,7 +3723,9 @@ function BillingPanel({
         href="/billing"
         label="Unbilled expenses"
         sublabel={
-          s ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}` : undefined
+          s
+            ? `${s.unbilledExpenseCount} item${s.unbilledExpenseCount === 1 ? "" : "s"}`
+            : undefined
         }
         value={formatCents(s?.unbilledExpenseCents ?? 0)}
       />
@@ -3415,8 +3788,8 @@ function TrustPanel({
         )}
       </div>
       <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
-        {formatCents(s?.totalBalanceCents ?? 0)} &middot;{" "}
-        {s?.accountCount ?? 0} account{s?.accountCount === 1 ? "" : "s"}
+        {formatCents(s?.totalBalanceCents ?? 0)} &middot; {s?.accountCount ?? 0}{" "}
+        account{s?.accountCount === 1 ? "" : "s"}
       </div>
 
       <PanelCounterRow
@@ -3485,6 +3858,441 @@ function TeamChatPanel({
         <Link href="/team-chat" style={panelFooterLinkStyle}>
           Open team chat &rarr;
         </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Supervisor ─── */
+
+function SupervisorPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.supervisorSummary;
+  const topOverloaded = s?.topOverloaded ?? [];
+  const maxOpen = Math.max(
+    1,
+    ...topOverloaded.map((r) => r.openTaskCount),
+  );
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Supervisor</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.openEvents ?? 0} open events &middot; {s?.highRisk ?? 0} high-risk
+      </div>
+
+      <PanelCounterRow
+        href="/reports/risk"
+        label="High-risk cases"
+        value={s?.highRisk ?? 0}
+        tone={s && s.highRisk > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/admin/compliance"
+        label="Compliance findings"
+        sublabel="bar · ethics · HIPAA"
+        value={s?.openFindings ?? 0}
+        tone={s && s.openFindings > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching"
+        label="Coaching flags"
+        value={s?.openFlags ?? 0}
+        tone={s && s.openFlags > 0 ? "warn" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>Review queue</div>
+      <PanelCounterRow
+        href="/admin/supervisor/drafts"
+        label="Drafts awaiting review"
+        value={s?.openDrafts ?? 0}
+        tone={s && s.openDrafts > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/cases?filter=supervisor-events"
+        label="Supervisor events"
+        sublabel="across all cases"
+        value={s?.openEvents ?? 0}
+      />
+
+      <div style={panelSubHeaderStyle}>Top overloaded</div>
+      {topOverloaded.length === 0 ? (
+        <div style={{ padding: "6px 12px", fontSize: 11, color: "#999" }}>
+          No overload detected
+        </div>
+      ) : (
+        <div style={{ padding: "2px 12px 8px" }}>
+          {topOverloaded.map((row) => {
+            const pct = Math.round(
+              (row.openTaskCount / maxOpen) * 100,
+            );
+            return (
+              <Link
+                key={row.userId}
+                href={`/admin/supervisor/workload?user=${row.userId}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 0",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "#1C1C1E",
+                    flex: "0 0 40%",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {row.name}
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    height: 4,
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      height: "100%",
+                      width: `${pct}%`,
+                      backgroundColor: "#185f9b",
+                    }}
+                  />
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "monospace",
+                    color: "#EE0000",
+                    fontWeight: 600,
+                    minWidth: 20,
+                    textAlign: "right",
+                  }}
+                >
+                  {row.overdueTaskCount}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      <div
+        style={{
+          padding: "12px 12px 0",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <Link href="/admin/supervisor" style={panelFooterLinkStyle}>
+          Open supervisor hub &rarr;
+        </Link>
+        <Link href="/admin/supervisor/workload" style={panelFooterLinkStyle}>
+          Workload matrix &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Coaching ─── */
+
+function CoachingPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.coachingSummary;
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">Coaching</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.openTotal ?? 0} open &middot; {s?.inProgress ?? 0} in progress
+      </div>
+
+      <PanelCounterRow
+        href="/coaching?severity=high"
+        label="Needs attention"
+        sublabel="severity ≥ 6"
+        value={s?.openHighSeverity ?? 0}
+        tone={s && s.openHighSeverity > 0 ? "urgent" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching?status=in_progress"
+        label="In progress"
+        value={s?.inProgress ?? 0}
+      />
+      <PanelCounterRow
+        href="/coaching?status=resolved&window=7d"
+        label="Resolved this week"
+        value={s?.resolvedThisWeek ?? 0}
+        tone={s && s.resolvedThisWeek > 0 ? "success" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>Problem Type</div>
+      <PanelCounterRow
+        href="/coaching?classification=people"
+        label="People problems"
+        value={s?.peopleCount ?? 0}
+        tone={s && s.peopleCount > 0 ? "warn" : "default"}
+      />
+      <PanelCounterRow
+        href="/coaching?classification=process"
+        label="Process problems"
+        value={s?.processCount ?? 0}
+      />
+      {(s?.unclassifiedCount ?? 0) > 0 && (
+        <PanelCounterRow
+          href="/coaching?classification=none"
+          label="Unclassified"
+          value={s?.unclassifiedCount ?? 0}
+          tone="warn"
+        />
+      )}
+
+      <div style={panelSubHeaderStyle}>Training Gaps</div>
+      <PanelCounterRow
+        href="/coaching/training-gaps"
+        label="Role-level gaps"
+        sublabel="≥50% below target"
+        value={s?.trainingGapCount ?? 0}
+        tone={s && s.trainingGapCount > 0 ? "warn" : "default"}
+      />
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/coaching" style={panelFooterLinkStyle}>
+          View all flags &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── AI Drafts ─── */
+
+const AI_DRAFT_SHORT_LABEL: Record<string, string> = {
+  client_message: "Client msg",
+  client_letter: "Letter",
+  call_script: "Call script",
+  appeal_form: "Appeal",
+  reconsideration_request: "Recon req",
+  pre_hearing_brief: "Brief",
+  appeals_council_brief: "AC brief",
+  medical_records_request: "MR request",
+  fee_petition: "Fee pet.",
+  task_instructions: "Task instr.",
+  status_update: "Status",
+  rfc_letter: "RFC letter",
+  coaching_conversation: "Coaching",
+  other: "Other",
+};
+
+function AiDraftsPanel({
+  active,
+  navData,
+}: {
+  active: boolean;
+  navData?: NavPanelData;
+}) {
+  const s = navData?.aiDraftsSummary;
+
+  const topTypes = Object.entries(s?.byType ?? {})
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const needsReviewTone =
+    s && s.errorCount > 0
+      ? "urgent"
+      : s && s.needsReview > 0
+        ? "warn"
+        : "default";
+
+  const recent = s?.recent ?? [];
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">AI Drafts</div>
+      <div style={{ fontSize: 11, color: "#999", padding: "0 12px 8px" }}>
+        {s?.myQueue ?? 0} mine &middot; {s?.needsReview ?? 0} in review
+      </div>
+
+      <PanelCounterRow
+        href="/drafts?mine=1"
+        label="My queue"
+        value={s?.myQueue ?? 0}
+      />
+      <PanelCounterRow
+        href="/drafts?status=draft_ready"
+        label="Needs review"
+        value={s?.needsReview ?? 0}
+        tone={needsReviewTone}
+      />
+      <PanelCounterRow
+        href="/drafts?confidence=low"
+        label="Low confidence"
+        value={s?.lowConfidence ?? 0}
+        tone={s && s.lowConfidence > 0 ? "urgent" : "default"}
+      />
+
+      <div style={panelSubHeaderStyle}>By type</div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 6,
+          padding: "4px 12px 10px",
+          fontSize: 10,
+          fontFamily: "monospace",
+        }}
+      >
+        {topTypes.length === 0 ? (
+          <span style={{ fontSize: 10, color: "#999" }}>No active drafts</span>
+        ) : (
+          topTypes.map(([type, n]) => (
+            <Link
+              key={type}
+              href={`/drafts?type=${type}`}
+              style={{ textDecoration: "none", color: "#185f9b" }}
+            >
+              {AI_DRAFT_SHORT_LABEL[type] ?? type} {n}
+            </Link>
+          ))
+        )}
+      </div>
+
+      <div style={panelSubHeaderStyle}>Recent</div>
+      {recent.length === 0 ? (
+        <div style={{ padding: "6px 12px", fontSize: 11, color: "#999" }}>
+          No recent drafts
+        </div>
+      ) : (
+        recent.map((r) => (
+          <Link
+            key={r.id}
+            href={`/drafts/${r.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div className="ttn-msg-preview">
+              <div className="ttn-msg-avatar">{r.authorInitials}</div>
+              <div className="ttn-msg-body">
+                <div
+                  className="ttn-msg-subject"
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {r.title}
+                </div>
+                <div
+                  className="ttn-msg-snippet"
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontFamily: "monospace",
+                      backgroundColor: "rgba(24,95,155,0.1)",
+                      color: "#185f9b",
+                      padding: "1px 4px",
+                      borderRadius: 3,
+                    }}
+                  >
+                    {AI_DRAFT_SHORT_LABEL[r.type] ?? r.type}
+                  </span>
+                  {r.caseNumber && <span>#{r.caseNumber}</span>}
+                </div>
+              </div>
+              <span className="ttn-msg-time">
+                {formatRelativeTime(r.createdAt)}
+              </span>
+            </div>
+          </Link>
+        ))
+      )}
+
+      <div style={{ padding: "12px 12px 0" }}>
+        <Link href="/drafts" style={panelFooterLinkStyle}>
+          Open drafts inbox &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ChangelogPanel({
+  active,
+  commits,
+  onMarkViewed,
+}: {
+  active: boolean;
+  commits?: CommitEntry[];
+  onMarkViewed: () => void;
+}) {
+  useEffect(() => {
+    if (active) {
+      localStorage.setItem("changelog:lastViewedAt", new Date().toISOString());
+      onMarkViewed();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const displayCommits = (commits ?? []).slice(0, 8);
+
+  return (
+    <div className={`ttn-panel-content${active ? " active" : ""}`}>
+      <div className="ttn-panel-header">What&apos;s New</div>
+
+      {displayCommits.length === 0 ? (
+        <div style={{ padding: "6px 8px", fontSize: 12, color: "#999" }}>
+          No recent updates
+        </div>
+      ) : (
+        <div className="ttn-changelog-list">
+          {displayCommits.map((c) => (
+            <div key={c.hash} className="ttn-changelog-item">
+              <div className="ttn-changelog-item-header">
+                <span className={`ttn-changelog-type ${c.type}`}>
+                  {c.type}
+                </span>
+                <span className="ttn-changelog-time">
+                  {formatRelativeTime(c.date)}
+                </span>
+              </div>
+              <div className="ttn-changelog-subject" title={c.subject}>
+                {c.subject}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="ttn-changelog-footer">
+        <Link href="/changelog">View full changelog &rarr;</Link>
       </div>
     </div>
   );

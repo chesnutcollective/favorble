@@ -195,13 +195,12 @@ export function LeadDetailClient({
   const isActive = !isConverted && !isClosed;
 
   const initialStages = stages.filter((s) => s.isInitial);
-  const initials = `${lead.firstName[0] ?? ""}${lead.lastName[0] ?? ""}`.toUpperCase();
+  const initials =
+    `${lead.firstName[0] ?? ""}${lead.lastName[0] ?? ""}`.toUpperCase();
   const fullName = `${lead.firstName} ${lead.lastName}`;
 
   // Pipeline step index for progress indicator
-  const currentStepIdx = PIPELINE_STEPS.findIndex(
-    (s) => s.key === lead.status,
-  );
+  const currentStepIdx = PIPELINE_STEPS.findIndex((s) => s.key === lead.status);
 
   function handleAdvanceStatus() {
     const idx = PIPELINE_STEPS.findIndex((s) => s.key === lead.status);
@@ -346,8 +345,7 @@ export function LeadDetailClient({
             {PIPELINE_STEPS.map((step, idx) => {
               const isCompleted =
                 isConverted || (currentStepIdx >= 0 && idx <= currentStepIdx);
-              const isCurrent =
-                !isConverted && idx === currentStepIdx;
+              const isCurrent = !isConverted && idx === currentStepIdx;
               return (
                 <div key={step.key} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-1">
@@ -411,12 +409,7 @@ export function LeadDetailClient({
                 />
                 <div className="flex flex-col items-center flex-1">
                   <div className="flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-bold bg-[#1d72b8] text-white">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                    >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path
                         d="M2.5 6L5 8.5L9.5 3.5"
                         stroke="currentColor"
@@ -849,7 +842,9 @@ export function LeadDetailClient({
               </button>
               <button
                 onClick={handleSaveEdit}
-                disabled={isPending || !editForm.firstName || !editForm.lastName}
+                disabled={
+                  isPending || !editForm.firstName || !editForm.lastName
+                }
                 className="px-3 py-1.5 text-[12px] font-medium text-white bg-[#171717] rounded-[6px] hover:bg-[#333] transition-colors disabled:opacity-50"
               >
                 {isPending ? "Saving..." : "Save Changes"}
@@ -927,15 +922,12 @@ export function LeadDetailClient({
                 What will happen:
               </p>
               <ul className="space-y-1 list-disc list-inside">
-                <li>
-                  A new contact record for {fullName}
-                </li>
+                <li>A new contact record for {fullName}</li>
                 <li>A new case linked to this lead</li>
                 <li>Lead status updated to &quot;Converted&quot;</li>
-                {lead.intakeData &&
-                  Object.keys(lead.intakeData).length > 0 && (
-                    <li>Intake data auto-populated as custom field values</li>
-                  )}
+                {lead.intakeData && Object.keys(lead.intakeData).length > 0 && (
+                  <li>Intake data auto-populated as custom field values</li>
+                )}
                 <li>Any workflows for the initial stage will run</li>
               </ul>
             </div>
@@ -1030,10 +1022,7 @@ function DialogOverlay({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/30"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative bg-white rounded-[6px] border border-[#EAEAEA] p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         {children}
       </div>
@@ -1068,10 +1057,7 @@ function renderIntakeField(
           type="number"
           value={String(value ?? "")}
           onChange={(e) =>
-            onChange(
-              field.slug,
-              e.target.value ? Number(e.target.value) : "",
-            )
+            onChange(field.slug, e.target.value ? Number(e.target.value) : "")
           }
           placeholder={field.placeholder ?? ""}
           className={inputClasses}
