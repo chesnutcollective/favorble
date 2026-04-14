@@ -17,19 +17,9 @@ import { and, desc, eq, gte, sql } from "drizzle-orm";
  * Used for comparison on the overview page until a real benchmark feed
  * is wired up.
  */
-export const INDUSTRY_BENCHMARK_NPS = 35;
+const INDUSTRY_BENCHMARK_NPS = 35;
 
 export type NpsCategory = "promoter" | "passive" | "detractor";
-
-/**
- * Category from raw score, per standard NPS definition.
- * 9-10 = promoter, 7-8 = passive, 0-6 = detractor.
- */
-export function categoryForScore(score: number): NpsCategory {
-  if (score >= 9) return "promoter";
-  if (score >= 7) return "passive";
-  return "detractor";
-}
 
 export type NpsOverview = {
   npsScore: number;
