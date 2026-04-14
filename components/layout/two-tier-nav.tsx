@@ -657,7 +657,7 @@ export function TwoTierNav({
     <div className="ttn-float" data-collapsed={collapsed}>
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
-        <TooltipProvider delayDuration={150}>
+        <TooltipProvider delayDuration={0}>
         <nav className="ttn-rail">
           {/* Logo */}
           <Link

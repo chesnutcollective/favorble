@@ -324,10 +324,16 @@
   );
 }
 
-/* ── Rail tooltips ── */
-.ttn-tooltip {
+/* ── Rail tooltips ──
+ * No max-width + overflow:visible so the dark pill always hugs the full
+ * label, even long ones like "Post-Hearing Processing". width:max-content
+ * lets the tooltip size itself to its text; white-space:nowrap keeps it
+ * on one line (tweak to `normal` + word-break if you ever want wrapping).
+ */
+.ttn-tooltip,
+.ttn-tooltip[data-radix-popper-content-wrapper] {
   z-index: 50;
-  overflow: visible;
+  overflow: visible !important;
   border-radius: 8px;
   background: #111113;
   color: #fff;
@@ -336,7 +342,8 @@
   font-weight: 500;
   padding: 6px 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.12);
-  max-width: 240px;
+  width: max-content;
+  max-width: min(calc(100vw - 80px), 360px);
   white-space: nowrap;
   pointer-events: none;
 }
