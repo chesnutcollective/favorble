@@ -74,6 +74,11 @@ jobs:
         env:
           QA_SYNC_SECRET: ${{ secrets.QA_SYNC_SECRET }}
         run: |
+          if [ -z "${QA_SYNC_SECRET}" ]; then
+            echo "::warning::QA_SYNC_SECRET is not set — skipping fingerprint upload."
+            exit 0
+          fi
+
           PAYLOAD=$(jq -n \
             --arg clientSlug "hogansmith" \
             --arg appSlug "favorble" \
