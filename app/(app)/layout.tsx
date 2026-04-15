@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { TwoTierNav } from "@/components/layout/two-tier-nav";
 import { Header } from "@/components/layout/header";
@@ -17,6 +18,9 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const persona = await requireEffectivePersona();
+  const cookieStore = await cookies();
+  const initialCollapsed =
+    cookieStore.get("ttn-rail-collapsed")?.value === "1";
   const [casesCount, navData, changelogResult, subnavData] = await Promise.all([
     getActiveCaseCount(),
     getNavPanelData().catch(() => undefined),
@@ -52,6 +56,7 @@ export default async function AppLayout({
             currentPersonaId={persona.personaId}
             isViewingAs={persona.isViewingAs}
             changelogCommits={changelogResult.commits}
+            initialCollapsed={initialCollapsed}
           />
         </Suspense>
         <main className="ttn-main-area">

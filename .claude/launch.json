@@ -1,0 +1,39 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "next",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["next", "dev"],
+      "port": 3007,
+      "autoPort": true
+    },
+    {
+      "name": "ere-orchestrator",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "ere-orchestrator", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "ere-browser",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "ere-browser", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "langextract-worker",
+      "runtimeExecutable": "uvicorn",
+      "runtimeArgs": [
+        "main:app",
+        "--app-dir",
+        "services/langextract-worker",
+        "--reload",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "port": 8000
+    }
+  ]
+}

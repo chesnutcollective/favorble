@@ -291,39 +291,72 @@
   display: block;
 }
 
-/* Rail group & spacer */
+/* Rail group — positioning parent for the scrollable inner wrapper and
+ * the top/bottom fade overlays. Owns the flex sizing; does NOT scroll or
+ * paint its own background. */
 .ttn-rail-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* Inner wrapper that actually scrolls. The active-item ::before accent
+ * bar at left: -8px lives inside this box, so the opaque fade overlays
+ * (siblings of this element, not ancestors) never clip or half-fade it. */
+.ttn-rail-scroll-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1 1 0;
-  min-height: 0;
   padding: 8px 0;
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* IE/Edge */
+  /* outline on focus-visible for keyboard roving */
+  outline: none;
 }
 
-.ttn-rail-group::-webkit-scrollbar {
+.ttn-rail-scroll-inner::-webkit-scrollbar {
   display: none;                  /* Chrome/Safari */
 }
 
-/* Subtle fade at top/bottom of scrollable icon area */
-.ttn-rail-scroll-mask {
-  mask-image: linear-gradient(
+/* Top/bottom overflow fade overlays. These are opaque gradients of the
+ * rail background color, not mask-image, so they don't chew on the
+ * active-item accent or the label text. JS toggles `.visible`. */
+.ttn-rail-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 1;
+}
+
+.ttn-rail-fade.visible {
+  opacity: 1;
+}
+
+.ttn-rail-fade-top {
+  top: 0;
+  background: linear-gradient(
     to bottom,
-    transparent 0px,
-    black 12px,
-    black calc(100% - 12px),
-    transparent 100%
+    var(--nav-rail-bg, #1C1C1E),
+    transparent
   );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0px,
-    black 12px,
-    black calc(100% - 12px),
-    transparent 100%
+}
+
+.ttn-rail-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--nav-rail-bg, #1C1C1E),
+    transparent
   );
 }
 

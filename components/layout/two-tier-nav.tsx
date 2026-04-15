@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -551,6 +551,7 @@ export function TwoTierNav({
   currentPersonaId,
   isViewingAs,
   changelogCommits,
+  initialCollapsed = false,
 }: {
   user: SessionUser;
   casesCount?: number;
@@ -574,22 +575,72 @@ export function TwoTierNav({
   isViewingAs: boolean;
   /** Recent commits for the changelog panel. */
   changelogCommits?: CommitEntry[];
+  /**
+   * SSR-seeded collapse state read from the `ttn-rail-collapsed` cookie in
+   * the server layout. Seeding on the server prevents the hydration flash
+   * that used to cause half-drawn labels when localStorage took over.
+   */
+  initialCollapsed?: boolean;
 }) {
   const pathname = usePathname();
 
-  // Sidebar collapse state — default expanded, persisted in localStorage
-  const [collapsed, setCollapsed] = useState(false);
+  // Sidebar collapse state — SSR-seeded from cookie, persisted back to cookie
+  // so the next server render already knows the user's preference.
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
   useEffect(() => {
-    const stored = localStorage.getItem("ttn-sidebar-collapsed");
-    if (stored === "true") setCollapsed(true);
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("ttn-sidebar-collapsed", String(collapsed));
+    document.cookie = `ttn-rail-collapsed=${collapsed ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.style.setProperty(
       "--sidebar-w",
       collapsed ? "80px" : "376px",
     );
   }, [collapsed]);
+
+  // Refs + state for rail interactions (auto-scroll active, overflow fades,
+  // keyboard roving).
+  const activeRailRef = React.useRef<HTMLAnchorElement | null>(null);
+  const scrollInnerRef = React.useRef<HTMLDivElement | null>(null);
+  const [showTopFade, setShowTopFade] = useState(false);
+  const [showBottomFade, setShowBottomFade] = useState(false);
+
+  // Keyboard shortcut: Cmd/Ctrl+\ toggles the rail (VSCode/Cursor muscle memory).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
+        e.preventDefault();
+        setCollapsed((c) => !c);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Arrow-key roving focus between rail items. Keeps focus inside the
+  // scroll-inner container; Home/End jump to first/last.
+  const onRailKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+      const container = scrollInnerRef.current;
+      if (!container) return;
+      const items = Array.from(
+        container.querySelectorAll<HTMLAnchorElement>("[data-rail-item]"),
+      );
+      if (items.length === 0) return;
+      const idx = items.findIndex((el) => el === document.activeElement);
+      let next = idx;
+      if (e.key === "ArrowDown")
+        next = idx < 0 ? 0 : (idx + 1) % items.length;
+      else if (e.key === "ArrowUp")
+        next =
+          idx < 0 ? items.length - 1 : (idx - 1 + items.length) % items.length;
+      else if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = items.length - 1;
+      if (next !== idx) {
+        e.preventDefault();
+        items[next]?.focus();
+      }
+    },
+    [],
+  );
 
   // Build a persona-scoped rail in the persona's preferred order.
   // Items not in personaNav are hidden. Unknown IDs are silently skipped.
@@ -613,6 +664,33 @@ export function TwoTierNav({
   }, [personaNav, railItemsById]);
 
   const activeRailId = getActiveRailId(pathname, visibleRailItems);
+
+  // Auto-scroll the active rail item into view when the route changes so the
+  // user never has to hunt for it in a long list (admin has 21 items).
+  // `block: "nearest"` no-ops when the item is already visible.
+  useLayoutEffect(() => {
+    activeRailRef.current?.scrollIntoView({ block: "nearest" });
+  }, [pathname]);
+
+  // Overflow-fade indicators: show a top/bottom gradient when there are
+  // more items scrolled off-screen. Re-measures on scroll, resize, and
+  // when the item list changes (view-as persona switch).
+  useEffect(() => {
+    const el = scrollInnerRef.current;
+    if (!el) return;
+    const update = () => {
+      setShowTopFade(el.scrollTop > 4);
+      setShowBottomFade(el.scrollTop + el.clientHeight < el.scrollHeight - 4);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro.disconnect();
+    };
+  }, [visibleRailItems.length, collapsed]);
 
   // Panel override: allows non-route panels (e.g. changelog) to show temporarily
   const [panelOverride, setPanelOverride] = useState<string | null>(null);
@@ -674,33 +752,69 @@ export function TwoTierNav({
             />
           </Link>
 
-          {/* Main nav icons — scrollable with fade mask */}
-          <div className="ttn-rail-group ttn-rail-scroll-mask">
-            {visibleRailItems.map((item) => {
-              const active = isRailActive(item);
-              const tip = railTooltips[item.id] ?? item.label;
-              return (
-                <Tooltip key={item.id}>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={item.href}
-                      className={`ttn-rail-btn${active ? " active" : ""}`}
-                    >
-                      {item.icon}
-                      <span className="ttn-rail-label">{item.label}</span>
-                      {item.notification && <span className="ttn-notif-dot" />}
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    sideOffset={10}
-                    className="ttn-tooltip"
+          {/* Main nav icons — scroll lives on the inner wrapper, fade
+           *  overlays are absolutely positioned siblings so the active
+           *  item's ::before accent bar never gets half-faded by a
+           *  mask-image. Fades only show when content is actually
+           *  clipped above/below the viewport.
+           */}
+          <div className="ttn-rail-group">
+            <div
+              ref={scrollInnerRef}
+              className="ttn-rail-scroll-inner"
+              onKeyDown={onRailKeyDown}
+            >
+              {visibleRailItems.map((item) => {
+                const active = isRailActive(item);
+                const tip = railTooltips[item.id] ?? item.label;
+                return (
+                  <Tooltip
+                    key={item.id}
+                    // Only render tooltips when collapsed — in expanded
+                    // mode the visible label already names the item and
+                    // hover tooltips feel noisy.
+                    open={collapsed ? undefined : false}
                   >
-                    {tip}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
+                    <TooltipTrigger asChild>
+                      <Link
+                        href={item.href}
+                        ref={active ? activeRailRef : undefined}
+                        className={`ttn-rail-btn${active ? " active" : ""}`}
+                        aria-current={active ? "page" : undefined}
+                        data-rail-item
+                      >
+                        {item.icon}
+                        <span
+                          className={
+                            collapsed ? "sr-only" : "ttn-rail-label"
+                          }
+                        >
+                          {item.label}
+                        </span>
+                        {item.notification && (
+                          <span className="ttn-notif-dot" />
+                        )}
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      sideOffset={10}
+                      className="ttn-tooltip"
+                    >
+                      {tip}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+            <div
+              className={`ttn-rail-fade ttn-rail-fade-top${showTopFade ? " visible" : ""}`}
+              aria-hidden="true"
+            />
+            <div
+              className={`ttn-rail-fade ttn-rail-fade-bottom${showBottomFade ? " visible" : ""}`}
+              aria-hidden="true"
+            />
           </div>
 
           <div className="ttn-rail-divider" />
@@ -712,6 +826,8 @@ export function TwoTierNav({
               <button
                 type="button"
                 className="ttn-collapse-btn"
+                aria-pressed={collapsed}
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                 onClick={() => setCollapsed((c) => !c)}
               >
                 <svg
