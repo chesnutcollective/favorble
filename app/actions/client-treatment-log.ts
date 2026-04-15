@@ -28,8 +28,11 @@ import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
 import { logger } from "@/lib/logger/server";
 import { logPhiAccess, logPhiModification } from "@/lib/services/hipaa-audit";
 import { revalidatePath } from "next/cache";
-
-export const PORTAL_IMPERSONATE_COOKIE = "favorble_portal_impersonate";
+// Canonical cookie name lives in the client-portal layout (which is not
+// `"use server"`, so it's free to export constants). Import it here rather
+// than re-exporting from this action file — Next.js forbids non-async
+// exports from `"use server"` modules.
+import { PORTAL_IMPERSONATE_COOKIE } from "@/app/(client)/layout";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared row type used by both portal + staff UIs
