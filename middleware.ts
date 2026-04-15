@@ -1,11 +1,14 @@
+import type { NextRequest } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // Set ENABLE_CLERK_AUTH=true to enforce real Clerk auth.
-// When false (default), the middleware initializes Clerk context but
-// does not require auth — pages fall back to a demo user via session.ts.
-// This is the temporary setup until a real custom domain is added to
-// Clerk (Clerk doesn't allow *.vercel.app domains).
+// When false (default), the middleware short-circuits before Clerk ever
+// runs, so the Clerk dev-browser handshake (which redirects unauthenticated
+// visitors to close-calf-26.clerk.accounts.dev) never fires. Pages fall
+// back to a demo user via session.ts. This is the temporary setup until a
+// real custom domain is added to Clerk (Clerk doesn't allow *.vercel.app
+// domains).
 const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
 
 const isPublicRoute = createRouteMatcher([
@@ -49,30 +52,36 @@ const isPortalRoute = createRouteMatcher(["/portal(.*)"]);
  *                                         publicMetadata.canImpersonate).
  *   - Unauthenticated + /portal/invite  → allowed (accept-invite flow).
  */
-export default clerkMiddleware(async (auth, request) => {
+// Demo-mode middleware: plain Next handler that never touches Clerk, so
+// the Clerk dev-browser handshake (which would redirect unauthenticated
+// visitors to the hosted Account Portal) never runs.
+function demoMiddleware(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
-  // Public routes (incl. /portal/invite/:token) always bypass auth.
   if (isPublicRoute(request)) {
     return NextResponse.next();
   }
 
-  if (!AUTH_ENABLED) {
-    // Demo mode — let every request through; session.ts falls back to a
-    // demo admin. The portal shell still gates on portal_users lookup so
-    // we don't leak client-only pages to a staff demo user.
-    const onPortalDemo = isPortalRoute(request);
-    const impersonateDemo = searchParams.get("impersonate");
-    if (onPortalDemo && impersonateDemo) {
-      const response = NextResponse.next();
-      response.cookies.set("favorble_portal_impersonate", impersonateDemo, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/portal",
-        maxAge: 60 * 60,
-      });
-      return response;
-    }
+  const onPortalDemo = isPortalRoute(request);
+  const impersonateDemo = searchParams.get("impersonate");
+  if (onPortalDemo && impersonateDemo) {
+    const response = NextResponse.next();
+    response.cookies.set("favorble_portal_impersonate", impersonateDemo, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/portal",
+      maxAge: 60 * 60,
+    });
+    return response;
+  }
+  return NextResponse.next();
+}
+
+const authMiddleware = clerkMiddleware(async (auth, request) => {
+  const { searchParams } = request.nextUrl;
+
+  // Public routes (incl. /portal/invite/:token) always bypass auth.
+  if (isPublicRoute(request)) {
     return NextResponse.next();
   }
 
@@ -138,6 +147,8 @@ export default clerkMiddleware(async (auth, request) => {
 
   return NextResponse.next();
 });
+
+export default AUTH_ENABLED ? authMiddleware : demoMiddleware;
 
 export const config = {
   matcher: [
