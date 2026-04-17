@@ -821,7 +821,7 @@ export function TwoTierNav({
           <div className="ttn-rail-spacer" />
 
           {/* Collapse / expand toggle */}
-          <Tooltip>
+          <Tooltip open={collapsed ? undefined : false}>
             <TooltipTrigger asChild>
               <button
                 type="button"
@@ -847,6 +847,11 @@ export function TwoTierNav({
                 >
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
+                <span
+                  className={collapsed ? "sr-only" : "ttn-rail-label"}
+                >
+                  {collapsed ? "Expand" : "Hide"}
+                </span>
               </button>
             </TooltipTrigger>
             <TooltipContent
@@ -860,15 +865,21 @@ export function TwoTierNav({
 
           {/* User avatar */}
           <DropdownMenu>
-            <Tooltip>
+            <Tooltip open={collapsed ? undefined : false}>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
                   <button
                     className="ttn-rail-avatar"
                     type="button"
+                    aria-label={`${user.firstName} ${user.lastName} — profile and view-as menu`}
                   >
-                    <span>{initials}</span>
-                    <span className="ttn-status-dot" />
+                    <span aria-hidden="true">{initials}</span>
+                    <span className="ttn-status-dot" aria-hidden="true" />
+                    <span
+                      className={collapsed ? "sr-only" : "ttn-rail-label"}
+                    >
+                      {user.firstName}
+                    </span>
                   </button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -931,12 +942,17 @@ export function TwoTierNav({
           </DropdownMenu>
 
           {/* Changelog / what's new — navigates to /changelog */}
-          <Tooltip>
+          <Tooltip open={collapsed ? undefined : false}>
             <TooltipTrigger asChild>
               <Link
                 href="/changelog"
                 className={`ttn-rail-btn${pathname.startsWith("/changelog") ? " active" : ""}`}
                 style={{ position: "relative" }}
+                aria-label={
+                  changelogUnread > 0
+                    ? `What's new (${changelogUnread} unread)`
+                    : "What's new"
+                }
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -944,11 +960,15 @@ export function TwoTierNav({
                   fill="currentColor"
                   width="18"
                   height="18"
+                  aria-hidden="true"
                 >
                   <path d="M20 2v3h-2V3H6v2H4V2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1zM4 7h16v10H4V7zm0 12h16v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1zM8 9v2h8V9H8zm0 4v2h5v-2H8z" />
                 </svg>
+                <span className={collapsed ? "sr-only" : "ttn-rail-label"}>
+                  What&apos;s new
+                </span>
                 {changelogUnread > 0 && (
-                  <span className="ttn-notif-badge">
+                  <span className="ttn-notif-badge" aria-hidden="true">
                     {changelogUnread > 9 ? "9+" : changelogUnread}
                   </span>
                 )}
@@ -965,13 +985,17 @@ export function TwoTierNav({
 
           {/* Settings gear — only shown to admins (actor, not previewed persona) */}
           {isAdmin && (
-            <Tooltip>
+            <Tooltip open={collapsed ? undefined : false}>
               <TooltipTrigger asChild>
                 <Link
                   href="/admin/settings"
                   className={`ttn-rail-btn${pathname.startsWith("/admin") ? " active" : ""}`}
+                  aria-label="Settings"
                 >
                   {settingsIcon}
+                  <span className={collapsed ? "sr-only" : "ttn-rail-label"}>
+                    Settings
+                  </span>
                 </Link>
               </TooltipTrigger>
               <TooltipContent
