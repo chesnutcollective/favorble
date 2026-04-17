@@ -23,6 +23,7 @@ import {
   Scale,
   ShieldCheck,
   Stethoscope,
+  UserCog,
   Users,
 } from "lucide-react";
 
@@ -41,6 +42,7 @@ const ICON_REGISTRY: Record<string, LucideIcon> = {
   CheckCircle,
   Briefcase,
   EyeOff,
+  UserCog,
   Users,
 };
 

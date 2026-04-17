@@ -124,6 +124,11 @@ export const PERSONA_ACCENTS: Record<string, PersonaAccent> = {
     canvas: "default",
     accentTo: "#22c55e",
   },
+  supervisor: {
+    accent: "#7c3aed",
+    accentSubtle: "rgba(124,58,237,0.10)",
+    canvas: "default",
+  },
   fee_collection: {
     accent: "#22c55e",
     accentSubtle: "rgba(34,197,94,0.12)",

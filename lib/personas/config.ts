@@ -28,6 +28,7 @@ export type PersonaId =
   | "medical_records"
   | "phi_sheet_writer"
   | "reviewer"
+  | "supervisor"
   | "fee_collection"
   | "appeals_council"
   | "post_hearing"
@@ -401,6 +402,42 @@ export const PERSONA_CONFIG: Record<PersonaId, PersonaConfig> = {
     ],
   },
 
+  supervisor: {
+    label: "Supervisor",
+    shortLabel: "Supervisor",
+    defaultRoute: "/admin/supervisor",
+    nav: [
+      "dashboard",
+      "supervisor",
+      "coaching",
+      "drafts",
+      "queue",
+      "cases",
+      "messages",
+      "reports",
+      "team-chat",
+    ],
+    workspaceDescription:
+      "Team workload, AI draft review, coaching, and compliance monitoring.",
+    primaryKpi: {
+      label: "Drafts Awaiting Review",
+      subtitle: "AI output + team submissions",
+    },
+    icon: "UserCog",
+    goals: [
+      "Team-level dashboard with real-time metrics, event feed, and risk indicators",
+      "AI draft review queue with side-by-side source data, audit trail, and priority sort",
+      "Workload matrix for rebalancing cases and forecasting hearing-date spikes",
+      "Coaching log with performance flags, training-gap analysis, and HR trail",
+    ],
+    challenges: [
+      "No centralized view of team workload — queues checked manually across systems",
+      "AI drafts go out without structured supervisor review, creating compliance risk",
+      "Performance data is scattered; identifying who's falling behind takes 3+ tools",
+      "Compliance issues surface reactively — after client complaints or audits",
+    ],
+  },
+
   fee_collection: {
     label: "Fee Collection",
     shortLabel: "Fees",
@@ -570,6 +607,7 @@ export const VIEW_AS_PERSONAS: PersonaId[] = [
   "medical_records",
   "phi_sheet_writer",
   "reviewer",
+  "supervisor",
   "fee_collection",
   "appeals_council",
   "post_hearing",
