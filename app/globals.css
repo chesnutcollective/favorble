@@ -808,12 +808,29 @@
   transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
 }
 
-/* ── Collapsed state ── */
-.ttn-float[data-collapsed="true"] .ttn-panel {
+/* ── Collapsed state ──
+ * Rail and panel collapse independently. Four reachable states:
+ *   A  both expanded               (default)
+ *   B  rail collapsed, panel open  (sub-nav-only)
+ *   C  rail open, panel collapsed  (rail-only)
+ *   D  both collapsed              (minimum chrome)
+ * The rail-collapsed selector no longer hides the panel. */
+.ttn-float[data-panel-collapsed="true"] .ttn-panel {
   width: 0;
   min-width: 0;
   opacity: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+/* State B treatment — rail collapsed, panel visible. Give the panel its own
+ * standalone visual weight so it doesn't look like a severed sibling of the
+ * dark rail. */
+.ttn-float[data-collapsed="true"]:not([data-panel-collapsed="true"]) .ttn-panel {
+  border-left: 1px solid var(--border);
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  margin-left: 4px;
 }
 
 .ttn-float[data-collapsed="true"] .ttn-rail {
@@ -865,6 +882,66 @@
   justify-content: center;
   padding: 0;
   align-self: center;
+}
+
+/* ── Panel edge toggle ──
+ * A narrow button pinned to the panel's right edge when the panel is
+ * visible, and to the rail's right edge when the panel is collapsed so it
+ * stays reachable. Positioned against .ttn-float (which is position:fixed
+ * already). */
+.ttn-panel-edge-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-left: none;
+  background: var(--bg-card, #FAFAFA);
+  color: var(--muted-foreground);
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.15s ease, color 0.15s ease, left 0.2s ease;
+  /* Default: rail expanded (192px) + panel expanded (184px) + 12px float padding = 388px */
+  left: calc(12px + 192px + 184px);
+}
+
+/* Rail collapsed + panel open (state B) — rail is 56px */
+.ttn-float[data-collapsed="true"]:not([data-panel-collapsed="true"])
+  .ttn-panel-edge-toggle {
+  left: calc(12px + 56px + 4px + 184px);
+}
+
+/* Panel collapsed, rail expanded (state C) — anchor to rail's right edge */
+.ttn-float:not([data-collapsed="true"])[data-panel-collapsed="true"]
+  .ttn-panel-edge-toggle {
+  left: calc(12px + 192px);
+}
+
+/* Both collapsed (state D) — anchor to collapsed rail's right edge */
+.ttn-float[data-collapsed="true"][data-panel-collapsed="true"]
+  .ttn-panel-edge-toggle {
+  left: calc(12px + 56px);
+}
+
+.ttn-panel-edge-toggle:hover {
+  background: var(--muted, #F5F5F5);
+  color: var(--foreground);
+}
+
+.ttn-panel-edge-toggle:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Hidden in the mobile drawer */
+.ttn-float[data-mobile="true"] .ttn-panel-edge-toggle {
+  display: none;
 }
 
 /* Breadcrumb hover / focus — anchors in breadcrumbs.tsx use inline styles

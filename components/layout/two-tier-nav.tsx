@@ -552,6 +552,8 @@ export function TwoTierNav({
   isViewingAs,
   changelogCommits,
   initialCollapsed = false,
+  initialPanelCollapsed = false,
+  mobileMode = false,
 }: {
   user: SessionUser;
   casesCount?: number;
@@ -581,19 +583,56 @@ export function TwoTierNav({
    * that used to cause half-drawn labels when localStorage took over.
    */
   initialCollapsed?: boolean;
+  /**
+   * SSR-seeded panel collapse state read from the `ttn-panel-collapsed`
+   * cookie. Rail and panel collapse independently — the four-state matrix
+   * (rail×panel expanded/collapsed) gives users min-chrome, sub-nav-only,
+   * rail-only, and default layouts.
+   */
+  initialPanelCollapsed?: boolean;
+  /**
+   * True when rendered inside the mobile drawer. Hides the panel-edge
+   * toggle (which would be confusing inside a sheet where the user wants
+   * both tiers visible at all times).
+   */
+  mobileMode?: boolean;
 }) {
   const pathname = usePathname();
 
   // Sidebar collapse state — SSR-seeded from cookie, persisted back to cookie
   // so the next server render already knows the user's preference.
   const [collapsed, setCollapsed] = useState(initialCollapsed);
+  // Panel collapse state (independent of the rail). Four reachable states:
+  //   A  rail-expanded + panel-expanded  — default
+  //   B  rail-collapsed + panel-expanded — sub-nav-only
+  //   C  rail-expanded + panel-collapsed — rail-only
+  //   D  both collapsed                  — minimum chrome
+  const [panelCollapsed, setPanelCollapsed] = useState(initialPanelCollapsed);
+  // Live-region announcement text for screen readers.
+  const [liveAnnouncement, setLiveAnnouncement] = useState("");
+  // Refs so we can return focus to the toggle that triggered a collapse.
+  const railToggleRef = React.useRef<HTMLButtonElement | null>(null);
+  const panelToggleRef = React.useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
+    if (mobileMode) return;
     document.cookie = `ttn-rail-collapsed=${collapsed ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
+    // --sidebar-w accounts for rail + panel + padding + gap.
+    //   rail  = 180px (expanded) | 56px (collapsed)
+    //   panel = 184px (expanded) |  0px (collapsed)
+    //   chrome padding + gap ≈ 12px
+    const railWidth = collapsed ? 80 : 192;
+    const panelWidth = panelCollapsed ? 0 : 184;
     document.documentElement.style.setProperty(
       "--sidebar-w",
-      collapsed ? "80px" : "376px",
+      `${railWidth + panelWidth}px`,
     );
-  }, [collapsed]);
+  }, [collapsed, panelCollapsed, mobileMode]);
+
+  useEffect(() => {
+    if (mobileMode) return;
+    document.cookie = `ttn-panel-collapsed=${panelCollapsed ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
+  }, [panelCollapsed, mobileMode]);
 
   // Refs + state for rail interactions (auto-scroll active, overflow fades,
   // keyboard roving).
@@ -602,17 +641,36 @@ export function TwoTierNav({
   const [showTopFade, setShowTopFade] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(false);
 
-  // Keyboard shortcut: Cmd/Ctrl+\ toggles the rail (VSCode/Cursor muscle memory).
+  // Keyboard shortcuts:
+  //   Cmd/Ctrl + \   toggles the rail (VSCode/Cursor muscle memory)
+  //   Cmd/Ctrl + ;   toggles the sub-nav panel (free in all major browsers)
   useEffect(() => {
+    if (mobileMode) return;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === "\\") {
         e.preventDefault();
-        setCollapsed((c) => !c);
+        setCollapsed((c) => {
+          const next = !c;
+          setLiveAnnouncement(
+            next ? "Rail collapsed" : "Rail expanded",
+          );
+          return next;
+        });
+      } else if (e.key === ";") {
+        e.preventDefault();
+        setPanelCollapsed((p) => {
+          const next = !p;
+          setLiveAnnouncement(
+            next ? "Sub-navigation hidden" : "Sub-navigation shown",
+          );
+          return next;
+        });
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [mobileMode]);
 
   // Arrow-key roving focus between rail items. Keeps focus inside the
   // scroll-inner container; Home/End jump to first/last.
@@ -732,7 +790,12 @@ export function TwoTierNav({
   }
 
   return (
-    <div className="ttn-float" data-collapsed={collapsed}>
+    <div
+      className="ttn-float"
+      data-collapsed={collapsed}
+      data-panel-collapsed={panelCollapsed}
+      data-mobile={mobileMode ? "true" : undefined}
+    >
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
         <TooltipProvider delayDuration={0}>
@@ -824,11 +887,20 @@ export function TwoTierNav({
           <Tooltip open={collapsed ? undefined : false}>
             <TooltipTrigger asChild>
               <button
+                ref={railToggleRef}
                 type="button"
                 className="ttn-collapse-btn"
                 aria-pressed={collapsed}
                 aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                onClick={() => setCollapsed((c) => !c)}
+                onClick={() =>
+                  setCollapsed((c) => {
+                    const next = !c;
+                    setLiveAnnouncement(
+                      next ? "Rail collapsed" : "Rail expanded",
+                    );
+                    return next;
+                  })
+                }
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1186,6 +1258,57 @@ export function TwoTierNav({
             </span>
           </div>
         </aside>
+      </div>
+      {/* Panel edge toggle — pinned at the panel's right edge when the
+       * panel is visible, and at the rail's right edge when collapsed so
+       * it remains reachable. Rendered as a sibling of .ttn-card because
+       * .ttn-card has overflow:hidden which would clip it. Hidden in
+       * mobile drawer to avoid dual-toggle confusion inside a sheet. */}
+      {!mobileMode && (
+        <button
+          ref={panelToggleRef}
+          type="button"
+          className="ttn-panel-edge-toggle"
+          aria-pressed={panelCollapsed}
+          aria-label={
+            panelCollapsed
+              ? "Expand sub-navigation"
+              : "Collapse sub-navigation"
+          }
+          onClick={() =>
+            setPanelCollapsed((p) => {
+              const next = !p;
+              setLiveAnnouncement(
+                next ? "Sub-navigation hidden" : "Sub-navigation shown",
+              );
+              return next;
+            })
+          }
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="14"
+            height="14"
+            aria-hidden="true"
+            style={{
+              transform: panelCollapsed ? "rotate(180deg)" : undefined,
+              transition: "transform 0.2s ease",
+            }}
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+      )}
+      {/* Live region — announces rail/panel state transitions for AT users.
+       * Kept outside the card so it isn't hidden when the panel collapses. */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {liveAnnouncement}
       </div>
     </div>
   );

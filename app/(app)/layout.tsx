@@ -24,6 +24,8 @@ export default async function AppLayout({
   const cookieStore = await cookies();
   const initialCollapsed =
     cookieStore.get("ttn-rail-collapsed")?.value === "1";
+  const initialPanelCollapsed =
+    cookieStore.get("ttn-panel-collapsed")?.value === "1";
   const [casesCount, navData, changelogResult, subnavData] = await Promise.all([
     getActiveCaseCount(),
     getNavPanelData().catch(() => undefined),
@@ -60,6 +62,7 @@ export default async function AppLayout({
             isViewingAs={persona.isViewingAs}
             changelogCommits={changelogResult.commits}
             initialCollapsed={initialCollapsed}
+            initialPanelCollapsed={initialPanelCollapsed}
           />
         </Suspense>
         <main className="ttn-main-area">
