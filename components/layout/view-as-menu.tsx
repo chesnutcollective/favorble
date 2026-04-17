@@ -15,7 +15,9 @@ import {
   VIEW_AS_PERSONAS,
   type PersonaId,
 } from "@/lib/personas/config";
+import { PERSONA_ACCENTS } from "@/lib/design-tokens";
 import { setViewAsPersona, exitViewAs } from "@/app/actions/view-as";
+import { getPersonaIcon } from "@/lib/personas/icons";
 
 /**
  * Dropdown submenu that lists every persona an admin can impersonate.
@@ -63,6 +65,8 @@ export function ViewAsMenu({
         <DropdownMenuSeparator />
         {VIEW_AS_PERSONAS.map((personaId) => {
           const config = PERSONA_CONFIG[personaId];
+          const accent = PERSONA_ACCENTS[personaId];
+          const Icon = getPersonaIcon(config.icon);
           const isCurrent = personaId === currentPersonaId;
           return (
             <DropdownMenuItem
@@ -72,9 +76,18 @@ export function ViewAsMenu({
                 event.preventDefault();
                 handleSelect(personaId);
               }}
-              className="flex items-center justify-between gap-2 text-xs"
+              className="flex items-center gap-2 text-xs focus:bg-accent"
             >
-              <span className="truncate">{config.label}</span>
+              <Icon
+                aria-hidden="true"
+                className="size-4 shrink-0 text-muted-foreground"
+              />
+              <span
+                aria-hidden="true"
+                className="inline-block size-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: accent?.accent ?? "currentColor" }}
+              />
+              <span className="flex-1 truncate">{config.label}</span>
               {isCurrent && (
                 <span
                   aria-hidden="true"

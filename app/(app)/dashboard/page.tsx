@@ -405,7 +405,7 @@ export default async function DashboardPage() {
       ) : personaId === "reviewer" ? (
         <ReviewerDashboard actor={actor} />
       ) : personaId === "admin" ? (
-        <AdminDashboard actor={actor} />
+        <AdminDashboard actor={actor} isViewingAs={isViewingAs} />
       ) : personaId === "intake_agent" ? (
         <IntakeAgentDashboard actor={actor} />
       ) : personaId === "filing_agent" ? (

@@ -11,12 +11,13 @@ import {
   users,
 } from "@/db/schema";
 import { logger } from "@/lib/logger/server";
-import { COLORS, PERSONA_ACCENTS } from "@/lib/design-tokens";
+import { COLORS } from "@/lib/design-tokens";
 import { Card, CardContent } from "@/components/ui/card";
 import { MetricTile, MetricHelpIcon } from "@/components/ui/metric-tile";
 import { RadialGauge } from "@/components/dashboard/charts/radial-gauge";
 import { LiveTicker, type TickerItem } from "@/components/dashboard/primitives/live-ticker";
 import { StreakBadge } from "@/components/dashboard/primitives/streak-badge";
+import { ImpersonationGallery } from "@/components/dashboard/personas/impersonation-gallery";
 import type { SessionUser } from "@/lib/auth/session";
 import {
   INTEGRATION_REGISTRY,
@@ -24,8 +25,7 @@ import {
 } from "@/lib/integrations/registry";
 import { getCustomLogoUrls } from "@/app/actions/integration-management";
 
-type Props = { actor: SessionUser };
-const accent = PERSONA_ACCENTS.admin.accent;
+type Props = { actor: SessionUser; isViewingAs?: boolean };
 
 // ── Loaders ────────────────────────────────────────────────────────────────
 
@@ -204,7 +204,7 @@ function relativeTime(d: Date | null): string {
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-export async function AdminDashboard({ actor }: Props) {
+export async function AdminDashboard({ actor, isViewingAs = false }: Props) {
   const allIntegrationIds = INTEGRATION_REGISTRY.map((i) => i.id);
   const [
     integrity,
@@ -522,6 +522,14 @@ export async function AdminDashboard({ actor }: Props) {
           </CardContent>
         </Card>
       </div>
+
+      {/*
+        Persona impersonation gallery — only shown when the actor is truly
+        the admin (not when admin is already previewing another persona).
+        Hidden during view-as so it doesn't distract from the previewed
+        persona's dashboard.
+      */}
+      {!isViewingAs && <ImpersonationGallery />}
     </div>
   );
 }
