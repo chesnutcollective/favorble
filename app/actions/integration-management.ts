@@ -670,8 +670,20 @@ export type CustomLogoUrls = {
   host: CustomLogoRef | null;
 };
 
+/**
+ * Maximum size (in characters) of a data: URL we're willing to inline into
+ * SSR HTML. Large base64-encoded images (often >100 KB) balloon the initial
+ * document payload — we saw a single Outlook upload push /dashboard and
+ * /admin/integrations past 1 MB of HTML. Anything larger than this threshold
+ * is dropped so the UI falls back to the shipped SVG logo for that slot.
+ * Real Railway-signed URLs (http/https) are unaffected.
+ */
+const MAX_INLINE_DATA_URL_CHARS = 8 * 1024;
+
 async function signStoragePath(path: string): Promise<string | null> {
-  if (path.startsWith("data:")) return path;
+  if (path.startsWith("data:")) {
+    return path.length > MAX_INLINE_DATA_URL_CHARS ? null : path;
+  }
   try {
     return await getRailwaySignedUrl(path);
   } catch {

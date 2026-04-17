@@ -363,6 +363,7 @@ body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--b
   <a href="#icons">Icons</a>
   <a href="#feedback">Feedback & States</a>
   <a href="#motion">Motion</a>
+  <a href="#darkmode">Dark Mode</a>
 </nav>
 
 <!-- MAIN -->
@@ -1263,6 +1264,140 @@ body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--b
       <div class="ease-demo" data-ease="in"><div class="ease-dot"></div></div>
     </div>
   </div>
+</section>
+
+<!-- S13: DARK MODE -->
+<section class="sg-section" id="darkmode">
+  <div class="sg-h1">Dark Mode</div>
+  <p class="sg-desc">Warm dark (not blue-black). Tokens re-declared under <code>[data-theme="dark"]</code> so every surface re-themes when the attribute is toggled. Below: same components rendered side-by-side in both themes to catch contrast regressions.</p>
+
+  <!-- Inline scoped dark tokens (mirror app/globals.css). -->
+  <style>
+    .sg-theme-preview { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; }
+    @media (max-width: 900px){ .sg-theme-preview { grid-template-columns:1fr; } }
+    .sg-theme-card {
+      border-radius:10px; padding:20px; border:1px solid var(--border-default);
+      background:var(--bg); box-shadow:var(--shadow-sm);
+    }
+    .sg-theme-card[data-theme="dark"] {
+      --bg:#1C1A17; --surface-0:#201E1B; --surface-1:#252320; --surface-2:#2D2A26;
+      --surface-hover:rgba(200,180,150,0.06); --surface-active:rgba(200,180,150,0.10);
+      --surface-selected:rgba(91,127,191,0.18);
+      --text-1:#F0ECE6; --text-2:#A8A198; --text-3:#7A7368; --text-4:#56504A; --text-label:#8C8479;
+      --border-subtle:rgba(200,180,150,0.08); --border-default:rgba(200,180,150,0.14); --border-strong:rgba(200,180,150,0.24);
+      --accent:#5B7FBF; --accent-hover:#6D8FCC; --accent-subtle:rgba(91,127,191,0.12); --accent-muted:rgba(91,127,191,0.20);
+      --red:#F07575; --red-subtle:rgba(240,117,117,0.14); --amber:#E4BC56; --amber-subtle:rgba(228,188,86,0.14);
+      --green:#5AAA7A; --green-subtle:rgba(90,170,122,0.14); --blue:#5B7FBF; --blue-subtle:rgba(91,127,191,0.14);
+      background:var(--bg); color:var(--text-1);
+    }
+    .sg-theme-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-3); margin-bottom:10px; }
+    .sg-theme-card[data-theme="dark"] .sg-theme-label { color:#A8A198; }
+    .sg-sample-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; align-items:center; }
+    .sg-mini-card {
+      background:var(--surface-0); border:1px solid var(--border-default); border-radius:8px; padding:12px 14px; color:var(--text-1);
+    }
+    .sg-mini-card h4 { margin:0 0 4px; font-size:13px; font-weight:600; }
+    .sg-mini-card p { margin:0; font-size:12px; color:var(--text-2); }
+    .sg-mini-btn {
+      display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 12px; border-radius:6px;
+      background:var(--accent); color:#fff; font-size:12px; font-weight:500; border:none; cursor:pointer;
+    }
+    .sg-mini-btn.secondary { background:transparent; color:var(--text-1); border:1px solid var(--border-default); }
+    .sg-mini-btn.danger { background:var(--red); }
+    .sg-mini-badge {
+      display:inline-flex; align-items:center; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500;
+    }
+    .sg-mini-badge.success { background:var(--green-subtle); color:var(--green); }
+    .sg-mini-badge.warn { background:var(--amber-subtle); color:var(--amber); }
+    .sg-mini-badge.danger { background:var(--red-subtle); color:var(--red); }
+    .sg-mini-badge.info { background:var(--accent-subtle); color:var(--accent); }
+    .sg-mini-input {
+      width:100%; height:32px; padding:0 10px; background:var(--surface-0); color:var(--text-1);
+      border:1px solid var(--border-default); border-radius:6px; font-size:12px; outline:none;
+    }
+    .sg-mini-input::placeholder { color:var(--text-3); }
+  </style>
+
+  <div class="sg-h2">Live comparison</div>
+  <div class="sg-theme-preview">
+    <!-- Light -->
+    <div class="sg-theme-card">
+      <div class="sg-theme-label">Light (default)</div>
+      <div class="sg-mini-card" style="margin-bottom:12px">
+        <h4>Case #2024-0142</h4>
+        <p>Smith v. Commissioner — ALJ hearing scheduled for Apr 28.</p>
+      </div>
+      <div class="sg-sample-row">
+        <button class="sg-mini-btn">Save</button>
+        <button class="sg-mini-btn secondary">Cancel</button>
+        <button class="sg-mini-btn danger">Delete</button>
+      </div>
+      <div class="sg-sample-row">
+        <span class="sg-mini-badge success">Approved</span>
+        <span class="sg-mini-badge warn">Pending</span>
+        <span class="sg-mini-badge danger">Overdue</span>
+        <span class="sg-mini-badge info">Active</span>
+      </div>
+      <input class="sg-mini-input" placeholder="Search claimants…" />
+    </div>
+
+    <!-- Dark -->
+    <div class="sg-theme-card" data-theme="dark">
+      <div class="sg-theme-label">Dark ([data-theme="dark"])</div>
+      <div class="sg-mini-card" style="margin-bottom:12px">
+        <h4>Case #2024-0142</h4>
+        <p>Smith v. Commissioner — ALJ hearing scheduled for Apr 28.</p>
+      </div>
+      <div class="sg-sample-row">
+        <button class="sg-mini-btn">Save</button>
+        <button class="sg-mini-btn secondary">Cancel</button>
+        <button class="sg-mini-btn danger">Delete</button>
+      </div>
+      <div class="sg-sample-row">
+        <span class="sg-mini-badge success">Approved</span>
+        <span class="sg-mini-badge warn">Pending</span>
+        <span class="sg-mini-badge danger">Overdue</span>
+        <span class="sg-mini-badge info">Active</span>
+      </div>
+      <input class="sg-mini-input" placeholder="Search claimants…" />
+    </div>
+  </div>
+
+  <div class="sg-h2" style="margin-top:24px">Token reference (dark)</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;font-size:11px">
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#F0ECE6;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--background</div><div style="opacity:0.8">#1C1A17</div><div style="opacity:0.6">fg #F0ECE6 = 15.2:1 AAA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#252320;color:#F0ECE6;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--card</div><div style="opacity:0.8">#252320</div><div style="opacity:0.6">fg #F0ECE6 = 13.8:1 AAA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#2D2A26;color:#F0ECE6;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--bg-elevated</div><div style="opacity:0.8">#2D2A26</div><div style="opacity:0.6">popover / hover</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#A8A198;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600;color:#A8A198">--muted-foreground</div><div>#A8A198</div><div style="opacity:0.7">7.3:1 AAA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#5B7FBF;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--primary</div><div style="opacity:0.8">#5B7FBF</div><div style="opacity:0.7">5.1:1 AA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#5AAA7A;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--success</div><div style="opacity:0.8">#5AAA7A</div><div style="opacity:0.7">5.0:1 AA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#E4BC56;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--warning</div><div style="opacity:0.8">#E4BC56</div><div style="opacity:0.7">8.1:1 AAA</div>
+    </div>
+    <div style="padding:10px;border-radius:6px;background:#1C1A17;color:#F07575;border:1px solid rgba(200,180,150,0.14)">
+      <div style="font-weight:600">--destructive</div><div style="opacity:0.8">#F07575</div><div style="opacity:0.7">5.4:1 AA</div>
+    </div>
+  </div>
+
+  <div class="sg-h2" style="margin-top:24px">Known exceptions</div>
+  <ul style="font-size:12.5px;color:var(--text-2);line-height:1.7;padding-left:20px">
+    <li>Print / PDF export surfaces force white background + black text regardless of theme (see <code>@media print</code> in <code>app/globals.css</code>).</li>
+    <li>The nav rail (<code>.ttn-rail</code>) stays dark in both themes by design — it's our consistent shell. Only <code>--nav-accent</code> lightens in dark mode for contrast.</li>
+    <li>Dashboard primitive colored charts (pipeline, funnel, activity) use raw hex for data fidelity and are not tokenized. They render visibly on both backgrounds but are not re-themed.</li>
+    <li>The intake flow and marketing-style public pages stay light-only by product choice.</li>
+  </ul>
 </section>
 
 </main>

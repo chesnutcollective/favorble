@@ -32,6 +32,7 @@ export default async function TemplatesPage() {
           name: t.name,
           description: t.description,
           category: t.category,
+          templateContent: t.templateContent,
           mergeFields: t.mergeFields,
           requiresSignature: t.requiresSignature,
           createdAt: t.createdAt.toISOString(),

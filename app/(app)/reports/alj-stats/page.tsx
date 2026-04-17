@@ -44,6 +44,7 @@ export default async function AljStatsPage() {
               icon={ChartLineData01Icon}
               size={16}
               color="#263c94"
+              aria-hidden="true"
             />
             Win Rate Analytics
           </Link>

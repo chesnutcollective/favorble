@@ -13,6 +13,7 @@ import {
 import { logger } from "@/lib/logger/server";
 import { COLORS, PERSONA_ACCENTS } from "@/lib/design-tokens";
 import { Card, CardContent } from "@/components/ui/card";
+import { MetricTile, MetricHelpIcon } from "@/components/ui/metric-tile";
 import { RadialGauge } from "@/components/dashboard/charts/radial-gauge";
 import { LiveTicker, type TickerItem } from "@/components/dashboard/primitives/live-ticker";
 import { StreakBadge } from "@/components/dashboard/primitives/streak-badge";
@@ -256,10 +257,14 @@ export async function AdminDashboard({ actor }: Props) {
             />
             <div>
               <div
-                className="text-[10px] font-semibold uppercase tracking-[0.10em] mb-2"
+                className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.10em] mb-2"
                 style={{ color: COLORS.text2 }}
               >
-                Overnight Integrity
+                <span>Overnight Integrity</span>
+                <MetricHelpIcon
+                  label="Firm Pulse"
+                  help="Firm Pulse is a 0-100 composite score that combines credential health (active / total) and event quality (non-error rate) over the last 24 hours."
+                />
               </div>
               <div
                 className="font-semibold leading-tight"
@@ -275,33 +280,49 @@ export async function AdminDashboard({ actor }: Props) {
                 Composite of credential health and event-quality over the last 24 hours.
               </p>
               <div className="mt-4 grid grid-cols-3 gap-4">
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.10em]" style={{ color: COLORS.text3 }}>
-                    Active Creds
-                  </div>
-                  <div className="text-[20px] font-semibold tabular-nums">
-                    {integrity.active} / {integrity.total}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.10em]" style={{ color: COLORS.text3 }}>
-                    Events 24h
-                  </div>
-                  <div className="text-[20px] font-semibold tabular-nums">
-                    {integrity.recent}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.10em]" style={{ color: COLORS.text3 }}>
-                    Errors 24h
-                  </div>
-                  <div
-                    className="text-[20px] font-semibold tabular-nums"
-                    style={{ color: integrity.bad > 0 ? COLORS.bad : COLORS.text1 }}
-                  >
-                    {integrity.bad}
-                  </div>
-                </div>
+                <MetricTile
+                  label="Active Creds"
+                  value={`${integrity.active} / ${integrity.total}`}
+                  help={
+                    <span>
+                      Integration credentials currently marked active. The
+                      denominator is the total number of credentials on file
+                      across all connected services.
+                    </span>
+                  }
+                />
+                <MetricTile
+                  label="Events 24h"
+                  value={integrity.recent}
+                  help={
+                    <span>
+                      Total integration events recorded in the last 24 hours
+                      across all services (successes, warnings, and errors
+                      combined).
+                    </span>
+                  }
+                />
+                <MetricTile
+                  label="Errors 24h"
+                  value={
+                    <span
+                      style={{
+                        color: integrity.bad > 0 ? COLORS.bad : COLORS.text1,
+                      }}
+                    >
+                      {integrity.bad}
+                    </span>
+                  }
+                  help={
+                    <span>
+                      Integration events in the last 24 hours with status
+                      {' '}
+                      <code className="bg-muted rounded px-1">error</code>
+                      {' '}or{' '}
+                      <code className="bg-muted rounded px-1">timeout</code>.
+                    </span>
+                  }
+                />
               </div>
             </div>
           </div>
@@ -318,12 +339,12 @@ export async function AdminDashboard({ actor }: Props) {
       {constellation.length > 0 && (
         <Card>
           <CardContent className="p-5">
-            <h3
+            <h2
               className="text-[13px] font-semibold uppercase tracking-[0.06em] mb-3"
               style={{ color: COLORS.text2 }}
             >
               Status Constellation
-            </h3>
+            </h2>
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               {constellation.map((s) => {
                 const config = getIntegration(s.id);
@@ -437,12 +458,12 @@ export async function AdminDashboard({ actor }: Props) {
       {/* Quick actions + audit tail */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h3
+          <h2
             className="text-[13px] font-semibold uppercase tracking-[0.06em] mb-3"
             style={{ color: COLORS.text2 }}
           >
             Quick Actions
-          </h3>
+          </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               { href: "/admin/users", label: "Provision User", desc: `${counters.users} active users` },
@@ -468,12 +489,12 @@ export async function AdminDashboard({ actor }: Props) {
         </div>
         <Card>
           <CardContent className="p-5">
-            <h3
+            <h2
               className="text-[13px] font-semibold uppercase tracking-[0.06em] mb-3"
               style={{ color: COLORS.text2 }}
             >
               Recent Audit
-            </h3>
+            </h2>
             {audit.length === 0 ? (
               <p className="text-[12px]" style={{ color: COLORS.text3 }}>
                 No audit events.

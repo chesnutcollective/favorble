@@ -22,7 +22,7 @@ export function ViewAsClientButton({ contactId }: Props) {
       className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-white px-3 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:border-[#CCC]"
       title="Open the claimant's portal in a new tab"
     >
-      <Eye className="size-4" />
+      <Eye className="size-4" aria-hidden="true" />
       <span>View as client</span>
     </a>
   );

@@ -67,6 +67,7 @@ export function UserMenu({
                 icon={ArrowUpDownIcon}
                 size={16}
                 className="ml-auto text-[#999]"
+                aria-hidden="true"
               />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -116,7 +117,7 @@ export function UserMenu({
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <button type="button" className="w-full" onClick={() => logout()}>
-                <HugeiconsIcon icon={Logout01Icon} />
+                <HugeiconsIcon icon={Logout01Icon} aria-hidden="true" />
                 Sign out
               </button>
             </DropdownMenuItem>

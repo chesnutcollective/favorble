@@ -136,6 +136,7 @@ export function AljStatsClient({ rows }: { rows: AljStatsRow[] }) {
               icon={sortDir === "asc" ? ArrowUp01Icon : ArrowDown01Icon}
               size={12}
               color="#263c94"
+              aria-hidden="true"
             />
           )}
         </span>
@@ -151,6 +152,7 @@ export function AljStatsClient({ rows }: { rows: AljStatsRow[] }) {
           size={16}
           color="#999"
           className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          aria-hidden="true"
         />
         <Input
           value={query}
@@ -238,6 +240,7 @@ export function AljStatsClient({ rows }: { rows: AljStatsRow[] }) {
                             icon={ArrowRight01Icon}
                             size={16}
                             color="currentColor"
+                            aria-hidden="true"
                           />
                         </Link>
                       </TableCell>

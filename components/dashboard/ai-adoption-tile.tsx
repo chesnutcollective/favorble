@@ -61,6 +61,7 @@ export function AiAdoptionTile({ data, sinceDays = 7 }: Props) {
                 icon={ArtificialIntelligence04Icon}
                 size={16}
                 color={COLORS.brand}
+                aria-hidden="true"
               />
             </div>
             <div>
@@ -131,6 +132,7 @@ function Metric({
           icon={icon as Parameters<typeof HugeiconsIcon>[0]["icon"]}
           size={15}
           color={accent}
+          aria-hidden="true"
         />
       </div>
       <div className="min-w-0">

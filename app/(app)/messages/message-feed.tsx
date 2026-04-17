@@ -218,7 +218,7 @@ export function MessageFeed({
             onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
             className="gap-2"
           >
-            <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
+            <HugeiconsIcon icon={ArrowDown01Icon} size={14} aria-hidden="true" />
             Load more ({messages.length - visibleCount} remaining)
           </Button>
         </div>

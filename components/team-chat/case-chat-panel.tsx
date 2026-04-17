@@ -139,6 +139,7 @@ export function CaseChatPanel({
             icon={BubbleChatIcon}
             size={16}
             color={COLORS.brand}
+            aria-hidden="true"
           />
           {channelName}
         </h2>
@@ -155,7 +156,7 @@ export function CaseChatPanel({
       >
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <HugeiconsIcon icon={BubbleChatIcon} size={24} color="#ccc" />
+            <HugeiconsIcon icon={BubbleChatIcon} size={24} color="#ccc" aria-hidden="true" />
             <p className="text-xs text-[#999] mt-2">
               No messages in this case channel yet. Start the conversation!
             </p>
@@ -225,7 +226,7 @@ export function CaseChatPanel({
                 disabled={isSending || !draft.trim()}
                 style={{ backgroundColor: COLORS.brand }}
               >
-                <HugeiconsIcon icon={Mail01Icon} size={14} />
+                <HugeiconsIcon icon={Mail01Icon} size={14} aria-hidden="true" />
                 {isSending ? "Sending..." : "Send"}
               </Button>
             </CardContent>

@@ -19,9 +19,13 @@ import {
   uploadDocumentAction,
   getDocumentUrl,
   deleteDocument,
+  bulkGetDocumentUrls,
 } from "@/app/actions/documents";
+import { bulkShareDocumentsWithClient } from "@/app/actions/document-shares";
 import { triggerLangExtract } from "@/app/actions/extract";
 import { ShareWithClientButton } from "@/components/documents/share-with-client-button";
+import { useBulkSelect } from "@/lib/hooks/use-bulk-select";
+import { BulkActionBar } from "@/components/shared/bulk-action-bar";
 
 type Template = {
   id: string;
@@ -203,6 +207,59 @@ export function CaseDocumentsClient({
     setShowTemplateDialog(false);
   }, []);
 
+  // Bulk select / actions for the documents list.
+  const selectableDocuments =
+    sourceFilter !== null
+      ? documents.filter((d) => d.source === sourceFilter)
+      : documents;
+  const bulk = useBulkSelect(selectableDocuments, (d) => d.id);
+  const [isBulkSharePending, startBulkShareTransition] = useTransition();
+  const [isBulkDownloadPending, startBulkDownloadTransition] = useTransition();
+
+  const handleBulkShare = useCallback(() => {
+    const ids = Array.from(bulk.selectedIds);
+    startBulkShareTransition(async () => {
+      const result = await bulkShareDocumentsWithClient(ids);
+      if (result.shared > 0) {
+        toast.success(
+          `Shared ${result.shared} document${result.shared === 1 ? "" : "s"} with client.`,
+          result.skipped.length > 0
+            ? {
+                description: `${result.skipped.length} skipped (already shared, no claimant, etc.)`,
+              }
+            : undefined,
+        );
+      } else {
+        toast.error(
+          result.skipped[0]?.error ?? "No documents were shared.",
+        );
+      }
+      bulk.clear();
+    });
+  }, [bulk]);
+
+  const handleBulkDownload = useCallback(() => {
+    const ids = Array.from(bulk.selectedIds);
+    startBulkDownloadTransition(async () => {
+      const result = await bulkGetDocumentUrls(ids);
+      for (const { url } of result.urls) {
+        // Browsers block programmatic multi-download in a single tick; tiny
+        // stagger gives each window.open() time to register.
+        window.open(url, "_blank", "noopener");
+      }
+      if (result.failed.length > 0) {
+        toast.warning(
+          `${result.failed.length} document${result.failed.length === 1 ? "" : "s"} couldn't be downloaded`,
+        );
+      } else if (result.urls.length > 0) {
+        toast.success(
+          `Opened ${result.urls.length} document${result.urls.length === 1 ? "" : "s"} in new tabs.`,
+        );
+      }
+      bulk.clear();
+    });
+  }, [bulk]);
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -217,7 +274,7 @@ export function CaseDocumentsClient({
                 variant="outline"
                 className="flex-1 sm:flex-none"
               >
-                <HugeiconsIcon icon={File01Icon} size={16} className="mr-1" />
+                <HugeiconsIcon icon={File01Icon} size={16} className="mr-1" aria-hidden="true" />
                 <span className="hidden sm:inline">Generate from Template</span>
                 <span className="sm:hidden">Template</span>
               </Button>
@@ -227,7 +284,7 @@ export function CaseDocumentsClient({
               size="sm"
               className="flex-1 sm:flex-none"
             >
-              <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+              <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
               Upload
             </Button>
           </div>
@@ -257,7 +314,39 @@ export function CaseDocumentsClient({
         reprocessingId={reprocessingId}
         sourceFilter={sourceFilter}
         onSourceFilterChange={setSourceFilter}
+        selection={{
+          isSelected: bulk.isSelected,
+          toggle: bulk.handleRowClick,
+          isAllSelected: bulk.isAllSelected,
+          isSomeSelected: bulk.isSomeSelected,
+          toggleAll: bulk.toggleAll,
+        }}
       />
+
+      <BulkActionBar
+        count={bulk.selectedCount}
+        label="document"
+        onClear={bulk.clear}
+      >
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          onClick={handleBulkShare}
+          disabled={isBulkSharePending}
+        >
+          {isBulkSharePending ? "Sharing..." : "Share with client"}
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          onClick={handleBulkDownload}
+          disabled={isBulkDownloadPending}
+        >
+          {isBulkDownloadPending ? "Opening..." : "Download"}
+        </Button>
+      </BulkActionBar>
 
       {/* Document Preview Sheet */}
       <Sheet

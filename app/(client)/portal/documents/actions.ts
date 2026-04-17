@@ -17,6 +17,24 @@ export type UploadPortalDocumentResult =
   | { success: true; documentId: string }
   | { error: string };
 
+const ALLOWED_CATEGORIES = new Set<string>([
+  "medical_record",
+  "identification",
+  "work_history",
+  "ssa_letter",
+  "symptoms_photo",
+  "other",
+]);
+
+const CATEGORY_LABELS: Record<string, string> = {
+  medical_record: "Medical record",
+  identification: "Identification / ID",
+  work_history: "Work history / employment",
+  ssa_letter: "Letter from SSA",
+  symptoms_photo: "Photo of symptoms / injury",
+  other: "Other",
+};
+
 /**
  * Claimant-facing upload. Stores the file in the same bucket the firm uses
  * (Railway in prod/staging, Supabase in local dev), writes a `documents` row
@@ -42,6 +60,10 @@ export async function uploadPortalDocument(
   const file = formData.get("file");
   const caseIdRaw = formData.get("caseId");
   const orgIdRaw = formData.get("organizationId");
+  const categoryRaw = formData.get("category");
+  // Optional: upload originated from the messages composer — in that case
+  // the claimant isn't forced through the category picker.
+  const messageContextRaw = formData.get("messageContext");
 
   if (!(file instanceof File)) {
     return { error: "Please choose a file to upload." };
@@ -51,6 +73,19 @@ export async function uploadPortalDocument(
   }
   if (typeof orgIdRaw !== "string" || !orgIdRaw) {
     return { error: "Missing organization context." };
+  }
+
+  const messageContext =
+    typeof messageContextRaw === "string" && messageContextRaw === "message"
+      ? "message"
+      : null;
+  let category: string;
+  if (typeof categoryRaw === "string" && ALLOWED_CATEGORIES.has(categoryRaw)) {
+    category = categoryRaw;
+  } else if (messageContext === "message") {
+    category = "other";
+  } else {
+    return { error: "Please choose a category for this document." };
   }
 
   // Cross-verify that the caseId is one this claimant can actually see. We
@@ -77,8 +112,15 @@ export async function uploadPortalDocument(
 
     // `source: case_status` is the existing enum value used for client-side
     // uploads (see components/documents/document-list.tsx source labels —
-    // "case_status" renders as "Client Upload"). The free-text `category`
-    // column also carries "client_upload" so firm-side filters can narrow.
+    // "case_status" renders as "Client Upload"). We persist the
+    // claimant-chosen taxonomy in `documents.category` and keep
+    // "client_upload" in the `tags` array so existing firm-side filters
+    // that look for portal uploads still match.
+    const categoryLabel = CATEGORY_LABELS[category] ?? "Other";
+    const baseDescription =
+      messageContext === "message"
+        ? "Attachment sent with a portal message"
+        : "Uploaded by claimant via the client portal";
     const [doc] = await db
       .insert(documents)
       .values({
@@ -88,12 +130,16 @@ export async function uploadPortalDocument(
         fileType: file.type || "application/octet-stream",
         fileSizeBytes: file.size,
         storagePath,
-        category: "client_upload",
+        category,
         source: "case_status",
-        description: "Uploaded by claimant via the client portal",
+        description: `${baseDescription} (${categoryLabel})`,
+        tags: ["client_upload", `category:${category}`],
         metadata: {
           portalUserId: session.portalUser.id,
           contactId: session.contact.id,
+          category,
+          categoryLabel,
+          messageContext,
         },
         // createdBy intentionally null — this was not a firm user.
       })
@@ -112,6 +158,8 @@ export async function uploadPortalDocument(
       metadata: {
         fileName: doc.fileName,
         fileSizeBytes: doc.fileSizeBytes,
+        category,
+        messageContext,
       },
       ip,
       userAgent,

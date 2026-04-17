@@ -135,7 +135,7 @@ export function NewTimeEntryDialog({ cases }: NewTimeEntryDialogProps) {
     >
       <DialogTrigger asChild>
         <Button size="sm" style={{ backgroundColor: COLORS.brand }}>
-          <HugeiconsIcon icon={PlusSignIcon} size={14} />
+          <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
           New Time Entry
         </Button>
       </DialogTrigger>

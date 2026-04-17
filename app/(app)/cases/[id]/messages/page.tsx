@@ -158,7 +158,7 @@ export default async function CaseMessagesPage({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3 text-amber-600">
-              <HugeiconsIcon icon={Message01Icon} size={20} />
+              <HugeiconsIcon icon={Message01Icon} size={20} aria-hidden="true" />
               <p className="text-sm">
                 Case Status integration is not configured. Messages will be
                 recorded locally only.

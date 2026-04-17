@@ -88,13 +88,13 @@ export function DashboardPanel({
         }}
       >
         <QuickActionButton
-          icon={<FolderPlus size={16} />}
+          icon={<FolderPlus size={16} aria-hidden="true" />}
           label="New Case"
           primary
         />
-        <QuickActionButton icon={<UserPlus size={16} />} label="New Lead" />
-        <QuickActionButton icon={<Upload size={16} />} label="Upload Doc" />
-        <QuickActionButton icon={<CalendarPlus size={16} />} label="Schedule" />
+        <QuickActionButton icon={<UserPlus size={16} aria-hidden="true" />} label="New Lead" />
+        <QuickActionButton icon={<Upload size={16} aria-hidden="true" />} label="Upload Doc" />
+        <QuickActionButton icon={<CalendarPlus size={16} aria-hidden="true" />} label="Schedule" />
       </div>
 
       {/* Today's Numbers */}

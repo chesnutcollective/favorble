@@ -198,7 +198,7 @@ export function ExhibitBuilder({
   return (
     <>
       <Button size="sm" onClick={() => setOpen(true)}>
-        <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+        <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
         Build Exhibit Packet
       </Button>
 
@@ -245,6 +245,7 @@ export function ExhibitBuilder({
                   icon={Search01Icon}
                   size={16}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
                 />
                 <Input
                   placeholder="Search documents..."
@@ -301,8 +302,9 @@ export function ExhibitBuilder({
                           className="h-5 w-5"
                           onClick={() => moveDoc(index, "up")}
                           disabled={index === 0}
+                          aria-label="Move up"
                         >
-                          <HugeiconsIcon icon={ArrowUp01Icon} size={12} />
+                          <HugeiconsIcon icon={ArrowUp01Icon} size={12} aria-hidden="true" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -310,8 +312,9 @@ export function ExhibitBuilder({
                           className="h-5 w-5"
                           onClick={() => moveDoc(index, "down")}
                           disabled={index === selectedDocs.length - 1}
+                          aria-label="Move down"
                         >
-                          <HugeiconsIcon icon={ArrowDown01Icon} size={12} />
+                          <HugeiconsIcon icon={ArrowDown01Icon} size={12} aria-hidden="true" />
                         </Button>
                       </div>
                       <div className="min-w-0 flex-1">
@@ -330,8 +333,9 @@ export function ExhibitBuilder({
                         size="icon"
                         className="h-6 w-6 shrink-0"
                         onClick={() => removeDoc(index)}
+                        aria-label="Remove document"
                       >
-                        <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                        <HugeiconsIcon icon={Cancel01Icon} size={14} aria-hidden="true" />
                       </Button>
                     </div>
                   ))}

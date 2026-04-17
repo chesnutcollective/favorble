@@ -119,6 +119,7 @@ export function DraggableStageList({
                 icon={DragDropVerticalIcon}
                 size={16}
                 className="text-muted-foreground shrink-0"
+                aria-hidden="true"
               />
               <div
                 className="h-3 w-3 rounded-full shrink-0"

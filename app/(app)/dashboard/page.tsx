@@ -391,7 +391,7 @@ export default async function DashboardPage() {
           >
             <Link href={config.defaultRoute}>
               Go to {config.label} Workspace
-              <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={14} aria-hidden="true" />
             </Link>
           </Button>
         }

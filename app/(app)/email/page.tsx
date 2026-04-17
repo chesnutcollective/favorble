@@ -59,6 +59,7 @@ export default async function EmailPage({
                 icon={Mail01Icon}
                 size={20}
                 color="rgb(245 158 11)"
+                aria-hidden="true"
               />
               <div>
                 <p className="text-sm font-medium text-foreground">

@@ -94,6 +94,7 @@ export function WinRateTable({
               icon={sortDir === "asc" ? ArrowUp01Icon : ArrowDown01Icon}
               size={12}
               color="#263c94"
+              aria-hidden="true"
             />
           )}
         </span>

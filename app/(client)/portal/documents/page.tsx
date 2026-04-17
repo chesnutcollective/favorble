@@ -88,7 +88,7 @@ export default async function PortalDocumentsPage() {
         {cardItems.length === 0 ? (
           <div className="rounded-2xl bg-white p-8 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8]">
             <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#104e60]/10 text-[#104e60]">
-              <FileText className="size-6" />
+              <FileText className="size-6" aria-hidden="true" />
             </span>
             <p className="mt-3 text-[15px] font-medium text-foreground">
               No documents shared yet.

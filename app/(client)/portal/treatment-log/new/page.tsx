@@ -30,7 +30,7 @@ export default async function NewTreatmentLogEntryPage() {
           href="/portal/treatment-log"
           className="inline-flex items-center gap-1 text-[13px] text-foreground/70 hover:text-foreground"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-4" aria-hidden="true" />
           {isSpanish ? "Volver al registro" : "Back to log"}
         </Link>
       </div>

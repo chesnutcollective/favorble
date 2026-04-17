@@ -228,7 +228,7 @@ export function FocusMode({
   if (!entry) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-12 text-center">
-        <Sparkles size={28} className="text-emerald-500" aria-hidden />
+        <Sparkles size={28} className="text-emerald-500" aria-hidden="true" />
         <div className="text-[15px] font-medium text-zinc-900">
           Queue is clear
         </div>
@@ -257,7 +257,7 @@ export function FocusMode({
             className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-zinc-100 disabled:opacity-30"
             title="Previous (K)"
           >
-            <ArrowLeft size={12} />
+            <ArrowLeft size={12} aria-hidden="true" />
             Prev
           </button>
           <button
@@ -267,7 +267,7 @@ export function FocusMode({
             title="Next (J)"
           >
             Next
-            <ArrowRight size={12} />
+            <ArrowRight size={12} aria-hidden="true" />
           </button>
           <span className="text-zinc-300">·</span>
           <button
@@ -282,7 +282,7 @@ export function FocusMode({
             }`}
             title="Lock to current case (C)"
           >
-            <Lock size={11} />
+            <Lock size={11} aria-hidden="true" />
             {lockedCaseId
               ? `Locked: ${entry.caseNumber ?? "case"}`
               : "Auto-pick case"}

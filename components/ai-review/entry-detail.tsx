@@ -154,7 +154,7 @@ function FieldPane({
             <ActionButton
               label="Reject"
               shortcut="R"
-              icon={<X size={14} />}
+              icon={<X size={14} aria-hidden="true" />}
               onClick={onReject}
               disabled={isPending || entry.isExcluded}
               tone="danger"
@@ -162,7 +162,7 @@ function FieldPane({
             <ActionButton
               label="Edit"
               shortcut="E"
-              icon={<Edit3 size={14} />}
+              icon={<Edit3 size={14} aria-hidden="true" />}
               onClick={() => setEditingSummary((v) => !v)}
               disabled={isPending}
               tone="neutral"
@@ -170,7 +170,7 @@ function FieldPane({
             <ActionButton
               label="Approve"
               shortcut="A"
-              icon={<Check size={14} />}
+              icon={<Check size={14} aria-hidden="true" />}
               onClick={onApprove}
               disabled={isPending || entry.isVerified}
               tone="primary"
@@ -249,7 +249,7 @@ function FieldPane({
                   className="rounded bg-zinc-900 px-2 py-1 text-[12px] text-white disabled:opacity-50"
                 >
                   {isPending ? (
-                    <Loader2 size={12} className="animate-spin" />
+                    <Loader2 size={12} className="animate-spin" aria-hidden="true" />
                   ) : (
                     "Save"
                   )}
@@ -382,7 +382,7 @@ function SourcePane({ entry }: { entry: AiReviewEntry }) {
         role="status"
         aria-label="Loading source PDF"
       >
-        <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden />
+        <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
         <span className="text-[12px]">Loading source PDF…</span>
       </div>
     );

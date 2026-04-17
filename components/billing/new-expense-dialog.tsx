@@ -125,7 +125,7 @@ export function NewExpenseDialog({ cases }: NewExpenseDialogProps) {
     >
       <DialogTrigger asChild>
         <Button size="sm" style={{ backgroundColor: COLORS.brand }}>
-          <HugeiconsIcon icon={PlusSignIcon} size={14} />
+          <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
           New Expense
         </Button>
       </DialogTrigger>

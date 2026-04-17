@@ -307,6 +307,7 @@ export default async function DraftsInboxPage({
           icon={Message01Icon}
           size={16}
           className="text-muted-foreground"
+          aria-hidden="true"
         />
         <p className="text-xs text-muted-foreground">
           Every draft is reviewed by a human before it&apos;s sent.

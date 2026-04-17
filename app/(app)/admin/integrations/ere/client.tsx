@@ -67,6 +67,7 @@ export function EreCredentialsClient({
               icon={ShieldKeyIcon}
               size={20}
               className="shrink-0 text-[#666]"
+              aria-hidden="true"
             />
             <p className="text-sm text-[#666]">
               Your SSA credentials are encrypted at rest with AES-256-GCM. Only
@@ -237,7 +238,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
             onClick={handleTest}
             disabled={isPending || !credential.isActive}
           >
-            <HugeiconsIcon icon={Wifi01Icon} size={14} className="mr-1" />
+            <HugeiconsIcon icon={Wifi01Icon} size={14} className="mr-1" aria-hidden="true" />
             {isPending ? "Testing..." : "Test Connection"}
           </Button>
 
@@ -248,6 +249,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
                   icon={PencilEdit01Icon}
                   size={14}
                   className="mr-1"
+                  aria-hidden="true"
                 />
                 Edit Label
               </Button>
@@ -310,7 +312,7 @@ function CredentialCard({ credential }: { credential: Credential }) {
                 className="text-[#666] hover:text-[#171717]"
                 disabled={isPending}
               >
-                <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-1" />
+                <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-1" aria-hidden="true" />
                 Delete
               </Button>
             </DialogTrigger>
@@ -409,7 +411,7 @@ function AddCredentialDialog() {
     >
       <DialogTrigger asChild>
         <Button size="sm">
-          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
           Add Credentials
         </Button>
       </DialogTrigger>
@@ -463,6 +465,7 @@ function AddCredentialDialog() {
                 <HugeiconsIcon
                   icon={showPassword ? ViewOffIcon : ViewIcon}
                   size={16}
+                  aria-hidden="true"
                 />
               </button>
             </div>
@@ -487,6 +490,7 @@ function AddCredentialDialog() {
                 <HugeiconsIcon
                   icon={showTotp ? ViewOffIcon : ViewIcon}
                   size={16}
+                  aria-hidden="true"
                 />
               </button>
             </div>

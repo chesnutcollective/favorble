@@ -10,9 +10,10 @@ import {
   useState,
   useTransition,
 } from "react";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Paperclip, Send, X } from "lucide-react";
 import { usePortalImpersonation } from "@/components/portal/portal-impersonation-context";
 import type { PortalMessageRow } from "@/app/actions/portal-messages";
+import { uploadPortalDocument } from "@/app/(client)/portal/documents/actions";
 
 type SendAction = (input: {
   body: string;
@@ -26,7 +27,18 @@ type Props = {
   cases: Array<{ id: string; caseNumber: string }>;
   selectedCaseId: string | null;
   sendAction: SendAction;
+  organizationId: string;
 };
+
+// Matches the Documents page convention — 20MB client-side cap.
+const MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024;
+const MAX_ATTACHMENTS = 5;
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function formatTimestamp(iso: string): string {
   const d = new Date(iso);
@@ -85,13 +97,16 @@ export function PortalThreadView({
   cases,
   selectedCaseId,
   sendAction,
+  organizationId,
 }: Props) {
   const { isImpersonating } = usePortalImpersonation();
   const router = useRouter();
   const [body, setBody] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [optimistic, addOptimistic] = useOptimistic<
     PortalMessageRow[],
@@ -100,14 +115,52 @@ export function PortalThreadView({
 
   const grouped = useMemo(() => bucketByDay(optimistic), [optimistic]);
 
+  const handlePickFiles = useCallback((files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setError(null);
+    const incoming = Array.from(files);
+    const oversize = incoming.find((f) => f.size > MAX_ATTACHMENT_BYTES);
+    if (oversize) {
+      setError(
+        `"${oversize.name}" is larger than 20 MB. Please choose a smaller file.`,
+      );
+      return;
+    }
+    setAttachments((prev) => {
+      const merged = [...prev, ...incoming].slice(0, MAX_ATTACHMENTS);
+      if (prev.length + incoming.length > MAX_ATTACHMENTS) {
+        setError(`You can attach up to ${MAX_ATTACHMENTS} files per message.`);
+      }
+      return merged;
+    });
+  }, []);
+
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
   const submit = useCallback(() => {
     const trimmed = body.trim();
-    if (!trimmed || isImpersonating) return;
+    // Allow sending if there's at least text or attachments.
+    if ((!trimmed && attachments.length === 0) || isImpersonating) return;
+    if (!selectedCaseId && attachments.length > 0) {
+      setError("We couldn't find your case. Please refresh and try again.");
+      return;
+    }
     setError(null);
+    const filesToUpload = attachments;
+    const attachmentsPreview = filesToUpload
+      .map((f) => `📎 ${f.name}`)
+      .join("\n");
+    const combinedBody =
+      filesToUpload.length > 0
+        ? [trimmed, attachmentsPreview].filter(Boolean).join("\n\n")
+        : trimmed;
+
     const optimisticMsg: PortalMessageRow = {
       id: `optimistic-${Date.now()}`,
       direction: "inbound",
-      body: trimmed,
+      body: combinedBody || "(attachment)",
       fromAddress: claimantName,
       createdAt: new Date().toISOString(),
       readAt: null,
@@ -115,10 +168,54 @@ export function PortalThreadView({
       caseId: selectedCaseId,
     };
     setBody("");
+    setAttachments([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     startTransition(async () => {
       addOptimistic(optimisticMsg);
+
+      // 1. Upload each attachment first via the documents upload action so
+      //    we get a real document row + AI extraction. `messageContext` tells
+      //    the action to skip the required-category check.
+      const uploadedNames: string[] = [];
+      for (const file of filesToUpload) {
+        const form = new FormData();
+        form.set("file", file);
+        form.set("caseId", selectedCaseId ?? "");
+        form.set("organizationId", organizationId);
+        form.set("messageContext", "message");
+        const result = await uploadPortalDocument(form);
+        if ("success" in result && result.success) {
+          uploadedNames.push(file.name);
+        } else {
+          setError(
+            "error" in result
+              ? result.error
+              : "We couldn't upload one of your attachments.",
+          );
+          setBody(trimmed);
+          setAttachments(filesToUpload);
+          return;
+        }
+      }
+
+      // 2. Post a single message whose body mentions the attachments so the
+      //    firm sees them inline in the thread alongside the documents
+      //    that just landed on the documents tab.
+      const attachmentNote = uploadedNames.length
+        ? uploadedNames.map((n) => `📎 Attachment: ${n}`).join("\n")
+        : "";
+      const finalBody = [trimmed, attachmentNote].filter(Boolean).join("\n\n");
+
+      if (!finalBody) {
+        // Nothing to post (should be unreachable, but guards against empty
+        // sends with zero attachments and zero text).
+        router.refresh();
+        return;
+      }
+
       const res = await sendAction({
-        body: trimmed,
+        body: finalBody,
         caseId: selectedCaseId,
       });
       if (!res.ok) {
@@ -131,9 +228,11 @@ export function PortalThreadView({
     });
   }, [
     addOptimistic,
+    attachments,
     body,
     claimantName,
     isImpersonating,
+    organizationId,
     router,
     selectedCaseId,
     sendAction,
@@ -155,7 +254,7 @@ export function PortalThreadView({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#104e60]/10 text-[#104e60]">
-              <MessageSquare className="size-5" />
+              <MessageSquare className="size-5" aria-hidden="true" />
             </span>
             <div>
               <h1 className="text-[20px] font-semibold tracking-tight text-foreground sm:text-[22px]">
@@ -174,7 +273,13 @@ export function PortalThreadView({
       </header>
 
       {/* Thread */}
-      <div className="flex-1 space-y-6 rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-6">
+      <div
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation with your legal team"
+        aria-relevant="additions text"
+        className="flex-1 space-y-6 rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-6"
+      >
         {optimistic.length === 0 ? (
           <EmptyState firmName={firmName} />
         ) : (
@@ -209,36 +314,106 @@ export function PortalThreadView({
             disabled while impersonating.
           </div>
         ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit();
-            }}
-            className="flex items-end gap-2 rounded-2xl border border-[#E8E2D8] bg-white p-2 shadow-[0_1px_2px_rgba(16,24,40,0.04)] focus-within:border-[#104e60]/40 focus-within:ring-2 focus-within:ring-[#104e60]/15"
-          >
-            <label htmlFor="portal-message-body" className="sr-only">
-              Message your legal team
-            </label>
-            <textarea
-              id="portal-message-body"
-              ref={textareaRef}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Write a message to your team..."
-              rows={1}
-              disabled={composerDisabled}
-              className="min-h-[44px] max-h-[160px] flex-1 resize-none bg-transparent px-2 py-2 text-[17px] leading-snug text-foreground placeholder:text-foreground/40 focus:outline-none disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={composerDisabled || !body.trim()}
-              className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-[#104e60] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Send message"
+          <div className="space-y-2">
+            {attachments.length > 0 ? (
+              <ul
+                className="flex flex-wrap gap-2"
+                aria-label="Files attached to this message"
+              >
+                {attachments.map((file, idx) => (
+                  <li
+                    key={`${file.name}-${idx}`}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#E8E2D8] bg-white px-3 py-1.5 text-[13px] text-foreground/80 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                  >
+                    <Paperclip className="size-3.5 text-[#104e60]" aria-hidden="true" />
+                    <span className="max-w-[180px] truncate">
+                      {file.name}
+                    </span>
+                    <span className="text-foreground/50">
+                      · {formatBytes(file.size)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(idx)}
+                      disabled={composerDisabled}
+                      aria-label={`Remove ${file.name}`}
+                      className="-mr-1 ml-1 inline-flex size-5 items-center justify-center rounded-full text-foreground/60 hover:bg-[#F2EEE5] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <X className="size-3.5" aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submit();
+              }}
+              onDragOver={(e) => {
+                if (composerDisabled) return;
+                e.preventDefault();
+              }}
+              onDrop={(e) => {
+                if (composerDisabled) return;
+                e.preventDefault();
+                handlePickFiles(e.dataTransfer?.files ?? null);
+              }}
+              className="flex items-end gap-2 rounded-2xl border border-[#E8E2D8] bg-white p-2 shadow-[0_1px_2px_rgba(16,24,40,0.04)] focus-within:border-[#104e60]/40 focus-within:ring-2 focus-within:ring-[#104e60]/15"
             >
-              <Send className="size-4" />
-            </button>
-          </form>
+              <label htmlFor="portal-message-body" className="sr-only">
+                Message your legal team
+              </label>
+              <input
+                ref={fileInputRef}
+                id="portal-message-attachments"
+                type="file"
+                className="sr-only"
+                multiple
+                accept=".pdf,.doc,.docx,image/*,application/pdf"
+                onChange={(e) => {
+                  handlePickFiles(e.target.files);
+                  // Reset so picking the same file twice still fires change.
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                disabled={composerDisabled}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={composerDisabled || attachments.length >= MAX_ATTACHMENTS}
+                aria-label="Attach a file"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-foreground/60 transition-colors hover:bg-[#F2EEE5] hover:text-[#104e60] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Paperclip className="size-5" aria-hidden="true" />
+              </button>
+              <textarea
+                id="portal-message-body"
+                ref={textareaRef}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Write a message to your team..."
+                rows={1}
+                disabled={composerDisabled}
+                className="min-h-[44px] max-h-[160px] flex-1 resize-none bg-transparent px-2 py-2 text-[17px] leading-snug text-foreground placeholder:text-foreground/40 focus:outline-none disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={
+                  composerDisabled || (!body.trim() && attachments.length === 0)
+                }
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-[#104e60] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Send message"
+              >
+                <Send className="size-4" aria-hidden="true" />
+              </button>
+            </form>
+            <p className="text-[12px] text-foreground/50">
+              PDFs, photos, and Word docs are accepted.
+            </p>
+          </div>
         )}
         <p className="mt-2 text-[12px] text-foreground/50">
           Tip: press <kbd className="font-mono text-[11px]">⌘ + Enter</kbd> to
@@ -278,7 +453,7 @@ function EmptyState({ firmName }: { firmName: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center">
       <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#104e60]/10 text-[#104e60]">
-        <MessageSquare className="size-6" />
+        <MessageSquare className="size-6" aria-hidden="true" />
       </span>
       <h2 className="mt-3 text-[17px] font-semibold text-foreground">
         Start the conversation

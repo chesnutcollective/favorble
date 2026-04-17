@@ -144,7 +144,7 @@ export function EreScrapingCard({
             onClick={handleSyncNow}
             disabled={isPending}
           >
-            <HugeiconsIcon icon={RefreshIcon} size={14} className="mr-1" />
+            <HugeiconsIcon icon={RefreshIcon} size={14} className="mr-1" aria-hidden="true" />
             {isPending ? "Submitting..." : "Sync Now"}
           </Button>
         </div>

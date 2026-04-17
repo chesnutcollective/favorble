@@ -96,6 +96,7 @@ export default async function WinRatesPage({
               icon={JusticeScale01Icon}
               size={16}
               color="#263c94"
+              aria-hidden="true"
             />
             ALJ Analytics
           </Link>
@@ -133,7 +134,7 @@ export default async function WinRatesPage({
 
       <div className="bg-white border border-[#EAEAEA] rounded-[10px] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <HugeiconsIcon icon={Award01Icon} size={18} color="#263c94" />
+          <HugeiconsIcon icon={Award01Icon} size={18} color="#263c94" aria-hidden="true" />
           <h3 className="text-[15px] font-semibold text-[#1a1a1a]">
             Win Rate by {DIMENSION_LABELS[dimension]}
           </h3>

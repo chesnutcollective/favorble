@@ -271,6 +271,7 @@ export function PhiWriterWorkspace({
                   icon={Search01Icon}
                   size={14}
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
                 />
                 <input
                   type="text"
@@ -443,7 +444,7 @@ function MetricCard({
             className="rounded-md p-1.5"
             style={{ backgroundColor: s.bg, color: s.color }}
           >
-            <HugeiconsIcon icon={icon} size={16} />
+            <HugeiconsIcon icon={icon} size={16} aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground truncate">
@@ -612,7 +613,7 @@ function InfoRow({
   return (
     <div>
       <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-        {icon ? <HugeiconsIcon icon={icon} size={11} /> : null}
+        {icon ? <HugeiconsIcon icon={icon} size={11} aria-hidden="true" /> : null}
         {label}
       </p>
       <p className="text-sm text-foreground mt-0.5 truncate">{value ?? "—"}</p>

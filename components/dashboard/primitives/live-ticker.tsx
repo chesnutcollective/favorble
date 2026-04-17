@@ -106,7 +106,7 @@ export function LiveTicker({
                 {item.label}
               </span>
               {item.detail && (
-                <span style={{ color: "rgba(255,255,255,0.55)" }}>
+                <span style={{ color: "rgba(255,255,255,0.75)" }}>
                   {item.detail}
                 </span>
               )}

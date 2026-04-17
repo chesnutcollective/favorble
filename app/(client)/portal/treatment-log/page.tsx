@@ -77,7 +77,7 @@ export default async function PortalTreatmentLogPage() {
               href="/portal/treatment-log/new"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#104e60] px-5 text-[14px] font-semibold text-white hover:bg-[#0d3f4e]"
             >
-              <Plus className="size-4" />
+              <Plus className="size-4" aria-hidden="true" />
               {isSpanish ? "Registrar visita" : "Log a visit"}
             </Link>
           ) : null}
@@ -87,7 +87,7 @@ export default async function PortalTreatmentLogPage() {
       {entries.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8]">
           <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#104e60]/10 text-[#104e60]">
-            <Activity className="size-6" />
+            <Activity className="size-6" aria-hidden="true" />
           </span>
           <p className="mt-3 text-[15px] font-medium text-foreground">
             {isSpanish
@@ -187,7 +187,7 @@ function TreatmentLogCard({
           ) : null}
           {entry.receipt ? (
             <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F7F5F2] px-3 py-1.5 text-[12px] text-foreground/70">
-              <FileText className="size-4" />
+              <FileText className="size-4" aria-hidden="true" />
               <span className="truncate max-w-[220px]">
                 {entry.receipt.fileName}
               </span>

@@ -1111,6 +1111,28 @@ export async function bulkChangeCaseStage(
 }
 
 /**
+ * Bulk archive cases. Closes each case with the `withdrawn` reason so it
+ * leaves the active pipeline. Uses the single-case closeCase path per entry
+ * so PHI audit rows + review-request side-effects fire exactly like the
+ * single-close flow. Callers should confirm with the user before invoking.
+ */
+export async function bulkArchiveCases(caseIds: string[]) {
+  if (caseIds.length === 0) return { archived: 0 };
+  for (const caseId of caseIds) {
+    try {
+      await closeCase(caseId, "withdrawn", "Bulk archived");
+    } catch (err) {
+      logger.error("bulkArchiveCases: closeCase failed", {
+        caseId,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+  revalidatePath("/cases");
+  return { archived: caseIds.length };
+}
+
+/**
  * Bulk assign a user as the primary "attorney" for multiple cases. Existing
  * primary attorney assignments are soft-unassigned (unassignedAt set) so
  * uniqueness on (case_id, user_id, role) is preserved. If the target user is

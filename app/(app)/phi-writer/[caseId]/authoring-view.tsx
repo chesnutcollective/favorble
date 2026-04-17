@@ -260,7 +260,7 @@ export function PhiAuthoringView({
               color: tone.color,
             }}
           >
-            <HugeiconsIcon icon={CalendarCheckOut01Icon} size={20} />
+            <HugeiconsIcon icon={CalendarCheckOut01Icon} size={20} aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <div
@@ -335,7 +335,7 @@ export function PhiAuthoringView({
           <Card style={{ borderRadius: 10 }}>
             <CardHeader className="pb-2" style={{ backgroundColor: SURFACE }}>
               <CardTitle className="text-sm flex items-center gap-2">
-                <HugeiconsIcon icon={UserIcon} size={14} />
+                <HugeiconsIcon icon={UserIcon} size={14} aria-hidden="true" />
                 Claimant
               </CardTitle>
             </CardHeader>
@@ -380,7 +380,7 @@ export function PhiAuthoringView({
           <Card style={{ borderRadius: 10 }}>
             <CardHeader className="pb-2" style={{ backgroundColor: SURFACE }}>
               <CardTitle className="text-sm flex items-center gap-2">
-                <HugeiconsIcon icon={Legal01Icon} size={14} />
+                <HugeiconsIcon icon={Legal01Icon} size={14} aria-hidden="true" />
                 Hearing & SSA
               </CardTitle>
             </CardHeader>
@@ -416,7 +416,7 @@ export function PhiAuthoringView({
           <Card style={{ borderRadius: 10 }}>
             <CardHeader className="pb-2" style={{ backgroundColor: SURFACE }}>
               <CardTitle className="text-sm flex items-center gap-2">
-                <HugeiconsIcon icon={File01Icon} size={14} />
+                <HugeiconsIcon icon={File01Icon} size={14} aria-hidden="true" />
                 Documents ({bundle.documents.length})
               </CardTitle>
             </CardHeader>
@@ -460,7 +460,7 @@ export function PhiAuthoringView({
           <Card style={{ borderRadius: 10 }}>
             <CardHeader className="pb-2" style={{ backgroundColor: SURFACE }}>
               <CardTitle className="text-sm flex items-center gap-2">
-                <HugeiconsIcon icon={Clock01Icon} size={14} />
+                <HugeiconsIcon icon={Clock01Icon} size={14} aria-hidden="true" />
                 Recent Activity
               </CardTitle>
             </CardHeader>
@@ -569,6 +569,7 @@ export function PhiAuthoringView({
                     icon={CheckmarkCircle01Icon}
                     size={14}
                     className="mr-1.5"
+                    aria-hidden="true"
                   />
                   Mark Complete
                 </Button>
@@ -582,7 +583,7 @@ export function PhiAuthoringView({
           <Card style={{ borderRadius: 10 }}>
             <CardHeader className="pb-2" style={{ backgroundColor: SURFACE }}>
               <CardTitle className="text-sm flex items-center gap-2">
-                <HugeiconsIcon icon={StethoscopeIcon} size={14} />
+                <HugeiconsIcon icon={StethoscopeIcon} size={14} aria-hidden="true" />
                 Medical Chronology ({sortedChronology.length})
               </CardTitle>
             </CardHeader>

@@ -70,7 +70,7 @@ export function SavedViewsMenu({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2">
-            <HugeiconsIcon icon={BookmarkAdd01Icon} size={14} />
+            <HugeiconsIcon icon={BookmarkAdd01Icon} size={14} aria-hidden="true" />
             <span className="max-w-[160px] truncate">{activeLabel}</span>
           </Button>
         </DropdownMenuTrigger>
@@ -126,6 +126,7 @@ export function SavedViewsMenu({
                         icon={Delete02Icon}
                         size={12}
                         className="text-muted-foreground"
+                        aria-hidden="true"
                       />
                     </button>
                   )}
@@ -140,7 +141,7 @@ export function SavedViewsMenu({
               setSaveOpen(true);
             }}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={14} />
+            <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
             Save current view…
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -5,10 +5,12 @@ import { logPortalActivity } from "@/lib/services/portal-activity";
 import {
   confirmAppointment,
   loadPortalAppointments,
+  requestCallback,
   requestReschedule,
   type PortalAppointmentRow,
 } from "@/app/actions/portal-appointments";
 import { AppointmentCard } from "@/components/portal/appointment-card";
+import { RequestCallbackButton } from "@/components/portal/request-callback-dialog";
 import { PORTAL_IMPERSONATE_COOKIE } from "../../layout";
 
 /**
@@ -48,7 +50,7 @@ export default async function PortalAppointmentsPage() {
       <header className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-6">
         <div className="flex items-center gap-3">
           <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-[#104e60]/10 text-[#104e60]">
-            <CalendarDays className="size-5" />
+            <CalendarDays className="size-5" aria-hidden="true" />
           </span>
           <div>
             <h1 className="text-[22px] font-semibold tracking-tight text-foreground sm:text-[24px]">
@@ -130,7 +132,7 @@ function EmptyState() {
   return (
     <div className="rounded-2xl bg-white p-10 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8]">
       <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#104e60]/10 text-[#104e60]">
-        <CalendarDays className="size-6" />
+        <CalendarDays className="size-6" aria-hidden="true" />
       </span>
       <h2 className="mt-3 text-[17px] font-semibold text-foreground">
         No appointments yet
@@ -139,6 +141,7 @@ function EmptyState() {
         When your team schedules a hearing, call, or check-in for you,
         you&apos;ll see it here.
       </p>
+      <RequestCallbackButton requestAction={requestCallback} />
     </div>
   );
 }

@@ -470,6 +470,7 @@ export function LeadsPipelineClient({
                     icon={SearchList02Icon}
                     size={16}
                     className="mr-1"
+                    aria-hidden="true"
                   />
                   Find Duplicates
                 </Button>
@@ -602,6 +603,7 @@ export function LeadsPipelineClient({
                     icon={PlusSignIcon}
                     size={16}
                     className="mr-1"
+                    aria-hidden="true"
                   />
                   New Lead
                 </Button>
@@ -657,6 +659,7 @@ export function LeadsPipelineClient({
                         icon={AlertCircleIcon}
                         size={16}
                         className="text-[#263c94]"
+                        aria-hidden="true"
                       />
                       <span
                         className="text-sm font-medium text-[#171717]"
@@ -804,6 +807,7 @@ export function LeadsPipelineClient({
                           icon={AlertCircleIcon}
                           size={16}
                           className="text-[#d97706]"
+                          aria-hidden="true"
                         />
                         <h4 className="text-sm font-medium text-[#171717]">
                           Possible duplicate{nlDuplicates.length > 1 ? "s" : ""}{" "}
@@ -959,13 +963,13 @@ export function LeadsPipelineClient({
                           <div className="flex flex-wrap gap-2 text-xs text-[#666]">
                             {lead.email && (
                               <span className="flex items-center gap-1 truncate max-w-full">
-                                <HugeiconsIcon icon={Mail01Icon} size={12} />
+                                <HugeiconsIcon icon={Mail01Icon} size={12} aria-hidden="true" />
                                 <span className="truncate">{lead.email}</span>
                               </span>
                             )}
                             {lead.phone && (
                               <span className="flex items-center gap-1">
-                                <HugeiconsIcon icon={Call02Icon} size={12} />
+                                <HugeiconsIcon icon={Call02Icon} size={12} aria-hidden="true" />
                                 {lead.phone}
                               </span>
                             )}
@@ -1023,6 +1027,7 @@ export function LeadsPipelineClient({
                                 <HugeiconsIcon
                                   icon={ArrowRight01Icon}
                                   size={12}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             )}

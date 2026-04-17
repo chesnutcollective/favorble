@@ -20,3 +20,30 @@ Thumbs.db
 chronicle-scrape/
 *.chronicle.json
 .env*.local
+
+# Playwright — ephemeral run artifacts. Baselines under
+# tests/visual/*-snapshots/ ARE committed and must NOT be ignored.
+test-results/
+playwright-report/
+.playwright/
+blob-report/
+
+# Claude Code worktrees (multi-gigabyte agent sandboxes)
+.claude/worktrees/
+
+# Python bytecode caches
+**/__pycache__/
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Ad-hoc scratch audits (gitignored by convention — keep .md docs in repo)
+.audit-artifacts/screenshots/
+.audit-artifacts/lighthouse/
+.audit-artifacts/lighthouse-p2/
+.audit-artifacts/lighthouse-p2-contrast/
+.audit-artifacts/lighthouse-p2-structural/
+.audit-artifacts/lighthouse-p3/
+.audit-artifacts/lighthouse-p7-perf/
+mycase-audit/

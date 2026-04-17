@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { documentTemplates } from "@/db/schema";
 import { requireSession } from "@/lib/auth/session";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger/server";
 
@@ -100,4 +100,34 @@ export async function deleteDocumentTemplate(id: string) {
 
   logger.info("Document template deleted", { templateId: id });
   revalidatePath("/admin/templates");
+}
+
+/**
+ * Bulk archive (soft-delete) templates. Templates don't have a separate
+ * archive flag — being `isActive: false` already hides them from lists and
+ * keeps generated documents intact, which matches the desired "archive"
+ * semantics.
+ */
+export async function bulkArchiveTemplates(templateIds: string[]) {
+  const session = await requireSession();
+  if (templateIds.length === 0) return { updated: 0 };
+
+  const updated = await db
+    .update(documentTemplates)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(
+      and(
+        inArray(documentTemplates.id, templateIds),
+        eq(documentTemplates.organizationId, session.organizationId),
+      ),
+    )
+    .returning({ id: documentTemplates.id });
+
+  logger.info("Document templates bulk archived", {
+    count: updated.length,
+    requested: templateIds.length,
+  });
+
+  revalidatePath("/admin/templates");
+  return { updated: updated.length };
 }

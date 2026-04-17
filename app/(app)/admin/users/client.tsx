@@ -1,18 +1,36 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useMemo } from "react";
 import {
   inviteUser,
   updateUserRoleTeam,
   toggleUserActive,
+  bulkDeactivateUsers,
+  bulkReinviteUsers,
 } from "@/app/actions/users";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Search } from "lucide-react";
+import { toast } from "sonner";
+import { useBulkSelect } from "@/lib/hooks/use-bulk-select";
+import { BulkActionBar } from "@/components/shared/bulk-action-bar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -122,6 +140,30 @@ export function UsersClient({ users: userRows }: { users: UserRow[] }) {
   const activeUsers = userRows.filter((u) => u.isActive);
   const inactiveUsers = userRows.filter((u) => !u.isActive);
 
+  // Raw input (updates every keystroke) + debounced query (used for filtering)
+  const [rawQuery, setRawQuery] = useState("");
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const handle = setTimeout(() => setQuery(rawQuery.trim().toLowerCase()), 200);
+    return () => clearTimeout(handle);
+  }, [rawQuery]);
+
+  const filteredUsers = useMemo(() => {
+    if (!query) return userRows;
+    return userRows.filter((u) => {
+      const roleLabel = (ROLE_LABELS[u.role] ?? u.role).toLowerCase();
+      return (
+        u.firstName.toLowerCase().includes(query) ||
+        u.lastName.toLowerCase().includes(query) ||
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query) ||
+        roleLabel.includes(query)
+      );
+    });
+  }, [userRows, query]);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -145,33 +187,181 @@ export function UsersClient({ users: userRows }: { users: UserRow[] }) {
           description="No user accounts have been created for this organization."
         />
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Team</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[80px]" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {userRows.map((user) => (
-                  <UserTableRow key={user.id} user={user} />
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <>
+          <div className="relative max-w-md">
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              type="search"
+              value={rawQuery}
+              onChange={(e) => setRawQuery(e.target.value)}
+              placeholder="Search users…"
+              aria-label="Search users"
+              className="pl-9"
+            />
+          </div>
+
+          {filteredUsers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No users match &ldquo;{rawQuery}&rdquo;.
+            </p>
+          ) : (
+            <UsersTableWithBulk users={filteredUsers} />
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function UserTableRow({ user }: { user: UserRow }) {
+function UsersTableWithBulk({ users: userRows }: { users: UserRow[] }) {
+  const bulk = useBulkSelect(userRows, (u) => u.id);
+  const [confirmDeactivateOpen, setConfirmDeactivateOpen] = useState(false);
+  const [isBulkPending, startBulkTransition] = useTransition();
+
+  function handleBulkDeactivate() {
+    const ids = Array.from(bulk.selectedIds);
+    startBulkTransition(async () => {
+      try {
+        const result = await bulkDeactivateUsers(ids);
+        toast.success(
+          `Deactivated ${result.updated} user${result.updated === 1 ? "" : "s"}.`,
+        );
+        bulk.clear();
+        setConfirmDeactivateOpen(false);
+      } catch {
+        toast.error("Failed to deactivate users.");
+      }
+    });
+  }
+
+  function handleBulkReinvite() {
+    const ids = Array.from(bulk.selectedIds);
+    startBulkTransition(async () => {
+      try {
+        const result = await bulkReinviteUsers(ids);
+        toast.success(
+          `Re-invited ${result.updated} user${result.updated === 1 ? "" : "s"}.`,
+        );
+        bulk.clear();
+      } catch {
+        toast.error("Failed to re-invite users.");
+      }
+    });
+  }
+
+  return (
+    <>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    aria-label="Select all users"
+                    checked={
+                      bulk.isAllSelected
+                        ? true
+                        : bulk.isSomeSelected
+                          ? "indeterminate"
+                          : false
+                    }
+                    onCheckedChange={bulk.toggleAll}
+                  />
+                </TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Team</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[80px]" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {userRows.map((user) => (
+                <UserTableRow
+                  key={user.id}
+                  user={user}
+                  selected={bulk.isSelected(user.id)}
+                  onToggleSelect={(e) => bulk.handleRowClick(user.id, e)}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <AlertDialog
+        open={confirmDeactivateOpen}
+        onOpenChange={setConfirmDeactivateOpen}
+      >
+        <BulkActionBar
+          count={bulk.selectedCount}
+          label="user"
+          onClear={bulk.clear}
+        >
+          <Button
+            size="sm"
+            variant="secondary"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+            onClick={handleBulkReinvite}
+            disabled={isBulkPending}
+          >
+            Re-invite
+          </Button>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+              onClick={() => setConfirmDeactivateOpen(true)}
+              disabled={isBulkPending}
+            >
+              Deactivate
+            </Button>
+          </AlertDialogTrigger>
+        </BulkActionBar>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Deactivate {bulk.selectedCount} user
+              {bulk.selectedCount === 1 ? "" : "s"}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Deactivated users can&apos;t sign in, but their history on cases
+              stays intact. You can re-invite them at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isBulkPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDeactivate}
+              disabled={isBulkPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isBulkPending ? "Deactivating..." : "Deactivate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function UserTableRow({
+  user,
+  selected,
+  onToggleSelect,
+}: {
+  user: UserRow;
+  selected?: boolean;
+  onToggleSelect?: (event?: { shiftKey?: boolean }) => void;
+}) {
   const [isPending, startTransition] = useTransition();
 
   function handleToggleActive(checked: boolean) {
@@ -185,7 +375,24 @@ function UserTableRow({ user }: { user: UserRow }) {
   }
 
   return (
-    <TableRow className={!user.isActive ? "opacity-60" : ""}>
+    <TableRow
+      data-selected={selected ? "true" : undefined}
+      className={`${!user.isActive ? "opacity-60" : ""} data-[selected=true]:bg-accent/30`}
+    >
+      {onToggleSelect && (
+        <TableCell
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelect({ shiftKey: e.shiftKey });
+          }}
+        >
+          <Checkbox
+            aria-label={`Select user ${user.firstName} ${user.lastName}`}
+            checked={!!selected}
+            tabIndex={-1}
+          />
+        </TableCell>
+      )}
       <TableCell className="font-medium">
         {user.firstName} {user.lastName}
       </TableCell>
@@ -270,7 +477,7 @@ function InviteUserDialog() {
     >
       <DialogTrigger asChild>
         <Button size="sm">
-          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
           Invite User
         </Button>
       </DialogTrigger>
@@ -421,7 +628,7 @@ function EditUserDialog({ user }: { user: UserRow }) {
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8">
-          <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
+          <HugeiconsIcon icon={PencilEdit01Icon} size={16} aria-hidden="true" />
           <span className="sr-only">
             Edit {user.firstName} {user.lastName}
           </span>

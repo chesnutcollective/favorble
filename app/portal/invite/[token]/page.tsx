@@ -8,7 +8,7 @@ type PageProps = {
 
 /**
  * Public accept-invite page. The /portal/invite/:token path is exempt from
- * Clerk auth in middleware.ts so a claimant without an account can land here
+ * Clerk auth in proxy.ts so a claimant without an account can land here
  * from their email.
  */
 export default async function InviteAcceptPage({ params }: PageProps) {

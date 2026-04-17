@@ -115,7 +115,7 @@ function CaseVolumeTrend({
   const closedArea = data.map((d, i) => `${xs[i]},${toY(d.closed)}`).join(" L");
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-[6px] p-5 transition-colors hover:border-[#CCC]">
+    <div className="bg-card border border-border rounded-[6px] p-5 transition-colors hover:border-[var(--border-hover,#CCC)]">
       <div className="flex items-center justify-between mb-4">
         <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em]">
           Case Volume Trend
@@ -292,7 +292,7 @@ function RevenueByMonth({
     .join(" ");
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-[6px] p-5 transition-colors hover:border-[#CCC]">
+    <div className="bg-card border border-border rounded-[6px] p-5 transition-colors hover:border-[var(--border-hover,#CCC)]">
       <div className="flex items-center justify-between mb-4">
         <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em]">
           Revenue by Month
@@ -371,7 +371,7 @@ function TaskCompletionSparklines({
   data: TrendsSectionProps["taskSparklines"];
 }) {
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-[6px] p-5 transition-colors hover:border-[#CCC]">
+    <div className="bg-card border border-border rounded-[6px] p-5 transition-colors hover:border-[var(--border-hover,#CCC)]">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Task Completion by Team Member
       </div>
@@ -457,7 +457,7 @@ function WeeklyVelocity({
   ];
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-[6px] p-5 transition-colors hover:border-[#CCC]">
+    <div className="bg-card border border-border rounded-[6px] p-5 transition-colors hover:border-[var(--border-hover,#CCC)]">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Weekly Velocity
       </div>

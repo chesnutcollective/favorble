@@ -27,7 +27,10 @@ export function CaseTabNav({ caseId }: { caseId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 border-b border-[#EAEAEA] overflow-x-auto bg-background -mx-3 px-3 sm:mx-0 sm:px-0 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav
+      aria-label="Case sections"
+      className="flex gap-1 border-b border-[#EAEAEA] overflow-x-auto bg-background -mx-3 px-3 sm:mx-0 sm:px-0 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       {tabs.map((tab) => {
         const href = `/cases/${caseId}/${tab.segment}`;
         const isActive = pathname.endsWith(`/${tab.segment}`);
@@ -35,6 +38,7 @@ export function CaseTabNav({ caseId }: { caseId: string }) {
           <Link
             key={tab.segment}
             href={href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
               "px-2.5 sm:px-3 py-2.5 sm:py-2 text-[13px] sm:text-sm font-medium whitespace-nowrap -mb-px border-b-2 transition-colors duration-200 min-h-[44px] sm:min-h-0 flex items-center",
               isActive

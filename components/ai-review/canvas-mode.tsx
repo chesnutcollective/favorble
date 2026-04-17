@@ -287,7 +287,7 @@ export function CanvasMode({
               className="rounded p-0.5 hover:bg-zinc-100"
               aria-label="Close drawer"
             >
-              <CloseIcon size={14} />
+              <CloseIcon size={14} aria-hidden="true" />
             </button>
           </div>
           <div className="flex-1 min-h-0">

@@ -212,6 +212,7 @@ export default async function CaseSsaPage({
                       icon={LinkSquare02Icon}
                       size={16}
                       className="mr-2"
+                      aria-hidden="true"
                     />
                     Open in Chronicle
                   </a>

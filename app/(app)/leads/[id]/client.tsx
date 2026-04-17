@@ -290,7 +290,7 @@ export function LeadDetailClient({
         href="/leads"
         className="inline-flex items-center gap-1.5 text-[13px] text-[#999] hover:text-[#171717] transition-colors"
       >
-        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} aria-hidden="true" />
         Back to Leads
       </Link>
 
@@ -320,7 +320,7 @@ export function LeadDetailClient({
                     disabled={isPending}
                     className="px-3 py-1.5 text-[12px] font-medium text-[#666] border border-[#EAEAEA] rounded-[6px] hover:bg-[#FAFAFA] transition-colors disabled:opacity-50 inline-flex items-center gap-1"
                   >
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={12} aria-hidden="true" />
                     Advance
                   </button>
                 )}
@@ -485,6 +485,7 @@ export function LeadDetailClient({
                       icon={Mail01Icon}
                       size={11}
                       className="inline mr-1 -mt-px"
+                      aria-hidden="true"
                     />
                     Email
                   </p>
@@ -503,6 +504,7 @@ export function LeadDetailClient({
                       icon={Call02Icon}
                       size={11}
                       className="inline mr-1 -mt-px"
+                      aria-hidden="true"
                     />
                     Phone
                   </p>

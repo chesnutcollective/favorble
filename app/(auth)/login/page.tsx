@@ -5,7 +5,8 @@ const AUTH_ENABLED = process.env.ENABLE_CLERK_AUTH === "true";
 
 export default function LoginPage() {
   return (
-    <div
+    <main
+      aria-label="Sign in"
       style={{
         fontFamily:
           "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -53,12 +54,15 @@ export default function LoginPage() {
         style={{
           marginTop: 24,
           fontSize: 12,
-          color: "rgba(255,255,255,0.5)",
+          /* Phase 7a — bump from 0.5 opacity (~3.0:1 on dark gradient, FAIL)
+           * to 0.75 opacity (~6.5:1) so the footer is readable on the dark
+           * teal background. */
+          color: "rgba(255,255,255,0.75)",
         }}
       >
         Favorble — Powered by Hogan Smith
       </p>
-    </div>
+    </main>
   );
 }
 
@@ -92,7 +96,7 @@ function DemoSignInCard() {
       <p
         style={{
           fontSize: 13,
-          color: "#666",
+          color: "#595959", /* AAA — was #666 (AA 5.7:1) */
           margin: 0,
           marginBottom: 20,
           lineHeight: 1.5,
@@ -124,7 +128,10 @@ function DemoSignInCard() {
         style={{
           marginTop: 16,
           fontSize: 11,
-          color: "#8b8b97",
+          /* Phase 7a — bump from #8b8b97 (3.6:1 FAIL) to #6b6b75 (5.4:1 AA).
+           * Tertiary helper copy on the card; still visibly lighter than the
+           * #595959 body copy above. */
+          color: "#6b6b75",
           lineHeight: 1.5,
         }}
       >

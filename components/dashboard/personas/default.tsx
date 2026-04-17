@@ -143,6 +143,7 @@ export function DefaultDashboard({
                 icon={CheckmarkCircle01Icon}
                 size={14}
                 color={COLORS.brand}
+                aria-hidden="true"
               />
               {config.primaryKpi.label}
             </div>
@@ -291,6 +292,7 @@ export function DefaultDashboard({
                           icon={Icon}
                           size={18}
                           color={COLORS.brand}
+                          aria-hidden="true"
                         />
                       </div>
                       <p
@@ -310,7 +312,7 @@ export function DefaultDashboard({
                         style={{ color: COLORS.brand }}
                       >
                         Open
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={12} aria-hidden="true" />
                       </div>
                     </CardContent>
                   </Card>

@@ -191,7 +191,7 @@ export function TreatmentLogForm({ caseId, isSpanish }: Props) {
           htmlFor="receipt-upload"
           className="flex min-h-[80px] cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[#104e60]/30 bg-[#F7FAFB] px-4 text-center text-foreground/80 hover:border-[#104e60]/60"
         >
-          <Upload className="size-4" />
+          <Upload className="size-4" aria-hidden="true" />
           <span className="text-[14px] font-medium">
             {receipt
               ? receipt.name
@@ -213,7 +213,7 @@ export function TreatmentLogForm({ caseId, isSpanish }: Props) {
 
       {error ? (
         <p className="inline-flex items-center gap-1 text-[13px] text-red-700">
-          <AlertCircle className="size-4" />
+          <AlertCircle className="size-4" aria-hidden="true" />
           {error}
         </p>
       ) : null}
@@ -232,7 +232,7 @@ export function TreatmentLogForm({ caseId, isSpanish }: Props) {
             )
           ) : (
             <>
-              <Check className="size-4" />
+              <Check className="size-4" aria-hidden="true" />
               {isSpanish ? "Guardar visita" : "Save visit"}
             </>
           )}

@@ -109,7 +109,7 @@ function ScreenshotPreview({
         className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white hover:bg-black"
         aria-label="Remove screenshot"
       >
-        <HugeiconsIcon icon={Cancel01Icon} size={12} />
+        <HugeiconsIcon icon={Cancel01Icon} size={12} aria-hidden="true" />
       </button>
     </div>
   );
@@ -381,7 +381,7 @@ export function FeedbackWidget() {
           bottom: "max(1rem, env(safe-area-inset-bottom))",
         }}
       >
-        <HugeiconsIcon icon={MessageAdd01Icon} size={22} />
+        <HugeiconsIcon icon={MessageAdd01Icon} size={22} aria-hidden="true" />
       </button>
 
       <Dialog
@@ -459,7 +459,7 @@ export function FeedbackWidget() {
                   className="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50"
                   title="Capture screenshot of current page"
                 >
-                  <HugeiconsIcon icon={Camera01Icon} size={14} />
+                  <HugeiconsIcon icon={Camera01Icon} size={14} aria-hidden="true" />
                   {screenshot ? "Re-capture" : "Screenshot"}
                 </button>
                 <button
@@ -469,7 +469,7 @@ export function FeedbackWidget() {
                   className="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50"
                   title="Click an element on the page to pin it to this feedback"
                 >
-                  <HugeiconsIcon icon={Target02Icon} size={14} />
+                  <HugeiconsIcon icon={Target02Icon} size={14} aria-hidden="true" />
                   {pin ? "Re-pin" : "Pin element"}
                 </button>
                 {voiceSupported && (
@@ -488,6 +488,7 @@ export function FeedbackWidget() {
                     <HugeiconsIcon
                       icon={isRecording ? MicOff01Icon : Mic01Icon}
                       size={14}
+                      aria-hidden="true"
                     />
                     {isRecording ? "Recording…" : "Voice note"}
                   </button>
@@ -544,6 +545,7 @@ export function FeedbackWidget() {
                     icon={Target02Icon}
                     size={14}
                     className="mt-0.5 shrink-0"
+                    aria-hidden="true"
                   />
                   <div className="min-w-0 flex-1 overflow-hidden">
                     <p className="line-clamp-2 break-words font-medium">
@@ -559,7 +561,7 @@ export function FeedbackWidget() {
                     className="shrink-0 text-muted-foreground hover:text-foreground"
                     aria-label="Remove pin"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} aria-hidden="true" />
                   </button>
                 </div>
               )}

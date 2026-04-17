@@ -42,7 +42,7 @@ export function DocShareCard({ item }: { item: DocShareCardItem }) {
     <article className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-[#E8E2D8] sm:p-5">
       <div className="flex items-start gap-3 sm:gap-4">
         <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#104e60]/10 text-[#104e60] sm:size-11">
-          <FileText className="size-5" />
+          <FileText className="size-5" aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[15px] font-semibold text-foreground sm:text-[16px]">
@@ -93,7 +93,7 @@ export function DocShareCard({ item }: { item: DocShareCardItem }) {
             }
             className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-full border border-[#E8E2D8] bg-white px-4 text-[14px] font-medium text-foreground/40"
           >
-            <Download className="size-4" />
+            <Download className="size-4" aria-hidden="true" />
             Download
           </button>
         ) : (
@@ -104,7 +104,7 @@ export function DocShareCard({ item }: { item: DocShareCardItem }) {
             // attachment header and writes the document_share_views row.
             className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-full bg-[#104e60] px-4 text-[14px] font-semibold text-white hover:bg-[#0d3f4e]"
           >
-            <Download className="size-4" />
+            <Download className="size-4" aria-hidden="true" />
             Download
           </a>
         )}

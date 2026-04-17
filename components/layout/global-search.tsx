@@ -1023,7 +1023,7 @@ export function GlobalSearch() {
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-md border border-[#EAEAEA] bg-white px-3 py-[7px] text-[13px] text-[#999] transition-colors duration-200 hover:border-[#CCC]"
       >
-        <HugeiconsIcon icon={Search01Icon} size={14} />
+        <HugeiconsIcon icon={Search01Icon} size={14} aria-hidden="true" />
         <span className="hidden md:inline">Search...</span>
         <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border border-[#EAEAEA] bg-[#FAFAFA] px-1.5 font-mono text-[10px] font-medium text-[#999] md:inline-flex">
           <span className="text-xs">&#8984;</span>K
@@ -1059,6 +1059,7 @@ export function GlobalSearch() {
                 icon={Search01Icon}
                 size={16}
                 className="mr-2.5 shrink-0 text-[#999]"
+                aria-hidden="true"
               />
               <input
                 ref={inputRef}

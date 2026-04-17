@@ -118,7 +118,7 @@ export function ShareWithClientButton({
         onClick={() => setOpen(true)}
         className="gap-1.5"
       >
-        <Share2 className="size-4" />
+        <Share2 className="size-4" aria-hidden="true" />
         <span>Share with client</span>
         {activeCount > 0 ? (
           <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[11px] font-semibold text-emerald-800">
@@ -209,7 +209,7 @@ export function ShareWithClientButton({
                               : null}
                           </p>
                           <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                            <Eye className="size-3" />
+                            <Eye className="size-3" aria-hidden="true" />
                             {share.viewCount} view
                             {share.viewCount === 1 ? "" : "s"}
                           </p>
@@ -223,7 +223,7 @@ export function ShareWithClientButton({
                             disabled={isSubmitting}
                             className="gap-1 text-red-700 hover:text-red-800"
                           >
-                            <Ban className="size-3.5" />
+                            <Ban className="size-3.5" aria-hidden="true" />
                             Revoke
                           </Button>
                         ) : null}

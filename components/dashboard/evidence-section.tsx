@@ -70,7 +70,7 @@ function RfcLimitationPatterns({
   }));
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         RFC Limitation Patterns
       </div>
@@ -147,7 +147,7 @@ function CeOutcomesDonut({
   const total = data.supportive + data.neutral + data.unsupportive;
   if (total === 0) {
     return (
-      <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+      <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
         <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
           CE Outcomes
         </div>
@@ -171,7 +171,7 @@ function CeOutcomesDonut({
   const unsupportiveRotation = neutralRotation + (neutralPct / 100) * 360;
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         CE Outcomes
       </div>
@@ -283,7 +283,7 @@ function VocationalExpertTable({
   const maxFreq = Math.max(...data.map((d) => d.frequency), 1);
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Vocational Expert Analysis
       </div>
@@ -353,7 +353,7 @@ function HearingPrepReadiness({
   data: EvidenceSectionProps["upcomingHearings"];
 }) {
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Hearing Prep Readiness
       </div>
@@ -415,7 +415,7 @@ function ClientSatisfactionGauge({
   const trendPositive = trend >= 0;
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Client Satisfaction Score
       </div>

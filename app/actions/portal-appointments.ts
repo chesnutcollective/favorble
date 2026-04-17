@@ -195,3 +195,63 @@ export async function requestReschedule(input: {
   await logPortalActivity("request_reschedule", "calendar_event", input.eventId);
   return { ok: true };
 }
+
+export type CallbackTimeWindow =
+  | "morning"
+  | "afternoon"
+  | "evening"
+  | "no_preference";
+
+const CALLBACK_WINDOW_LABELS: Record<CallbackTimeWindow, string> = {
+  morning: "Morning (before noon)",
+  afternoon: "Afternoon (noon–5pm)",
+  evening: "Evening (after 5pm)",
+  no_preference: "No preference",
+};
+
+const MAX_CALLBACK_REASON_LENGTH = 500;
+
+/**
+ * Claimant requests a callback from their firm. We don't have a dedicated
+ * callback_requests table yet, so we piggyback on the portal-messages
+ * pipeline: a structured inbound message lands in the firm's inbox, clearly
+ * flagged so staff can route it to the right person.
+ */
+export async function requestCallback(input: {
+  window: CallbackTimeWindow;
+  reason: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await getSession();
+  if (session.isImpersonating) {
+    return {
+      ok: false,
+      error: "Cannot request a callback while previewing the portal.",
+    };
+  }
+
+  const reason = (input.reason ?? "").trim();
+  if (!reason) {
+    return { ok: false, error: "Please tell us what you'd like to discuss." };
+  }
+  if (reason.length > MAX_CALLBACK_REASON_LENGTH) {
+    return {
+      ok: false,
+      error: `Reason is too long (max ${MAX_CALLBACK_REASON_LENGTH} characters).`,
+    };
+  }
+
+  const windowLabel =
+    CALLBACK_WINDOW_LABELS[input.window] ??
+    CALLBACK_WINDOW_LABELS.no_preference;
+
+  const body = `📞 Callback requested — Preferred: ${windowLabel}. Reason: ${reason}`;
+
+  const result = await sendPortalMessage({ body });
+  if (!result.ok) return result;
+
+  await logPortalActivity("request_callback", "communication", result.id, {
+    window: input.window,
+  });
+
+  return { ok: true };
+}

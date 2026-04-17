@@ -59,7 +59,7 @@ export default async function InvoiceDetailPage({
           href="/billing/invoices"
           className="inline-flex items-center gap-1 text-[#666] hover:text-foreground"
         >
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} aria-hidden="true" />
           Invoices
         </Link>
       </div>

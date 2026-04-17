@@ -169,6 +169,7 @@ function HeroHearingCard({ hearing }: { hearing: UpcomingHearing }) {
                   icon={JusticeScale01Icon}
                   size={14}
                   color={PRIMARY}
+                  aria-hidden="true"
                 />
                 <span className="text-foreground">
                   ALJ {hearing.adminLawJudge}
@@ -181,6 +182,7 @@ function HeroHearingCard({ hearing }: { hearing: UpcomingHearing }) {
                   icon={CourtHouseIcon}
                   size={14}
                   color={PRIMARY}
+                  aria-hidden="true"
                 />
                 <span className="text-foreground truncate">
                   {hearing.hearingOffice}
@@ -188,7 +190,7 @@ function HeroHearingCard({ hearing }: { hearing: UpcomingHearing }) {
               </div>
             )}
             <div className="flex items-center gap-2 text-muted-foreground">
-              <HugeiconsIcon icon={ModeIcon} size={14} color={PRIMARY} />
+              <HugeiconsIcon icon={ModeIcon} size={14} color={PRIMARY} aria-hidden="true" />
               <span className="text-foreground">
                 {modeLabel(hearing.modeOfAppearance)}
               </span>
@@ -251,7 +253,7 @@ function WeekRow({ hearing }: { hearing: UpcomingHearing }) {
         </div>
       </div>
       <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
-        <HugeiconsIcon icon={ModeIcon} size={14} color={PRIMARY} />
+        <HugeiconsIcon icon={ModeIcon} size={14} color={PRIMARY} aria-hidden="true" />
         <span>{modeLabel(hearing.modeOfAppearance)}</span>
       </div>
       <span
@@ -403,7 +405,7 @@ export default async function HearingsPage({
       {/* Today + Tomorrow hero */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={Clock01Icon} size={16} color={PRIMARY} />
+          <HugeiconsIcon icon={Clock01Icon} size={16} color={PRIMARY} aria-hidden="true" />
           <h2 className="text-sm font-semibold text-foreground">
             Today &amp; Tomorrow
           </h2>
@@ -429,7 +431,7 @@ export default async function HearingsPage({
       {/* This Week */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={Calendar03Icon} size={16} color={PRIMARY} />
+          <HugeiconsIcon icon={Calendar03Icon} size={16} color={PRIMARY} aria-hidden="true" />
           <h2 className="text-sm font-semibold text-foreground">This Week</h2>
           <Badge variant="outline" className="ml-1 text-[10px]">
             {thisWeek.length}
@@ -455,7 +457,7 @@ export default async function HearingsPage({
       {/* Upcoming (8–30 days) */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={UserGroupIcon} size={16} color={PRIMARY} />
+          <HugeiconsIcon icon={UserGroupIcon} size={16} color={PRIMARY} aria-hidden="true" />
           <h2 className="text-sm font-semibold text-foreground">Next 30 Days</h2>
           <Badge variant="outline" className="ml-1 text-[10px]">
             {upcoming.length}

@@ -63,6 +63,7 @@ export default async function MessagesPage({
                 icon={Message01Icon}
                 size={20}
                 className="text-[#666]"
+                aria-hidden="true"
               />
               <div>
                 <p className="text-sm font-medium text-[#171717]">

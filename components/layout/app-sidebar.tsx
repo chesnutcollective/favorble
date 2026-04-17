@@ -106,6 +106,7 @@ export function AppSidebar({
                         className={
                           isActive(item.href) ? "opacity-100" : "opacity-50"
                         }
+                        aria-hidden="true"
                       />
                       <span>{item.title}</span>
                     </Link>

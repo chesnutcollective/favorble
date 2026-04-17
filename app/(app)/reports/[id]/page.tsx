@@ -13,6 +13,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { ReportDetailClient } from "@/components/charts/report-detail-client";
 import Link from "next/link";
+import { BreadcrumbLabel } from "@/components/layout/breadcrumbs";
 
 const REPORT_META: Record<string, { title: string; description: string }> = {
   "cases-by-stage": {
@@ -108,6 +109,7 @@ export default async function ReportDetailPage({
 
   return (
     <div className="space-y-6">
+      <BreadcrumbLabel segment={id} label={meta.title} />
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/reports" className="hover:underline">
           Reports

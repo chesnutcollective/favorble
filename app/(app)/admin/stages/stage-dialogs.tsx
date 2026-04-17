@@ -91,7 +91,7 @@ export function AddStageGroupDialog() {
     >
       <DialogTrigger asChild>
         <Button size="sm">
-          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
           Add Group
         </Button>
       </DialogTrigger>
@@ -250,7 +250,7 @@ export function AddStageDialog({
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="mt-2 text-xs">
-          <HugeiconsIcon icon={PlusSignIcon} size={12} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={12} className="mr-1" aria-hidden="true" />
           Add Stage
         </Button>
       </DialogTrigger>

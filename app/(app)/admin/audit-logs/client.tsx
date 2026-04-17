@@ -298,7 +298,7 @@ export function AuditLogsClient({
             style={{ backgroundColor: BRAND }}
             className="text-white hover:opacity-90"
           >
-            <HugeiconsIcon icon={Download01Icon} size={16} className="mr-1.5" />
+            <HugeiconsIcon icon={Download01Icon} size={16} className="mr-1.5" aria-hidden="true" />
             {isExporting ? "Exporting..." : "Export CSV"}
           </Button>
         }
@@ -342,7 +342,7 @@ export function AuditLogsClient({
       >
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={FilterIcon} size={16} color={BRAND} />
+            <HugeiconsIcon icon={FilterIcon} size={16} color={BRAND} aria-hidden="true" />
             <span
               className="text-[13px] font-semibold"
               style={{ color: BRAND }}
@@ -412,6 +412,7 @@ export function AuditLogsClient({
                   icon={Search01Icon}
                   size={14}
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#999]"
+                  aria-hidden="true"
                 />
                 <Input
                   value={filters.action}
@@ -553,6 +554,7 @@ export function AuditLogsClient({
                   icon={SecurityCheckIcon}
                   size={22}
                   color={BRAND}
+                  aria-hidden="true"
                 />
               </div>
               <p className="text-[14px] font-medium">
@@ -662,6 +664,7 @@ export function AuditLogsClient({
                             icon={ArrowDown01Icon}
                             size={16}
                             className={`transition-transform text-[#999] ${isExpanded ? "rotate-180" : ""}`}
+                            aria-hidden="true"
                           />
                         </TableCell>
                       </TableRow>

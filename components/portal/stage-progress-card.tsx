@@ -133,7 +133,7 @@ export function StageProgressCard(props: StageProgressCardProps) {
           href="/portal/messages"
           className="inline-flex items-center gap-2 rounded-full bg-[#104e60] px-5 py-2.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[#0d3f4e]"
         >
-          <MessageSquare className="size-4" />
+          <MessageSquare className="size-4" aria-hidden="true" />
           {t("portal.home.sendMessage")}
         </Link>
       </section>

@@ -736,7 +736,7 @@ export function TwoTierNav({
       <div className="ttn-card">
         {/* ── Tier 1: Icon Rail ── */}
         <TooltipProvider delayDuration={0}>
-        <nav className="ttn-rail">
+        <nav className="ttn-rail" aria-label="Primary">
           {/* Logo */}
           <Link
             href="/dashboard"

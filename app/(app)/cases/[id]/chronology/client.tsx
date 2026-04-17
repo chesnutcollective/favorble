@@ -426,6 +426,7 @@ export function ChronologyClient({
                     icon={Download01Icon}
                     size={16}
                     className="mr-1"
+                    aria-hidden="true"
                   />
                   Export
                 </Button>
@@ -441,7 +442,7 @@ export function ChronologyClient({
             </DropdownMenu>
 
             <Button onClick={() => setShowAddDialog(true)} size="sm">
-              <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+              <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
               Add Entry
             </Button>
           </div>
@@ -477,6 +478,7 @@ export function ChronologyClient({
             icon={Search01Icon}
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
           />
           <Input
             placeholder="Search providers..."
@@ -603,8 +605,8 @@ export function ChronologyClient({
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Row actions">
+                          <HugeiconsIcon icon={MoreHorizontalIcon} size={16} aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">

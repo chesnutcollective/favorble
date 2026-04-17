@@ -139,8 +139,8 @@ export function ExhibitList({ caseId, packets }: ExhibitListProps) {
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Packet actions">
+                      <HugeiconsIcon icon={MoreHorizontalIcon} size={16} aria-hidden="true" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

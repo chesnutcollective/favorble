@@ -66,6 +66,7 @@ export function CaseAutomationClient({
             size={28}
             color="#ccc"
             className="mx-auto"
+            aria-hidden="true"
           />
           <p className="mt-3 text-sm text-muted-foreground">
             No active workflow templates match this case&apos;s current or
@@ -95,6 +96,7 @@ export function CaseAutomationClient({
                     size={16}
                     color="rgb(245 158 11)"
                     className="mt-0.5 shrink-0"
+                    aria-hidden="true"
                   />
                   <div className="min-w-0">
                     <CardTitle className="text-base truncate">

@@ -27,7 +27,7 @@ export function PageHeader({
           {title}
         </h1>
         {description && (
-          <p className="mt-1 text-[13px] text-[#666]">{description}</p>
+          <p className="mt-1 text-[13px] text-[#595959]">{description}</p>
         )}
       </div>
       {actions && (

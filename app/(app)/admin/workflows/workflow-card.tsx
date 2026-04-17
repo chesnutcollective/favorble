@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { FlashIcon } from "@hugeicons/core-free-icons";
-import { deleteWorkflowTemplate } from "@/app/actions/workflows";
+import {
+  deleteWorkflowTemplate,
+  toggleWorkflowActive,
+} from "@/app/actions/workflows";
 import {
   EditWorkflowDialog,
   type WorkflowFormData,
@@ -89,21 +93,52 @@ export function WorkflowCard({ workflow: wf, stages }: WorkflowCardProps) {
     });
   }
 
+  function handleToggleActive() {
+    startTransition(async () => {
+      try {
+        await toggleWorkflowActive(wf.id);
+        toast.success(
+          wf.isActive
+            ? "Workflow marked as draft."
+            : "Workflow marked as active.",
+        );
+      } catch {
+        toast.error("Failed to update workflow.");
+      }
+    });
+  }
+
   return (
     <Card key={wf.id}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <HugeiconsIcon icon={FlashIcon} size={16} color="rgb(245 158 11)" />
+            <HugeiconsIcon icon={FlashIcon} size={16} color="rgb(245 158 11)" aria-hidden="true" />
             <CardTitle className="text-base">{wf.name}</CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            <Badge
-              variant={wf.isActive ? "default" : "secondary"}
-              className="text-xs"
+            <button
+              type="button"
+              role="switch"
+              aria-checked={wf.isActive}
+              aria-label={`Workflow ${wf.name} active`}
+              disabled={isPending}
+              onClick={handleToggleActive}
+              onKeyDown={(e) => {
+                if (e.key === " " || e.key === "Enter") {
+                  e.preventDefault();
+                  handleToggleActive();
+                }
+              }}
+              className={cn(
+                "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed",
+                wf.isActive
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+              )}
             >
               {wf.isActive ? "Active" : "Draft"}
-            </Badge>
+            </button>
             <EditWorkflowDialog workflow={editData} stages={stages}>
               <Button variant="ghost" size="sm" className="h-7 text-xs">
                 Edit

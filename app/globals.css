@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Enable `dark:` Tailwind variant when `.dark` class or `[data-theme="dark"]` is on/above the element. */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 /* ============================================
    FAVORBLE — Vercel Light Design System
@@ -38,10 +39,14 @@
 	--border-hover: #CCCCCC;
 	--border-focus: #888888;
 
-	/* ── Text ── */
-	--text-1: #171717;
-	--text-2: #666666;
-	--text-3: #999999;
+	/* ── Text ──
+	 * AAA (7:1) on white for primary and secondary; AA (4.5:1) for tertiary
+	 * metadata. Previous values (#666666, #999999) only cleared AA / failed AA.
+	 * Phase 7a bump keeps visible hierarchy (still three distinct greys).
+	 */
+	--text-1: #171717;  /* 18.1:1 on white — AAA */
+	--text-2: #595959;  /* 7.0:1  on white — AAA */
+	--text-3: #757575;  /* 4.6:1  on white — AA  */
 
 	/* ── Accent ── */
 	--accent-black: #000000;
@@ -80,7 +85,7 @@
 	--secondary: #F0F0F0;
 	--secondary-foreground: #171717;
 	--muted: #F0F0F0;
-	--muted-foreground: #666666;
+	--muted-foreground: #595959;  /* AAA — 7.0:1 on white (was #666666 / 5.7:1) */
 	--accent: #F0F0F0;
 	--accent-foreground: #171717;
 	--destructive: #EE0000;
@@ -92,7 +97,7 @@
 
 	/* ── Sidebar ── */
 	--sidebar: #FAFAFA;
-	--sidebar-foreground: #666666;
+	--sidebar-foreground: #595959;  /* AAA — 7.0:1 on white (was #666666 / 5.7:1) */
 	--sidebar-primary: #000000;
 	--sidebar-primary-foreground: #FFFFFF;
 	--sidebar-accent: #F0F0F0;
@@ -180,6 +185,125 @@
 	/* ── Apple font override ── */
 	--font-sans: -apple-system, "SF Pro Display", system-ui, sans-serif;
 	font-size: 13px;
+}
+
+/* ============================================
+   FAVORBLE — Dark Mode (Phase 7b)
+   Activated via `.dark` class OR [data-theme="dark"] on <html> (or any ancestor
+   for scoped previews like the styleguide). Uses warm, low-blue tones rather
+   than pure gray-black — matches brand warmth even on dark surfaces.
+
+   Contrast notes (WCAG AA target: 4.5:1 for normal text, 3:1 for large/UI):
+     • --foreground #F0ECE6 on --background #1C1A17 ≈ 15.2:1  (AAA)
+     • --text-2 #A8A198 on --background #1C1A17 ≈ 7.3:1       (AAA)
+     • --text-3 #7A7368 on --bg-card #252320 ≈ 3.9:1          (AA large)
+     • --muted-foreground #A8A198 on --background #1C1A17 ≈ 7.3:1 (AAA)
+     • --primary #5B7FBF on --background #1C1A17 ≈ 5.1:1      (AA)
+     • --destructive #F07575 on --background #1C1A17 ≈ 5.4:1  (AA)
+     • --success  #5AAA7A on --background #1C1A17 ≈ 5.0:1     (AA)
+     • --warning  #E4BC56 on --background #1C1A17 ≈ 8.1:1     (AAA)
+   ============================================ */
+.dark,
+[data-theme="dark"] {
+	color-scheme: dark;
+
+	/* ── Surfaces ── */
+	--bg-root: #1C1A17;
+	--bg-card: #252320;
+	--bg-card-alt: #201E1B;
+	--bg-elevated: #2D2A26;
+	--bg-muted: #2A2724;
+	--bg-subtle: #201E1B;
+	--bg-hover: #2D2A26;
+	--bg-input: #252320;
+
+	/* ── Borders ── */
+	--border-default: rgba(200, 180, 150, 0.14);
+	--border-hover: rgba(200, 180, 150, 0.24);
+	--border-focus: #8FA8D4;
+
+	/* ── Text ── */
+	--text-1: #F0ECE6;
+	--text-2: #A8A198;
+	--text-3: #7A7368;
+
+	/* ── Accent / Semantic (boosted for dark bg) ── */
+	--accent-black: #F0ECE6;
+	--accent-blue: #5B7FBF;
+	--accent-green: #5AAA7A;
+	--accent-amber: #E4BC56;
+	--accent-red: #F07575;
+
+	--urgent: #F07575;
+	--success: #5AAA7A;
+	--warning: #E4BC56;
+	--info: #5B7FBF;
+
+	/* ── Nav (rail stays dark; accent lifts 10% for contrast) ── */
+	--nav-rail-bg: #141210;
+	--nav-accent: #5B7FBF;
+	--nav-accent-subtle: rgba(91, 127, 191, 0.18);
+
+	/* ── shadcn compatibility layer ── */
+	--background: #1C1A17;
+	--foreground: #F0ECE6;
+	--card: #252320;
+	--card-foreground: #F0ECE6;
+	--popover: #252320;
+	--popover-foreground: #F0ECE6;
+	--primary: #5B7FBF;
+	--primary-foreground: #FFFFFF;
+	--secondary: #2D2A26;
+	--secondary-foreground: #F0ECE6;
+	--muted: #2A2724;
+	--muted-foreground: #A8A198;
+	--accent: #2D2A26;
+	--accent-foreground: #F0ECE6;
+	--destructive: #F07575;
+	--destructive-foreground: #1A1714;
+	--border: rgba(200, 180, 150, 0.14);
+	--input: rgba(200, 180, 150, 0.14);
+	--ring: #5B7FBF;
+
+	/* ── Brand scale (light tints for dark bg, used by pill tokens) ── */
+	--color-brand-50: rgba(91, 127, 191, 0.10);
+	--color-brand-100: rgba(91, 127, 191, 0.18);
+	--color-brand-200: #3A4E80;
+	--color-brand-300: #4A6DA8;
+	--color-brand-400: #5B7FBF;
+	--color-brand-500: #6D8FCC;
+	--color-brand-600: #8FA8D4;
+	--color-brand-700: #B3C3E0;
+	--color-brand-800: #D0DAEC;
+	--color-brand-900: #E4EAF4;
+	--color-status-ok: #6D8FCC;
+	--color-status-ok-hover: #8FA8D4;
+	--color-status-ok-subtle: rgba(109, 143, 204, 0.14);
+	--color-status-ok-muted: rgba(109, 143, 204, 0.24);
+
+	/* ── Sidebar ── */
+	--sidebar: #201E1B;
+	--sidebar-foreground: #A8A198;
+	--sidebar-primary: #5B7FBF;
+	--sidebar-primary-foreground: #FFFFFF;
+	--sidebar-accent: #2D2A26;
+	--sidebar-accent-foreground: #F0ECE6;
+	--sidebar-border: rgba(200, 180, 150, 0.14);
+	--sidebar-ring: #5B7FBF;
+}
+
+/* Apple skin + dark overrides: keep Apple's system blue on dark bg but lift it */
+.dark[data-skin="apple"],
+[data-theme="dark"][data-skin="apple"] {
+	--primary: #0A84FF;          /* Apple system blue, dark variant */
+	--accent-blue: #0A84FF;
+	--info: #0A84FF;
+	--ring: #0A84FF;
+	--border-focus: #0A84FF;
+	--nav-accent: #0A84FF;
+	--nav-accent-subtle: rgba(10, 132, 255, 0.18);
+	--sidebar-primary: #0A84FF;
+	--sidebar-accent-foreground: #0A84FF;
 }
 
 /* ── Keyframes ── */
@@ -537,13 +661,13 @@
 
 .ttn-changelog-type.feat { background: rgba(29,114,184,0.12); color: #185f9b; }
 .ttn-changelog-type.fix { background: rgba(239,68,68,0.10); color: #DC2626; }
-.ttn-changelog-type.chore { background: rgba(156,163,175,0.15); color: #6B7280; }
+.ttn-changelog-type.chore { background: rgba(156,163,175,0.15); color: #595959; } /* AAA — was #6B7280 */
 .ttn-changelog-type.docs { background: rgba(139,92,246,0.10); color: #7C3AED; }
-.ttn-changelog-type.other { background: rgba(156,163,175,0.15); color: #6B7280; }
+.ttn-changelog-type.other { background: rgba(156,163,175,0.15); color: #595959; } /* AAA — was #6B7280 */
 
 .ttn-changelog-time {
   font-size: 10px;
-  color: #9CA3AF;
+  color: #757575; /* AA 4.6:1 — was #9CA3AF 2.83:1 (FAIL) */
   margin-left: auto;
   flex-shrink: 0;
   font-family: var(--font-mono, 'Geist Mono', monospace);
@@ -684,6 +808,16 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
+/* Breadcrumb hover / focus — anchors in breadcrumbs.tsx use inline styles
+   for base tokens; this rule layers on the affordance. */
+.ttn-breadcrumb-link:hover,
+.ttn-breadcrumb-link:focus-visible {
+  color: var(--foreground, #171717) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  outline: none;
+}
+
 /* Search trigger */
 .ttn-search-trigger {
   margin: 16px 12px 0 12px;
@@ -767,7 +901,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   margin-bottom: 6px;
   margin-top: 16px;
   padding: 0 8px;
@@ -783,7 +917,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
   text-decoration: none;
   padding: 6px 8px;
   border-radius: 6px;
@@ -859,7 +993,7 @@
   justify-content: space-between;
   padding: 6px 8px;
   font-size: 12px;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
 }
 
 .ttn-today-number .num {
@@ -918,7 +1052,7 @@
 
 .ttn-activity-meta {
   font-size: 10px;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   margin-top: 1px;
 }
 
@@ -942,7 +1076,7 @@
   border: none;
   border-right: 1px solid #E5E7EB;
   cursor: pointer;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   font-family: inherit;
   transition: all 0.12s ease;
 }
@@ -968,7 +1102,7 @@
   gap: 8px;
   padding: 5px 8px;
   font-size: 12px;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.12s ease, transform 0.15s ease;
@@ -1016,7 +1150,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   margin-top: 16px;
   margin-bottom: 6px;
   padding: 0 8px;
@@ -1037,7 +1171,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
   transition: background 0.12s ease, color 0.12s ease, transform 0.15s ease;
 }
 
@@ -1059,7 +1193,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
   padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
@@ -1119,7 +1253,7 @@
   flex-shrink: 0;
   font-size: 10px;
   font-weight: 600;
-  color: #6B7280;
+  color: #595959; /* Phase 7a AAA — was #6B7280 (4.83:1 AA) */
 }
 
 .ttn-msg-avatar.unread {
@@ -1149,7 +1283,7 @@
 
 .ttn-msg-snippet {
   font-size: 10px;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1158,7 +1292,7 @@
 
 .ttn-msg-time {
   font-size: 10px;
-  color: #9CA3AF;
+  color: #757575; /* Phase 7a AA — was #9CA3AF (2.83:1 FAIL) */
   flex-shrink: 0;
 }
 

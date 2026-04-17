@@ -8,7 +8,7 @@ import {
   deleteDocumentFile,
 } from "@/lib/storage/server";
 import { enqueueDocumentProcessing } from "@/lib/services/enqueue-processing";
-import { eq, and, isNull, desc } from "drizzle-orm";
+import { eq, and, isNull, inArray, desc } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
 export type DocumentFilters = {
@@ -154,6 +154,62 @@ export async function getDocumentUrl(documentId: string) {
     // operators to investigate without exposing infra to admins.
     return { error: "Source PDF unavailable" };
   }
+}
+
+/**
+ * Bulk resolve signed URLs for download. Metadata-only stubs + signing
+ * failures are returned separately so the client can report them without
+ * aborting the whole batch. The client is still responsible for opening each
+ * URL (browsers block programmatic multi-download otherwise).
+ */
+export async function bulkGetDocumentUrls(
+  documentIds: string[],
+): Promise<{
+  urls: Array<{ documentId: string; fileName: string; url: string }>;
+  failed: Array<{ documentId: string; error: string }>;
+}> {
+  if (documentIds.length === 0) return { urls: [], failed: [] };
+
+  const rows = await db
+    .select({
+      id: documents.id,
+      fileName: documents.fileName,
+      storagePath: documents.storagePath,
+    })
+    .from(documents)
+    .where(and(inArray(documents.id, documentIds), isNull(documents.deletedAt)));
+
+  const byId = new Map(rows.map((r) => [r.id, r]));
+
+  const urls: Array<{ documentId: string; fileName: string; url: string }> = [];
+  const failed: Array<{ documentId: string; error: string }> = [];
+
+  for (const documentId of documentIds) {
+    const doc = byId.get(documentId);
+    if (!doc) {
+      failed.push({ documentId, error: "Document not found" });
+      continue;
+    }
+    if (doc.storagePath.startsWith("chronicle://")) {
+      failed.push({
+        documentId,
+        error: `${doc.fileName}: metadata stub — no file`,
+      });
+      continue;
+    }
+    try {
+      const signedUrl = await getSignedUrl(doc.storagePath);
+      urls.push({ documentId, fileName: doc.fileName, url: signedUrl });
+    } catch (err) {
+      logger.error("bulkGetDocumentUrls signing failed", {
+        documentId,
+        error: err,
+      });
+      failed.push({ documentId, error: `${doc.fileName}: unavailable` });
+    }
+  }
+
+  return { urls, failed };
 }
 
 /**

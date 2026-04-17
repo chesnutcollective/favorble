@@ -364,6 +364,7 @@ function FileList({
           icon={ArrowDown01Icon}
           size={12}
           className="transition-transform group-open:rotate-180"
+          aria-hidden="true"
         />
       </summary>
       <ul className="border-t border-[#EAEAEA] px-3 py-2">
@@ -471,6 +472,7 @@ function CommitRow({
                 icon={ArrowRight01Icon}
                 size={10}
                 className="-rotate-45 opacity-0 transition-opacity group-hover:opacity-100"
+                aria-hidden="true"
               />
             </a>
             <span className="text-[#EAEAEA]">&middot;</span>
@@ -487,6 +489,7 @@ function CommitRow({
                     "transition-transform",
                     open && "rotate-180",
                   )}
+                  aria-hidden="true"
                 />
               </button>
             </CollapsibleTrigger>
@@ -513,7 +516,7 @@ function BucketSection({ bucket }: { bucket: CommitBucket }) {
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
-        <HugeiconsIcon icon={Icon} size={16} color={PRIMARY} />
+        <HugeiconsIcon icon={Icon} size={16} color={PRIMARY} aria-hidden="true" />
         <h2 className="text-sm font-semibold text-foreground">
           {bucket.label}
         </h2>
@@ -575,6 +578,7 @@ export function ChangelogClient({
           icon={GitCommitIcon}
           size={32}
           className="text-[#999]"
+          aria-hidden="true"
         />
         <p className="mt-4 text-[14px] font-medium text-foreground">
           No commits found

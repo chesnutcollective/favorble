@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TextField } from "@hugeicons/core-free-icons";
 import { NewFieldDialog } from "./new-field-dialog";
-import { FieldRow } from "./field-row";
+import { SortableFieldsList } from "./sortable-fields-list";
 
 export const metadata: Metadata = {
   title: "Custom Fields",
@@ -123,23 +123,18 @@ function FieldsList({
             <CardTitle className="text-sm text-foreground">{section}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {sectionFields.map((field) => (
-                <FieldRow
-                  key={field.id}
-                  field={{
-                    id: field.id,
-                    name: field.name,
-                    slug: field.slug,
-                    fieldType: field.fieldType,
-                    team: field.team,
-                    section: field.section,
-                    isRequired: field.isRequired,
-                    helpText: field.helpText,
-                  }}
-                />
-              ))}
-            </div>
+            <SortableFieldsList
+              initialFields={sectionFields.map((field) => ({
+                id: field.id,
+                name: field.name,
+                slug: field.slug,
+                fieldType: field.fieldType,
+                team: field.team,
+                section: field.section,
+                isRequired: field.isRequired,
+                helpText: field.helpText,
+              }))}
+            />
           </CardContent>
         </Card>
       ))}

@@ -102,9 +102,9 @@ export function TableMode({
   };
 
   const sortIcon = (sortKey: ReviewSort) => {
-    if (query.sort === sortKey) return <ChevronDown size={11} />;
+    if (query.sort === sortKey) return <ChevronDown size={11} aria-hidden="true" />;
     if (query.sort === sortKey.replace("_asc", "_desc"))
-      return <ChevronUp size={11} />;
+      return <ChevronUp size={11} aria-hidden="true" />;
     return null;
   };
 
@@ -309,7 +309,7 @@ export function TableMode({
               className="rounded p-0.5 hover:bg-zinc-100"
               aria-label="Close drawer"
             >
-              <CloseIcon size={14} />
+              <CloseIcon size={14} aria-hidden="true" />
             </button>
           </div>
           <div className="flex-1 min-h-0">
@@ -394,7 +394,7 @@ function Row({
         className="w-7 shrink-0 text-zinc-400 hover:text-zinc-700"
         aria-label="Open detail"
       >
-        <Eye size={13} />
+        <Eye size={13} aria-hidden="true" />
       </button>
     </div>
   );

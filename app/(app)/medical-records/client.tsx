@@ -185,6 +185,7 @@ function MrQueueTab({ rows }: { rows: MrQueueRow[] }) {
             icon={Calendar03Icon}
             size={16}
             style={{ color: BRAND }}
+            aria-hidden="true"
           />
           <span className="font-medium" style={{ color: BRAND }}>
             {rows.length} cases queued
@@ -312,6 +313,7 @@ function CredentialsTab({ groups }: { groups: ProviderCredentialGroup[] }) {
               size={20}
               style={{ color: BRAND }}
               className="mt-0.5 shrink-0"
+              aria-hidden="true"
             />
             <div>
               <p className="text-[13px] font-medium" style={{ color: BRAND }}>
@@ -389,6 +391,7 @@ function CredentialsTab({ groups }: { groups: ProviderCredentialGroup[] }) {
                           icon={ShieldKeyIcon}
                           size={16}
                           style={{ color: BRAND }}
+                          aria-hidden="true"
                         />
                       </div>
                     </CardContent>
@@ -463,7 +466,7 @@ function AddCredentialDialog() {
           style={{ backgroundColor: BRAND, color: "#fff" }}
           className="hover:opacity-90"
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
           Add Credential
         </Button>
       </DialogTrigger>
@@ -523,6 +526,7 @@ function AddCredentialDialog() {
                 <HugeiconsIcon
                   icon={showPassword ? ViewOffIcon : ViewIcon}
                   size={16}
+                  aria-hidden="true"
                 />
               </button>
             </div>
@@ -546,6 +550,7 @@ function AddCredentialDialog() {
                 <HugeiconsIcon
                   icon={showTotp ? ViewOffIcon : ViewIcon}
                   size={16}
+                  aria-hidden="true"
                 />
               </button>
             </div>
@@ -692,6 +697,7 @@ function WorkloadTab({ workload }: { workload: TeamWorkloadRow[] }) {
             icon={UserGroupIcon}
             size={16}
             style={{ color: BRAND }}
+            aria-hidden="true"
           />
           <span className="font-medium" style={{ color: BRAND }}>
             {totals.cases} total
@@ -807,6 +813,7 @@ function ClientTreatmentLogTab({
             icon={StethoscopeIcon}
             size={16}
             style={{ color: BRAND }}
+            aria-hidden="true"
           />
           <span className="font-medium" style={{ color: BRAND }}>
             {filtered.length} {filtered.length === 1 ? "entry" : "entries"}

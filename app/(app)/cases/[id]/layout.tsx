@@ -15,6 +15,7 @@ import { ClaimantLocaleChip } from "@/components/portal/claimant-locale-chip";
 import { InviteCollaboratorButton } from "@/components/collab-shares/invite-collaborator-button";
 import { decrypt, maskSSN } from "@/lib/encryption";
 import { requireSession } from "@/lib/auth/session";
+import { BreadcrumbLabel } from "@/components/layout/breadcrumbs";
 
 const INVITE_ROLES = new Set([
   "admin",
@@ -93,8 +94,15 @@ export default async function CaseDetailLayout({
     }
   }
 
+  const breadcrumbLabel =
+    caseData.caseNumber ||
+    (caseData.claimant
+      ? `${caseData.claimant.firstName} ${caseData.claimant.lastName}`
+      : `Case #${id.slice(0, 8)}`);
+
   return (
     <div className="space-y-4">
+      <BreadcrumbLabel segment={id} label={breadcrumbLabel} />
       {/* Back link */}
       <Link
         href="/cases"

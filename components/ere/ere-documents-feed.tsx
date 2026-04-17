@@ -61,6 +61,7 @@ export function EreDocumentsFeed({
               icon={File01Icon}
               size={24}
               className="text-[#999]"
+              aria-hidden="true"
             />
             <p className="mt-3 text-sm font-medium text-[#171717]">
               No documents downloaded yet
@@ -111,6 +112,7 @@ export function EreDocumentsFeed({
                         icon={File01Icon}
                         size={16}
                         className="shrink-0 text-[#666]"
+                        aria-hidden="true"
                       />
                       <span className="truncate font-medium text-foreground max-w-[200px]">
                         {doc.fileName}
@@ -157,7 +159,7 @@ export function EreDocumentsFeed({
                           onClick={() => onView(doc)}
                           title="View"
                         >
-                          <HugeiconsIcon icon={EyeIcon} size={16} />
+                          <HugeiconsIcon icon={EyeIcon} size={16} aria-hidden="true" />
                         </Button>
                       )}
                       {onProcess && (

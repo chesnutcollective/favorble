@@ -148,7 +148,7 @@ export function RecordTransactionDialog({
           style={{ backgroundColor: COLORS.brand }}
           disabled={accounts.length === 0}
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={14} />
+          <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
           Record Transaction
         </Button>
       </DialogTrigger>

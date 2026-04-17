@@ -60,6 +60,7 @@ import {
   createCase,
   bulkChangeCaseStage,
   bulkAssignCases,
+  bulkArchiveCases,
   assignStaffToCase,
   listSavedViews,
   type SavedView,
@@ -73,6 +74,16 @@ import {
   SavedViewsMenu,
   type ViewDescriptor,
 } from "@/components/cases/saved-views-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type CaseRow = {
   id: string;
@@ -286,7 +297,24 @@ export function CasesListClient({
   const [bulkAssignUserId, setBulkAssignUserId] = useState("");
   const [bulkHoldOpen, setBulkHoldOpen] = useState(false);
   const [bulkHoldReason, setBulkHoldReason] = useState("");
+  const [bulkArchiveOpen, setBulkArchiveOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  function handleBulkArchive() {
+    const ids = Array.from(selectedIds);
+    startTransition(async () => {
+      try {
+        const result = await bulkArchiveCases(ids);
+        toast.success(
+          `Archived ${result.archived} case${result.archived === 1 ? "" : "s"}.`,
+        );
+        setSelectedIds(new Set());
+        setBulkArchiveOpen(false);
+      } catch {
+        toast.error("Failed to archive cases.");
+      }
+    });
+  }
 
   // Column visibility — the menu persists its own selection to localStorage.
   // Keys mirror the table's TableHead/Cell pairs below. `select` is always
@@ -603,8 +631,16 @@ export function CasesListClient({
         icon={sortDir === "asc" ? ArrowUp01Icon : ArrowDown01Icon}
         size={12}
         className="ml-1 inline"
+        aria-hidden="true"
       />
     );
+  }
+
+  function ariaSortFor(
+    column: SortableColumn,
+  ): "ascending" | "descending" | "none" {
+    if (sortBy !== column) return "none";
+    return sortDir === "asc" ? "ascending" : "descending";
   }
 
   return (
@@ -616,7 +652,7 @@ export function CasesListClient({
           <Dialog open={newCaseOpen} onOpenChange={setNewCaseOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
-                <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+                <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
                 New Case
               </Button>
             </DialogTrigger>
@@ -715,6 +751,7 @@ export function CasesListClient({
             icon={Search01Icon}
             size={16}
             className="absolute left-2.5 top-2.5 text-muted-foreground"
+            aria-hidden="true"
           />
           <Input
             placeholder="Search name, phone, case #..."
@@ -849,7 +886,7 @@ export function CasesListClient({
         </label>
         {hasFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" />
+            <HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" aria-hidden="true" />
             Clear all filters
           </Button>
         )}
@@ -862,10 +899,17 @@ export function CasesListClient({
         </div>
       </div>
 
+      {/* Live region for bulk-select count (sr-only so it doesn't duplicate
+          the visible count). Always present so a change in selection count
+          is announced even if the bar is toggling in/out of the DOM. */}
+      <span className="sr-only" role="status" aria-live="polite">
+        {selectedIds.size > 0 ? `${selectedIds.size} selected` : ""}
+      </span>
+
       {/* Bulk Actions Bar — consolidated dropdown */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-md border bg-accent px-4 py-2">
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium" aria-hidden="true">
             {selectedIds.size} selected
           </span>
           <Separator orientation="vertical" className="h-5" />
@@ -877,15 +921,16 @@ export function CasesListClient({
                   icon={ArrowDown02Icon}
                   size={12}
                   className="ml-1.5"
+                  aria-hidden="true"
                 />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuItem onSelect={() => setBulkAssignOpen(true)}>
+                Reassign…
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setBulkStageOpen(true)}>
                 Change stage…
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setBulkAssignOpen(true)}>
-                Assign to…
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => handleExportCsv()}>
                 Export CSV
@@ -893,6 +938,12 @@ export function CasesListClient({
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setBulkHoldOpen(true)}>
                 Place on hold…
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setBulkArchiveOpen(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                Archive…
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1025,6 +1076,38 @@ export function CasesListClient({
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Archive (bulk close as withdrawn) */}
+          <AlertDialog
+            open={bulkArchiveOpen}
+            onOpenChange={setBulkArchiveOpen}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Archive {selectedIds.size} case
+                  {selectedIds.size === 1 ? "" : "s"}?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Archived cases leave the active pipeline and are recorded as
+                  withdrawn. HIPAA audit rows are written for every archived
+                  case.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isPending}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleBulkArchive}
+                  disabled={isPending}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isPending ? "Archiving..." : "Archive"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
 
@@ -1043,38 +1126,62 @@ export function CasesListClient({
               </TableHead>
               {isCol("claimant") && (
                 <TableHead
-                  className="cursor-pointer select-none"
-                  onClick={() => handleSort("claimant")}
+                  className="select-none"
+                  aria-sort={ariaSortFor("claimant")}
                 >
-                  Claimant
-                  <SortIcon column="claimant" />
+                  <button
+                    type="button"
+                    onClick={() => handleSort("claimant")}
+                    className="flex items-center gap-1 text-inherit font-inherit cursor-pointer"
+                  >
+                    Claimant
+                    <SortIcon column="claimant" />
+                  </button>
                 </TableHead>
               )}
               {isCol("stage") && (
                 <TableHead
-                  className="cursor-pointer select-none"
-                  onClick={() => handleSort("stage")}
+                  className="select-none"
+                  aria-sort={ariaSortFor("stage")}
                 >
-                  Stage
-                  <SortIcon column="stage" />
+                  <button
+                    type="button"
+                    onClick={() => handleSort("stage")}
+                    className="flex items-center gap-1 text-inherit font-inherit cursor-pointer"
+                  >
+                    Stage
+                    <SortIcon column="stage" />
+                  </button>
                 </TableHead>
               )}
               {isCol("assignedTo") && (
                 <TableHead
-                  className="cursor-pointer select-none"
-                  onClick={() => handleSort("assignedTo")}
+                  className="select-none"
+                  aria-sort={ariaSortFor("assignedTo")}
                 >
-                  Assigned To
-                  <SortIcon column="assignedTo" />
+                  <button
+                    type="button"
+                    onClick={() => handleSort("assignedTo")}
+                    className="flex items-center gap-1 text-inherit font-inherit cursor-pointer"
+                  >
+                    Assigned To
+                    <SortIcon column="assignedTo" />
+                  </button>
                 </TableHead>
               )}
               {isCol("updatedAt") && (
                 <TableHead
-                  className="cursor-pointer select-none"
-                  onClick={() => handleSort("updatedAt")}
+                  className="select-none"
+                  aria-sort={ariaSortFor("updatedAt")}
                 >
-                  Last Activity
-                  <SortIcon column="updatedAt" />
+                  <button
+                    type="button"
+                    onClick={() => handleSort("updatedAt")}
+                    className="flex items-center gap-1 text-inherit font-inherit cursor-pointer"
+                  >
+                    Last Activity
+                    <SortIcon column="updatedAt" />
+                  </button>
                 </TableHead>
               )}
             </TableRow>
@@ -1109,7 +1216,7 @@ export function CasesListClient({
                             ? `${c.claimant.lastName}, ${c.claimant.firstName}`
                             : "Unknown"}
                         </p>
-                        <p className="text-[12px] text-[#999] font-mono flex items-center gap-2">
+                        <p className="text-[12px] text-[#757575] font-mono flex items-center gap-2">
                           {c.caseNumber}
                           {c.atRisk && (
                             <span className="inline-flex items-center rounded-full bg-[rgba(209,69,59,0.10)] px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide text-[#d1453b]">
@@ -1157,7 +1264,7 @@ export function CasesListClient({
                     </TableCell>
                   )}
                   {isCol("updatedAt") && (
-                    <TableCell className="text-[12px] text-[#666] font-mono">
+                    <TableCell className="text-[12px] text-[#595959] font-mono">
                       {formatRelativeTime(c.updatedAt)}
                     </TableCell>
                   )}
@@ -1170,7 +1277,7 @@ export function CasesListClient({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-[13px] text-[#666]">
+        <p className="text-[13px] text-[#595959]">
           {total} total case{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
@@ -1184,7 +1291,7 @@ export function CasesListClient({
             >
               &larr; Previous
             </Button>
-            <span className="text-[13px] text-[#666]">
+            <span className="text-[13px] text-[#595959]">
               Page {page} of {totalPages}
             </span>
             <Button

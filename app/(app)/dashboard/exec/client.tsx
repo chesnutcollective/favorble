@@ -279,7 +279,7 @@ function ForecastSection({ forecast }: { forecast: HearingForecastWeek[] }) {
             className="mt-3 text-[12px] flex items-center gap-2"
             style={{ color: URGENT }}
           >
-            <HugeiconsIcon icon={Alert01Icon} size={14} />
+            <HugeiconsIcon icon={Alert01Icon} size={14} aria-hidden="true" />
             <span className="font-medium">
               {overCapacity} week{overCapacity === 1 ? "" : "s"} over capacity
             </span>
@@ -610,7 +610,7 @@ function RiskAlertsSection({ alerts }: { alerts: RiskAlert[] }) {
                     className="w-7 h-7 rounded-[6px] flex items-center justify-center shrink-0"
                     style={{ background: sev.bg, color: sev.color }}
                   >
-                    <HugeiconsIcon icon={alertIcon(a.alertType)} size={14} />
+                    <HugeiconsIcon icon={alertIcon(a.alertType)} size={14} aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

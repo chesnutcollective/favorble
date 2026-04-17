@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import {
   setPortalLocale,
@@ -268,6 +268,7 @@ function ProgressBar({
       <div
         className="mt-2 flex gap-1.5"
         role="progressbar"
+        aria-label="Onboarding progress"
         aria-valuemin={1}
         aria-valuemax={total}
         aria-valuenow={step}
@@ -399,38 +400,116 @@ function ProfileForm({
         <legend className="text-[14px] font-medium text-foreground/80">
           {t("portal.welcome.screen2.preferredChannelLabel")}
         </legend>
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              ["email", "portal.welcome.screen2.channelEmail"],
-              ["phone", "portal.welcome.screen2.channelPhone"],
-              ["text", "portal.welcome.screen2.channelText"],
-            ] as const
-          ).map(([value, labelKey]) => {
-            const active = profile.preferredChannel === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={active}
-                disabled={readOnly}
-                onClick={() =>
-                  onChange({ ...profile, preferredChannel: value })
-                }
-                className={cn(
-                  "rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors",
-                  active
-                    ? "border-[#104e60] bg-[#104e60] text-white"
-                    : "border-[#E8E2D8] bg-white text-foreground/70 hover:border-[#104e60]/40",
-                  readOnly && "cursor-not-allowed opacity-60",
-                )}
-              >
-                {t(labelKey)}
-              </button>
-            );
-          })}
-        </div>
+        <ChannelRadioGroup
+          value={profile.preferredChannel}
+          onChange={(next) =>
+            onChange({ ...profile, preferredChannel: next })
+          }
+          disabled={readOnly}
+          options={[
+            {
+              value: "email",
+              label: t("portal.welcome.screen2.channelEmail"),
+            },
+            {
+              value: "phone",
+              label: t("portal.welcome.screen2.channelPhone"),
+            },
+            { value: "text", label: t("portal.welcome.screen2.channelText") },
+          ]}
+        />
       </fieldset>
+    </div>
+  );
+}
+
+function ChannelRadioGroup({
+  value,
+  onChange,
+  disabled,
+  options,
+}: {
+  value: Channel;
+  onChange: (next: Channel) => void;
+  disabled: boolean;
+  options: Array<{ value: Channel; label: string }>;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function focusSibling(currentIndex: number, delta: number) {
+    const next = (currentIndex + delta + options.length) % options.length;
+    const nodes = containerRef.current?.querySelectorAll<HTMLButtonElement>(
+      '[role="radio"]',
+    );
+    nodes?.[next]?.focus();
+  }
+
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    if (disabled) return;
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown": {
+        e.preventDefault();
+        const nextIdx = (index + 1) % options.length;
+        focusSibling(index, 1);
+        onChange(options[nextIdx].value);
+        break;
+      }
+      case "ArrowLeft":
+      case "ArrowUp": {
+        e.preventDefault();
+        const prevIdx = (index - 1 + options.length) % options.length;
+        focusSibling(index, -1);
+        onChange(options[prevIdx].value);
+        break;
+      }
+      case "Home":
+        e.preventDefault();
+        focusSibling(index, -index);
+        onChange(options[0].value);
+        break;
+      case "End":
+        e.preventDefault();
+        focusSibling(index, options.length - 1 - index);
+        onChange(options[options.length - 1].value);
+        break;
+      case " ":
+      case "Enter":
+        e.preventDefault();
+        onChange(options[index].value);
+        break;
+    }
+  }
+
+  return (
+    <div ref={containerRef} role="radiogroup" className="flex flex-wrap gap-2">
+      {options.map((opt, index) => {
+        const active = value === opt.value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            tabIndex={active ? 0 : -1}
+            disabled={disabled}
+            onClick={() => onChange(opt.value)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            className={cn(
+              "rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors",
+              active
+                ? "border-[#104e60] bg-[#104e60] text-white"
+                : "border-[#E8E2D8] bg-white text-foreground/70 hover:border-[#104e60]/40",
+              disabled && "cursor-not-allowed opacity-60",
+            )}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -545,7 +624,7 @@ function WizardFooter({
         disabled={step === 1 || isPending}
         className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8E2D8] bg-white px-4 py-2 text-[14px] font-medium text-foreground/80 hover:border-[#CCC] disabled:opacity-50"
       >
-        <ChevronLeft className="size-4" />
+        <ChevronLeft className="size-4" aria-hidden="true" />
         {t("portal.welcome.back")}
       </button>
 
@@ -560,14 +639,14 @@ function WizardFooter({
             {firstMessageSet
               ? t("portal.welcome.screen4.sendFirstMessage")
               : t("portal.welcome.finish")}
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-4" aria-hidden="true" />
           </button>
         </div>
       ) : (
         <div className="flex items-center gap-3">
           {saveStatus === "saved" ? (
             <span className="inline-flex items-center gap-1 text-[13px] text-foreground/60">
-              <Check className="size-3.5" />
+              <Check className="size-3.5" aria-hidden="true" />
               {t("common.saved")}
             </span>
           ) : null}
@@ -578,7 +657,7 @@ function WizardFooter({
             className="inline-flex items-center justify-center gap-2 rounded-full bg-[#104e60] px-5 py-2.5 text-[15px] font-semibold text-white shadow-sm hover:bg-[#0d3f4e] disabled:opacity-60"
           >
             {t("portal.welcome.next")}
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-4" aria-hidden="true" />
           </button>
         </div>
       )}

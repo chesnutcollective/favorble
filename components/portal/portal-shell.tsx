@@ -13,6 +13,7 @@ import {
   Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { usePortalImpersonation } from "./portal-impersonation-context";
 import { PortalLocaleProvider, usePortalT } from "./use-portal-t";
 
@@ -198,6 +199,7 @@ function PortalTopBar({
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LocaleToggle locale={locale} />
           {!isImpersonating ? (
             <Link

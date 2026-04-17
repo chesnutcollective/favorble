@@ -281,6 +281,63 @@ export const messages: Record<Locale, TranslationTree> = {
             "The judge issues a decision and we help you with next steps.",
         },
       },
+      common: {
+        cancel: "Cancel",
+        sending: "Sending…",
+        closeDialog: "Close dialog",
+      },
+      documents: {
+        upload: {
+          chooseFile: "Choose a file",
+          send: "Send",
+          success: "Sent to your team",
+          error: "Upload failed",
+          delivered: "Delivered to your team.",
+          retry: "Couldn't send. Please try again.",
+          readOnly: "Read-only preview",
+          noCase: "No case linked to your account yet.",
+          fileTypeHint: "PDFs, photos, and Word docs are accepted.",
+        },
+        category: {
+          label: "What kind of document is this?",
+          placeholder: "Choose a category…",
+          medicalRecord: "Medical record",
+          identification: "Identification / ID",
+          workHistory: "Work history / employment",
+          ssaLetter: "Letter from SSA",
+          symptomsPhoto: "Photo of symptoms/injury",
+          other: "Other",
+        },
+      },
+      messages: {
+        compose: {
+          attachLabel: "Attach a file",
+          fileTypeHint: "PDFs, photos, and Word docs are accepted.",
+          attachmentsAria: "Files attached to this message",
+          removeAttachment: "Remove attachment",
+        },
+      },
+      appointments: {
+        callback: {
+          cta: "Request a call from your team",
+          title: "Request a callback",
+          subtitle:
+            "Pick a time window that works for you and tell us what you'd like to discuss. Your team will follow up.",
+          windowLabel: "Preferred time window",
+          window: {
+            morning: "Morning (before noon)",
+            afternoon: "Afternoon (noon–5pm)",
+            evening: "Evening (after 5pm)",
+            noPreference: "No preference",
+          },
+          reasonLabel: "What would you like to discuss?",
+          reasonPlaceholder:
+            "A quick note helps your team prepare before they call.",
+          reasonRequired: "Please tell us what you'd like to discuss.",
+          submit: "Send request",
+          success: "Callback request sent. Your team will reach out.",
+        },
+      },
       nps: {
         banner: {
           heading: "How are we doing?",
@@ -575,6 +632,64 @@ export const messages: Record<Locale, TranslationTree> = {
           name: "Decisión",
           description:
             "El juez emite su decisión y le ayudamos con los siguientes pasos.",
+        },
+      },
+      common: {
+        cancel: "Cancelar",
+        sending: "Enviando…",
+        closeDialog: "Cerrar diálogo",
+      },
+      documents: {
+        upload: {
+          chooseFile: "Elija un archivo",
+          send: "Enviar",
+          success: "Enviado a su equipo",
+          error: "No se pudo subir el archivo",
+          delivered: "Entregado a su equipo.",
+          retry: "No se pudo enviar. Por favor intente de nuevo.",
+          readOnly: "Vista previa de solo lectura",
+          noCase: "Aún no hay un caso vinculado a su cuenta.",
+          fileTypeHint: "Se aceptan PDF, fotos y documentos de Word.",
+        },
+        category: {
+          label: "¿Qué tipo de documento es?",
+          placeholder: "Elija una categoría…",
+          medicalRecord: "Registro médico",
+          identification: "Identificación / ID",
+          workHistory: "Historial laboral / empleo",
+          ssaLetter: "Carta del Seguro Social",
+          symptomsPhoto: "Foto de síntomas/lesión",
+          other: "Otro",
+        },
+      },
+      messages: {
+        compose: {
+          attachLabel: "Adjuntar un archivo",
+          fileTypeHint: "Se aceptan PDF, fotos y documentos de Word.",
+          attachmentsAria: "Archivos adjuntos a este mensaje",
+          removeAttachment: "Quitar archivo adjunto",
+        },
+      },
+      appointments: {
+        callback: {
+          cta: "Solicitar una llamada de su equipo",
+          title: "Solicitar una llamada",
+          subtitle:
+            "Elija un horario que le convenga y díganos de qué le gustaría hablar. Su equipo se comunicará con usted.",
+          windowLabel: "Horario preferido",
+          window: {
+            morning: "Mañana (antes del mediodía)",
+            afternoon: "Tarde (mediodía–5pm)",
+            evening: "Noche (después de las 5pm)",
+            noPreference: "Sin preferencia",
+          },
+          reasonLabel: "¿De qué le gustaría hablar?",
+          reasonPlaceholder:
+            "Una nota breve ayuda a su equipo a prepararse antes de llamarle.",
+          reasonRequired: "Por favor díganos de qué le gustaría hablar.",
+          submit: "Enviar solicitud",
+          success:
+            "Solicitud de llamada enviada. Su equipo se comunicará con usted.",
         },
       },
       nps: {

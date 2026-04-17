@@ -106,7 +106,7 @@ export function NewInvoiceDialog({ cases, clients }: NewInvoiceDialogProps) {
     >
       <DialogTrigger asChild>
         <Button size="sm" style={{ backgroundColor: COLORS.brand }}>
-          <HugeiconsIcon icon={PlusSignIcon} size={14} />
+          <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
           New Invoice
         </Button>
       </DialogTrigger>

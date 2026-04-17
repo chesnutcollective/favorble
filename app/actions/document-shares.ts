@@ -163,6 +163,38 @@ export async function shareDocumentWithClient(
   }
 }
 
+export type BulkShareDocumentsResult = {
+  shared: number;
+  skipped: Array<{ documentId: string; error: string }>;
+};
+
+/**
+ * Bulk share documents with the claimant. Wraps
+ * {@link shareDocumentWithClient} per document so HIPAA audit rows +
+ * visibility-flag updates fire individually. Skipped docs are returned so
+ * the UI can surface a count.
+ */
+export async function bulkShareDocumentsWithClient(
+  documentIds: string[],
+  expiresAt?: string | null,
+): Promise<BulkShareDocumentsResult> {
+  if (documentIds.length === 0) return { shared: 0, skipped: [] };
+
+  const skipped: Array<{ documentId: string; error: string }> = [];
+  let shared = 0;
+
+  for (const documentId of documentIds) {
+    const result = await shareDocumentWithClient(documentId, expiresAt ?? null);
+    if ("success" in result && result.success) {
+      shared += 1;
+    } else if ("error" in result) {
+      skipped.push({ documentId, error: result.error });
+    }
+  }
+
+  return { shared, skipped };
+}
+
 export type RevokeDocumentShareResult =
   | { success: true }
   | { error: string };

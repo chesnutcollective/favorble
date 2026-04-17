@@ -356,6 +356,7 @@ export function TeamChatClient({
                 icon={BubbleChatIcon}
                 size={16}
                 color={COLORS.brand}
+                aria-hidden="true"
               />
               {activeChannel.channelType === "case" ? "" : "# "}
               {activeChannel.name}
@@ -378,7 +379,7 @@ export function TeamChatClient({
             )}
             {!isLoadingChannel && messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <HugeiconsIcon icon={BubbleChatIcon} size={24} color="#ccc" />
+                <HugeiconsIcon icon={BubbleChatIcon} size={24} color="#ccc" aria-hidden="true" />
                 <p className="text-xs text-[#999] mt-2">
                   No messages yet. Say hi!
                 </p>
@@ -452,7 +453,7 @@ export function TeamChatClient({
                     disabled={isSending || !draft.trim()}
                     style={{ backgroundColor: COLORS.brand }}
                   >
-                    <HugeiconsIcon icon={Mail01Icon} size={14} />
+                    <HugeiconsIcon icon={Mail01Icon} size={14} aria-hidden="true" />
                     {isSending ? "Sending..." : "Send"}
                   </Button>
                 </CardContent>

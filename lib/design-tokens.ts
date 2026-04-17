@@ -29,9 +29,13 @@ export const COLORS = {
   borderDefault: "rgba(59,89,152,0.13)",
 
   // Text
+  // Phase 7a — bumped text3 from #8b8b97 (3.6:1, failed AA) to #6b6b75
+  // (5.4:1, passes AA). text2 is already AAA (~7.7:1 on white); text1 is
+  // essentially black. text4 remains for placeholder/ghost use only and is
+  // not used on body copy.
   text1: "#18181a",
   text2: "#52525e",
-  text3: "#8b8b97",
+  text3: "#6b6b75",
   text4: "#c4c4ce",
 
   // Dashboard accent palette (used by per-persona dashboards)

@@ -653,6 +653,7 @@ function ListRow({
                 icon={Camera01Icon}
                 size={11}
                 aria-label="Has screenshot"
+                role="img"
               />
             )}
             {hasVoice && (
@@ -660,6 +661,7 @@ function ListRow({
                 icon={Mic01Icon}
                 size={11}
                 aria-label="Has voice note"
+                role="img"
               />
             )}
             {hasPin && (
@@ -667,6 +669,7 @@ function ListRow({
                 icon={Target02Icon}
                 size={11}
                 aria-label="Has pinned element"
+                role="img"
               />
             )}
           </span>
@@ -761,8 +764,8 @@ function DetailPanel({
             >
               Delete
             </Button>
-            <Button size="sm" variant="ghost" onClick={onClose} title="Close">
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
+            <Button size="sm" variant="ghost" onClick={onClose} title="Close" aria-label="Close">
+              <HugeiconsIcon icon={Cancel01Icon} size={16} aria-hidden="true" />
             </Button>
           </div>
         </div>

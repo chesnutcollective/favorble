@@ -45,6 +45,7 @@ export function DocumentPreview({
             icon={File01Icon}
             size={16}
             className="shrink-0 text-muted-foreground"
+            aria-hidden="true"
           />
           <h3 className="truncate text-sm font-medium text-foreground">
             {fileName}
@@ -52,19 +53,19 @@ export function DocumentPreview({
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" asChild>
-            <a href={signedUrl} download={fileName}>
-              <HugeiconsIcon icon={Download01Icon} size={16} />
+            <a href={signedUrl} download={fileName} aria-label="Download">
+              <HugeiconsIcon icon={Download01Icon} size={16} aria-hidden="true" />
             </a>
           </Button>
           {canPreview && (
             <Button variant="ghost" size="sm" asChild>
-              <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-                <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
+              <a href={signedUrl} target="_blank" rel="noopener noreferrer" aria-label="Open in new tab">
+                <HugeiconsIcon icon={LinkSquare02Icon} size={16} aria-hidden="true" />
               </a>
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <HugeiconsIcon icon={Cancel01Icon} size={16} />
+          <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close preview">
+            <HugeiconsIcon icon={Cancel01Icon} size={16} aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -129,6 +130,7 @@ export function DocumentPreview({
                   icon={Download01Icon}
                   size={16}
                   className="mr-2"
+                  aria-hidden="true"
                 />
                 Download
               </a>
@@ -152,6 +154,6 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
   };
 
   return (
-    <HugeiconsIcon icon={File01Icon} size={48} className={cn(colors[type])} />
+    <HugeiconsIcon icon={File01Icon} size={48} className={cn(colors[type])} aria-hidden="true" />
   );
 }

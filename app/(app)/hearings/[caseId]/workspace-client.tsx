@@ -211,7 +211,7 @@ export function HearingWorkspaceClient({
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <HugeiconsIcon icon={Clock01Icon} size={18} color={countdown.color} />
+          <HugeiconsIcon icon={Clock01Icon} size={18} color={countdown.color} aria-hidden="true" />
           <div className="min-w-0">
             <p
               className="text-sm font-semibold truncate"
@@ -246,7 +246,7 @@ export function HearingWorkspaceClient({
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <HugeiconsIcon icon={ModeIcon} size={16} color={PRIMARY} />
+          <HugeiconsIcon icon={ModeIcon} size={16} color={PRIMARY} aria-hidden="true" />
           <span>{modeLabel(data.modeOfAppearance)}</span>
         </div>
       </div>
@@ -440,6 +440,7 @@ export function HearingWorkspaceClient({
                       icon={JusticeScale01Icon}
                       size={18}
                       color={PRIMARY}
+                      aria-hidden="true"
                     />
                     <h3 className="font-medium text-foreground">
                       {data.aljStats?.aljName ?? data.adminLawJudge ?? "ALJ"}
@@ -561,6 +562,7 @@ export function HearingWorkspaceClient({
                               icon={File01Icon}
                               size={14}
                               color={PRIMARY}
+                              aria-hidden="true"
                             />
                             <span className="text-sm text-foreground">
                               {c.category}
@@ -595,6 +597,7 @@ export function HearingWorkspaceClient({
                       icon={DocumentValidationIcon}
                       size={18}
                       color={PRIMARY}
+                      aria-hidden="true"
                     />
                     <h3 className="font-medium text-foreground">PHI Sheet</h3>
                   </div>
@@ -642,6 +645,7 @@ export function HearingWorkspaceClient({
                             icon={LinkSquare02Icon}
                             size={14}
                             className="mr-2"
+                            aria-hidden="true"
                           />
                           Open PHI Writer
                         </Link>

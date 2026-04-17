@@ -210,6 +210,48 @@ export async function createFieldDefinition(data: {
 }
 
 /**
+ * Reorder a set of custom field definitions by updating their displayOrder.
+ * Accepts an ordered list of field IDs (index = new displayOrder).
+ * All fields must belong to the caller's organization.
+ */
+export async function reorderFields(orderedIds: string[]) {
+  const session = await requireSession();
+
+  if (orderedIds.length === 0) {
+    revalidatePath("/admin/fields");
+    return;
+  }
+
+  // Verify ownership: only update rows in this organization.
+  const existing = await db
+    .select({ id: customFieldDefinitions.id })
+    .from(customFieldDefinitions)
+    .where(
+      and(
+        eq(customFieldDefinitions.organizationId, session.organizationId),
+        inArray(customFieldDefinitions.id, orderedIds),
+      ),
+    );
+  const ownedIds = new Set(existing.map((r) => r.id));
+
+  for (let i = 0; i < orderedIds.length; i++) {
+    const id = orderedIds[i];
+    if (!ownedIds.has(id)) continue;
+    await db
+      .update(customFieldDefinitions)
+      .set({ displayOrder: i, updatedAt: new Date() })
+      .where(
+        and(
+          eq(customFieldDefinitions.id, id),
+          eq(customFieldDefinitions.organizationId, session.organizationId),
+        ),
+      );
+  }
+
+  revalidatePath("/admin/fields");
+}
+
+/**
  * Update a custom field definition.
  */
 export async function updateFieldDefinition(

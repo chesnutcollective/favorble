@@ -176,7 +176,7 @@ function LiveActivityFeed({
   const grouped = groupByDate(data);
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Live Activity Feed
       </div>
@@ -189,7 +189,7 @@ function LiveActivityFeed({
       >
         {Array.from(grouped.entries()).map(([label, items]) => (
           <div key={label}>
-            <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] py-3 sticky top-0 bg-white z-[1] border-b border-[#EAEAEA] mb-2">
+            <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] py-3 sticky top-0 bg-card z-[1] border-b border-border mb-2">
               {label}
             </div>
             {items.map((item) => {
@@ -249,7 +249,7 @@ function RecentDecisions({
   data: ActivitySectionProps["recentDecisions"];
 }) {
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Recent Decisions
       </div>
@@ -357,7 +357,7 @@ function TeamActivityHeatmap({
   const globalMax = Math.max(...data.flatMap((m) => m.hourlyActivity), 1);
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Team Activity Heatmap
       </div>
@@ -425,7 +425,7 @@ function DocumentProcessingQueue({
   const total = stages.reduce((sum, s) => sum + s.count, 0);
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-xs font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Document Processing Queue
       </div>

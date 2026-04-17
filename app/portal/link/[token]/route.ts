@@ -66,7 +66,7 @@ export async function GET(
     : "";
 
   // Demo / pre-Clerk mode: set the same impersonation cookie
-  // middleware.ts reads so the layout renders the correct contact.
+  // proxy.ts reads so the layout renders the correct contact.
   if (!AUTH_ENABLED) {
     const response = NextResponse.redirect(url);
     response.cookies.set("favorble_portal_impersonate", result.contactId, {

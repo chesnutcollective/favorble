@@ -25,7 +25,6 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type {
   EntityType,
@@ -36,6 +35,22 @@ import type {
 const DEBOUNCE_MS = 120;
 const RECENT_STORAGE_KEY = "favorble.search.recents.v2";
 const RECENT_CAP = 8;
+
+// ─── Recent + pinned QUERY strings ─────────────────────────────────
+// Distinct from `RECENT_STORAGE_KEY` (which tracks recently-opened
+// entities). This store holds the user's recent search *queries* so
+// they can re-run the last thing they typed, plus pinned favourites
+// that survive the recency window.
+
+const QUERY_STORAGE_KEY = "ttn-cmdk-recent";
+const RECENT_QUERY_CAP = 5;
+const PINNED_QUERY_CAP = 8;
+const QUERY_WRITE_DEBOUNCE_MS = 250;
+
+type QueryStore = {
+  recent: string[];
+  pinned: string[];
+};
 
 type RecentItem = {
   entityId: string;
@@ -83,6 +98,46 @@ export function CommandPalette() {
   const [loading, setLoading] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const [recents, setRecents] = useState<RecentItem[]>(() => loadRecents());
+  const [queryStore, setQueryStore] = useState<QueryStore>(() =>
+    loadQueryStore(),
+  );
+  // Highlighted index in the pinned/recent saved-query list. `-1` means
+  // focus belongs to the input / results region.
+  const [queryHighlighted, setQueryHighlighted] = useState<number>(-1);
+
+  // Debounced persist to localStorage (avoid thrashing on rapid toggles).
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      saveQueryStore(queryStore);
+    }, QUERY_WRITE_DEBOUNCE_MS);
+    return () => clearTimeout(handle);
+  }, [queryStore]);
+
+  // Flat list (pinned first, then recents) used by arrow-key nav in
+  // the no-query view.
+  const savedQueries = useMemo(
+    () => [...queryStore.pinned, ...queryStore.recent],
+    [queryStore],
+  );
+
+  const runQuery = useCallback((q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setQuery(trimmed);
+    setQueryStore((prev) => upsertRecentQuery(prev, trimmed));
+    setQueryHighlighted(-1);
+  }, []);
+
+  const togglePin = useCallback((q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setQueryStore((prev) => togglePinnedQuery(prev, trimmed));
+  }, []);
+
+  const clearRecents = useCallback(() => {
+    setQueryStore((prev) => ({ ...prev, recent: [] }));
+    setQueryHighlighted(-1);
+  }, []);
 
   // Focus the input on open.
   useEffect(() => {
@@ -116,6 +171,11 @@ export function CommandPalette() {
         const data = (await res.json()) as SearchResponse;
         setResponse(data);
         setHighlighted(0);
+        // Persist the committed query into recents once results come back.
+        // (Avoids saving every keystroke; only full, successful searches.)
+        if (q.length >= 2 && (data.results?.length ?? 0) > 0) {
+          setQueryStore((prev) => upsertRecentQuery(prev, q));
+        }
       } catch {
         setResponse(null);
       } finally {
@@ -151,16 +211,47 @@ export function CommandPalette() {
     [router, setOpen],
   );
 
+  const isNoQueryMode = !query.trim();
+
   const onKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLInputElement>) => {
+      // ⌘P / Ctrl+P — pin-or-unpin the highlighted saved query (no-query
+      // mode) or the current input text (when typing).
+      const isMod = e.metaKey || e.ctrlKey;
+      if (isMod && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        if (isNoQueryMode && queryHighlighted >= 0) {
+          const target = savedQueries[queryHighlighted];
+          if (target) togglePin(target);
+        } else if (query.trim()) {
+          togglePin(query);
+        }
+        return;
+      }
+
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setHighlighted((i) => Math.min(i + 1, navigableResults.length - 1));
+        if (isNoQueryMode && savedQueries.length > 0) {
+          setQueryHighlighted((i) =>
+            Math.min(i + 1, savedQueries.length - 1),
+          );
+        } else {
+          setHighlighted((i) => Math.min(i + 1, navigableResults.length - 1));
+        }
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setHighlighted((i) => Math.max(i - 1, 0));
+        if (isNoQueryMode && savedQueries.length > 0) {
+          setQueryHighlighted((i) => Math.max(i - 1, -1));
+        } else {
+          setHighlighted((i) => Math.max(i - 1, 0));
+        }
       } else if (e.key === "Enter") {
         e.preventDefault();
+        if (isNoQueryMode && queryHighlighted >= 0) {
+          const target = savedQueries[queryHighlighted];
+          if (target) runQuery(target);
+          return;
+        }
         const result = navigableResults[highlighted];
         if (result) {
           commit(result, { newTab: e.metaKey || e.ctrlKey });
@@ -172,8 +263,24 @@ export function CommandPalette() {
         // no-op for now; phase 1 pops the scope chip here
       }
     },
-    [commit, highlighted, navigableResults, query, setOpen],
+    [
+      commit,
+      highlighted,
+      isNoQueryMode,
+      navigableResults,
+      query,
+      queryHighlighted,
+      runQuery,
+      savedQueries,
+      setOpen,
+      togglePin,
+    ],
   );
+
+  // Collapse saved-query highlight as soon as the user starts typing.
+  useEffect(() => {
+    if (!isNoQueryMode) setQueryHighlighted(-1);
+  }, [isNoQueryMode]);
 
   if (!open) {
     return (
@@ -287,6 +394,40 @@ export function CommandPalette() {
               …
             </span>
           )}
+          {query.trim() && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                togglePin(query);
+              }}
+              aria-label={
+                isQueryPinned(queryStore, query)
+                  ? "Unpin this query"
+                  : "Pin this query"
+              }
+              aria-pressed={isQueryPinned(queryStore, query)}
+              title={
+                isQueryPinned(queryStore, query)
+                  ? "Unpin (⌘P)"
+                  : "Pin this query (⌘P)"
+              }
+              style={{
+                background: isQueryPinned(queryStore, query)
+                  ? "#FEF3C7"
+                  : "transparent",
+                border: "1px solid #EAEAEA",
+                borderRadius: 4,
+                padding: "2px 6px",
+                fontSize: 10,
+                fontFamily: "monospace",
+                color: isQueryPinned(queryStore, query) ? "#92400E" : "#6B7280",
+                cursor: "pointer",
+              }}
+            >
+              {isQueryPinned(queryStore, query) ? "★ Pinned" : "☆ Pin"}
+            </button>
+          )}
           <kbd
             style={{
               fontSize: 10,
@@ -310,13 +451,23 @@ export function CommandPalette() {
           style={{ overflowY: "auto", flex: 1 }}
         >
           {!query && (
-            <RecentSection
-              recents={recents}
-              onPick={(r) => {
-                setOpen(false);
-                router.push(r.href);
-              }}
-            />
+            <>
+              <SavedQueriesSection
+                pinned={queryStore.pinned}
+                recent={queryStore.recent}
+                highlighted={queryHighlighted}
+                onRun={runQuery}
+                onTogglePin={togglePin}
+                onClearRecent={clearRecents}
+              />
+              <RecentSection
+                recents={recents}
+                onPick={(r) => {
+                  setOpen(false);
+                  router.push(r.href);
+                }}
+              />
+            </>
           )}
 
           {query && !loading && flatResults.length === 0 && (
@@ -352,7 +503,7 @@ export function CommandPalette() {
             {(response?.totalHits ?? 0) === 1 ? "" : "s"}
             {response?.latencyMs != null ? ` · ${response.latencyMs}ms` : ""}
           </span>
-          <span>↑↓ navigate · ↵ open · ⌘↵ new tab · esc close</span>
+          <span>↑↓ navigate · ↵ open · ⌘P pin · ⌘↵ new tab · esc close</span>
         </div>
       </div>
     </div>
@@ -482,6 +633,203 @@ function ResultRow({
       >
         {matchedFieldLabel(result.matchedField)}
       </span>
+    </div>
+  );
+}
+
+const savedSectionHeaderStyle = {
+  padding: "8px 16px 4px",
+  fontSize: 10,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+  color: "#999",
+};
+
+const miniKbdStyle = {
+  fontFamily: "monospace",
+  fontSize: 10,
+  padding: "1px 4px",
+  border: "1px solid #EAEAEA",
+  borderRadius: 3,
+  color: "#6B7280",
+};
+
+function SavedQueriesSection({
+  pinned,
+  recent,
+  highlighted,
+  onRun,
+  onTogglePin,
+  onClearRecent,
+}: {
+  pinned: string[];
+  recent: string[];
+  highlighted: number;
+  onRun: (q: string) => void;
+  onTogglePin: (q: string) => void;
+  onClearRecent: () => void;
+}) {
+  // Nothing to show — leave room for the default hint text in
+  // `RecentSection`.
+  if (pinned.length === 0 && recent.length === 0) return null;
+
+  return (
+    <div>
+      {pinned.length > 0 && (
+        <div>
+          <div style={savedSectionHeaderStyle}>Pinned</div>
+          {pinned.map((q, idx) => (
+            <SavedQueryRow
+              key={`pin-${q}`}
+              query={q}
+              kind="pinned"
+              highlighted={highlighted === idx}
+              onRun={onRun}
+              onTogglePin={onTogglePin}
+            />
+          ))}
+        </div>
+      )}
+
+      {pinned.length === 0 && recent.length > 0 && (
+        <div
+          style={{
+            padding: "8px 16px 0",
+            fontSize: 11,
+            color: "#9CA3AF",
+          }}
+        >
+          Press <kbd style={miniKbdStyle}>⌘P</kbd> to pin a query.
+        </div>
+      )}
+
+      {recent.length > 0 && (
+        <div>
+          <div
+            style={{
+              ...savedSectionHeaderStyle,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingRight: 12,
+            }}
+          >
+            <span>Recent</span>
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onClearRecent();
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#9CA3AF",
+                fontSize: 10,
+                fontFamily: "inherit",
+                letterSpacing: "0.04em",
+                textTransform: "none",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          {recent.map((q, idx) => (
+            <SavedQueryRow
+              key={`rec-${q}`}
+              query={q}
+              kind="recent"
+              highlighted={highlighted === pinned.length + idx}
+              onRun={onRun}
+              onTogglePin={onTogglePin}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SavedQueryRow({
+  query,
+  kind,
+  highlighted,
+  onRun,
+  onTogglePin,
+}: {
+  query: string;
+  kind: "pinned" | "recent";
+  highlighted: boolean;
+  onRun: (q: string) => void;
+  onTogglePin: (q: string) => void;
+}) {
+  return (
+    <div
+      role="option"
+      aria-selected={highlighted}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onRun(query);
+      }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "8px 16px",
+        cursor: "pointer",
+        backgroundColor: highlighted ? "#F3F5F9" : "transparent",
+        borderLeft: highlighted
+          ? "2px solid #263c94"
+          : "2px solid transparent",
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          fontSize: 12,
+          width: 16,
+          textAlign: "center",
+          color: kind === "pinned" ? "#D97706" : "#9CA3AF",
+        }}
+      >
+        {kind === "pinned" ? "★" : "⏱"}
+      </span>
+      <span
+        style={{
+          flex: 1,
+          minWidth: 0,
+          fontSize: 13,
+          color: "#171717",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {query}
+      </span>
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onTogglePin(query);
+        }}
+        aria-label={kind === "pinned" ? "Unpin query" : "Pin query"}
+        title={kind === "pinned" ? "Unpin (⌘P)" : "Pin (⌘P)"}
+        style={{
+          background: "transparent",
+          border: "none",
+          padding: "2px 6px",
+          fontSize: 11,
+          color: "#9CA3AF",
+          cursor: "pointer",
+        }}
+      >
+        {kind === "pinned" ? "Unpin" : "Pin"}
+      </button>
     </div>
   );
 }
@@ -760,6 +1108,82 @@ function renderWithHighlights(text: string): string {
       '<mark style="background:#FEF3C7;color:inherit;padding:0 1px;">',
     )
     .replace(/»/g, "</mark>");
+}
+
+// ─── Query-string persistence (recent + pinned) ───────────────────
+
+function loadQueryStore(): QueryStore {
+  if (typeof window === "undefined") return { recent: [], pinned: [] };
+  try {
+    const raw = window.localStorage.getItem(QUERY_STORAGE_KEY);
+    if (!raw) return { recent: [], pinned: [] };
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") {
+      return { recent: [], pinned: [] };
+    }
+    const recent = Array.isArray(parsed.recent)
+      ? parsed.recent.filter(
+          (v: unknown): v is string => typeof v === "string",
+        )
+      : [];
+    const pinned = Array.isArray(parsed.pinned)
+      ? parsed.pinned.filter(
+          (v: unknown): v is string => typeof v === "string",
+        )
+      : [];
+    return {
+      recent: recent.slice(0, RECENT_QUERY_CAP),
+      pinned: pinned.slice(0, PINNED_QUERY_CAP),
+    };
+  } catch {
+    return { recent: [], pinned: [] };
+  }
+}
+
+function saveQueryStore(store: QueryStore) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(QUERY_STORAGE_KEY, JSON.stringify(store));
+  } catch {
+    /* quota exceeded, ignore */
+  }
+}
+
+function upsertRecentQuery(store: QueryStore, raw: string): QueryStore {
+  const q = raw.trim();
+  if (!q) return store;
+  const lower = q.toLowerCase();
+  // Don't duplicate into recent if already pinned.
+  if (store.pinned.some((p) => p.toLowerCase() === lower)) return store;
+  const filtered = store.recent.filter((r) => r.toLowerCase() !== lower);
+  return {
+    ...store,
+    recent: [q, ...filtered].slice(0, RECENT_QUERY_CAP),
+  };
+}
+
+function togglePinnedQuery(store: QueryStore, raw: string): QueryStore {
+  const q = raw.trim();
+  if (!q) return store;
+  const lower = q.toLowerCase();
+  const already = store.pinned.some((p) => p.toLowerCase() === lower);
+  if (already) {
+    return {
+      ...store,
+      pinned: store.pinned.filter((p) => p.toLowerCase() !== lower),
+    };
+  }
+  // Pinning removes from recent (prevents duplicate display).
+  return {
+    recent: store.recent.filter((r) => r.toLowerCase() !== lower),
+    pinned: [q, ...store.pinned].slice(0, PINNED_QUERY_CAP),
+  };
+}
+
+function isQueryPinned(store: QueryStore, raw: string): boolean {
+  const lower = raw.trim().toLowerCase();
+  if (!lower) return false;
+  return store.pinned.some((p) => p.toLowerCase() === lower);
 }
 
 function loadRecents(): RecentItem[] {

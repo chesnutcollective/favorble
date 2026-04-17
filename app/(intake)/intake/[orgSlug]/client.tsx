@@ -483,35 +483,36 @@ function Step1({
           </Field>
         </div>
 
-        <Field id="preferredContact" label={t("intake.step1.preferredContact")}>
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                ["email", t("intake.step1.contactEmail")],
-                ["phone", t("intake.step1.contactPhone")],
-                ["text", t("intake.step1.contactText")],
-              ] as const
-            ).map(([value, label]) => {
-              const active = state.preferredContact === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => set("preferredContact", value)}
-                  className={cn(
-                    "rounded-full border px-4 py-1.5 text-sm transition-colors duration-200",
-                    active
-                      ? "border-transparent text-white"
-                      : "border-border bg-white text-foreground hover:border-[#CCC]",
-                  )}
-                  style={active ? { backgroundColor: BRAND } : undefined}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </Field>
+        <div className="space-y-1.5">
+          <span
+            id="preferredContact-label"
+            className="text-sm font-medium leading-none text-foreground"
+          >
+            {t("intake.step1.preferredContact")}
+          </span>
+          <PillRadioGroup
+            ariaLabelledBy="preferredContact-label"
+            value={state.preferredContact}
+            onChange={(v) =>
+              set("preferredContact", v as PersonalState["preferredContact"])
+            }
+            options={[
+              { value: "email", label: t("intake.step1.contactEmail") },
+              { value: "phone", label: t("intake.step1.contactPhone") },
+              { value: "text", label: t("intake.step1.contactText") },
+            ]}
+            className="flex flex-wrap gap-2"
+            optionClassName={(active) =>
+              cn(
+                "rounded-full border px-4 py-1.5 text-sm transition-colors duration-200",
+                active
+                  ? "border-transparent text-white"
+                  : "border-border bg-white text-foreground hover:border-[#CCC]",
+              )
+            }
+            activeStyle={{ backgroundColor: BRAND }}
+          />
+        </div>
 
         <Field id="address" label={t("intake.step1.address")}>
           <Input
@@ -1205,6 +1206,111 @@ function YesNo({
             style={active ? { backgroundColor: BRAND } : undefined}
           >
             {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Accessible pill-style radio group. Uses ARIA composite roles
+ * (`role="radiogroup"` + `role="radio"` buttons with `aria-checked`).
+ * Supports arrow-key navigation (Left/Right/Up/Down) and Home/End,
+ * and space/enter to select the focused option.
+ */
+function PillRadioGroup({
+  ariaLabelledBy,
+  value,
+  onChange,
+  options,
+  className,
+  optionClassName,
+  activeStyle,
+}: {
+  ariaLabelledBy?: string;
+  ariaLabel?: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+  className?: string;
+  optionClassName: (active: boolean) => string;
+  activeStyle?: React.CSSProperties;
+}) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  function focusSibling(currentIndex: number, delta: number) {
+    const next = (currentIndex + delta + options.length) % options.length;
+    const nodes = containerRef.current?.querySelectorAll<HTMLButtonElement>(
+      '[role="radio"]',
+    );
+    nodes?.[next]?.focus();
+  }
+
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        e.preventDefault();
+        focusSibling(index, 1);
+        onChange(
+          options[(index + 1 + options.length) % options.length].value,
+        );
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        e.preventDefault();
+        focusSibling(index, -1);
+        onChange(
+          options[(index - 1 + options.length) % options.length].value,
+        );
+        break;
+      case "Home":
+        e.preventDefault();
+        focusSibling(index, -index);
+        onChange(options[0].value);
+        break;
+      case "End":
+        e.preventDefault();
+        focusSibling(index, options.length - 1 - index);
+        onChange(options[options.length - 1].value);
+        break;
+      case " ":
+      case "Enter":
+        e.preventDefault();
+        onChange(options[index].value);
+        break;
+    }
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      role="radiogroup"
+      aria-labelledby={ariaLabelledBy}
+      className={className}
+    >
+      {options.map((opt, index) => {
+        const active = value === opt.value;
+        // Roving tabindex: only the selected option (or first option if none
+        // selected) is tabbable. Arrow keys move focus within the group.
+        const isTabbable = active || (!value && index === 0);
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            tabIndex={isTabbable ? 0 : -1}
+            onClick={() => onChange(opt.value)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            className={optionClassName(active)}
+            style={active ? activeStyle : undefined}
+          >
+            {opt.label}
           </button>
         );
       })}

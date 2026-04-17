@@ -238,7 +238,7 @@ function CaseSearchSection({
           className="flex h-7 w-7 items-center justify-center rounded"
           style={{ backgroundColor: BRAND_SOFT, color: BRAND }}
         >
-          <HugeiconsIcon icon={ScanIcon} size={16} />
+          <HugeiconsIcon icon={ScanIcon} size={16} aria-hidden="true" />
         </div>
         <div>
           <h2 className="text-[15px] font-semibold tracking-[-0.2px]">
@@ -255,6 +255,7 @@ function CaseSearchSection({
           icon={Search01Icon}
           size={18}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]"
+          aria-hidden="true"
         />
         <Input
           placeholder="Start typing a claimant name or case number..."
@@ -434,7 +435,7 @@ function InboundQueueSection({
             className="flex h-7 w-7 items-center justify-center rounded"
             style={{ backgroundColor: BRAND_SOFT, color: BRAND }}
           >
-            <HugeiconsIcon icon={InboxIcon} size={16} />
+            <HugeiconsIcon icon={InboxIcon} size={16} aria-hidden="true" />
           </div>
           <div>
             <h2 className="text-[15px] font-semibold tracking-[-0.2px]">
@@ -475,7 +476,7 @@ function InboundQueueSection({
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
                   style={{ backgroundColor: BRAND_SOFT, color: BRAND }}
                 >
-                  <HugeiconsIcon icon={Mail01Icon} size={16} />
+                  <HugeiconsIcon icon={Mail01Icon} size={16} aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
@@ -567,7 +568,7 @@ function OutboundQueueSection({
             className="flex h-7 w-7 items-center justify-center rounded"
             style={{ backgroundColor: BRAND_SOFT, color: BRAND }}
           >
-            <HugeiconsIcon icon={MailSend02Icon} size={16} />
+            <HugeiconsIcon icon={MailSend02Icon} size={16} aria-hidden="true" />
           </div>
           <div>
             <h2 className="text-[15px] font-semibold tracking-[-0.2px]">
@@ -584,7 +585,7 @@ function OutboundQueueSection({
           style={{ backgroundColor: BRAND }}
           onClick={onAddClick}
         >
-          <HugeiconsIcon icon={MailSend02Icon} size={14} className="mr-1.5" />
+          <HugeiconsIcon icon={MailSend02Icon} size={14} className="mr-1.5" aria-hidden="true" />
           Log outbound
         </Button>
       </div>
@@ -614,6 +615,7 @@ function OutboundQueueSection({
                   <HugeiconsIcon
                     icon={delivered ? InboxCheckIcon : DeliveryTruck01Icon}
                     size={16}
+                    aria-hidden="true"
                   />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -736,7 +738,7 @@ function ProcessMailDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={ClipboardIcon} size={18} color={BRAND} />
+            <HugeiconsIcon icon={ClipboardIcon} size={18} color={BRAND} aria-hidden="true" />
             Process inbound mail
           </DialogTitle>
           <DialogDescription>
@@ -926,7 +928,7 @@ function AddOutboundDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={MailSend02Icon} size={18} color={BRAND} />
+            <HugeiconsIcon icon={MailSend02Icon} size={18} color={BRAND} aria-hidden="true" />
             Log outbound mail
           </DialogTitle>
           <DialogDescription>
@@ -977,6 +979,7 @@ function AddOutboundDialog({
                     icon={Search01Icon}
                     size={14}
                     className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#888]"
+                    aria-hidden="true"
                   />
                   <Input
                     placeholder="Search cases..."

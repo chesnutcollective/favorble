@@ -5,6 +5,7 @@ import {
   getCustomLogoUrl,
 } from "@/app/actions/integration-management";
 import { IntegrationDetailClient } from "./client";
+import { BreadcrumbLabel } from "@/components/layout/breadcrumbs";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -31,6 +32,9 @@ export default async function IntegrationDetailPage({ params }: Props) {
   }
 
   return (
-    <IntegrationDetailClient detail={detail} customLogoUrls={customLogoUrls} />
+    <>
+      <BreadcrumbLabel segment={id} label={detail.config.name} />
+      <IntegrationDetailClient detail={detail} customLogoUrls={customLogoUrls} />
+    </>
   );
 }

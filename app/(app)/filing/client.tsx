@@ -318,6 +318,7 @@ export function FilingClient({
                   icon={CheckmarkCircle01Icon}
                   size={28}
                   color={ACCENT}
+                  aria-hidden="true"
                 />
               </div>
               <h3 className="mt-4 text-sm font-semibold">Filing queue clear</h3>
@@ -410,7 +411,7 @@ export function FilingClient({
                             className="inline-flex items-center gap-1"
                             style={{ color: due.color }}
                           >
-                            <HugeiconsIcon icon={Clock01Icon} size={11} />
+                            <HugeiconsIcon icon={Clock01Icon} size={11} aria-hidden="true" />
                             {due.label}
                           </span>
                         </TableCell>
@@ -448,6 +449,7 @@ export function FilingClient({
                               icon={Sent02Icon}
                               size={12}
                               className="mr-1"
+                              aria-hidden="true"
                             />
                             File Now
                           </Button>
@@ -476,7 +478,7 @@ export function FilingClient({
         <aside className="space-y-4">
           <div className="rounded-md border bg-white p-4">
             <div className="flex items-center gap-2">
-              <HugeiconsIcon icon={RocketIcon} size={16} color={ACCENT} />
+              <HugeiconsIcon icon={RocketIcon} size={16} color={ACCENT} aria-hidden="true" />
               <h2 className="text-sm font-semibold" style={{ color: ACCENT }}>
                 Quick Actions
               </h2>
@@ -523,7 +525,7 @@ export function FilingClient({
           <div className="rounded-md border bg-white p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={File01Icon} size={16} color={ACCENT} />
+                <HugeiconsIcon icon={File01Icon} size={16} color={ACCENT} aria-hidden="true" />
                 <h2 className="text-sm font-semibold" style={{ color: ACCENT }}>
                   Application Templates
                 </h2>
@@ -584,6 +586,7 @@ export function FilingClient({
                         icon={Copy01Icon}
                         size={12}
                         className="mr-1"
+                        aria-hidden="true"
                       />
                       Use Template
                     </Button>
@@ -663,7 +666,7 @@ export function FilingClient({
               onClick={handleConfirmFile}
               style={{ backgroundColor: ACCENT, color: "#ffffff" }}
             >
-              <HugeiconsIcon icon={Sent02Icon} size={12} className="mr-1" />
+              <HugeiconsIcon icon={Sent02Icon} size={12} className="mr-1" aria-hidden="true" />
               Confirm & File
             </Button>
           </DialogFooter>
@@ -701,7 +704,7 @@ function MetricCard({
           className="flex h-6 w-6 items-center justify-center rounded-full"
           style={{ backgroundColor: `${color}1A` }}
         >
-          <HugeiconsIcon icon={icon} size={12} color={color} />
+          <HugeiconsIcon icon={icon} size={12} color={color} aria-hidden="true" />
         </div>
       </div>
       <p

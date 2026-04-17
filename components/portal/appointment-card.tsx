@@ -167,7 +167,7 @@ export function AppointmentCard({
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 text-[13px] font-medium text-foreground/60">
-              <Clock className="size-3.5" />
+              <Clock className="size-3.5" aria-hidden="true" />
               {formatTime(appointment.startAt)}
               {appointment.endAt
                 ? ` – ${formatTime(appointment.endAt)}`
@@ -179,13 +179,13 @@ export function AppointmentCard({
             </span>
             {appointment.attendanceRequired ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[12px] font-semibold text-amber-900">
-                <AlertTriangle className="size-3" />
+                <AlertTriangle className="size-3" aria-hidden="true" />
                 Attendance required
               </span>
             ) : null}
             {confirmedAt ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[12px] font-semibold text-emerald-900">
-                <CheckCircle2 className="size-3" />
+                <CheckCircle2 className="size-3" aria-hidden="true" />
                 Confirmed
               </span>
             ) : null}
@@ -197,7 +197,7 @@ export function AppointmentCard({
 
           {appointment.clientLocationText ? (
             <p className="flex items-start gap-2 text-[15px] text-foreground/70">
-              <MapPin className="mt-0.5 size-4 shrink-0" />
+              <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>{appointment.clientLocationText}</span>
             </p>
           ) : null}
@@ -230,7 +230,7 @@ export function AppointmentCard({
             }
             className="inline-flex items-center gap-1.5 rounded-full bg-[#104e60] px-4 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <CheckCircle2 className="size-4" />
+            <CheckCircle2 className="size-4" aria-hidden="true" />
             {confirmedAt ? "Confirmed" : isConfirmPending ? "Confirming..." : "Confirm"}
           </button>
 
@@ -240,7 +240,7 @@ export function AppointmentCard({
             disabled={isImpersonating}
             className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D8] bg-white px-4 py-2 text-[14px] font-medium text-foreground/80 hover:border-[#CCC] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <MessageSquareWarning className="size-4" />
+            <MessageSquareWarning className="size-4" aria-hidden="true" />
             Request reschedule
           </button>
 
@@ -249,7 +249,7 @@ export function AppointmentCard({
             onClick={() => triggerIcsDownload(appointment)}
             className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D8] bg-white px-4 py-2 text-[14px] font-medium text-foreground/80 hover:border-[#CCC]"
           >
-            <CalendarPlus className="size-4" />
+            <CalendarPlus className="size-4" aria-hidden="true" />
             Add to calendar
           </button>
         </div>
@@ -260,7 +260,7 @@ export function AppointmentCard({
             onClick={() => triggerIcsDownload(appointment)}
             className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D8] bg-white px-4 py-2 text-[14px] font-medium text-foreground/80 hover:border-[#CCC]"
           >
-            <CalendarPlus className="size-4" />
+            <CalendarPlus className="size-4" aria-hidden="true" />
             Add to calendar
           </button>
         </div>

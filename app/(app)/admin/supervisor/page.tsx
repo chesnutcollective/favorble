@@ -154,7 +154,7 @@ function SummaryCard({
               color: COLORS.brand,
             }}
           >
-            <HugeiconsIcon icon={icon} size={18} color={COLORS.brand} />
+            <HugeiconsIcon icon={icon} size={18} color={COLORS.brand} aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
             <p
@@ -179,7 +179,7 @@ function SummaryCard({
         <Button asChild variant="outline" size="sm" className="self-start">
           <Link href={href}>
             {cta}
-            <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" aria-hidden="true" />
           </Link>
         </Button>
       </CardContent>

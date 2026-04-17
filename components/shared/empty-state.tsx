@@ -31,7 +31,7 @@ export function EmptyState({
         className,
       )}
     >
-      <HugeiconsIcon icon={icon} size={24} className="text-muted-foreground" />
+      <HugeiconsIcon icon={icon} size={24} className="text-muted-foreground" aria-hidden="true" />
       <h3 className="mt-4 text-[14px] font-medium text-foreground">{title}</h3>
       <p className="mt-1 max-w-sm text-[13px] text-muted-foreground">{description}</p>
       {action && <div className="mt-4">{action}</div>}

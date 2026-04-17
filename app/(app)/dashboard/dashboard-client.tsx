@@ -72,7 +72,7 @@ function DashboardStatCard({
 }) {
   const isPositive = trend.value >= 0;
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md px-3 sm:px-5 py-3 sm:py-4 hover:border-[#CCC] transition-colors duration-200 flex items-center justify-between min-w-0">
+    <div className="bg-card border border-border rounded-md px-3 sm:px-5 py-3 sm:py-4 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200 flex items-center justify-between min-w-0">
       <div className="flex-1 min-w-0">
         <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#999] mb-1 truncate">
           {label}
@@ -136,7 +136,7 @@ function UrgentQueue({ items }: { items: DashboardData["urgentItems"] }) {
   };
 
   return (
-    <div className="bg-white border-2 border-[#EE0000] rounded-md p-5 hover:border-[#EE0000] transition-colors duration-200 mb-8">
+    <div className="bg-card border-2 border-destructive rounded-md p-5 hover:border-destructive transition-colors duration-200 mb-8">
       <div className="flex items-center justify-between mb-4">
         <div className="text-[12px] font-medium text-[#EE0000] uppercase tracking-[0.04em]">
           Urgent Attention Queue
@@ -177,7 +177,7 @@ function UrgentQueue({ items }: { items: DashboardData["urgentItems"] }) {
 // ---------------------------------------------------------------------------
 function PipelineFunnel({ stages }: { stages: DashboardData["funnelStages"] }) {
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Pipeline Funnel
       </div>
@@ -218,7 +218,7 @@ function WinRateDonut({ data }: { data: DashboardData["winRate"] }) {
   const wonDash = (data.rate / 100) * circumference;
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Overall Win Rate
       </div>
@@ -291,7 +291,7 @@ function DenialReasons({
   reasons: DashboardData["denialReasons"];
 }) {
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Denial Reasons
       </div>
@@ -335,7 +335,7 @@ function AppealsSuccess({
   const best = levels.reduce((a, b) => (a.pct > b.pct ? a : b));
 
   return (
-    <div className="bg-white border border-[#EAEAEA] rounded-md p-5 hover:border-[#CCC] transition-colors duration-200">
+    <div className="bg-card border border-border rounded-md p-5 hover:border-[var(--border-hover,#CCC)] transition-colors duration-200">
       <div className="text-[12px] font-medium text-[#999] uppercase tracking-[0.04em] mb-3">
         Appeals Success Rate by Level
       </div>
@@ -397,10 +397,10 @@ function DateRangeSelector({
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`px-[14px] py-[6px] text-[12px] font-normal border-r border-[#EAEAEA] last:border-r-0 transition-all duration-200 cursor-pointer ${
+          className={`px-[14px] py-[6px] text-[12px] font-normal border-r border-border last:border-r-0 transition-all duration-200 cursor-pointer ${
             value === opt.value
-              ? "bg-[#171717] text-white font-medium"
-              : "bg-white text-[#666] hover:bg-[#F0F0F0]"
+              ? "bg-foreground text-background font-medium"
+              : "bg-card text-muted-foreground hover:bg-muted"
           }`}
         >
           {opt.label}

@@ -80,7 +80,7 @@ function Card({
 }) {
   return (
     <div
-      className={`bg-white border border-[#EAEAEA] rounded-[6px] p-5 transition-colors duration-200 hover:border-[#CCC] ${className}`}
+      className={`bg-card border border-border rounded-[6px] p-5 transition-colors duration-200 hover:border-[var(--border-hover,#CCC)] ${className}`}
     >
       {children}
     </div>

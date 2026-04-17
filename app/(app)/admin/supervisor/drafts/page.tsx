@@ -92,6 +92,7 @@ export default async function SupervisorDraftsPage() {
                 icon={ArrowLeft01Icon}
                 size={14}
                 className="mr-1"
+                aria-hidden="true"
               />
               Supervisor hub
             </Link>

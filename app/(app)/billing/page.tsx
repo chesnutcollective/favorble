@@ -83,13 +83,13 @@ export default async function BillingPage() {
           <div className="flex items-center gap-2">
             <Button asChild variant="outline" size="sm">
               <Link href="/billing/time">
-                <HugeiconsIcon icon={PlusSignIcon} size={14} />
+                <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
                 New Time Entry
               </Link>
             </Button>
             <Button asChild size="sm" style={{ backgroundColor: PRIMARY }}>
               <Link href="/billing/invoices">
-                <HugeiconsIcon icon={PlusSignIcon} size={14} />
+                <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
                 New Invoice
               </Link>
             </Button>
@@ -120,7 +120,7 @@ export default async function BillingPage() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold flex items-center gap-2">
-                <HugeiconsIcon icon={Clock01Icon} size={16} color={PRIMARY} />
+                <HugeiconsIcon icon={Clock01Icon} size={16} color={PRIMARY} aria-hidden="true" />
                 Time Entries
               </h2>
               <Link
@@ -157,6 +157,7 @@ export default async function BillingPage() {
                   icon={DollarCircleIcon}
                   size={16}
                   color={PRIMARY}
+                  aria-hidden="true"
                 />
                 Expenses
               </h2>
@@ -210,7 +211,7 @@ export default async function BillingPage() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold flex items-center gap-2">
-                <HugeiconsIcon icon={Invoice01Icon} size={16} color={PRIMARY} />
+                <HugeiconsIcon icon={Invoice01Icon} size={16} color={PRIMARY} aria-hidden="true" />
                 Invoices
               </h2>
               <Link

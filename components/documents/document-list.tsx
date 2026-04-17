@@ -15,6 +15,7 @@ import {
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatFileSize, getFileIconType } from "@/lib/storage/client";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,15 @@ type DocumentListProps = {
   reprocessingId?: string | null;
   sourceFilter?: string | null;
   onSourceFilterChange?: (source: string | null) => void;
+  /** Optional bulk-select wiring. Pass selection state + toggles from
+   * `useBulkSelect` to show a checkbox column + select-all header. */
+  selection?: {
+    isSelected: (id: string) => boolean;
+    toggle: (id: string, event?: { shiftKey?: boolean }) => void;
+    isAllSelected: boolean;
+    isSomeSelected: boolean;
+    toggleAll: () => void;
+  };
 };
 
 const SOURCE_LABELS: Record<string, { label: string; icon: IconSvgElement }> = {
@@ -72,6 +82,7 @@ export function DocumentList({
   reprocessingId,
   sourceFilter,
   onSourceFilterChange,
+  selection,
 }: DocumentListProps) {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
@@ -132,6 +143,7 @@ export function DocumentList({
             size={24}
             color="#999"
             className="mx-auto"
+            aria-hidden="true"
           />
           <p className="mt-2 text-[13px] text-[#666]">No documents found</p>
         </div>
@@ -140,6 +152,21 @@ export function DocumentList({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-[#EAEAEA]">
               <tr>
+                {selection && (
+                  <th className="w-10 px-3 py-2.5">
+                    <Checkbox
+                      aria-label="Select all documents"
+                      checked={
+                        selection.isAllSelected
+                          ? true
+                          : selection.isSomeSelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      onCheckedChange={selection.toggleAll}
+                    />
+                  </th>
+                )}
                 <th className="px-4 py-2.5 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Name
                 </th>
@@ -166,8 +193,26 @@ export function DocumentList({
                 return (
                   <tr
                     key={doc.id}
-                    className="border-b border-[#EAEAEA] last:border-b-0 hover:bg-[#F0F0F0] transition-colors duration-200"
+                    data-selected={
+                      selection?.isSelected(doc.id) ? "true" : undefined
+                    }
+                    className="border-b border-[#EAEAEA] last:border-b-0 hover:bg-[#F0F0F0] transition-colors duration-200 data-[selected=true]:bg-accent/30"
                   >
+                    {selection && (
+                      <td
+                        className="w-10 px-3 py-2.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          selection.toggle(doc.id, { shiftKey: e.shiftKey });
+                        }}
+                      >
+                        <Checkbox
+                          aria-label={`Select document ${doc.fileName}`}
+                          checked={selection.isSelected(doc.id)}
+                          tabIndex={-1}
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <FileIcon type={iconType} />
@@ -221,7 +266,7 @@ export function DocumentList({
                           }
                           className="disabled:opacity-30"
                         >
-                          <HugeiconsIcon icon={EyeIcon} size={16} />
+                          <HugeiconsIcon icon={EyeIcon} size={16} aria-hidden="true" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -235,7 +280,7 @@ export function DocumentList({
                           }
                           className="disabled:opacity-30"
                         >
-                          <HugeiconsIcon icon={Download01Icon} size={16} />
+                          <HugeiconsIcon icon={Download01Icon} size={16} aria-hidden="true" />
                         </Button>
                         {onReprocess && (
                           <Button
@@ -260,6 +305,7 @@ export function DocumentList({
                                   ? "animate-pulse"
                                   : undefined
                               }
+                              aria-hidden="true"
                             />
                           </Button>
                         )}
@@ -275,6 +321,7 @@ export function DocumentList({
                               <HugeiconsIcon
                                 icon={MoreHorizontalIcon}
                                 size={16}
+                                aria-hidden="true"
                               />
                             </Button>
                             {menuOpen === doc.id && (
@@ -295,6 +342,7 @@ export function DocumentList({
                                     <HugeiconsIcon
                                       icon={Delete01Icon}
                                       size={14}
+                                      aria-hidden="true"
                                     />
                                     Delete
                                   </button>
@@ -322,6 +370,7 @@ function FileIcon({ type }: { type: ReturnType<typeof getFileIconType> }) {
       icon={File01Icon}
       size={16}
       className="shrink-0 text-[#666]"
+      aria-hidden="true"
     />
   );
 }

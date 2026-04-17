@@ -45,8 +45,9 @@ export function SSNDisplay({ caseId, maskedSSN }: SSNDisplayProps) {
           onClick={handleToggle}
           disabled={isPending}
           title={revealed ? "Hide SSN" : "Reveal SSN"}
+          aria-label={revealed ? "Hide SSN" : "Reveal SSN"}
         >
-          <HugeiconsIcon icon={revealed ? ViewOffIcon : EyeIcon} size={14} />
+          <HugeiconsIcon icon={revealed ? ViewOffIcon : EyeIcon} size={14} aria-hidden="true" />
         </Button>
       </div>
     </div>

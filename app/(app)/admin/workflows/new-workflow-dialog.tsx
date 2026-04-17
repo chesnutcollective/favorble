@@ -94,7 +94,7 @@ export function NewWorkflowDialog({ stages }: { stages: Stage[] }) {
     >
       <DialogTrigger asChild>
         <Button size="sm">
-          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" />
+          <HugeiconsIcon icon={PlusSignIcon} size={16} className="mr-1" aria-hidden="true" />
           New Workflow
         </Button>
       </DialogTrigger>

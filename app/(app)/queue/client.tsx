@@ -503,6 +503,7 @@ export function QueueClient({
         }}
         role="button"
         tabIndex={0}
+        aria-label={`Open task: ${task.title}`}
       >
         <Checkbox
           className="mt-1"
@@ -516,6 +517,7 @@ export function QueueClient({
             size={16}
             color="rgb(245 158 11)"
             className="mt-0.5 shrink-0"
+            aria-hidden="true"
           />
         ) : (
           <div className="w-4 shrink-0" />
@@ -554,6 +556,7 @@ export function QueueClient({
             icon={Clock01Icon}
             size={12}
             className="text-muted-foreground"
+            aria-hidden="true"
           />
           <span className={`text-xs font-medium ${dueDateInfo.color}`}>
             {dueDateInfo.label}
@@ -666,6 +669,7 @@ export function QueueClient({
               icon={CheckmarkCircle01Icon}
               size={14}
               className="mr-1"
+              aria-hidden="true"
             />
             Complete Selected
           </Button>
@@ -695,6 +699,7 @@ export function QueueClient({
                 icon={CheckmarkCircle01Icon}
                 size={28}
                 className="text-[#1d72b8]"
+                aria-hidden="true"
               />
             </div>
             <h3 className="mt-4 text-sm font-medium text-foreground">
@@ -843,6 +848,7 @@ export function QueueClient({
                       icon={Clock01Icon}
                       size={14}
                       className="text-muted-foreground"
+                      aria-hidden="true"
                     />
                     <span
                       className={`text-sm ${getDueDateInfo(selectedTask.dueDate).color}`}
@@ -907,6 +913,7 @@ export function QueueClient({
                     icon={CheckmarkCircle01Icon}
                     size={14}
                     className="mr-1"
+                    aria-hidden="true"
                   />
                   Complete Task
                 </Button>

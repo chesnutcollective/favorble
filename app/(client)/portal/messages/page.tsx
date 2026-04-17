@@ -77,6 +77,7 @@ export default async function PortalMessagesPage({
         cases={casePicker}
         selectedCaseId={selectedCaseId}
         sendAction={sendPortalMessage}
+        organizationId={session.portalUser.organizationId}
       />
     </div>
   );

@@ -1,8 +1,11 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { ThemeWrapper } from "@/components/layout/theme-wrapper";
 import { TwoTierNav } from "@/components/layout/two-tier-nav";
 import { Header } from "@/components/layout/header";
+import {
+  Breadcrumbs,
+  BreadcrumbsProvider,
+} from "@/components/layout/breadcrumbs";
 import { PageTransition } from "@/components/layout/page-transition";
 import { ViewAsBanner } from "@/components/layout/view-as-banner";
 import { getActiveCaseCount } from "@/app/actions/cases";
@@ -36,7 +39,7 @@ export default async function AppLayout({
   const actorName = `${persona.actor.firstName} ${persona.actor.lastName}`;
 
   return (
-    <ThemeWrapper>
+    <>
       {persona.isViewingAs && (
         <ViewAsBanner
           personaLabel={persona.config.label}
@@ -61,12 +64,17 @@ export default async function AppLayout({
         </Suspense>
         <main className="ttn-main-area">
           <Header />
-          <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-8">
-            <PageTransition>{children}</PageTransition>
-          </div>
+          <BreadcrumbsProvider>
+            <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-8">
+              <div className="mb-2 sm:mb-3">
+                <Breadcrumbs />
+              </div>
+              <PageTransition>{children}</PageTransition>
+            </div>
+          </BreadcrumbsProvider>
         </main>
       </div>
       {isAdmin && <FeedbackWidget />}
-    </ThemeWrapper>
+    </>
   );
 }

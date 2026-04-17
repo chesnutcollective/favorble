@@ -258,6 +258,7 @@ export function ContactsListClient({
             icon={Search01Icon}
             size={16}
             className="absolute left-2.5 top-2.5 text-muted-foreground"
+            aria-hidden="true"
           />
           <Input
             placeholder="Search by name or email..."
@@ -289,7 +290,7 @@ export function ContactsListClient({
         </Select>
         {(search || typeFilter) && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" />
+            <HugeiconsIcon icon={Cancel01Icon} size={12} className="mr-1" aria-hidden="true" />
             Clear
           </Button>
         )}

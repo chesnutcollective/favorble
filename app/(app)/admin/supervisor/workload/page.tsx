@@ -76,6 +76,7 @@ export default async function WorkloadImbalancePage() {
                 icon={ArrowLeft01Icon}
                 size={14}
                 className="mr-1"
+                aria-hidden="true"
               />
               Supervisor hub
             </Link>
@@ -95,6 +96,7 @@ export default async function WorkloadImbalancePage() {
               icon={BalanceScaleIcon}
               size={18}
               color={COLORS.brand}
+              aria-hidden="true"
             />
             <p
               className="text-[12px] leading-5"

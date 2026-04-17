@@ -79,7 +79,7 @@ export function InvoiceHeaderActions({
           download
           rel="noopener"
         >
-          <HugeiconsIcon icon={FileDownloadIcon} size={14} />
+          <HugeiconsIcon icon={FileDownloadIcon} size={14} aria-hidden="true" />
           Download PDF
         </a>
       </Button>
@@ -150,7 +150,7 @@ function SendInvoiceDialog({
     >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={disabled}>
-          <HugeiconsIcon icon={Mail01Icon} size={14} />
+          <HugeiconsIcon icon={Mail01Icon} size={14} aria-hidden="true" />
           Send
         </Button>
       </DialogTrigger>
@@ -283,7 +283,7 @@ function MarkPaidDialog({
           style={{ backgroundColor: COLORS.brand }}
           disabled={disabled}
         >
-          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />
+          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} aria-hidden="true" />
           Mark Paid
         </Button>
       </DialogTrigger>
@@ -476,7 +476,7 @@ export function AddLineItemDialog({
           disabled={disabled}
           className="h-8 text-xs"
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={12} />
+          <HugeiconsIcon icon={PlusSignIcon} size={12} aria-hidden="true" />
           Add Line Item
         </Button>
       </DialogTrigger>
@@ -635,7 +635,7 @@ export function ImportUnbilledTimeButton({
         disabled={disabled || isPending}
         className="h-8 text-xs"
       >
-        <HugeiconsIcon icon={Download01Icon} size={12} />
+        <HugeiconsIcon icon={Download01Icon} size={12} aria-hidden="true" />
         {isPending ? "Importing..." : "Import Unbilled Time"}
       </Button>
       {message && (

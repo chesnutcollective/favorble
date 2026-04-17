@@ -155,6 +155,7 @@ export function DocumentUpload({
           icon={Upload01Icon}
           size={32}
           className="mx-auto text-muted-foreground"
+          aria-hidden="true"
         />
         <p className="mt-2 text-sm text-muted-foreground">
           Drag and drop files here, or{" "}
@@ -214,6 +215,7 @@ export function DocumentUpload({
                 icon={File01Icon}
                 size={16}
                 className="shrink-0 text-muted-foreground"
+                aria-hidden="true"
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">
@@ -227,8 +229,9 @@ export function DocumentUpload({
                 type="button"
                 onClick={() => removeFile(index)}
                 className="shrink-0 text-muted-foreground hover:text-muted-foreground"
+                aria-label={`Remove ${file.name}`}
               >
-                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                <HugeiconsIcon icon={Cancel01Icon} size={16} aria-hidden="true" />
               </button>
             </div>
           ))}
@@ -253,6 +256,7 @@ export function DocumentUpload({
               icon={AlertCircleIcon}
               size={16}
               className="mt-0.5 shrink-0 text-red-500"
+              aria-hidden="true"
             />
             <div className="min-w-0 flex-1">
               {errors.map((err, i) => (
@@ -265,8 +269,9 @@ export function DocumentUpload({
               type="button"
               onClick={clearErrors}
               className="shrink-0 text-red-400 hover:text-red-600"
+              aria-label="Clear errors"
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} aria-hidden="true" />
             </button>
           </div>
         </div>

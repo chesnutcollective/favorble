@@ -95,6 +95,7 @@ export default async function TrustPage() {
                           icon={BankIcon}
                           size={16}
                           color={PRIMARY}
+                          aria-hidden="true"
                         />
                         {a.name}
                       </h3>

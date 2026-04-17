@@ -59,7 +59,7 @@ export default async function TeamChatPage() {
         description="Real-time conversations with your team and case-scoped channels."
         actions={
           <Button size="sm" style={{ backgroundColor: COLORS.brand }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={14} />
+            <HugeiconsIcon icon={PlusSignIcon} size={14} aria-hidden="true" />
             New Channel
           </Button>
         }

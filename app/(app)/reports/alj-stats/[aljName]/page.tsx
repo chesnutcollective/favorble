@@ -81,6 +81,7 @@ export default async function AljDetailPage({ params }: { params: Params }) {
             icon={ArrowLeft01Icon}
             size={14}
             color="currentColor"
+            aria-hidden="true"
           />
           Back to all ALJs
         </Link>
